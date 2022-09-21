@@ -1,0 +1,43 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:meta';
+
+////
+/// @group tools
+////
+
+/// Debugging utility function/mixin
+///
+/// @see https://gist.github.com/piouPiouM/7030210
+///
+/// @example scss
+/// // Use the mixin to debug Scss variables
+/// .whatever-selector {
+///     @include dp-debug('string that is being outputted directly: ' + $dp-some-var, 'another string ' + $another-var);
+/// }
+///
+@function dp-debug($prefix, $vars...) {
+    $result: '';
+    @each $item in $vars {
+        $type: meta.type-of($item);
+        @if 'list' == $type {
+            @debug 'list of #{length($item)} values:';
+            $result: dp-debug('  - ', $item...);
+        } @else {
+            @debug '#{$prefix}(#{$type})  #{$item}';
+        }
+    }
+
+    @return '';
+}
+
+@mixin dp-debug($vars...) {
+    $result: dp-debug('', $vars...);
+}

@@ -1,0 +1,39 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: transition
+//
+//  @improve move to vue <style scoped> once we're ready for that.
+
+//  used to supplement DpTransitionExpand.
+.expand-enter-active,
+.expand-leave-active {
+    transition: height .4s ease-in-out;
+    overflow: hidden;
+}
+
+.expand-enter,
+.expand-leave-to {
+    height: 0;
+}
+
+.slide-fade {
+    &-enter-active {
+        transition: all .3s ease;
+    }
+
+    &-leave-active {
+        transition: all .3s cubic-bezier(1, .5, .8, 1);
+    }
+
+    &-enter,
+    &-leave-to {
+        opacity: 0;
+    }
+}

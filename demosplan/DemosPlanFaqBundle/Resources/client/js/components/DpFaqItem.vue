@@ -1,0 +1,267 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div class="layout--flush u-n-mt-0_25">
+    <div class="layout__item u-4-of-12 u-pv-0_25 o-hellip">
+      {{ faqItem.attributes.title }}
+    </div><!--
+ --><div class="layout__item u-4-of-12  u-pt-0_125">
+      <dp-multiselect
+        track-by="id"
+        multiple
+        :options="permittedGroups"
+        :allow-empty="false"
+        :custom-label="option =>`${option.title}`"
+        data-cy="selectedGroups"
+        :value="selectedGroups"
+        @input="selectGroups">
+        <template v-slot:option="{ option }">
+          <span>{{ option.title }}</span>
+        </template>
+        <template v-slot:tag="props">
+          <span class="multiselect__tag">
+            {{ props.option.title }}
+            <i
+              aria-hidden="true"
+              @click="props.remove(props.option)"
+              tabindex="1"
+              class="multiselect__tag-icon" />
+          </span>
+        </template>
+      </dp-multiselect>
+    </div><!--
+ --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+      <dp-toggle
+        v-model="itemEnabled"
+        class="u-mt-0_125" />
+    </div><!--
+ --><div class="layout__item u-2-of-12 text--center u-pv-0_25">
+      <a
+        class="btn--blank o-link--default u-mh-0_25"
+        :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"
+        :aria-label="Translator.trans('item.edit')"
+        data-cy="editElement">
+        <i
+          class="fa fa-pencil"
+          aria-hidden="true" />
+      </a>
+      <button
+        type="button"
+        @click="deleteFaqItem"
+        data-cy="deleteFaqItem"
+        :aria-label="Translator.trans('item.delete')"
+        class="btn--blank o-link--default u-mh-0_25">
+        <i
+          class="fa fa-trash"
+          aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapMutations, mapState } from 'vuex'
+import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpToggle from '@DemosPlanCoreBundle/components/form/DpToggle'
+import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+
+export default {
+  name: 'DpFaqItem',
+
+  components: {
+    DpMultiselect,
+    DpToggle
+  },
+
+  props: {
+    faqItem: {
+      type: Object,
+      required: true
+    },
+
+    parentId: {
+      type: String,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      groups: [
+        {
+          title: Translator.trans('role.fp'),
+          id: 'fpVisible'
+        },
+        {
+          title: Translator.trans('institution'),
+          id: 'invitableInstitutionVisible',
+          permission: 'feature_institution_participation'
+        },
+        {
+          title: Translator.trans('guest.citizen'),
+          id: 'publicVisible'
+        }
+      ],
+      /**
+       * This fifo-queue performs all API request in order. If a request should be performed an API request has to be pushed
+       * to the end of the queue.
+       * The request MUST be set in a reactive way.
+       * The request MUST be a function returning a Promise.
+       * example
+       * let request = () => Promise.resolve(true)
+       * this.queue.push(request)
+       * see the queue-watcher for implementation details
+       */
+      queue: []
+    }
+  },
+
+  computed: {
+    ...mapState('faq', {
+      faqItems: 'items'
+    }),
+    ...mapState('faqCategory', {
+      faqCategories: 'items'
+    }),
+    ...mapState('role', {
+      roles: 'items'
+    }),
+
+    currentParentItem () {
+      return this.faqCategories[this.parentId]
+    },
+
+    itemEnabled: {
+      get () {
+        return this.faqItems[this.faqItem.id].attributes.enabled
+      },
+
+      set (val) {
+        if (val !== this.faqItem.attributes.enabled) {
+          const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
+          faqCpy.attributes.enabled = val
+
+          this.updateFaq({ ...faqCpy, id: faqCpy.id })
+          const saveAction = () => {
+            return this.saveFaq(this.faqItem.id).then(() => {
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            }).catch(() => {
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
+          }
+
+          this.queue.push(saveAction)
+        }
+      }
+    },
+
+    // Groups filtered by enabled (or non existent) permissions
+    permittedGroups () {
+      return this.groups.filter(group => hasOwnProp(group, 'permission') ? hasPermission(group.permission) : true)
+    },
+
+    selectedGroups () {
+      return this.permittedGroups.filter(group => this.visibilities[group.id])
+    },
+
+    visibilities () {
+      const faq = this.faqItem.attributes
+      return {
+        fpVisible: faq.fpVisible,
+        invitableInstitutionVisible: faq.invitableInstitutionVisible,
+        publicVisible: faq.publicVisible
+      }
+    }
+  },
+
+  watch: {
+    queue (newQueue) {
+      if (newQueue.length) {
+        newQueue[0]().finally(() => {
+          newQueue.shift()
+          this.queue = newQueue
+        })
+      }
+    }
+  },
+
+  methods: {
+    ...mapActions('faq', {
+      deleteFaq: 'delete',
+      saveFaq: 'save'
+    }),
+    ...mapMutations('faq', {
+      updateFaq: 'setItem'
+    }),
+    ...mapMutations('faqCategory', {
+      updateCategory: 'setItem'
+    }),
+
+    selectGroups (val) {
+      console.log('valval', val)
+      const selectedGroups = val.reduce((acc, group) => {
+        return {
+          ...acc,
+          ...{ [group.id]: true }
+        }
+      }, {})
+      let newSelection = {}
+      this.permittedGroups.forEach(group => {
+        newSelection = selectedGroups[group.id] ? newSelection : { ...newSelection, ...{ [group.id]: false } }
+      })
+
+      newSelection = { ...newSelection, ...selectedGroups }
+
+      const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
+      faqCpy.attributes = { ...faqCpy.attributes, ...newSelection }
+
+      /**
+       * Weirdly the input event seems to be fired on initial load of the vue multiselect.
+       * Therefore, a check is implemented which confirms if the item has changed at all.
+       * If the item hasn't changed, the update is not triggered.
+       * @type {boolean}
+       */
+      const hasChangedAttributes = Object.entries(faqCpy.attributes).filter(([key, value]) => {
+        return this.faqItem.attributes[key] !== value
+      }).length !== 0
+      if (hasChangedAttributes === true) {
+        this.updateFaq({ ...faqCpy, id: faqCpy.id })
+        const saveAction = () => {
+          return this.saveFaq(this.faqItem.id).then(() => {
+            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          }).catch(() => {
+            dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          })
+        }
+
+        this.queue.push(saveAction)
+      }
+    },
+
+    deleteFaqItem () {
+      if (dpconfirm(Translator.trans('check.item.delete'))) {
+        const categoryCpy = JSON.parse(JSON.stringify(this.currentParentItem))
+
+        categoryCpy.relationships.faq.data = categoryCpy.relationships.faq.data.filter(item => item.id !== this.faqItem.id)
+
+        this.updateCategory({ ...categoryCpy, id: categoryCpy.id, group: null })
+
+        const deleteAction = () => {
+          return this.deleteFaq(this.faqItem.id).then(() => {
+            dplan.notify.notify('confirm', Translator.trans('confirm.faq.deleted'))
+          })
+        }
+
+        this.queue.push(deleteAction())
+      }
+    }
+  }
+}
+</script>

@@ -1,0 +1,70 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+//  component: toc
+//
+//  used to render an expandable menu tree structure
+
+//  variables
+$toc-toggle-icon-color: $dp-token-color-brand-link-alt !default;
+$toc-toggle-icon-color-hover: $dp-token-color-brand-link-hover !default;
+
+.c-toc {
+
+    margin: 0 0 $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
+
+    list-style: none;
+
+    li {
+        margin: math.div($inuit-base-spacing-unit--tiny, 2) 0;
+        overflow-wrap: break-word;
+
+        hyphens: auto;
+    }
+
+    a {
+        @include keyboard-focus($padded: true);
+    }
+
+    &--level-0 {
+        @extend %weight--bold;
+        margin: 0;
+
+        > li {
+            margin-bottom: $inuit-base-spacing-unit--tiny;
+        }
+    }
+
+    &--level-1 {
+        @extend %weight--normal;
+    }
+
+    &--level-3 {
+        font-style: italic;
+    }
+
+    &--level-4 {
+        font-style: normal;
+    }
+
+    &__toggle-icon {
+        color: $toc-toggle-icon-color;
+        cursor: pointer;
+
+        @if ($transition-nav == true) {
+            transition: color #{$transition-speed-style-delay}, background-color #{$transition-speed-style-delay};
+        }
+
+        &:hover {
+            color: $toc-toggle-icon-color-hover;
+        }
+    }
+}

@@ -1,0 +1,178 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  The Tab component is used to display tabbed content in detail page of participation area
+//
+//  @deprecated Move to DpTabs
+//
+//  Do not use if...
+//  - stuff inside tabs may vary
+//  - stuff inside tabs is crucial content
+//  – users may be able to explore content
+// See https://baymard.com/blog/avoid-horizontal-tabs
+
+//  placeholders
+%tabs-btn-color {
+    background-color: $dp-token-color-brand-main;
+    color: $dp-token-color-brand-main-contrast;
+}
+
+%tabs-btn-color-active {
+    background-color: $dp-color-white;
+    color: $dp-token-color-brand-highlight;
+}
+
+// Contains tab-nav. Tab content is a sibling of .c-tabs.
+.c-tabs {
+
+    background-color: $dp-token-color-brand-alt;
+
+    &__title {
+        display: inline-block;
+
+        list-style: none;
+        text-align: center;
+
+        &,
+        &:visited {
+            @extend %tabs-btn-color;
+        }
+
+        &.is-active-tab,
+        &:hover {
+            .js & {
+                @extend %tabs-btn-color-active;
+            }
+        }
+    }
+
+    &__title-button {
+        @extend %btn-base;
+        @include keyboard-focus;
+
+        margin: 0;
+
+        @include media-query('lap-down') {
+            padding: 10px 8px;
+        }
+
+        @include media-query('desk-up') {
+            padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit;
+        }
+
+        font-size: $dp-token-font-size-large;
+
+        //  no js styles: active state (because there is only one tab in nojs state and this one is highlighted)
+        &,
+        &:visited {
+            @extend %tabs-btn-color-active;
+        }
+
+        //  applying js styles
+        .js & {
+
+            //  ...
+            transition: none;
+
+            &,
+            &:visited {
+                @extend %tabs-btn-color;
+            }
+
+            &:hover {
+                @extend %tabs-btn-color-active;
+            }
+        }
+
+        .is-active-tab & {
+            .js & {
+                @extend %tabs-btn-color-active;
+                pointer-events: none;
+            }
+        }
+    }
+
+    //  single content container
+    &__panel {
+        //  only hide panel by default on js enabled devices
+        .js & {
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            padding: 0;
+        }
+
+        &.is-active-tab {
+            .js & {
+                height: auto;
+                overflow: auto;
+                visibility: visible;
+                padding: $inuit-base-spacing-unit--small;
+            }
+        }
+
+        //  Apply a default padding on all tabs on nojs
+        .nojs & {
+            padding: $inuit-base-spacing-unit--small;
+        }
+    }
+
+    // Tabs inside export modal
+    &__modal {
+        overflow-y: hidden;
+
+        .tab-header {
+            border-bottom: 1px solid $dp-token-color-brand-main;
+
+            .tab {
+                margin: 0;
+                padding: 0;
+
+                background: $dp-color-neutral-light-2;
+                border: none;
+                outline: none;
+
+                line-height: 27px;
+                text-align: center;
+
+                &:not(:last-child) {
+                    margin-right: 1px;
+                }
+
+                &.active,
+                &:hover {
+                    @extend %tabs-btn-color;
+                    background: $dp-token-color-brand-main;
+                }
+            }
+        }
+
+        .tab-context {
+            overflow-y: auto;
+
+            .tab-content {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+
+                fieldset {
+                    border-bottom: 1px solid $dp-color-neutral-light-2;
+                }
+            }
+
+            .submitBtn {
+                bottom: $inuit-base-spacing-unit--tiny * 3;
+                position: absolute;
+                right: $inuit-base-spacing-unit--tiny * 3;
+            }
+        }
+    }
+}

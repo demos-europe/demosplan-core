@@ -1,0 +1,20 @@
+{% block body_plain %}
+
+Liebe Moderation,
+
+{% if templateVars.isNew is defined and templateVars.isNew == true %}
+im Weiterentwicklungsbereich des virtuellen Anwenderbeirats wurde eine neuer Beitrag veröffentlicht
+{% else %}
+im Weiterentwicklungsbereich des virtuellen Anwenderbeirats wurde ein Beitrag aktualisiert.
+{% endif %}
+
+User Story: {{ templateVars.userStory.title|default('')|wysiwyg }}
+Beitrag: {{ templateVars.text|default('')|wysiwyg }}
+
+Freundliche Grüße
+
+
+-------------
+Sie erhalten diese E-Mail, weil Sie die Rolle "Moderator" besitzen. Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

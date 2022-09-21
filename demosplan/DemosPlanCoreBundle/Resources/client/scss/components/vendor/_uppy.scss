@@ -1,0 +1,30 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@import '~@uppy/core/dist/style.css';
+@import '~@uppy/drag-drop/dist/style.css';
+@import '~@uppy/progress-bar/dist/style.css';
+
+.uppy-DragDrop--isDragDropSupported {
+    border: 2px dashed $dp-color-neutral-light-2;
+    background: #f7f7f7;
+}
+
+.uppy-DragDrop-inner {
+    padding: 20px;
+    width: 100%;
+}
+
+.uppy-DragDrop-arrow {
+    fill: $dp-color-neutral-base;
+}
+
+.uppy-Root.is-invalid {
+    border: 2px solid $dp-color-system-error;
+}

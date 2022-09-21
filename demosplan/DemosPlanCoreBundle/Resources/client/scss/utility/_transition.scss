@@ -1,0 +1,21 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Transition classes for vue transitions
+
+.transition-fade-in-enter-active,
+.transition-fade-in-leave-active {
+    transition: all 1s;
+}
+
+.transition-fade-in-enter,
+.transition-fade-in-leave-to {
+    max-height: 40px;
+    opacity: 1;
+}

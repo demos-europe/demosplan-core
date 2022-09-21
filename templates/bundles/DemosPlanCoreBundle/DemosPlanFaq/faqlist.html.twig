@@ -1,0 +1,90 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': "faq"|trans
+    }%}
+
+        {% block aside %}
+
+            {# sticky nav for faq categories #}
+            {% if templateVars.list|length > 1 %}
+                <nav
+                    class="{{ 'o-sticky'|prefixClass }}"
+                    data-sticky="desk-up"
+                    data-sticky-offset="24"
+                    data-sticky-context="scFaq"
+                    aria-labelledby="faqHeading"
+                    role="navigation"
+                >
+                    <h2 id="faqHeading" class="{{ 'u-mb-0_25'|prefixClass }}">
+                        {{ 'topics'|trans }}
+                    </h2>
+                    <ul class="{{ 'list-style-none'|prefixClass }}">
+                        {# @improve T11733 use slugify #}
+                        {% for category in templateVars.list|keys %}
+                            <li>
+                                <a
+                                    class="{{ 'o-link--default'|prefixClass }}"
+                                    href="#{{ 'topic'|trans|lower }}-{{ loop.index }}"
+                                    data-highlight-current>
+                                    {{ templateVars.list[category].label }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        {% endblock %}
+
+        {% block content %}
+
+            <div id="scFaq" class="{{ 'layout__item u-1-of-1 u-3-of-4-lap-up u-pl-0'|prefixClass }}">
+
+                <p class="{{ 'u-pt-0_5-palm'|prefixClass }}">{{ "faq.introduction"|trans }}</p>
+                {# content #}
+                {% for category in templateVars.list|keys %}
+                    <article id="{{ 'topic'|trans|lower }}-{{ loop.index }}" class="{{ 'o-toggle u-pt-0_5-palm u-pt-lap-up'|prefixClass }}">
+                        <h2 class="{{ 'border--bottom u-pb-0_5'|prefixClass }}">{{ templateVars.list[category].label }}</h2>
+                        <dl class="{{ 'u-mv-0_5 u-pr'|prefixClass }}">
+                        {% for faq in templateVars.list[category].faqlist %}
+                            <dt class="{{ 'u-mt-0_5'|prefixClass }}">
+                                <button
+                                    type="button"
+                                    class="{{ 'o-link--default o-toggle__trigger text--left js__toggleAnything'|prefixClass }}"
+                                    data-toggle="#{{ faq.id }}"
+                                    data-toggle-container=".o-toggle"
+                                    aria-controls="infolistContentNews"
+                                    aria-expanded="false"
+                                >
+                                    <i class="{{ 'o-toggle__icon'|prefixClass }}" aria-hidden="true"></i>
+                                    <span class="{{ 'hide-visually'|prefixClass }}">
+                                        {{ 'aria.toggle'|trans }}
+                                    </span>
+                                    {{ faq.title|wysiwyg }}
+                                </button>
+                            </dt>
+                            <dd class="{{ 'overflow-hidden u-m-0'|prefixClass }}">
+                                <div class="{{ 'o-toggle__target u-pv-0_25'|prefixClass }}" data-toggle-id="{{ faq.id }}">
+                                    {{ faq.text|wysiwyg }}
+                                </div>
+                            </dd>
+                        {% endfor %}
+                        </dl>
+                    </article>
+                {% endfor %}
+
+            </div>
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('faq-faqlist.js') }}
+{% endblock javascripts %}

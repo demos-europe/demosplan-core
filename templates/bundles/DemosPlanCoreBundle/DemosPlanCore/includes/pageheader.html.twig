@@ -1,0 +1,96 @@
+{# determine where to show metamenu with 'Verfahren exportieren' and 'Stellungnahmen' menus #}
+{% if
+    hideMetaMenu is not defined and
+    (
+        procedure is defined and
+        procedure is not null and
+        (
+                hasPermission('area_statements') or hasPermission('area_admin_assessmenttable')
+        )
+    )
+%}
+    {% set hasMetaMenu = true  %}
+{% else %}
+    {% set hasMetaMenu = false %}
+{% endif %}
+
+{%- apply spaceless %}
+
+    <header class="{{ 'c-pageheader o-page__padded'|prefixClass }} {{ cssClasses|default|prefixClass }}">
+
+        {% if full_width|default(false) != true %}
+            {# link in left corner of pageheader #}
+            <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 cf u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+
+                {# additional link to be inserted via link_caption / link #}
+                {% if link_caption|default != '' %}
+                    <a
+                        class="{{ 'c-pageheader__link'|prefixClass }}"
+                        data-cy="backTo"
+                        href="{{ link }}">
+                        <i class="{{ 'fa fa-lg fa-angle-left'|prefixClass }}" aria-hidden="true"></i> {{ link_caption|default }}
+                    </a>
+                {% endif %}
+
+                {% if hasMetaMenu %}
+
+                    {# export procedure #}
+                    {% if hasPermission('feature_admin_export_procedure') and hasPermission('feature_admin_export_procedure_in_detail_view') %}
+                        <a
+                            class="{{ 'c-pageheader__link u-ml-0_75'|prefixClass }}"
+                            target="_blank"
+                            rel="noopener"
+                            href="{{ path('DemosPlan_procedure_export', { 'procedure': procedure }) }}">
+                            <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
+                            <span class="{{ 'u-ml-0_25'|prefixClass }}">{{ "procedure.export"|trans }}</span>
+                        </a>
+                    {% endif %}
+
+                    {# statement submenu flyout #}
+                    {% include '@DemosPlanCore/DemosPlanCore/proceduremenu_statements.html.twig' %}
+
+                    {# planners get a link to edit their own procedure here #}
+                    {% if
+                        procedure|default != '' and
+                        hasPermission('area_main_procedures') and
+                        hasPermission('area_preferences') and
+                        hasPermission('area_admin') and
+                        ownsProcedure(proceduresettings)
+                    %}
+                        <a class="{{ 'btn btn--outline-reversed btn--primary btn--rounded float--right u-mt-0_25 u-mr'|prefixClass }}" href="{{ path('DemosPlan_procedure_dashboard', {'procedure': procedure}) }}">
+                            <i class="{{ 'fa fa-pencil u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.edit'|trans }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        {% endif %}
+
+        {# heading area #}
+
+        {% if hasMetaMenu %}
+            {% set classes = 'u-mb-0_5' %}
+        {% else %}
+            {% set classes = 'u-mv-0_5' %}
+        {% endif %}
+
+        <div class="{{ (classes ~ ' ' ~ width_css.col2|default('u-3-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down u-pr u-pl-lap-up u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+
+            {# heading #}
+            <h1 class="{{ 'c-pageheader__title o-hellip display--block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
+            >
+                {{ content_heading|wysiwyg }}
+            </h1>
+
+            {# subheading #}
+            {% if content_subheading|default != '' %}
+                <div class="{{ 'display--inline-block u-mt-0_25'|prefixClass }}">
+                    {{ content_subheading|wysiwyg }}
+                </div>
+            {% endif %}
+
+        </div>
+
+    </header>
+
+{% endapply -%}

@@ -1,0 +1,108 @@
+{# Kompakt nicht anonym #}
+{% block content %}
+    % {{ "considerationtable"|trans }}: 1. Zeile setzt die Spalten
+	\begin{longtable}{|p{6cm}|p{6.5cm}p{13cm}|}
+		\hline
+			% Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
+			\textbf{{ '{' }}{{ "nr"|trans }}: {{ statement.externIdString|latex }}{{ '}' }} & \multicolumn{2}{l|}{{ '{' }}\textbf{{ '{' }}{{ "details"|trans|latex|raw }}{{ '}' }}{{ '}' }}\\
+		\hline
+            {% block orgaData %}
+                 {{ "date.submitted"|trans|latex|raw }}: {{ statement.authoredDateDisplay|default() }} &
+                 {# cluster only #}
+                 {% if statement.meta is defined and  statement.meta.userState is defined and statement.meta.userState != '' %}
+                   & {{ "state"|trans|latex|raw }}: & {{ statement.meta.userState }} \\
+                 {% endif %}
+                 {% if statement.meta is defined and  statement.meta.userGroup is defined and statement.meta.userGroup != '' %}
+                   & {{ "group"|trans|latex|raw }}: & {{ statement.meta.userGroup }} \\
+                 {% endif %}
+                 {% if statement.meta is defined and  statement.meta.userOrganisation is defined and statement.meta.userOrganisation != '' %}
+                   & {{ "organisation"|trans|latex|raw }}: & {{ statement.meta.userOrganisation }} \\
+                 {% endif %}
+                 {% if statement.meta is defined and  statement.meta.userPosition is defined and statement.meta.userPosition != '' %}
+                   & {{ "position"|trans|latex|raw }}: & {{ statement.meta.userPosition }} \\
+                 {% endif %}
+                 {% if statement.clusteredInstitutions is defined %}
+                    {{ 'cluster'|trans|latex }}
+                    {% for institution, users in statement.clusteredInstitutions %}{% if not loop.first %}& {% endif %}& {{ institution|default|latex|raw }} {{ users|default([])|join(', ')|latex|raw }} \\
+                    {% endfor %}
+                 {% else %}
+                    {# No Cluster #}
+                    {# Toeb statement #}
+                    {% if 'internal' == statement.publicStatement|default %}
+                        {{ "institution"|trans|latex|raw }}: & {{ statement.orgaName|default("notspecified"|trans)|latex|raw }} {{ statement.orgaDepartmentName|default|latex|raw }} {{ statement.submitName|default }}\\
+                    {% else %}
+                        {# public statement #}
+                        {# Only display Orga Name if different from "Bürger"  #}
+                        {{ "author"|trans|latex|raw }}: & {% if statement.isSubmittedByCitizen == false %}{{ statement.orgaName|default("notspecified"|trans)|latex|raw }} {% endif %}{{ statement.authorName|default|latex|raw }} \\
+                    {% endif %}
+                 {% endif %}
+
+                {% if statement.metaDataOfClusteredStatements is defined %}
+                    & {{ 'nr'|trans|latex }}
+                    & {{ statement.metaDataOfClusteredStatements|default([])|join(' | ') }} \\
+                {% endif %}
+            {% endblock %}
+            {% if statement.name is defined and statement.name != '' %}
+                {% if statement.isClusterStatement is defined and statement.isClusterStatement == true %}
+                    & {{ "cluster.name"|trans|latex|raw }}: & {{ statement.name|latex }} \\
+                {% else  %}
+                    & {{ "name"|trans|latex|raw }}: & {{ statement.name|latex }} \\
+                {% endif %}
+            {% endif %}
+    {% if hasPermission('field_statement_public_allowed') %}&{{ "publish.on.platform"|trans|latex|raw }}: & {{ statement.publicVerifiedTranslation|trans|latex|raw }}\\{% endif %}
+         {% if statement.votesNum > 0 %}&{{ "voters"|trans|latex|raw }}: &{{ statement.votesNum|trans|latex|raw}} {% if statement.votesNum == 1 %}{{ "person"|trans|latex|raw }}\\{% else %}{{ "persons"|trans|latex|raw }}\\{% endif %}{% endif %}
+         {% if hasPermission('feature_statements_like') and statement.publicAllowed %}
+             {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
+                 & {{ "liked.by"|trans|latex|raw }}: & {% if statement.likesNum is defined and statement.likesNum  == 1 %}{{ statement.likesNum }} {{ "person"|trans|latex|raw }}{% else %}{{ statement.likesNum|default(0) }} {{ "persons"|trans|latex|raw }}{% endif %}\\
+             {% endif %}
+         {% endif %}
+         {% if statement.elementTitle is defined and statement.elementTitle != '' %} & {{ "document"|trans }}: & {{ statement.elementTitle|latex|raw }}{% if statement.document is defined and statement.documentTitle != '' %} / {{ statement.documentTitle|latex|raw }} {% endif %}\\{% endif %}
+         {% if statement.paragraphTitle is defined and statement.paragraphTitle != '' %} & {{ "paragraph"|trans }}: & {{ statement.paragraphTitle|latex|raw }}\\{% endif %}
+         {% for attachment in statement.attachments %} & {{ "attachment.original"|trans }}: & {{ attachment.file.filename|latex|raw }}\\{% endfor %}
+         {% if statement.files|default([])|length > 0 %}{% for file in statement.files %} & {{ "file"|trans }}: & {{ file|getFile('name')|latex|raw }}\\{% endfor %}{% endif %}
+         {% if statement.mapFile is defined and statement.mapFile != "" and statement.mapFile != "---" %}
+            &{{ "priorityArea.datasheet.map_view"|trans }} {{ "existing"|trans }}\\
+         {% endif %}
+            {% if statement.meta is defined and  statement.meta.userState is defined and statement.meta.userState != '' %}
+                & {{ "state"|trans|latex|raw }}: & {{ statement.meta.userState }} \\
+            {% endif %}
+            {% if statement.meta is defined and  statement.meta.userGroup is defined and statement.meta.userGroup != '' %}
+                & {{ "group"|trans|latex|raw }}: & {{ statement.meta.userGroup }} \\
+            {% endif %}
+            {% if statement.meta is defined and  statement.meta.userOrganisation is defined and statement.meta.userOrganisation != '' %}
+                & {{ "organisation"|trans|latex|raw }}: & {{ statement.meta.userOrganisation }} \\
+            {% endif %}
+            {% if statement.meta is defined and  statement.meta.userPosition is defined and statement.meta.userPosition != '' %}
+                & {{ "position"|trans|latex|raw }}: & {{ statement.meta.userPosition }} \\
+            {% endif %}
+{% block priority %}{% endblock %}
+        \hline
+    \end{longtable}
+  {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
+      \verb|{{ "statement.moved"|trans({ name: statement.movedToProcedureName })|latex }}|
+  {% else %}
+    {% if isOriginal is defined and isOriginal == true %}
+
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+        \ParallelLText{{ '{' }} \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }}{{ '}' }}
+        \ParallelRText{{ '{' }}{{ '}' }}
+        \end{Parallel}
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \ParallelRText{{ '{' }}{{ '}' }}
+        \end{Parallel}
+
+    {% else %}
+
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
+        \ParallelLText{{ '{' }}\textbf{{ '{' }}{{ statement.type|default("statement")|trans|latex|raw }}{{ '}' }}{{ '}' }}
+        \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ "considerationadvice"|trans|latex|raw }}{{ '}' }}{{ '}' }}
+        \end{Parallel}
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
+        \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \ParallelRText{{ '{' }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \end{Parallel}
+
+    {% endif %}
+  {% endif %}
+{% endblock %}

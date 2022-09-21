@@ -1,0 +1,190 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+.c-chart {
+    &__svg-wrapper {
+        position: relative;
+
+        padding-bottom: 80%;
+        width: 100%;
+
+        svg {
+            position: absolute;
+            left: 0;
+            top: 0;
+
+            height: 100%;
+            width: 100%;
+
+
+            &.sankey-diagram {
+                left: 25%;
+                width: 50%;
+            }
+        }
+    }
+
+    &__legend {
+        tbody,
+        thead,
+        tr {
+            background: transparent;
+            border-left: none;
+            border-right: none;
+        }
+
+        td {
+            vertical-align: middle;
+
+            padding: 8px 8px 6px;
+
+            background-color: transparent;
+
+            line-height: 16px; // height of the colored squares
+        }
+    }
+
+    &__legend-headline {
+        padding-bottom: 9px;
+        padding-left: 7px;
+
+        background-color: transparent;
+        color: $default-font-color;
+
+        text-align: left;
+    }
+
+    &__legend-content {
+        background-color: transparent;
+        border-top: $dp-border-thickness solid $default-border-color;
+        transition: background-color #{$transition-speed-style-delay};
+
+        & .is-hidden {
+            opacity: 0;
+            transition-property: opacity #{$transition-speed-style-delay};
+        }
+
+        &.highlight-row,
+        &:hover {
+            background-color: $medium-bg-color;
+
+            .is-hidden {
+                opacity: 1;
+            }
+        }
+    }
+
+    &__flow {
+        position: relative;
+        height: $inuit-base-spacing-unit--large;
+
+        &::after {
+            content: ' ';
+            position: absolute;
+            z-index: 1;
+            left: 100%;
+            top: 0;
+
+            border-color: transparent;
+            border-width:
+                math.div($inuit-base-spacing-unit--large, 2)
+                0
+                math.div($inuit-base-spacing-unit--large, 2) 20px;
+            border-style: solid;
+        }
+
+        &:last-child::after {
+            border: none;
+        }
+
+        &-color-6-1 {
+            background-color: $dp-color-data-6-1;
+
+            &::after {
+                border-left-color: $dp-color-data-6-1;
+            }
+        }
+
+        &-color-6-2 {
+            background-color: $dp-color-data-6-2;
+
+            &::after {
+                border-left-color: $dp-color-data-6-2;
+            }
+        }
+
+        &-color-6-3 {
+            background-color: $dp-color-data-6-3;
+
+            &::after {
+                border-left-color: $dp-color-data-6-3;
+            }
+        }
+
+        &-color-6-4 {
+            background-color: $dp-color-data-6-4;
+
+            &::after {
+                border-left-color: $dp-color-data-6-4;
+            }
+        }
+
+        &-color-6-5 {
+            background-color: $dp-color-data-6-5;
+
+            &::after {
+                border-left-color: $dp-color-data-6-5;
+            }
+        }
+
+        &-color-6-6 {
+            background-color: $dp-color-data-6-6;
+
+            &::after {
+                border-left-color: $dp-color-data-6-6;
+            }
+        }
+    }
+
+    &__color-11-1 { color: $dp-color-data-11-1; }
+    &__color-11-2 { color: $dp-color-data-11-2; }
+    &__color-11-3 { color: $dp-color-data-11-3; }
+    &__color-11-4 { color: $dp-color-data-11-4; }
+    &__color-11-5 { color: $dp-color-data-11-5; }
+    &__color-11-6 { color: $dp-color-data-11-6; }
+    &__color-11-7 { color: $dp-color-data-11-7; }
+    &__color-11-8 { color: $dp-color-data-11-8; }
+    &__color-11-9 { color: $dp-color-data-11-9; }
+    &__color-11-10 { color: $dp-color-data-11-10; }
+    &__color-11-11 { color: $dp-color-data-11-11; }
+
+    &__color-8-1 { color: $dp-color-data-8-1; }
+    &__color-8-2 { color: $dp-color-data-8-2; }
+    &__color-8-3 { color: $dp-color-data-8-3; }
+    &__color-8-4 { color: $dp-color-data-8-4; }
+    &__color-8-5 { color: $dp-color-data-8-5; }
+    &__color-8-6 { color: $dp-color-data-8-6; }
+    &__color-8-7 { color: $dp-color-data-8-7; }
+    &__color-8-8 { color: $dp-color-data-8-8; }
+
+    &__color-6-1 { color: $dp-color-data-6-1; }
+    &__color-6-2 { color: $dp-color-data-6-2; }
+    &__color-6-3 { color: $dp-color-data-6-3; }
+    &__color-6-4 { color: $dp-color-data-6-4; }
+    &__color-6-5 { color: $dp-color-data-6-5; }
+    &__color-6-6 { color: $dp-color-data-6-6; }
+
+    &__color-3-1 { color: $dp-color-data-3-1; }
+    &__color-3-2 { color: $dp-color-data-3-2; }
+    &__color-3-3 { color: $dp-color-data-3-3; }
+
+    &__color-active { color: $dp-chart-color-active; }
+}

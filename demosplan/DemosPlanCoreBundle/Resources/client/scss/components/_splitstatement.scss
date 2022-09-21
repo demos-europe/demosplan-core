@@ -1,0 +1,359 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// SplitStatementView component with all its custom styles.
+///
+/// @group components
+///
+/// @name .split-statement
+.split-statement {
+    // Segment
+    $segment-bg-color: $dp-color-system-info--light-1;
+    $segment-confirmed-bg-color: $dp-color-neutral-light-3;
+    $segment-highlight-bg-color: $dp-color-system-warning--light;
+
+    // Sidebar
+    $sidebar-width: 300px;
+    // Width + margin of sidebar are subtracted
+    $segmentation-editor-width: calc(100% - #{$sidebar-width} - #{$inuit-base-spacing-unit});
+
+    // Icon indicating status of pre-processing of statement used in ProcessingPage component
+    .progress-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 45px;
+        background: $dp-bg-color-light;
+        margin: auto;
+
+        .fa-hourglass-half {
+            padding: 22px;
+            font-size: 36px;
+        }
+
+        .fa-check {
+            padding: 18px;
+            font-size: 48px;
+        }
+    }
+
+    // In editing mode, CardPane is swapped with SideBar.
+    .side-bar {
+        width: $sidebar-width;
+        margin-left: $inuit-base-spacing-unit;
+        padding: 20px;
+
+        border: 1px solid $dp-color-neutral-light-2;
+        border-radius: 6px;
+
+        // The sidebar needs to reserve place at the bottom for the button-container,
+        // when it is in fixed mode. Also, the top margin is a hacky way to account
+        // for the height of the fixed header.
+        .is-fixed & {
+            margin-bottom: 70px;
+            margin-top: 70px;
+        }
+
+        // In editing mode, selected tags are displayed redundant at the top of the card
+        // to have a way of quickly digest and possibly removing them.
+        .tag {
+            @extend %break-words-with-hyphens;
+
+            padding: 2px 4px 4px 8px;
+
+            color: $dp-color-white;
+            background-color: $dp-color-neutral-base;
+            border-radius: $inuit-base-spacing-unit--small;
+
+            &:hover {
+                background: $dp-color-neutral-light-3;
+                color: $default-font-color;
+            }
+
+            &__remove {
+                margin-top: 2px;
+                min-width: 16px;
+                height: 16px;
+                background-color: $dp-color-white;
+                border-radius: $inuit-base-spacing-unit--small;
+                overflow: hidden;
+                line-height: 0;
+            }
+
+            &__remove:hover {
+                background: $dp-token-color-ui-interactive;
+                color: $dp-color-white;
+            }
+        }
+    }
+
+    // Used for transitions to show/hide scrollButton and cardPane
+    .slide-fade {
+        &-enter-active {
+            transition: all .3s ease;
+        }
+
+        &-leave-active {
+            transition: all .3s cubic-bezier(1, .5, .8, 1);
+        }
+
+        &-enter,
+        &-leave-to {
+            opacity: 0;
+        }
+    }
+
+    .button-container {
+        position: sticky;
+        bottom: 20px;
+        z-index: $z-content-above;
+        width: $sidebar-width;
+        margin-left: calc(100% - #{$sidebar-width});
+        padding: 0 20px;
+    }
+
+    .scroll-button {
+        @extend %btn-base;
+
+        position: sticky;
+        z-index: $z-fixed;
+        width: 45px;
+        height: 45px;
+
+        margin-left: calc(#{$segmentation-editor-width} / 2);
+
+        border-radius: 50%;
+        background-color: $dp-color-system-warning;
+        font-size: 20px;
+
+        &:hover {
+            background: $dp-color-system-warning--light !important;
+        }
+    }
+
+    // Main SplitStatementView container wrapping segmentation-editor and side-bar/card-pane.
+    .container {
+        display: flex;
+        flex-flow: row wrap;
+
+        min-height: 200px;
+
+        position: relative;
+
+        padding-top: 5px;
+        margin-left: -30px;
+
+        & .ProseMirror {
+            padding-left: 30px !important;
+        }
+    }
+
+    // Container for ProsemirrorTextEditor
+    .segmentation-editor {
+        @extend %break-words-with-hyphens;
+
+        width: $segmentation-editor-width;
+        z-index: 2;
+
+        &.is-fullwidth {
+            width: 100%;
+        }
+
+        // Handle for setting the text selection range
+        .range-handle {
+            position: relative;
+            font-size: $dp-token-font-size-large;
+            color: $dp-token-color-ui-interactive;
+
+            &::before {
+                content: '|';
+                margin-left: -2px;
+            }
+
+            &__inner {
+                display: inline-block;
+                position: absolute;
+                height: 20px;
+                width: 20px;
+                top: -14px;
+                left: -8px;
+                z-index: 10000;
+
+                border-radius: 50%;
+                background-color: $dp-token-color-ui-interactive;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: $dp-token-color-ui-interactive-hover;
+                }
+
+                &:active {
+                    cursor: grabbing;
+                }
+
+                &.is-active {
+                    border: 2px solid $dp-token-color-ui-interactive;
+                    background-color: $dp-color-white;
+                }
+            }
+        }
+
+        .highlighted, {
+            background: $segment-highlight-bg-color !important;
+        }
+    }
+
+    // In non-edit mode, tags, assignees etc of all segments are shown in the card-pane.
+    .card-pane {
+        position: relative;
+        width: $sidebar-width;
+        padding: 0 10px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .card {
+        position: absolute;
+        display: inline-block;
+        padding: 5px 7px 7px;
+
+        border: 1px solid $dp-color-neutral-base;
+        border-radius: 4px;
+        background: $dp-color-white;
+
+        &.highlighted {
+            z-index: 1;
+            border-color: $dp-color-system-warning;
+        }
+    }
+
+    // TextEditor component
+    .editor-content {
+        line-height: 1.5em;
+        box-decoration-break: clone;
+
+        & [contenteditable='true']:focus {
+            outline: none;
+        }
+    }
+
+    // TextSegment component
+    span[data-range] {
+        padding: 4px 0;
+        background-color: $segment-bg-color;
+    }
+
+    span[data-range-confirmed='true'] {
+        background-color: $segment-confirmed-bg-color;
+    }
+
+    span[data-range-active='true'],
+    span[data-range-selected],
+    span[data-range-selected] > span {
+        background-color: $segment-highlight-bg-color;
+    }
+
+    span[data-range-moving='true'] {
+        background-color: transparent;
+    }
+
+    // Multiselect styles [X][X][X]
+    .multiselect {
+        $multiselect-checkbox-border-color: #cacece;
+        $multiselect-checkbox-bg-color: #fafafa;
+
+        $multiselect-color-selected: $dp-color-main--dark;
+        $multiselect-color-hover: $dp-color-main;
+
+        // Checkbox styles for options
+        input[type='checkbox'] {
+            position: relative;
+            vertical-align: middle;
+
+            display: inline-block;
+            margin: 0 5px 3px 0;
+            padding: 9px;
+
+            background-color: $multiselect-checkbox-bg-color;
+            border: 1px solid $multiselect-checkbox-border-color;
+            border-radius: 3px;
+
+            // Hide native ui
+            appearance: none;
+
+            &:checked {
+                background-color: $multiselect-color-hover;
+                border-color: $multiselect-color-hover;
+
+                // This is the actual checkmark ✓
+                &::after {
+                    position: absolute;
+                    top: 3px;
+                    left: 6px;
+
+                    content: '';
+                    display: inline-block;
+                    height: 10px;
+                    width: 5px;
+
+                    border: solid $dp-color-white;
+                    border-width: 0 2px 2px 0;
+
+                    font-size: 14px;
+
+                    transform: rotate(-45deg) scale(1);
+                }
+            }
+        }
+
+        .multiselect__option {
+            // Sad but true: overriding _form.scss "default" styles...
+            label {
+                display: inline-block;
+                margin-bottom: 0;
+            }
+        }
+
+        // Hovered option
+        .multiselect__option--highlight {
+            background: $multiselect-color-hover;
+            outline: none;
+            color: $dp-color-white;
+        }
+
+        // Dark variant used in TagSelect.vue
+        &--dark {
+            box-sizing: content-box;
+
+            // Outer container
+            .multiselect__tags {
+                padding-top: 5px;
+                padding-bottom: 3px;
+                background-color: $dp-color-neutral-light-3;
+                border: none;
+            }
+
+            // Default trigger
+            .multiselect__placeholder {
+                display: block;
+                color: $default-font-color;
+            }
+
+            // Trigger indicating at least one selected option
+            &.has-selection {
+                .multiselect__placeholder,
+                .multiselect__input::placeholder {
+                    color: $multiselect-color-selected;
+                    font-weight: $bold-font-weight;
+                    font-family: $bold-font-family;
+                }
+            }
+        }
+    }
+}
+

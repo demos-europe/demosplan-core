@@ -1,0 +1,531 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
+
+use demosplan\DemosPlanCoreBundle\Entity\Category;
+use demosplan\DemosPlanCoreBundle\Entity\Faq;
+use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
+use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanUserBundle\Logic\RoleHandler;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Exception;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection;
+use UnexpectedValueException;
+
+class FaqHandler extends CoreHandler
+{
+    /**
+     * @var ContentService
+     */
+    protected $contentService;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * @var FaqService
+     */
+    private $faqService;
+
+    /**
+     * @var CustomerHandler
+     */
+    private $customerHandler;
+
+    /**
+     * @var RoleHandler
+     */
+    private $roleHandler;
+
+    /**
+     * @var FaqResourceType
+     */
+    private $faqResourceType;
+
+    /**
+     * @var RoleRepository
+     */
+    private $roleRepository;
+
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    public function __construct(
+        MessageBag $messageBag,
+        TranslatorInterface $translator,
+        EntityManagerInterface $entityManager,
+        FaqResourceType $faqResourceType,
+        FaqService $faqService,
+        CustomerHandler $customerHandler,
+        RoleHandler $roleHandler,
+        RoleRepository $roleRepository,
+        ContentService $contentService,
+        ValidatorInterface $validator
+    ) {
+        parent::__construct($messageBag);
+        $this->translator = $translator;
+        $this->entityManager = $entityManager;
+        $this->faqService = $faqService;
+        $this->customerHandler = $customerHandler;
+        $this->roleHandler = $roleHandler;
+        $this->contentService = $contentService;
+        $this->faqResourceType = $faqResourceType;
+        $this->roleRepository = $roleRepository;
+        $this->validator = $validator;
+    }
+
+    /**
+     * Gets enabled faqs of a category.
+     */
+    public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
+    {
+        return $this->faqService->getEnabledAndDisabledFaqList($faqCategory);
+    }
+
+    /**
+     * Get all (enabled and disabled) faqs of a category.
+     *
+     * @return array<int, Faq>
+     */
+    public function getEnabledFaqList(FaqCategory $faqCategory, User $user): array
+    {
+        return $this->faqService->getEnabledFaqList($faqCategory, $user);
+    }
+
+    /**
+     * @param string $categoryId - Identify the category to delete
+     *
+     * @throws CustomerNotFoundException
+     * @throws MessageBagException
+     */
+    public function getFaqCategory($categoryId): ?FaqCategory
+    {
+        $currentCustomer = $this->customerHandler->getCurrentCustomer();
+
+        $category = $this->getFaqService()->getFaqCategory($categoryId, $currentCustomer);
+
+        if (is_null($category)) {
+            $this->logger->warning('Category with ID: '.$categoryId.' not found.');
+            $this->getMessageBag()->add('warning', 'category.not.found');
+        }
+
+        return $category;
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function updateFaqCategory(FaqCategory $faqCategory): FaqCategory
+    {
+        $this->ensureThatFaqCategoryBelongsToCurrentCustomer($faqCategory);
+
+        return $this->getFaqService()->updateFaqCategory($faqCategory);
+    }
+
+    /**
+     * User may only view (and Admins may only view and edit) FAQ categories of the current customer.
+     *
+     * @throws CustomerNotFoundException
+     * @throws AccessDeniedException
+     */
+    private function ensureThatFaqCategoryBelongsToCurrentCustomer(FaqCategory $faqCategory): void
+    {
+        $currentCustomer = $this->customerHandler->getCurrentCustomer();
+        if ($faqCategory->getCustomer() !== $currentCustomer) {
+            $message = 'FaqCategory "%s" with the title "%s" does not belong '.
+                'to current customer ("%s") and may thus not be edited.';
+
+            throw new AccessDeniedException(sprintf($message, $faqCategory->getId(), $faqCategory->getTitle(), $currentCustomer->getName()));
+        }
+    }
+
+    /**
+     * Creates a new Category and checks for mandatory fields.
+     *
+     * @throws Exception
+     */
+    public function createFaqCategory(array $data): FaqCategory
+    {
+        try {
+            if (!array_key_exists('r_category_title', $data) || '' === trim($data['r_category_title'])) {
+                throw new UnexpectedValueException('FaqCategory title field missing or left blank.');
+            }
+            $data['r_category_title'] = trim($data['r_category_title']);
+
+            $faqCategory = new FaqCategory();
+            $faqCategory->setTitle($data['r_category_title']);
+            $faqCategory->setCustomer($this->customerHandler->getCurrentCustomer());
+            // We need to identify categories created by some users
+            $faqCategory->setType('custom_category');
+
+            $this->faqService->updateFaqCategory($faqCategory);
+
+            return $faqCategory;
+        } catch (UnexpectedValueException $e) {
+            $this->getMessageBag()->add('error', 'error.no.title.given');
+            throw $e;
+        } catch (Exception $e) {
+            $this->logger->warning('Fehler beim Anlegen einer Kategorie: ', [$e]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Add or update Faq.
+     *
+     * @param array $data
+     *
+     * @throws CustomerNotFoundException
+     * @throws MessageBagException
+     */
+    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
+    {
+        //improve:
+        // Sanitize and validate fields
+        $mandatoryErrors = false;
+        if (!array_key_exists('r_enable', $data) || '' === trim($data['r_enable'])) {
+            $mandatoryErrors = true;
+            $this->getMessageBag()->add(
+                'warning',
+                'error.mandatoryfield',
+                ['name' => $this->translator->trans('status')]
+            );
+        }
+        if (!array_key_exists('r_group_code', $data)) {
+            $mandatoryErrors = true;
+            $this->getMessageBag()->add(
+                'warning',
+                'error.mandatoryfield',
+                ['name' => $this->translator->trans('visible')]
+            );
+        }
+        if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
+            $mandatoryErrors = true;
+            $this->getMessageBag()->add(
+                'warning',
+                'error.mandatoryfield',
+                ['name' => $this->translator->trans('heading')]
+            );
+        }
+        if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
+            $mandatoryErrors = true;
+            $this->getMessageBag()->add(
+                'warning',
+                'error.mandatoryfield',
+                ['name' => $this->translator->trans('text')]
+            );
+        }
+        if (!array_key_exists('r_category_id', $data)) {
+            $mandatoryErrors = true;
+            $this->getMessageBag()->add(
+                'confirm', 'error.mandatoryfield',
+                ['name' => $this->translator->trans('category')]
+            );
+        }
+
+        if (true === $mandatoryErrors) {
+            return null;
+        }
+        if (255 < strlen($data['r_title'])) {
+            $data['r_title'] = substr($data['r_title'], 0, 255);
+            $this->getMessageBag()->add('warning', 'warning.faq.title.tooLong');
+        }
+
+        // write fields into object
+        if (!$faq instanceof Faq) {
+            $faq = new Faq();
+        }
+        $faq->setTitle($data['r_title']);
+        $faq->setText($data['r_text']);
+        if ('1' == $data['r_enable']) {
+            $faq->setEnabled(true);
+        } else {
+            $faq->setEnabled(false);
+        }
+        $roles = $this->roleHandler->getUserRolesByGroupCodes($data['r_group_code']);
+        $faq->setRoles($roles);
+        $currentCustomer = $this->customerHandler->getCurrentCustomer();
+        $category = $this->faqService->getFaqCategory($data['r_category_id'], $currentCustomer);
+        if ($category instanceof FaqCategory) {
+            $faq->setCategory($category);
+        }
+
+        return $this->faqService->updateFaq($faq);
+    }
+
+    public function getFaq(string $id): ?Faq
+    {
+        return $this->faqService->getFaq($id);
+    }
+
+    /**
+     * update Faq.
+     */
+    public function updateFAQ(Faq $faq): Faq
+    {
+        return $this->faqService->updateFaq($faq);
+    }
+
+    /**
+     * @param array<string, mixed> $properties
+     *
+     * @throws ViolationsException
+     * @throws Exception
+     */
+    public function updateFaqFromProperties(Faq $faqEntity, array $properties): void
+    {
+        $updater = new PropertiesUpdater($properties);
+        $updater->ifPresent(
+            $this->faqResourceType->invitableInstitutionVisible,
+            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)
+        );
+        $updater->ifPresent(
+            $this->faqResourceType->fpVisible,
+            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)
+        );
+        $updater->ifPresent(
+            $this->faqResourceType->publicVisible,
+            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)
+        );
+        $updater->ifPresent(
+            $this->faqResourceType->enabled,
+            static function (bool $enabled) use ($faqEntity): void {
+                $faqEntity->setEnabled($enabled);
+            }
+        );
+
+        $violationList = $this->validator->validate($faqEntity);
+        if (0 < $violationList->count()) {
+            throw ViolationsException::fromConstraintViolationList($violationList);
+        }
+    }
+
+    /**
+     * Returns all categories.
+     *
+     * @return FaqCategory[]
+     *
+     * @throws CustomerNotFoundException
+     */
+    public function getAllCategoriesOfCurrentCustomer(): array
+    {
+        return $this->getFaqService()->getFaqCategoriesOfCurrentCustomer();
+    }
+
+    /**
+     * Returns all categories.
+     */
+    public function deleteFaq(Faq $faq): void
+    {
+        $this->getFaqService()->deleteFaq($faq);
+    }
+
+    /**
+     * Get filtered faq-categories sorted alphabetically by title.
+     *
+     * @param string[] $categoryTypeNamesToInclude
+     *
+     * @return Collection<Category> Collection of Category entities
+     *
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
+    {
+        $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
+        //filter: custom categories only
+        return $allFaqCategories->filter(
+            static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
+                return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
+            }
+        );
+    }
+
+    /**
+     * Delete the related category of the given Id if there are no related content.
+     *
+     * @param FaqCategory $faqCategory Identify the category to delete
+     *
+     * @return bool - false if unsuccessfully deleted, otherwise true
+     *
+     * @throws Exception
+     */
+    public function deleteFaqCategory(FaqCategory $faqCategory): bool
+    {
+        $successfullyDeleted = false;
+        try {
+            $categoryTitle = $faqCategory->getTitle();
+
+            if (0 !== count($this->faqService->getEnabledAndDisabledFaqList($faqCategory))) {
+                $this->getMessageBag()->add(
+                    'warning',
+                    'category.delete.deny.because.of.related.content',
+                    ['title' => $categoryTitle]
+                );
+
+                return false;
+            }
+
+            $successfullyDeleted = $this->faqService->deleteFaqCategory($faqCategory);
+            if (false === $successfullyDeleted) {
+                $this->getMessageBag()->add(
+                    'warning',
+                    'category.delete.unsuccessful',
+                    ['title' => $categoryTitle]
+                );
+            } else {
+                $this->getMessageBag()->add(
+                    'confirm',
+                    'category.delete.successful',
+                    ['title' => $categoryTitle]
+                );
+            }
+        } catch (Exception $e) {
+            $this->logger->warning('Error on delete FaqCategory: ', [$e]);
+        }
+
+        return $successfullyDeleted;
+    }
+
+    /**
+     * @throws FaqNotFoundException
+     */
+    public function deleteFaqById(string $faqId): void
+    {
+        $faq = $this->getFaq($faqId);
+        if (null === $faq) {
+            throw FaqNotFoundException::createFromId($faqId);
+        }
+        $this->deleteFaq($faq);
+    }
+
+    public function findFaqCategoryByType(string $typeName): FaqCategory
+    {
+        return $this->getFaqService()->findFaqCategoryByType($typeName);
+    }
+
+    protected function getFaqService(): FaqService
+    {
+        return $this->faqService;
+    }
+
+    // todo please update and use this method
+
+    /**
+     * @param string $title
+     *
+     * @return bool
+     */
+    public function isCategoryTitleUnique($title)
+    {
+        //check for already existing category by
+        $category = $this->entityManager
+            ->getRepository(Category::class)
+            ->findOneBy(['title' => $title]);
+
+        return false === is_null($category);
+    }
+
+    /**
+     * Saves the manual sort order of FAQ items.
+     *
+     * @param string $categoryId
+     * @param string $sortIds    comma separated list of FAQ item IDs or an empty string to trigger deletion
+     *
+     * @throws Exception
+     */
+    public function setManualSort($categoryId, $sortIds): bool
+    {
+        if ('' == $sortIds) {
+            return false;
+        }
+
+        if ('delete' === $sortIds) {
+            $sortIds = '';
+        }
+        $context = 'faq:category:'.$categoryId;
+
+        return $this->faqService->setManualSortForGlobalContent($context, $sortIds, 'faq');
+    }
+
+    /**
+     * @param array<int, Faq> $faqs
+     *
+     * @return array<int, Faq>
+     */
+    public function orderFaqsByManualSortList(array $faqs, FaqCategory $faqCategory): array
+    {
+        return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
+    }
+
+    /**
+     * Returns a callable that accepts a boolean.
+     *
+     * If given `true` the callable will add the {@link Role}s
+     * corresponding to the `$groupCode` which are not already present to the `$faqEntity`.
+     *
+     * If given `false` the callable will remove the {@link Role}s
+     * corresponding to the `$groupCode` which are present from the `$faqEntity`.
+     *
+     * @return callable(bool):void
+     */
+    private function buildAddOrRemoveRoleGroupFunction(Faq $faqEntity, string $groupCode): callable
+    {
+        return function (bool $setVisible) use ($faqEntity, $groupCode): void {
+            $groupRoles = $this->roleRepository->findBy([
+                'groupCode' => $groupCode,
+            ]);
+            $currentRoles = $faqEntity->getRoles();
+            foreach ($groupRoles as $role) {
+                $present = $currentRoles->exists(static function (int $index, Role $currentRole) use ($role): bool {
+                    return $currentRole->getId() === $role->getId();
+                });
+                if ($setVisible) {
+                    if (!$present) {
+                        $currentRoles->add($role);
+                    }
+                } elseif ($present) {
+                    $currentRoles = $currentRoles->filter(static function (Role $currentRole) use ($role): bool {
+                        return $currentRole->getId() !== $role->getId();
+                    });
+                }
+            }
+            $faqEntity->setRoles($currentRoles->getValues());
+        };
+    }
+}

@@ -1,0 +1,204 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Styles a simple list.
+///
+/// @group objects
+///
+/// @name .o-list
+///
+/// @see https://yaits.demos-deutschland.de/w/demosplan/frontend-documentation/components/lists/
+///
+/// @example markup
+/// <!-- Stacked items with bg color, separated by margin. -->
+/// <ul class="o-list o-list--card">
+///   <li class="o-list__item u-p-0_5">
+///     <h3>
+///       This is...
+///     </h3>
+///     <p>...a card-like list item.</p>
+///   </li>
+///   <li class="o-list__item u-p-0_5 cf">
+///     There can go nearly everything in here.
+///     <button class="btn btn--primary float--right">
+///       Bam!
+///     </button>
+///   </li>
+///   <li class="o-list__item">
+///     <div class="layout">
+///       <header class="layout__item u-1-of-1">
+///         <h3 class="u-p-0_5 u-pb-0">
+///           The padding intentionally is not part of the .o-list--card code, since...
+///         </h3>
+///       </header>
+///       <div class="layout__item u-1-of-2">
+///         <p class="u-ph-0_5">...there may be reasons to further structure list content.</p>
+///       </div>
+///       <div class="layout__item u-1-of-2">
+///         <p class="u-ph-0_5">...it allows for more flexible use.</p>
+///       </div>
+///     </div>
+///   </li>
+/// </ul>
+/// <!-- Stacked items separated by a border. -->
+/// <ul class="o-list o-list--table">
+///   <li class="o-list__item">
+///     Item 1 which may consist of only one sentence that is very long, long...
+///     longing for some visual guidance. Help! I need somebody!
+///   </li>
+///   <li class="o-list__item">
+///     Item 2 which may be short.
+///   </li>
+///   <li class="o-list__item">
+///     Short. Or long. You never know.
+///   </li>
+/// </ul>
+/// <!-- Inline items separated by comma. -->
+/// <ul class="o-list o-list--csv">
+///   <li class="o-list__item">
+///     Item 1
+///   </li>
+///   <li class="o-list__item">
+///     Item 2
+///   </li>
+///   <li class="o-list__item">
+///     Item 3
+///   </li>
+/// </ul>
+/// <!-- Numbered list with every child list tree inheriting the parent counter. -->
+/// <ol class="o-list o-list--numbered">
+///   <li>
+///     <strong>First top level thing</strong>
+///     <p>
+///       Some content.
+///     </p>
+///     <ol>
+///       <li>
+///         <strong>First second level thing</strong>
+///         <p>There is much to say about second level thing.</p>
+///       </li>
+///       <li>
+///         <strong>Second second level thing</strong>
+///         <p>There is much to say about this second level thing, too.</p>
+///       </li>
+///     </ol>
+///   </li>
+///   <li>
+///     <strong>Second top level thing</strong>
+///     <p>
+///       Some more content.
+///     </p>
+///   </li>
+///   <li>
+///     <strong>Third top level thing</strong>
+///     <p>
+///       Some more content.
+///     </p>
+///   </li>
+/// </ol>
+
+// Object container
+.o-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    // List item, be it a table row or a li element spanning 100% width
+    &__item {
+        list-style: none;
+
+
+        // Stacked items with bg color, separated by margin. This is the original "assessment table list style".
+        .o-list--card > & {
+            background-color: $medium-bg-color;
+            margin-bottom: $inuit-base-spacing-unit--small;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            :target,
+            .target-element {
+                @extend %flash-confirm;
+                border: none;
+            }
+        }
+
+
+        // Stacked items separated by a border.
+        .o-list--table > & {
+            border-bottom: 1px solid $dp-color-neutral-light-2;
+            padding: $inuit-base-spacing-unit--small 0;
+
+            &:first-child {
+                border-top: 1px solid $dp-color-neutral-light-2;
+            }
+        }
+
+
+        // Inline items separated by comma.
+        .o-list--csv > & {
+            display: inline-block;
+
+            &::after {
+                display: inline-block;
+                margin-right: .2em;
+                content: ', ';
+            }
+
+            &:last-child::after {
+                content: none;
+            }
+        }
+    }
+
+    // Numbered list with every child list tree inheriting the parent counter.
+    // @see https://developer.mozilla.org/de/docs/Web/CSS/CSS_Lists_and_Counters/CSS_Z%C3%A4hler_verwenden
+    &--numbered {
+        &,
+        & ol {
+            list-style-type: none;
+            counter-reset: section;
+        }
+
+        & > li {
+            margin-left: -$inuit-base-spacing-unit;
+        }
+
+        & li::before {
+            width: $inuit-base-spacing-unit--large;
+            display: inline-block;
+            padding-right: $inuit-base-spacing-unit--tiny;
+
+            counter-increment: section;
+            content: counters(section, '.') '. ';
+
+            text-align: right;
+            font-weight: $bold-font-weight;
+            font-family: $bold-font-family;
+        }
+
+        & li > p {
+            margin-left: $inuit-base-spacing-unit--large;
+        }
+    }
+
+    &--col-2,
+    &--col-3 {
+        column-gap: $inuit-base-spacing-unit;
+    }
+
+    &--col-2 {
+        column-count: 2;
+    }
+
+    &--col-3 {
+        column-count: 3;
+    }
+}

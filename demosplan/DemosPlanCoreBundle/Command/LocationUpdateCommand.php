@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Command;
+
+use demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
+/**
+ * Update Location table with current data.
+ */
+class LocationUpdateCommand extends CoreCommand
+{
+    protected static $defaultName = 'dplan:location:repopulate';
+    protected static $defaultDescription = 'Repopulate location table with current Data';
+    /**
+     * @var LocationUpdateService
+     */
+    private $locationUpdate;
+
+    public function configure(): void
+    {
+        $this->addOption(
+                'includeOnly',
+                'i',
+                InputOption::VALUE_OPTIONAL,
+                'Comma separated list of Bundeslandcodes to include exclusively'
+            );
+    }
+
+    public function __construct(LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, string $name = null)
+    {
+        parent::__construct($parameterBag, $name);
+        $this->locationUpdate = $locationUpdate;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $includeOnly = [];
+        if ($input->getOption('includeOnly')) {
+            $includeOnly = explode(',', $input->getOption('includeOnly'));
+        }
+
+        $this->locationUpdate->repopulateDatabase($includeOnly);
+
+        return 0;
+    }
+}

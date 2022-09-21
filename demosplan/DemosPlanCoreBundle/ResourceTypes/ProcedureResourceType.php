@@ -1,0 +1,335 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
+
+use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
+use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
+use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
+use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use function is_array;
+
+/**
+ * @template-extends DplanResourceType<Procedure>
+ *
+ * @property-read End                                 $name
+ * @property-read End                                 $master
+ * @property-read End                                 $deleted
+ * @property-read End                                 $agencyMainEmailAddress
+ * @property-read OrgaResourceType                    $owningOrganisation
+ * @property-read OrgaResourceType                    $invitedOrganisations
+ * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
+ * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
+ * @property-read ProcedureTypeResourceType           $type
+ * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
+ * @property-read StatementFormDefinitionResourceType $statementFormDefinition
+ * @property-read UserResourceType                    $authorizedUsers
+ * @property-read OrgaResourceType                    $planningOffices
+ * @property-read End                                 $coordinate
+ * @property-read ProcedureSettingsResourceType       $settings
+ * @property-read End                                 $externalDesc
+ * @property-read End                                 $externalDescription
+ * @property-read End                                 $externalName
+ * @property-read End                                 $externalStartDate
+ * @property-read End                                 $externalEndDate
+ * @property-read End                                 $externalPhaseTranslationKey
+ * @property-read End                                 $publicParticipationStartDate
+ * @property-read End                                 $publicParticipationEndDate
+ * @property-read End                                 $internalStartDate
+ * @property-read End                                 $startDate
+ * @property-read End                                 $endDate
+ * @property-read End                                 $internalEndDate
+ * @property-read End                                 $internalPhaseTranslationKey
+ * @property-read End                                 $daysLeft
+ * @property-read End                                 $statementSubmitted
+ * @property-read End                                 $owningOrganisationName
+ * @property-read End                                 $allowedSenderEmailAddresses
+ * @property-read End                                 $importEmailAddress
+ * @property-read End                                 $externalPhasePermissionset
+ * @property-read End                                 $internalPhasePermissionset
+ * @property-read CustomerResourceType                $customer
+ */
+final class ProcedureResourceType extends DplanResourceType
+{
+    /**
+     * @var ProcedureAccessEvaluator
+     */
+    private $accessEvaluator;
+
+    /**
+     * @var ProcedureExtension
+     */
+    private $procedureExtension;
+
+    /**
+     * @var DraftStatementService
+     */
+    private $draftStatementService;
+
+    /**
+     * @var PhasePermissionsetLoader
+     */
+    private $phasePermissionsetLoader;
+
+    public function __construct(
+        PhasePermissionsetLoader $phasePermissionsetLoader,
+        DraftStatementService $draftStatementService,
+        ProcedureAccessEvaluator $accessEvaluator,
+        ProcedureExtension $procedureExtension
+    ) {
+        $this->phasePermissionsetLoader = $phasePermissionsetLoader;
+        $this->accessEvaluator = $accessEvaluator;
+        $this->procedureExtension = $procedureExtension;
+        $this->draftStatementService = $draftStatementService;
+    }
+
+    public function getEntityClass(): string
+    {
+        return Procedure::class;
+    }
+
+    public static function getName(): string
+    {
+        return 'Procedure';
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
+    }
+
+    public function getAccessCondition(): FunctionInterface
+    {
+        $user = $this->currentUser->getUser();
+        $userOrganisation = $user->getOrga();
+        // users without organisation get no access to any procedure
+        if (null === $userOrganisation) {
+            return $this->conditionFactory->false();
+        }
+
+        $procedure = $this->currentProcedureService->getProcedure();
+        $userOrganisationId = $userOrganisation->getId();
+        $isAllowedAsDataInputOrga = $this->accessEvaluator->isAllowedAsDataInputOrga($user, $procedure);
+
+        // Check if user is data input user and their orga is set as data input orga for current procedure
+        $dataInputCondition = $this->conditionFactory->false();
+        if ($isAllowedAsDataInputOrga) {
+            // as `$isAllowedAsDataInputOrga` is `true`, `$procedure` can't be `null` at this point
+            $dataInputCondition = $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->id);
+        }
+
+        // check for owning organisation
+        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->owningOrganisation->id);
+        // check for invited organisation
+        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->invitedOrganisations->id);
+
+        return $this->conditionFactory->allConditionsApply(
+            $this->getResourceTypeCondition(),
+            // users only get access to a procedure if they are either in the organisation owning the procedure
+            // or if they are in an organisation that was invited to the procedure (eg. public interest bodies).
+            $this->conditionFactory->anyConditionApplies(
+                $owningOrgaCondition,
+                $invitedOrgaCondition,
+                $dataInputCondition
+            )
+        );
+    }
+
+    /**
+     * Defines the condition that must be met by {@link Procedure} entities to be considered
+     * a procedure resource at all, independent of authorizations.
+     *
+     * @return FunctionInterface<bool>
+     */
+    public function getResourceTypeCondition(): FunctionInterface
+    {
+        // procedure resources can never be blueprints
+        $noBlueprintCondition = $this->conditionFactory->anyConditionApplies(
+        /*
+         * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
+         * until the property is migrated the following condition ensures to handle the int correcly.
+         */
+            $this->conditionFactory->propertyHasValue(0, ...$this->master),
+            $this->conditionFactory->propertyHasValue(false, ...$this->master)
+        );
+        // procedure resources can never have the deleted state
+        $undeletedCondition = $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        // only procedure templates are tied to a customer
+        $customerCondition = $this->conditionFactory->propertyIsNull(...$this->customer);
+
+        return $this->conditionFactory->allConditionsApply(
+            $noBlueprintCondition,
+            $undeletedCondition,
+            $customerCondition
+        );
+    }
+
+    public function isReferencable(): bool
+    {
+        return true;
+    }
+
+    public function isDirectlyAccessible(): bool
+    {
+        return true;
+    }
+
+    protected function getProperties(): array
+    {
+        $external = $this->currentUser->getUser()->isPublicUser();
+
+        $owningOrganisation = $this->createToOneRelationship($this->owningOrganisation)->aliasedPath($this->orga);
+        $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
+        $properties = [
+            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->name)->readable(true, function (Procedure $procedure) use ($external): ?string {
+                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getName()
+                    : null;
+            }, true)->sortable()->filterable(),
+            $owningOrganisation,
+            $invitedOrganisations,
+        ];
+
+        if ($this->hasAdminPermissions()) {
+            $owningOrganisation->readable()->sortable()->filterable();
+            $invitedOrganisations->readable()->sortable()->filterable();
+            $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
+        }
+
+        if ($this->currentUser->hasPermission('feature_ai_create_annotated_statement_pdf_pages')) {
+            $owningOrganisation->readable()->sortable()->filterable();
+            $invitedOrganisations->readable()->sortable()->filterable();
+        }
+
+        if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
+            $properties[] = $this->createToOneRelationship($this->type)->readable()->sortable()->filterable();
+            $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
+            $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
+        }
+
+        if ($this->currentUser->hasPermission('area_public_participation')) {
+            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->settings->coordinate);
+            $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
+            $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
+                $userFilter = new StatementListUserFilter();
+                $userFilter->setSubmitted(true)->setReleased(true);
+                $statementResult = $this->draftStatementService->getDraftStatementList(
+                    $procedure->getId(),
+                    'group',
+                    $userFilter,
+                    null,
+                    null,
+                    $this->currentUser->getUser()
+                );
+
+                if (!is_array($statementResult->getResult())) {
+                    return 0;
+                }
+
+                return count($statementResult->getResult());
+            });
+
+            $properties[] = $this->createAttribute($this->externalName)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getExternalName()
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->externalStartDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->formatDate($procedure->getPublicParticipationStartDate())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->formatDate($procedure->getPublicParticipationEndDate())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->globalConfig->getExternalPhaseTranslationKey($procedure->getPublicParticipationPhase())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->formatDate($procedure->getStartDate())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->formatDate($procedure->getEndDate())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, function (Procedure $procedure) use ($external): ?string {
+                return !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
+                    : null;
+            });
+            $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
+
+            //T18749
+            $properties[] = $this->createAttribute($this->daysLeft)->readable(false, function (Procedure $procedure): string {
+                return $this->procedureExtension->getDaysLeftFromProcedureObject($procedure, 'auto'); //type?
+            });
+
+            $properties[] = $this->createAttribute($this->internalPhasePermissionset)
+                ->readable(false, [$this->phasePermissionsetLoader, 'getInternalPhasePermissionset']);
+            $properties[] = $this->createAttribute($this->externalPhasePermissionset)
+                ->readable(false, [$this->phasePermissionsetLoader, 'getExternalPhasePermissionset']);
+        }
+
+        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
+            $properties[] = $this->createAttribute($this->importEmailAddress)->readable(
+                false,
+                function (Procedure $procedure): ?string {
+                    if (null === $procedure->getMaillaneConnection()) {
+                        return null;
+                    }
+
+                    return $procedure->getMaillaneConnection()->getRecipientEmailAddress();
+                }
+            );
+
+            $properties[] = $this->createAttribute(
+                $this->allowedSenderEmailAddresses
+            )->readable(
+                false,
+                function (Procedure $procedure): ?array {
+                    if (null === $procedure->getMaillaneConnection()) {
+                        return null;
+                    }
+
+                    return $procedure->getMaillaneConnection()->getAllowedSenderEmailAddresses(
+                    )->map(
+                        static function (EmailAddress $address): string {
+                            return $address->getFullAddress();
+                        }
+                    )->toArray();
+                }
+            );
+        }
+
+        return $properties;
+    }
+
+    protected function hasAdminPermissions(): bool
+    {
+        return $this->currentUser->hasAnyPermissions('area_admin_single_document', 'area_procedure_type_edit', 'feature_json_api_procedure')
+            || $this->currentUser->hasAllPermissions('area_admin_procedures', 'area_search_submitter_in_procedures');
+    }
+}

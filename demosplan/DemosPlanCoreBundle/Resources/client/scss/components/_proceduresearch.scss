@@ -1,0 +1,79 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: c-proceduresearch
+//
+//  this component enables users in participation area to search available procedures presented as a list and / or
+//  map (atm located on the homepage of dplan).
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-proceduresearch') {
+    .c-proceduresearch {
+        &__heading {
+            padding-left: 0; // this erases the padding-left of .layout__item but not the one on .o-page__padded
+            color: $dp-color-highlight !important;
+
+            @include media-query('palm') {
+                @include inuit-font-size(22px, 1.3);
+            }
+
+            @include media-query('lap') {
+                @include inuit-font-size(26px, 1.3);
+            }
+        }
+
+        &__search-wrapper {
+            width: calc(100% + 24px);
+            margin-left: -24px;
+            margin-top: -24px;
+        }
+
+        &__search-field,
+        &__search-btn {
+            margin-left: 24px;
+            margin-top: 24px;
+        }
+
+        &__search-field {
+            flex-grow: 1;
+            max-width: calc(100% - 24px);
+            min-width: calc(37.5% - 24px); // Does not solve the "jumpy" behavior of vue-omnibox, but diminishes it.
+        }
+
+        &__search-btn {
+            flex-grow: 1.5;
+        }
+
+        &__result {
+            color: $default-font-color;
+            padding-top: 1em;
+        }
+
+        &__filter-procedures {
+            padding-top: 1.5em;
+        }
+
+        &__filter-label {
+            color: $dp-color-neutral-base;
+            font-size: $base-font-size;
+        }
+
+        //  highlighted text that shows search term
+        &__term {
+            @include media-query('palm') {
+                padding: 0;
+            }
+
+            background-color: $dp-color-neutral-light-2;
+            color: $dp-token-color-brand-link;
+            padding: .1rem .3rem;
+            margin: 0 $inuit-base-spacing-unit--tiny;
+        }
+    }
+}

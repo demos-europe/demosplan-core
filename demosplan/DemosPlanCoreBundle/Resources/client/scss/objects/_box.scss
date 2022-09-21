@@ -1,0 +1,152 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: box
+//
+//  used to style a box
+//
+//  @TODO modularize, remove specific styles
+
+//  vars
+$box-hellip-transparent: rgb(255 255 255 / 0%);
+$box-hellip-fullcolor: $box-bg-color;
+$box-hellip-fullcolor-dark: $medium-bg-color;
+$box-hellip-line-height: 24px;
+$box-hellip-lines: 4;
+$box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
+
+//  container
+.o-box {
+
+    @include media-query('palm') {
+        border-radius: 0;
+        border-top: 1px solid $default-border-color;
+    }
+
+    background: $box-bg-color;
+    border-radius: $dp-box-radius;
+
+    &--dark {
+        background: $medium-bg-color;
+        border-radius: $dp-box-radius;
+    }
+
+    &--forum {
+        padding: $inuit-base-spacing-unit--small;
+
+        background: $dp-color-neutral-light-3;
+        border-radius: $dp-box-radius;
+
+        &.closed {
+
+            background: $dp-color-neutral-light-3; // check if the color fits
+            color: $deactivated-font-color !important;
+        }
+    }
+
+    //  box styles for news
+
+    //  the thumbnail is a wrapper whose background-image: url() is set via style attribute in markup
+    //  to maintain a square proportion with fluid width
+    &__thumbnail {
+        height: 0;
+        margin: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small $inuit-base-spacing-unit--tiny 0;
+        padding-bottom: 33%;
+        width: 33%;
+
+        background-size: cover;
+        background-position: center;
+        float: left;
+    }
+
+    &__link {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        text-indent: -10000px; // hide seo/accessibility contents of link
+
+        &:hover {
+            background-color: $box-bg-color;
+            opacity: .5;
+
+            .o-box--dark & {
+                background-color: $medium-bg-color;
+            }
+        }
+    }
+
+    //  http://dev.mobify.com/blog/multiline-ellipsis-in-pure-css/
+    //  @TODO find a simpler ui solution to get rid of that gradient stuff below
+    &__text-truncated {
+        height: $box-hellip-height;
+        overflow: hidden;
+
+        line-height: $box-hellip-line-height;
+
+        &::before {
+            float: left;
+
+            height: $box-hellip-height;
+            width: 5px;
+
+            content: '';
+        }
+
+        > * {
+            display: none;
+        }
+
+        > *:first-child {
+            float: right;
+
+            display: block;
+            margin-left: -5px;
+            width: 100%;
+        }
+
+        &::after {
+            float: right;
+            position: relative;
+            left: 100%;
+            top: -$box-hellip-line-height;
+
+            box-sizing: content-box;
+            margin-left: -3em;
+            padding-right: 5px;
+            width: 3em;
+
+            content: '\02026';
+            text-align: right;
+
+            background:
+                linear-gradient(
+                    to right,
+                    $box-hellip-transparent,
+                    $box-hellip-fullcolor 50%,
+                    $box-hellip-fullcolor
+                );
+
+            background-size: 100% 100%;
+
+            // When used inside an .o-box--dark, apply darker background
+            .o-box--dark & {
+                background:
+                    linear-gradient(
+                        to right,
+                        $box-hellip-transparent,
+                        $box-hellip-fullcolor-dark 50%,
+                        $box-hellip-fullcolor-dark
+                    );
+            }
+        }
+    }
+}

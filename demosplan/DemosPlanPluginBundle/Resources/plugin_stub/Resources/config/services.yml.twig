@@ -1,0 +1,21 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    dplan.plugin.{{ plugin_config_name }}:
+        autoconfigure: false
+        autowire: true
+        # demosplan\Plugins\PluginName\PluginName
+        class: {{ plugin_namespace}}\{{ plugin_class_name }}
+        parent: demosplan\DemosPlanPluginBundle\Logic\Plugin
+
+    dplan.plugin.{{ plugin_class_name }}.event.listener:
+        autoconfigure: false
+        autowire: true
+        class: {{ plugin_namespace}}\{{ plugin_class_name }}EventListener
+        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
+        calls:
+            - [ 'setPlugin', [ '@dplan.plugin.{{ plugin_config_name }}' ]]
+        tags:
+        #    - { name: kernel.event_listener, event: dplan.alternative_login.called, method: orgaEdited }

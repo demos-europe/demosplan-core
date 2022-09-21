@@ -1,0 +1,43 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-switcher
+//
+//  Used to switch between two views (two view states). Used e.g. in the assessment table to switch between statements
+//  and fragments. The Vue component that uses these styles is DpSwitcher.
+
+
+//  object container
+.o-switcher {
+    display: inline-block;
+    margin-left: -22px;
+    height: 35px;
+    line-height: 35px;
+    background-color: $dp-color-neutral-light-2;
+    padding: 1px;
+    border-radius: 20px;
+
+    input[type='checkbox'] {
+        display: none;
+    }
+
+    &__option {
+        display: inline-block;
+        padding: 0 20px;
+        color: $dp-color-neutral-base;
+        line-height: 33px;
+
+        &--checked {
+            height: 33px;
+            background-color: $dp-color-white;
+            border-radius: 20px;
+            color: $dp-color-main;
+        }
+    }
+}

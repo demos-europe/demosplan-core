@@ -1,0 +1,63 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  define breakpoints, the vars are built into object usable throughout the project
+//  to make the breakpoints overwritable in _settings.project.dplan.scss
+$lap-start:       621px !default;
+$desk-start:      905px !default;
+$desk-wide-start: 1201px !default;
+
+//  additional vars are being calculated from given breakpoints
+$palm-end:        $lap-start - 1px;
+$lap-end:         $desk-start - 1px;
+$desk-end:        $desk-wide-start - 1px;
+
+//  breakpoints
+//
+//  $palm-end|$lap-start <> $lap-end|$desk-start <> desk-end|$desk-wide-start
+$breakpoints: (
+    //  Smartphones
+    'palm'          'screen and (max-width: #{$palm-end})',
+    //  Tablets
+    'lap'           'screen and (min-width: #{$lap-start}) and (max-width: #{$lap-end})',
+    //  Tablets and up
+    'lap-up'        'screen and (min-width: #{$lap-start})',
+    //  Tablets and below
+    'lap-down'      'screen and (max-width: #{$lap-end})',
+    //  Small desktop
+    'desk'          'screen and (min-width: #{$desk-start}) and (max-width: #{$desk-end})',
+    //  Small desktop and up
+    'desk-up'       'screen and (min-width: #{$desk-start})',
+    //  Small desktop and below
+    'desk-down'     'screen and (max-width: #{$desk-end})',
+    //  Large desktop
+    'wide'          'screen and (min-width: #{$desk-wide-start})'
+);
+
+//  breakpoints to catch in js (omit up- and down-values)
+//  looped over in _base.dplan.scss
+$breakpoints-js: (
+    //  Smartphones
+    'palm'          'screen and (max-width: #{$palm-end})',
+    //  Tablets and up
+    'lap-up'        'screen and (min-width: #{$lap-start})',
+    //  Small desktop and up
+    'desk-up'       'screen and (min-width: #{$desk-start})',
+    //  Large desktop
+    'wide'          'screen and (min-width: #{$desk-wide-start})'
+);
+
+//  responsive utility spacing classes + layout classes are generated from these columns
+$inuit-widths-columns-responsive: (
+    1,
+    2,
+    3,
+    4,
+    8
+);

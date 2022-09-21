@@ -1,0 +1,68 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: infolist
+//
+//  used to display info about procedure
+
+//  component container
+.c-infolist {
+
+    position: relative; //  contains absolute positioned elements
+
+    margin: 0;
+
+    background-color: $dp-bg-color;
+
+    &__item {
+        padding-bottom: $inuit-base-spacing-unit--small;
+        padding-right: $inuit-base-spacing-unit--small;
+
+        &--bordered {
+            @include media-query('lap-down') {
+                border-bottom: $dp-border-thickness solid $default-border-color;
+            }
+        }
+    }
+
+    &__title,
+    &__content {
+        margin-left: 0;
+        min-height: $inuit-base-spacing-unit * 1.8;
+        padding-top: $inuit-base-spacing-unit--small;
+    }
+
+    &__title {
+        display: inline-block;
+        font-weight: $normal-font-weight;
+
+        color: $dp-token-color-brand-highlight;
+    }
+
+    //  contextual help icon
+    &__help {
+        @include media-query('palm') {
+            //  this kind of positioning requires the grandparent to be position: relative
+            position: absolute;
+            right: 15px;
+            top: 18px;
+        }
+    }
+
+    //  toggle control
+    &__toggle {
+        @include keyboard-focus;
+
+        color: $default-font-color;
+
+        &:hover {
+            color: $dp-token-color-brand-highlight;
+        }
+    }
+}

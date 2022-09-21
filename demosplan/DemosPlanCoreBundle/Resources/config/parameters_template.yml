@@ -1,0 +1,11 @@
+parameters:
+
+    #frontend_loglevel: debug
+    #gatewayservice_loglevel: debug
+
+    #secret = {{ site.secret }}
+
+    database_name: "{{ dbName }}"
+    database_host: "{{ dbHost }}"
+    database_user: "{{ dbUser }}"
+    database_password: "{{ dbPass }}"

@@ -1,0 +1,466 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:color';
+
+/// Styles a button. There should only be one primary button.
+/// There should only be one group of buttons visible at a time.
+///
+/// @group objects
+///
+/// @name .btn
+///
+/// @TODO Move button reset to base class. See:
+//  - https://medium.com/@hankchizljaw/introducing-the-button-element-8daa76c911a9
+//  - https://css-tricks.com/overriding-default-button-styles/
+///
+/// @example markup
+/// <button type="button" class="btn btn--primary">
+///     Save
+/// </button>
+/// <button type="button" class="btn--secondary">
+///     Cancel
+/// </button>
+
+
+// Variables are set here for reasons. Tokens, Overrides and the order in which files are included.
+// Primary button
+$dp-button-color:                       $dp-color-white !default;
+$dp-button-color-hover:                 $dp-color-white !default;
+$dp-button-bg-color:                    $dp-token-color-brand-link !default;
+$dp-button-bg-color-hover:              $dp-token-color-brand-link-hover !default;
+$dp-button-bg-color-active:             $dp-token-color-brand-link-active !default;
+// Secondary button
+$dp-button-color-alt:                   $dp-color-white !default;
+$dp-button-color-alt-hover:             $dp-color-white !default;
+$dp-button-bg-color-alt:                $dp-color-neutral-base !default;
+$dp-button-bg-color-alt-hover:          $dp-color-neutral-dark-1 !default;
+$dp-button-bg-color-alt-active:         $dp-color-neutral-dark-2 !default;
+// Warning button
+$dp-button-color-warning:               $dp-color-white !default;
+$dp-button-color-warning-hover:         $dp-color-white !default;
+$dp-button-bg-color-warning:            $dp-color-system-error--dark !default;
+$dp-button-bg-color-warning-hover:      $dp-color-system-error--dark-1 !default;
+$dp-button-bg-color-warning-active:     color.adjust($dp-color-system-error--dark-1, $lightness: -5%) !default;
+// Spacing
+$dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small * 1.2;
+
+// These variable is shared between _button.scss and _form.scss.
+// It is defined here because currently the include order of settings and inuit core leads to not having
+// $inuit-base-spacing-unit available in one of the more appropriate places (token, settings).
+$dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
+
+
+//  Mixins & Keyframes
+
+//  Animates a striped background image to indicate progress
+@keyframes barberpole {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: $inuit-base-spacing-unit--large $inuit-base-spacing-unit;
+    }
+}
+
+/// Sets color, background color + opacity for button variants
+///
+/// @group Button
+///
+/// @param {String} $color - Color of button text
+/// @param {String} $bg-color - Background color of button
+/// @param {String} $color-hover - Color of hovered button text
+/// @param {String} $bg-color-hover - Background color of hovered button
+/// @param {String} $bg-color-active - Background color of active button
+/// @output `font-size` with fallback
+@mixin button-color(
+    $color,
+    $bg-color,
+    $color-hover,
+    $bg-color-hover,
+    $bg-color-active
+) {
+    // Variant with colored background
+    &:not(.btn--outline) {
+        &,
+        &:link,
+        &:visited {
+            color: $color;
+            background-color: $bg-color;
+            border-color: $bg-color;
+        }
+
+        &:not(:disabled, :active, .is-disabled):hover,
+        &.is-current {
+            color: $color-hover;
+            background-color: $bg-color-hover;
+            border-color: $bg-color-hover;
+        }
+
+        &:active {
+            color: $color-hover;
+            background-color: $bg-color-active;
+            border-color: $bg-color-active;
+        }
+    }
+
+    // Variant with outline and colored text.
+    // May be improved by moving it to a new mixin which takes other colors,
+    // just in case the need to fine tune colors arises.
+    &.btn--outline {
+        &,
+        &:link,
+        &:visited {
+            color: $bg-color;
+            background-color: $color;
+            border-color: $bg-color;
+        }
+
+        // The hover state of .btn--outline intentionally copies the default state of .btn--<color>
+        &:not(:disabled, :active, .is-disabled):hover,
+        &.is-current {
+            color: $color;
+            background-color: $bg-color;
+            border-color: $bg-color;
+        }
+
+        // The active state of .btn--outline intentionally copies the hover state of .btn--<color>
+        &:active {
+            color: $color-hover;
+            background-color: $bg-color-hover;
+            border-color: $bg-color-hover;
+        }
+    }
+
+    &.btn--outline-reversed {
+        &,
+        &:link,
+        &:visited {
+            color: $color;
+            background-color: $bg-color;
+            border-color: $color;
+        }
+
+        // The hover state of .btn--outline intentionally copies the default state of .btn--<color>
+        &:not(:disabled, :active, .is-disabled):hover,
+        &.is-current {
+            color: $bg-color;
+            background-color: $color;
+            border-color: $color;
+        }
+
+        // The active state of .btn--outline intentionally copies the hover state of .btn--<color>
+        &:active {
+            color: $bg-color-hover;
+            background-color: $color-hover;
+            border-color: $color-hover;
+        }
+    }
+
+    // All disabled button variants have this same beautiful cursor & opacity appearance for the time being
+    &:disabled,
+    &.is-disabled {
+        @extend %disabled-opacity;
+    }
+}
+
+
+//  Placeholders
+
+//  "Normalize" <button> element, remove text decoration for <a> element
+%btn-base {
+    // In some contexts, it may be appropriate to allow for text selection on buttons
+    &:not(.btn--text-selectable) {
+        @include unselectable($cursor-default: false);
+    }
+
+    vertical-align: middle;
+
+    display: inline-block;
+
+    padding: 0;
+
+    cursor: pointer;
+    border: none;
+    background: transparent;
+
+    line-height: inherit;
+    text-decoration: none;
+    @if ($transition-nav == true) {
+        transition: color #{$transition-speed-style-delay}, background-color #{$transition-speed-style-delay};
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+        text-decoration: none;
+    }
+}
+
+
+//  Actual button variants
+
+//  This is the default appearance of buttons minus the coloring
+.btn {
+    @extend %btn-base;
+    @include keyboard-focus($outline: false) {
+        background-color: $dp-color-white;
+        box-shadow: 0 0 0 2px $dp-token-color-brand-link;
+        border-color: transparent;
+    }
+
+    outline: 0 transparent !important;
+
+    @if ($dp-use-system-ui == true) {
+        // To fix the visual effect of having button texts appear a little bit below visual center
+        // (which is caused by a flaw with half leading distribution in Segoe UI typeface) the upper padding
+        // is reduced a little bit. Also see https://yaits.demos-deutschland.de/T19691
+        padding:
+            $dp-form-element-spacing-vertical - 1px
+            $dp-button-spacing-horizontal
+            $dp-form-element-spacing-vertical + 1px;
+    } @else {
+        // Assume that half leading is distributed well on non-system fonts...
+        padding: $dp-form-element-spacing-vertical $dp-button-spacing-horizontal;
+    }
+
+    border: 1px solid transparent;
+    border-radius: $dp-button-radius;
+
+    font-size: $dp-button-font-size;
+    line-height: $dp-button-font-size;
+    text-align: center;
+}
+
+//  Loading state for buttons.
+.btn--primary,
+.btn--secondary,
+.btn--warning {
+    &.is-busy {
+        $is-busy-color-dark: rgb(0 0 0 / 10%);
+        $is-busy-color-light: rgb(256 256 256 / 10%);
+
+        position: relative;
+
+        &::before {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            transition: opacity .3s ease;
+            background-size: $inuit-base-spacing-unit $inuit-base-spacing-unit;
+            background-image:
+                linear-gradient(
+                    45deg,
+                    $is-busy-color-dark 25%,
+                    $is-busy-color-light 25%,
+                    $is-busy-color-light 50%,
+                    $is-busy-color-dark 50%,
+                    $is-busy-color-dark 75%,
+                    $is-busy-color-light 75%,
+                    $is-busy-color-light
+                );
+            animation: barberpole .5s linear infinite;
+        }
+    }
+}
+
+//  Primary button, eg. "Save" etc... only one visible instance at a time allowed! (lol)
+.btn--primary {
+    @include button-color(
+        $dp-button-color,
+        $dp-button-bg-color,
+        $dp-button-color-hover,
+        $dp-button-bg-color-hover,
+        $dp-button-bg-color-active
+    );
+}
+
+//  Secondary button, pairs with primary action (see markup example)
+.btn--secondary {
+    @include button-color(
+        $dp-button-color-alt,
+        $dp-button-bg-color-alt,
+        $dp-button-color-alt-hover,
+        $dp-button-bg-color-alt-hover,
+        $dp-button-bg-color-alt-active
+    );
+}
+
+//  Warning button, used to hint destructive actions
+.btn--warning {
+    @include button-color(
+        $dp-button-color-warning,
+        $dp-button-bg-color-warning,
+        $dp-button-color-warning-hover,
+        $dp-button-bg-color-warning-hover,
+        $dp-button-bg-color-warning-active
+    );
+}
+
+//  Only reset browser button styling
+.btn--blank {
+    @extend %btn-base;
+
+    &:disabled {
+        @extend %disabled-opacity;
+    }
+}
+
+// Use the button icon to show actions if there is not much screen estate
+// but buttons cannot be hidden inside action menus.
+// This substitutes "btn--blank o-link--default".
+// When used with text, the text must be wrapped in a span element.
+.btn--icon {
+    @extend %btn-base;
+    @include keyboard-focus($outline: false) {
+        background-color: $dp-color-white;
+        box-shadow: 0 0 0 2px $dp-token-color-ui-interactive;
+        border-color: transparent;
+    }
+
+    outline: 0 transparent !important;
+
+    // The height is calculated to match the height of the "normal" buttons.
+    height: #{2 * $dp-form-element-spacing-vertical + $inuit-base-font-size};
+    min-width: #{2 * $dp-form-element-spacing-vertical + $inuit-base-font-size - 2px};
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 $inuit-base-spacing-unit--tiny;
+
+    border-radius: $dp-token-rounded-small;
+
+    color: $dp-token-color-ui-interactive;
+    background-color: $dp-color-white;
+
+    &:not(:disabled, :active, .is-disabled):hover {
+        color: $dp-token-color-ui-interactive-hover;
+        background-color: $dp-color-neutral-light-4;
+    }
+
+    &:active {
+        color: $dp-token-color-ui-interactive-active;
+        background-color: $dp-color-neutral-light-3;
+    }
+
+    // Apply spacing between icon and text (which must be wrapped in a span element to make this work).
+    > i + * {
+        margin-left: $inuit-base-spacing-unit--tiny;
+    }
+}
+
+.btn--focus {
+    @include keyboard-focus;
+}
+
+.btn--rounded {
+    border-radius: $inuit-base-spacing-unit;
+}
+
+.btn-group {
+    // Prevent small gap of inline-block elements
+    display: inline-flex;
+
+    > .btn:not(:last-child) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    > .btn:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    // Outline buttons may have 1px border, those sum up when being
+    // displayed next to each other, which is prevented hereby.
+    > .btn + .btn {
+        margin-left: -1px;
+    }
+}
+
+
+// links shouldn't have any pointer events if they are 'disabled'
+a.is-disabled {
+    pointer-events: none !important;
+}
+
+
+//  Do not...
+//
+//         _/_/_/                                                                  _/                     _/
+//       _/    _/    _/_/    _/_/_/    _/  _/_/    _/_/      _/_/_/    _/_/_/  _/_/_/_/    _/_/      _/_/_/
+//      _/    _/  _/_/_/_/  _/    _/  _/_/      _/_/_/_/  _/        _/    _/    _/      _/_/_/_/  _/    _/
+//     _/    _/  _/        _/    _/  _/        _/        _/        _/    _/    _/      _/        _/    _/
+//    _/_/_/      _/_/_/  _/_/_/    _/          _/_/_/    _/_/_/    _/_/_/      _/_/    _/_/_/    _/_/_/
+//                       _/
+//                      _/
+//
+//  ...use the below classes!
+
+
+//  @deprecated
+//      Use <button class="btn--icon"><i class="fa fa-lala" aria-hidden="true"></i> ButtonLabel</button> instead.
+.btn-icns {
+    margin: 0 $inuit-base-spacing-unit--small $inuit-base-spacing-unit--small 0;
+
+    background: transparent;
+    border: none;
+    color: $dp-token-color-brand-link;
+    cursor: pointer;
+
+    font-weight: $bold-font-weight; // does not work for fonts that need a "bold" font style
+    font-size: 1em;
+
+    &:hover,
+    &:focus,
+    &.is-current {
+        background: transparent;
+        color: $dp-token-color-brand-link-hover;
+    }
+
+    &:disabled,
+    &:disabled:hover {
+        color: $deactivated-font-color;
+    }
+
+    //  used to show small icon buttons without any vertical spacing between
+    &--small,
+    &--small i {
+        display: block;
+        height: $inuit-base-spacing-unit--small;
+        margin: 0;
+    }
+
+    &--thin {
+        font-weight: normal;
+    }
+}
+
+//  @TODO move icons inside buttons (which means, change <input type="button"> to <button>)
+//  @deprecated See above.
+.btn-icns-icon {
+    color: $dp-token-color-brand-link;
+
+    font-size: .9em;
+
+    &--thin {
+        font-weight: normal;
+    }
+
+    &--disabled {
+        color: $deactivated-font-color;
+    }
+}

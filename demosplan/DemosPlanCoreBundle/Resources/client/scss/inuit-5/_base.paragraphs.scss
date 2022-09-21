@@ -1,0 +1,25 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*------------------------------------*\
+    #PARAGRAPHS
+\*------------------------------------*/
+
+/**
+ * The `.lede` class is used to make the introductory text (usually a paragraph)
+ * of a document slightly larger: en.wikipedia.org/wiki/Lede_(news)
+ */
+
+// Predefine the variables below in order to alter and enable specific permissions.
+$inuit-lede-size:   1.125 !default;
+
+.#{$inuit-namespace}lede,
+%#{$inuit-namespace}lede {
+    @include inuit-font-size($inuit-base-font-size * $inuit-lede-size);
+}

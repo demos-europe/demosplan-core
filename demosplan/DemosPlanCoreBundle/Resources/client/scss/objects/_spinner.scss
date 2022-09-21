@@ -1,0 +1,29 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: spinner
+//
+//  @deprecated - Used mostly in twig + vanilla js context. Use <dp-loading> or `.btn.is-busy`.
+
+//  container
+.o-spinner.is-progress {
+    margin-right: 35px;
+
+    &::after {
+        position: absolute;
+        display: inline-block;
+
+        height: $inuit-base-spacing-unit;
+        width: $inuit-base-spacing-unit;
+
+        background: url('../img/loader-circular-24x24.svg') no-repeat top left;
+        background-size: contain;
+        content: '';
+    }
+}

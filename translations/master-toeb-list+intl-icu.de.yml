@@ -1,0 +1,31 @@
+gatewayGroup: Gateway-Gruppe
+orgaName: Name Institution
+departmentName: Abteilung
+email: E-Mail-Adresse
+ccEmail: Weitere E-Mail-Adressen
+comment: Anmerkung (intern)
+contactPerson: Ansprechperson
+documentRoughAgreement: Unterlagen z. Grobabstimmung
+documentAgreement: Unterlagen z. Abstimmung
+documentNotice: Unterlagen z. Kenntnisnahme
+documentAssessment: Unterlagen n. Feststellung
+districtBsu: Behörde für Stadtentwicklung und Wohnen
+districtHarburg: Harburg
+districtBergedorf: Bergedorf
+districtWandsbek: Wandsbek
+districtHHNord: HH-Nord
+districtEimsbuettel: Eimsbüttel
+districtAltona: Altona
+districtHHMitte: HH-Mitte
+memo: Notiz
+registered: Registriert
+sign: Leitzeichen
+
+update: Aktualisierung
+add: Hinzufügen
+delete: Löschen
+merge: Zusammenführung
+
+label.fromTemplate: "Aus Vorlage"
+label.newEntry: "Neuer Eintrag"
+label.oldEntry: "Alter Eintrag"

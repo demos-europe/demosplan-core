@@ -1,0 +1,87 @@
+{% set inserted_light = 'bg-color--system-info-light-2' %}
+{% set deleted_light = 'bg-color--system-warning-light-1' %}
+{% set tags_with_obscure = ['ins','del','dp-obscure'] %}
+{% set tags_without_obscure = ['ins','del'] %}
+
+<table>
+    <thead>
+        <tr class="hide-visually">
+            <th scope="col">{{ 'added.removed'|trans }}</th>
+            <th scope="col">{{ 'changes'|trans }}</th>
+        </tr>
+    </thead>
+    {% for changeInstance in diffArray %}
+        <tbody>
+            {% for diff in changeInstance %}
+
+                {% if ('del' is same as(diff.tag)) %}
+                    {% for line in diff.old.lines %}
+                        <tr>
+                            <td class="width-20">-</td>
+                            <td class="{{ deleted_light }}">
+                                <div class="u-mb-0_5">
+                                    {{ line|wysiwyg(
+                                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                                    ) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% elseif ('ins' is same as(diff.tag)) %}
+                    {% for line in diff.new.lines %}
+                        <tr>
+                            <td class="width-20">+</td>
+                            <td class="{{ inserted_light }}">
+                                <div class="u-mb-0_5">
+                                    {{ line|wysiwyg(
+                                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                                    ) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% elseif ('rep' is same as(diff.tag)) %}
+                    {% for line in diff.old.lines %}
+                        <tr>
+                            <td class="width-20">-</td>
+                            <td class="{{ deleted_light }}">
+                                <div class="u-mb-0_5">
+                                    {{ line|wysiwyg(
+                                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                                    ) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for line in diff.new.lines %}
+                        <tr>
+                            <td class="width-20">+</td>
+                            <td class="{{ inserted_light }}">
+                                <div class="u-mb-0_5">
+                                    {{ line|wysiwyg(
+                                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                                    ) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for line in diff.old.lines %}
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="u-mb-0_5">
+                                    {{ line|wysiwyg(
+                                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                                    ) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+
+            {% endfor %}
+
+        </tbody>
+    {% endfor %}
+</table>

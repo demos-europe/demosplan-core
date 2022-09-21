@@ -1,0 +1,55 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+
+import DpDetails from './DpDetails'
+
+<Meta
+  argTypes={{
+    default: {
+      control: {
+        type: 'text',
+      },
+      table: {
+        category: 'Slots',
+        type: {
+          summary: 'html',
+        },
+      }
+    },
+  }}
+  title="Components/Details"
+  component={DpDetails} />
+
+# Details
+
+The `DpDetails` component is used to reveal detailed information only when users need it. Other than the accordion or
+expandable table, it is not used to display tabular data or multiple items of the same type and structure - it rather
+represents a single chunk of information that is shortened to ease scanning of the content it is part of.
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpDetails },
+    template: `<dp-details v-bind="propsWithoutDefaultSlot" v-on="$props">${typeof args.default !== 'undefined' ? args.default : ''}</dp-details>`,
+    computed: {
+        propsWithoutDefaultSlot() {
+            const all = this.$props
+            delete all['default']
+            return all
+        }
+    }
+});
+
+## Colors
+
+### Primary
+<Canvas>
+    <Story
+      name="Default usage"
+      args={{
+          default: `Content to be revealed onClick of the summary. Here, content of any length can be placed. However
+          this does not mean that content have to be as long as possible, especially if no real value is added by lengthening
+          sentences that otherwise would not even have to be read.`,
+          summary: 'The summary tells users what to find in the details'
+      }}>
+      {Template.bind({})}
+    </Story>
+</Canvas>

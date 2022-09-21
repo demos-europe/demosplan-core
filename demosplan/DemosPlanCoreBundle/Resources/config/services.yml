@@ -1,0 +1,1105 @@
+services:
+    _defaults:
+        # automatically injects dependencies in your services
+        autowire: true
+        # automatically registers your services as commands, event subscribers, etc.
+        autoconfigure: true
+        # this means you cannot fetch services directly from the container via $container->get()
+        # if you need to do this, you can override this setting on individual services
+        public: false
+
+    Cocur\Slugify\Slugify: ~
+
+    demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer:
+        lazy: true
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
+
+    demosplan\DemosPlanCoreBundle\Context\PluginContext: ~
+
+
+    demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
+        arguments:
+            $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
+
+    demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/config_parameters_toolbar.html.twig'
+                id: 'app.config_parameters_collector'
+                priority: -100
+
+    demosplan\DemosPlanCoreBundle\DataCollector\GeoJsonDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/geo_json_info.html.twig'
+                id: 'app.geo_json_data_collector'
+                priority: -101
+
+    demosplan\DemosPlanCoreBundle\DataCollector\UserInfoDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/user_info.html.twig'
+                id: 'app.user_info_collector'
+                priority: -99
+
+    demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory:
+        arguments:
+            - !tagged dplan.data.generator
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
+        autowire: true
+        public: false
+        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+
+    demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
+
+    demosplan\DemosPlanCoreBundle\EventListener\ApcuClearListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 20 }
+
+    demosplan\DemosPlanCoreBundle\EventListener\ApiControllerListener:
+        tags:
+            - name: kernel.event_listener
+              event: kernel.controller
+              method: onKernelController
+
+    demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener:
+        abstract: true
+
+    # Specific priority set to ensure this listener is invoked before the ApiControllerListener,
+    # which needs the permission-settings to execute its logic.
+    demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 5 }
+
+    demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    demosplan\DemosPlanCoreBundle\EventListener\DemosPlanResponseListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
+
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineLoggerListener:
+        tags:
+            - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
+
+    demosplan\DemosPlanCoreBundle\EventListener\ExceptionListener:
+        arguments:
+            $logger: '@monolog.logger.dplan_404'
+            $debug: '%kernel.debug%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: handleException }
+            - { name: kernel.event_listener, event: kernel.controller, method: trackController }
+
+    demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaListener:
+        arguments:
+            $indexManager: '@fos_elastica.index_manager'
+        tags:
+            - { name: kernel.event_listener, event: elastica.index.index_pre_populate, method: preIndexPopulate }
+            - { name: kernel.event_listener, event: elastica.index.type_pre_populate, method: preIndexPopulate }
+            - { name: kernel.event_listener, event: elastica.index.index_post_populate, method: postIndexPopulate }
+            - { name: kernel.event_listener, event: elastica.index.type_post_populate, method: postIndexPopulate }
+
+    demosplan\DemosPlanCoreBundle\EventListener\RoleEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\Role, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\CountyEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\County, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\SubdomainListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: handle, priority: 22 }
+
+    demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
+        arguments: ['%kernel.default_locale%']
+        tags: [kernel.event_subscriber]
+
+    demosplan\DemosPlanCoreBundle\Filesystem\LocalFilesystem:
+        arguments:
+            # It's okay that the symfony extension complains about a missing
+            # service id here. This service is generated during the container
+            # build and not always picked up by the extension, but you may
+            # rest assured that it exists.
+            $filesystemOperator: '@local.storage'
+
+    demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
+
+    demosplan\DemosPlanCoreBundle\Form\ProcedureBehaviorDefinitionFormType: ~
+
+    demosplan\DemosPlanCoreBundle\Form\ProcedureUiDefinitionFormType: ~
+
+    demosplan\DemosPlanCoreBundle\Form\StatementFormDefinitionFormType: ~
+
+    demosplan\DemosPlanCoreBundle\Form\StatementFieldDefinitionFormType: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\ContentService:
+        autowire: true
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\CoreHandler:
+        abstract: true
+
+    demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
+        arguments:
+            $publicCSSClassPrefix: '%public_css_class_prefix%'
+            $defaultLocale: '%kernel.default_locale%'
+
+    demosplan\DemosPlanCoreBundle\Logic\EditorService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\EmailAddressService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeRollbackVersionService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        calls:
+            - [ 'loadFieldMapping' ]
+
+    demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
+        arguments:
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanCoreBundle\Logic\Faq\FaqService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\FileService:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
+
+    demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
+        arguments:
+            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+            $sortingParser: '@EDT\JsonApi\RequestHandling\JsonApiSortingParser'
+            $paginatorFactory: '@EDT\JsonApi\RequestHandling\PaginatorFactory'
+            $propertyValuesGenerator: '@EDT\JsonApi\RequestHandling\PropertyValuesGenerator'
+
+    # as long at this service is used in commands and symfony < 4.1 this needs to be public
+    demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService:
+        public: true
+
+    # Used in Migrations. As long as DI is not usable in Migrations yet these have to be public
+    demosplan\DemosPlanCoreBundle\Logic\LocationService:
+        public: true
+
+    demosplan\DemosPlanCoreBundle\Logic\MailService:
+        arguments:
+            $logger: '@monolog.logger.dplan_mail'
+            $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
+        lazy: true
+        arguments:
+            $searchTypes:
+                Statement: "@fos_elastica.index.statements.statement"
+                Procedures: "@fos_elastica.index.procedures.procedure"
+                StatementSegment: "@fos_elastica.index.statementSegments.statementSegment"
+                AdministratableUser: "@fos_elastica.index.users.user"
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider:
+        lazy: true
+        arguments:
+            $types: !tagged dplan.resourceType
+            $logger: '@demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger'
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
+        arguments:
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
+
+    # Used in Migrations. As long as DI is not usable in Migrations yet these have to be public
+    demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter:
+        public: true
+    demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter:
+        public: true
+
+    demosplan\DemosPlanCoreBundle\Logic\MenuBuilder\MenuBuilder:
+            arguments:
+                $eventDispatcher: '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface'
+                $factory: '@knp_menu.factory'
+            tags:
+                - { name: knp_menu.menu_builder, method: createSideMenu, alias: sidemenu } # The alias is what is used to retrieve the menu
+
+    demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
+        '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
+
+    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
+        tags:
+            - { name: monolog.logger, channel: session }
+
+    demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService:
+        arguments: ['@phpoffice.spreadsheet']
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\Router:
+        decorates: 'router'
+
+    demosplan\DemosPlanCoreBundle\Mailer\Transport\PlainTransportFactory:
+        tags: [mailer.transport_factory]
+
+    # when $jwtRouter is injected via DI JwtRouter is used
+    Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
+    Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
+
+
+    demosplan\DemosPlanCoreBundle\Monolog\SentryHandler:
+        decorates: Sentry\Monolog\Handler
+        arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
+
+    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
+        arguments:
+            $logger: '@monolog.logger.dplan'
+
+    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
+
+    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
+        public: true
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
+        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHAuthenticator:
+        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH'
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHStaticAuthenticator:
+        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHHStatic'
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHAuthenticator:
+        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH'
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHStaticAuthenticator:
+        $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySHStatic'
+
+    demosplan\DemosPlanCoreBundle\Security\Firewall\Listener\DemosAuthenticationListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 6 }
+
+    demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb: ~
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery:
+        abstract: true
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer:
+        lazy: true
+        arguments:
+            $cacheDirectory: '%kernel.cache_dir%/htmlpurifier'
+
+    demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface: '@demosplan\DemosPlanCoreBundle\Services\SubdomainHandler'
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer: ~
+
+    demosplan\DemosPlanCoreBundle\Transformers\FaqCategoryTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            -   name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader:
+        lazy: true
+        arguments:
+            - !tagged_iterator 'dplan.json_api_transformer'
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension:
+        tags:
+            - { name: monolog.logger, channel: dplan }
+
+    demosplan\DemosPlanCoreBundle\Twig\Extension\MapExtension:
+        arguments:
+            $mapDefaultProjection: '%map_default_projection%'
+
+    demosplan\DemosPlanCoreBundle\Twig\Extension\PrefixClassExtension:
+        $prefixClass: '%public_css_class_prefix%'
+
+    demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension: ~
+
+
+    demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator }
+
+    demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator }
+
+    demosplan\DemosPlanCoreBundle\Validator\OriginalReferenceConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\OriginalReferenceConstraintValidator }
+
+    demosplan\DemosPlanCoreBundle\Validator\PrePersistUniqueInternIdConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\PrePersistUniqueInternIdConstraintValidator }
+
+    demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
+
+    demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
+
+    demosplan\DemosPlanDocumentBundle\Logic\ParagraphService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+
+    demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
+
+    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+
+    ##########Handler
+
+    demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanDocumentBundle\Logic\ParagraphHandler: ~
+
+
+    demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+
+    demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanDocumentBundle\Logic\RpcElementsBulkEditor:
+        lazy: true
+
+    ########## Transformers
+
+    demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanForumBundle\Logic\ForumHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanForumBundle\Logic\ForumService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanHelpBundle\Logic\HelpHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanHelpBundle\Logic\HelpService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo: ~
+
+    demosplan\DemosPlanMapBundle\Logic\MapService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        calls:
+            - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanStatementBundle\Logic\DraftStatementService' ] ]
+            - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
+
+    demosplan\DemosPlanMapBundle\Logic\MapHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter:
+        arguments:
+            $logger: '@monolog.logger.dplan'
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\MapImageToCoordinatesCropper:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\MapImageToPolygonCropper:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\MapLayerMerger:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\PrintLayerToMapLayerConverter:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter:
+        lazy: true
+
+    demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            -   name: dplan.json_api_transformer
+
+    demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanPluginBundle\Logic\Plugin:
+        abstract: true
+        calls:
+            - [ 'setLogger', [ '@monolog.logger.dplan_plugin' ]]
+
+    demosplan\DemosPlanPluginBundle\EventListener\PluginEventListener:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
+
+    demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber:
+        arguments: [ '@demosplan\DemosPlanCoreBundle\Context\PluginContext' ]
+        tags:
+            - { name: kernel.event_subscriber }
+
+    demosplan\DemosPlanPluginBundle\Logic\PluginList: ~
+
+    demosplan\DemosPlanPluginBundle\Twig\Extension\ExecutePluginExtension: ~
+
+    demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
+        autowire: true
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure, lazy: true }
+
+    demosplan\DemosPlanProcedureBundle\Form\ProcedureFormType: ~
+
+
+    demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService:
+        lazy: true
+
+    dplan.procedure:
+        alias: 'demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler'
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader:
+        lazy: true
+
+    demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+        arguments:
+            $esProcedurePersister: '@fos_elastica.object_persister.procedures.procedure'
+            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $environment: '%kernel.environment%'
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureToLegacyConverter: ~
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureCategoryService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
+        $procedureSearchType: "@fos_elastica.index.procedures.procedure"
+
+    demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        public: true
+        lazy: true
+        arguments:
+            $statementPersister: '@fos_elastica.object_persister.statements.statement'
+            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments.statementFragment'
+            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments.statementSegment'
+            $environment: '%kernel.environment%'
+
+    demosplan\DemosPlanProcedureBundle\Logic\ExportService:
+        lazy: true
+        arguments:
+            $rendererPath: '%pdf_renderer_path%'
+            $rendererName: '%pdf_renderer_name%'
+
+    demosplan\DemosPlanProcedureBundle\Transformers\AssessmentTableFilterTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanReportBundle\Logic\MasterPublicAgencyReportEntryFactory: ~
+    demosplan\DemosPlanReportBundle\Logic\OrganisationReportEntryFactory: ~
+    demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory: ~
+
+    demosplan\DemosPlanReportBundle\Logic\ReportService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory: ~
+
+    demosplan\DemosPlanReportBundle\Logic\ExportReportService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanReportBundle\EventSubscriber\ReportSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter: ~
+
+    demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanStatementBundle\Logic\ElasticSearchService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+        calls:
+            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
+            - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanStatementBundle\Logic\DraftStatementService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+        calls:
+            - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements.draftStatement' ]]
+
+    demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AssignService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+        calls:
+            - [ 'setEsStatementType', [ '@fos_elastica.index.statements.statement' ]]
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementCopyAndMoveService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementMover:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementCopier:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementClusterService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService:
+        lazy: true
+        calls:
+            - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments.statementFragment' ]]
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+
+    demosplan\DemosPlanStatementBundle\Logic\TagService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\SubmitterService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanStatementBundle\EventListener\UpdateElasticaStatementPostListener:
+        lazy: true
+        tags:
+            - { name: doctrine.event_listener, event: preRemove }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: postPersist }
+
+
+    demosplan\DemosPlanStatementBundle\EventListener\DoctrineStatementListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
+
+    demosplan\DemosPlanStatementBundle\EventListener\IndexFilesListener:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions:
+        lazy: true
+        arguments:
+            $env: '%kernel.environment%'
+
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\HistoryTimeTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanStatementBundle\Validator\StatementIdsInProcedureValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanStatementBundle\Validator\StatementIdsInProcedureValidator }
+
+    demosplan\DemosPlanStatementBundle\Validator\ClaimedStatementIdsValidator:
+        tags:
+            - { name: validator.constraint_validator, alias: demosplan\DemosPlanStatementBundle\Validator\ClaimedStatementIdsValidator }
+
+    demosplan\DemosPlanStatementBundle\Logic\CountyService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanStatementBundle\Logic\MunicipalityService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanStatementBundle\Logic\PresentableOriginalStatementFactory:
+        lazy: true
+
+    # Assessment Table Exporter Strategy
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableExporterStrategy:
+        lazy: true
+        arguments: [!tagged dplan.assessment.table.exporter]
+
+    # Assessment Table Exporter Abstract
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableFileExporterAbstract: ~
+
+    # PDF Exporter
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTablePdfExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
+    # XLS Exporter
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
+    # DOCX Exporter
+    demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableDocxExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
+    # File Response Generator Strategy
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy:
+        lazy: true
+        arguments: [!tagged dplan.file.response.generator]
+
+    # PDF Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\PdfResponseGenerator:
+        arguments:
+            $supportedTypes: "%file.formats.pdf%"
+        lazy: true
+        tags:
+            - { name: "dplan.file.response.generator" }
+
+
+    # XLS Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\XlsResponseGenerator:
+        arguments:
+            $supportedTypes: "%file.formats.xls%"
+        tags:
+            - { name: "dplan.file.response.generator" }
+
+    # DOCX Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\DocxResponseGenerator:
+        arguments:
+            $supportedTypes: "%file.formats.doc%"
+        tags:
+            - { name: "dplan.file.response.generator" }
+
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
+        arguments:
+            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
+        tags: [kernel.event_subscriber]
+
+    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
+
+    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\PdfToStatementCreator:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
+        arguments:
+            $maxPiRetries: '%max_pi_retries%'
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
+        arguments:
+            $maxPiRetries: '%max_pi_retries%'
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            -   name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterGroupTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            -   name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
+        tags:
+            -   name: dplan.json_api_transformer
+
+    # Survey Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler:
+        $surveyStatuses: '%survey.statuses%'
+
+    # Survey New Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyNewHandler:
+        $defaultStatus: '%survey.status.default%'
+
+    # Survey Update Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyUpdateHandler:
+        $schemaFilePath: '%survey.schema_path_update%'
+
+    # Survey Create Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyCreateHandler:
+        $schemaFilePath: '%survey.schema_path_create%'
+
+    # Survey Show Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyShowHandler: ~
+
+    # Survey Service
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyService: ~
+
+    # Survey Validator
+    demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator: ~
+
+    # SurveyVote Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler:
+        $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+
+    # SurveyVote Create Handler
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler: ~
+
+    # SurveyVote Service
+    demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService: ~
+
+    # SurveyVote Validator
+    demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator:
+        $schemaFilePath: '%surveyvote.schema_path_create%'
+
+    demosplan\DemosPlanUserBundle\Logic\UserService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
+    demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
+
+    demosplan\DemosPlanUserBundle\Logic\AddressService:
+        lazy: true
+
+    demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanUserBundle\Logic\OrgaService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        public: true
+
+    demosplan\DemosPlanUserBundle\Logic\BrandingService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    demosplan\DemosPlanUserBundle\Logic\OrgaHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanUserBundle\Logic\UserHandler:
+        public: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+        lazy: true
+
+    demosplan\DemosPlanUserBundle\Logic\UserHasher:
+        lazy: true
+
+
+    demosplan\DemosPlanUserBundle\Logic\RoleService:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+
+    demosplan\DemosPlanUserBundle\Logic\RoleHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapper: ~
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway:
+        lazy: true
+        arguments:
+            $logger: '@monolog.logger.dplan_gateway'
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH:
+        lazy: true
+        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySHStatic:
+        lazy: true
+        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewaySH
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH:
+        lazy: true
+        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway
+
+    demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHHStatic:
+        lazy: true
+        parent: demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGatewayHH
+
+    demosplan\DemosPlanUserBundle\Logic\MasterToebService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanStatementBundle\EventSubscriber\OrganisationUpdateSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    demosplan\DemosPlanUserBundle\Logic\CustomerService:
+        lazy: true
+
+    demosplan\DemosPlanUserBundle\Logic\CustomerHandler:
+        lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+
+    demosplan\DemosPlanUserBundle\EventListener\DoctrineUserListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
+
+    EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
+
+    EDT\DqlQuerying\SortMethodFactories\SortMethodFactory: ~
+
+    EDT\JsonApi\ApiDocumentation\AttributeTypeResolver: ~
+
+    EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
+        arguments:
+            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
+            $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
+
+    EDT\JsonApi\ApiDocumentation\SchemaStore: ~
+
+    EDT\JsonApi\RequestHandling\JsonApiSortingParser:
+        arguments:
+            - '@EDT\DqlQuerying\SortMethodFactories\SortMethodFactory'
+
+    EDT\JsonApi\RequestHandling\PaginatorFactory: ~
+
+    EDT\JsonApi\RequestHandling\PropertyValuesGenerator:
+        arguments:
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
+
+    EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
+        arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+
+    EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
+        public: true
+        arguments:
+            - '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            - '@EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser'
+            - '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator'
+
+    EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
+        arguments:
+            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+
+    EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider:
+        arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+
+    Intervention\Image\ImageManager: ~
+
+    Pagerfanta\View\ViewFactory: '@white_october_pagerfanta.view_factory'
+
+    path_based_model_to_elastica_transformer:
+        class: FOS\ElasticaBundle\Transformer\ModelToElasticaAutoTransformer
+        arguments: [[], "@event_dispatcher"]
+        calls:
+            - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
+
+    # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
+    # do NOT just add new code to the end of this file.

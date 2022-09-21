@@ -1,0 +1,100 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:list';
+@use 'sass:map';
+
+/// Helper functions to handle multidimensional scss maps.
+/// @see https://css-tricks.com/snippets/sass/deep-getset-maps/
+
+
+/// Map deep get
+/// @author Hugo Giraudel
+/// @access public
+/// @param {Map} $map - Map
+/// @param {Arglist} $keys - Key chain
+/// @return {*} - Desired value
+///
+/// @example
+/// $header-spacing: (
+///     logo-height: (
+///         palm: 49px,
+///         lap: 63px,
+///         desk-up: 77px
+///     )
+/// );
+/// .c-header__logo {
+///     height: map-deep-get($header-spacing, 'logo-height', 'desk-up');
+/// }
+@function map-deep-get($map, $keys...) {
+    @each $key in $keys {
+        $map: map.get($map, $key);
+    }
+    @return $map;
+}
+
+/// Deep set function to set a value in nested maps
+/// @author Hugo Giraudel
+/// @access public
+/// @param {Map} $map - Map
+/// @param {List} $keys -  Key chain
+/// @param {*} $value - Value to assign
+/// @return {Map}
+///
+/// @example
+/// $outermost-map-name-changed: map-deep-get($outermost-map-name, 'Keys' 'That' 'Lead' 'To' 'KeyName', Value);
+/// $header-spacing: (
+///     logo-height: (
+///         palm: 49px,
+///         lap: 63px,
+///         desk-up: 77px
+///     )
+/// );
+/// $header-spacing: map-deep-set($outermost-map-name, 'logo-height' 'desk-up', 100px);
+@function map-deep-set($map, $keys, $value) {
+    $maps: ($map,);
+    $result: null;
+
+    // If the last key is a map already
+    // Warn the user we will be overriding it with $value
+    @if type-of(list.nth($keys, -1)) == 'map' {
+        @warn 'The last key you specified is a map; it will be overrided with `#{$value}`.';
+    }
+
+    // If $keys is a single key
+    // Just merge and return
+    @if length($keys) == 1 {
+        @return map.merge($map, ($keys: $value));
+    }
+
+    // Loop from the first to the second to last key from $keys
+    // Store the associated map to this key in the $maps list
+    // If the key doesn't exist, throw an error
+    @for $i from 1 through length($keys) - 1 {
+        $current-key: list.nth($keys, $i);
+        $current-map: list.nth($maps, -1);
+        $current-get: map.get($current-map, $current-key);
+        @if not $current-get {
+            @error 'Key `#{$current-key}` does not exist at current level in map.';
+        }
+        $maps: list.append($maps, $current-get);
+    }
+
+    // Loop from the last map to the first one
+    // Merge it with the previous one
+    @for $i from length($maps) through 1 {
+        $current-map: list.nth($maps, $i);
+        $current-key: list.nth($keys, $i);
+        $current-val: if($i == list.length($maps), $value, $result);
+        $result: map.merge($current-map, ($current-key: $current-val));
+    }
+
+    // Return result
+    @return $result;
+}

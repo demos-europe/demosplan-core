@@ -1,0 +1,183 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+///  Used to display an expandable set of buttons.
+///  The menu behavior is defined in Actionmenu.js.
+///  To enable highlighting of current menu item, drop data-actionmenu-current on the item.
+///
+/// @group components
+///
+/// @name .c-actionmenu
+///
+/// @example markup
+/// <div class="c-actionmenu" data-actionmenu>
+///   <button
+///     class="c-actionmenu__trigger"
+///     aria-haspopup="true"
+///     aria-expanded="false">
+///     <i
+///       class="fa fa-share-square u-mr-0_125"
+///       aria-hidden="true">
+///     </i>
+///     Heading subsuming all actions
+///   </button>
+///
+///   <div
+///     class="c-actionmenu__menu"
+///     role="menu">
+///     <button
+///       class="c-actionmenu__menuitem"
+///       role="menuitem"
+///       tabindex="-1"
+///       @click.prevent="$root.$emit('actionModal:toggle', 'action1')>
+///       Action #1
+///     </button>
+///     <button
+///       class="c-actionmenu__menuitem"
+///       role="menuitem"
+///       tabindex="-1"
+///       @click.prevent="$root.$emit('actionModal:toggle', 'action2')>
+///       Action #2
+///     </button>
+///     <button
+///       class="c-actionmenu__menuitem"
+///       role="menuitem"
+///       tabindex="-1"
+///       @click.prevent="$root.$emit('actionModal:toggle', 'action3')>
+///       Action #3
+///     </button>
+///   </div>
+/// </div>
+///
+
+//  component container
+.c-actionmenu {
+    position: relative;
+    vertical-align: top;
+
+    display: inline-block;
+
+    background-color: $dp-color-white;
+
+    // If js is disabled in browser, enable tabbing through all the menu elements
+    .nojs & {
+        z-index: $z-fixed;
+
+        &:hover .c-actionmenu__menu,
+        .c-actionmenu__trigger:focus + .c-actionmenu__menu {
+            display: block;
+        }
+
+        // This block needs to be separate from the previous one because :focus-within is not supported
+        // in IE/Old Edge which leads to those browsers ignoring the whole block.
+        &:focus-within .c-actionmenu__menu {
+            display: block;
+        }
+    }
+
+    .js & {
+        &:hover,
+        &:active,
+        &.is-expanded,
+        &__trigger:focus {
+            z-index: $z-fixed;
+
+            & .c-actionmenu__menu {
+                display: block;
+            }
+        }
+    }
+
+    // general styling of the component
+    &__trigger,
+    &__menuitem {
+        @extend %btn-base;
+
+        background-color: transparent;
+        color: $dp-token-color-brand-link;
+        outline: 0;
+
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    &__trigger {
+        @include keyboard-focus($outline: false);
+
+        position: relative;
+        z-index: 1;
+
+        padding: 0 $inuit-base-spacing-unit--small;
+
+        line-height: 2.2;
+
+        &--padded {
+            padding-left: math.div($inuit-base-spacing-unit--small, .75);
+        }
+
+        &:disabled {
+            @extend %disabled-opacity;
+        }
+    }
+
+    &__menu {
+        // Apply focus border style on menu block to initially better make it visually align with open state
+        @include keyboard-focus($color: false);
+
+        left: 0;
+        position: absolute;
+        top: 0;
+
+        display: none;
+        min-width: 100%;
+        max-height: 500px;
+        overflow-y: auto;
+        padding-bottom: 10px;
+        padding-top: 35px; // Height of &__trigger...
+
+        background-color: $dp-color-white;
+        box-shadow: $dp-token-box-shadow-1;
+
+        // Keep long words like "Planfeststellungsverfahren" on one line
+        hyphens: none;
+    }
+
+    &__menuitem {
+        @include keyboard-focus;
+
+        display: block;
+        width: 100%;
+
+        // '33px' is a magic number that lets items align with trigger text beneath an icon, as in the
+        // "Export" and "Ansicht" usages. However it would be clever to get more generic here.
+        padding: .2rem 20px .2rem 33px;
+
+        transition: none;
+
+        line-height: 1.2;
+
+        &:hover,
+        &.is-active {
+            color: $dp-token-color-brand-link-hover;
+        }
+
+        &[data-actionmenu-current] {
+            color: $dp-token-color-brand-highlight;
+        }
+
+        // The active menu item shall not be interactive
+        &.is-active,
+        &[data-actionmenu-current] {
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+}

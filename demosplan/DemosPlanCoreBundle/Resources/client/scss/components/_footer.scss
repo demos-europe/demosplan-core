@@ -1,0 +1,55 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// The main page footer component.
+///
+/// @group components
+///
+/// @name .c-footer
+
+.c-footer {
+    $footer-color:           $dp-token-color-brand-nav-alt-link;
+    $footer-color-hover:     $dp-token-color-brand-nav-alt-link-hover;
+    $footer-color-alt:       $dp-token-color-brand-nav-alt-alt;
+    $footer-bg-color:        $dp-token-color-brand-nav-alt-bg;
+
+
+    background-color: $footer-bg-color;
+
+    @include media-query('lap-up') {
+        line-height: 3rem;
+    }
+
+    @include media-query('palm') {
+        padding: $inuit-base-spacing-unit--small;
+    }
+
+    &__link {
+        @include keyboard-focus;
+
+        color: $footer-color;
+
+        &:hover {
+            color: $footer-color-hover;
+        }
+
+        @include media-query('palm') {
+            display: block;
+            padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit * .75;
+        }
+
+        @include media-query('lap-up') {
+            padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .75;
+        }
+    }
+
+    &__version {
+        color: $footer-color-alt;
+    }
+}

@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ styling for vue-component "draggable"
+**/
+.o-sortablelist {
+
+    // Element attached to the mouse while dragging
+    &__ghost {
+        height: $inuit-base-spacing-unit * 2;
+        margin: 0;
+        overflow: hidden;
+        padding: 0;
+
+        &::before {
+            display: block;
+            height: $inuit-base-spacing-unit;
+            margin: 0 2% $inuit-base-spacing-unit;
+            width: 96%;
+
+            background: $dp-color-neutral-light-3;
+            border: 1px solid $dp-color-neutral-light-2;
+            content: ' ';
+        }
+    }
+
+    // Element that appears while dragging to have a dropable space
+    &__spacer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        height: $inuit-base-spacing-unit * .75;
+        width: 100%;
+
+        background: $dp-color-neutral-light-3;
+    }
+
+    &__empty {
+        position: relative;
+
+        padding-bottom: $inuit-base-spacing-unit;
+    }
+
+    &__item {
+        &.is-active,
+        &.is-active:hover {
+            background: $dp-color-neutral-light-2;
+        }
+
+        &:hover {
+            background: $dp-color-neutral-light-3;
+        }
+    }
+}

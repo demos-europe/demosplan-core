@@ -1,0 +1,22 @@
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+{% block demosplanbundlecontent %}
+{% set procedure = templateVars.procedure|default([]) %}
+% Überschrift
+\ \\
+\ \\
+\ \\
+\section*{\centering {{ "procedure.name"|trans|latex|raw }}: {{ getProcedureName(procedure)|latex|raw }}\\
+{{ '{{' }}\color{DPlightgrey}
+		\rule{\linewidth}{0.5mm}{{ '}}' }}
+\ \\
+\ \\
+	{{ "procedure.agency"|trans|latex|raw }}: {{ procedure.orgaName|default()|latex|raw }}\\
+\ \\
+\ \\
+\ \\
+	{{ "planningagency.participating"|trans|latex|raw }} {% if procedure.planningOffices is defined %}{% for office in procedure.planningOffices %}{{ office.name|latex|raw }}{% endfor %}{% else %}----{% endif %}\\
+\ \\
+\ \\
+\ \\
+	{{ "period.participation"|trans|latex|raw }}:  {{ getProcedureStartDate(procedure, 'internal')|dplanDate }} - {{ getProcedureEndDate(procedure, 'internal')|dplanDate }}{% if ownsProcedure(procedure) %} /\\{{ getProcedureStartDate(procedure, 'public')|dplanDate }} - {{ getProcedureEndDate(procedure, 'public')|dplanDate }}{% endif %}\\}
+{% endblock %}

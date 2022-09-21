@@ -1,0 +1,103 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+import DpLabel from './DpLabel'
+
+<Meta
+    title="Components/Label"
+    component={DpLabel} />
+
+# Label
+
+The `DpLabel` component is used to add a label to form controls.
+
+It is included in the following <strong><i>demosplan-ui</i></strong> form components:
+
+- DpCheckbox
+- DpInput
+- DpRadio
+- DpSelect
+- DpDateTimePicker
+- DpTextarea
+- DpTimePicker
+
+If you want to use any of these components, you don't need to import `DpLabel` separately.
+
+`DpLabel` is currently not included in the following <strong><i>demosplan-ui</i></strong> form components:
+
+- DpMultiselect
+- DpTiptap
+- DpDatepicker
+- DpDateRangePicker
+
+If you want to use any of these components, you need to import `DpLabel` separately.
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpLabel },
+    template: `<dp-label v-bind="$props" />`
+});
+
+## Default usage
+
+<Canvas>
+    <Story
+        name="Default usage"
+        args={{
+            for: 'formControlId',
+            text: 'First name',
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Required
+
+If a form control is `required`, an asterisk will be added to the label.
+
+<Canvas>
+    <Story
+        name="Required"
+        args={{
+            for: 'formControlId',
+            required: true,
+            text: 'E-mail address',
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Hint
+
+The `hint` property adds the provided string below the label.
+
+<Canvas>
+    <Story
+        name="Hint"
+        args={{
+            for: 'formControlId',
+            hint: 'This is a hint that explains what to enter in the corresponding form control',
+            text: 'Contact person',
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Tooltip
+
+The `tooltip` property adds a contextual help icon that reveals additional information on the form control when the user
+hovers over it with their mouse.
+
+<Canvas>
+    <Story
+        name="Tooltip"
+        args={{
+            for: 'formControlId',
+            tooltip: 'This is a text adding some more information on the form control',
+            text: 'Authorized users',
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>

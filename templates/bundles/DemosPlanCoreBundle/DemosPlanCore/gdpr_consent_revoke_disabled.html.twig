@@ -1,0 +1,25 @@
+
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: 'gdpr.consent.revoke.disabled'|trans
+    }%}
+
+        {% block aside %}{% endblock aside %}
+        {% block content %}
+            <p>Die Verarbeitung Ihrer personenbezogenen Daten ist zulässig gem. Art. 6 Abs. 1 e der Datenschutz-Grundverordnung
+                (DSGVO) in Verbindung mit § 3 Abs. 2 Satz 4 Baugesetzbuch (BauGB). Der Widerruf der von Ihnen erteilten Zustimmung
+                zur Verarbeitung dieser Daten hätte daher keine rechtliche Wirkung.
+            </p>
+            <p>Sie haben aber gem. Art. 21 (1) DSGVO das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben,
+                beim zuständigen Fachamt jederzeit der Verarbeitung der Sie betreffenden Daten zu widersprechen. Allerdings können
+                wir dem nicht nachkommen, wenn an der Verarbeitung ein überwiegendes öffentliches Interesse besteht oder eine
+                Rechtsvorschrift uns zur Verarbeitung verpflichtet.
+            </p>
+            <p>Weitere Informationen zur Wahrnehmung Ihrer personenbezogenen Rechte erhalten Sie unter
+                <a href="{{ path('DemosPlan_misccontent_static_dataprotection') }}" class="o-link--default">Datenschutz</a>.
+            </p>
+        {% endblock content %}
+    {% endembed %}
+{% endblock %}

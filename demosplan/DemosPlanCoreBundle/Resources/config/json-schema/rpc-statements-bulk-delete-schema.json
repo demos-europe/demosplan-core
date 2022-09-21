@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "statements.bulk.delete",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "statements.bulk.delete"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "statementIds": {
+          "$id": "#statementIds",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "statementIds/items",
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "statementIds"
+      ]
+    }
+  }
+}

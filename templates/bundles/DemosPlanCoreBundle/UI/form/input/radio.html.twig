@@ -1,0 +1,14 @@
+{# This is a ui component used via the Twig function call uiComponent('form.input.radio') #}
+<input
+    type="radio"
+    id="{{ id|default }}"
+    name="{{ name|default }}"
+    value="{{ value|default }}"
+    class="{{ class|default }}"
+    {% if checked is defined and checked == true %}checked{% endif %}
+    {% if validationRules is defined %}
+        {% if validationRules == 'required' %}
+            required
+        {% endif %}
+    {% endif %}
+    {% if disabled|default %}disabled{% endif %}>

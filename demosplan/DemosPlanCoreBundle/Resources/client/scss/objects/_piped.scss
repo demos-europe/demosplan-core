@@ -1,0 +1,32 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-piped
+//
+//  Generates a list of elements chained by pipe like left borders
+//
+//  @deprecated due to rare usage.
+
+//  object container
+.o-piped {
+    &--small {
+        line-height: 1;
+    }
+
+    &__item {
+        display: inline-block;
+        padding: 0 6px;
+
+        border-left: 1px solid;
+
+        &:first-of-type {
+            border: none;
+        }
+    }
+}

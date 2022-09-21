@@ -1,0 +1,86 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': templateTitle|trans([], 'page-title')
+    }%}
+        {% block content %}
+            <div class="{{ 'layout__item u-1-of-1 u-3-of-4-lap-up u-pl-0 u-mt'|prefixClass }}">
+                <form action="{{ path('dplan_procedure_proposals_create') }}" method="POST" data-dp-validate>
+                    {{ uiComponent('form.row', {
+                        omitCssPrefix: false,
+                        elements: [
+                            {
+                                label: {
+                                    text: 'title'|trans
+                                },
+                                control: { name: 'r_name', value: '' },
+                                id: 'r_title',
+                                type: 'text',
+                                required: true,
+                                maxCharCount: 255
+                            }
+                        ]
+                    }) }}
+
+                    {{ uiComponent('form.row', {
+                        omitCssPrefix: false,
+                        elements: [
+                            {
+                                label: {
+                                    text: 'description.short'|trans
+                                },
+                                control: {
+                                    value: '',
+                                    name: 'r_description',
+                                    height: '90'
+                                },
+                                type: 'textarea',
+                                id: 'description',
+                                required: true,
+                                maxCharCount: 600
+                            }
+                        ]
+                    })
+                    }}
+                    {{ uiComponent('form.row', {
+                        omitCssPrefix: false,
+                        elements: [
+                            {
+                                label: { text: 'explanation'|trans },
+                                control: { value: '' },
+                                type: 'tiptap',
+                                id: 'explanation',
+                                hiddenInput: 'r_additionalExplanation'
+                            }
+                        ]
+                    })
+                    }}
+                    <label class="{{ 'u-mb-0'|prefixClass }}" for="alternativeInput">
+                        {{ 'procedure.proposal.relation.map'|trans }}*
+                    </label>
+                    <div class="{{ 'lbl__hint'|prefixClass }}">
+                        {{ 'explanation.coordinate.desc'|trans }}
+                    </div>
+                    <dp-procedure-coordinate
+                        class="{{ 'u-pb'|prefixClass }}"
+                        :map-options="JSON.parse('{{ templateVars.mapOptions|default({}) }}')"
+                        :init-extent="[534704.27, 6020422.59, 561737.64, 6039340.72]"
+                        :small="true">
+                    </dp-procedure-coordinate>
+
+                    {{ uiComponent('button-row', {
+                        omitCssPrefix: false,
+                        primary: uiComponent('button', { text: 'procedure.proposal.submit'|trans, type: 'submit', omitCssPrefix: false }),
+                        secondary: uiComponent('button', { color: 'secondary', href: path('core_home'), omitCssPrefix: false })
+                    }) }}
+                </form>
+            </div>
+        {% endblock content %}
+    {% endembed %}
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-publicProcedureProposal.js', 'tiptap.js', 'ol.js']) }}
+{% endblock javascripts %}

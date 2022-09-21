@@ -1,0 +1,122 @@
+{# Setze den Title. Wenn die Variable templateVars.title übergeben ist, nimm diese, ansonsten die Variable title  #}
+{% set templateTitle = templateVars.title|default(title|default) %}
+{% set title = pageTitle(templateTitle) %}
+
+{% if procedure is defined and procedure is not null %}
+    {% set procedureStatementPriorityArea = procedureObject.procedureBehaviorDefinition.hasPriorityArea|default(false) %}
+{% endif %}
+
+{# set login url - override in bobhh which treats users from intranet differently #}
+{% block login_path %}
+    {{ setStaticVariable('login_path', gatewayURL) }}
+{% endblock login_path %}
+
+{% import "@DemosPlanCore/macros.html.twig" as partial %}
+
+<!DOCTYPE html>
+<html lang="de" class="{{ 'nojs'|prefixClass }}">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta charset="utf-8">
+        {% block base_favicons %}
+            {% include '@DemosPlanCore/DemosPlanCore/includes/base_favicons.html.twig' %}
+        {% endblock %}
+        <meta name="keywords" content="">
+        <meta name="author" content="DEMOS">
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0">
+        <meta name="apple-touch-fullscreen" content="yes">
+
+        {# Styles. Leave in header until critical css is in place. #}
+        {% block stylesheets %}
+            {{ webpackBundle('publiccss.css') }}
+        {% endblock stylesheets %}
+
+        {% block component_header %}
+            <title>{{ title }}</title>
+        {% endblock component_header %}
+
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' with { omitPrefix: false } %}
+    </head>
+
+    <body class="{{ 'oeb'|prefixClass }} {% block base_body_classes %}{% endblock %}">
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_banner_outdated_browser_banner.html.twig' %}
+
+        {# Mount vue instance to this wrapper #}
+        <div id="app" class="{{ 'o-page__wrapper'|prefixClass }}">
+
+            {% block a11y_jump_navigation %}
+                {# @improve T17928 investigate focus vs. visibility #}
+                <nav class="{{ 'c-jumpnav'|prefixClass }}" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
+                    <span class="{{ 'hide-visually'|prefixClass }}" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
+                    <ul class="{{ 'u-m-0 u-p-0'|prefixClass }}">
+                        <li class="{{ 'list-style-none'|prefixClass }}">
+                            <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
+                        </li>
+                        <li class="{{ 'list-style-none'|prefixClass }}">
+                            <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
+                        </li>
+                        {% block a11y_jump_markers %}
+                            {% if not loggedin %}
+                                <li class="{{ 'list-style-none u-nojs-show--inline-block'|prefixClass }}">
+                                    <a href="#loginLink">{{ 'jumpTo.login'|trans }}</a>
+                                </li>
+                                <li class="{{ 'list-style-none u-nojs-hide--inline-block'|prefixClass }}">
+                                    <a
+                                        href="#"
+                                        @click="() => { document.getElementById('loginLink') ? document.getElementById('loginLink').focus() : null }">
+                                        {{ 'jumpTo.login'|trans }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endblock a11y_jump_markers %}
+                    </ul>
+                </nav>
+            {% endblock a11y_jump_navigation %}
+
+            {# `block oeb`may be overwritten by projects #}
+            {% block oeb %}
+                {% block header %}
+                    {% include '@DemosPlanCore/DemosPlanCore/includes/base_oeb_header.html.twig' %}
+                {% endblock header %}
+
+                <main id="jumpContent" class="{{ 'o-page__main layout--flush cf'|prefixClass }}" role="main">
+
+                    {% block maincontent_section %}
+                        <section class="{{ 'layout__item'|prefixClass }} {% block base_mainsection_classes %}{% endblock base_mainsection_classes %}" {% block data_attrs %}{% endblock data_attrs %}>
+
+                            {# Nojs notifications #}
+                            {% include '@DemosPlanCore/DemosPlanCore/includes/base_nojs_notifications.html.twig' %}
+
+                            {% block component_part %}{% endblock component_part %}
+                        </section>
+                    {% endblock maincontent_section %}
+
+                </main>
+
+                {% block base_footer %}
+                    {% include '@DemosPlanCore/DemosPlanCore/includes/base_footer.html.twig' %}
+                {% endblock base_footer %}
+            {% endblock oeb %}
+
+            {# Generic notification component (for cases where notifications are not handled in other Vue components) #}
+            <dp-notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></dp-notify-container>
+
+            {# Vue Modals port their contents here #}
+            <portal-target name="vueModals" multiple></portal-target>
+
+        </div>{# end #app #}
+
+        {# Exposes global variables to window #}
+        <script nonce="{{ csp_nonce('script') }}">
+            {% include '@DemosPlanCore/DemosPlanCore/js/dplan.settings.js.twig' %}
+        </script>
+        {{ webpackBundles([ 'jquery-3.5.1.min.js'], true) }}
+
+        {% block javascripts %}
+            {{ webpackBundles(['runtime.js', 'common.js', 'bs.js', 'core.js', 'core-cookie.js']) }}
+        {% endblock javascripts %}
+
+        {# Matomo tracking code #}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/piwik.html.twig' %}
+    </body>
+</html>

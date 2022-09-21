@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// object: o-flyout
+//
+// Used by DpFlyout.vue - a flyout revealing stuff.
+
+.o-flyout {
+    position: relative;
+
+    &__trigger {
+        &:hover,
+        .o-flyout.is-expanded & {
+            background-color: $dp-color-neutral-light-2;
+            border-radius: $dp-button-radius;
+        }
+    }
+
+    &__content {
+        .o-flyout--left & {
+            left: 5px;
+        }
+
+        .o-flyout--right & {
+            right: 5px;
+        }
+
+        .o-flyout--padded & {
+            padding: 7px 15px;
+        }
+
+        display: none;
+        position: absolute;
+        background-color: $dp-color-white;
+        z-index: $z-flyout;
+        text-align: left;
+
+        > * {
+            .o-flyout--menu & {
+                display: block;
+                line-height: 2;
+                white-space: nowrap;
+
+                &.is-disabled {
+                    @extend %disabled-opacity;
+                }
+            }
+        }
+    }
+
+    &.is-expanded {
+        .o-flyout__content {
+            display: block;
+        }
+    }
+}

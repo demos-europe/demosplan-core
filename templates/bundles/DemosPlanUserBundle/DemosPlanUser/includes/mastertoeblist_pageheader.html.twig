@@ -1,0 +1,35 @@
+{#
+    Pageheader with submenu for...
+
+    - mastertoeblist.html
+    - mastertoeblist_merge.html
+    - mastertoeblist_report.html
+#}
+
+{% set subnav = [
+    {
+        current: 'mastertoeblist' == highlighted|default,
+        href: path('DemosPlan_user_mastertoeblist'),
+        label: 'publicagency.master',
+        feature: 'area_manage_mastertoeblist'
+    },
+    {
+        current: 'mastertoeblist_report' == highlighted|default,
+        href: path('DemosPlan_user_mastertoeblist_report'),
+        label: 'invitable_institution.master.report',
+        feature: 'area_report_mastertoeblist',
+        icon: 'fa-bell'
+    },
+    {
+        current: 'mastertoeblist_merge' == highlighted|default,
+        href: path('DemosPlan_user_mastertoeblist_merge'),
+        label: 'invitable_institution.master.merge'|trans,
+        feature: 'area_merge_mastertoeblist'
+    }
+]|filter(item => item.feature is not defined or hasPermission(item.feature)) %}
+
+{# Render the page header #}
+{% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+    heading: heading|trans,
+    subnav: subnav|length > 0 ? subnav : null
+} %}

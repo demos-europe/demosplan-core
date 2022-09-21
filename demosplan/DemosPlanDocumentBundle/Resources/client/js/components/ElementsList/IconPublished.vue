@@ -1,0 +1,44 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <i
+      class="fa cursor--help"
+      :class="{
+        'fa-check color--system-confirm': published,
+        'fa-times-circle color--system-error': published === false
+      }"
+      aria-hidden="true"
+      v-tooltip="text"
+    />
+    <span
+      class="hide-visually"
+      v-text="text" />
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'IconPublished',
+
+  props: {
+    published: {
+      type: Boolean,
+      required: true
+    }
+  },
+
+  computed: {
+    text () {
+      return Translator.trans(this.published ? 'published' : 'unpublished')
+    }
+  }
+}
+</script>

@@ -1,0 +1,163 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Component: c-data-table
+//
+//  Used to present tabular data in a readable but appealing way (DpDataTable component).
+//
+//  @improve
+//      - bootstrap component tokens that are shared between .c-table and .c-data-table
+//      - clean up declarations and ordering within this file
+
+
+.c-data-table {
+    $data-table-padding-cell: $inuit-base-spacing-unit--tiny;
+
+    // Styling needed for resizable datatable
+    .resizing {
+        user-select: none;
+    }
+
+    // The default color for these repetitive controls is dimmed to not clutter the interface.
+    // When a row is hovered, the interactive color scheme is applied.
+    // This pattern should also be applied to the actionFlyout trigger and resizeHandle.
+    &__wrap-trigger {
+        color: $dp-token-color-ui-interactive-dimmed;
+
+        .row:hover & {
+            color: $dp-token-color-ui-interactive;
+        }
+
+        &:hover {
+            color: $dp-token-color-ui-interactive-hover;
+        }
+    }
+
+    &__resize-handle {
+        visibility: hidden;
+        width: 30px;
+        display: inline-block;
+        position: absolute;
+        top: $data-table-padding-cell;
+        right: 0;
+        cursor: move; // Fallback if grab cursor is not supported
+        cursor: grab;
+        text-align: center;
+
+        i,
+        span {
+            color: $dp-color-highlight;
+            display: inline;
+            font-size: 1em;
+        }
+
+        &.is-active {
+            display: inline !important;
+            visibility: visible;
+        }
+    }
+
+    &.is-fixed {
+        th.c-data-table__resizable {
+            padding-right: 2em;
+        }
+
+        .c-data-table__resizable {
+            position: relative;
+
+            &--truncated {
+                @extend %break-words-with-hyphens;
+
+                // This works in all major browsers despite having the -webkit-prefix.
+                // It hasn't made it into the CSS specification yet.
+                // More: https://css-tricks.com/almanac/properties/l/line-clamp/
+                // This solution is only supported with -webkit prefix, so it is explicitly set here.
+                /* stylelint-disable value-no-vendor-prefix */
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+
+                position: relative;
+
+                .show-more {
+                    position: absolute;
+                }
+            }
+
+            &--wrapped {
+                white-space: normal;
+            }
+
+            &:hover {
+                .c-data-table__resize-handle {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+
+
+    &__drag-handle {
+        visibility: hidden;
+    }
+
+    table {
+        margin-bottom: $inuit-base-spacing-unit;
+    }
+
+    td,
+    th {
+        text-align: left;
+        padding: $data-table-padding-cell;
+        vertical-align: top;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    th .c-data-table__drag-handle {
+        visibility: visible;
+        fill: $dp-color-neutral-light-1;
+    }
+
+
+    tr:not(.is-expanded-content) td {
+        border-top: 1px solid $dp-color-neutral-light-2;
+    }
+
+    tbody {
+        tr:hover,
+        tr:hover + tr.is-expanded-content,
+        tr.is-hovered-content {
+            background-color: $dp-color-neutral-light-4;
+        }
+
+        tr:hover .c-data-table__drag-handle {
+            visibility: visible;
+            fill: $dp-button-bg-color;
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
+    }
+
+    &__cell--narrow {
+        width: 1%;
+        white-space: nowrap;
+    }
+
+    &__sticky-header {
+        position: sticky;
+        top: 0;
+
+        background-color: $dp-color-white;
+    }
+}

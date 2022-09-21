@@ -1,0 +1,64 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-animate
+//
+//  Animate elements. Used in conjunction with AnimateById() which listens on animation end
+//  to remove class to prevent resetting on :hover
+//
+//  @deprecated Should be replaced by _animation.scss because it is too complex.
+
+//  Variables
+$animate-bg-color-highlighted: $dp-color-system-confirm !default;
+$animate-bg-color-default: $dp-color-neutral-light-2 !default;
+$animate-bg-color-grey-2: $dp-color-neutral-light-3 !default;
+$animate-bg-color-light: $dp-color-white !default;
+
+
+//  object container
+.o-animate {
+    //  animate bg color once to indicate current element
+    //  use when highlighting item in list
+    &--bg-color {
+
+        //  selectors are written for both cases:
+        //      - styled element is child of element which matches hash id
+        //      - styled element matches hash id
+        // .run-animate is added via javascript.
+
+        //  animate styled element
+        &.run-animate,
+        &.run-animate .can-animate {
+            background-color: $animate-bg-color-highlighted;
+            animation: .8s ease-out forwards animate-target-bg;
+        }
+    }
+}
+
+@keyframes animate-target-bg {
+    from {
+        background-color: $animate-bg-color-highlighted;
+    }
+
+    to {
+        background-color: $animate-bg-color-default;
+    }
+}
+
+@supports (background-color: initial) {
+    @keyframes animate-target-bg {
+        from {
+            background-color: $animate-bg-color-highlighted;
+        }
+
+        to {
+            background-color: initial;
+        }
+    }
+}

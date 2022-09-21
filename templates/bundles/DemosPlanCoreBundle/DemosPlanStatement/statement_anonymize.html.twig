@@ -1,0 +1,37 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'statement.anonymize'|trans({ externId: templateVars.statement.externId })
+    } %}
+
+    {% set statement = {
+        'submitter.name': templateVars.statement.meta.submitName|default(templateVars.statement.meta.authorName|default,),
+        'author': templateVars.statement.meta.authorName|default,
+        'street.number': templateVars.statement.meta.houseNumber|default,
+        'street': templateVars.statement.meta.orgaStreet|default,
+        'email.address.type.fulladdress': templateVars.statement.meta.orgaEmail|default,
+        'postalcode': templateVars.statement.meta.initialOrganisationPostalCode|default,
+        'city': templateVars.statement.meta.initialOrganisationCity|default
+    } %}
+
+    {%  set children = [] %}
+    {% for child in templateVars.statement.children %}
+        {% set children = children|merge([{id: child.id, externId: child.externId}]) %}
+    {% endfor %}
+
+    <dp-statement-anonymize
+        procedure-id="{{ procedureId|default }}"
+        statement-id="{{ templateVars.statement.id|default }}"
+        :children="JSON.parse('{{ children|json_encode|e('js', 'utf-8') }}')"
+        a-table-link="{{ templateVars.linkToStatementChildren  }}"
+        :statement-data="JSON.parse('{{ statement|default('{}')|json_encode|e('js', 'utf-8') }}')"
+        statement-text="{{ templateVars.statement.text|default }}"
+        original-filter-hash="{{ app.session.get('hashList', [])[procedureId]['original']['hash']|default }}"
+    ></dp-statement-anonymize>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'statement-statementAnonymize.js']) }}
+{% endblock javascripts %}

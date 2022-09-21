@@ -1,0 +1,72 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  DpTreeList
+//
+//  Displays a nested list as folder structure.
+
+//  container
+.c-treelist {
+    &__node:hover {
+        // The hover state on the element being hovered is somehow preserved once dragging starts,
+        // that's why the background color should only be applied while no element is being dragged.
+        .c-treelist:not(.is-dragging) & {
+            background-color: $dp-color-neutral-light-4;
+
+            .c-treelist__drag-handle-icon {
+                color: $dp-token-color-ui-interactive;
+            }
+        }
+
+        & .c-treelist__drag-handle {
+            :hover {
+                cursor: grab;
+            }
+        }
+    }
+
+    &__folder {
+        flex: 0 0 25px;
+    }
+
+    &__drag-handle-icon {
+        color: $dp-color-neutral-light-1;
+    }
+
+    // Desaturated element instance appearing in the target position of currently dragged element.
+    &__node-ghost {
+        background-color: $dp-color-neutral-light-4;
+
+        > * {
+            opacity: .7;
+            filter: grayscale(100%);
+        }
+    }
+
+    &__header.is-fixed,
+    &__footer.is-fixed {
+        z-index: $z-fixed;
+    }
+
+    &__header.is-fixed.is-top::after,
+    &__footer.is-fixed.is-bottom::before {
+        display: block;
+        content: '';
+        width: 100%;
+        height: $inuit-base-spacing-unit--tiny;
+    }
+
+    &__header.is-fixed.is-top::after {
+        background: linear-gradient(to bottom, rgb(0 0 0 / 40%), rgb(0 0 0 / 0%));
+    }
+
+    &__footer.is-fixed.is-bottom::before {
+        background: linear-gradient(to top, rgb(0 0 0 / 40%), rgb(0 0 0 / 0%));
+    }
+}

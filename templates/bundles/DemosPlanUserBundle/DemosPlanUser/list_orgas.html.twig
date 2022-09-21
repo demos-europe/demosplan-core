@@ -1,0 +1,71 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% set user = currentUser %}
+{% set isFP = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles  or "RTSUPP" in user.roles )? true : false %}
+
+{% set submissionTypeDefault = constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT') %}
+{% set submissionTypeShort = constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_SHORT') %}
+
+{% set will_receive_new_statement_notification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles  or "RTSUPP" in user.roles )? true : false %}
+
+{% block component_part %}
+    <h1>
+        {{ "organisations.administer"|trans }}
+    </h1>
+    {% if hasPermission('area_manage_orgas')%}
+        <p class="font-size-small">
+            {{ "explanation.organisation.administer"|trans }}
+        </p>
+    {% endif %}
+
+    {% set orgaTypes = [] %}
+    {% for key, orgaType in templateVars.availableOrgaTypes %}
+        {% set orgaTypes = orgaTypes|merge([{ value: key, label: orgaType.label }]) %}
+    {% endfor %}
+
+    {% if hasPermission('feature_orga_add') %}
+        <dp-create-item
+            :available-orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
+            subdomain="{{ branding.customerSubdomain|default }}"
+            entity="organisation"
+            item-title="organisation.add.new"
+            procedures-direct-link-prefix="{{ templateVars.proceduresDirectlinkPrefix }}"
+            project-name="{{ projectName }}"
+            :show-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
+            :writable-fields="JSON.parse('{{ templateVars.writableOrgaFields|default([])|json_encode|e('js', 'utf-8') }}')">
+        </dp-create-item>
+    {% endif %}
+
+    {% if feedback.success_message is defined %}
+        <p class="flash flash-confirm">
+            <i class="fa fa-check-circle" aria-hidden="true"></i>
+            {{ feedback.success_message }}
+        </p>
+    {% endif %}
+    {% if feedback.fail_message is defined %}
+        <p class="flash flash-error">
+            {% for message in feedback.fail_message %}
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                {{ message }}
+                <br>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    <dp-organisation-list
+        :available-orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
+        subdomain="{{ branding.customerSubdomain|default }}"
+        :writable-fields="JSON.parse('{{ templateVars.writableOrgaFields|default([])|json_encode|e('js', 'utf-8') }}')"
+        project-name="{{ projectName }}"
+        submission-type-default="{{ submissionTypeDefault }}"
+        submission-type-short="{{ submissionTypeShort }}"
+        procedures-direct-link-prefix="{{ templateVars.proceduresDirectlinkPrefix }}"
+        :show-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})">
+    </dp-organisation-list>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'user-listOrgas.js'])}}
+{% endblock javascripts %}

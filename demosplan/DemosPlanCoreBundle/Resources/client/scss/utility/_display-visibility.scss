@@ -1,0 +1,185 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Display classes depending on javascript
+
+.u-nojs-hide {
+    .nojs &,
+    &--block,
+    &--inline-block {
+        display: none;
+    }
+
+    &--block {
+        .js & {
+            display: block;
+        }
+    }
+
+    &--inline-block {
+        .js & {
+            display: inline-block;
+        }
+    }
+}
+
+.u-nojs-show {
+    &--block {
+        display: block;
+
+        .js & {
+            display: none;
+        }
+    }
+
+    &--inline-block {
+        display: inline-block;
+
+        .js & {
+            display: none;
+        }
+    }
+}
+
+
+// Display classes
+
+.display {
+    &--none {
+        display: none;
+    }
+
+    &--block {
+        display: block !important;
+    }
+
+    &--inline-block {
+        display: inline-block;
+    }
+
+    &--inline {
+        display: inline;
+    }
+
+    &--flex {
+        display: flex;
+        flex: 0 1 auto;
+        flex-flow: row wrap;
+    }
+
+    &--table {
+        display: table !important;
+    }
+
+    &--block-palm {
+        @include media-query('palm') {
+            display: block !important;
+        }
+    }
+}
+
+
+//  Accessibility display classes
+
+//  Hide element from being displayed while not hiding it from screen readers
+.hide-visually,
+%hide-visually {
+    border: none !important;
+    clip: rect(0 0 0 0) !important;
+    height: 1px !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: absolute !important;
+    width: 1px !important;
+}
+
+// Hide element but leave the space it would need
+.visibility {
+    &--hidden {
+        visibility: hidden;
+    }
+}
+
+//  Mobile display classes
+//
+//  Convention: only -up classes, no -down!
+//
+//  .show-<$breakpoint>[?-up][?-i|ib]
+//  .hide--<$breakpoint>[?-up][?-i|ib]
+
+//  Initially hide all classes that are not shown for smallest breakpoint
+.show-desk-up,
+.show-desk-up-i,
+.show-desk-up-ib,
+.show-desk-up-ib-empty:empty,
+.show-lap-up,
+.show-lap-up-i,
+.show-lap-up-ib,
+.hide-empty:empty {
+    display: none;
+}
+
+//  Initially display all classes that are shown for smallest breakpoint
+.show-palm,
+.hide-lap-up,
+.hide-desk-up {
+    display: block;
+}
+
+.hide-lap-up-ib,
+.hide-desk-up-ib {
+    display: inline-block;
+}
+
+.hide-lap-up-i,
+.hide-desk-up-i {
+    display: inline;
+}
+
+@include media-query('desk-up') {
+    .show-desk-up {
+        display: block;
+    }
+
+    .show-desk-up-i {
+        display: inline;
+    }
+
+    .show-desk-up-ib,
+    .show-desk-up-ib-empty:empty {
+        display: inline-block;
+    }
+
+    .hide-desk-up,
+    .hide-desk-up-ib,
+    .hide-desk-up-i {
+        display: none;
+    }
+}
+
+@include media-query('lap-up') {
+    .show-lap-up {
+        display: block;
+    }
+
+    .show-lap-up-i {
+        display: inline;
+    }
+
+    .show-lap-up-ib {
+        display: inline-block;
+    }
+
+    .hide-lap-up,
+    .hide-lap-up-i,
+    .hide-lap-up-ib {
+        display: none;
+    }
+}

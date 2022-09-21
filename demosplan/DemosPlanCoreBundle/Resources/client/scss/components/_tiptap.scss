@@ -1,0 +1,442 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.tiptap {
+    $tiptap-editor-border-color: $dp-color-neutral-light-1;
+
+    position: relative;
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+
+        -webkit-tap-highlight-color: rgb(0 0 0 / 0%);
+        -webkit-touch-callout: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizelegibility;
+        text-size-adjust: 100%;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        color: $dp-color-black;
+
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            'San Francisco',
+            Roboto,
+            'Segoe UI',
+            'Helvetica Neue',
+            sans-serif;
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    a {
+        color: $dp-color-main !important;
+
+        &:hover {
+            color: $dp-color-highlight !important;
+            cursor: pointer;
+        }
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    ul,
+    ol,
+    pre,
+    blockquote {
+        margin: 1rem 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    h1,
+    h2,
+    h3 {
+        line-height: 1.3;
+    }
+
+    h4,
+    h5,
+    h6 {
+        line-height: 1.1;
+    }
+
+    @for $i from 1 through 6 {
+        h#{$i} {
+            font-size: (1.6 - ($i * .1)) + em !important;
+        }
+    }
+
+    .button {
+        display: inline-flex;
+        margin-right: .2rem;
+        padding: .2rem .5rem;
+
+        background: transparent;
+        background-color: $dp-color-neutral-light-1;
+        border: none;
+        border-radius: 3px;
+        color: $dp-color-black;
+        cursor: pointer;
+
+        font-weight: bold;
+    }
+
+    .menubar {
+        padding: 2px;
+
+        background-color: $dp-color-neutral-light-4;
+        border-bottom: 1px solid $tiptap-editor-border-color;
+        border-top: 1px solid $tiptap-editor-border-color;
+        transition: visibility .2s .4s, opacity .2s .4s;
+
+        &.is-hidden {
+            visibility: hidden;
+
+            opacity: 0;
+        }
+
+        &.is-focused {
+            visibility: visible;
+
+            opacity: 1;
+            transition: visibility .2s, opacity .2s;
+        }
+
+        &__button {
+            min-height: 32px;
+            min-width: 25px;
+            padding: .2rem .4rem;
+
+            background: transparent;
+            border: none;
+            border-radius: 3px;
+            color: $dp-color-black;
+            cursor: pointer;
+
+            font-size: 1em;
+            font-weight: bold;
+
+            & .fa-scissors {
+                transform: rotate(-90deg);
+            }
+
+            &:hover,
+            &:focus {
+                background-color: $dp-color-neutral-light-3;
+            }
+
+            &.is-active {
+                background-color: $dp-color-neutral-light-2;
+            }
+        }
+
+        & .button_submenu {
+            position: absolute;
+            display: inline-block;
+            z-index: $z-super;
+            min-width: 200px;
+            border: 2px solid $dp-color-neutral-light-3;
+            border-radius: 3px;
+            top: calc(100% + 5px);
+            left: 0;
+
+
+            & button {
+                @extend %btn-base;
+                display: block;
+                width: 100%;
+                text-align: left;
+                background-color: $dp-color-neutral-light-3;
+                padding: 5px;
+                font-size: 14px;
+
+                &:hover:not([disabled]),
+                &:focus:not([disabled]),
+                &.is-active {
+                    background-color: $dp-color-white;
+                }
+
+                &[disabled] {
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    .menubar.readonly {
+        .menubar__button {
+            color: $dp-color-neutral-base;
+        }
+    }
+
+    .editor {
+        position: relative;
+
+        border-bottom: 1px solid $tiptap-editor-border-color;
+        border-left: 1px solid $tiptap-editor-border-color;
+        border-right: 1px solid $tiptap-editor-border-color;
+
+        &__content {
+            min-height: 50px;
+            height: 231px;
+
+            background-color: $dp-color-white;
+
+            font-size: .9em;
+
+            div[contenteditable='true'] {
+                height: 100%;
+                overflow-y: auto;
+                padding: 15px;
+
+                &.is-invalid {
+                    border: 2px solid $dp-color-system-error !important;
+                }
+            }
+
+            pre {
+                overflow-x: auto;
+                padding: .7rem 1rem;
+
+                background: $dp-color-black;
+                border-radius: 5px;
+                color: $dp-color-white;
+
+                font-size: .8rem;
+
+                code {
+                    display: block;
+                }
+            }
+
+            p code {
+                display: inline-block;
+                padding: 0 .4rem;
+
+                background: $dp-color-neutral-light-3;
+                border-radius: 5px;
+                color: $dp-color-neutral-base;
+
+                font-size: .8rem;
+                font-weight: bold;
+            }
+
+            ul,
+            ol {
+                padding-left: 1rem;
+            }
+
+            li > p,
+            li > ol,
+            li > ul {
+                margin: 0;
+            }
+
+            a {
+                color: inherit;
+            }
+
+            blockquote {
+                padding-left: .8rem;
+
+                border-left: 3px solid $dp-color-neutral-light-3;
+                color: $dp-color-neutral-base;
+
+                font-style: italic;
+
+                p {
+                    margin: 0;
+                }
+            }
+
+            img {
+                max-width: 100%;
+
+                border-radius: 3px;
+            }
+
+            // styling of del and ins tags should match diff styling in version sidebar in assessment table
+
+            del {
+                background-color: $dp-color-system-warning--light;
+                text-decoration: line-through;
+            }
+
+            ins {
+                background-color: $dp-color-system-info--light-1;
+            }
+
+            table {
+                margin: 0;
+                overflow: hidden;
+                width: 100%;
+
+                border-collapse: collapse;
+                table-layout: fixed;
+
+                td,
+                th {
+                    position: relative;
+                    vertical-align: top;
+
+                    box-sizing: border-box;
+                    min-width: 1em;
+                    padding: 3px 5px;
+
+                    border: 2px solid $dp-color-neutral-light-1;
+
+                    > * {
+                        margin-bottom: 0;
+                    }
+                }
+
+                th {
+                    text-align: left;
+                }
+
+                .selectedCell::after {
+                    left: 0;
+                    right: 0;
+                    top: 0;
+                    bottom: 0;
+                    position: absolute;
+                    z-index: 2;
+
+                    background: rgb(200 200 255 / 40%);
+                    content: '';
+                    pointer-events: none;
+                }
+
+                .column-resize-handle {
+                    position: absolute;
+                    right: -2px;
+                    top: 0;
+                    bottom: 0;
+                    z-index: 20;
+
+                    width: 4px;
+
+                    background-color: #adf;
+                    pointer-events: none;
+                }
+            }
+
+            .tableWrapper {
+                margin: 1em 0;
+                overflow-x: auto;
+            }
+
+            .resize-cursor {
+                cursor: ew-resize;
+                cursor: col-resize;
+            }
+        }
+
+        .resizeVertical {
+            bottom: -2px;
+            left: calc(50% - 7px);
+            position: absolute;
+
+            margin-top: 0;
+
+            color: $dp-color-neutral-light-1;
+            cursor: row-resize;
+        }
+
+        .resizable-image {
+            display: inline-block;
+            resize: horizontal;
+            overflow: hidden;
+            line-height: 0;
+
+            &:active,
+            &:focus {
+                border: 2px solid $dp-token-color-brand-link;
+            }
+        }
+    }
+
+    .fullscreen {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: $z-fixed;
+
+        height: 100%;
+        width: 100%;
+
+        & .editor__content {
+            height: calc(100% - 38px);
+            width: 100%;
+        }
+    }
+}
+
+.suggestion {
+    &__popup {
+        background: $dp-color-white;
+        color: $dp-color-neutral-light-1;
+        font-size: $dp-font-size-2;
+        font-weight: $bold-font-weight;
+        font-family: $bold-font-family;
+        border-radius: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0;
+        box-shadow: $dp-token-box-shadow-1;
+    }
+
+    &__list-item {
+        color: $dp-color-neutral-dark-2;
+        width: 100%;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $dp-color-neutral-dark-2;
+        }
+
+        &:hover {
+            background: $dp-color-neutral-light-3;
+        }
+
+        &--is-active {
+            background: $dp-color-neutral-light-3;
+        }
+    }
+
+    &__node {
+        background: $dp-color-neutral-light-3;
+        border-radius: 3px;
+        padding: .15rem .5rem !important;
+        color: $dp-color-neutral-dark-1 !important;
+    }
+}
+

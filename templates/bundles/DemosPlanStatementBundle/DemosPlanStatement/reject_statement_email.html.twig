@@ -1,0 +1,13 @@
+{% block body_plain %}
+{% if templateVars.reject_user.name is defined %}{{ templateVars.reject_user.name }}{% endif %}
+{% if templateVars.reject_user.departmentNameLegal is defined %}, {{ templateVars.reject_user.departmentNameLegal }}{% endif %}
+{% if templateVars.reject_user.organisationNameLegal is defined %}, {{ templateVars.reject_user.organisationNameLegal }}{% endif %}
+ hat Ihre Stellungnahme {{ templateVars.statement.number }} aus dem Verfahren {{ templateVars.procedureName }} abgelehnt und teilt Ihnen folgendes mit:
+
+{{ templateVars.rejectReason|raw }}
+
+Im angemeldeten Zustand können Sie Ihre Stellungnahme erneut bearbeiten.
+
+Bitte beachten Sie, dass die Stellungnahme nach der Fertigstellung erneut freigegeben werden muss, um für die Koordination sichtbar zu werden.
+
+{%  endblock %}

@@ -1,0 +1,105 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// This component styles the list of planning documents in the participation area.
+// The funny plural naming is a reference to the "elements" entity naming that also
+// uses the plural form for historical reasons. Better naming ideas are welcome.
+
+.elements {
+    // Calculated height of buttons used as spacing value
+    $elements-button-height: $dp-button-font-size + $dp-form-element-spacing-vertical * 2 + 2px;
+    $elements-spacing-left: 38px;
+
+    padding-top: $inuit-base-spacing-unit;
+    padding-bottom: $inuit-base-spacing-unit * 1.5;
+
+    // Both header and file item should have their children laid out in a flex row.
+    &__grid {
+        @include media-query('desk-up') {
+            display: flex;
+            align-items: flex-start;
+        }
+    }
+
+    // Text content should take as much place as possible.
+    &__grid-grow {
+        flex-grow: 2;
+    }
+
+    &__header {
+        line-height: $elements-button-height;
+        margin-bottom: 6px;
+    }
+
+    &__header-icon {
+        margin-top: 2px;
+    }
+
+    &__title {
+        margin-top: 1px;
+        margin-left: $elements-spacing-left;
+    }
+
+    &__description {
+        @include media-query('desk-up') {
+            padding-left: $elements-spacing-left;
+        }
+
+        p:last-child {
+            margin-bottom: $inuit-base-spacing-unit--tiny;
+        }
+    }
+
+    // The container holding all files
+    &__content {
+        @include media-query('desk-up') {
+            padding-left: $elements-spacing-left;
+        }
+    }
+
+    // A single file item containing file name and buttons
+    &__file {
+        margin-left: -8px;
+        padding: 6px 6px 6px 8px;
+        border-radius: 4px;
+
+        transition: background-color #{$transition-speed-style-delay};
+
+        &:hover,
+        &:focus-within {
+            background-color: $dp-color-neutral-light-4;
+        }
+    }
+
+    // File names that span only one line should appear to be vertical centered with the button, while file names
+    // that span multiple lines, hence taking more vertical space than the buttons, should appear top aligned.
+    // The min-height value resembles the button height.
+    &__file-name {
+        min-height: $elements-button-height;
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__button {
+        margin-left: 0;
+
+        @include media-query('desk-up') {
+            white-space: nowrap;
+            margin-left: $inuit-base-spacing-unit--small;
+        }
+    }
+
+    // For planners, an info box is displayed to show which users may write statements on an element.
+    &__permission {
+        p {
+            margin: $inuit-base-spacing-unit--tiny 0 0;
+        }
+    }
+}

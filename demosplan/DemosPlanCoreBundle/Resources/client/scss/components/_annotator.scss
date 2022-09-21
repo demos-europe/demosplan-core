@@ -1,0 +1,67 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.annotator {
+    &__wrapper {
+        display: flex;
+        flex-direction: row;
+        margin: 12px 0;
+    }
+
+    &__canvas {
+        width: calc(100% - 324px); // 324px is the width and margin of the right toolbox
+        max-width: 680px;
+        height: 1024px;
+        border: 1px solid $dp-color-neutral-light-1;
+        border-radius: 4px;
+        background-color: $dp-color-neutral-light-4;
+    }
+
+    &__button {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        margin: 5px 5px 5px 0;
+        padding: 0 !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__button-wrapper {
+        padding: 6px 6px 0;
+        background-color: $dp-color-neutral-light-3;
+        border: 1px solid $dp-color-neutral-light-3;
+        display: inline-block;
+
+        &.is-first {
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        &.is-last {
+            border-bottom-right-radius: 5px;
+            border-bottom-left-radius: 5px;
+            padding-bottom: 6px;
+        }
+    }
+
+    &__button--toggle {
+        background-color: $dp-color-white;
+        border: 1px solid $dp-color-neutral-light-3;
+
+        &:hover:not(.is-current) {
+            border: 1px solid $dp-color-neutral-dark-2;
+        }
+
+        &.is-current {
+            background-color: $dp-token-color-brand-link;
+            color: $dp-color-white;
+        }
+    }
+}

@@ -1,0 +1,53 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <ul class="o-list o-list--card">
+    <assessment-table-group
+      v-for="subgroup in subgroups"
+      :key="`subGroup:${subgroup.title}`"
+      :count="1"
+      :group="subgroup" />
+  </ul>
+</template>
+
+<script>
+import AssessmentTableGroup from './AssessmentTableGroup'
+import { mapGetters } from 'vuex'
+
+export default {
+  name: 'AssessmentTableGroupList',
+
+  components: {
+    AssessmentTableGroup
+  },
+
+  props: {
+    formDefinitions: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    }
+  },
+
+  computed: {
+    ...mapGetters('statement', {
+      getToc: 'getToc'
+    }),
+
+    /**
+     *
+     * @return {Array<Object>}
+     */
+    subgroups () {
+      return this.getToc.subgroups
+    }
+  }
+}
+</script>

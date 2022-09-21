@@ -1,0 +1,60 @@
+{# This is a ui component used via the Twig function call uiComponent('form.input.text')
+
+name {String}               the name of the input
+id {String}                 the id of the input
+class {String}              css classes
+value                       input value
+omitCssPrefix {Boolean}     set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+
+ #}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+{% set widthVars = {
+    full: ' u-1-of-1',
+    large: ' u-1-of-2',
+    medium: ' u-1-of-3',
+    small: ' u-1-of-4',
+    smaller: ' u-1-of-5',
+    tiny: ' u-1-of-6',
+    mini: ' u-1-of-8'
+} %}
+
+{% set width = widthVars[size|default('full')] %}
+{% set class = class|default ~ ' ' ~ width ~ ' o-form__control-input'  %}
+
+{% if style|default == 'inline' %}
+    {% set class = class|default ~ ' display--inline' %}
+{% endif %}
+
+{% if disabled|default(false) == false %}
+    {% set class = class|default ~ ' ' ~ 'u-pl-0_25' %}
+{% else %}
+    {% set class = class|default ~ ' ' ~ 'color--grey' %}
+{% endif %}
+
+<input
+    type="{{ type|default('text') }}"
+    id="{{ id|default(name|default) }}"
+    name="{{ name|default }}"
+    class="{{ class|prefixClass(omitPrefix) }}"
+    value="{{ value|default }}"
+    placeholder="{{ placeholder|default }}"
+    {% if pattern is defined %}
+        pattern="{{ pattern }}"
+    {% endif %}
+    {% if dataCounter is defined %}
+        data-counter="{{ dataCounter }}"
+    {% endif %}
+    {% if dataCy is defined %}
+        data-cy="{{ dataCy }}"
+    {% endif %}
+    {% if required is defined and required == true %}
+        required
+    {% endif %}
+    {% if attributes is defined %}
+        {% for attr in attributes %}
+            {{ attr }}
+        {% endfor %}
+    {% endif %}
+    {% if disabled|default(false) != false %}
+        disabled
+    {% endif %}>

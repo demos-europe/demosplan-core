@@ -1,0 +1,93 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Object: o-hellip
+//
+//  Truncates text with hellip ("..."), if text exceeds container.
+//  Test case for debugging https://codepen.io/hansspiess/pen/jpZPjB
+
+.o-hellip,
+%o-hellip {
+
+    // This is yet another approach to have truncated table cells. It needs an additional container around the
+    // actual content but it preserves the desired table behavior of expanding cells with long content until
+    // other cells can not shrink anymore (while the .o-hellip--td without an explicit width behaves like it is empty).
+    &__wrapper {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    //  Truncated text
+    //
+    //  Usage:
+    //  <div class="o-hellip">
+    //      thisIsLongContentPotentiallyBreakingTheLayout but it will break to new line
+    //  </div>
+    &,
+    & > *,
+    &--nowrap,
+    &--td {
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+    //  Truncated text on a single line
+    //
+    //  Usage:
+    //  <div class="o-hellip--nowrap">
+    //      thisIsLongContentPotentiallyBreakingTheLayout which will not break to a new line!
+    //  </div>
+    &--nowrap {
+        white-space: nowrap;
+    }
+
+    //  Truncated text in table cells. **All variants require a width on the cells as well as a table width**.
+    //
+    //  Usage with text content of table cells:
+    //  <table class="c-table">
+    //      <colgroup>
+    //          <col class="t50">
+    //          <col class="t50">
+    //      </colgroup>
+
+    //      <!-- Text content of table cells -->
+    //      <tr>
+    //          <td class="o-hellip--td">
+    //              thisIsLongContentPotentiallyBreakingTheLayout but will wrap on another line
+    //          </td>
+    //          <td class="o-hellip--td o-hellip--nowrap">
+    //              thisIsLongContentPotentiallyBreakingTheLayout which will not wrap on another line
+    //          </td>
+    //      </tr>
+
+    //      <!-- Children of table cells -->
+    //      <tr>
+    //          <td class="o-hellip--td">
+    //              <a class="o-hellip" href="#">
+    //                  thisIsLongContentPotentiallyBreakingTheLayout but will wrap on another line
+    //              </a>
+    //          </td>
+    //          <td class="o-hellip--td">
+    //              <a class="o-hellip--nowrap" href="#">
+    //                  thisIsLongContentPotentiallyBreakingTheLayout which will not wrap on another line
+    //              </a>
+    //          </td>
+    //      </tr>
+    //  </table>
+    &--td {
+        max-width: 1px;
+
+        .o-hellip,
+        .o-hellip--nowrap {
+            max-width: 95%; // Best guess to prevent cell padding to force content to break out of the cell with 100%
+        }
+    }
+}

@@ -1,0 +1,23 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.c-statement-meta-box {
+    border: 1px solid $dp-color-neutral-light-2;
+    padding: 12px;
+
+    dt,
+    dd {
+        display: block;
+        margin: 0 !important;
+    }
+
+    dt {
+        font-weight: $bold-font-weight;
+    }
+}

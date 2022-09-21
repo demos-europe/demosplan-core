@@ -1,0 +1,158 @@
+{% set faq = templateVars.faq %}
+
+{# Rollengruppe initialisieren #}
+{% set GGUEST = false %}
+{% set GLAUTH = false %}
+{% set GPSORG = false %}
+{# Rollengruppe setzen #}
+{% if faq.roles is defined %}
+    {% for role in faq.roles %}
+        {% if role.groupCode == 'GGUEST' %}
+            {% set GGUEST = true %}
+        {% elseif role.groupCode == 'GLAUTH' %}
+            {% set GLAUTH = true %}
+        {% elseif role.groupCode == 'GPSORG' %}
+            {% set GPSORG = true %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% set actionname = 'faqnew' %}
+{% if faq.id is defined %}
+    {% set actionName = 'faqedit' %}
+{% endif %}
+
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    {% set actionPath = path('DemosPlan_faq_administration_faq_edit',{'faqID':faq.id}) %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
+
+    <h1>{{ 'edit.entity'|trans({ entity: 'faq'|trans }) }}</h1>
+
+    <form class="cf u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
+		<input name="action" type="hidden" value="{{ actionName }}">
+        <input name="r_id" type="hidden" value="{% if faq.id is defined %}{{ faq.id }}{% endif %}">
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'status'|trans },
+                    control: {
+                        name: 'r_enable',
+                        options: [
+                            {
+                                label: 'released',
+                                value: '1',
+                                selected: templateVars.faq.enabled == true
+                            },
+                            {
+                                label: 'blocked',
+                                value: '0',
+                                selected: templateVars.faq.enabled == false
+                            }
+                        ],
+                        attributes: ['data-cy=FAQStatus']
+                    },
+                    type: 'select',
+                    elementSize: 'smaller',
+                    required: true
+                }
+            ]
+        }) }}
+
+        <div class="u-mb" id="groupCodeWrapper" data-cy="groupVisibleCheckbox">
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'role.fp.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GLAUTH', checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
+                        id: 'fachplanerVisibility',
+                        type: 'checkbox',
+                        elementSize: 'medium'
+                    },
+                    {
+                        label: { text: 'citizen.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GGUEST', checked: GGUEST == true, attributes: ['data-cy=citizenVisibility'] },
+                        id: 'citizenVisibility',
+                        type: 'checkbox',
+                        elementSize: 'medium'
+                    },
+                    {
+                        label: { text: 'invitable_institution.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GPSORG', checked: GPSORG == true, attributes: ['data-cy=publicAgencyVisibility'] },
+                        id: 'publicAgencyVisibility',
+                        type: 'checkbox',
+                        elementSize: 'medium',
+                        display: hasPermission('feature_institution_participation')
+                    }
+                ]|filter(item => item.display is not defined or item.display),
+                heading: 'visible',
+                required: true,
+                isFieldset: true
+            }) }}
+        </div>
+
+        {% if templateVars.categories is defined %}
+            {% set categoryOptions = [] %}
+            {% set selected = faq.category.id|default %}
+
+            {% for c in templateVars.categories %}
+                {% set categoryOptions = categoryOptions|merge([{ label: c.title, value: c.id, selected: c.id == selected }]) %}
+            {% endfor %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'category'|trans },
+                        control: { name: 'r_category_id', options: categoryOptions, attributes: ['data-cy=categoryFaqMenu'] },
+                        id: 'r_category_id',
+                        type: 'select',
+                        elementSize: 'small',
+                        required: true
+                    }
+                ]
+            }) }}
+        {% endif %}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'heading'|trans },
+                    control: { name: 'r_title', value: faq.title, attributes: ['data-cy=FAQTitle'] },
+                    type: 'text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'text'|trans },
+                    control: {
+                        value: faq.text,
+                        hiddenInput: 'r_text',
+                        linkButton: true,
+                        ref: 'r_text'
+                    },
+                    type: 'tiptap',
+                    id: 'r_text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewFAQ'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: cancelPath })
+        }) }}
+    </form>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'faq-faqAdminEdit.js']) }}
+{% endblock javascripts %}

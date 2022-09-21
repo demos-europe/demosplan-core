@@ -1,0 +1,50 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+{% if templateVars.contextualHelp is defined %}
+{%  set contextualHelp = templateVars.contextualHelp %}
+{% else %}
+{%  set contextualHelp = {"ident":null,"text":null,"key":null} %}
+{% endif %}
+
+{% block component_part %}
+    <h1 class="u-mb">
+        {{ (contextualHelp.ident is not null ? 'contextual.help.edit' : 'contextual.help.new')|trans }}
+    </h1>
+
+    <form class="u-mb cf" action="{{ path(formAction, formParameters)  }}" method="post" >
+        <input type="hidden" value="{{ contextualHelp.ident|default }}" name="r_ident">
+        <input type="hidden" value="save" name="r_action">
+
+        {{ uiComponent('form.row', {
+            elements: [{
+                label: { text: 'key'|trans },
+                control: { name: 'r_key', attributes: ['data-cy=contextualHelpTitle'] },
+                id: 'r_key',
+                type: 'text',
+                required: true,
+                value: contextualHelp.key|default,
+                disabled: contextualHelp is not null and (contextualHelp.text is not null or contextualHelp.ident is not null)
+            }]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [{
+                label: { text: 'contextual.help.text'|trans },
+                control: { name: 'r_text', height: '90', attributes: ['data-cy=contextualHelpText'] },
+                id: 'r_text',
+                type: 'textarea',
+                required: true,
+                value: contextualHelp.text|default
+            }]
+        }) }}
+
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=contextualHelpEditSave'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: path('dplan_contextual_help_list'), attributes: ['data-cy=contextualHelpEditCancel'] })
+        }) }}
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock %}

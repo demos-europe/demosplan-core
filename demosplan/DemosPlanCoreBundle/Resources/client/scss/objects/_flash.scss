@@ -1,0 +1,116 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:list';
+
+/// An alert is used to emphasize system messages that are not related to a single user interaction.
+/// Alerts may contain content of any length but it is recommended to keep it as concise as possible.
+///
+/// ## Also known as
+/// * Alert
+/// * Inline Notification
+///
+/// ## Use this component, if
+/// * a notification is not appropriate because content relates not to the interaction but to the whole page view
+/// * content must be visible on first page load (without any interaction prior to it)
+///
+/// ## Do not to use this component, if
+/// * there are already several types of alerts present on the page
+/// * the content does not have to be revealed on page load
+///
+/// @group objects
+///
+/// @name .flash
+///
+/// @TODO Rename to `notify` or something appropriate.
+///
+/// @example markup
+/// <p class="flash flash-info">
+///     <i class="fa fa-info-circle" aria-hidden="true"></i>
+///     You can read this info, but you don't have to. Maybe <a href="#">read more</a> info?
+/// </p>
+/// <p class="flash flash-confirm">
+///     <i class="fa fa-check-circle" aria-hidden="true"></i>
+///     The action you just triggered worked as expected. Nice!
+/// </p>
+/// <p class="flash flash-warning">
+///     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+///     Something did not work as expected, but no need to worry, hopefully.
+/// </p>
+/// <p class="flash flash-error">
+///     <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+///     Ouch! This went wrong, you'd better notice it.
+/// </p>
+
+//  local vars
+$flash-classes:
+    flash-confirm,
+    flash-info,
+    flash-warning,
+    flash-error;
+$flash-colors:
+    $msg-confirm-color,
+    $msg-info-color,
+    $msg-warning-color,
+    $msg-error-color;
+$flash-colors-bg:
+    $msg-confirm-bg-color,
+    $msg-info-bg-color,
+    $msg-warning-bg-color,
+    $msg-error-bg-color;
+$flash-colors-border:
+    $msg-confirm-border-color,
+    $msg-info-border-color,
+    $msg-warning-border-color,
+    $msg-error-border-color;
+
+.flash,
+%flash {
+
+    //  basic styling for box
+    margin: 1.5 * $inuit-base-spacing-unit--small 0 $inuit-base-spacing-unit--small;
+    padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .8;
+
+    color: $msg-color;
+
+    @include inuit-font-size($base-font-size);
+    font-weight: $base-font-weight;
+    font-family: $base-font-family;
+
+    //  default links in flash messages
+    a {
+        color: $msg-color;
+        text-decoration: underline;
+    }
+}
+
+//  looping local vars to build flash classes
+//
+//  .flash-confirm  used for success messages
+//  .flash-info     used for hint-like system feedback
+//  .flash-warning  used for non-critical system feedback
+//  .flash-error    used for critical system feedback
+@for $i from 1 through length($flash-classes) {
+
+    .#{nth($flash-classes, $i)},
+    %#{nth($flash-classes, $i)} {
+
+        background: list.nth($flash-colors-bg, $i);
+        border: 1px solid list.nth($flash-colors-border, $i);
+        color: list.nth($flash-colors, $i);
+
+        a {
+            color: list.nth($flash-colors, $i);
+
+            &:hover {
+                color: $msg-color; // assuming black
+            }
+        }
+    }
+}

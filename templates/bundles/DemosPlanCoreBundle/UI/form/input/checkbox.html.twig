@@ -1,0 +1,28 @@
+{#
+   This is a ui component used via the Twig function call uiComponent('form.input.checkbox')
+
+   To have the checkbox just transmit the boolean value, pass "value: 'on'".
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+<input
+    type="checkbox"
+    id="{{ id|default }}"
+    name="{{ name|default }}"
+    class="{{ 'o-form__control-input'|prefixClass(omitPrefix) }} {{ class|default }}"
+    value="{{ value|default('1') }}"
+    {% if checked is defined and checked == true %}checked{% endif %}
+    {% if required|default(false) %}
+        {% if required|default(false) %}
+            required
+        {% endif %}
+    {% endif %}
+    {% if dataName is defined %}
+        data-name="{{ dataName }}"
+    {% endif %}
+    {% if attributes is defined %}
+        {% for attr in attributes %}
+            {{ attr }}
+        {% endfor %}
+    {% endif %}
+    {% if disabled|default(false) %}disabled{% endif %}>

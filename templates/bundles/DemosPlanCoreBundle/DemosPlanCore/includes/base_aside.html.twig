@@ -1,0 +1,11 @@
+{% import "@DemosPlanCore/macros.html.twig" as macros %}
+
+{% if currentUser.loggedIn == true  %}
+    <nav class="u-mb" aria-labelledby="navHeading">
+        {# not visible main menu heading only to be read out to screen readers#}
+        <h1 id="navHeading" class="hide-visually">
+            {{ "administer"|trans }}
+        </h1>
+        {{ knp_menu_render('sidemenu', {'template': '@DemosPlanCore/sidemenu.html.twig'}) }}
+    </nav>
+{% endif %}

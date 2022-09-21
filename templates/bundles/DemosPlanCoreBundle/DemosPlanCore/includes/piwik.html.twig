@@ -1,0 +1,109 @@
+{% if tracking_enabled is defined and tracking_enabled and piwik.enable is defined and piwik.enable %}
+    <script nonce="{{ csp_nonce('script') }}">
+        var piwik = JSON.parse('{{ piwik|json_encode|e('js', 'utf-8') }}')
+        piwik.scheme = JSON.parse('{{ urlScheme|json_encode|e('js', 'utf-8') }}')
+        var scheme = piwik.scheme
+        var url = piwik.url
+        var siteId = piwik.siteId
+
+        var matomoUrl = scheme + '://' + url
+        var matomoPhp = matomoUrl + 'matomo.php'
+        var matomoJs = matomoUrl + 'matomo.js'
+
+        window._paq = []
+        _paq.push(['setTrackerUrl', matomoPhp])
+        _paq.push(['requireConsent'])
+        _paq.push(['trackPageView'])
+
+
+        function addMatomoCookie () {
+            _paq.push(['setSiteId', siteId])
+            _paq.push(['enableLinkTracking'])
+            _paq.push(['setConsentGiven'])
+            _paq.push(['setCookieConsentGiven']);
+
+            var allScripts = document.getElementsByTagName('script')[0]
+            if (!allScripts.parentNode.querySelector(`[src="${matomoJs}"]`)) {
+                var matomoScript = document.createElement('script')
+                matomoScript.type = 'text/javascript'
+                matomoScript.defer = true
+                matomoScript.async = true
+                matomoScript.src = matomoJs
+                allScripts.parentNode.insertBefore(matomoScript, allScripts)
+            }
+        }
+
+        function removeMatomoCookie () {
+            _paq.push(['disableCookies'])
+            _paq.push(['deleteCookies'])
+        }
+
+        window.dplan.consent = window.DpConsent ? window.DpConsent({
+            notice: 'Diese Webseite verwendet Cookies, um Ihnen ein optimales Anwendungserlebnis bereitzustellen. Neben technisch notwendigen Cookies wird ein Tracking-Cookie verwendet, der uns die Optimierung dieser Seite ermöglicht. Das Tracking wird mit der Open-Source-Software Matomo durchgeführt. Stimmen Sie der Verwendung von Cookies zu oder verändern Sie hier Ihre Einstellungen.',
+            necessaryCookies: [
+                {
+                    name: 'PHP Session Cookie',
+                    explanation: 'Dieser Cookie wird für die Funktionalität der Seite benötigt.'
+                },
+                {
+                    name: 'DP Consent Cookie',
+                    explanation: 'Dieser Cookie wird benötigt, um Ihre Zustimmung oder Ablehnung zusätzlicher Cookies zu speichern.'
+                }
+            ],
+            optionalCookies: [
+                {
+                    name: 'Matomo Tracking Cookie',
+                    explanation: 'Dieser Cookie ermöglicht uns die Sammlung von statistischen Daten. Ihre personenbezogenen Daten werden anonymisiert. Die Daten werden für die Optimierung der Anwendung genutzt.'
+                },
+                {
+                    name: 'Matomo Session Cookie',
+                    explanation: 'Dieser Cookie ermöglicht uns die Sammlung von statistischen Daten. Ihre personenbezogenen Daten werden anonymisiert. Die Daten werden für die Optimierung der Anwendung genutzt.'
+                },
+                {
+                    name: 'Matomo Referral Cookie',
+                    explanation: 'Dieser Cookie ermöglicht uns die Sammlung von statistischen Daten. Ihre personenbezogenen Daten werden anonymisiert. Die Daten werden für die Optimierung der Anwendung genutzt.'
+                }
+            ],
+            onGrantConsent: addMatomoCookie,
+            onRevokeConsent: removeMatomoCookie
+        }) : {}
+
+        {#
+            this is a quick fix. The adjustments below were also made in a cookie-consent library,
+            but it desn't really work so here is a workaround. It should be later fixed in a library
+            and removed from here.
+        #}
+        const cookieBanner = document.getElementById('_cookie-consent')
+        if (cookieBanner) {
+            cookieBanner.setAttribute('tabindex', '0')
+            setTimeout(() => {
+                cookieBanner.focus()
+            }, 1500)
+
+        }
+
+
+        /**
+         * Add Tracking for Clicks on Breadcrumb and the side navigation
+         */
+        const clickTracker = [{
+            name: 'Breadcrumb',
+            prefix: 'BC',
+            selector: 'nav[aria-label=Breadcrumb] a'
+        }, {
+            name: 'Side Menu',
+            prefix: 'SM',
+            selector: '#sideMenu nav[aria-labelledby=navHeading] a'
+        }]
+
+        clickTracker.forEach(section => {
+            document.querySelectorAll(section.selector).forEach(el => {
+                el.addEventListener('click', () => {
+                    _paq.push(['trackEvent', `${section.prefix} ${section.name}`, el.innerText, el.href, document.title]);
+                })
+            })
+        })
+
+    </script>
+    <noscript><p><img src="{{ urlScheme }}://{{ piwik.url }}matomo.php?idsite={{ piwik.siteId }}&rec=1&bots=1&action_name=nojs" style="border:0;" alt=""></p></noscript>
+{% endif %}

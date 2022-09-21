@@ -1,0 +1,211 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// The nav component is used to display the main menu of the application.
+///
+/// @TODO possibly move to https://github.com/gijsroge/priority-navigation or similar implementation of a priority+ nav
+///
+/// @group components
+///
+/// @name .c-nav
+
+
+// Font weight is overridden in bauleitplanung-online
+$dp-nav-item-font-weight:                   $headings-font-weight !default;
+$dp-nav-item-font-family:                   $headings-font-family !default;
+
+// Set a fixed width only when hovering / on js activated hover state
+// These styles are applied as a mixin, see `:focus-within` comment.
+@mixin nav-flyout-active-state() {
+    @include media-query('palm') {
+        width: calc(100% - #{$inuit-base-spacing-unit});
+    }
+    @include media-query('lap-up') {
+        min-width: 200px;
+    }
+}
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-nav') {
+    .c-nav {
+        // Font specific settings
+        $nav-line-height:                   $dp-header-nav-height;
+        $nav-item-font-family:              $dp-nav-item-font-family;
+        $nav-item-font-weight:              $dp-nav-item-font-weight;
+
+        // Colors for default, hovered, and current state
+        $nav-item-color:                    $dp-token-color-brand-header-contrast;
+        $nav-item-bg-color:                 $dp-token-color-brand-header;
+
+        $nav-item-color-hover:              $dp-token-color-brand-header-active-contrast;
+        $nav-item-bg-color-hover:           $dp-token-color-brand-header-active;
+
+        $nav-item-color-current:            $dp-token-color-brand-header-alt-contrast;
+        $nav-item-bg-color-current:         $dp-token-color-brand-header-alt;
+
+        $nav-item-color-current-palm:       $dp-token-color-brand-header-contrast;
+        $nav-item-bg-color-current-palm:    $dp-token-color-brand-header;
+
+        $nav-item-color-checked:            $dp-token-color-brand-header-active-contrast;
+        $nav-item-bg-color-checked:         $dp-token-color-brand-header-active;
+
+
+        margin: 0;
+
+        background-color: $dp-token-color-brand-header;
+
+        // Reset list styles
+        &,
+        li {
+            list-style: none;
+        }
+
+        // Positioning to make expanded content of flyout inside <nav> overlap other menu elements
+        &__flyout {
+            position: absolute;
+            right: 0;
+            top: 0;
+
+            margin-right: $inuit-base-spacing-unit--small;
+
+            @include media-query('lap-up') {
+                margin-right: $inuit-base-spacing-unit;
+            }
+
+            &:hover,
+            &.is-expanded,
+            .has-open-flyout & {
+                @include nav-flyout-active-state;
+            }
+        }
+
+        // Responsive ☰ menu trigger
+        &__menu-trigger {
+            @include media-query('palm') {
+                display: inline-block;
+            }
+
+            display: none;
+            margin: 0;
+            padding: 0 $inuit-base-spacing-unit--small;
+
+            // The collapsed trigger is colored like the .current menu item
+            background-color: $nav-item-bg-color-current;
+            color: $nav-item-color-current;
+            cursor: pointer;
+
+            line-height: $nav-line-height;
+        }
+
+        // Hidden checkbox that makes it all work without javascript
+        &__menu-helper-checkbox {
+
+            //  Styling elements based on state of checkbox...
+            @include media-query('palm') {
+
+                // Expanded ☰ menu trigger is colored like default item
+                &:checked ~ .c-nav__menu-trigger {
+                    background-color: $nav-item-bg-color-checked;
+                    color: $nav-item-color-checked;
+                }
+
+                // Showing + styling menu.
+                &:checked ~ .c-nav__menu {
+                    position: absolute;
+                    z-index: $z-fixed;
+
+                    display: block;
+
+                    background-color: $nav-item-bg-color-checked;
+
+                    .c-nav__item {
+                        display: block;
+                    }
+                }
+            }
+
+            // Hide helper checkbox completely by moving it off screen
+            left: -9999px;
+            position: absolute;
+            top: -9999px;
+        }
+
+        // Helper container for menu items. needed to show/hide the menu-items at once in responsive scenarios.
+        &__menu {
+            @include media-query('palm') {
+                // These are due to focus jumping bug in fixed elements on iOs
+                // https://remysharp.com/2012/05/24/issues-with-position-fixed-scrolling-on-ios#focus-jumping
+                display: none;
+                -webkit-overflow-scrolling: touch !important;
+                overflow: auto !important;
+            }
+
+            display: inline-block;
+            margin: 0;
+        }
+
+        //  menu item
+        &__item {
+            display: inline-block;
+
+            > a {
+                // Added to fix bug when outline was hidden by .current background color of following element
+                @include keyboard-focus {
+                    position: relative;
+                    z-index: 1;
+                }
+
+                @include media-query('palm') {
+                    display: block;
+
+                    background-color: $nav-item-bg-color-checked;
+                    color: $nav-item-color-checked;
+                }
+
+                display: inline-block;
+                padding: 0 $inuit-base-spacing-unit * .75;
+
+                color: $nav-item-color;
+
+                font-family: $nav-item-font-family;
+                font-weight: $nav-item-font-weight;
+                line-height: $nav-line-height;
+
+                &:hover {
+                    background-color: $nav-item-bg-color-hover;
+                    color: $nav-item-color-hover;
+
+                    text-decoration: none;
+
+                    svg path {
+                        fill: $nav-item-color-hover;
+                    }
+                }
+            }
+
+            &.current > a {
+                background-color: $nav-item-bg-color-current;
+                color: $nav-item-color-current;
+
+                svg path {
+                    fill: $nav-item-color-current;
+                }
+            }
+
+            // On mobile devices, indicate current/active state with the same colors.
+            @include media-query('palm') {
+                &.current > a,
+                a:active {
+                    background-color: $nav-item-bg-color-current-palm;
+                    color: $nav-item-color-current-palm;
+                }
+            }
+        }
+    }
+}

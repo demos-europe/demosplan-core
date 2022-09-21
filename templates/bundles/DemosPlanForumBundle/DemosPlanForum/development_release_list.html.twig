@@ -1,0 +1,39 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'Releases',
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            {% if permissions.feature_forum_dev_release_edit.enabled == true %}
+            <a class="btn btn--primary float--right" href="{{ path('DemosPlan_forum_development_release_new')}}">
+                Neues Release anlegen
+            </a>
+            {% endif %}
+            <br>
+
+            {% for release in templateVars.releaseList %}
+                <h2>
+                    <a href="{{ path('DemosPlan_forum_development_release_detail', {'releaseId': release.ident  }) }}">
+                        {{ release.title|default()|wysiwyg }}
+                    </a>
+                </h2>
+                <p> {{ "phase"|trans }}: {{ release.phase|default() }}<br>
+                    {%  if release.startDate is defined and release.startDate != false %}
+                        {{ "period"|trans }}: {{ release.startDate|dplanDateAnnotated }}
+                        {%  if release.endDate is defined and release.endDate != false %}- {{ release.endDate|dplanDateAnnotated }}{% endif %}
+                    {% endif %}
+                    <br>
+                    <a href="{{ path('DemosPlan_forum_development_release_detail', {'releaseId': release.ident  }) }}"> mehr...</a>
+                </p>
+            {% endfor %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}

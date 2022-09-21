@@ -1,0 +1,58 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Component: c-public-statement
+//
+//  Used to present drafts and release statements in the public area.
+
+
+.c-public-statement {
+    border-width: 1px;
+    border-style: solid;
+    border-color: $dp-color-neutral-light-1;
+    border-radius: 3px;
+
+    padding-left: $inuit-base-spacing-unit;
+    padding-right: $inuit-base-spacing-unit;
+
+    &__header {
+        padding-top: $inuit-base-spacing-unit--small;
+        padding-bottom: $inuit-base-spacing-unit--small;
+
+        &:hover {
+            background-color: $dp-color-white !important;
+        }
+    }
+
+    &__tooltip,
+    &__toggle {
+        color: $dp-button-bg-color;
+        font-size: $dp-token-font-size-medium;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    &__toggle {
+        font-size: $dp-token-font-size-brand-header;
+    }
+
+    &__content-item {
+        display: flex;
+    }
+
+    &__content-container {
+        vertical-align: top;
+        display: inline-block;
+    }
+
+    &__label {
+        font-weight: $bold-font-weight;
+        font-family: $bold-font-family;
+    }
+}

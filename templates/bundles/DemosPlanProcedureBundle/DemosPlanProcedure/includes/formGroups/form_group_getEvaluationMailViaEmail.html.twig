@@ -1,0 +1,34 @@
+<div class="{{ 'u-mb-0_5 u-ml-0_75 '|prefixClass }}">
+    {# only render hidden field to satisfy backend #}
+    <input id="r_getEvaluation_email" type="hidden" name="r_getEvaluation" value="email">
+    <div class="{{ ''|prefixClass }}">
+
+        {# email address #}
+        <label class="{% if hasPermission('feature_statements_feedback_postal') %}u-ml-0_5 u-mb-0_5{% else %} u-mb-0{% endif %}">
+            <span id="statement-detail-email">{{ "email"|trans }}</span>
+            <br>
+            <input
+                type="email"
+                name="r_email"
+                aria-labelledby="statement-detail-email"
+                value="{{ templateVars.request.r_email|default }}">
+        </label>
+
+        {# if repeating of email input is enforced, display second email field #}
+        {% if hasPermission('feature_statements_feedback_check_email') %}
+
+            <label class="{{ 'u-ml-0_5 u-mb-0_5'|prefixClass }}">
+                <span id="statement-detail-email-confirm">{{ "email.confirm"|trans }}</span>
+                <br>
+                <input
+                    type="email"
+                    name="r_email2"
+                    aria-labelledby="statement-detail-email-confirm"
+                    value="{{ templateVars.request.r_email2|default }}">
+            </label>
+
+        {% endif %}
+
+    </div>
+
+</div>

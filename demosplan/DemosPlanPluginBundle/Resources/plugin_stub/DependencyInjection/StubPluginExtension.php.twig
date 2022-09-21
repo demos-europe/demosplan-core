@@ -1,0 +1,11 @@
+<?php
+
+namespace {{ plugin_namespace }}\{{ plugin_class_name }}\DependencyInjection;
+
+use demosplan\DemosPlanPluginBundle\Logic\PluginExtension;
+
+class {{ plugin_class_name }}Extension extends PluginExtension {
+    protected $compiledClasses = [
+        {{ plugin_namespace }}\{{ plugin_class_name }}::class,
+    ];
+}

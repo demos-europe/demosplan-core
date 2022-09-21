@@ -1,0 +1,147 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Used for list view of procedures on public_index.html.twig.
+///
+/// @group components
+///
+/// @name .c-procedurelist
+///
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-procedurelist') {
+    .c-procedurelist {
+        &__item {
+            position: relative;
+
+            padding: $inuit-base-spacing-unit 0;
+            border-top: 1px solid $dp-color-neutral-light-2;
+
+            &:hover,
+            &:hover .c-procedurelist__trans {
+                color: $dp-token-color-brand-alt-contrast;
+                transition: color #{$transition-speed-style-delay};
+            }
+
+            &:hover {
+                background-color: $dp-token-color-brand-alt;
+                transition: background-color #{$transition-speed-style-delay};
+            }
+
+            //  Remove border of item + adjacent items when hovering to make :hover state looking less blurry
+            //  Use transparent border instead of `border: 0;` to maintain vertical position
+            &:hover,
+            &:hover + .c-procedurelist__item {
+                border-top: 1px solid transparent;
+            }
+
+            &.is-done {
+                color: $dp-color-neutral-light-1;
+            }
+
+            &.is-done:hover,
+            &.is-done:hover .c-procedurelist__trans {
+                color: $dp-color-neutral-light-2;
+            }
+        }
+
+        &__item-title-wrapper {
+            @include media-query('palm') {
+                margin-bottom: $inuit-base-spacing-unit--tiny;
+                margin-top: $inuit-base-spacing-unit--tiny;
+            }
+
+            @include media-query('lap-up') {
+                margin-bottom: $inuit-base-spacing-unit--small;
+            }
+        }
+
+        &__item-title {
+            @include keyboard-focus($padded: true);
+
+            &:hover {
+                text-decoration: none;
+            }
+
+            .is-done & {
+                color: $dp-color-neutral-light-1;
+            }
+
+            .is-done:hover & {
+                color: $dp-color-neutral-light-2;
+            }
+        }
+
+        &__item-icon {
+            vertical-align: top;
+            margin-top: 2px;
+        }
+
+        &__item-text {
+            display: inline-block;
+            width: calc(100% - 25px); // 25px is roughly the with of the icon
+
+            // Content may contain paragraphs (externalDesc), these should be
+            // displayed in a condensed style.
+            p {
+                margin-bottom: $inuit-base-spacing-unit--tiny;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        //  make the link cover its whole parent (which is .o-list__item and has to be set position: relative)
+        &__item-link {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            position: absolute;
+            top: 0;
+
+            text-indent: -10000px; // hide seo/accessibility contents of link
+        }
+
+        //  Controls for marking a list item done
+        &__item-switch {
+            bottom: $inuit-base-spacing-unit;
+            left: $inuit-base-spacing-unit;
+
+            position: absolute;
+
+            &-icon {
+                &,
+                .is-done:hover & {
+                    display: none;
+                }
+
+                .is-done & {
+                    display: block;
+                }
+            }
+
+            &-controls {
+                display: none;
+
+                .c-procedurelist__item:hover & {
+                    display: block;
+                }
+            }
+
+            &-label {
+                color: $dp-color-white;
+
+                .is-done:hover & {
+                    color: $dp-color-neutral-light-2;
+                }
+            }
+        }
+    }
+}

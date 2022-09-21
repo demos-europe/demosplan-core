@@ -1,0 +1,65 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// The pageheader component is used in the participation area
+/// to visually differentiate the title and subtitle from the content of a view.
+///
+/// @group components
+///
+/// @name .c-pageheader
+///
+/// @requires %btn-base
+
+.c-pageheader {
+    // The colors use the same token as the main menu current item.
+    $pageheader-bg-color:       $dp-token-color-brand-header-alt;
+    $pageheader-color:          $dp-token-color-brand-header-alt-contrast;
+
+    // The title size in "robob-like" layouts is bigger than the default size.
+    $pageheader-title-size:     $dp-token-font-size-brand-header;
+
+
+    background-color: $pageheader-bg-color;
+    color: $pageheader-color;
+
+    &__link {
+        // So sad we can't use the padded option here but so many additional spacing classes
+        // are applied to .c-pageheader__link that the links would jump around like XhzpxjuwZy0
+        @include keyboard-focus;
+
+        &,
+        &:link,
+        &:visited {
+            color: $pageheader-color;
+        }
+
+        &:hover {
+            color: $pageheader-color;
+
+            text-decoration: underline;
+        }
+    }
+
+    &__title {
+        @include media-query('palm') {
+            @include inuit-font-size($dp-token-font-size-h2, 1.2);
+        }
+        @include media-query('lap-up') {
+            @include inuit-font-size($pageheader-title-size, 1.3);
+        }
+
+        margin: 0;
+
+        color: $pageheader-color;
+    }
+
+    &__subtitle {
+        color: $pageheader-color;
+    }
+}

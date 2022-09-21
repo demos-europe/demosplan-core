@@ -1,0 +1,145 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% set guestOnly = form.vars.value.procedureBehaviorDefinition.participationGuestOnly|default(false)  %}
+
+{% block component_part %}
+
+    {% set procedureTypes = [] %}
+    {% if templateVars.procedureTypes is defined %}
+        {% for procedureType in templateVars.procedureTypes %}
+            {% set procedureTypes = procedureTypes|merge([{ value: procedureType.id, label: procedureType.name }]) %}
+        {% endfor %}
+    {% endif %}
+
+    {% if templateVars.procedureTypeId is defined %}
+        {% set selectedProcedureTypeId = templateVars.procedureTypeId %}
+    {% else %}
+        {% set selectedProcedureTypeId = '' %}
+    {% endif %}
+    {% set formAction = templateVars.isCreate is defined ? path('DemosPlan_procedureType_create_save') : path('DemosPlan_procedureType_edit_save', { procedureTypeId: selectedProcedureTypeId|default }) %}
+    {% set isCreate = templateVars.isCreate is defined and templateVars.isCreate == true %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: isCreate == true ? 'procedure.type.create'|trans : 'text.procedures.type.edit'|trans
+    } %}
+
+    {% if isCreate == true and selectedProcedureTypeId == '' %}
+        <p>
+            {{ 'text.procedures.type.create.hint'|trans }}
+        </p>
+    {% else %}
+        <p>
+            {{ 'text.procedures.type.edit.hint'|trans }}
+        </p>
+    {% endif %}
+
+    {% if isCreate == true %}
+        <procedure-type-select
+            class="u-mb"
+            :procedure-types="JSON.parse('{{ procedureTypes|default([])|json_encode|e('js', 'utf-8') }}')"
+            selected-id="{{ selectedProcedureTypeId }}">
+        </procedure-type-select>
+    {% endif %}
+
+    {# do not show form fields if template is used to create new procedureType and no procedureType is selected yet #}
+    {% if (isCreate == true and selectedProcedureTypeId != '') or templateVars.isCreate is not defined or templateVars.isCreate == false %}
+        {{ form_start(form, { 'attr': { 'data-dp-validate': '' }, 'name': form.vars.name, 'action': formAction }) }}
+        <div>
+            <h2 class="u-mb-0">{{ 'general.settings'|trans }}</h2>
+            <div class="u-pt">
+                {{ form_row(form.id) }}
+                {{ form_row(form.name, { class: 'u-mb-0_25' }) }}
+                {{ form_row(form.description, { class: 'u-mb-0_25' }) }}
+                {{ form_row(form.procedureBehaviorDefinition.allowedToEnableMap, { class: 'u-mb-0_25', type: 'checkbox' }) }}
+                {% if hasPermission('field_statement_priority_area') %}
+                    {{ form_row(form.procedureBehaviorDefinition.hasPriorityArea, { class: 'u-mb-0_25', type: 'checkbox' }) }}
+                {% endif %}
+                {{ form_row(form.procedureBehaviorDefinition.participationGuestOnly,
+                    {
+                        class: 'u-mb-0_25',
+                        type: 'checkbox',
+                        attr: { tooltip: 'text.procedure.types.guests.only.tipp'|trans }
+                    })
+                }}
+            </div>
+            <h2 class="u-mt u-mb-0">{{ 'form.fields.and.hint.texts'|trans }}</h2>
+            <div class="u-pt">
+                {{ form_row(form.procedureUiDefinition.statementFormHintStatement, { class: 'u-mb-0_25', type: 'tiptap' }) }}
+                {{ form_row(form.procedureUiDefinition.statementFormHintPersonalData, { class: 'u-mb-0_25', type: 'tiptap' }) }}
+                {{ form_row(form.procedureUiDefinition.statementFormHintRecheck, { class: 'u-mb-0_25', type: 'tiptap' }) }}
+                {# customAttrs-suggestions-allowSpace: should be set to true but thats broken by tiptap @see https://github.com/ueberdosis/tiptap/issues/823 #}
+                {# after updating tipttap to version 2 this should be checked again #}
+                {{ form_row(form.procedureUiDefinition.statementPublicSubmitConfirmationText, {
+                    class: 'u-mb-0_25',
+                    type: 'tiptap',
+                    attr: {
+                        customAttrs: [
+                            ':fullscreen-button=false',
+                            ':link-button=true',
+                            ':list-buttons=false',
+                            ':suggestions=[{matcher:{char:\'$\',allowSpaces:false,startOfLine:false},suggestions:[{id:\'statementPublicSubmitConfirmationTextPlaceholder\',name:\'Vorgangsnummer\'}]}]'
+                        ],
+                    }
+                }) }}
+
+                <p class="weight--bold u-mt">{{ 'statement.form.choose.fields'|trans }}</p>
+
+                {% if guestOnly == false %}
+                    <p class="flash flash-warning">
+                        {{ "statement.field.is.disabled"|trans }}
+                    </p>
+                {% endif %}
+
+                {% for field in form.statementFormDefinition.fieldDefinitions %}
+                    <fieldset>
+                        {#
+                        This block is used to allow find used transkeys on global search:
+                        generated trans-keys with:
+                        statement.fieldset.citizenXorOrgaAndOrgaName
+                        statement.fieldset.countyReference
+                        statement.fieldset.emailAddress
+                        statement.fieldset.getEvaluationMailViaEmail
+                        statement.fieldset.getEvaluationMailViaSnailMailOrEmail
+                        statement.fieldset.mapAndCountyReference
+                        statement.fieldset.name
+                        statement.fieldset.phoneNumber
+                        statement.fieldset.phoneOrEmail
+                        statement.fieldset.postalAndCity
+                        statement.fieldset.street
+                        statement.fieldset.streetAndHouseNumber
+                        statement.fieldset.stateAndGroupAndOrgaNameAndPosition
+                        #}
+                        {% set transkey = 'statement.fieldset.' ~ field.name.vars.value|default %}
+                        <p class="u-mb-0_25">{{ transkey|trans }}</p>
+                        {{ form_row(field.enabled, { class: 'u-mb-0_25', type: 'checkbox', attr: { 'dataName': field.name.vars.value|default ~ '_enabled', disabled: guestOnly == false } }) }}
+                        {{ form_row(field.required, { class: 'u-mb-0_25', type: 'checkbox', attr: { disabled: guestOnly == false } }) }}
+                    </fieldset>
+                {% endfor %}
+            </div>
+            <h2 class="u-mb-0">{{ 'text.adjustments'|trans }}</h2>
+            <div class="u-pt">
+                {{ form_row(form.procedureUiDefinition.mapHintDefault, { 'class': 'u-mb-0_25', type: 'textarea' }) }}
+            </div>
+
+            <div class="u-mv">
+                {{ uiComponent('button-row',
+                    {
+                        primary: uiComponent('button', { style: 'primary', type: 'submit' }),
+                        secondary: uiComponent('button', { color: 'secondary', text: 'reset'|trans, href: path('DemosPlan_procedureType_list') })
+                    }
+                ) }}
+            </div>
+        </div>
+        {# Manually set statementFormDefinition form to rendered, to prevent rendering extra field - symfony tries to render the form although there are no fields defined directly in statementFormDefinition (there are fields only in the child form of fieldDefinitions).#}
+        {% do form.statementFormDefinition.setRendered() %}
+        {# form_rest is needed to render e.g. csrf token hidden field #}
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
+    {% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'procedure-administrationProcedureTypeEdit.js']) }}
+{% endblock javascripts %}

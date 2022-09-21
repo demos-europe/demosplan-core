@@ -1,0 +1,52 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: "gdpr.consent.revoke"|trans,
+        content_subheading: 'gdpr.consent.revoke.hint'|trans
+    }%}
+
+        {% block aside %}{% endblock aside %}
+
+        {% block content %}
+            <form id="gdprRevokeForm" name="gdprRevokeForm" action="{{ path('DemosPlan_statement_revoke_gdpr_consent_post') }}" method="post" data-dp-validate="gdprRevokeForm">
+
+                <label for="emailAddress" class="u-mb-0 u-mt weight--bold">
+                    {{ 'email.address'|trans }}*
+                    <p class="lbl__hint">
+                        {{ 'explanation.gdpr.consent.revoke.email'|trans }}
+                    </p>
+                </label>
+                <input type="email" name="emailAddress" class="u-1-of-1-lap-down u-1-of-2-desk-up" style="height: 28px;" required />
+
+                <label for="gdprConsentRevokeToken" class="u-mb-0 u-mt weight--bold">
+                    {{ 'authentification.token'|trans }}*
+                    <p class="lbl__hint">
+                        {{ 'explanation.authentification.token'|trans }}
+                    </p>
+                </label>
+                <input type="text" name="gdprConsentRevokeToken" class="u-1-of-1-palm u-1-of-2-lap u-1-of-2-desk u-1-of-3-wide" style="height: 28px;" required />
+
+                <div class="text--right u-mt">
+                    {# if js is enabled #}
+                    <button type="submit" class="btn btn--primary u-nojs-hide--inline-block" data-dp-validate-callback="dpconfirm" data-dp-validate-transkey="{{ 'gdpr.revoke.guest.confirm'|trans }}">
+                        {{ 'gdpr.consent.revoke.short'|trans }}
+                    </button>
+
+                    {# if js is not enabled #}
+                    <p class="u-nojs-show--inline-block flash flash-warning" style="text-align: initial;">
+                        {{ 'gdpr.revoke.explanation.guest'|trans }}
+                    </p>
+                    <button type="submit" class="btn btn--primary u-nojs-show--inline-block">
+                        {{ 'gdpr.consent.revoke.short'|trans }}
+                    </button>
+                </div>
+            </form>
+        {% endblock content %}
+    {% endembed %}
+
+{% endblock component_part %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-genericBundleValidate.js') }}
+{% endblock javascripts %}

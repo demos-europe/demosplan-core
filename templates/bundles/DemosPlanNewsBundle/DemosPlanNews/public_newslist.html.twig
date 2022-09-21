@@ -1,0 +1,45 @@
+{% block demosplanbundlecontent %}
+
+    {% for news in templateVars.list.newslist %}
+        <p class="font-size-small u-mb-0">
+            {{ news.modifydate|default()|dplanDate }}
+        </p>
+        <h2>
+
+            <a href="{{ path('DemosPlan_news_news_public_detail',{'newsID':news.ident,'procedure':procedure}) }}">
+                {{ news.title }}
+            </a>
+        </h2>
+        <div class="cf">
+            {% if news.picture is defined and news.picture != "" %}
+            <div class="c-image c-image--thumb font-size-small float--left">
+                <img src="{{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }}">
+                <p>{{ news.pictitle }}</p>
+            </div>
+            {% endif %}
+            <p>
+                {{ news.description|wysiwyg }}
+            </p>
+            {% if news.text is defined and news.text != "" %}
+                <a href="{{ path('DemosPlan_news_news_public_detail',{'newsID':news.ident,'procedure':procedure}) }}">
+                    {{ "readon"|trans }}
+                </a>
+            {% endif %}
+            {% if news.pdf is defined and news.pdf != '' %}
+                <p>
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                        {{ news.pdftitle|default(news.pdf|getFile('name')) }}
+                        {% if(news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
+                            ({{ news.pdf|getFile('size') }} {{ news.pdf|getFile('mimeType') }})
+                        {% endif %}
+                    </a>
+                </p>
+            {% endif %}
+        </div>
+        <hr>
+    {% endfor %}
+
+{% endblock %}

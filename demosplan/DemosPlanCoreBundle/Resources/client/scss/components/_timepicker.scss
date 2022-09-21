@@ -1,0 +1,41 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.c-timepicker {
+    $reset-icon-width: 24px;
+    $item-border-thickness: $dp-border-thickness * 2;
+
+    &__flyout {
+        position: absolute;
+        z-index: $z-content-above;
+        background-color: $dp-bg-color;
+        border: $dp-border-thickness solid $default-border-color;
+
+        &-item {
+            list-style-type: none;
+            border: $item-border-thickness solid transparent;
+            text-align: center;
+            color: $dp-color-main--dark;
+
+            &:hover {
+                color: $dp-color-highlight;
+                border: $item-border-thickness solid $dp-color-main;
+                cursor: pointer;
+            }
+
+            &.is-selected {
+                color: $dp-color-white;
+                background: $dp-color-highlight;
+                border-radius: $dp-token-rounded-small;
+                font-weight: $bold-font-weight;
+                font-family: $bold-font-family;
+            }
+        }
+    }
+}

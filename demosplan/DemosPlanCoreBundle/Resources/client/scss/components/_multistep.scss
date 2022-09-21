@@ -1,0 +1,129 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// The Multistep component is used to guide the user trough a multistep process.
+///
+/// At the moment this component is used exclusively in the public statement form.
+///
+/// It is not to be confused with the multistep task flow interface pattern.
+///
+/// See https://codyhouse.co/gem/css-breadcrumbs-and-multi-step-indicator/
+///
+/// @group components
+///
+/// @name .c-multistep
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-multistep') {
+
+    //  container
+    .c-multistep {
+        $multistep-bg-color: $dp-color-neutral-light-3;
+        $multistep-bg-color-active: $dp-color-neutral-light-2;
+        $multistep-color: $dp-token-color-brand-link;
+        $multistep-color-active: $dp-token-color-brand-highlight;
+        $multistep-color-disabled: $dp-color-neutral-base;
+
+        clear: both;
+
+        margin-top: $inuit-base-spacing-unit--small;
+        width: 100%;
+
+        content: '';
+
+        &.is-hidden {
+            display: none !important;
+        }
+
+        button {
+            @include keyboard-focus;
+
+            position: relative;
+
+            display: inline-block;
+            padding: 0;
+            width: 33%;
+
+            &:last-child {
+                width: 34%;
+            }
+        }
+
+        button > span {
+            display: inline-block;
+            width: 100%;
+
+            text-align: center;
+        }
+
+        button > *::after {
+            //  li > *::after is the colored triangle after each item
+            //  li::after is the white separator between two items
+            position: absolute;
+            z-index: 2;
+            left: 100%;
+            top: 0;
+
+            height: 0;
+            width: 0;
+            content: '';
+
+            border: solid transparent;
+            border-width: 17px 0 17px 17px;
+            border-left-color: inherit;
+        }
+
+        button > * {
+            position: relative;
+
+            padding: .3em .2em .4em 1em;
+
+            background-color: $multistep-bg-color;
+            border-color: $multistep-bg-color;
+            color: $multistep-color;
+        }
+
+        button.is-active > * {
+            background-color: $multistep-bg-color-active;
+            border-color: $multistep-bg-color-active;
+            color: $multistep-color-active;
+        }
+
+        button > *:hover,
+        button.is-active > *:hover,
+        button.is-active > * {
+            background-color: $multistep-bg-color-active;
+            border-color: $multistep-bg-color-active;
+            color: $multistep-color-active;
+        }
+
+        button.is-disabled,
+        button.is-disabled:hover {
+            cursor: default;
+            pointer-events: none;
+            opacity: 1;
+
+            span {
+                background-color: $multistep-bg-color;
+                border-color: $multistep-bg-color;
+                color: $multistep-color-disabled;
+            }
+        }
+
+        button:first-of-type > * {
+            padding-left: 1em;
+        }
+
+        //  Hide triangle after last step
+        button:last-of-type::after,
+        button:last-of-type > *::after {
+            display: none;
+        }
+    }
+}

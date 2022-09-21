@@ -1,0 +1,177 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:color';
+
+//  component: c-statement
+//
+//  used to display a very customized form (statement form)
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-statement') {
+
+    //  container
+    .c-statement {
+        .js & {
+            padding: $inuit-base-spacing-unit--small * 1.5;
+            width: 1100px;
+        }
+
+        .nojs & {
+            margin: $inuit-base-spacing-unit;
+            padding: $inuit-base-spacing-unit--small;
+
+            background-color: $dp-color-white;
+        }
+
+        &__close {
+            @include keyboard-focus;
+
+            display: none;
+            font-size: $dp-token-font-size-smaller;
+
+            .js & {
+                float: right;
+
+                display: block;
+
+                i {
+                    line-height: .8;
+                }
+            }
+        }
+
+        &__form {
+            fieldset {
+                margin-top: $inuit-base-spacing-unit--small;
+                padding: $inuit-base-spacing-unit;
+
+                border-bottom: 1px solid $default-border-color;
+
+                &:nth-of-type(2n) {
+                    border-bottom: none;
+                }
+            }
+
+            .js & {
+                a {
+                    background-clip: initial !important;
+                    transition: none;
+                }
+
+                fieldset {
+                    display: none;
+                    padding: 0;
+
+                    border: none;
+
+                    &.is-visible {
+                        display: block;
+                    }
+                }
+
+                //  state feedback
+                .is-added {
+                    background: $msg-confirm-bg-color !important;
+                    color: $msg-confirm-color;
+
+                    &[data-statement-state-feedback='element'] {
+                        padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
+                    }
+
+                    a {
+                        color: $msg-confirm-color;
+                    }
+                }
+            }
+        }
+
+        //  display a block of associated form items
+        &__formblock {
+            .nojs & {
+                height: auto;
+                padding: 0;
+            }
+
+            .js & {
+
+                padding: $inuit-base-spacing-unit--small;
+
+                p {
+                    margin: 0;
+                }
+
+                &[data-toggle-id].is-visible {
+                    background-color: color.adjust($default-border-color, $lightness: 12%);
+                }
+
+                &[data-toggle-target] {
+                    padding-left: $inuit-base-spacing-unit--small;
+                }
+            }
+
+            label {
+                @include media-query('lap-up') {
+                    display: inline-block;
+                }
+            }
+        }
+
+        &__formhint {
+            padding: $inuit-base-spacing-unit--small;
+
+            border: none;
+
+            font-size: $dp-token-font-size-small;
+        }
+
+        &__hint-icon {
+            position: absolute;
+
+            line-height: 1;
+        }
+
+        &__toggle-target {
+            html:not(.nojs) & {
+                display: none;
+
+                &.is-active {
+                    display: block;
+                }
+            }
+        }
+
+        &__feedback {
+            h2 {
+                padding: 0;
+                line-height: 1.1;
+            }
+
+            p:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        //  fieldsets
+        &__step {
+            &:focus {
+                outline: none;
+            }
+
+            .nojs & {
+                padding: 0 !important;
+                padding-bottom: 12px !important;
+            }
+        }
+
+        a.display--none {
+            display: none;
+        }
+    }
+}

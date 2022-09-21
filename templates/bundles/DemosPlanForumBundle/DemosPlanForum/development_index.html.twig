@@ -1,0 +1,28 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'BOB-SH Weiterentwicklung',
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            {% if permissions.feature_forum_dev_release_edit.enabled == true %}
+
+                <p><a href="{{ path('DemosPlan_forum_development_release_list')}}">
+                    Weiter zur Übersicht der Releases
+                    <i class="fa fa-long-arrow-right"></i>
+                </a></p>
+            {% endif %}
+
+            <h2> Derzeit gibt es keine aktiven Releases</h2>
+
+
+        {% endblock content %}
+
+    {% endembed %}
+
+
+{% endblock %}

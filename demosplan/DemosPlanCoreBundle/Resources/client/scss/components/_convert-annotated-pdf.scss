@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.convert-annotated-pdf {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+    margin-bottom: 12px;
+    padding-top: 15px;
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        padding-right: 12px;
+
+        &--big {
+            flex-basis: 66.66%;
+        }
+
+        &--small {
+            flex-basis: 33.33%;
+            position: relative;
+            min-width: 20%;
+        }
+    }
+
+    .resize-handle {
+        position: absolute;
+        top: -32px;
+        left: -32px;
+        height: 20px;
+
+        &__button {
+            font-size: $dp-token-font-size-small;
+            background-color: $dp-color-neutral-light-3;
+            color: $dp-token-color-brand-link;
+            outline: 0 transparent !important;
+            margin: 0;
+            border: 1px solid transparent;
+            border-radius: 3px;
+
+            &:hover {
+                background-color: $dp-color-neutral-light-2;
+            }
+
+            &:active {
+                background-color: $dp-color-neutral-light-1;
+            }
+        }
+    }
+
+    &__preview {
+        height: 80vh;
+        overflow: auto;
+    }
+}

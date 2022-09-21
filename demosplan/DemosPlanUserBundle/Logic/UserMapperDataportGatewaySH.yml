@@ -1,0 +1,105 @@
+-
+    key: "FP-Admin"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-Admin"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-Planfeststellung"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-Planungsbüro"
+    role: "RMOPPO"
+    roleGroup: "GLAUTH"
+-
+    key: "FP"
+    role: "RMOPSD"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-Sachbearbeiter"
+    role: "RMOPSD"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-SB"
+    role: "RMOPSD"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner-Fachbehörde"
+    role: "RMOPFB"
+    roleGroup: "GLAUTH"
+-
+    key: "TOEB-ADMIN"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "Töb-Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "TöB-Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "TÖB-Koordination"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "TOEB"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "Töb-Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "TöB-Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "TÖB-Sachbearbeitung"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "TöB-Verwalter"
+    role: "RPSUPP"
+    roleGroup: "GPSUPP"
+-
+    key: "Datenerfasser"
+    role: "RDATA"
+    roleGroup: "GDATA"
+-
+    key: "Support"
+    role: "RTSUPP"
+    roleGroup: "GTSUPP"
+-
+    key: "Redakteur"
+    role: "RTEDIT"
+    roleGroup: "GTEDIT"
+# "Redaktion" is used in specific project(s) as a custom naming for Fachplaner-Admin
+-
+    key: "Redaktion"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "Bürger"
+    role: "RCITIZ"
+    roleGroup: "GCITIZ"
+-
+    key: "fachliche Leitstelle"
+    role: "RFALST"
+    roleGroup: "GFALST"
+-
+    key: "Moderation"
+    role: "RMODER"
+    roleGroup: "GMODER"
+-
+    key: "Institution/TÖB-Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "Institution/TÖB-Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"

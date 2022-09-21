@@ -1,0 +1,21 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {% set submitTypeOptions = [] %}
+
+    {% for value, label in getFormOption('statement_submit_types.values', true) %}
+        {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
+    {% endfor %}
+
+    <split-statement-view
+        statement-id="{{ statementId }}"
+        statement-extern-id="{{ statementExternId }}"
+        procedure-id="{{ procedure }}"
+        :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
+    </split-statement-view>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'procedure-administrationSplitStatement.js']) }}
+{% endblock javascripts %}

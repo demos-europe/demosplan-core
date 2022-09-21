@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Traits;
+
+use BadMethodCallException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+
+trait RepositoryLegacyShizzle
+{
+    /**
+     * ===================================================================================
+     * ===================================================================================.
+     *
+     * LEGACY SHIZZLE START
+     *
+     * ===================================================================================
+     * ===================================================================================
+     */
+
+    /**
+     * @param string $entityId
+     *
+     * @throws
+     */
+    public function update($entityId, array $data)
+    {
+        throw new BadMethodCallException('Please use Objects and not arrays.');
+    }
+
+    /**
+     * @throws
+     */
+    public function add(array $data)
+    {
+        throw new BadMethodCallException('Please use Objects and not arrays.');
+    }
+
+    /**
+     * @throws
+     *
+     * @param string $entityId
+     */
+    public function delete($entityId)
+    {
+        // We want to use objects. So don't use or implement this.
+        // instead make use of deleteObject (which should also be defined in the interface)
+        // we have addObject, updateObject, but no deleteObject ...
+        throw new BadMethodCallException('Not implemented → use deleteObject(entity)');
+    }
+
+    /**
+     * @throws
+     *
+     * @param CoreEntity $entity
+     */
+    public function generateObjectValues($entity, array $data)
+    {
+        // - First we need to refactor the usages of generateObjectValues
+        // - Then we can delete the method from the CoreRepository
+        // - Then the interface allows us to delete this unused method.
+        throw new BadMethodCallException('Not implemented → just use the object with getters/setters...');
+    }
+
+    /**
+     * @param string $entityId
+     *
+     * @throws
+     *
+     * @return CoreEntity|void
+     */
+    public function get($entityId)
+    {
+        /*
+         * instead use ->find(['id' => $entityId]);
+         * or even better make use of the magic function __call in EntityRepository
+         * u can do ->findById($entityId);
+         * for other fields u can use findBySomePropperty($proppertyValue);
+         * Why the fuuuu would we write this method...
+         * And why the fuuu is this even in our interface...
+         * It's pretty easy to use and makes the interface clean again (in the future)
+         */
+        throw new BadMethodCallException('Not implemented → just use findById()');
+    }
+
+    /*
+     * ===================================================================================
+     * ===================================================================================
+     *
+     * LEGACY SHIZZLE END
+     *
+     * ===================================================================================
+     * ===================================================================================
+     */
+}

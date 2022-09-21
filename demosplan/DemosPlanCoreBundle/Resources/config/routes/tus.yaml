@@ -1,0 +1,3 @@
+tus_bundle:
+    type: tus_bundle
+    resource: .

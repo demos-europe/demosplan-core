@@ -1,0 +1,38 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': title|default(),
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            <form name="newUserStory" action="{{ path('DemosPlan_forum_development_userstory_new', {'releaseId': templateVars.releaseId }) }}" method="post" enctype="multipart/form-data">
+
+                <label>
+                    {{ "user.story"|trans }}
+                    <input class="layout__item" name="r_title" type="text" value="{{templateVars.request.r_title|default() }}">
+                </label>
+
+                <label>
+                    {{ "description"|trans }}
+                    {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
+                    <textarea class="height-60" name="r_description" value="{{templateVars.request.r_title|default() }}">{{templateVars.request.r_description|default() }}</textarea>
+                </label>
+
+                <div class="text--right space-inline-s">
+                    <input class="btn btn--primary" type="submit" name="saveNewUserStory" value="{{ "save"|trans }}">
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_forum_development_release_detail', {'releaseId': templateVars.releaseId }) }}">
+                        {{ "abort"|trans }}
+                    </a>
+                </div>
+
+            </form>
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}

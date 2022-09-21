@@ -1,0 +1,27 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+%disabled-opacity {
+    cursor: not-allowed;
+    opacity: .4;
+}
+
+%break-words-with-hyphens {
+    // These are technically the same, but use both
+    // it seems that some browsers support one and some the other
+    // don't use break-all -> this will make the text unreadable
+    // old IEs can't break words
+    overflow-wrap: break-word;
+    -ms-word-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+
+    // Adds a hyphen where the word breaks, if supported (No Blink)
+    hyphens: auto;
+}

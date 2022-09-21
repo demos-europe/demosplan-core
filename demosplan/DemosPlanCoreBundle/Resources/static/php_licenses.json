@@ -1,0 +1,602 @@
+[
+    {
+        "license": "MIT",
+        "package": "babdev/pagerfanta-bundle",
+        "website": "https://github.com/BabDev/PagerfantaBundle"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "beberlei/doctrineextensions",
+        "website": "https://github.com/beberlei/DoctrineExtensions"
+    },
+    {
+        "license": "MIT",
+        "package": "cebe/php-openapi",
+        "website": "https://github.com/cebe/php-openapi"
+    },
+    {
+        "license": "MIT",
+        "package": "cocur/slugify",
+        "website": "https://github.com/cocur/slugify"
+    },
+    {
+        "license": "MIT",
+        "package": "composer/package-versions-deprecated",
+        "website": "https://github.com/composer/package-versions-deprecated"
+    },
+    {
+        "license": "MIT",
+        "package": "demos-europe/edt-dql",
+        "website": "https://github.com/demos-europe/edt-dql"
+    },
+    {
+        "license": "MIT",
+        "package": "demos-europe/edt-extra",
+        "website": "https://github.com/demos-europe/edt-extra"
+    },
+    {
+        "license": "MIT",
+        "package": "demos-europe/edt-jsonapi",
+        "website": "https://github.com/demos-europe/edt-jsonapi"
+    },
+    {
+        "license": "MIT",
+        "package": "demos-europe/edt-paths",
+        "website": "https://github.com/demos-europe/edt-paths"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/annotations",
+        "website": "https://github.com/doctrine/annotations"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/common",
+        "website": "https://github.com/doctrine/common"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/doctrine-bundle",
+        "website": "https://github.com/doctrine/DoctrineBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/doctrine-fixtures-bundle",
+        "website": "https://github.com/doctrine/DoctrineFixturesBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/doctrine-migrations-bundle",
+        "website": "https://github.com/doctrine/DoctrineMigrationsBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/orm",
+        "website": "https://github.com/doctrine/orm"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/persistence",
+        "website": "https://github.com/doctrine/persistence"
+    },
+    {
+        "license": "LGPL-2.1",
+        "package": "dompdf/dompdf",
+        "website": "https://github.com/dompdf/dompdf"
+    },
+    {
+        "license": "MIT",
+        "package": "efrane/console-additions",
+        "website": "https://github.com/eFrane/ConsoleAdditions"
+    },
+    {
+        "license": "MIT",
+        "package": "efrane/tus-bundle",
+        "website": "https://github.com/eFrane/TusBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "egulias/email-validator",
+        "website": "https://github.com/egulias/EmailValidator"
+    },
+    {
+        "license": "MIT",
+        "package": "enqueue/elastica-bundle",
+        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "enqueue/enqueue-bundle",
+        "website": "https://github.com/php-enqueue/enqueue-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "enqueue/fs",
+        "website": "https://github.com/php-enqueue/fs"
+    },
+    {
+        "license": "MIT",
+        "package": "erusev/parsedown",
+        "website": "https://github.com/erusev/parsedown"
+    },
+    {
+        "license": "MIT",
+        "package": "escapestudios/symfony2-coding-standard",
+        "website": "https://github.com/djoos/Symfony-coding-standard"
+    },
+    {
+        "license": "MIT",
+        "package": "exercise/htmlpurifier-bundle",
+        "website": "https://github.com/Exercise/HTMLPurifierBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "fakerphp/faker",
+        "website": "https://github.com/FakerPHP/Faker"
+    },
+    {
+        "license": "MIT",
+        "package": "friendsofphp/php-cs-fixer",
+        "website": "https://github.com/FriendsOfPHP/PHP-CS-Fixer"
+    },
+    {
+        "license": "MIT",
+        "package": "friendsofsymfony/elastica-bundle",
+        "website": "https://github.com/FriendsOfSymfony/FOSElasticaBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "friendsofsymfony/jsrouting-bundle",
+        "website": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "geocoder-php/nominatim-provider",
+        "website": "https://github.com/geocoder-php/nominatim-provider"
+    },
+    {
+        "license": "MIT",
+        "package": "goetas-webservices/xsd2php",
+        "website": "https://github.com/goetas-webservices/xsd2php"
+    },
+    {
+        "license": "MIT",
+        "package": "goetas-webservices/xsd2php-runtime",
+        "website": "https://github.com/goetas-webservices/xsd2php-runtime"
+    },
+    {
+        "license": "MIT",
+        "package": "guzzlehttp/guzzle",
+        "website": "https://github.com/guzzle/guzzle"
+    },
+    {
+        "license": "MIT",
+        "package": "hslavich/oneloginsaml-bundle",
+        "website": "https://github.com/hslavich/OneloginSamlBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "intervention/image",
+        "website": "https://github.com/Intervention/image"
+    },
+    {
+        "license": "MIT",
+        "package": "intriro/csv-bundle",
+        "website": "https://github.com/intriro/csv-bundle"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "jfcherng/php-diff",
+        "website": "https://github.com/jfcherng/php-diff"
+    },
+    {
+        "license": "MIT",
+        "package": "jmikola/geojson",
+        "website": "https://github.com/jmikola/geojson"
+    },
+    {
+        "license": "MIT",
+        "package": "jms/serializer-bundle",
+        "website": "https://github.com/schmittjoh/JMSSerializerBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-bundle",
+        "website": "https://github.com/thephpleague/flysystem-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/fractal",
+        "website": "https://github.com/thephpleague/fractal"
+    },
+    {
+        "license": "MIT",
+        "package": "league/html-to-markdown",
+        "website": "https://github.com/thephpleague/html-to-markdown"
+    },
+    {
+        "license": "MIT",
+        "package": "lexik/jwt-authentication-bundle",
+        "website": "https://github.com/lexik/LexikJWTAuthenticationBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "liip/functional-test-bundle",
+        "website": "https://github.com/liip/LiipFunctionalTestBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "liip/test-fixtures-bundle",
+        "website": "https://github.com/liip/LiipTestFixturesBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "maennchen/zipstream-php",
+        "website": "https://github.com/maennchen/ZipStream-PHP"
+    },
+    {
+        "license": "MIT",
+        "package": "masterminds/html5",
+        "website": "https://github.com/Masterminds/html5-php"
+    },
+    {
+        "license": "MIT",
+        "package": "myclabs/php-enum",
+        "website": "https://github.com/myclabs/php-enum"
+    },
+    {
+        "license": "MIT",
+        "package": "nelmio/security-bundle",
+        "website": "https://github.com/nelmio/NelmioSecurityBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "nesbot/carbon",
+        "website": "https://github.com/briannesbitt/Carbon"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "openlss/lib-array2xml",
+        "website": "https://github.com/nullivex/lib-array2xml"
+    },
+    {
+        "license": "(Apache-2.0 or GPL-2.0)",
+        "package": "patchwork/utf8",
+        "website": "https://github.com/tchwork/utf8"
+    },
+    {
+        "license": "GPL-2 or New-BSD",
+        "package": "phayes/geophp",
+        "website": "https://github.com/phayes/geoPHP"
+    },
+    {
+        "license": "MIT",
+        "package": "php-amqplib/rabbitmq-bundle",
+        "website": "https://github.com/php-amqplib/RabbitMqBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "php-parallel-lint/php-console-highlighter",
+        "website": "https://github.com/php-parallel-lint/PHP-Console-Highlighter"
+    },
+    {
+        "license": "MIT",
+        "package": "phpdocumentor/reflection-docblock",
+        "website": "https://github.com/phpDocumentor/ReflectionDocBlock"
+    },
+    {
+        "license": "LGPL-3.0",
+        "package": "phpoffice/phpword",
+        "website": "https://github.com/PHPOffice/PHPWord"
+    },
+    {
+        "license": "MIT",
+        "package": "phpspec/prophecy",
+        "website": "https://github.com/phpspec/prophecy"
+    },
+    {
+        "license": "MIT",
+        "package": "phpstan/phpstan",
+        "website": "https://github.com/phpstan/phpstan"
+    },
+    {
+        "license": "MIT",
+        "package": "phpstan/phpstan-symfony",
+        "website": "https://github.com/phpstan/phpstan-symfony"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "phpunit/phpunit",
+        "website": "https://github.com/sebastianbergmann/phpunit"
+    },
+    {
+        "license": "LGPL-2.1",
+        "package": "proj4php/proj4php",
+        "website": "https://github.com/proj4php/proj4php"
+    },
+    {
+        "license": "MIT",
+        "package": "psalm/plugin-symfony",
+        "website": "https://github.com/psalm/psalm-plugin-symfony"
+    },
+    {
+        "license": "MIT",
+        "package": "ramsey/uuid",
+        "website": "https://github.com/ramsey/uuid"
+    },
+    {
+        "license": "MIT",
+        "package": "rector/rector",
+        "website": "https://github.com/rectorphp/rector"
+    },
+    {
+        "license": "MIT",
+        "package": "rollerworks/password-strength-bundle",
+        "website": "https://github.com/rollerworks/PasswordStrengthBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "sensio/framework-extra-bundle",
+        "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "sentry/sentry-symfony",
+        "website": "https://github.com/getsentry/sentry-symfony"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "squizlabs/php_codesniffer",
+        "website": "https://github.com/squizlabs/PHP_CodeSniffer"
+    },
+    {
+        "license": "MIT",
+        "package": "stof/doctrine-extensions-bundle",
+        "website": "https://github.com/stof/StofDoctrineExtensionsBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/asset",
+        "website": "https://github.com/symfony/asset"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/cache",
+        "website": "https://github.com/symfony/cache"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/css-selector",
+        "website": "https://github.com/symfony/css-selector"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/debug-bundle",
+        "website": "https://github.com/symfony/debug-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/dependency-injection",
+        "website": "https://github.com/symfony/dependency-injection"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/dom-crawler",
+        "website": "https://github.com/symfony/dom-crawler"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/dotenv",
+        "website": "https://github.com/symfony/dotenv"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/expression-language",
+        "website": "https://github.com/symfony/expression-language"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/filesystem",
+        "website": "https://github.com/symfony/filesystem"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/finder",
+        "website": "https://github.com/symfony/finder"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/flex",
+        "website": "https://github.com/symfony/flex"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/form",
+        "website": "https://github.com/symfony/form"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/http-client",
+        "website": "https://github.com/symfony/http-client"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/http-foundation",
+        "website": "https://github.com/symfony/http-foundation"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/inflector",
+        "website": "https://github.com/symfony/inflector"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/intl",
+        "website": "https://github.com/symfony/intl"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/mailer",
+        "website": "https://github.com/symfony/mailer"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/maker-bundle",
+        "website": "https://github.com/symfony/maker-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/mime",
+        "website": "https://github.com/symfony/mime"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/monolog-bundle",
+        "website": "https://github.com/symfony/monolog-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/phpunit-bridge",
+        "website": "https://github.com/symfony/phpunit-bridge"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/polyfill-apcu",
+        "website": "https://github.com/symfony/polyfill-apcu"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/polyfill-intl-messageformatter",
+        "website": "https://github.com/symfony/polyfill-intl-messageformatter"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/polyfill-php80",
+        "website": "https://github.com/symfony/polyfill-php80"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/process",
+        "website": "https://github.com/symfony/process"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/property-access",
+        "website": "https://github.com/symfony/property-access"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/property-info",
+        "website": "https://github.com/symfony/property-info"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/proxy-manager-bridge",
+        "website": "https://github.com/symfony/proxy-manager-bridge"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/security-bundle",
+        "website": "https://github.com/symfony/security-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/security-csrf",
+        "website": "https://github.com/symfony/security-csrf"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/serializer",
+        "website": "https://github.com/symfony/serializer"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/stopwatch",
+        "website": "https://github.com/symfony/stopwatch"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/templating",
+        "website": "https://github.com/symfony/templating"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/twig-bundle",
+        "website": "https://github.com/symfony/twig-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/validator",
+        "website": "https://github.com/symfony/validator"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/var-dumper",
+        "website": "https://github.com/symfony/var-dumper"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/var-exporter",
+        "website": "https://github.com/symfony/var-exporter"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/web-profiler-bundle",
+        "website": "https://github.com/symfony/web-profiler-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/yaml",
+        "website": "https://github.com/symfony/yaml"
+    },
+    {
+        "license": "MIT",
+        "package": "tightenco/collect",
+        "website": "https://github.com/tighten/collect"
+    },
+    {
+        "license": "MIT",
+        "package": "timeweb/phpstan-enum",
+        "website": "https://github.com/timeweb/phpstan-enum"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "twig/twig",
+        "website": "https://github.com/twigphp/Twig"
+    },
+    {
+        "license": "MIT",
+        "package": "vimeo/psalm",
+        "website": "https://github.com/vimeo/psalm"
+    },
+    {
+        "license": "MIT",
+        "package": "weirdan/doctrine-psalm-plugin",
+        "website": "https://github.com/psalm/psalm-plugin-doctrine"
+    },
+    {
+        "license": "MIT",
+        "package": "willdurand/geocoder-bundle",
+        "website": "https://github.com/geocoder-php/BazingaGeocoderBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "willdurand/js-translation-bundle",
+        "website": "https://github.com/willdurand/BazingaJsTranslationBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "wrep/daemonizable-command",
+        "website": "https://github.com/mac-cain13/daemonizable-command"
+    },
+    {
+        "license": "MIT",
+        "package": "wsdltophp/packagegenerator",
+        "website": "https://github.com/WsdlToPhp/PackageGenerator"
+    },
+    {
+        "license": "MIT",
+        "package": "yectep/phpspreadsheet-bundle",
+        "website": "https://github.com/eightyknots/phpspreadsheet-bundle"
+    }
+]

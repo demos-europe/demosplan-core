@@ -1,0 +1,50 @@
+% {{ "considerationtable"|trans }}: 1. Zeile setzt die Spalten
+{% if pdfLandscape is defined and pdfLandscape == true %}
+    \begin{longtable}{|p{6cm}|p{5.5cm}p{14.0cm}|}
+{% else %}
+    \begin{longtable}{|p{3cm}|p{3.5cm}p{10.25cm}|}
+{% endif %}
+\hline
+% Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
+\textbf{{ '{' }}{{ "nr"|trans }}: {{ statement.externIdString|latex }}{{ '}' }} & \multicolumn{2}{l|}{{ '{' }}\textbf{{ '{' }}{{ "details"|trans|latex|raw }}{{ '}' }}{{ '}' }}\\
+\hline
+{% block orgaData %}
+    {{ "date.submitted"|trans|latex|raw }}: & {{ "procedure.public.phase"|trans|latex|raw }}: & {{ statement.phase|default("notspecified"|trans)|latex|raw }}\\
+    {{ statement.submit|default()|dplanDate }} & {{ "submitter.invitable_institution"|trans|latex|raw }}: & \textbf{{ '{' }}{{ statement.meta.orgaName|default("notspecified"|trans)|latex|raw }}{{ '}' }}\\
+    {% if statement.meta is defined and  statement.meta.userState is defined and statement.meta.userState != '' %}
+        & {{ "state"|trans|latex|raw }}: & {{ statement.meta.userState }} \\
+    {% endif %}
+    {% if statement.meta is defined and  statement.meta.userGroup is defined and statement.meta.userGroup != '' %}
+        & {{ "group"|trans|latex|raw }}: & {{ statement.meta.userGroup }} \\
+    {% endif %}
+    {% if statement.meta is defined and  statement.meta.userOrganisation is defined and statement.meta.userOrganisation != '' %}
+        & {{ "organisation"|trans|latex|raw }}: & {{ statement.meta.userOrganisation }} \\
+    {% endif %}
+    {% if statement.meta is defined and  statement.meta.userPosition is defined and statement.meta.userPosition != '' %}
+        & {{ "position"|trans|latex|raw }}: & {{ statement.meta.userPosition }} \\
+    {% endif %}
+    {% if statement.isSubmittedByCitizen == false %}
+        {% if statement.meta.orgaDepartmentName is defined and statement.meta.orgaDepartmentName != '' %}
+            & {{ "department"|trans|latex|raw }}: & {{ statement.meta.orgaDepartmentName|latex|raw }}\\
+        {% endif %}
+    {% endif %}
+{% endblock %}
+{% if hasPermission('field_statement_public_allowed') %}&{{ "publish.on.platform"|trans|latex|raw }}: & {{ statement.publicVerifiedTranslation|trans|latex|raw }}\\{% endif %}
+{% if statement.votesNum > 0 %}&{{ "voters"|trans|latex|raw }}: &{{ statement.votesNum|trans|latex|raw}} {% if statement.votesNum == 1 %}{{ "person"|trans|latex|raw }}\\{% else %}{{ "persons"|trans|latex|raw }}\\{% endif %}{% endif %}
+            {% if hasPermission('feature_statements_like') and statement.publicAllowed %}
+                {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
+                    & {{ "liked.by"|trans|latex|raw }}: & {% if statement.likesNum is defined and statement.likesNum  == 1 %}{{ statement.likesNum }} {{ "person"|trans|latex|raw }}{% else %}{{ statement.likesNum }} {{ "persons"|trans|latex|raw }}{% endif %}\\
+                {% endif %}
+            {% endif %}
+         {% if statement.element.title is defined and statement.element.title != '' %} & {{ "document"|trans }}: & {{ statement.element.title|latex|raw }}{% if statement.document is defined and statement.document.title != '' %} / {{ statement.document.title|latex|raw }} {% endif %}\\{% endif %}
+         {% if statement.paragraph.title is defined and statement.paragraph.title != '' %} & {{ "paragraph"|trans }}: & {{ statement.paragraph.title|latex|raw }}\\{% endif %}
+         {% if statement.files|default([])|length > 0 %}
+             {% if anonymous %}
+                && {{ "files.attached" | trans }} \\
+             {% else %}
+                 {% for file in statement.files %} & {{ "file"|trans }}: & {{ file|getFile('name')|latex|raw }}\\{% endfor %}
+             {% endif %}
+         {%  endif %}
+{% block priority %}{% endblock %}
+\hline
+\end{longtable}

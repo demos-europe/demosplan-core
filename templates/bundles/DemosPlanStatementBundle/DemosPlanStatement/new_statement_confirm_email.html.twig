@@ -1,0 +1,54 @@
+{#guest#}
+{% block body_plain %}
+Guten Tag,
+
+vielen Dank für Ihre Stellungnahme zum Verfahren "{{ templateVars.procedure.externalName|trim }}".
+
+{% if templateVars.number is defined %}
+Wir führen Ihre Stellungnahme unter der Vorgangsnummer {{ templateVars.number }}.
+{% endif %}
+{% if templateVars.consultationTokenString is defined and templateVars.consultationTokenString is not null%}
+
+Sollte aufgrund von § 10 Abs. 6 BImSchG i. V. m. § 16 der Verordnung über das Genehmigungsverfahren (9. BImSchV) und § 5 Abs. 1 des Planungssicherstellungsgesetzes (PlanSiG ) der Erörterungstermin abgesagt und durch eine Online-Konsultation gem. § 5 Abs. 2 ff. PlanSiG ersetzt werden, wird dieses öffentlich über die bekannten Medien bekannt gemacht. Dieses gilt auch für die generelle Absage des Erörterungstermins.
+
+Im Falle einer Online-Konsultation besteht die Möglichkeit, Ihre Stellungnahme über die Plattform BOB-SH BImSchG abzugeben. Hierfür benötigen Sie einen Zugangscode für die Teilnahme.
+Ihr Zugangscode lautet {{ templateVars.consultationTokenString }}.
+
+{% endif %}
+Sie werden informiert, sobald eine Abwägung stattgefunden hat.
+
+Sie erhalten eine Rückmeldung von Ihrer zuständigen Dienststelle.
+
+{% if hasPermission('feature_statement_gdpr_consent') %}
+Informationen zur Wahrnehmung Ihrer personenbezogenen Rechte erhalten Sie unter
+{{ url('DemosPlan_misccontent_static_dataprotection', {'_fragment': 'wer-sind-ihre-ansprechpartner'}) }}
+{% endif %}
+
+{% if hasPermission('feature_gdpr_consent_revoke_by_token') and templateVars.token is defined %}
+Sie möchten Ihre Einwilligung zur Verarbeitung der Sie betreffenden personenbezogenen Daten für diese Stellungnahme
+widerrufen? Bitte rufen Sie die folgende Webadresse auf:
+{{ url('DemosPlan_statement_revoke_gdpr_consent_get') }}
+
+Fügen Sie dort bitte den folgenden Authentifizierungsschlüssel ein:
+
+{{ templateVars.token }}
+
+Bitte beachten Sie: Wenn Sie Ihre Einwilligung zur Verarbeitung personenbezogener Daten widerrufen, erhalten Sie keine Schlussmitteilung zu dieser Stellungnahme.
+{% endif %}
+
+Dies ist eine automatisch erzeugte Benachrichtigung. Bitte antworten Sie nicht darauf!
+
+Mit freundlichem Gruß
+
+{% set signature = templateVars.signature %}
+{% if signature.nameLegal is defined %}
+{{ signature.nameLegal }}
+{% endif %}
+{% if signature.street is defined %}
+{{ signature.street }}
+{% endif %}
+{{ signature.city|default('') }} {{ signature.postalcode|default('') }}
+{% if signature.email is defined %}
+{{ signature.email }}
+{% endif %}
+{% endblock %}

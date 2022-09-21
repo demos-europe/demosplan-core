@@ -1,0 +1,493 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <action-stepper
+    class="u-mv"
+    :busy="busy"
+    :valid="hasActions && hasSegments"
+    :return-link="returnLink"
+    :step="step"
+    :selected-elements="segments.length"
+    @apply="apply"
+    @confirm="step = 2"
+    @edit="step = 1">
+    <!-- Step 1 - Chose action -->
+    <template v-slot:step-1>
+      <div class="border-between-vertical">
+        <!-- Assign user -->
+        <action-stepper-action
+          v-if="hasPermission('feature_statement_assignment')"
+          v-model="actions.assignSegment.checked"
+          id="selectAssignAction"
+          :label="Translator.trans('assign.for.editing')"
+        >
+          <dp-multiselect
+            class="width-300"
+            id="assignSegment"
+            :disabled="!hasSegments"
+            :options="assignableUsers"
+            v-model="actions.assignSegment.selected"
+            label="name"
+            track-by="id" />
+        </action-stepper-action>
+
+        <!-- Add tags -->
+        <action-stepper-action
+          v-model="actions.addTags.checked"
+          id="selectAddTagsAction"
+          :label="Translator.trans('segments.bulk.edit.tags.add')">
+          <dp-multiselect
+            id="addTags"
+            multiple
+            :disabled="!hasSegments"
+            :options="filteredTagsByTopic"
+            v-model="actions.addTags.selected"
+            label="title"
+            track-by="id"
+            group-values="tags"
+            group-label="title"
+            :group-select="false" />
+        </action-stepper-action>
+
+        <!-- Remove tags -->
+        <action-stepper-action
+          v-model="actions.deleteTags.checked"
+          id="selectDeleteTagsAction"
+          :label="Translator.trans('segments.bulk.edit.tags.delete')">
+          <dp-multiselect
+            id="deleteTags"
+            multiple
+            :disabled="!hasSegments"
+            :options="filteredTagsByTopic"
+            v-model="actions.deleteTags.selected"
+            label="title"
+            track-by="id"
+            group-values="tags"
+            group-label="title"
+            :group-select="false" />
+        </action-stepper-action>
+
+        <!-- Append text to recommendation -->
+        <action-stepper-action
+          v-model="actions.addRecommendations.checked"
+          id="selectAddRecommendationAction"
+          :label="Translator.trans('segments.bulk.edit.recommendations.add')">
+          <div class="u-mb-0_5">
+            <dp-radio
+              id="attachTextRadioId"
+              v-model="actions.addRecommendations.isTextAttached"
+              :bold="false"
+              :checked="actions.addRecommendations.isTextAttached"
+              :label="Translator.trans('segments.bulk.edit.recommendations.radio.text.attach')"
+              @change="actions.addRecommendations.isTextReplaced = false" />
+            <dp-radio
+              id="replaceTextRadioId"
+              v-model="actions.addRecommendations.isTextReplaced"
+              :bold="false"
+              :checked="actions.addRecommendations.isTextReplaced"
+              :label="Translator.trans('segments.bulk.edit.recommendations.radio.text.replace')"
+              @change="actions.addRecommendations.isTextAttached = false" />
+          </div>
+          <dp-tiptap
+            id="addRecommendationTipTap"
+            editor-id="recommendationText"
+            v-model="actions.addRecommendations.text"
+            :toolbar-items="{
+              boilerPlate: 'consideration',
+              fullscreenButton: true,
+              linkButton: true
+            }"
+            :procedure-id="procedureId"
+            :disabled="!hasSegments" />
+        </action-stepper-action>
+      </div>
+    </template>
+
+    <!-- Step 2 - Confirm -->
+    <template v-slot:step-2>
+      <div class="border-between-vertical">
+        <dp-inline-notification
+          type="info"
+          :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length})"
+          class="border-between-none" />
+
+        <dp-inline-notification
+          v-if="actions.addRecommendations.text === '' && addRecommendationsChecked"
+          type="warning"
+          :message="emptyRecommendationWarning"
+          class="border-between-none" />
+
+        <div
+          v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
+          class="u-mt u-pb-0_5">
+          <label class="u-mb-0_25 weight--normal">
+            {{ Translator.trans('segments.assign.other.confirmation') }}
+          </label>
+          <p>
+            {{ actions.assignSegment.selected.name }}
+          </p>
+        </div>
+
+        <div
+          v-if="addTagsCheckedAndSelected"
+          class="u-pv">
+          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
+          <selected-tags-list :selected-tags="actions.addTags.selected" />
+        </div>
+
+        <div
+          v-if="deleteTagsCheckedAndSelected"
+          class="u-pv">
+          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length})" />
+          <selected-tags-list :selected-tags="actions.deleteTags.selected" />
+        </div>
+
+        <div
+          v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
+          class="u-pv">
+          <p v-html="addOrReplaceRecommendationMessage" />
+          <p v-cleanhtml="actions.addRecommendations.text" />
+        </div>
+      </div>
+    </template>
+
+    <!-- Step 3 - System feedback -->
+    <template v-slot:step-3>
+      <action-stepper-response
+        v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
+        :success="actions.assignSegment.success"
+        :description-error="Translator.trans('segments.bulk.edit.segments.assigned.error')"
+        :description-success="Translator.trans('segments.bulk.edit.segments.assigned.success')" />
+      <action-stepper-response
+        v-if="addTagsCheckedAndSelected"
+        :success="actions.addTags.success"
+        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', {count: segments.length})"
+        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', {count: segments.length})">
+        <selected-tags-list :selected-tags="actions.addTags.selected" />
+      </action-stepper-response>
+
+      <action-stepper-response
+        v-if="deleteTagsCheckedAndSelected"
+        :success="actions.deleteTags.success"
+        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', {count: segments.length})"
+        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', {count: segments.length})">
+        <selected-tags-list :selected-tags="actions.deleteTags.selected" />
+      </action-stepper-response>
+
+      <action-stepper-response
+        v-if="addRecommendationsChecked"
+        :success="actions.addRecommendations.success"
+        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', {count: segments.length})"
+        :description-success="addRecommendationsSuccess">
+        <p
+          v-cleanhtml="actions.addRecommendations.text"
+          class="u-mt-0_5" />
+      </action-stepper-response>
+    </template>
+  </action-stepper>
+</template>
+
+<script>
+import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { mapActions, mapState } from 'vuex'
+import ActionStepper from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepper'
+import ActionStepperAction from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
+import ActionStepperResponse from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import { CleanHtml } from 'demosplan-ui/directives'
+import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpRadio from '@DemosPlanCoreBundle/components/form/DpRadio'
+import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import lscache from 'lscache'
+import SelectedTagsList from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/SelectedTagsList'
+
+export default {
+  name: 'SegmentsBulkEdit',
+
+  components: {
+    ActionStepper,
+    ActionStepperAction,
+    ActionStepperResponse,
+    DpInlineNotification: () => import('@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpMultiselect,
+    DpRadio,
+    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    SelectedTagsList
+  },
+
+  directives: {
+    cleanhtml: CleanHtml
+  },
+
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      actions: {
+        addRecommendations: {
+          text: '',
+          checked: false,
+          success: false,
+          // To toggle radio button checked and the isTextAttached value will be send to BE
+          isTextAttached: true,
+          isTextReplaced: false
+        },
+        addTags: {
+          selected: [],
+          checked: false,
+          success: false
+        },
+        assignSegment: {
+          selected: [],
+          checked: false,
+          success: false
+        },
+        deleteTags: {
+          selected: [],
+          checked: false,
+          success: false
+        }
+      },
+      assignableUsers: [],
+      busy: false,
+      isLoading: true,
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
+      step: 1,
+      segments: []
+    }
+  },
+
+  computed: {
+    ...mapState('tag', {
+      tagsItems: 'items'
+    }),
+
+    ...mapState('tagTopic', {
+      tagTopicsItems: 'items'
+    }),
+
+    addTagsCheckedAndSelected () {
+      return this.actions.addTags.checked && this.actions.addTags.selected.length > 0
+    },
+
+    addOrReplaceRecommendationMessage () {
+      if (this.actions.addRecommendations.isTextAttached) {
+        return Translator.trans('segments.bulk.edit.recommendations.add.description', { count: this.segments.length })
+      }
+
+      if (this.actions.addRecommendations.isTextReplaced) {
+        return Translator.trans('segments.bulk.edit.recommendations.replace.description', { count: this.segments.length })
+      }
+
+      return ''
+    },
+
+    addRecommendationsChecked () {
+      return this.actions.addRecommendations.checked
+    },
+
+    addRecommendationsSuccess () {
+      if (this.actions.addRecommendations.isTextAttached) {
+        return Translator.trans('segments.bulk.edit.recommendations.added.success', { count: this.segments.length })
+      }
+
+      if (this.actions.addRecommendations.isTextReplaced) {
+        return Translator.trans('segments.bulk.edit.recommendations.replaced.success', { count: this.segments.length })
+      }
+
+      return ''
+    },
+
+    assignSegmentCheckedAndSelected () {
+      return this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
+    },
+
+    deleteTagsCheckedAndSelected () {
+      return this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
+    },
+
+    emptyRecommendationWarning () {
+      const isEmptyTextAttached = this.addRecommendationsChecked && this.actions.addRecommendations.isTextAttached === true && this.actions.addRecommendations.text === ''
+      const isEmptyTextReplaced = this.addRecommendationsChecked && this.actions.addRecommendations.isTextReplaced === true && this.actions.addRecommendations.text === ''
+
+      if (isEmptyTextAttached) {
+        return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.attach', { count: this.segments.length })
+      }
+      if (isEmptyTextReplaced) {
+        return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.replace', { count: this.segments.length })
+      }
+      return ''
+    },
+
+    filteredTagsByTopic () {
+      return this.topics.map(topic => {
+        return {
+          title: topic.attributes.title,
+          id: topic.id,
+          tags: this.tags
+            .filter(tag => tag.relationships.topic.data.id === topic.id)
+            .map(tag => {
+              return {
+                title: tag.attributes.title,
+                id: tag.id
+              }
+            })
+        }
+      })
+    },
+
+    hasActions () {
+      return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0
+    },
+
+    hasSegments () {
+      return this.segments.length > 0
+    },
+
+    tags () {
+      return Object.values(this.tagsItems).sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, 'de', { sensitivity: 'base' }))
+    },
+
+    topics () {
+      return Object.values(this.tagTopicsItems)
+    }
+  },
+
+  methods: {
+    ...mapActions('tag', {
+      listTags: 'list'
+    }),
+    ...mapActions('tagTopic', {
+      listTagTopics: 'list'
+    }),
+
+    /**
+     * Apply selected actions.
+     */
+    apply () {
+      this.busy = true
+
+      const params = {
+        addTagIds: this.actions.addTags.selected.map(tag => tag.id),
+        removeTagIds: this.actions.deleteTags.selected.map(tag => tag.id),
+        segmentIds: this.segments,
+        // Text of DpTipTap and attach bool to determine if the text is replaced or attached - default: true
+        recommendationTextEdit: {
+          text: this.actions.addRecommendations.text,
+          attach: this.actions.addRecommendations.isTextAttached
+        }
+      }
+
+      if (this.assignSegmentCheckedAndSelected) {
+        params.assigneeId = this.actions.assignSegment.selected.id
+      }
+
+      dpRpc('segment.bulk.edit', params)
+        .then(checkResponse)
+        .then((response) => {
+          const rpcResult = this.getRpcResult(response)
+
+          this.actions.assignSegment.success = rpcResult
+          this.actions.deleteTags.success = rpcResult
+          this.actions.addTags.success = rpcResult
+          this.actions.addRecommendations.success = rpcResult
+        })
+        .catch(() => {
+          this.actions.assignSegment.success = false
+          this.actions.deleteTags.success = false
+          this.actions.addTags.success = false
+          this.actions.addRecommendations.success = false
+        })
+        .finally(() => {
+          // Always delete saved selection to ensure that no action is processed more than one time
+          lscache.remove(`${this.procedureId}:toggledSegments`)
+          lscache.remove(`${this.procedureId}:allSegments`)
+          this.step = 3
+          this.busy = false
+        })
+    },
+
+    fetchAssignableUsers () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+      return dpApi.get(url, { include: 'department' })
+        .then(response => {
+          this.assignableUsers = response.data.data.map(assignableUser => {
+            return {
+              name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
+              id: assignableUser.id
+            }
+          })
+        })
+    },
+
+    /**
+     * Return result of specific action.
+     * @param response {Object} The response that shall be parsed
+     */
+    getRpcResult (response) {
+      return hasOwnProp(response, 0) && response[0]?.result === 'ok'
+    },
+
+    /**
+     * To load the SegmentsList with the same filters that were selected before
+     * starting the BulkEdit flow, the current query hash is loaded from localStorage here
+     * and applied to the return url.
+     */
+    setReturnLink () {
+      const currentQueryHash = lscache.get(`${this.procedureId}:segments:currentQueryHash`)
+      if (currentQueryHash) {
+        this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
+          procedureId: this.procedureId,
+          queryHash: currentQueryHash
+        })
+      }
+    },
+
+    /**
+     * Set selected segments from localStorage. In the (edge-)case there are no segments selected,
+     * the stepTitle will reflect that fact; furthermore no controls will be enabled but the "Back to selection" button.
+     */
+    setSegments () {
+      const segments = lscache.get(`${this.procedureId}:toggledSegments`)
+      const allSegments = lscache.get(`${this.procedureId}:allSegments`)
+
+      if (segments && allSegments) {
+        const toggledIds = segments.toggledSegments.map(item => item.id)
+        if (segments.trackDeselected === false) {
+          this.segments = toggledIds
+        } else if (segments.trackDeselected === true) {
+          this.segments = segments.toggledSegments.length === 0 ? allSegments : allSegments.filter(segment => !toggledIds.includes(segment))
+        }
+      }
+    }
+  },
+
+  created () {
+    this.setReturnLink()
+    this.setSegments()
+  },
+
+  mounted () {
+    const promises = [this.listTagTopics({ include: 'tag' }), this.listTags({ include: 'topic' })]
+    if (hasPermission('feature_statement_assignment')) {
+      promises.push(this.fetchAssignableUsers())
+    }
+
+    Promise.all(promises)
+      .then(() => {
+        this.isLoading = false
+      })
+  }
+}
+</script>

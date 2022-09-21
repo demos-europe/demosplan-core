@@ -1,0 +1,136 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+import { action } from '@storybook/addon-actions'
+
+import DpButton from './DpButton'
+
+<Meta
+  argTypes={{
+    color: {
+      options: ['primary', 'secondary', 'warning'],
+      control: { type: 'select' }
+    },
+    default: {
+      control: {
+        type: 'text',
+      },
+      table: {
+        category: 'Slots',
+        type: {
+          summary: 'html',
+        },
+      }
+    },
+    variant: {
+      options: ['', 'outline'],
+      control: { type: 'select' }
+    }
+  }}
+  title="Components/Button"
+  component={DpButton} />
+
+# Button
+
+The `DpButton` component renders a primary button element that has a visual `busy` state which prevents the user
+from clicking twice and informs her something is happening behind the scenes.
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpButton },
+    template: `<dp-button v-bind="propsWithoutDefaultSlot" @click="action">${typeof args.default !== 'undefined' ? args.default : ''}</dp-button>`,
+    methods: {
+      action: action('click')
+    },
+    computed: {
+        propsWithoutDefaultSlot() {
+            const all = this.$props
+            delete all['default']
+            return all
+        }
+    }
+});
+
+## Colors
+
+### Primary
+<Canvas>
+    <Story
+      name="Primary"
+      args={{
+          text: 'Save'
+      }}>
+      {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Secondary
+<Canvas>
+    <Story
+        name="Secondary"
+        args={{
+            color: 'secondary',
+            text: 'Cancel'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Warning
+<Canvas>
+    <Story
+        name="Warning"
+        args={{
+            color: 'warning',
+            text: 'Delete'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Variants
+
+### Outline
+<Canvas>
+    <Story
+        name="Outline"
+        args={{
+            variant: 'outline',
+            text: 'Save'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Render a link element
+<Canvas>
+    <Story
+        name="Link element"
+        args={{
+            href: 'https://example.com',
+            text: 'Go somewhere'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Use the 'busy' prop to visualize system status
+<Canvas>
+    <Story
+        name="Busy state"
+        args={{
+            busy: true,
+            text: 'Saving item...'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Use the default slot to render additional content
+<Canvas>
+    <Story
+        name="With default slot"
+        args={{
+            default: `<i class="fa fa-pencil" aria-hidden="true" /> Edit item`
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>

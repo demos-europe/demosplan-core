@@ -1,0 +1,40 @@
+{% set loggedin = currentUser.loggedIn|default(false) %}
+{% set route_name = app.request.attributes.get('_route')|default(null) %}
+{% set urlScheme = urlScheme|default(app.request.scheme|default('http'))%}
+{% set gatewayURL = gatewayURL|default("") %}
+{% set gatewayRegisterURL = gatewayRegisterURL|default("") %}
+{% set templateTitle = templateVars.title|default(title|default()) %}
+{# Setze den Title aus einer Translation #}
+{% set title = pageTitle(templateTitle) %}
+
+<!DOCTYPE html>
+<html lang="de" class="nojs">
+<head>
+    <meta charset="utf-8">
+    {% block base_favicons %}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_favicons.html.twig' %}
+    {% endblock %}
+    <meta http-equiv="Content-Language" content="de">
+    <meta name="keywords" content="">
+    <meta name="Author" content="DEMOS">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
+
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+    {% endblock %}
+
+    {% block javascripts %}
+        {{ webpackBundle('jquery-3.5.1.min.js', true) }}
+    {% endblock javascripts %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' %}
+
+    {% block component_header %}
+        <title>{{ title }}</title>
+    {% endblock %}
+
+</head>
+    <body>
+      {% block component_part %}{% endblock %}
+    </body>
+</html>

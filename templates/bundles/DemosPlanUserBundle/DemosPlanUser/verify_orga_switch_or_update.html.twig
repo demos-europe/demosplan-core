@@ -1,0 +1,92 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% set type = templateVars.type %}
+{% set hasOrphanedFragments = templateVars.DepartmentHasFragmentsAndCurrentUserIsLastDepartmentMember|default(false) %}
+
+{% if 'Organisation' == type %}
+    {% set translations = {
+        'changed_warning': "warning.changed.organisation_name"|trans,
+        'changed_question': "user.organisation.changed.question"|trans,
+        'changed_header': "user.organisation.changed.header"|trans,
+        'current': "organisation.current"|trans,
+        'gateway': "organisation.gateway"|trans,
+        'changed': "user.organisation.changed"|trans,
+        'renamed': "user.organisation.renamed"|trans,
+        'deny_change': "user.organisation.deny.change"|trans,
+        'unclear': "user.gateway.changes.unclear"|trans,
+        'check_changed': "check.user.organisation.changed"|trans,
+        'check_renamed': "check.user.organisation.renamed"|trans,
+    }
+    %}
+{% else %}
+    {% set translations = {
+        'changed_warning': "warning.changed.department_name"|trans,
+        'changed_question': "user.department.changed.question"|trans,
+        'changed_header': "user.department.changed.header"|trans,
+        'current': "department.current"|trans,
+        'gateway': "department.gateway"|trans,
+        'changed': "user.department.changed"|trans,
+        'renamed': "user.department.renamed"|trans,
+        'deny_change': "user.department.deny.change"|trans,
+        'unclear': "user.gateway.changes.unclear"|trans,
+        'check_changed': "check.user.department.changed"|trans,
+        'check_renamed': "check.user.department.renamed"|trans,
+    }
+    %}
+{% endif %}
+{% block header %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_header.html.twig' with { 'noNav': true } %}
+{% endblock header %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': translations.changed_header,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+
+            <p>
+                <strong>{{ translations.current }}</strong>: {{ templateVars.currentName }}
+            </p>
+            <p>
+                <strong>{{ translations.gateway }}</strong>: {{ templateVars.gatewayName }}
+            </p>
+            <p class="flash-warning u-p-0_5">
+                {{ translations.changed_warning|wysiwyg }}
+            </p>
+
+            <form action="{{ path('DemosPlan_user_login_osi_legacy', {'Token': templateVars.lastUsername|default, 'TokenTest': templateVars.lastUsername|default, 'project': 'bobhh'}) }}" method="post">
+                <h3 class="u-mt-2 u-mb-0_75">{{ translations.changed_question }}</h3>
+
+                {% if false == hasOrphanedFragments %}
+
+                    <div>
+                        <button name="Changed{{ type }}" class="btn btn--primary u-mr-0_75 width-100" data-form-actions-confirm="{{ translations.check_changed }}">{{ "yes"|trans }}</button>
+                        {{ translations.changed }}
+                    </div>
+
+                {% else %}
+
+                    <p class="flash-warning u-p-0_5">
+                        {{ translations.deny_change|wysiwyg }}
+                    </p>
+
+                {% endif %}
+
+                <div>
+                    <button name="Updated{{ type }}" class="btn btn--primary u-mr-0_75 width-100" data-form-actions-confirm="{{ translations.check_renamed }}">{{ "no"|trans }}</button>
+                    {{ translations.renamed }}
+                </div>
+                <div>
+                    <a href="{{ gatewayURL }}" class="btn btn--secondary u-ph-0 u-mr-0_75 width-100">{{ "abort"|trans }}</a>
+                    {{ translations.unclear }}
+                </div>
+            </form>
+
+        {% endblock content %}
+    {% endembed %}
+{% endblock component_part %}
+
+{% block base_footer %}{% endblock base_footer %}

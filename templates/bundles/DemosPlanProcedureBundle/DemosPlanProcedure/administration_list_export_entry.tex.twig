@@ -1,0 +1,18 @@
+{{ orga.nameLegal|default('')|latex|raw }}
+{% if hasPermission('field_organisation_paper_copy_spec')%}
+& {{ orga.paperCopySpec|default('-')|latex|raw }}
+{% endif %}
+{% if hasPermission('field_organisation_paper_copy')%}
+& {{ orga.paperCopy|default('-')|latex|raw }}
+{% endif %}
+& {% if templateVars.orgaStatements[orga.id] is defined %}
+	{{ "yes"|trans|latex|raw }} ({{ templateVars.orgaStatements[orga.id]|latex|raw }})
+{% else %}
+	{{ "no"|trans|latex|raw }}
+{% endif %}
+& {% if orga.ident in templateVars.orgaInvitationemailSent|default([]) %}
+	{{ "yes"|trans }}
+{% else %}
+	{{ "no"|trans }}
+{% endif %}\\
+\hline

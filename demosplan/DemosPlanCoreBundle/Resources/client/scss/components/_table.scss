@@ -1,0 +1,34 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Component: c-table
+//
+// Used to present tabular data in a readable but appealing way.
+// This is the most common pattern for presenting tables in planning area.
+//
+// @improve  - bootstrap component tokens that are shared between .c-table and .c-data-table
+
+
+.c-table {
+    td,
+    th {
+        text-align: left;
+        padding: $inuit-base-spacing-unit--tiny;
+        vertical-align: top;
+        position: relative;
+    }
+
+    td {
+        border-top: 1px solid $dp-color-neutral-light-2;
+    }
+
+    tbody tr:hover {
+        background-color: $dp-color-neutral-light-4;
+    }
+}

@@ -1,0 +1,64 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Utility classes:
+//      - .position--(static|relative|absolute|sticky|fixed|inherit)
+//      - .u-(top|right|bottom|left)-(0|0_25|auto)
+//      - .u-z-(map|map-toolbar) -> uncomment more z-index values below when needed
+//      - .vertical-align--middle
+//
+//  https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning
+
+.position {
+    &--static {
+        position: static;
+    }
+
+    &--relative {
+        position: relative;
+    }
+
+    &--absolute {
+        position: absolute;
+    }
+
+    &--sticky {
+        position: sticky;
+    }
+
+    &--fixed {
+        position: fixed;
+    }
+
+    &--inherit {
+        position: inherit;
+    }
+}
+
+
+$dp-position-directions: (
+    'top',
+    'right',
+    'bottom',
+    'left'
+);
+
+$dp-position-values: (
+    '-0': 0,
+    '-0_25': $inuit-base-spacing-unit--tiny,
+    '-auto': auto
+);
+
+@each $direction in $dp-position-directions {
+    @each $value-short, $value in $dp-position-values {
+        .u-#{$direction}#{$value-short} {
+            #{$direction}: $value !important;
+        }
+    }
+}

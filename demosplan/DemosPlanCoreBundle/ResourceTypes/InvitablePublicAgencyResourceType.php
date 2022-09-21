@@ -1,0 +1,126 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
+
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
+
+/**
+ * @template-extends DplanResourceType<Orga>
+ *
+ * @property-read End                              $legalName
+ * @property-read End                              $name
+ * @property-read End                              $competenceDescription
+ * @property-read End                              $deleted
+ * @property-read End                              $showlist
+ * @property-read UserResourceType                 $users
+ * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
+ * @property-read ProcedureResourceType            $procedureInvitations
+ */
+class InvitablePublicAgencyResourceType extends DplanResourceType
+{
+    public static function getName(): string
+    {
+        return 'InvitableToeb';
+    }
+
+    public function getEntityClass(): string
+    {
+        return Orga::class;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasAllPermissions(
+            'area_main_procedures',
+            'area_admin_invitable_institution'
+        );
+    }
+
+    public function isReferencable(): bool
+    {
+        return false;
+    }
+
+    public function isDirectlyAccessible(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @throws PathException
+     * @throws CustomerNotFoundException
+     */
+    public function getAccessCondition(): FunctionInterface
+    {
+        $customer = $this->currentCustomerService->getCurrentCustomer();
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return $this->conditionFactory->false();
+        }
+
+        return $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(true, ...$this->showlist),
+            $this->conditionFactory->propertyHasValue(
+                Role::GPSORG,
+                ...$this->users->roleInCustomers->role->groupCode
+            ),
+            $this->conditionFactory->propertyHasValue(
+                OrgaType::PUBLIC_AGENCY,
+                ...$this->statusInCustomers->orgaType->name
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $customer->getId(),
+                ...$this->statusInCustomers->customer->id
+            ),
+            // avoid already invited organisations
+            $this->conditionFactory->propertyHasNotValue(
+                $procedure->getId(),
+                ...$this->procedureInvitations->id
+            )
+        );
+    }
+
+    public function getDefaultSortMethods(): array
+    {
+        return [
+            $this->sortMethodFactory->propertyAscending(...$this->name),
+        ];
+    }
+
+    protected function getProperties(): array
+    {
+        return [
+            $this->createAttribute($this->id)->readable(true),
+            $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
+            $this->createAttribute($this->competenceDescription)->readable(
+                true,
+                static function (Orga $orga): ?string {
+                    $competenceDescription = $orga->getCompetence();
+                    if ('-' === $competenceDescription || '' === $competenceDescription) {
+                        return null;
+                    }
+
+                    return $competenceDescription;
+                }
+            ),
+        ];
+    }
+}

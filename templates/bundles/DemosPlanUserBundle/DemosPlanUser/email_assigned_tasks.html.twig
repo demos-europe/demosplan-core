@@ -1,0 +1,31 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Guten Tag,
+
+innerhalb der letzten 24 Stunden wurden Ihnen <strong>{{ templateVars.totalTasks }}</strong> neue Abschnitte zur Bearbeitung zugewiesen.
+Untenstehend finden Sie eine Auflistung der zugewiesenen Abschnitte:
+
+{% for procedureName, places in templateVars.entries %}
+
+    Abschnitte im Verfahren <strong>{{ procedureName }}</strong>
+        {% for place, segments in places %}
+
+            Schritt "{{ place }}"
+                {% for segmentExternId, link in segments %}
+                  - Abschnitt <a href="{{ link }}">{{ segmentExternId }}</a>
+                {% endfor %}
+        {% endfor %}
+{% endfor %}
+
+Viele Grüße
+
+Ihr Team von {{ projectName }}
+
+-------------------------------------------------------------------
+
+Diese Nachricht wurde automatisch erstellt. Bitte antworten Sie nicht auf diese E-Mail.
+
+Möchten Sie diese Benachrichtigungen nicht mehr erhalten? Die Einstellung dazu können Sie auf <a href="{{ url('DemosPlan_user_portal') }}">dieser Seite</a> vornehmen.
+
+{% endblock body_plain %}

@@ -1,0 +1,43 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'signLanguage'|trans,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+            <div class="{{ 'c-styled-html'|prefixClass }}">
+                {{ templateVars.customer.signLanguageOverviewDescription|default|wysiwyg(['h2', 'h3', 'h4']) }}
+
+                {% if templateVars.customer.signLanguageOverviewVideos|length %}
+                    {% set video = templateVars.customer.signLanguageOverviewVideos[0] %}
+                    <div class="{{ 'box-shadow-1 u-2-of-3-desk-up u-mt'|prefixClass }}">
+                        <h2
+                            id="signLanguageVideoTitle"
+                            class="{{ 'font-size-large space-inset-s u-m-0'|prefixClass }}">
+                            {{ video.title }}
+                        </h2>
+                        <dp-video-player
+                            aria-labelledby="signLanguageVideoTitle"
+                            :sources="[ { src: '{{ path("core_file", { hash: video.file.hash }) }}', type: '{{ video.file.mimetype }}' } ]"
+                            id="{{ 'file' ~ video.file.hash }}"
+                            icon-url="{{ asset('img/plyr.svg') }}">
+                        </dp-video-player>
+                        <p class="{{ 'space-inset-s'|prefixClass }}">
+                            {{ video.description }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endblock content %}
+    {% endembed %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['misccontent-signLanguage.js']) }}
+{% endblock javascripts %}

@@ -1,0 +1,70 @@
+# @TODO document this!
+defaults:
+  docx:
+    _defaults:
+      anonymous: false
+      exportType: 'statementsOnly'
+      sortType: 'default'
+      template: 'condensed'
+    obscure: true # can exports be generated obscured/unobscured? (depends on feature_latex_obscure)
+    anonymize: true # can exports be generated with/without anonymized author names
+    exportTypes: true # show export type options?
+    templates: # templates have an identifier and a translation key and *optionally* an explanation translation key
+      condensed:
+        name: export.compact
+      landscape:
+        name: export.landscape
+        explanation: explanation.export.docx
+      portrait:
+        name: export.portrait
+    tabLabel: export.docx
+    buttonLabel: export.docx
+    buttonLabelSingle: export.trigger.docx
+  pdf:
+    _defaults:
+      anonymous: false
+      exportType: 'statementsOnly'
+      sortType: 'false'
+      template: 'condensed'
+    obscure: true
+    anonymize: true
+    exportTypes: true
+    templates: # templates have an identifier and a translation key and *optionally* an explanation translation key
+      condensed:
+        name: export.compact
+      landscape:
+        name: export.landscape
+      portrait:
+        name: export.portrait
+    tabLabel: export.pdf
+    buttonLabel: export.pdf
+    buttonLabelSingle: export.trigger.pdf
+  xlsx:
+    _defaults:
+      anonymous: false
+      exportType: 'topicsAndTags'
+      sortType: 'false'
+      template: 'compact'
+    obscure: true
+    anonymize: true
+    exportTypes: true
+    tabLabel: export.xlsx
+    buttonLabel: export.xlsx
+    buttonLabelSingle: export.trigger.xlsx
+original_statements:
+  docx:  false
+  pdf:
+    obscure: false
+    anonymize: false
+    anonymous: false
+    templates:
+      condensed:
+        name: export.compact
+      landscape:
+        name: export.landscape
+      portrait:
+        name: export.portrait
+  xlsx: false
+assessment_table:
+fragment_list:
+  xlsx: false

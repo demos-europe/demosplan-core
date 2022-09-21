@@ -1,0 +1,76 @@
+{#
+    This is a ui component used via the the Twig function call uiComponent('form.select')
+
+    options {Array}:   options to be displayed in the select; need label and value;
+    optgroups:         define if you want to use a select with optgroups
+    disabledPlainText: set to true if in disabled state, you just want to display plain text instead of a disabled select
+    omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+{% set widthVars = {
+    full: ' u-1-of-1',
+    large: ' u-1-of-2',
+    medium: ' u-1-of-3',
+    small: ' u-1-of-4',
+    smaller: ' u-1-of-5',
+    tiny: ' u-1-of-6',
+    mini: ' u-1-of-8',
+    0: ''
+} %}
+
+{% set width = widthVars[size|default('full')] %}
+{% set class = class|default ~ ' o-form__control-select ' ~ width %}
+{% if disabled is not defined or disabled == false %}
+    {% set class = class ~ ' u-pl-0_25 ' %}
+{% endif %}
+
+{% if disabledPlainText is not defined or (disabledPlainText is defined and disabledPlainText == true and (disabled is not defined or disabled == false))%}
+    <select
+        id="{{ id|default }}"
+        name="{{ name|default }}"
+        class="{{ class|prefixClass(omitPrefix) }}"
+        {% if required|default(false) %}required {% endif %}
+        {% if disabled|default(false) %}disabled{% endif %}
+        {% if dataDpValidateIf|default(false) %}data-dp-validate-if="{{ dataDpValidateIf }}"{% endif %}
+        {% if attributes is defined %}
+            {% for attr in attributes %}
+                {{ attr }}
+            {% endfor %}
+        {% endif %}>
+        {% if options is defined %}
+            {% for opt in options %}
+                <option
+                    value="{{ opt.value }}"
+                    {% if opt.disabled is defined and opt.disabled is not same as (false) %}disabled{% endif %}
+                    {% if opt.selected is defined and opt.selected is not same as (false) %}selected{% endif %}>
+                    {{ opt.label|trans }}
+                </option>
+            {% endfor %}
+        {% endif %}
+        {% if optgroups is defined %}
+            {% for group in optgroups %}
+                <optgroup
+                    label="{{ group.label|trans }}"
+                    id="{{ group.id }}">
+                    {% for opt in group.options %}
+                        <option
+                            value="{{ opt.value }}"
+                            {% if opt.disabled is defined and opt.disabled is not same as (false) %}disabled{% endif %}
+                            {% if opt.selected is defined and opt.selected is not same as (false) %}selected{% endif %}>
+                            {{ opt.label|trans }}
+                        </option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        {% endif %}
+    </select>
+{% elseif disabledPlainText is defined and disabledPlainText == true and disabled is defined and disabled == true %}
+    {% for opt in options %}
+        {% if opt.selected is defined and opt.selected == true %}
+            <p class="{{ 'color--grey'|prefixClass(omitPrefix) }}">{{ opt.label|trans }}</p>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+

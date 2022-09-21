@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+{{ "fragment.notify.email.reviewer.admin.reassign.planner"|trans({
+        departmentName: templateVars.fragment.archivedDepartmentName|default,
+        organization: templateVars.fragment.archivedOrgaName|default,
+        procedure: templateVars.procedure.name,
+        statementId: templateVars.fragment.displayId|default
+}) }}
+
+{{ templateVars.procedure.orga.name|default }}
+{{ templateVars.procedure.orga.street }}
+{{ templateVars.procedure.orga.city }} {{ templateVars.procedure.orga.postalcode }}
+{{ templateVars.procedure.agencyMainEmailAddress }}
+
+{% endblock body_plain %}
+
+

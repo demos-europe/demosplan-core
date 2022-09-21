@@ -1,0 +1,106 @@
+% Tabellenkopf
+\textbf{{ '{' }} {{ "nr"|trans }}: {% if statement.number is defined %}{{ statement.number }}{% endif %} {{ '-' }} {% if statement.submitted %} {{ "statement.date.submitted"|trans|latex|raw }}: {{ statement.submittedDate|default()|dplanDate }}{% else %} {{ "date.created.noun"|trans|latex|raw }}: {{ statement.createdDate|default()|dplanDate }} {% endif %} {{ '}' }} {{ '}' }}
+    \begin{longtable}{|p{5cm}p{12cm}|}
+        \hline
+            % Caption-Zeile - Dieses Template wird von der Beteiligungsebene und von den amgemeldeten Bürger angesprochen
+            % Caption-Zeile - der doppelte Backslash setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
+            {# phase #}{{ "procedure.public.phase"|trans|latex|raw }}: & {{ getProcedurePhase(statement.procedure, 'public', statement.phase) }} \\
+            {# name #}{% if hasPermission('field_statement_meta_submit_name')%} {{ "name"|trans|latex|raw }}: & {{ statement.uName|default("notgiven"|trans)|latex|raw }}{% endif %}\\
+            {# address #}{{ "address"|trans|latex|raw }}: &
+                {% if statement.uStreet is defined or statement.uPostalCode is defined or statement.uCity is defined %}
+                    {% if statement.uStreet is defined and statement.uStreet != '' %} {{ statement.uStreet|latex|raw }} {% endif %}
+                    {% if statement.houseNumber is defined and statement.houseNumber != '' %} {{ statement.houseNumber|latex|raw }}, {% endif %}
+                    {% if statement.uPostalCode is defined and statement.uPostalCode != '' %} {{ statement.uPostalCode|latex|raw }} {% endif %}
+                    {% if statement.uCity is defined and statement.uCity != '' %} {{ statement.uCity|latex|raw }} {% endif %}
+                {% else %} {{ "notgiven"|trans|latex|raw }} {% endif %}\\
+            {# e-mail #}
+            {% if statement.uEmail is defined and statement.uEmail != ''%}
+                {{ "email.address"|trans|latex|raw }}: & {{ statement.uEmail|latex|raw }}\\
+            {% endif %}
+
+            {# feedback #}{% if hasPermission('field_statement_feedback')
+                and (statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaEmail').isEnabled == true
+                or statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaSnailMailOrEmail').isEnabled == true)
+            %} {{ "feedback"|trans|latex|raw }}: & {% if statement.feedback is defined and statement.feedback == 'email' %}{{ "via.mail"|trans|latex|raw }}{% elseif statement.feedback is defined and statement.feedback == 'snailmail' %} {{ "via.post"|trans|latex|raw }} {% else %} {{ "notrequired"|trans|latex|raw }} {% endif %}\\{% endif %}
+
+            {# feedback address #}
+            {% block address %}
+                {% if hasPermission('field_statement_meta_address')%}
+                    {% if statement.feedback is defined and statement.feedback == 'snailmail' %}
+                            {{ "address"|trans|latex|raw }}: &
+                            {{ statement.uName|latex|raw }}, {{ statement.uStreet|latex|raw }}
+                            {% if statement.houseNumber is defined and statement.houseNumber != '' %}
+                                {{ statement.houseNumber|latex|raw }}
+                            {% endif %},
+                            {{ statement.uPostalCode|latex|raw }} {{ statement.uCity|latex|raw }}\\
+                    {% endif %}
+                {% endif %}
+            {% endblock %}
+
+            {# document #}
+            {% if hasPermission('field_procedure_elements')%}
+                {% if statement.element is defined and statement.element  != '' %}
+                    {{ "document"|trans|latex|raw }}: & {{ statement.element.title|default('')|latex|raw }}
+                    {% if statement.document is defined and statement.document.title != '' %}
+                        {{ statement.document.title|latex|raw }}
+                    {% endif %}
+                    \\
+                {% endif %}
+            {% endif %}
+
+            {# paragaph #}
+            {% if hasPermission('field_procedure_paragraphs') and statement.paragraph is defined and statement.paragraph  != '' %}
+                {{ "paragraph"|trans|latex|raw }}: &
+                {% if statement.paragraph  is defined and statement.paragraph.title  != '' %}
+                    {{ statement.paragraph.title|latex|raw }}
+                {% else %}
+                    {{ "notspecified"|trans|latex|raw }}
+                {% endif %}
+                \\
+            {% endif %}
+
+            {# files #}
+            {% if hasPermission('field_statement_file')%}
+                {{ "file"|trans|latex|raw }}: &
+                {% if statement.files|default([])|length > 0 %}
+                    {% for file in statement.files %}
+                        {{ file|getFile('name')|raw }}
+                    {% endfor%}
+                {% else %}
+                    {{ "notspecified"|trans|latex|raw }}
+                {% endif %}
+                \\
+            {% endif %}
+
+            {# publication #}
+            {% if hasPermission('field_statement_public_allowed')%}
+                {{ "publish.on.platform"|trans|latex|raw }}: &
+                {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
+                    {{ "yes"|trans|latex|raw }}
+                    {% block useName %}{% endblock %}
+                {% else %}
+                    {{ "no"|trans|latex|raw }}
+                {% endif %}
+                \\
+            {% endif %}
+            {% block categories %}{% endblock %}
+        \hline
+    \end{longtable}
+\begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+\ParallelLText{{ '{' }}{% if statement.text is defined %}{{ statement.text|latex|raw }}{% endif %}{{ '}' }}
+{% if statement.mapFile is defined and statement.mapFile != "" %}
+    {% if statement.mapFile != "---" %}
+        \centering
+        \includegraphics{{statement.mapFile|getFile('hash')|latexGetImageDimensions}}{{ '{' }}{{statement.mapFile|getFile('hash')}}{{ '}' }}
+        \caption {Kartenauschnitt}
+        \label{{ '{' }}fig1{{ '}' }}
+        %fileName:{{ statement.mapFile|getFile('name')|wysiwyg }}:{{ statement.mapFile|getFile('hash') }}%
+    {% endif %}
+{% endif %}
+\ParallelRText{{ '{}' }}
+\end{Parallel}
+{% if statement.mapFile is defined and statement.mapFile != "" %}
+    {% if statement.mapFile != "---" %}
+\clearpage
+    {% endif %}
+{% endif %}

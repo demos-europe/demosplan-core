@@ -1,0 +1,89 @@
+{#
+    This is the default pattern for styling a page header with a bottom border in the admin area.
+
+    Available variables:
+    - heading: The pagetitle itself, rendered as <h1> element. Should be unique to the view.
+    - subnav: An array of objects representing menu items, rendered as a list of links next to the pagetitle.
+        - current: Boolean indicating if the item should appear as the active item.
+        - datacy: Specify `data-cy="<value>"` attribute of link.
+        - href: Define where the link should point to.
+        - id: Specify `id="<id>"` attribute of link.
+        - label: The text inside the link.
+        - icon: A string containing a specific font-awesome token (like `fa-pen` or `fa-eye`)
+                that is rendered before the link text.
+        - target: Any valid string value the `target` attribute of the link element can take.
+    - flush: Do not add the `u-mb` utility class on the outermost container of the pageheader.
+
+
+    Usage example:
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'overview'|trans
+    } %}
+
+
+    Usage example, without margin-bottom:
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'statement.cluster'|trans,
+        flush: true
+    } %}
+
+
+    Usage example, with subnav that is only visible if at least 2 nav items are enabled:
+
+    {% set subnav = [
+        {
+            current: true,
+            href: path('DemosPlan_user_mastertoeblist'),
+            label: 'invitable_institution.master',
+            feature: 'area_manage_mastertoeblist'
+        },
+        {
+            href: path('DemosPlan_user_mastertoeblist_report'),
+            label: 'invitable_institution.master.report',
+            feature: 'area_report_mastertoeblist',
+        },
+        {
+            href: path('DemosPlan_user_mastertoeblist_merge'),
+            label: 'invitable_institution.master.merge'|trans,
+            feature: 'area_merge_mastertoeblist',
+            icon: 'fa-bomb'
+        }
+    ]|filter(item => item.feature is not defined or hasPermission(item.feature)) %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'procedures.administrate'|trans,
+        subnav: subnav|length > 1 ? subnav : null
+    } %}
+
+
+    The participation area pageheader can be found at
+    demosplan\DemosPlanCoreBundle\Resources\views\DemosPlanCore\includes\pageheader.html.twig
+#}
+<header class="border--bottom {{ flush|default == true ? '' : 'u-mb' }} u-pb-0_5 cf">
+    <h1 class="font-size-h1 u-valign--bottom display--inline-block u-m-0">
+        {{ heading|responsive }}
+    </h1>
+
+    {% if subnav is defined and subnav|length > 0 %}
+        <ul class="float--right u-pt-0_5 u-m-0">
+            {% for item in subnav %}
+                <li class="display--inline-block {{ loop.last ?: 'u-mr-0_5' }}">
+                    <a
+                        class="{{ item.current|default == true  ? 'o-link--active' : 'o-link--default' }} whitespace--nowrap"
+                        href="{{ item.href }}"
+                        {% if item.datacy|default != '' %}data-cy="{{ item.datacy }}"{% endif %}
+                        {% if item.id|default != '' %}id="{{ item.id }}"{% endif %}
+                        {% if item.target|default != '' %}target="{{ item.target }}"{% endif %}
+                    >
+                        {% if item.icon|default != '' %}
+                            <i class="fa {{ item.icon }}" aria-hidden="true"></i>
+                        {% endif %}
+                        {{ item.label|trans }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</header>

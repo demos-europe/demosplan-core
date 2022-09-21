@@ -1,0 +1,70 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Component: c-slidebar
+//
+//  Used to display an app-style slide-in sidebar (a.k.a. slidebar)
+
+//  vars
+$at-slidebar-rgba:          rgb(0 0 0 / 20%);
+$at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
+
+//  component
+.c-slidebar {
+
+    position: fixed;
+    z-index: $z-super;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+
+    &__container {
+        position: absolute;
+        right: 0;
+        width: 100%;
+        max-width: 30%;
+        background: $dp-color-white;
+        height: 100%;
+        transform: translateX(104%);
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        pointer-events: all;
+        box-shadow: $dp-token-box-shadow-4;
+
+        @include media-query('desk-down') {
+            max-width: 25%;
+        }
+
+        .is-animatable & {
+            transition: transform .13s $at-slidebar-animation;
+        }
+
+        .is-visible.is-animatable & {
+            transition: transform .33s $at-slidebar-animation;
+        }
+
+        .is-visible & {
+            transform: none;
+        }
+    }
+
+    &__content {
+        max-width: 100%;
+        height: calc(100% - 100px); // @TODO remove this magic number
+    }
+
+    &__toc-box {
+        overflow-x: auto;
+        max-height: 100%;
+    }
+}

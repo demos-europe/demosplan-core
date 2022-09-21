@@ -1,0 +1,140 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  This object is intended to contain global layout styles that are not part of the more generic .layout grid
+//  but are describing the relation between components such as .c-header, .c-nav and .c-footer.
+//
+//  At the moment .o-page is styling a basic page layout that consists of header, main area, and a fixed footer.
+
+//  let projects skip "new layout"
+@if not index($dp-skip-components, 'o-page') {
+    .o-page {
+
+        $width: $dp-page-width;
+        $main-padding: calc((100vw - #{$dp-page-width}) / 2);
+
+        // This is the space that is occupied by the collapsed side menu, showing only the menu trigger "< Menü".
+        // For different reasons, using `flex` was not an easy option here, so we have to hardcode the width.
+        $sidebar-collapsed-width: 71px;
+
+        &__wrapper {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        //  Here, the actual page-width is set by assigning a calculated padding
+        &__header,
+        &__main,
+        &__padded,
+        &__nav {
+            @media all and (min-width: $width) {
+                padding-left: $main-padding !important;
+                padding-right: $main-padding !important;
+            }
+        }
+
+        //  Used to add additional padding for participation area (list_draft etc..) when
+        //  there is no additional wrapper to apply inner padding.
+        &__padded--spaced {
+            @include media-query('palm') {
+                padding-left: $inuit-base-spacing-unit--small;
+                padding-right: $inuit-base-spacing-unit--small;
+            }
+            @include media-query('lap-up') {
+                padding-left: $inuit-base-spacing-unit;
+                padding-right: $inuit-base-spacing-unit;
+            }
+            @media all and (min-width: $width) {
+                padding-left: calc((100vw - #{$width}) / 2 + #{$inuit-base-spacing-unit});
+                padding-right: calc((100vw - #{$width}) / 2 + #{$inuit-base-spacing-unit});
+            }
+        }
+
+        &__news {
+            // Bottom border in a situation, where .border--bottom would either be too short or too long
+            &::after {
+                content: ' ';
+
+                display: block;
+                width: calc(100% + #{$inuit-base-spacing-unit * 2});
+                padding-top: $inuit-base-spacing-unit--small;
+                margin-left: -#{$inuit-base-spacing-unit};
+
+                border-bottom: $dp-border-thickness solid $default-border-color;
+            }
+        }
+
+        &__main {
+            //  To make the footer stick to the bottom, everything between has to expand
+            flex: 1;
+
+            @include media-query('palm') {
+                padding-left: $inuit-base-spacing-unit--small;
+                padding-right: $inuit-base-spacing-unit--small;
+            }
+            @include media-query('lap-up') {
+                padding-left: $inuit-base-spacing-unit;
+                padding-right: $inuit-base-spacing-unit;
+            }
+
+            //  The padding on the outer container makes no sense in participation area
+            //  since the padding is applied to the children of the wrapper there.
+            .oeb & {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }
+
+        &__nav {
+            // This is in sync with main (core) nav
+            background-color: $dp-token-color-brand-header;
+        }
+
+        &__content {
+            width: 75%;
+
+            &.is-expanded {
+                width: calc(100% - #{$sidebar-collapsed-width});
+            }
+        }
+
+        &__sidebar {
+            width: $sidebar-collapsed-width;
+
+            &:not(.is-expanded) {
+                padding-left: $inuit-base-spacing-unit--small;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            &.is-expanded {
+                width: 25%;
+            }
+        }
+    }
+} @else {
+    //  If "new layout" is not used, only basic stuff is set.
+
+    .o-page__wrapper {
+        max-width: $dp-page-width;
+        margin: 0 auto;
+    }
+
+    .o-page__padded--spaced {
+        @include media-query('palm') {
+            padding-left: $inuit-base-spacing-unit--small;
+            padding-right: $inuit-base-spacing-unit--small;
+        }
+        @include media-query('lap-up') {
+            padding-left: $inuit-base-spacing-unit;
+            padding-right: $inuit-base-spacing-unit;
+        }
+    }
+}

@@ -1,0 +1,233 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+/// Used to style assessment table and fragment views
+///
+/// @group components
+///
+/// @name .c-at
+///
+
+//  Variables
+$at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
+
+//  Container
+.c-at {
+
+    //  Fixed controls box above list of statements
+    &__controls {
+        background-color: $dp-color-white;
+
+        &.is-fixed {
+            z-index: $z-fixed;
+        }
+
+        &-input {
+            height: 28px;
+            max-width: calc(100% - 40px);
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            &-button {
+                position: absolute;
+                right: 5px;
+                top: 5px;
+
+                margin: 0;
+            }
+        }
+    }
+}
+
+//  List item in separate namespace!
+.c-at-item {
+
+    position: relative;
+
+    //  Apply invisible pseudo element to currently targeted item to prevent it being hidden behind fixed header bar
+    &:target {
+        position: static;
+
+        //  Prevent element to overlap preceding elements...
+        pointer-events: none;
+
+        //  Unset for children to enable interactions with actual content elements
+        > * {
+            pointer-events: all;
+        }
+    }
+
+    &__header {
+        background-color: $dp-color-neutral-light-2;
+
+        // Atm this is only used in DpTableCard.vue which is some kind of generic version of DpAssessmentTableCard.vue.
+        // It should move to some other place.
+        &--highlighted {
+            &:hover {
+                background-color: $dp-color-neutral-light-2;
+            }
+        }
+    }
+
+    &__hellip {
+        max-width: 100%;
+        overflow-x: hidden;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__fragment-hits {
+        padding-bottom: 3px !important;
+        padding-top: 5px !important;
+        vertical-align: bottom;
+    }
+
+    &__badge {
+        display: inline-block;
+        padding: 0 4px 0 8px;
+
+        background-color: $dp-color-neutral-light-3;
+        border-radius: $inuit-base-spacing-unit--small;
+
+        line-height: $inuit-base-spacing-unit;
+        white-space: nowrap;
+
+        > * {
+            white-space: normal;
+        }
+
+        &--large {
+            padding: 0 10px;
+
+            border-radius: 16px;
+
+            line-height: 32px;
+        }
+    }
+
+    &__badge-icon {
+        position: relative;
+
+        display: inline-block;
+        margin-right: 4px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    &__tab-content {
+        background-color: $dp-color-neutral-light-3;
+    }
+
+    //  tabs / toggles -> only in effect with js enabled devices
+    html.js & {
+        &__tab-trigger {
+            &--disabled {
+                color: $dp-color-neutral-base;
+                cursor: default;
+            }
+
+            &.is-active-toggle {
+                background-color: $dp-color-neutral-light-3;
+            }
+
+            transition: none;
+        }
+
+        &__tab-content {
+            &.is-active {
+                display: block !important;
+            }
+            display: none !important;
+        }
+
+        //  collapsed item body
+        .is-toggleable.is-collapsed {
+            display: none !important;
+        }
+    }
+
+    &__row {
+        width: calc(100% - #{$at-icon-row-width});
+
+        &,
+        dt,
+        dd,
+        dl {
+            margin: 0;
+            padding: 0;
+        }
+
+        //  suppress additional padding on last subsequent paragraph
+        & p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__row-icon {
+        vertical-align: top;
+
+        width: $at-icon-row-width;
+    }
+
+    &__tag {
+        display: inline-block;
+        margin-right: $inuit-base-spacing-unit;
+        max-width: 200px;
+
+        line-height: 20px;
+    }
+
+    &__focus-border {
+        box-shadow: 0 0 0 3px $dp-color-neutral-light-1;
+    }
+}
+
+
+// The "Originalstellungnahmen" table is both seldom visited and complex.
+// These styles currently make it look a little bit like the `c-table` style.
+.c-at-orig {
+    // Spacing like .c-table
+    &__header th,
+    &__body td,
+    &__body th,
+    &__statement-text {
+        text-align: left;
+        padding: $inuit-base-spacing-unit--tiny;
+        vertical-align: top;
+        position: relative;
+    }
+
+    &__row {
+        // Highlight statement item currently targeted by #id in url
+        &:target tr,
+        &:target:hover tr {
+            background-color: $msg-confirm-bg-color;
+        }
+
+        & > td {
+            border-top: 1px solid $dp-color-neutral-light-2;
+        }
+
+        &:hover tr,
+        &:hover .c-at-orig__body {
+            background-color: $dp-color-neutral-light-4;
+        }
+    }
+
+    // To align with the overall compact spacing, the bottom margin is removed here from the last paragraph.
+    &__statement-text .text-wrapper:last-child {
+        margin-bottom: 0;
+    }
+}

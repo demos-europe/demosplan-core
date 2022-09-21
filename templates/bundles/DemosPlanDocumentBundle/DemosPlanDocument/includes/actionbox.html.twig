@@ -1,0 +1,278 @@
+<div
+    class="{{ 'c-actionbox c-actionbox--bare u-p-0_5 is-visible-actionbox-toggle'|prefixClass }} {{ css_classes|default() }}"
+    data-statement-state-started=""
+    data-icon-in-button="">
+    {% if hasPermission('feature_new_statement') and hide_buttons|default != true %}
+        {# Here, an anchor element is used instead of <button> to have it scroll down to statement form for nojs #}
+        <a
+            href="#publicStatementForm"
+            {# make sure the id="statementModalButton" is only applied when not appearing in map tab, as the map tab
+            uses its own include (map_public_participation.html.twig) for the actionbox which also contains a link with
+            this id. That's why we remove it here, to not have a duplicate id.
+            If context == 'statements', the id will not be present, so the a11y jump marker (as defined in public_detail.html.twig)
+            jumping to this link will not work. This may be acceptable, assuming that the jump navigation is normally
+            used directly after page load, in which case the map or the documents tab will be active.
+            #}
+            {% if jump_marker|default == context and context == 'documents'  %}
+                id="statementModalButton"
+            {% endif %}
+            @click.stop.prevent="toggleStatementModal({})"
+            class="{{ 'c-actionbox__title--button is-active font-size-h1 u-mb-0_5 has-i'|prefixClass }} {{ context == 'statements' ? 'u-nojs-hide--block'|prefixClass : '' }}"
+            aria-controls="statementModal"
+            aria-describedby="statementActionDescription{{ context|capitalize }}"
+            role="button"
+        >
+            <template v-if="activeStatement">
+                <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
+                {{ 'statement.participate.resume'|trans }}
+            </template>
+            <template v-else>
+                {{ 'statement.participate'|trans }}
+            </template>
+        </a>
+    {% endif %}
+
+    {% if not hasPermission('feature_new_statement') and hasPermission('feature_public_consultation') and templateVars.isPublicConsultationPhase|default %}
+        {# Authorization form for online consultation #}
+        <form
+            action="{{ path('core_auth_procedure_consultation', {'procedureId': proceduresettings.id|default('') }) }}"
+            method="post"
+            autocomplete="off"
+        >
+            <h3 class="weight--bold font-size-large color--white u-mb-0_25">
+                {{ 'actionbox.consultation.title'|trans }}
+            </h3>
+            <p
+                id="consultationHint{{ context|capitalize }}"
+                class="c-actionbox__hint">
+                {{ 'actionbox.consultation.hint'|trans }}
+            </p>
+            {{ uiComponent('form.element', {
+                control: {
+                    name: 'token',
+                    attributes: [ 'v-model=consultationTokenInputField', 'aria-describedby=consultationHint' ~ context|capitalize ],
+                    class: 'c-actionbox__form-input color--white'
+                },
+                elementClass: 'font-size-medium u-mt-0_5',
+                label: { text: 'actionbox.consultation.label'|trans, class: 'color--white' },
+                id: 'token' ~ context|capitalize,
+                required: true,
+                type: 'text'
+            }) }}
+            <button class="c-actionbox__title--button font-size-medium is-active u-m-0 u-mt-0_5">
+                {{ 'actionbox.consultation.button'|trans }}
+            </button>
+
+            {# Raw-filter usage is necessary and considered as save here - should be used with |raw Filter in this special case as html-tags are returned#}
+            {{ extensionPointMarkup('formExtraFields')|raw }}
+        </form>
+
+    {% else %}
+        {#
+            Descriptive text explaining the view for each scenario.
+
+            The description in the actionbox is made up of two parts:
+
+            - The location in the template, where actionbox is placed:
+                - actionbox.map.*           "Interaktive karte" tab
+                - actionbox.documents.*     "Planungsdokumente" tab
+                - actionbox.statements.*    "Stellungnahmen" tab
+            - The permission for the current user:
+                - *.announce                informs user that the procedure soon will be in a participation phase
+                - *.config                  informs planner that role can't see the procedure
+                - *.read                    informs planner or user that role can read here
+                - *.write                   informs planner that role can participate here
+                - *.write.user              informs user that she can participate here
+             - The roles the permission applies to:
+                - *.roles.all               Both institutions and citizens
+                - *.roles.public            Citizens
+                - *.roles.toeb              Institutions
+         #}
+
+        <p{% if hasPermission('feature_new_statement') and hide_buttons|default != true %} id="statementActionDescription{{ context|capitalize }}"{% endif %} class="{{ 'c-actionbox__hint'|prefixClass }}">
+
+            {# Display a hint about possibility to participate for the user, if the procedure is in a phase that allows
+               creating statements for the currently loggedin role. #}
+            {% if hasPermission('feature_new_statement') %}
+
+                {# context: 'map' is treated in map_public_participation_detail.html.twig #}
+
+                {% if context == 'documents' %}
+                    {{ 'actionbox.documents.write.user'|trans }}
+                {% elseif context == 'statements' %}
+                    {# The permission "feature_statements_like" currently is not reflected via its own translation key.
+                       The ".write" in fact is either a ".vote" or ".like", but, since feature_statements_vote and feature_statements_like
+                       are used exclusively, this is reflected via overrides in the respective projects. #}
+                    {% if (hasPermission('feature_statements_vote') and hasPermission('feature_statements_vote_may_vote')) or (hasPermission('feature_statements_like') and hasPermission('feature_statements_like_may_like')) %}
+                        {{ 'actionbox.statements.write.user'|trans }}
+                    {% endif %}
+                {% endif %}
+
+            {% else %}
+
+                {# Display a hint to owner of procedure, that users can participate / read #}
+                {% if ownsProcedure(proceduresettings) %}
+
+                    {# If the permission set for the procedure is the same for toeb and public,
+                       this can be expressed in one sentence. #}
+
+                    {# if procedure is in configuration phase for toeb and public #}
+                    {% if getProcedurePermissionset('internal') == 'hidden' and getProcedurePermissionset('external') == 'hidden' and hasPermission('feature_institution_participation') %}
+
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.config'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.config'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'statements' %}
+                            {{ 'actionbox.statements.config'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% endif %}
+
+                    {# if procedure is in participation phase for toeb and public #}
+                    {% elseif getProcedurePermissionset('internal') == 'write' and getProcedurePermissionset('external') == 'write' %}
+
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.write'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.write'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'statements' %}
+                            {{ 'actionbox.statements.write'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% endif %}
+
+                    {# if procedure is in preparation or analysis phase for toeb and public #}
+                    {% elseif getProcedurePermissionset('internal') == 'read' and getProcedurePermissionset('external') == 'read' %}
+
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.read'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.read'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == "statements" %}
+                            {{ 'actionbox.statements.read'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% endif %}
+
+                    {# If the permission set for the procedure is not the same for toeb and public,
+                       this can not be expressed in one sentence in a standardized way, so we look up
+                       both roles one after the other and output two sentences. #}
+                    {% else %}
+
+                        {# if procedure is in participation phase for toeb #}
+                        {% if getProcedurePermissionset('internal') == 'write' %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.write'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.write'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'statements' %}
+                                {{ 'actionbox.statements.write'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% endif %}
+
+                        {# if procedure is in preparation or analysis phase for toeb #}
+                        {% elseif getProcedurePermissionset('internal') == 'read' %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.read'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.read'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'statements' %}
+                                {{ 'actionbox.statements.read'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% endif %}
+
+                        {# if procedure is closed or in configuration phase for toeb #}
+                        {% elseif getProcedurePermissionset('internal') == 'hidden' and hasPermission('feature_institution_participation') %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.config'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.config'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% elseif context == 'statements'%}
+                                {{ 'actionbox.statements.config'|trans({ roles: 'actionbox.roles.invitable_institution'|trans }) }}
+                            {% endif %}
+
+                        {% endif %}
+
+                        {# The spacing between the two sentences is only neeeded when there are actually two sentences -
+                           which is only the case when both citizens + institutions may participate #}
+                        {% if hasPermission('feature_institution_participation') %}
+                            <br>
+                            <br>
+                        {% endif %}
+
+                        {# if procedure is in participation phase for public #}
+                        {% if getProcedurePermissionset('external') == 'write' %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.write'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.write'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'statements' %}
+                                {{ 'actionbox.statements.write'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% endif %}
+
+                        {# if procedure is in preparation or analysis phase for public #}
+                        {% elseif getProcedurePermissionset('external') == 'read' %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.read'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.read'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'statements' %}
+                                {{ 'actionbox.statements.read'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% endif %}
+
+                        {# if procedure is closed or in configuration phase for public #}
+                        {% elseif getProcedurePermissionset('external') == 'hidden' %}
+
+                            {% if context == 'map' %}
+                                {{ 'actionbox.map.config'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'documents' %}
+                                {{ 'actionbox.documents.config'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% elseif context == 'statements'%}
+                                {{ 'actionbox.statements.config'|trans({ roles: 'actionbox.roles.public'|trans }) }}
+                            {% endif %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% else %}
+
+                    {# If procedure has phase "Beteiligung in Vorbereitung", display a hint to participants if a procedure will soon be open to participation #}
+                    {% if getProcedurePhaseKey(proceduresettings, 'public') == 'preparation' or getProcedurePhaseKey(proceduresettings) == 'preparation' %}
+
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.announce'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.announce'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% elseif context == 'statements' %}
+                            {{ 'actionbox.statements.announce'|trans({ roles: 'actionbox.roles.all'|trans }) }}
+                        {% endif %}
+
+                    {# Users should see these messages when the procedure is in a participation phase but the user is not logged in #}
+                    {% elseif getProcedurePermissionset('external') == 'write' and currentUser.loggedIn == false %}
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.write.login'|trans }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.write.login'|trans }}
+                        {% elseif context == 'statements' %}
+                            {{ 'actionbox.statements.write.login'|trans }}
+                        {% endif %}
+
+                    {% else %}
+
+                        {% if context == 'map' %}
+                            {{ 'actionbox.map.read'|trans({ roles: 'actionbox.roles.user'|trans }) }}
+                        {% elseif context == 'documents' %}
+                            {{ 'actionbox.documents.read'|trans({ roles: 'actionbox.roles.user'|trans }) }}
+                        {% elseif context == 'statements' %}
+                            {{ 'actionbox.statements.read'|trans({ roles: 'actionbox.roles.user'|trans }) }}
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endif %}
+
+            {% endif %}
+
+        </p>
+
+    {% endif %}{# else hasPermission('feature_public_consultation') and templateVars.isPublicConsultationPhase|default #}
+</div>

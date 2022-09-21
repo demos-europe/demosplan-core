@@ -1,0 +1,5 @@
+Licenses of third party systems as of Apr 25, 2022:
+
+Elasticsearch 6.x: Apache 2.0
+MariaDB: GPLv2
+RabbitMQ: Mozilla Public License

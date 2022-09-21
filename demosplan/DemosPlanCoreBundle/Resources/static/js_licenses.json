@@ -1,0 +1,641 @@
+[
+    {
+        "package": "@babel/core",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-core"
+    },
+    {
+        "package": "@babel/eslint-parser",
+        "license": "MIT",
+        "website": "https://babel.dev/"
+    },
+    {
+        "package": "@babel/eslint-plugin",
+        "license": "MIT",
+        "website": "https://babel.dev/"
+    },
+    {
+        "package": "@babel/plugin-proposal-object-rest-spread",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-plugin-proposal-object-rest-spread"
+    },
+    {
+        "package": "@babel/plugin-syntax-dynamic-import",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "@babel/plugin-transform-modules-commonjs",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-plugin-transform-modules-commonjs"
+    },
+    {
+        "package": "@babel/plugin-transform-object-assign",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-plugin-transform-object-assign"
+    },
+    {
+        "package": "@babel/plugin-transform-runtime",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-plugin-transform-runtime"
+    },
+    {
+        "package": "@babel/preset-env",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-preset-env"
+    },
+    {
+        "package": "@babel/runtime",
+        "license": "MIT",
+        "website": "https://babel.dev/docs/en/next/babel-runtime"
+    },
+    {
+        "package": "@efrane/vuex-json-api",
+        "license": "MIT",
+        "website": "https://vuex-json-api.efrane.com/"
+    },
+    {
+        "package": "@fullhuman/postcss-purgecss",
+        "license": "MIT",
+        "website": "https://purgecss.com/"
+    },
+    {
+        "package": "@sentry/browser",
+        "license": "BSD-3-Clause",
+        "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/browser"
+    },
+    {
+        "package": "@sentry/integrations",
+        "license": "BSD-3-Clause",
+        "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations"
+    },
+    {
+        "package": "@sentry/tracing",
+        "license": "MIT",
+        "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/tracing"
+    },
+    {
+        "package": "@uppy/core",
+        "license": "MIT",
+        "website": "https://uppy.io/"
+    },
+    {
+        "package": "@uppy/drag-drop",
+        "license": "MIT",
+        "website": "https://uppy.io/"
+    },
+    {
+        "package": "@uppy/progress-bar",
+        "license": "MIT",
+        "website": "https://uppy.io/"
+    },
+    {
+        "package": "@uppy/tus",
+        "license": "MIT",
+        "website": "https://uppy.io/"
+    },
+    {
+        "package": "@vue/test-utils",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/vue-test-utils#readme"
+    },
+    {
+        "package": "@vue/vue2-jest",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "a11y-datepicker",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "acorn",
+        "license": "MIT",
+        "website": "https://github.com/acornjs/acorn"
+    },
+    {
+        "package": "assets-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/ztoben/assets-webpack-plugin"
+    },
+    {
+        "package": "autoprefixer",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "axios",
+        "license": "MIT",
+        "website": "https://axios-http.com/"
+    },
+    {
+        "package": "babel-core",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "babel-helper-vue-jsx-merge-props",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/babel-helper-vue-jsx-merge-props#readme"
+    },
+    {
+        "package": "babel-jest",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "babel-loader",
+        "license": "MIT",
+        "website": "https://github.com/babel/babel-loader"
+    },
+    {
+        "package": "babel-plugin-dynamic-import-node",
+        "license": "MIT",
+        "website": "https://github.com/airbnb/babel-plugin-dynamic-import-node#readme"
+    },
+    {
+        "package": "babel-plugin-dynamic-import-webpack",
+        "license": "MIT",
+        "website": "https://github.com/airbnb/babel-plugin-dynamic-import-webpack#readme"
+    },
+    {
+        "package": "caniuse-lite",
+        "license": "CC-BY-4.0",
+        "website": "http://beneb.info"
+    },
+    {
+        "package": "chalk",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "clean-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/johnagan/clean-webpack-plugin"
+    },
+    {
+        "package": "cli-progress",
+        "license": "MIT",
+        "website": "https://github.com/npkgz/cli-progress"
+    },
+    {
+        "package": "commander",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "copy-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/copy-webpack-plugin"
+    },
+    {
+        "package": "core-js",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "cross-env",
+        "license": "MIT",
+        "website": "https://github.com/kentcdodds/cross-env#readme"
+    },
+    {
+        "package": "css-loader",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/css-loader"
+    },
+    {
+        "package": "css-minimizer-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/css-minimizer-webpack-plugin"
+    },
+    {
+        "package": "d3",
+        "license": "ISC",
+        "website": "https://d3js.org/"
+    },
+    {
+        "package": "d3-sankey-diagram",
+        "license": "MIT",
+        "website": "https://github.com/ricklupton/d3-sankey-diagram"
+    },
+    {
+        "package": "dayjs",
+        "license": "MIT",
+        "website": "https://day.js.org/"
+    },
+    {
+        "package": "deep-object-diff",
+        "license": "MIT",
+        "website": "https://github.com/mattphillips/deep-object-diff#readme"
+    },
+    {
+        "package": "dompurify",
+        "license": "(MPL-2.0 OR Apache-2.0)",
+        "website": "https://github.com/cure53/DOMPurify"
+    },
+    {
+        "package": "dp-consent",
+        "license": "ISC",
+        "website": "Unknown"
+    },
+    {
+        "package": "eslint",
+        "license": "MIT",
+        "website": "https://eslint.org/"
+    },
+    {
+        "package": "eslint-config-standard",
+        "license": "MIT",
+        "website": "https://github.com/standard/eslint-config-standard"
+    },
+    {
+        "package": "eslint-friendly-formatter",
+        "license": "MIT",
+        "website": "http://royriojas.com"
+    },
+    {
+        "package": "eslint-import-resolver-webpack",
+        "license": "MIT",
+        "website": "https://github.com/import-js/eslint-plugin-import/tree/HEAD/resolvers/webpack"
+    },
+    {
+        "package": "eslint-plugin-import",
+        "license": "MIT",
+        "website": "https://github.com/import-js/eslint-plugin-import"
+    },
+    {
+        "package": "eslint-plugin-jest",
+        "license": "MIT",
+        "website": "jkimbo.com"
+    },
+    {
+        "package": "eslint-plugin-jquery",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "eslint-plugin-node",
+        "license": "MIT",
+        "website": "https://github.com/mysticatea/eslint-plugin-node#readme"
+    },
+    {
+        "package": "eslint-plugin-promise",
+        "license": "ISC",
+        "website": "https://github.com/xjamundx/eslint-plugin-promise"
+    },
+    {
+        "package": "eslint-plugin-standard",
+        "license": "MIT",
+        "website": "https://github.com/standard/eslint-plugin-standard#readme"
+    },
+    {
+        "package": "eslint-plugin-vue",
+        "license": "MIT",
+        "website": "https://eslint.vuejs.org/"
+    },
+    {
+        "package": "eslint-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/eslint-webpack-plugin"
+    },
+    {
+        "package": "font-awesome",
+        "license": "(OFL-1.1 AND MIT)",
+        "website": "http://fontawesome.io/"
+    },
+    {
+        "package": "fs",
+        "license": "ISC",
+        "website": "https://github.com/npm/security-holder#readme"
+    },
+    {
+        "package": "fscreen",
+        "license": "MIT",
+        "website": "https://github.com/rafgraph/fscreen#readme"
+    },
+    {
+        "package": "glob",
+        "license": "ISC",
+        "website": "http://blog.izs.me/"
+    },
+    {
+        "package": "glob-all",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "intl-messageformat",
+        "license": "BSD-3-Clause",
+        "website": "https://github.com/formatjs/formatjs"
+    },
+    {
+        "package": "ismobilejs",
+        "license": "MIT",
+        "website": "https://github.com/kaimallea/isMobile"
+    },
+    {
+        "package": "jest",
+        "license": "MIT",
+        "website": "https://jestjs.io/"
+    },
+    {
+        "package": "jest-junit",
+        "license": "Apache-2.0",
+        "website": "Unknown"
+    },
+    {
+        "package": "jquery",
+        "license": "MIT",
+        "website": "https://jquery.com/"
+    },
+    {
+        "package": "js-base64",
+        "license": "BSD-3-Clause",
+        "website": "Unknown"
+    },
+    {
+        "package": "jsdom",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "json-api-normalizer",
+        "license": "MIT",
+        "website": "https://github.com/yury-dymov/json-api-normalizer#readme"
+    },
+    {
+        "package": "leaflet",
+        "license": "BSD-2-Clause",
+        "website": "https://leafletjs.com/"
+    },
+    {
+        "package": "leaflet.markercluster",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "lscache",
+        "license": "Apache-2.0",
+        "website": "http://github.com/pamelafox/lscache"
+    },
+    {
+        "package": "mini-css-extract-plugin",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/mini-css-extract-plugin"
+    },
+    {
+        "package": "node-notifier",
+        "license": "MIT",
+        "website": "https://github.com/mikaelbr/node-notifier#readme"
+    },
+    {
+        "package": "ol",
+        "license": "BSD-2-Clause",
+        "website": "https://openlayers.org/"
+    },
+    {
+        "package": "plyr",
+        "license": "MIT",
+        "website": "https://plyr.io/"
+    },
+    {
+        "package": "portal-vue",
+        "license": "MIT",
+        "website": "htps://github.com/LinusBorg/"
+    },
+    {
+        "package": "postcss",
+        "license": "MIT",
+        "website": "https://postcss.org/"
+    },
+    {
+        "package": "postcss-flexbugs-fixes",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "postcss-loader",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/postcss-loader"
+    },
+    {
+        "package": "postcss-prefix-selector",
+        "license": "MIT",
+        "website": "https://github.com/RadValentin/postcss-prefix-selector"
+    },
+    {
+        "package": "postcss-preset-env",
+        "license": "CC0-1.0",
+        "website": "https://github.com/csstools/postcss-plugins/tree/main/plugin-packs/postcss-preset-env#readme"
+    },
+    {
+        "package": "proj4",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-schema-basic",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-schema-list",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "purgecss-webpack-plugin",
+        "license": "MIT",
+        "website": "https://purgecss.com/"
+    },
+    {
+        "package": "qs",
+        "license": "BSD-3-Clause",
+        "website": "https://github.com/ljharb/qs"
+    },
+    {
+        "package": "raf",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "rate-it",
+        "license": "MIT"
+    },
+    {
+        "package": "regenerator-runtime",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "sass",
+        "license": "MIT",
+        "website": "https://github.com/sass/dart-sass"
+    },
+    {
+        "package": "sass-loader",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/sass-loader"
+    },
+    {
+        "package": "source-map-loader",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/source-map-loader"
+    },
+    {
+        "package": "source-sans-pro",
+        "license": "OFL-1.1",
+        "website": "https://adobe-fonts.github.io/source-sans-pro"
+    },
+    {
+        "package": "striptags",
+        "license": "MIT",
+        "website": "https://github.com/ericnorris/striptags"
+    },
+    {
+        "package": "stylelint",
+        "license": "MIT",
+        "website": "https://stylelint.io/"
+    },
+    {
+        "package": "stylelint-config-standard-scss",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "swagger-ui-dist",
+        "license": "Apache-2.0",
+        "website": "Unknown"
+    },
+    {
+        "package": "tippy.js",
+        "license": "MIT",
+        "website": "https://atomiks.github.io/tippyjs/"
+    },
+    {
+        "package": "tiptap",
+        "license": "MIT",
+        "website": "https://tiptap.dev/"
+    },
+    {
+        "package": "tiptap-commands",
+        "license": "MIT",
+        "website": "https://tiptap.dev/"
+    },
+    {
+        "package": "tiptap-extensions",
+        "license": "MIT",
+        "website": "https://tiptap.dev/"
+    },
+    {
+        "package": "tooltip.js",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "util",
+        "license": "MIT",
+        "website": "https://github.com/browserify/node-util"
+    },
+    {
+        "package": "uuid",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vue",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/vue#readme"
+    },
+    {
+        "package": "vue-click-outside",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vue-loader",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/vue-loader"
+    },
+    {
+        "package": "vue-multiselect",
+        "license": "MIT",
+        "website": "https://shentao.github.io/vue-multiselect/"
+    },
+    {
+        "package": "vue-omnibox",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vue-scrollto",
+        "license": "MIT",
+        "website": "http://igor-randjelovic.com"
+    },
+    {
+        "package": "vue-sliding-pagination",
+        "license": "MIT",
+        "website": "https://vue-sliding-pagination.efrane.com/"
+    },
+    {
+        "package": "vue-style-loader",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vue-template-compiler",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/vue/tree/dev/packages/vue-template-compiler#readme"
+    },
+    {
+        "package": "vue2-leaflet",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vue2-leaflet-markercluster",
+        "license": "MIT",
+        "website": "https://github.com/jperelli/vue2-leaflet-markercluster#readme"
+    },
+    {
+        "package": "vuedraggable",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vuejs-datepicker",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "vuex",
+        "license": "MIT",
+        "website": "https://github.com/vuejs/vuex#readme"
+    },
+    {
+        "package": "webpack",
+        "license": "MIT",
+        "website": "https://github.com/webpack/webpack"
+    },
+    {
+        "package": "webpack-bundle-analyzer",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/webpack-bundle-analyzer"
+    },
+    {
+        "package": "webpack-hot-middleware",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "webpack-manifest-plugin",
+        "license": "MIT",
+        "website": "https://github.com/shellscape/webpack-manifest-plugin"
+    },
+    {
+        "package": "webpack-merge",
+        "license": "MIT",
+        "website": "https://github.com/survivejs/webpack-merge"
+    }
+]

@@ -1,0 +1,26 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@import '~ol/ol.css';
+
+//  Make room for FullScreen control
+.ol-mouse-position {
+    right: $inuit-base-spacing-unit--large !important;
+    text-align: right;
+}
+
+.ol-attribution {
+    font-size: $dp-token-font-size-smaller;
+}
+
+@media print {
+    .ol-control {
+        display: none;
+    }
+}

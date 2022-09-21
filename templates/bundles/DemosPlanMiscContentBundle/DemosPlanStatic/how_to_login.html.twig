@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with
+        {
+            link: path('core_home'),
+            link_caption: '',
+            width_css: {
+                col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+                col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass
+            },
+            content_heading: "Titel zu Anmeldemodalitäten"
+        }
+    %}
+
+    {# Dieses Template wird (hoffentlich) überall da, wo darauf verlinkt wird, mit sinnvollem Inhalt überschrieben. #}
+
+{% endblock %}

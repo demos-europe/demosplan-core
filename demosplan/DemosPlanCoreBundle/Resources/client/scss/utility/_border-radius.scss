@@ -1,0 +1,30 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.border-radius {
+    &-none {
+        border-radius: $dp-token-rounded-none;
+    }
+
+    &-small {
+        border-radius: $dp-token-rounded-small; // 3px
+    }
+
+    &-medium {
+        border-radius: $dp-token-rounded-medium; // 4px
+    }
+
+    &-large {
+        border-radius: $dp-token-rounded-large; // 5px
+    }
+
+    &-extra-large {
+        border-radius: $dp-token-rounded-large * 2; // 10px
+    }
+}

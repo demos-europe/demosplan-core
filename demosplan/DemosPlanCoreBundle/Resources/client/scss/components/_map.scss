@@ -1,0 +1,937 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:color';
+
+/// * `.c-map` styles the OpenLayers map on public_detail.html.twig. These styles are subject to heavy refactoring,
+///   as well as their javascript counterpart.
+/// * `.c-ol-map` styles the more generic Vue component DpOlMap.vue (which also generates an OpenLayers map).
+///
+/// @group components
+///
+/// @name .c-map
+
+// Dimensions of map toolbar + canvas
+// $map-toolbar-width: 300px !default; set in _settings.dplan.scss
+$map-toolbar-width-wide:    $map-toolbar-width !default;
+$map-width:                 calc(100% - #{$map-toolbar-width});
+$map-width-wide:            calc(100% - #{$map-toolbar-width-wide});
+$map-height:                531px;
+
+// Drawing colors
+$map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
+$map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
+
+$map-layer-color: $default-font-color;
+$map-layer-color-hover: $dp-token-color-brand-link;
+$map-layer-color-active: $dp-token-color-brand-cta;
+$map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
+
+
+//  placeholders to use for other views
+%map-width-toolbar {
+    @include media-query('palm') {
+        width: 100%;
+    }
+    @include media-query('lap') {
+        width: $map-toolbar-width;
+    }
+    @include media-query('desk') {
+        width: $map-toolbar-width;
+    }
+    @include media-query('wide') {
+        width: $map-toolbar-width-wide;
+    }
+}
+
+%map-width-canvas {
+    @include media-query('palm') {
+        width: 100%;
+    }
+    @include media-query('lap') {
+        width: $map-width;
+    }
+    @include media-query('desk') {
+        width: $map-width;
+    }
+    @include media-query('wide') {
+        width: $map-width-wide;
+    }
+}
+
+// These are used outside of .c-map but intended to maintain consistent layout
+// within a group of views related to the public detail page.
+.width-map {
+    &-toolbar {
+        @extend %map-width-toolbar;
+    }
+
+    &-canvas {
+        @extend %map-width-canvas;
+    }
+}
+
+%map-toolbar-list-item {
+    margin: 0;
+    width: 100%;
+
+    color: $default-font-color;
+    cursor: pointer;
+    list-style: none;
+}
+
+%map-toolbar-list-item-disabled {
+    color: $default-font-color;
+    cursor: default;
+}
+
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-map') {
+
+    //  component container
+    .c-map {
+
+        width: 100%;
+
+        font-size: $dp-token-font-size-small;
+
+        //  progress bar for loaded map tiles
+        &--progress {
+            bottom: 0;
+            left: 0;
+            position: absolute;
+            z-index: $z-map-progress;
+
+            height: 14px;
+            width: 0;
+
+            // Like primary button background, this element shares the color with links.
+            background-color: $dp-token-color-brand-link;
+            transition: width 250ms;
+        }
+
+        //  fullscreen map also in chrome
+        .fullscreen-mode & {
+            width: 100% !important;
+
+            &,
+            &__canvas,
+            &__toolbar {
+                height: 100% !important;
+            }
+        }
+
+        //  both columns
+        &__toolbar,
+        &__canvas {
+            position: relative;
+        }
+
+        //  left sidebar with map tools
+        &__toolbar {
+            @extend %map-width-toolbar;
+
+            @include media-query('lap-up') {
+                float: left;
+
+                height: $map-height;
+            }
+
+            &.expanded {
+                width: 60%;
+
+                @include media-query('palm') {
+                    width: 100%;
+                }
+
+                .c-actionbox,
+                > ul.c-map__group {
+                    display: none;
+                }
+            }
+        }
+
+        //  target of openlayers map scripts
+        &__canvas {
+            overflow: hidden;
+            width: auto;
+
+            @include media-query('palm') {
+                height: 80vh;
+            }
+
+            z-index: 0;
+
+            height: $map-height;
+        }
+
+        //  group of toolbar controls
+        &__group {
+
+            margin: 0;
+
+            @include media-query('lap-up') {
+                margin: 0 $inuit-base-spacing-unit--small 0 0;
+            }
+
+            .js & {
+                &--toggleable {
+                    display: none;
+                }
+
+                &--toggleable.is-active-group {
+                    display: block;
+                }
+            }
+
+            //  extra positioning to attach layer box to the bottom of toolbar
+            &--bottom {
+
+                overflow-x: hidden;
+                overflow-y: auto;
+
+                @include media-query('lap-up') {
+                    bottom: 0;
+                    left: 0;
+                    position: absolute;
+
+                    max-height: $map-height;
+
+                    .layer-controls {
+                        max-height: $map-height;
+                    }
+                }
+                @include media-query('palm') {
+                    margin-top: 20px;
+                }
+
+                width: 100%;
+
+                //  adapt to .c-actionbox width
+                .c-map__group--rounding & {
+                    /* stylelint-disable-next-line */
+                    width: 99.99999%;
+                }
+
+                .expanded & {
+                    height: 100%;
+                }
+            }
+        }
+
+        &__unfold-button {
+            bottom: 50%;
+            position: absolute;
+            right: 0;
+            z-index: 1;
+
+            height: 40px;
+            margin-bottom: -20px;
+            padding-left: 14px;
+            width: 30px;
+
+            transform: translateX(14px);
+
+            cursor: grab;
+
+            & &-inner {
+                height: 100%;
+                padding: 8px 8px 8px 4px;
+                width: 100%;
+
+                background-color: $dp-color-white;
+                border-radius: 0 2px 2px 0;
+                // $dp-token-box-shadow-1 is not used here since it does not cut the left shadow
+                box-shadow: 2px 3px 5px -2px #aaa;
+            }
+
+            & &-handle {
+                position: absolute;
+
+                height: 24px;
+                width: 4px;
+
+                // Hex value is used because $dp-color-neutral-light-1 is too dark, $dp-color-neutral-light-2 too light.
+                border-left: 1px solid #cacaca;
+                border-right: 1px solid #cacaca;
+            }
+
+            @include media-query('palm') {
+                display: none;
+            }
+        }
+
+        //  group of toolbar controls > item (eg. "Entfernung messen")
+        &__group-item {
+            @extend %map-toolbar-list-item;
+            position: relative;
+            text-align: left;
+
+            &,
+            i {
+                color: color.adjust($dp-color-neutral-dark-1, $lightness: 15%);
+            }
+
+            &:hover,
+            &.is-active {
+                text-decoration: none;
+            }
+
+            &.is-active,
+            &:active {
+                &,
+                i {
+                    color: $map-layer-color-active;
+                }
+
+                &:hover,
+                &:hover i {
+                    color: $map-layer-color-active-hover;
+                }
+            }
+
+            &:empty {
+                display: none;
+            }
+        }
+
+        &__group-item-controls {
+            display: inline-block;
+            vertical-align: middle;
+
+            // .btn in some projects has a transition set on color. This effect is not feasible in the layer list,
+            // because it is distracting when there are so many small controls.
+            & .btn--blank {
+                transition: none;
+            }
+        }
+
+        &__group-item-name {
+            display: inline-block;
+            max-width: calc(100% - 60px) !important;
+            vertical-align: middle;
+        }
+
+        // Child folder
+        &__group-item-child {
+            margin-left: 20px;
+        }
+
+        &__opacity-control {
+            left: 10px;
+            position: absolute;
+            right: 30px;
+            top: 5px;
+
+            display: inline-block;
+            padding-left: 10px;
+
+            input[type='range'] {
+                width: 100%;
+
+                &:focus {
+                    @include keyboard-focus;
+                }
+            }
+        }
+
+        // just the group item's background-color
+        &__group-item-color {
+            background-color: color.adjust($default-border-color, $lightness: 10%);
+        }
+
+        //  group of toolbar controls > header (eg. "Kartenebenen")
+        &__group-header {
+            display: block;
+            margin-top: $inuit-base-spacing-unit--small;
+            padding-left: 9px;
+
+            background-color: $default-border-color;
+            color: $map-layer-color;
+            cursor: pointer;
+
+            &::before {
+                @extend .fa;
+                @extend .fa-plus-circle;
+                padding-right: 1px;
+            }
+
+            &:hover {
+                color: $map-layer-color-active;
+            }
+
+            &.is-active::before {
+                @extend .fa-minus-circle;
+            }
+        }
+
+        //  layer item in list of layers
+        &__layer {
+            padding: 4px 8px;
+            line-height: 20px;
+
+            img {
+                max-width: none;
+            }
+
+            &:hover {
+                background-color: color.adjust($default-border-color, $lightness: 10%);
+                color: $map-layer-color-hover;
+            }
+
+            &.is-active,
+            &:active {
+                &,
+                i {
+                    color: $map-layer-color-active;
+                }
+
+                &:hover,
+                &:hover i {
+                    color: $map-layer-color-active-hover;
+                }
+            }
+        }
+
+        &__measure-tool {
+            .o-link--default:hover {
+                transition: none;
+                color: $map-layer-color-hover;
+            }
+
+            &.is-active {
+                .o-link--default {
+                    color: $map-layer-color-active;
+
+                    svg path {
+                        fill: $map-layer-color-active !important;
+                    }
+
+                    &:hover {
+                        color: $map-layer-color-active-hover;
+
+                        svg path {
+                            fill: $map-layer-color-active-hover !important;
+                        }
+                    }
+                }
+            }
+        }
+
+        //  Huge layer toggles in map area
+        &__layer-buttons {
+            position: absolute;
+            right: $inuit-base-spacing-unit--small + 38px;
+            top: $inuit-base-spacing-unit--small;
+            z-index: 1005;
+
+            margin-left: 44px;
+
+            @media only screen and (max-width: 620px) {
+                right: 44px;
+                top: 53px;
+                z-index: 1003;
+            }
+        }
+
+        //  Huge layer toggle items in map area
+        &__layer-button {
+            background-color: $dp-token-color-brand-link;
+
+            &:hover {
+                background-color: $dp-token-color-brand-link-hover;
+            }
+
+            &.is-active {
+                background-color: $dp-token-color-brand-highlight;
+                border: $dp-token-color-brand-highlight;
+            }
+        }
+
+        .c-map__layericon--activated,
+        .is-active .c-map__layericon--deactivated {
+            display: none;
+        }
+
+        .is-active .c-map__layericon--activated,
+        .c-map__layericon--deactivated {
+            display: inline-block;
+        }
+
+        &__layerhelp {
+            float: right;
+            width: 12px;
+            margin-top: 4px;
+
+            &:hover {
+                color: $dp-token-color-brand-highlight;
+            }
+
+            &--position-absolute {
+                position: absolute;
+                top: 4px;
+                right: 10px;
+            }
+        }
+
+        &__tool {
+            @extend %map-toolbar-list-item;
+
+            padding: 0;
+
+            background-color: transparent;
+            color: $dp-token-color-brand-link;
+            cursor: pointer !important;
+
+            font-size: $dp-token-font-size-medium;
+
+            &:hover,
+            &.is-active {
+                text-decoration: none;
+            }
+
+            &:hover {
+                color: $dp-token-color-brand-link-hover;
+            }
+
+            &.is-active {
+                color: $dp-token-color-brand-highlight;
+            }
+
+            &:active {
+                color: $dp-token-color-brand-link-hover;
+            }
+
+            i {
+                margin-right: 4px;
+                width: 16px;
+            }
+        }
+
+        &__tool-simple {
+            &.is-active {
+                color: $dp-token-color-brand-highlight;
+            }
+        }
+
+        &__autocomplete {
+            left: $inuit-base-spacing-unit--small * 4;
+            position: absolute !important;
+            top: 14px;
+            z-index: $z-map-popups - 1;
+
+            //  keep from overflowing right corner map controls on smartphones
+            max-width: calc(100vw - 154px);
+            min-width: 200px;
+            background-color: $dp-color-white;
+            width: auto !important;
+        }
+
+        //  Custom zoom controls
+        &__zoom {
+            z-index: $z-map-progress;
+
+            button {
+                @include keyboard-focus;
+            }
+        }
+
+        //  Scale-line tweaks
+        &__scale-line.ol-scale-line {
+            bottom: 1.2em;
+            left: $inuit-base-spacing-unit--small;
+
+            background: rgb(0 60 136 / 50%);
+            border-radius: 2px;
+
+            @include media-query('palm') {
+                bottom: 42px;
+            }
+        }
+
+        //  overlay with hints
+        &__hint {
+            bottom: 0;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: $z-map-hint;
+
+            transition: all #{$transition-speed-style-delay};
+
+            //  background
+            &__bg {
+                position: absolute;
+                top: 0;
+                z-index: $z-map-hint - 1;
+
+                height: 100%;
+                width: 100%;
+
+                background-color: $dp-color-main;
+                cursor: pointer;
+                opacity: .4;
+            }
+
+            //  content box
+            &__inner {
+                @include media-query('lap-down') {
+                    padding: $inuit-base-spacing-unit--small;
+                }
+                @include media-query('desk-up') {
+                    padding: $inuit-base-spacing-unit;
+                }
+
+                left: 50%;
+                position: absolute;
+                top: 50%;
+                z-index: $z-map-hint;
+
+                max-height: 90%;
+                overflow-y: auto;
+                width: 80%;
+
+                background-color: $dp-bg-color;
+
+                transform: translate(-50%, -50%);
+            }
+
+            //  controls
+            &__header {
+                color: $dp-color-neutral-base;
+            }
+
+            &__close {
+                @include keyboard-focus;
+                float: right;
+            }
+
+            &__show {
+                bottom: 15px;
+                position: absolute;
+                right: 12px;
+                z-index: $z-map-hint;
+
+                cursor: pointer;
+
+                font-size: 18px;
+            }
+
+            &.is-hidden-hint {
+                opacity: 0;
+                pointer-events: none;
+
+                .ie-8 &,
+                .ie-9 & {
+                    display: none;
+                }
+            }
+        }
+
+        //  popup triggered with mapSingleClick()
+        &__popup {
+
+            //  set popover fixed for mobile devices and handle long text-overflow
+            @include media-query('palm') {
+                bottom: auto;
+                left: 2%;
+                position: fixed;
+                right: 2%;
+                top: 2%;
+                z-index: 1040;
+
+                max-height: 96%;
+                min-height: 0;
+                overflow-y: auto;
+
+                //  hide the popup arrow which can not be positioned with overflow-y: auto
+                &::after {
+                    display: none;
+                }
+            }
+
+            bottom: 12px;
+            left: -50px;
+            position: absolute;
+            z-index: $z-map-popups;
+
+            min-width: 280px;
+            padding: 15px;
+
+            background-color: $dp-color-white;
+            border: none;
+            border-radius: 0;
+            box-shadow: 2px 3px 5px 0 rgb(0 0 0 / 60%);
+
+            &--large {
+                @include media-query('lap-up') {
+                    width: 400px;
+                }
+            }
+
+            &--small {
+                min-width: 0;
+            }
+
+            &::after {
+                left: 48px;
+                position: absolute;
+                top: 100%;
+
+                display: block;
+                height: 20px;
+                margin-left: -10px;
+                width: 20px;
+
+                color: $dp-color-white;
+                content: '▼';
+                pointer-events: none;
+
+                font-size: 29px;
+                line-height: 16px;
+                text-shadow: 2px 3px 3px rgb(0 0 0 / 50%);
+            }
+
+            &__button-close {
+                position: absolute;
+                right: 8px;
+                top: 2px;
+
+                text-decoration: none;
+
+                &::after {
+                    content: 'x';
+                }
+            }
+
+            &__title {
+                margin-right: $inuit-base-spacing-unit--small;
+
+                white-space: nowrap;
+                font-size: $dp-token-font-size-smaller;
+            }
+
+            &__content {
+                .c-map__popup--scrollable & {
+                    max-height: 250px;
+                    overflow-y: auto;
+                }
+
+                //  kriterien
+                ul {
+
+                    margin: 0 0 0 18px;
+
+                    li {
+
+                        list-style-type: none;
+
+                        &::before {
+                            display: inline-block;
+                            margin-left: -18px;
+                            margin-right: $inuit-base-spacing-unit--tiny;
+
+                            content: '\2013';
+                        }
+
+                        margin-bottom: $inuit-base-spacing-unit--tiny;
+                    }
+                }
+
+                & table {
+                    margin: 3px 0;
+
+                    & th,
+                    td {
+                        padding: 3px;
+                    }
+                }
+
+                & table,
+                th,
+                td {
+                    border: 1px solid black;
+                }
+            }
+
+            &__button {
+                margin-top: $inuit-base-spacing-unit--small;
+                width: 100%;
+
+                .c-map__popup--hide-action & {
+                    display: none !important;
+                }
+            }
+        }
+
+        //  output of measure actions
+        &__measure-output {
+            padding: 3px 6px;
+
+            background-color: $dp-token-color-brand-alt;
+            color: $dp-token-color-brand-alt-contrast;
+
+            white-space: nowrap;
+        }
+
+        //  hinting on usage of measure actions
+        &__measure-hint {
+            display: block;
+
+            font-size: $dp-token-font-size-smaller;
+
+            .is-hidden {
+                display: none;
+            }
+        }
+
+        &__fullscreen {
+            display: none;
+
+            @include media-query('lap-up') {
+                display: block;
+            }
+
+            right: $inuit-base-spacing-unit--small;
+            top: $inuit-base-spacing-unit--small;
+
+            & button {
+                @include keyboard-focus;
+            }
+        }
+
+        &__mouseposition {
+            bottom: $inuit-base-spacing-unit--tiny * 3;
+            position: absolute;
+            right: 40px;
+
+            @include media-query('palm') {
+                background: rgb(255 255 255 / 80%);
+                padding: 1%;
+                right: 30px;
+            }
+        }
+
+        &__minimap {
+            &.ol-overviewmap {
+                bottom: 42px;
+                left: auto;
+                right: $inuit-base-spacing-unit--small;
+
+                &:not(.ol-collapsed) {
+                    button {
+                        bottom: 3px !important;
+                        left: 3px !important;
+                    }
+                }
+
+                & button {
+                    @include keyboard-focus;
+                }
+            }
+
+            & .ol-overviewmap-box {
+                border: 2px solid $map-color-draw-stroke !important;
+            }
+        }
+
+        //  assign colors to drawings in map
+        //  these are parsed by map js
+        &__draw {
+            &-stroke,
+            &-image {
+                color: $dp-token-color-ui-map-draw-stroke;
+            }
+
+            &-fill {
+                color: $dp-token-color-ui-map-draw-fill;
+            }
+        }
+    }
+
+    // transform ol-attribution-button to plain text
+    // not nice but works
+    .c-map .ol-attribution.ol-uncollapsible {
+        display: block !important;
+        width: 100%;
+        max-width: inherit;
+        border-radius: 0;
+
+        > ul {
+            display: none;
+        }
+
+        > button {
+            background: rgb(255 255 255 / 70%);
+            font-size: .8em;
+            color: #000;
+            text-align: right;
+            max-width: inherit;
+            width: auto;
+            display: inline !important;
+            cursor: unset;
+
+            &:hover {
+                background: transparent;
+            }
+        }
+    }
+
+    .c-map .ol-zoom {
+        left: $inuit-base-spacing-unit--small;
+        top: $inuit-base-spacing-unit--small;
+    }
+
+    .c-map .ol-viewport {
+        line-height: 0;
+
+        & * {
+            line-height: 1;
+        }
+    }
+}
+
+.c-ol-map {
+    .fullscreen-mode & {
+        background-color: $dp-color-white;
+    }
+
+    &__select {
+        height: 28px;
+
+        background-color: $dp-color-white;
+        border: 1px solid $dp-color-neutral-light-2 !important;
+
+        line-height: 28px;
+
+        &:hover {
+            border-color: $dp-token-color-brand-link-hover !important;
+        }
+    }
+
+    &__controls {
+        .fullscreen-mode & {
+            padding: 0 $inuit-base-spacing-unit--small;
+        }
+    }
+
+    &__canvas {
+        height: 531px;
+
+        .c-ol-map--small & {
+            height: 300px;
+        }
+
+        .fullscreen-mode & {
+            height: 100% !important;
+        }
+    }
+}

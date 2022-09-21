@@ -1,0 +1,74 @@
+<footer class="c-footer o-page__padded {{ cssClassesFooter|default }} cf" role="contentinfo">
+
+    <nav class="display--inline-block"
+         aria-label="{{ 'menu.footer'|trans }}"
+         role="navigation">
+        {% apply spaceless %}
+
+            {% if hasPermission('area_main_static_documents') %}
+                <a class="c-footer__link" href="{{ path("DemosPlan_misccontent_static_documents") }}"
+                   aria-label="{{ "static.documents"|trans }}">
+                    {{- "static.documents"|trans -}}
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_main_view_participants') %}
+                <a class="c-footer__link" href="{{ path('DemosPlan_informationen_teilnehmende') }}"
+                   aria-label="{{ "participants"|trans }}">
+                    {{- "participants"|trans -}}
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_main_xplanning') %}
+                <a class="c-footer__link" href="{{ path('DemosPlan_misccontent_static_xplanung') }}"
+                   aria-label="{{ "xplanning"|trans }}">
+                    {{- "xplanning"|trans -}}
+                </a>
+            {% endif %}
+
+            <a class="c-footer__link"
+               href="{{ path( 'DemosPlan_misccontent_static_dataprotection')}}{% if branding.orgaId is defined and branding.orgaId != '' %}#{{ branding.orgaId }}{% endif %}"
+               aria-label="{{ 'privacy'|trans }}">
+                {{- "privacy"|trans -}}
+            </a>
+
+            <a class="c-footer__link"
+               href="{{ path( 'DemosPlan_misccontent_static_imprint') }}{% if branding.orgaId is defined and branding.orgaId != '' %}#{{ branding.orgaId }}{% endif %}"
+               aria-label="{{ 'imprint'|trans }}">
+                {{- "imprint"|trans -}}
+            </a>
+
+            {% if hasPermission('area_accessibility_explanation') %}
+                <a
+                    class="c-footer__link"
+                    href="{{ path( 'DemosPlan_misccontent_static_accessibility_explanation') }}"
+                    aria-label="{{ 'accessibility.explanation'|trans }}">
+                    {{- 'accessibility'|trans -}}
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_terms_of_use') %}
+            <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
+               aria-label="{{ 'terms.of.use'|trans }}">
+                {{- "terms.of.use"|trans -}}
+            </a>
+            {% endif %}
+
+            {% if hasPermission('area_main_contact') %}
+                <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_contact') }}"
+                   aria-label="{{ 'contact'|trans }}">
+                    {{- "contact"|trans -}}
+                </a>
+            {% endif %}
+
+            {% block additional %}{% endblock additional %}
+
+        {% endapply %}
+    </nav>
+
+    <div class="c-footer__version float--right u-pt-0_25-palm"
+         aria-label="{{ 'system.version_info'|trans }}">
+        v{{ projectVersion }}
+    </div>
+
+</footer>

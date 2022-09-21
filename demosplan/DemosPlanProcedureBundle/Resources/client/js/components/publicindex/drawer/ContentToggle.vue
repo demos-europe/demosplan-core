@@ -1,0 +1,29 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <button
+    class="o-link--default text--left btn--blank weight--bold display--block u-1-of-1"
+    type="button"
+    @click="$emit('input', 'DpList')">
+    {{ Translator.trans('back.to.results.list') }}
+  </button>
+</template>
+
+<script>
+export default {
+  name: 'DpContentToggle',
+
+  data () {
+    return {
+      view: ''
+    }
+  }
+}
+</script>

@@ -1,0 +1,23 @@
+{% extends procedure is not null ? '@DemosPlanCore/DemosPlanCore/procedure.html.twig' : '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('news-newsAdminList.js') }}
+{% endblock javascripts %}
+
+{% block component_part %}
+    {% if(procedure is not null ) %}
+        <h1>{{ "news.administrate"|trans }}</h1>
+        <p>{{ "explanation.news.administrate"|trans }}</p>
+    {% else %}
+        <h1>{{ "globalnews.administrate"|trans }}</h1>
+    {% endif %}
+
+    <form class="cf" name="itemsForm">
+        <dp-news-admin-list
+            procedure-id="{{ procedure|default }}"
+            :init-list="JSON.parse('{{ templateVars.list.newslist|default([])|json_encode|e('js', 'utf-8') }}')">
+        </dp-news-admin-list>
+    </form>
+
+{% endblock component_part %}

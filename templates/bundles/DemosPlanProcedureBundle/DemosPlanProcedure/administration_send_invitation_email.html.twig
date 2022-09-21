@@ -1,0 +1,38 @@
+{% block body_plain %}
+
+
+---------
+
+Hinweise:
+
+Zur Teilnahme melden Sie sich bitte auf der Seite von {{ templateVars.projectName }} an, das Verfahren
+finden Sie auf der Startseite.
+
+Die folgenden Institutionen werden in diesem Verfahren zum
+Zeitpunkt des Einladungsversands über {{ templateVars.projectName }} beteiligt:
+
+{% if templateVars.toebliste is defined %}
+    {% for toeb in templateVars.toebliste %}
+{{ toeb.nameLegal }}: {{ toeb.email2 }}
+    {% endfor %}
+{% endif %}
+
+Diese Einladung zur Beteiligung wurde verschickt von:
+
+{% set address = templateVars.organisation.address %}
+{% if templateVars.organisation.nameLegal is defined %}
+{{ templateVars.organisation.nameLegal }}
+{% endif %}
+{% if address.street is defined %}
+{{ address.street }}
+{% endif %}
+{% if address.postalcode is defined %}
+{{ address.postalcode }}
+{% endif %}
+{% if address.city is defined %}
+{{ address.city }}
+{% endif %}
+{% if address.email is defined %}
+{{ address.email }}
+{% endif %}
+{% endblock %}

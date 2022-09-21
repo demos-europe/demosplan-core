@@ -1,0 +1,23 @@
+{% block body_plain -%}
+
+{%- set numberOfdays = templateVars.exactlyDaysToGo -%}
+{%- set numberOfdraftStatements = templateVars.numberOfUnsubmittedDraftStatements -%}
+Hallo {{ templateVars.userFullName }},
+
+im Verfahren "{{ templateVars.procedureName|default('') }}" endet in {{ 'email.text.notification_for_unsubmitted_statement.end_days'|trans({ count: numberOfdays}) }} ({{ templateVars.endDate }}) eine Beteiligungsphase.
+Derzeit haben Sie dort {{ 'email.text.notification_for_unsubmitted_statement.statements'|trans({ count: numberOfdraftStatements })}}.
+
+Bitte melden Sie sich auf {{ templateVars.projectName }} an und reichen Sie die Stellungnahmen unter nachfolgendem Link ein.
+
+{{ templateVars.link }}
+
+Bitte beachten Sie, dass letzte Bearbeitungen und die Einreichung ggf. spätestens am Tag vor dem Ablauf der Frist möglich sind.
+
+Mit freundlichen Grüßen
+Ihr {{ templateVars.projectName }} Team
+
+-------------
+Wenn Sie diese Mail nicht bekommen möchten, deaktivieren Sie die E-Mail-Benachrichtigung unter "Meine Daten".
+Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

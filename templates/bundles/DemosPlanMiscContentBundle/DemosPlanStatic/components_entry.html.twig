@@ -1,0 +1,30 @@
+<table class="c-table u-mv">
+    <thead>
+        <tr>
+            <th>Komponente</th>
+            <th>Lizenz</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for component in components %}
+        <tr>
+            <td>
+                {% if component.website is defined and component.website|length > 0 %}
+                    <a
+                        class="o-link--external"
+                        target="_blank"
+                        rel="noopener"
+                        href="{{- component.website -}}">
+                        {{- component.package -}}
+                    </a>
+                {% else %}
+                    {{- component.package -}}
+                {% endif %}
+            </td>
+            <td>
+                {{ component.license }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
+
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+
+/**
+ * @template-extends DplanResourceType<Survey>
+ *
+ * @property-read End                    $description
+ * @property-read End                    $endDate
+ * @property-read End                    $startDate
+ * @property-read End                    $status
+ * @property-read End                    $title
+ * @property-read ProcedureResourceType  $procedure
+ * @property-read SurveyVoteResourceType $votes
+ */
+final class SurveyResourceType extends DplanResourceType
+{
+    public static function getName(): string
+    {
+        return 'Survey';
+    }
+
+    public function getEntityClass(): string
+    {
+        return Survey::class;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('area_survey');
+    }
+
+    public function isReferencable(): bool
+    {
+        return true;
+    }
+
+    public function isDirectlyAccessible(): bool
+    {
+        return false;
+    }
+
+    public function getAccessCondition(): FunctionInterface
+    {
+        return $this->conditionFactory->true();
+    }
+
+    protected function getProperties(): array
+    {
+        return [
+            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->description)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->endDate)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->startDate)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->status)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->title)->readable(true)->sortable()->filterable(),
+            $this->createToOneRelationship($this->procedure)->readable()->sortable()->filterable(),
+            $this->createToManyRelationship($this->votes)->readable()->sortable()->filterable(),
+        ];
+    }
+}

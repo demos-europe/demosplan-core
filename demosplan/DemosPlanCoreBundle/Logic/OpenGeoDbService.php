@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Logic;
+
+use demosplan\DemosPlanCoreBundle\Entity\OpenGeoDbShortTable;
+use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
+
+class OpenGeoDbService extends CoreService
+{
+    /**
+     * @var OpenGeoDbRepository
+     */
+    private $openGeoDbRepository;
+
+    public function __construct(OpenGeoDbRepository $openGeoDbRepository)
+    {
+        $this->openGeoDbRepository = $openGeoDbRepository;
+    }
+
+    /**
+     * @return OpenGeoDbShortTable[]
+     */
+    public function getAll()
+    {
+        return $this->openGeoDbRepository->findAll();
+    }
+}

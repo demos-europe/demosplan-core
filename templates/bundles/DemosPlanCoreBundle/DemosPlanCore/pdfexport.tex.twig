@@ -1,0 +1,59 @@
+{# Sollen interne oder öffentliche Daten wie der öffentliche Verfahrensname genutzt werden? #}
+{% set scope = scope|default('internal') %}
+{% autoescape false %}
+{% set title = pageTitle(title|default()) %}
+{% block latex_definitions %}
+{% if pdfLandscape is defined and pdfLandscape == true %}
+\documentclass[11pt, parskip=full, landscape]{{ '{' }}scrartcl{{ '}' }}
+{% else %}
+\documentclass[11pt, parskip=full]{{ '{' }}scrartcl{{ '}' }}
+{% endif %}
+\usepackage[T1]{{ '{' }}fontenc{{ '}' }}
+\usepackage[utf8]{{ '{' }}inputenc{{ '}' }}
+\usepackage[ddmmyyyy]{{ '{' }}datetime{{ '}' }}
+\usepackage[ngerman]{{ '{' }}babel{{ '}' }}
+\usepackage{{ '{' }}helvet{{ '}' }}
+\usepackage{{ '{' }}float{{ '}' }}
+\usepackage{{ '{' }}xcolor{{ '}' }}
+\usepackage{{ '{' }}parallel{{ '}' }}
+\usepackage{{ '{' }}graphicx{{ '}' }}
+\usepackage{{ '{' }}caption{{ '}' }}
+\usepackage{{ '{' }}fancyhdr{{ '}' }}
+\usepackage{{ '{' }}longtable{{ '}' }}
+\usepackage{{ '{' }}tabularx{{ '}' }}
+\usepackage{{ '{' }}enumitem{{ '}' }}
+\usepackage{{ '{' }}textcomp{{ '}' }}
+\usepackage{{ '{' }}pifont{{ '}' }}
+\usepackage{{ '{' }}titlesec{{ '}' }}
+\PassOptionsToPackage{{ '{' }}hyphens{{ '}' }}{{ '{' }}url{{ '}' }}\usepackage[hidelinks]{{ '{' }}hyperref{{ '}' }}
+\usepackage{{ '{' }}breakurl{{ '}' }}
+\DeclareUnicodeCharacter{00A0}{ }
+\DeclareUnicodeCharacter{00AD}{ }{# Unicode Char Soft Hyphen #}
+\usepackage[a4paper,inner=15mm,outer=15mm,top=20mm,bottom=10mm,includefoot]{{ '{' }}geometry{{ '}' }}
+\usepackage[normalem]{{ '{' }}ulem{{ '}' }}
+\addtokomafont{{ '{' }}descriptionlabel{{ '}' }}{{ '{' }}\normalfont{{ '}' }}
+\renewcommand{{ '{' }}\familydefault{{ '}' }}{{ '{' }}\sfdefault{{ '}' }}
+\definecolor{{ '{' }}DPlightgrey}{HTML{{ '}' }}{d3d3d3{{ '}' }}
+\color{{ '{' }}black{{ '}' }}
+\linespread{{ '{' }}1.2{{ '}' }}
+\pagestyle{{ '{' }}fancy{{ '}' }}
+\sloppy{# Verhindere Worte, die über den Rand hinausgehen #}
+{% endblock %}
+{% if(scope == 'internal')  %}
+	{% set procedureName = procedure.name|default()%}
+{% else %}
+	{% set procedureName = procedure.externalName|default() %}
+{% endif %}
+{# set smaller fontsize in header #}
+\fancyhead[LO,LE]{{ '{' }}\fontsize{9}{11}\selectfont {% if procedure.orgaName is defined %}{{ procedure.orgaName|default|latex|raw }} - {% endif %}{{ procedureName|latex|raw }}\\
+{% if templateVars.globalOrganisationName is defined %}{{ "invitable_institution"|trans|latex|raw}}:  {{ templateVars.globalOrganisationName|latex|raw }}\\{% endif %}
+Ausgedruckt am \today, \currenttime{{ '}' }}
+\renewcommand\headrule
+{{ '{{' }}\color{DPlightgrey{{ '}' }}
+		\hrule height 2pt{{ '}}' }}
+% Textkörper
+\begin{{ '{' }}document{{ '}' }}
+{% block demosplanbundlecontent %}
+{% endblock %}
+\end{{ '{' }}document{{ '}' }}
+{% endautoescape %}

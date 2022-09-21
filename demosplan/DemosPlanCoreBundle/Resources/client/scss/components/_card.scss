@@ -1,0 +1,43 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Used to display an item in a list
+
+.c-card {
+    &:first-of-type {
+        border-top: none;
+    }
+
+    &:last-of-type {
+        border-bottom: 1px solid $dp-color-neutral-light-2;
+    }
+
+    background: $dp-color-white !important;
+    border-top: 1px solid $dp-color-neutral-light-2;
+    padding-top: 18px;
+    padding-right: 13px;
+    padding-bottom: 18px;
+    width: 99%;
+    margin: auto;
+
+    &:hover {
+        background: $dp-color-neutral-light-4 !important;
+    }
+
+    &.is-expanded {
+        border-left: 2px solid $dp-color-neutral-base;
+        width: 100%;
+        margin: 8px 0;
+        box-shadow: $dp-token-box-shadow-1;
+
+        + li {
+            border-top: none;
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{% apply spaceless %}
+    <div class="cardbox-half">
+        <div class="card__item position--relative">
+            {% if permissions.vote_online is defined and permissions.vote_online == true %}
+                <aside class="border--bottom u-mb">
+                    Punkte
+                    <select id="js__rate-{{ userStory.ident|default() }}" name="r_onlineVotes[{{ userStory.ident|default() }}]">
+                        {% for vote in 0..limitForVotes %}
+                            <option value="{{ vote }}" {% if userStory.ownVotes|default() == vote %} selected="selected"{% endif %}>{{ vote }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="rateit" data-rateit-backingfld="#js__rate-{{ userStory.ident|default() }}" data-rateit-icon="true"></div>
+                </aside>
+            {% endif %}
+            <h2>
+                {{ userStory.title|default() }}
+            </h2>
+            <hr>
+            {% if userStory.numberOfEntries != '' %}
+                <i class="fa fa-comments"></i>
+                {{ userStory.numberOfEntries }}
+            {% endif %}
+            {% if userStory.numVotes != '' %}
+                <i class="fa fa-circle u-ml-"></i>
+                {{ userStory.numVotes }}
+            {% endif %}
+            {% if hasPermission('feature_forum_dev_story_edit') and permissions.vote_offline is defined and permissions.vote_offline == true %}
+                <label class="display--inline">
+                    <input class="layout__item u-1-of-10" type="text" name="r_offlineVotes[{{ userStory.ident|default() }}]"
+                           value="{{ userStory.offlineVotes|default() }}">
+                    Punkte vor Ort
+                </label>
+            {% endif %}
+            <a class="float--right" href="{{ route }}">
+                Details
+            </a>
+        </div>
+    </div>
+{% endapply %}

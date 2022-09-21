@@ -1,0 +1,33 @@
+% Tabellenkopf
+    \begin{longtable}{|p{3cm}|p{13cm}|}
+        \hline
+            % Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
+            {{ "id"|trans|latex|raw }}: &  {{ fragment.displayId }} ({{ fragment.statement.externId }})\\
+        \hline
+        {% if procedure is iterable %}
+            {{ "procedure"|trans|latex|raw }}: & {{ procedure[fragment.id].name|latex|raw }}\\
+        {% else %}
+            {{ "procedure"|trans|latex|raw }}: & {{ procedure.name|latex|raw }}\\
+        {% endif %}
+        \hline
+            {{ "tags"|trans|latex|raw }}: & {{ fragment.tagNames|default([])|join(', ')|latex|raw }}\\
+        \hline
+            {{ "counties"|trans|latex|raw }}: & {{ fragment.countyNames|default([])|join(', ')|latex|raw }}\\
+        \hline
+            {{ "municipalities"|trans|latex|raw }}: & {{ fragment.municipalityNames|default([])|join(', ')|latex|raw }}\\
+        \hline
+            {{ "priorityAreas"|trans|latex|raw }}: & {{ fragment.priorityAreaKeys|default([])|join(', ')|latex|raw }}\\
+        \hline
+            {{ "document"|trans|latex|raw }}: & {{ fragment.elementTitle|default|latex|raw }}\\
+        \hline
+            {{ "paragraph"|trans|latex|raw }}: & {{ fragment.paragraphTitle|default|latex|raw }}\\
+        \hline
+    \end{longtable}
+\begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}8cm{{ '}' }}{{ '{' }}8cm{{ '}' }}
+\ParallelLText{{ '{' }}\textbf{{ '{' }}{{ 'fragment'|trans }}{{ '}' }}\\
+{{ fragment.text|dpObscure|latex|raw }}{{ '}' }}\\
+\ParallelRText{{ '{' }}\textbf{{ '{' }}{{ 'fragment.vote.considertaion'|trans }} {{ '}' }}\\
+{# fragment.voteAdvice contains a translation string! #}
+{% if fragment.voteAdvice|length > 0 %}{{ fragment.voteAdvice|trans|latex|raw }}\\{% endif %}
+{% if fragment.considerationAdvice|length > 0 %}{{ fragment.considerationAdvice|dpObscure|latex|raw }}\\{% endif %}{{ '}' }}
+\end{Parallel}

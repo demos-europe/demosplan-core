@@ -1,0 +1,47 @@
+{#
+    fileupload form field
+
+    requires:
+        DpUploadFiles.vue and var uploadPath (uploader endpoint set in base.html.twig)
+    params:
+        field_name:         used for ids + fieldname    default: "r_file"
+        field_label:        label for upload field      default: "pdf.document"|trans, set to "hide" to hide label
+        chunksize: set chunk size when uploading large files, defaults to "0" (disable chunked uploads)
+        type:      sets mime_types             possible values: pdf (default), pdf-img, pdf-zip, img, import, all, zip, antragx,
+        label:     button label                default: "form.button.upload.pdf"|trans({ maxUploadSize: human_max_upload_size })
+        maxfiles   limit max uploadable files  default: 1
+                            linked to multi_selection   default: not set, will be set to true if maxfiles > 1
+        maxfilesize: Max file size if other than `ini_get('upload_max_filesize')`
+        multi_instance      use for multiple instances  default: false
+                            of uploader in one form
+        field_hint:         additional hint below label default: false
+        field_required:     is this field required to fill out (needed for frontend validation)
+        callback:           function to execute in FileUploaded
+
+#}
+
+    {%  set omitPrefix = omit_css_class_prefix ?? true %}
+
+    {% if field_label != "hide" %}
+        <label class="{{ 'u-mb-0 cf'|prefixClass(omitPrefix) }}" for="{{ element_id }}">
+            {% autoescape false %}
+                <span class="{{ 'display--block'|prefixClass(omitPrefix) }}">{{ field_label|default('pdf.document')|trans }}</span>
+            {% endautoescape %}
+            {% if field_hint|default != "" %}
+                <span class="{{ 'lbl__hint display--block'|prefixClass(omitPrefix) }}">{{ field_hint|trans }}</span>
+            {% endif %}
+        </label>
+    {% endif %}
+
+    <dp-upload-files
+        id="{{ element_id }}"
+        :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
+        :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
+        :chunk-size="{{ chunksize|default('Infinity') }}"
+        name="{{ field_name|default }}"
+        :max-file-size="{{ maxfilesize }}"
+        :max-number-of-files="{{ maxfiles|default(1) }}"
+        needs-hidden-input
+        :required="{{ field_required ? 'true' : 'false' }}"
+        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }"
+    ></dp-upload-files>

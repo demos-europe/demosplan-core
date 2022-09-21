@@ -1,0 +1,186 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div
+    data-dp-validate="signLanguageVideo"
+    class="space-stack-s">
+    <template v-if="video.id">
+      <div class="flex space-inline-m">
+        <dp-video-player
+          class="box-shadow-1 height-fit-content width-300"
+          :sources="videoSources"
+          :id="`file${video.file}`"
+          icon-url="/img/plyr.svg" />
+
+        <dl class="description-list">
+          <dt>{{ Translator.trans('title') }}</dt>
+          <dd>{{ video.title }}</dd>
+          <dt>{{ Translator.trans('video.description') }}</dt>
+          <dd>{{ video.description }}</dd>
+        </dl>
+      </div>
+
+      <dp-button
+        :busy="isBusy"
+        color="warning"
+        :text="Translator.trans('delete')"
+        variant="outline"
+        @click="deleteVideo" />
+    </template>
+
+    <template v-else>
+      <dp-input
+        id="videoTitle"
+        v-model="video.title"
+        data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoDescription!==''"
+        :label="{
+          text: Translator.trans('title')
+        }"
+        name="videoTitle"
+        required />
+
+      <dp-upload-files
+        :allowed-file-types="['video/*']"
+        id="videoSrc"
+        :max-file-size="400 * 1024 * 1024/* 400 MiB */"
+        :max-number-of-files="1"
+        name="videoSrc"
+        needs-hidden-input
+        required
+        data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
+        @file-remove="unsetVideoSrcId"
+        @upload-success="setVideoSrcId" />
+
+      <dp-text-area
+        id="videoDescription"
+        :label="Translator.trans('video.description')"
+        name="videoDescription"
+        required
+        data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoTitle!==''"
+        v-model="video.description"
+        reduced-height />
+
+      <dp-button
+        :busy="isBusy"
+        :disabled="hasNoVideoInput"
+        :text="Translator.trans('save')"
+        variant="outline"
+        @click="dpValidateAction('signLanguageVideo', createVideo, false)" />
+    </template>
+  </div>
+</template>
+
+<script>
+import { DpButton, DpInput } from 'demosplan-ui/components'
+import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+import { getFileIdsByHash } from '@DemosPlanCoreBundle/components/DpUpload/utils/GetFileIdsByHash'
+
+export default {
+  name: 'CustomerSettingsSignLanguageVideo',
+
+  components: {
+    DpButton,
+    DpInput,
+    DpTextArea,
+    DpUploadFiles,
+    DpVideoPlayer: () => import('@DemosPlanCoreBundle/components/DpVideoPlayer')
+  },
+
+  mixins: [dpValidateMixin],
+
+  props: {
+    signLanguageOverviewVideo: {
+      required: false,
+      type: Object,
+      default: () => {
+        return {
+          description: '',
+          file: '',
+          id: null,
+          mimetype: '',
+          title: ''
+        }
+      }
+    }
+  },
+
+  data () {
+    return {
+      isBusy: false,
+      video: this.signLanguageOverviewVideo
+    }
+  },
+
+  computed: {
+    hasNoVideoInput () {
+      return this.video.title === '' && this.video.file === '' && this.video.description === ''
+    },
+
+    videoSources () {
+      return [
+        {
+          src: Routing.generate('core_file', { hash: this.video.file }),
+          type: this.video.mimetype
+        }
+      ]
+    }
+  },
+
+  methods: {
+    createVideo () {
+      this.isBusy = true
+      this.saveVideo()
+        .then(() => this.$emit('created'))
+    },
+
+    deleteVideo () {
+      if (dpconfirm(Translator.trans('check.item.delete')) === false) {
+        return
+      }
+      this.isBusy = true
+      dpApi.delete(Routing.generate('api_resource_delete', { resourceType: 'SignLanguageOverviewVideo', resourceId: this.video.id }))
+        .then(() => this.$emit('deleted'))
+    },
+
+    async saveVideo () {
+      const fileIds = await getFileIdsByHash([this.video.file])
+
+      const payload = {
+        type: 'SignLanguageOverviewVideo',
+        attributes: {
+          description: this.video.description,
+          title: this.video.title
+        },
+        relationships: {
+          file: {
+            data: {
+              type: 'File',
+              id: fileIds[0]
+            }
+          }
+        }
+      }
+      return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SignLanguageOverviewVideo' }), {}, { data: payload })
+    },
+
+    setVideoSrcId (payload) {
+      this.video.file = payload.hash
+    },
+
+    unsetVideoSrcId () {
+      this.video.file = ''
+    }
+  }
+}
+</script>

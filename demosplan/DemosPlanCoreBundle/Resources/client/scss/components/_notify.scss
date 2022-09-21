@@ -1,0 +1,103 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Used for displaying site-wide notifications.
+///
+/// See https://uxdesign.cc/ux-for-notifications-the-good-the-bad-and-the-ugly-874e07b9d927
+///
+/// @group components
+///
+/// @name .c-notify
+
+//  container
+.c-notify {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: $z-super;
+    margin: 0 $inuit-base-spacing-unit--small;
+
+    &__message {
+        position: relative;
+
+        margin: 1.5 * $inuit-base-spacing-unit--small 0 $inuit-base-spacing-unit--small;
+        padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .8;
+        width: 30em;
+
+        box-shadow: $dp-token-box-shadow-2;
+
+        @include media-query('palm') {
+            width: 100%;
+        }
+
+        &--info {
+            background-color: $msg-info-bg-color;
+            color: $msg-info-color;
+        }
+
+        &--confirm {
+            background-color: $msg-confirm-bg-color;
+            color: $msg-confirm-color;
+        }
+
+        &--warning {
+            background-color: $msg-warning-bg-color;
+            color: $msg-warning-color;
+        }
+
+        &--error {
+            background-color: $msg-error-bg-color;
+            color: $msg-error-color;
+        }
+
+        &--dev {
+            background-color: $msg-dev-bg-color;
+            color: $msg-dev-color;
+        }
+    }
+
+    &__closer {
+        position: absolute;
+        right: .25em;
+        top: .25em;
+    }
+
+    &__link {
+        display: block;
+
+        color: $msg-color;
+
+        text-decoration: underline;
+
+        &:hover {
+            color: $msg-color;
+        }
+    }
+}
+
+.transition-slide-up {
+    &-enter,
+    &-leave-to {
+        height: 0;
+
+        box-shadow: none;
+        opacity: 0;
+        transition-duration: 1s;
+        transition-property: height, opacity;
+    }
+
+
+    &-enter-to,
+    &-leave {
+        height: 100%;
+
+        transition-duration: .5s;
+        transition-property: height, opacity;
+    }
+}

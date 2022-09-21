@@ -1,0 +1,50 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+
+{% block component_part %}
+    <h1>
+        {{ "user.administrate"|trans }}
+    </h1>
+
+    <p class="font-size-small">
+        {{ "text.user.administrate"|trans }}
+    </p>
+
+    {% if hasPermission('feature_user_add') %}
+        <p class="font-size-small">
+            *{{ "explanation.user.email.confirm"|trans }}
+        </p>
+    {% endif %}
+
+    <div
+        data-cy="addNewUser"
+        class="hard--top hard--sides u-mb u-pb-0">
+
+        {% if hasPermission('feature_user_add') %}
+            <dp-create-item
+                entity="user"
+                item-title="user.add.new"
+                preset-user-orga-id="{{ currentUser.orga.id }}"
+                project-name="{{ projectName }}">
+            </dp-create-item>
+        {% endif %}
+    </div>
+
+    <form class="push--top" id="userlist" action="{{ path('DemosPlan_user_admin') }}" method="post" novalidate>
+        {% if hasPermission('feature_user_edit') %}
+            <dp-user-list
+                preset-user-orga-id="{{ currentUser.orga.id }}"
+                project-name="{{ projectName }}">
+            </dp-user-list>
+        {% endif %}
+        {% if hasPermission('feature_user_edit') == false and hasPermission('feature_user_delete') %}
+            <dp-user-list-extended class="u-mb-2">
+            </dp-user-list-extended>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('user-listUser.js')}}
+{% endblock javascripts %}

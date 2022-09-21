@@ -1,0 +1,116 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Splitbutton / Button with Dropdown - currently a mix of twig & vue markup (dp-splitbutton).
+///
+/// @group components
+///
+/// @name .c-splitbutton
+///
+/// This pattern needs further refinement: https://www.nngroup.com/articles/split-buttons/
+
+//  component container
+.c-splitbutton {
+    position: relative;
+
+    display: inline-block;
+    margin-bottom: $inuit-base-spacing-unit;
+
+    // When the whole splitbutton is implemented as a twig component, this can be removed.
+    > button.has-dropdown:not(.c-splitbutton__trigger),
+    > a.has-dropdown {
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    &__trigger {
+        @extend %btn-base;
+        @include keyboard-focus;
+
+        @include button-color(
+            $dp-button-color,
+            $dp-button-bg-color,
+            $dp-button-color-hover,
+            $dp-button-bg-color-hover,
+            $dp-button-bg-color-active
+        );
+
+        @if ($dp-use-system-ui == true) {
+            // To fix the visual effect of having button texts appear a little bit below visual center
+            // (which is caused by a flaw with half leading distribution in Segoe UI typeface) the upper padding
+            // is reduced a little bit. Also see https://yaits.demos-deutschland.de/T19691
+            padding:
+                $dp-form-element-spacing-vertical - 1px
+                $dp-button-spacing-horizontal
+                $dp-form-element-spacing-vertical + 1px;
+        } @else {
+            // Assume that half leading is distributed well on non-system fonts...
+            padding: $dp-form-element-spacing-vertical $dp-button-spacing-horizontal;
+        }
+
+        border: 1px solid;
+        border-left-color: $dp-color-white !important;
+        border-bottom-right-radius: $dp-button-radius;
+        border-top-right-radius: $dp-button-radius;
+
+        font-size: $dp-button-font-size;
+        line-height: $dp-button-font-size;
+
+        &.is-open,
+        &.is-open:focus {
+            background-color: $dp-button-bg-color-hover;
+            color: $dp-button-color-hover;
+        }
+    }
+
+
+    &__trigger-icon {
+        margin-top: -1px;
+        vertical-align: middle;
+
+        font-size: 1.5em;
+        line-height: 0;
+    }
+
+
+    &__dropdown {
+        left: 0;
+        position: absolute;
+        top: 100%;
+        z-index: -1;
+
+        display: none;
+        min-width: 100%;
+        padding-bottom: $inuit-base-spacing-unit--tiny;
+
+        background-color: $dp-color-white;
+        box-shadow: $dp-token-box-shadow-1;
+
+        &.is-open {
+            display: block;
+            z-index: $z-fixed;
+        }
+
+        // make these o-btn--link
+        & a,
+        & button {
+            display: block;
+            padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit $inuit-base-spacing-unit--tiny;
+            line-height: 1.4;
+            transition: none;
+            text-align: left;
+
+            &:focus,
+            &:hover,
+            &.is-active {
+                color: $dp-token-color-brand-highlight;
+            }
+        }
+    }
+}

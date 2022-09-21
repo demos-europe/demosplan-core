@@ -1,0 +1,38 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+//  Styles for DpEditField.vue
+.c-edit-field {
+    position: relative;
+
+    &__trigger {
+        position: absolute;
+        right: 0;
+        top: -2px;
+
+        display: none;
+
+        transition: color .5s ease;
+
+        .c-edit-field:hover &,
+        .c-edit-field.is-editing & {
+            display: block;
+        }
+    }
+
+    //  This block is only used in DpEditField.vue to position elements
+    //  so that non-edit / edit modes blend into each other nicely. It is not used with tiptap editor.
+    &__editing {
+        margin-left: -8px;
+        margin-top: math.div(-$inuit-base-spacing-unit--tiny, 2) - 1; // minus one for the border
+        padding-right: 30px; // space for the edit and reset icon
+    }
+}

@@ -1,0 +1,49 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:color';
+@use 'sass:math';
+
+// Webcards hälftig
+.cardbox-half {
+    @extend .layout__item;
+    @extend .u-1-of-2;
+    padding-left: $inuit-base-spacing-unit--small;
+}
+
+.cardbox-half:nth-of-type(2n+1) {
+    margin-left: -$inuit-base-spacing-unit--small;
+    margin-right: $inuit-base-spacing-unit--small;
+}
+
+.cardbox-half:nth-of-type(2n+2) {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+// Einzelne Webcards
+.card__item {
+    @extend .cf;
+    margin-bottom: $inuit-base-spacing-unit;
+    padding: $inuit-base-spacing-unit--small;
+
+    border: 1px solid $default-border-color;
+    border-radius: $dp-box-radius;
+}
+
+.js .card__item:hover {
+    background-color: color.adjust($dp-color-main, $lightness: 35%);
+
+    animation: background-default-brand 1s;
+}
+
+@keyframes background-default-brand {
+    0% { background-color: $box-bg-color; }
+    100% { background-color: color.adjust($dp-color-main, $lightness: 35%); }
+}

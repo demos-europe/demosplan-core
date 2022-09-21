@@ -1,0 +1,76 @@
+{% import "@DemosPlanCore/macros.html.twig" as partial %}
+
+<!DOCTYPE html>
+<html lang="de" class="nojs">
+<head>
+    <meta charset="utf-8">
+
+    {% block base_favicons %}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_favicons.html.twig' %}
+    {% endblock %}
+
+    <meta name="keywords" content="">
+    <meta name="author" content="DEMOS">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0">
+
+    {% block meta_head %}
+    {% endblock %}
+
+    {# Styles. Leave in header until critical css is in place. #}
+    {{ webpackBundle('css.css') }}
+
+    <title>{{ pageTitle('404.title') }}</title>
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' %}
+</head>
+
+
+<body class="{% block base_body_classes %}{% endblock base_body_classes %}">
+
+
+{% block a11y_jump_navigation %}
+    {# @improve T17928 investigate focus vs. visibility  #}
+    <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
+        <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
+        <ul class="u-m-0 u-p-0">
+            <li class="list-style--none">
+                <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
+            </li>
+            <li class="list-style--none">
+                <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
+            </li>
+            {% block a11y_jump_markers %}{% endblock a11y_jump_markers %}
+        </ul>
+    </nav>
+{% endblock a11y_jump_navigation %}
+
+<div id="app" class="{{ 'o-page__wrapper'|prefixClass}}">
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_header.html.twig' %}
+
+    {# Main content #}
+    <main id="mainContent" class="{{ 'o-page__main layout u-ph-0_5'|prefixClass }}">
+        {% block maincontent_section %}
+            <div class="{{ 'layout__item'|prefixClass }}">
+                <h1 class="{{ 'u-mt-1_5'|prefixClass }}">{{ "error.404.title"|trans }}</h1>
+
+                <p>
+                    {{ "error.404"|trans({ path: currentPage })|wysiwyg }}
+                </p>
+
+                <p>
+                    {{ "error.404.action"|trans({ homepage: path('core_home') })|wysiwyg }}
+                </p>
+            </div>
+        {% endblock maincontent_section %}
+    </main>
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_footer.html.twig' %}
+</div>{# end #app #}
+
+{# Matomo tracking code #}
+{% include '@DemosPlanCore/DemosPlanCore/includes/piwik.html.twig' %}
+
+</body>
+</html>
+

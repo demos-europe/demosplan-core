@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// @improve T14353 rename to .o-toggle
+.toggle {
+    $dp-toggle-box-shadow-color: rgb(0 0 0 / 10%);
+
+    &-wrapper {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        height: 1.1rem;
+        width: 2.1rem;
+        // To maintain a consistent width also in flex contexts, the shorthand property `flex`
+        // is used. See https://css-tricks.com/making-width-and-flexible-items-play-nice-together/
+        flex: 0 0 2.1rem;
+        border-radius: 9999px;
+        font-size: 0;
+
+        &:focus {
+            outline: 0;
+        }
+    }
+
+    &-background {
+        display: inline-block;
+        border-radius: 9999px;
+        height: 100%;
+        width: 100%;
+        box-shadow: inset 0 2px 4px $dp-toggle-box-shadow-color;
+        transition: background-color .1s ease;
+    }
+
+    &-indicator {
+        position: absolute;
+        top: .05rem;
+        left: .05rem;
+        height: 1rem;
+        width: 1rem;
+        background-color: $dp-color-white;
+        border-radius: 9999px;
+        box-shadow: 0 2px 4px $dp-toggle-box-shadow-color;
+        transition: transform .1s ease;
+    }
+
+    &-disabled {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(255 255 255 / 40%);
+        z-index: 1001;
+        cursor: not-allowed;
+    }
+}

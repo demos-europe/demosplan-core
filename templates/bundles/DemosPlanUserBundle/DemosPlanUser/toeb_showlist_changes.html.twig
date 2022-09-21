@@ -1,0 +1,51 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+{% block component_part %}
+    <h1>{{ "invitable_institution.list.change"|trans }}</h1>
+    <table class="c-table">
+        <colgroup>
+            <col class=t10>
+            <col>
+            <col class=t20>
+            <col class=t15>
+            <col>
+        </colgroup>
+        <thead>
+            <tr>
+                <th>{{ "date"|trans }}</th>
+                <th>{{ "organisation"|trans }}</th>
+                <th>{{ "user"|trans }}</th>
+                <th>{{ "visibility.changedTo"|trans }}</th>
+                <th>{{ "reason"|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if templateVars.reportEntries is defined %}
+            {% for report in templateVars.reportEntries %}
+                {% set submittedData = report.incomingDecoded(true).data|default([]) %}
+                <tr>
+                    <td>{{ report.createDate|default()|dplanDate('d.m.Y H:i:s') }}</td>
+                    <td>
+                        <a href="{{ path('DemosPlan_orga_list') ~ '#' ~ report.identifier|default }}">
+                            {% if submittedData.name is defined %}
+                                {{ submittedData.name }}
+                            {# field was called shortName once. Kept so that old report entries could be shown  #}
+                            {% elseif submittedData.shortName is defined%}
+                                {{ submittedData.shortName }}
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td>{{ report.userName }}</td>
+                    <td>{{ submittedData.showlist|default() ? "visible"|trans : "visible.not"|trans }}</td>
+                    {# Use replace|wysiwyg instead of json_decode|nl2br to avoid BC break with ancient data #}
+                    <td>{{ report.message|json_decode|nl2br ? report.message|json_decode|nl2br : report.message|replace({'\\n': '<br/>'})|wysiwyg }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+    <hr class="u-mt-0">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock %}

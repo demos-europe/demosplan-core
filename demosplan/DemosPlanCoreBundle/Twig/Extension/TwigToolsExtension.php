@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
+
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection;
+use Twig\TwigFunction;
+
+/**
+ * Several Twig Helper functions.
+ */
+class TwigToolsExtension extends ExtensionBase
+{
+    /**
+     * @var array
+     */
+    protected $formOptions;
+
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    public function __construct(
+        ContainerInterface $container,
+        ParameterBagInterface $parameterBag,
+        TranslatorInterface $translator
+    ) {
+        parent::__construct($container);
+        $this->formOptions = $parameterBag->get('form_options');
+        $this->translator = $translator;
+    }
+
+    /**
+     * @return array|TwigFunction[]
+     */
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('getFormOption', [$this, 'getFormOption']),
+            new TwigFunction('arraysHasSameValues', [$this, 'arraysHasSameValues']),
+
+            new TwigFunction('setStaticVariable', [$this, 'setStaticVariable']),
+            new TwigFunction('getStaticVariable', [$this, 'getStaticVariable']),
+        ];
+    }
+
+    /**
+     * Get a key from the form options.
+     *
+     * Works with subkeys in the Twig-typical dot-notation
+     *
+     * @param string $key
+     * @param bool   $translate     Translate option values
+     * @param string $sortDirection
+     *
+     * @return mixed
+     */
+    public function getFormOption($key = null, $translate = false, $sortDirection = 'ASC')
+    {
+        $options = data_get($this->formOptions, $key, null);
+
+        if (null === $options) {
+            return null;
+        }
+
+        $options = collect($options);
+
+        if ($translate) {
+            $options = $this->translateValuesOfMultiDimensionalCollection($options);
+        }
+
+        if ('asc' === strtolower($sortDirection)) {
+            $options = $options->sort(
+                function ($val1, $val2) {
+                    return strcasecmp($val1, $val2);
+                }
+            );
+        }
+
+        return $options->toArray();
+    }
+
+    /**
+     * @return Collection
+     */
+    protected function translateValuesOfMultiDimensionalCollection(Collection $collection)
+    {
+        return $collection->map(
+            function ($value) {
+                if ($value instanceof Collection || is_array($value)) {
+                    //we need to go deeper:
+                    $collection2 = collect($value);
+
+                    return $this->translateValuesOfMultiDimensionalCollection($collection2);
+                }
+                if (is_string($value)) {
+                    return $this->translator->trans($value);
+                }
+                //default: just return the value
+                return $value;
+            }
+        );
+    }
+
+    /**
+     * Setter for a dynamic variable.
+     *
+     * @param mixed $value
+     */
+    public function setStaticVariable(string $key, $value): void
+    {
+        $this->$key = $value;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getStaticVariable(string $key)
+    {
+        if (property_exists($this, $key)) {
+            return $this->$key;
+        }
+
+        return null;
+    }
+
+    public function arraysHasSameValues(array $array1 = [], array $array2 = []): bool
+    {
+        $arrayDiff = array_diff($array1, $array2);
+
+        return [] === $arrayDiff && count($array1) === count($array2);
+    }
+}

@@ -1,0 +1,416 @@
+\documentclass[9pt, parskip=full]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ddmmyyyy]{datetime}
+\usepackage[ngerman]{babel}
+\usepackage{helvet}
+\usepackage{xcolor}
+\usepackage{parallel}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{ }
+\usepackage[a4paper,inner=15mm,outer=15mm,top=20mm,bottom=10mm,includefoot]{geometry}
+\usepackage[normalem]{ulem}
+\addtokomafont{descriptionlabel}{\normalfont}
+\renewcommand{\familydefault}{\sfdefault}
+\definecolor{DPlightgrey}{HTML}{d3d3d3}
+\color{black}
+\linespread{1.3}
+\sloppy
+
+\begin{document}
+\begin{longtable}{|p{\textwidth}|}
+\hline
+\textbf{Abw{\"a}gungsbereich f{\"u}r die Windenergienutzung  \emph{ {{ templateVars.datasheet.key|latex }} } } \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.49\textwidth} p{0.49\textwidth}|}
+\hline
+    \begin{tabular}{p{0.25\textwidth} p{0.25\textwidth} }
+        \multicolumn{2}{l}{\textbf{Grundlagendaten Potenzialfl{\"a}che} } \\
+        \textbf{Kreis}: &  {{ templateVars.datasheet.countyName|latex }} \\
+        \textbf{Stadt/Gemeinde:} &  {{ templateVars.datasheet.municipalityName|latex }} \\
+        \textbf{Anzahl Teilgebiete:} & {{ templateVars.datasheet.partialAreaCount|latex }} \\
+        \textbf{Gr{\"o}{\ss}e (ha):} & {{ templateVars.datasheet.area|datasheet_number_format(1) }} \\
+        \multicolumn{2}{l}{\textbf{Realnutzung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.currentUse|latex|nl2texnl }} } \\
+        \multicolumn{2}{l}{\textbf{Vorbelastung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.handicap|latex|nl2texnl }} } \\
+        \multicolumn{2}{l}{\textbf{Sonstige Regionalplandarstellung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.additionalPlanningInformation|latex|nl2texnl }} } \\
+    \end{tabular}
+&
+    \begin{tabular}{p{0.25\textwidth} p{0.25\textwidth} }
+        \multicolumn{2}{l}{\textbf{Grundlagendaten Vorranggebiet} } \\
+        \textbf{Kreis:} & {{ templateVars.datasheet.paCountyName|latex }} \\
+        \textbf{Stadt/Gemeinde:} & {{ templateVars.datasheet.paMunicipalityName|latex }} \\
+        \textbf{Anzahl Teilgebiete:} & {{ templateVars.datasheet.paPartialAreaCount|latex }} \\
+        \textbf{Gr{\"o}{\ss}e (ha):} & {{ templateVars.datasheet.paArea|datasheet_number_format(1) }} \\ \\
+        \multicolumn{2}{l}{\textbf{Realnutzung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.paCurrentUse|latex|nl2texnl }} } \\
+        \multicolumn{2}{l}{\textbf{Vorbelastung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.paHandicap|latex|nl2texnl }} } \\
+        \multicolumn{2}{l}{\textbf{Sonstige Regionalplandarstellung:} } \\
+        \multicolumn{2}{p{8cm} }{ {{ templateVars.datasheet.paAdditionalPlanningInformation|latex|nl2texnl }} } \\
+    \end{tabular} \\
+\hline
+\end{longtable}
+\small{ {{ "priorityArea.datasheet.export_informative"|trans }} }
+\pagebreak
+
+\begin{longtable}{|p{\textwidth}|}
+\hline
+    \textbf{ {{ "priorityArea.datasheet.expertise_description"|trans }} } \\
+    \begin{tabular}{|p{0.95\textwidth}|}
+    \hline
+    {{ templateVars.datasheet.description|latex|nl2texnl }}\\
+    \hline
+    \end{tabular} \\
+    \textbf{ {{ "priorityArea.datasheet.assessment_decision"|trans }} }\\
+    \begin{tabular}{|p{0.585\textwidth}|l|}
+    \hline
+    {{ templateVars.datasheet.currentAssessment|latex|nl2texnl }}
+    &
+        \begin{tabular}{c|l}
+            {% if templateVars.datasheet.priorityAreaStatus == "accepted" %}X{% else %}O{% endif %} & {{ "priorityArea.datasheet.accepted"|trans }} \\
+            \hline
+            {% if templateVars.datasheet.priorityAreaStatus == "changed" %}X{% else %}O{% endif %} & {{ "priorityArea.datasheet.modified"|trans }} \\
+            \hline
+            {% if templateVars.datasheet.priorityAreaStatus == "denied" %}X{% else %}O{% endif %} & {{ "priorityArea.datasheet.rejected"|trans }} \\
+            \hline
+        \end{tabular} \\
+    \hline
+    \end{tabular} \\
+    \textbf{ {{ "priorityArea.datasheet.map_view"|trans }} } \\
+    \begin{tabular}{|p{0.95\textwidth}|}
+    \hline
+        \begin{center}
+        {% if templateVars.imgfile is defined %}
+        \includegraphics[width=17cm]{{ '{' }}{{ templateVars.imgfile }}{{ '}' }}
+        {% else %}
+        {{ "priorityArea.datasheet.map_view.map_missing"|trans }}
+        {% endif %}
+        \end{center} \\
+    \hline
+    \end{tabular} \\
+    \\
+\hline
+\end{longtable}
+
+\pagebreak
+    \textbf{ {{ "priorityArea.datasheet.category.assessmentInDetail"|trans }} }\\
+
+    \textbf{ {{ "priorityArea.datasheet.category.municipalityStructure"|trans }} }\\
+    \begin{longtable}{| p{1cm} | p{6cm} | p{2cm} | p{2cm}| p{2cm} | p{2cm}|}
+    \hline
+    Nr. & Kriterium & Konfliktrisiko & Betr. Fläche & Konflitrisiko & Betr. Fläche \\
+    \hline
+    \endhead
+
+    1.1
+    & {{ "priorityArea.datasheet.plannedMunicipalityDevelopment"|trans }}
+    & {{ templateVars.datasheet.plannedMunicipalityDevelopment.risk }}
+    & {{ templateVars.datasheet.plannedMunicipalityDevelopment.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paPlannedMunicipalityDevelopment.risk }}
+    & {{ templateVars.datasheet.paPlannedMunicipalityDevelopment.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    1.2
+    & {{ "priorityArea.datasheet.vicinityAreas"|trans }}
+    & {{ templateVars.datasheet.vicinityAreas.risk }}
+    & {{ templateVars.datasheet.vicinityAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paVicinityAreas.risk }}
+    & {{ templateVars.datasheet.paVicinityAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    1.3
+    & {{ "priorityArea.datasheet.surroundingEffect"|trans }}
+    & {{ templateVars.datasheet.surroundingEffect.risk }}
+    &
+    & {{ templateVars.datasheet.paSurroundingEffect.risk }}
+    &\\
+    \hline
+    \end{longtable} \\
+
+    \textbf{ {{ "priorityArea.datasheet.category.economicDevelopment"|trans }} }\\
+    \begin{longtable}{| p{1cm} | p{6cm} | p{2cm} | p{2cm}| p{2cm} | p{2cm}|}
+    \hline
+    Nr. & Kriterium & Konfliktrisiko & Betr. Fläche & Konflitrisiko & Betr. Fläche \\
+    \hline
+    \endhead
+
+    \textbf{2.1}
+    & \textbf{ {{ "priorityArea.datasheet.subcategory.traffic"|trans }} }
+    &&&&\\
+
+    2.1.1
+    & {{ "priorityArea.datasheet.VOR"|trans }}
+    & {{ templateVars.datasheet.VOR.risk }}
+    & {{ templateVars.datasheet.VOR.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paVOR.risk }}
+    & {{ templateVars.datasheet.paVOR.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.2
+    & {{ "priorityArea.datasheet.aerialTraffic"|trans }}
+    & {{ templateVars.datasheet.aerialTraffic.risk }}
+    & {{ templateVars.datasheet.aerialTraffic.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paAerialTraffic.risk }}
+    & {{ templateVars.datasheet.paAerialTraffic.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.3
+    & {{ "priorityArea.datasheet.obstacleBorderAreas"|trans }}
+    & {{ templateVars.datasheet.obstacleBorderAreas.risk }}
+    & {{ templateVars.datasheet.obstacleBorderAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paObstacleBorderAreas.risk }}
+    & {{ templateVars.datasheet.paObstacleBorderAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.4
+    & {{ "priorityArea.datasheet.militaryConcerns"|trans }}
+    & {{ templateVars.datasheet.militaryConcerns.risk }}
+    & {{ templateVars.datasheet.militaryConcerns.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paMilitaryConcerns.risk }}
+    & {{ templateVars.datasheet.paMilitaryConcerns.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.5
+    & {{ "priorityArea.datasheet.DWD"|trans }}
+    & {{ templateVars.datasheet.DWD.risk }}
+    & {{ templateVars.datasheet.DWD.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paDWD.risk }}
+    & {{ templateVars.datasheet.paDWD.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.6
+    & {{ "priorityArea.datasheet.surfacingResources"|trans }}
+    & {{ templateVars.datasheet.surfacingResources.risk }}
+    & {{ templateVars.datasheet.surfacingResources.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paSurfacingResources.risk }}
+    & {{ templateVars.datasheet.paSurfacingResources.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.1.7
+    & {{ "priorityArea.datasheet.netCapacity"|trans }}
+    & {{ templateVars.datasheet.netCapacity.risk }}
+    & {{ templateVars.datasheet.netCapacity.info|datasheet_number_format(1) }}
+    & {{ templateVars.datasheet.paNetCapacity.risk }}
+    & {{ templateVars.datasheet.paNetCapacity.info|datasheet_number_format(1) }} \\
+
+    \textbf{2.2}
+    & \textbf{ {{ "priorityArea.datasheet.subcategory.tourism"|trans }} }
+    &&&&\\
+
+    2.2.1
+    & {{ "priorityArea.datasheet.tourismAreas"|trans }}
+    & {{ templateVars.datasheet.tourismAreas.risk }}
+    & {{ templateVars.datasheet.tourismAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paTourismAreas.risk }}
+    & {{ templateVars.datasheet.paTourismAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.2.2
+    & {{ "priorityArea.datasheet.tourismCoreAreas"|trans }}
+    & {{ templateVars.datasheet.tourismCoreAreas.risk }}
+    & {{ templateVars.datasheet.tourismCoreAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paTourismCoreAreas.risk }}
+    & {{ templateVars.datasheet.paTourismCoreAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.2.3
+    & {{ "priorityArea.datasheet.naturalParks"|trans }}
+    & {{ templateVars.datasheet.naturalParks.risk }}
+    & {{ templateVars.datasheet.naturalParks.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paNaturalParks.risk }}
+    & {{ templateVars.datasheet.paNaturalParks.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    2.2.4
+    & {{ "priorityArea.datasheet.regionalGreenAreas"|trans }}
+    & {{ templateVars.datasheet.regionalGreenAreas.risk }}
+    & {{ templateVars.datasheet.regionalGreenAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paRegionalGreenAreas.risk }}
+    & {{ templateVars.datasheet.paRegionalGreenAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+    \hline
+    \end{longtable} \\
+
+    \textbf{ {{ "priorityArea.datasheet.category.wildlifeProtection"|trans }} }\\
+    \begin{longtable}{| p{1cm} | p{6cm} | p{2cm} | p{2cm}| p{2cm} | p{2cm}|}
+    \hline
+    Nr. & Kriterium & Konfliktrisiko & Betr. Fläche & Konflitrisiko & Betr. Fläche \\
+    \hline
+    \endhead
+
+    \textbf{3.1}
+    & \textbf{ {{ "priorityArea.datasheet.subcategory.floraAndFauna"|trans }} }
+    &&&&\\
+
+    3.1.1
+    & {{ "priorityArea.datasheet.wildlifeCrossing"|trans }}
+    & {{ templateVars.datasheet.wildlifeCrossing.risk }}
+    & {{ templateVars.datasheet.wildlifeCrossing.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paWildlifeCrossing.risk }}
+    & {{ templateVars.datasheet.paWildlifeCrossing.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.1.2
+    & {{ "priorityArea.datasheet.compensation"|trans }}
+    & {{ templateVars.datasheet.compensation.risk }}
+    & {{ templateVars.datasheet.compensation.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paCompensation.risk }}
+    & {{ templateVars.datasheet.paCompensation.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.1.3
+    & {{ "priorityArea.datasheet.jointBiotopes"|trans }}
+    & {{ templateVars.datasheet.jointBiotopes.risk }}
+    & {{ templateVars.datasheet.jointBiotopes.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paJointBiotopes.risk }}
+    & {{ templateVars.datasheet.paJointBiotopes.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.1.4
+    & {{ "priorityArea.datasheet.microBiotopes"|trans }}
+    & {{ templateVars.datasheet.microBiotopes.risk }}
+    & {{ templateVars.datasheet.microBiotopes.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paMicroBiotopes.risk }}
+    & {{ templateVars.datasheet.paMicroBiotopes.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    \textbf{3.2}
+    & \textbf{ {{ "priorityArea.datasheet.subcategory.europeeanEnvironmentalConcerns"|trans }} }
+    &&&&\\
+
+
+    3.2.1
+    & {{ "priorityArea.datasheet.ornithologicalProtectionAreas"|trans }}
+    & {{ templateVars.datasheet.ornithologicalProtectionArea.risk }}
+    & {{ templateVars.datasheet.ornithologicalProtectionArea.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paOrnithologicalProtectionArea.risk }}
+    & {{ templateVars.datasheet.paOrnithologicalProtectionArea.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.2.2
+    & {{ "priorityArea.datasheet.regionalBirdMigration"|trans }}
+    & {{ templateVars.datasheet.regionalBirdMigration.risk }}
+    & {{ templateVars.datasheet.regionalBirdMigration.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paRegionalBirdMigration.risk }}
+    & {{ templateVars.datasheet.paRegionalBirdMigration.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.2.3
+    & {{ "priorityArea.datasheet.affectionalAreaGreaterBirds"|trans }}
+    & {{ templateVars.datasheet.affectionalAreaGreaterBirds.risk }}
+    & {{ templateVars.datasheet.affectionalAreaGreaterBirds.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paAffectionalAreaGreaterBirds.risk }}
+    & {{ templateVars.datasheet.paAffectionalAreaGreaterBirds.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.2.4
+    & {{ "priorityArea.datasheet.grasslandBreeders"|trans }}
+    & {{ templateVars.datasheet.grasslandBreeders.risk }}
+    & {{ templateVars.datasheet.grasslandBreeders.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paGrasslandBreeders.risk }}
+    & {{ templateVars.datasheet.paGrasslandBreeders.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.2.5
+    & {{ "priorityArea.datasheet.redKite"|trans }}
+    & {{ templateVars.datasheet.redKite.risk }}
+    & {{ templateVars.datasheet.redKite.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paRedKite.risk }}
+    & {{ templateVars.datasheet.paRedKite.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    3.2.6
+    & {{ "priorityArea.datasheet.batRelevantArea"|trans }}
+    & {{ templateVars.datasheet.batRelevantArea.risk }}
+    & {{ templateVars.datasheet.batRelevantArea.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paBatRelevantArea.risk }}
+    & {{ templateVars.datasheet.paBatRelevantArea.areaDiscrete|datasheet_number_format(1) }} ha \\
+    \hline
+    \end{longtable} \\
+
+    \textbf{ {{ "priorityArea.datasheet.category.resourceProtection"|trans }} }\\
+    \begin{longtable}{| p{1cm} | p{6cm} | p{2cm} | p{2cm}| p{2cm} | p{2cm}|}
+    \hline
+    Nr. & Kriterium & Konfliktrisiko & Betr. Fläche & Konflitrisiko & Betr. Fläche \\
+    \hline
+    \endhead
+
+    4.1
+    & {{ "priorityArea.datasheet.priorityAreasFloodPrevention"|trans }}
+    & {{ templateVars.datasheet.priorityAreasFloodPrevention.risk }}
+    & {{ templateVars.datasheet.priorityAreasFloodPrevention.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paPriorityAreasFloodPrevention.risk }}
+    & {{ templateVars.datasheet.paPriorityAreasFloodPrevention.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    4.2
+    & {{ "priorityArea.datasheet.geologicalProtectionArea"|trans }}
+    & {{ templateVars.datasheet.geologicalProtectionArea.risk }}
+    & {{ templateVars.datasheet.geologicalProtectionArea.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paGeologicalProtectionArea.risk }}
+    & {{ templateVars.datasheet.paGeologicalProtectionArea.areaDiscrete|datasheet_number_format(1) }} ha \\
+    \hline
+    \end{longtable} \\
+
+    \textbf{ {{ "priorityArea.datasheet.category.culturalProtection"|trans }} }\\
+    \begin{longtable}{| p{1cm} | p{6cm} | p{2cm} | p{2cm}| p{2cm} | p{2cm}|}
+    \hline
+    Nr. & Kriterium & Konfliktrisiko & Betr. Fläche & Konflitrisiko & Betr. Fläche \\
+    \hline
+    \endhead
+
+    5.1
+    & {{ "priorityArea.datasheet.imprintingLocations"|trans }}
+    & {{ templateVars.datasheet.imprintingLocations.risk }}
+    & {{ templateVars.datasheet.imprintingLocations.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paImprintingLocations.risk }}
+    & {{ templateVars.datasheet.paImprintingLocations.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    5.2
+    & {{ "priorityArea.datasheet.characteristicalAreas"|trans }}
+    & {{ templateVars.datasheet.characteristicalAreas.risk }}
+    & {{ templateVars.datasheet.characteristicalAreas.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paCharacteristicalAreas.risk }}
+    & {{ templateVars.datasheet.paCharacteristicalAreas.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    & {{ "priorityArea.datasheet.characteristicalAreas.natureParks"|trans }}
+    &
+    & {{ templateVars.datasheet.characteristicalAreas.naturalParkDiscrete|datasheet_number_format(1) }} ha
+    &
+    & {{ templateVars.datasheet.paCharacteristicalAreas.naturalParkDiscrete|datasheet_number_format(1) }} ha \\
+
+    5.3
+    & {{ "priorityArea.datasheet.memorialPerimeter"|trans }}
+    & {{ templateVars.datasheet.memorialPerimeter.risk }}
+    & {{ templateVars.datasheet.memorialPerimeter.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paMemorialPerimeter.risk }}
+    & {{ templateVars.datasheet.paMemorialPerimeter.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    5.4
+    & {{ "priorityArea.datasheet.outstandingMemorials"|trans }}
+    & {{ templateVars.datasheet.outstandingMemorials.risk }}
+    & {{ templateVars.datasheet.outstandingMemorials.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paOutstandingMemorials.risk }}
+    & {{ templateVars.datasheet.paOutstandingMemorials.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    5.5
+    & {{ "priorityArea.datasheet.archaeologicalMemorials"|trans }}
+    & {{ templateVars.datasheet.archaeologicalMemorials.risk }}
+    & {{ templateVars.datasheet.archaeologicalMemorials.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paArchaeologicalMemorials.risk }}
+    & {{ templateVars.datasheet.paArchaeologicalMemorials.areaDiscrete|datasheet_number_format(1) }} ha \\
+
+    5.6
+    & {{ "priorityArea.datasheet.danewerkHaithabu"|trans }}
+    & {{ templateVars.datasheet.danewerkHaithabu.risk }}
+    & {{ templateVars.datasheet.danewerkHaithabu.areaDiscrete|datasheet_number_format(1) }} ha
+    & {{ templateVars.datasheet.paDanewerkHaithabu.risk }}
+    & {{ templateVars.datasheet.paDanewerkHaithabu.areaDiscrete|datasheet_number_format(1) }} ha \\
+    \hline
+    \end{longtable} \\
+
+\\
+
+\textbf{ {{ "priorityArea.datasheet.county_hints"|trans }} } \\
+{{ templateVars.datasheet.countyHints|latex }}\\
+\\
+
+\textbf{ {{ "priorityArea.datasheet.further_hints"|trans }} } \\
+{{ templateVars.datasheet.additionalHints|latex }} \\
+\\
+
+{% if templateVars.statement is defined %}
+\textbf{ {{ "statement"|trans }} } \\
+{{ templateVars.statement.text|latex }} \\
+\\
+{% endif %}
+\end{document}

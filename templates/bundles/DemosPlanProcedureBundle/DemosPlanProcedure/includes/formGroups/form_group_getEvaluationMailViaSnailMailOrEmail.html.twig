@@ -1,0 +1,64 @@
+<div class="{{ 'u-mb-0_5 u-ml-0_75'|prefixClass }}">
+
+    {# if there is a choice, display first option #}
+    {% if hasPermission('feature_statements_feedback_postal') %}
+
+        <label class="{{ 'u-mb-0_25'|prefixClass }}" for="r_getEvaluation_email">
+            <input id="r_getEvaluation_email" type="radio" name="r_getEvaluation" value="email"
+                   aria-labelledby="statement-detail-require-response-email">
+            <span id="statement-detail-require-response-email" aria-hidden="true">{{ "statement.form.personal.require_answer_email"|trans }}</span>
+        </label>
+
+        {# else, only render hidden field to satisfy backend #}
+    {% else %}
+
+        <input id="r_getEvaluation_email" type="hidden" name="r_getEvaluation" value="email">
+
+    {% endif %}
+
+    <div class="{{ ''|prefixClass }}">
+
+        {# email address #}
+        <label class="{% if hasPermission('feature_statements_feedback_postal') %}u-ml-0_5 u-mb-0_5{% else %} u-mb-0{% endif %}">
+            <span id="statement-detail-email">{{ "email"|trans }}</span>
+            <br>
+            <input
+                type="email"
+                name="r_email"
+                aria-labelledby="statement-detail-email"
+                value="{{ templateVars.request.r_email|default }}">
+        </label>
+
+        {# if repeating of email input is enforced, display second email field #}
+        {% if hasPermission('feature_statements_feedback_check_email') %}
+
+            <label class="{{ 'u-ml-0_5 u-mb-0_5'|prefixClass }}">
+                <span id="statement-detail-email-confirm">{{ "email.confirm"|trans }}</span>
+                <br>
+                <input
+                    type="email"
+                    name="r_email2"
+                    aria-labelledby="statement-detail-email-confirm"
+                    value="{{ templateVars.request.r_email2|default }}">
+            </label>
+
+        {% endif %}
+
+    </div>
+
+    {# if there is a choice, display second option #}
+    {% if hasPermission('feature_statements_feedback_postal') %}
+
+        <label class="{{ 'u-mb-0_25'|prefixClass }}" for="r_getEvaluation_snailmail">
+            <input
+                id="r_getEvaluation_snailmail"
+                type="radio"
+                name="r_getEvaluation"
+                value="snailmail"
+                aria-labelledby="statement-detail-require-response-post">
+            <span id="statement-detail-require-response-post" aria-hidden="true">{{ "statement.form.personal.require_answer_post"|trans }}</span>
+        </label>
+
+    {% endif %}
+
+</div>

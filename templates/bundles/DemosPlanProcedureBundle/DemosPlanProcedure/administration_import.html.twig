@@ -1,0 +1,35 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% set submitTypeOptions = [] %}
+{% for value, label in getFormOption('statement_submit_types.values', true) %}
+    {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
+{% endfor %}
+{% set allTags = templateVars.availableTopics|default([])|map(el => { id: el.id, title: el.title, tags: el.tags|map(tag => { id: tag.id, title: tag.title }) }) %}
+{% set submitTypesOptions = [] %}
+{% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+    {% set submitTypesOptions = submitTypesOptions|merge([{ label: translated, value: key }]) %}
+{% endfor %}
+
+{% block component_part %}
+    <h1 class="hide-visually">
+        {{ 'import'|trans }}
+    </h1>
+
+    <administration-import
+        class="u-mb-2"
+        procedure-id="{{ procedureId }}"
+        {% if templateVars.initValues is defined  %}
+            :init-values="JSON.parse('{{ templateVars.initValues|json_encode|e('js', 'utf-8') }}')"
+        {% endif %}
+        :tags="JSON.parse('{{ allTags|json_encode|e('js', 'utf-8') }}')"
+        current-user-id="{{ currentUserId }}"
+        newest-intern-id="{{ templateVars.newestInternalId }}"
+        :used-intern-ids="JSON.parse('{{ templateVars.usedInternIds|json_encode|e('js', 'utf-8') }}')"
+        :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
+    </administration-import>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationImport.js']) }}
+{% endblock javascripts %}

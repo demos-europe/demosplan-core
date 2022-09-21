@@ -1,0 +1,7 @@
+<input
+    type="hidden"
+    id="{{ id|default(name|default) }}"
+    name="{{ name|default }}"
+    class="display--none"
+    value="{{ value|default }}"
+    {% if disabled|default %}disabled{% endif %}>

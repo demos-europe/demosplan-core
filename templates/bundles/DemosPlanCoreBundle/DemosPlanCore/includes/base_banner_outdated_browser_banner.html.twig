@@ -1,0 +1,36 @@
+<div
+    id="iebanner"
+    data-nosnippet
+    class="{{ 'display--none'|prefixClass }}">
+    <div class="{{ 'u-ph u-pt-0_5 position--relative cf'|prefixClass }}">
+        <h3 class="{{ 'color--system-error-dark font-size-medium weight--bold u-mb-0_25'|prefixClass }}">
+            <i class="{{ 'fa fa-exclamation-circle fa-lg'|prefixClass }}" aria-hidden="true"></i>
+            Dieser Browser wird nicht mehr unterstützt.
+        </h3>
+        <p class="{{ 'font-size-small'|prefixClass }}">
+            Wenn Sie den Browser Internet Explorer nutzen, stehen Ihnen nicht alle Funktionen dieser Seite zur Verfügung.<br>
+            Um den vollen Funktionsumfang nutzen zu können, benutzen Sie einen aktuellen Browser (z.B. Firefox oder Edge).
+        </p>
+    </div>
+</div>
+{# This should be done in javascript to only show up in target browsers #}
+<script nonce="{{ csp_nonce('script') }}">
+    function isIE () {
+        var ua = window.navigator.userAgent
+        var isIE = false
+
+        if (ua) {
+            var trident = ua.match(/trident/i)
+            isIE = trident !== null
+        }
+
+        return isIE
+    }
+
+    var isInternetExplorer = isIE()
+
+    if (isInternetExplorer === true) {
+        var el = document.getElementById('iebanner')
+        el.setAttribute('class', 'o-page__padded bg-color--system-error-light color--system-error-dark')
+    }
+</script>

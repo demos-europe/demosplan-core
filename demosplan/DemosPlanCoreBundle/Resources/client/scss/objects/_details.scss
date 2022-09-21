@@ -1,0 +1,25 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-details
+//
+//  Component that is to progressively disclose detailed content via a collapsed item that can be expanded.
+
+.o-details {
+    &__trigger {
+        // Hide default arrow icon in FF
+        display: block;
+
+        //  Hide default arrow icon in Chrome
+        //  See https://stackoverflow.com/a/6202729/7812779
+        &::-webkit-details-marker {
+            display: none;
+        }
+    }
+}

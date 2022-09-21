@@ -1,0 +1,347 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div class="space-stack-s">
+    <dp-inline-notification
+      dismissible
+      :dismissible-key="helpTextDismissibleKey"
+      :message="helpText"
+      type="info" />
+    <div
+      v-if="!addNewPlace"
+      class="text--right">
+      <dp-button
+        @click="addNewPlace = true"
+        :text="Translator.trans('places.addPlace')" />
+    </div>
+    <div
+      v-if="addNewPlace"
+      class="position--relative"
+      data-dp-validate="addNewPlaceForm">
+      <dp-loading
+        v-if="isLoading"
+        overlay />
+      <div class="border border-radius-small space-stack-m space-inset-m">
+        <dp-input
+          id="newPlaceName"
+          v-model="newPlace.name"
+          :label="{
+            text: Translator.trans('name')
+          }"
+          maxlength="250"
+          required />
+        <dp-input
+          id="newPlaceDescription"
+          v-model="newPlace.description"
+          :label="{
+            text: Translator.trans('description')
+          }"
+          maxlength="250" />
+        <dp-button-row
+          :busy="isLoading"
+          primary
+          secondary
+          @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
+          @secondary-action="addNewPlace = false" />
+      </div>
+    </div>
+    <dp-data-table
+      v-if="!isInitiallyLoading"
+      data-dp-validate="placesTable"
+      has-flyout
+      :header-fields="headerFields"
+      is-draggable
+      :items="places"
+      @changed-order="changeManualsort"
+      track-by="id">
+      <template v-slot:name="rowData">
+        <div
+          v-if="!rowData.edit"
+          v-text="rowData.name" />
+        <dp-input
+          v-else
+          id="editPlaceName"
+          maxlength="250"
+          required
+          v-model="rowData.name" />
+      </template>
+      <template v-slot:description="rowData">
+        <div
+          v-if="!rowData.edit"
+          v-text="rowData.description" />
+        <dp-input
+          v-else
+          id="editPlaceDescription"
+          maxlength="250"
+          v-model="rowData.description" />
+      </template>
+      <template v-slot:flyout="rowData">
+        <div class="float--right">
+          <template v-if="!rowData.edit">
+            <button
+              :aria-label="Translator.trans('item.edit')"
+              class="btn--blank o-link--default"
+              @click="editPlace(rowData)">
+              <i
+                class="fa fa-pencil"
+                aria-hidden="true" />
+            </button>
+          </template>
+          <template v-if="rowData.edit">
+            <button
+              :aria-label="Translator.trans('save')"
+              class="btn--blank o-link--default u-mr-0_25"
+              @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)">
+              <dp-icon
+                icon="check"
+                aria-hidden="true" />
+            </button>
+            <button
+              class="btn--blank o-link--default"
+              @click="abort(rowData)"
+              :aria-label="Translator.trans('abort')">
+              <dp-icon
+                icon="xmark"
+                aria-hidden="true" />
+            </button>
+          </template>
+        </div>
+      </template>
+    </dp-data-table>
+    <dp-loading v-else />
+  </div>
+</template>
+
+<script>
+import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
+import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+
+export default {
+  name: 'AdministrationPlaces',
+
+  components: {
+    DpButton,
+    DpButtonRow,
+    DpDataTable,
+    DpIcon,
+    DpInlineNotification,
+    DpInput,
+    DpLoading
+  },
+
+  mixins: [dpValidateMixin],
+
+  props: {
+    currentUserId: {
+      type: String,
+      required: true
+    },
+
+    /**
+     * When displayed in the context of procedure templates (instead of procedures),
+     * different content is displayed in the top notification.
+     */
+    isProcedureTemplate: {
+      type: Boolean,
+      required: true
+    },
+
+    /**
+     * Passed procedure id from twig
+     */
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      headerFields: [
+        { field: 'name', label: 'Name', colClass: 'u-5-of-12' },
+        { field: 'description', label: 'Beschreibung', colClass: 'u-6-of-12' }
+      ],
+      initialRowData: {},
+      isInitiallyLoading: false,
+      isLoading: false,
+      addNewPlace: false,
+      newPlace: {},
+      places: []
+    }
+  },
+
+  computed: {
+    helpText () {
+      const procedureInfoKey = this.isProcedureTemplate ? 'places.edit.infoProcedureTemplate' : 'places.edit.infoProcedure'
+      return `${Translator.trans('places.edit.info')} ${Translator.trans(procedureInfoKey)}`
+    },
+
+    helpTextDismissibleKey () {
+      return `${this.currentUserId}:procedure${this.isProcedureTemplate && 'Template'}AdministrationPlacesHint`
+    }
+  },
+
+  methods: {
+    abort (rowData) {
+      rowData.name = this.initialRowData.name
+      rowData.description = this.initialRowData.description
+      rowData.edit = false
+    },
+
+    changeManualsort (val) {
+      this.places.splice(val.moved.newIndex, 0, this.places.splice(val.moved.oldIndex, 1)[0])
+      this.updateSortOrder(val)
+    },
+
+    editPlace (rowData) {
+      // Reset row which was in editing state before
+      const editingPlace = this.places.find(place => place.edit === true)
+      if (editingPlace) {
+        editingPlace.name = this.initialRowData.name
+        editingPlace.description = this.initialRowData.description
+        editingPlace.edit = false
+      }
+
+      // Save initial state of currently edited row
+      this.initialRowData.name = rowData.name
+      this.initialRowData.description = rowData.description
+      rowData.edit = true
+    },
+
+    fetchPlaces () {
+      this.isInitiallyLoading = true
+      dpApi.get(Routing.generate('api_resource_list', {
+        resourceType: 'Place',
+        fields: {
+          Place: ['name', 'description'].join()
+        },
+        sort: 'sortIndex'
+      }))
+        .then(response => {
+          const places = response.data.data
+          places.forEach((place) => {
+            this.places.push({
+              id: place.id,
+              name: place.attributes.name,
+              description: place.attributes.description,
+              edit: false
+            })
+          })
+        })
+        .catch(err => console.error(err))
+        .finally(() => {
+          this.isInitiallyLoading = false
+        })
+    },
+
+    /**
+     * When saving a new place the comparison of `foundSimilarName.length === 0` needs to be executed
+     * since it is forbidden to save an already existing place name twice.
+     * When updating a new place the comparison of `foundSimilarName.length === 1` needs to be executed instead
+     * because the current rowData name is already existent in the places object hence updating an existing place
+     * should always be possible.
+     *
+     * @param placeName { string }
+     * @param isNewPlace { boolean }
+     * @returns { boolean }
+     */
+    isUniquePlaceName (placeName, isNewPlace = false) {
+      const foundSimilarName = this.places.filter(el => el.name === placeName)
+      return isNewPlace ? foundSimilarName.length === 0 : foundSimilarName.length === 1
+    },
+
+    resetNewPlaceForm () {
+      this.newPlace = {}
+      this.addNewPlace = false
+    },
+
+    saveNewPlace () {
+      if (!this.isUniquePlaceName(this.newPlace.name, true)) {
+        return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
+      }
+
+      this.isLoading = true
+      /**
+       * Persist changes in database
+       */
+      const payload = {
+        type: 'Place',
+        attributes: {
+          name: this.newPlace.name,
+          description: this.newPlace.description
+        }
+      }
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
+        .then(() => {
+          /**
+           * Update local data so no additional api request is needed to fetch the updated data
+           */
+          const localDataToUpdate = {
+            name: this.newPlace.name,
+            description: this.newPlace.description,
+            edit: false,
+            sortIndex: this.places.length
+          }
+          this.places.push(localDataToUpdate)
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => console.error(err))
+        .finally(() => {
+          this.isLoading = false
+          this.resetNewPlaceForm()
+        })
+    },
+
+    updatePlace (rowData) {
+      if (!this.isUniquePlaceName(rowData.name)) {
+        return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
+      }
+      const payload = {
+        data: {
+          id: rowData.id,
+          type: 'Place',
+          attributes: {
+            name: rowData.name,
+            description: rowData.description
+          }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
+        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .catch((err) => console.error(err))
+        .finally(() => {
+          rowData.edit = false
+        })
+    },
+
+    updateSortOrder (placeData) {
+      dpRpc(
+        'workflowPlacesOfProcedure.reorder',
+        {
+          workflowPlaceId: placeData.moved.element.id,
+          newWorkflowPlaceIndex: placeData.moved.newIndex
+        },
+        this.procedureId
+      ).then(() => {
+        dplan.notify.confirm(Translator.trans('confirm.saved'))
+      })
+    }
+  },
+
+  mounted () {
+    this.fetchPlaces()
+  }
+}
+</script>

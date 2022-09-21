@@ -1,0 +1,27 @@
+{% if hasPermission('feature_procedure_single_document_upload_zip') %}
+    <dp-upload-files
+        id="r_document"
+        allowed-file-types="pdf-zip-video"
+        hint="{{ 'file.upload.pdf.zip.mp4'|trans }}"
+        label="{{ 'file'|trans }}"
+        :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
+        :max-number-of-files="1"
+        name="r_document"
+        needs-hidden-input
+        :required="{{ required ? 'true' : 'false' }}"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }">
+    </dp-upload-files>
+{% else %}
+    <dp-upload-files
+        id="r_document"
+        allowed-file-types="pdf-video"
+        hint="{{ 'file.upload.pdf.mp4'|trans }}"
+        label="{{ 'file'|trans }}"
+        :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
+        :max-number-of-files="1"
+        name="r_document"
+        needs-hidden-input
+        :required="{{ required ? 'true' : 'false' }}"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }">
+    </dp-upload-files>
+{% endif %}

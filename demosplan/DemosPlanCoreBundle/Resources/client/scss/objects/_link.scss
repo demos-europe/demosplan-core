@@ -1,0 +1,115 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////
+/// @group objects
+///
+
+//  object container
+.o-link {
+
+    /// Used to style an element to look like a text link.
+    /// Atm helplessly used to make buttons or other elements look like links. Which is ok, sometimes.
+    ///
+    /// @name .o-link--default
+    ///
+    /// @example markup
+    /// <button type="button" class="btn--blank o-link--default">
+    ///     Click me - i will do something for you.
+    /// </button>
+    &--default {
+        @include keyboard-focus;
+
+        &,
+        &:visited {
+            color: $dp-token-color-brand-link;
+        }
+
+        &:hover,
+        &:active {
+            color: $dp-token-color-brand-link-hover;
+        }
+
+        //  @TODO unify disabled styles, see _at.scss
+        &[aria-disabled='true'] {
+            @extend %disabled-opacity;
+
+            &:hover {
+                color: $dp-token-color-brand-link;
+            }
+        }
+    }
+
+    // Assuming links on $dp-color-alt
+    &--on-dark {
+        color: $dp-color-white;
+        text-decoration: underline;
+
+        &:hover {
+            color: $dp-color-alt--light-1;
+        }
+    }
+
+    /// Used to highlight currently active link.
+    /// @name .o-link--active
+    ///
+    /// @example markup
+    /// <a class="o-link--active display--inline u-mr" href="#">
+    ///     Active Link
+    /// </a>
+    /// <a class="o-link--default display--inline" href="#">
+    ///     Inactive Link
+    /// </a>
+    &--active {
+        &,
+        &:hover {
+            @include keyboard-focus;
+
+            pointer-events: none;
+            color: $dp-token-color-brand-highlight;
+            text-decoration: #{$dp-links-textdecoration-hover};
+        }
+    }
+
+    //  smaller font size for icon inside link
+    &--icon {
+        i {
+            font-size: .85em;
+        }
+    }
+
+    /// Styling like default link, but places a font-awesome 'external link' icon before external links
+    /// @name .o-link--external
+    /// @deprecated A11y issues, see below.
+    /// @example markup
+    /// <a class="o-link--external" href="#">
+    ///     External Link
+    /// </a>
+    /// @TODO Find an accessible solution - Screen readers also read out pseudo elements.
+
+    &--external {
+        @include keyboard-focus;
+
+        &::before {
+            @extend .fa;
+
+            padding-right: .5em;
+            content: $fa-var-external-link;
+            font-size: .85em;
+        }
+    }
+
+    &--offset {
+        position: relative;
+        top: -120px;
+
+        display: block;
+        visibility: hidden;
+    }
+}

@@ -1,0 +1,903 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
+
+use Carbon\Carbon;
+use DateTime;
+use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
+use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
+use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
+use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
+use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
+use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanStatementBundle\Exception\CopyException;
+use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTitleException;
+use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
+use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanStatementBundle\Logic\TagService;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use Doctrine\ORM\EntityManagerInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Contracts\PathException;
+use function array_combine;
+use function array_key_exists;
+use function is_array;
+use function iterator_to_array;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use UnexpectedValueException;
+
+class ExcelImporter extends CoreService
+{
+    private const SUBMIT_TYPE_EMAIL_TRANSLATED = 'E-Mail';
+    private const SUBMIT_TYPE_LETTER_TRANSLATED = 'Brief';
+    private const SUBMIT_TYPE_FAX_TRANSLATED = 'Fax';
+    private const SUBMIT_TYPE_EAKTE_TRANSLATED = 'E-Akte';
+    private const SUBMIT_TYPE_SYSTEM_TRANSLATED = 'Beteiligungsplattform';
+    private const SUBMIT_TYPE_DECLARATION_TRANSLATED = 'Niederschrift';
+    private const SUBMIT_TYPE_UNSPECIFIED_TRANSLATED = 'Sonstige';
+    private const SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC = 'Unbekannt';
+    private const SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC = 'unbekannt';
+    private const SUBMIT_TYPE_COLUMN = 'Art der Einreichung';
+    public const STATEMENT_ID = 'Stellungnahme ID';
+    private const PUBLIC_STATEMENT = 'publicStatement';
+    private const STATEMENT_TEXT = 'Stellungnahmetext';
+
+    private const SUBMIT_TYPE_MAPPING = [
+        self::SUBMIT_TYPE_EMAIL_TRANSLATED       => Statement::SUBMIT_TYPE_EMAIL,
+        self::SUBMIT_TYPE_LETTER_TRANSLATED      => Statement::SUBMIT_TYPE_LETTER,
+        self::SUBMIT_TYPE_FAX_TRANSLATED         => Statement::SUBMIT_TYPE_FAX,
+        self::SUBMIT_TYPE_EAKTE_TRANSLATED       => Statement::SUBMIT_TYPE_EAKTE,
+        self::SUBMIT_TYPE_SYSTEM_TRANSLATED      => Statement::SUBMIT_TYPE_SYSTEM,
+        self::SUBMIT_TYPE_DECLARATION_TRANSLATED => Statement::SUBMIT_TYPE_DECLARATION,
+        self::SUBMIT_TYPE_UNSPECIFIED_TRANSLATED => Statement::SUBMIT_TYPE_UNSPECIFIED,
+        ''                                       => Statement::SUBMIT_TYPE_UNKNOWN,
+        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC  => Statement::SUBMIT_TYPE_UNKNOWN,
+        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC  => Statement::SUBMIT_TYPE_UNKNOWN,
+    ];
+
+    public const PUBLIC = 'Öffentlichkeit';
+    public const INSTITUTION = 'Institution';
+
+    private $notNullConstraint;
+
+    /**
+     * @var OrgaService
+     */
+    private $orgaService;
+
+    /**
+     * @var CurrentUserInterface
+     */
+    private $currentUser;
+
+    /**
+     * @var ElementsService
+     */
+    private $elementsService;
+
+    /**
+     * @var CurrentProcedureService
+     */
+    private $currentProcedureService;
+
+    /**
+     * @var StatementService
+     */
+    private $statementService;
+
+    /**
+     * @var StatementValidator
+     */
+    private $statementValidator;
+
+    /**
+     * @var Statement[]
+     */
+    private $generatedStatements;
+
+    /**
+     * @var Segment[]
+     */
+    private $generatedSegments;
+
+    /**
+     * {@link Tag} entities that do not yet exist in the database and were created during the import.
+     *
+     * @var array<int, Tag>
+     */
+    private $generatedTags = [];
+
+    /**
+     * @var ImportError[]
+     */
+    private $errors;
+
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    /**
+     * @var PlaceService
+     */
+    private $placeService;
+    /**
+     * @var TagService
+     */
+    private $tagService;
+    /**
+     * @var TagValidator
+     */
+    private $tagValidator;
+    /**
+     * @var SegmentValidator
+     */
+    private $segmentValidator;
+    /**
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+    /**
+     * @var StatementCopier
+     */
+    private $statementCopier;
+
+    /**
+     * @var DqlConditionFactory
+     */
+    private $conditionFactory;
+
+    /**
+     * @var TagResourceType
+     */
+    private $tagResourceType;
+
+    /**
+     * @var EntityFetcher
+     */
+    private $entityFetcher;
+
+    public function __construct(
+        CurrentProcedureService $currentProcedureService,
+        CurrentUserInterface $currentUser,
+        DqlConditionFactory $conditionFactory,
+        EntityManagerInterface $entityManager,
+        EntityFetcher $entityFetcher,
+        ElementsService $elementsService,
+        OrgaService $orgaService,
+        PlaceService $placeService,
+        SegmentValidator $segmentValidator,
+        StatementService $statementService,
+        StatementValidator $statementValidator,
+        TagResourceType $tagResourceType,
+        TagService $tagService,
+        TagValidator $tagValidator,
+        TranslatorInterface $translator,
+        ValidatorInterface $validator,
+        StatementCopier $statementCopier
+    ) {
+        $this->orgaService = $orgaService;
+        $this->currentUser = $currentUser;
+        $this->elementsService = $elementsService;
+        $this->currentProcedureService = $currentProcedureService;
+        $this->statementService = $statementService;
+        $this->statementValidator = $statementValidator;
+        $this->validator = $validator;
+        $this->placeService = $placeService;
+
+        $this->generatedStatements = [];
+        $this->generatedSegments = [];
+        $this->errors = [];
+        $this->tagService = $tagService;
+        $this->tagValidator = $tagValidator;
+        $this->segmentValidator = $segmentValidator;
+        $this->translator = $translator;
+        $this->entityManager = $entityManager;
+        $this->statementCopier = $statementCopier;
+        $this->conditionFactory = $conditionFactory;
+        $this->tagResourceType = $tagResourceType;
+        $this->entityFetcher = $entityFetcher;
+
+        $this->notNullConstraint = new Assert\NotBlank(['message' => 'segment.import.error.metadata.statement.id']);
+    }
+
+    /**
+     * Generates statements from incoming excel document, including validation.
+     * This method does not persist or flush the generated Statements.
+     *
+     * @param SplFileInfo $fileInfo identifies the excel file which contains the data of statements to create
+     *
+     * @throws CopyException
+     * @throws InvalidDataException
+     * @throws MissingPostParameterException
+     * @throws StatementElementNotFoundException
+     * @throws UserNotFoundException
+     * @throws RowAwareViolationsException
+     * @throws UnexpectedWorksheetNameException
+     * @throws MissingDataException
+     */
+    public function process(SplFileInfo $fileInfo): void
+    {
+        $this->generatedStatements = [];
+        $this->errors = [];
+        $worksheets = $this->extractWorksheets($fileInfo);
+
+        if (0 === count($worksheets)) {
+            throw new MissingDataException('No Worksheets found.');
+        }
+
+        foreach ($worksheets as $worksheet) {
+            $currentWorksheetTitle = $worksheet->getTitle() ?? '';
+            // Exclude legend from iteration as it should not be processed
+            if ('Legende' === $currentWorksheetTitle) {
+                continue;
+            }
+            $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
+            $statementData = $worksheet->toArray();
+            $columnNames = array_shift($statementData);
+            if (0 === count($statementData)) {
+                throw new MissingDataException('No data in rows found.');
+            }
+            foreach ($statementData as $line => $statement) {
+                if ($this->isEmpty($statement)) {
+                    continue;
+                }
+                $statement = array_combine($columnNames, $statement);
+                $statement[self::PUBLIC_STATEMENT] = $publicStatement;
+                $generatedStatement = $this->generateStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
+
+                $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
+                if (0 === $constraints->count()) {
+                    $this->generatedStatements[] = $generatedStatement;
+                } else {
+                    $this->addImportViolations($constraints, $line, $currentWorksheetTitle);
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws CopyException
+     * @throws DuplicatedTagTitleException
+     * @throws InvalidDataException
+     * @throws MissingPostParameterException
+     * @throws PathException
+     * @throws StatementElementNotFoundException
+     * @throws UnexpectedWorksheetNameException
+     * @throws UserNotFoundException
+     */
+    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
+    {
+        $result = new SegmentExcelImportResult();
+
+        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
+            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
+        }
+
+        [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
+
+        $segmentWorksheetTitle = $this->getTitle($segmentsWorksheet);
+        $segments = $this->getGroupedSegmentsFromWorksheet($segmentsWorksheet, $result);
+
+        unset($segmentsWorksheet);
+
+        $miscTopic = $this->findOrCreateMiscTagTopic();
+
+        $columnNamesMeta = $this->getFirstRowOfWorksheet($metaDataWorksheet);
+        $statementWorksheetTitle = $metaDataWorksheet->getTitle() ?? '';
+
+        foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
+            $statementIterator = $row->getCellIterator('A', $metaDataWorksheet->getHighestColumn());
+            $statement = array_map(static function (Cell $cell) {
+                return $cell->getValue();
+            }, iterator_to_array($statementIterator));
+
+            if ($this->isEmpty($statement)) {
+                continue;
+            }
+
+            $statement = array_combine($columnNamesMeta, $statement);
+            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
+
+            $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
+            if (0 !== $idConstraints->count()) {
+                $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
+                $statement[self::STATEMENT_ID] = 0;
+            }
+
+            $statementId = $statement[self::STATEMENT_ID];
+            $correspondingSegments = $segments[$statementId] ?? [];
+
+            $idMatchViolations = $this->validator->validate(
+                $statement,
+                new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
+            );
+            if (0 !== $idMatchViolations->count()) {
+                $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
+            }
+
+            // This is a segment import. If there are statements without segments, ignore them
+            if (0 === count($correspondingSegments)) {
+                continue;
+            }
+
+            $statement[self::STATEMENT_TEXT] = implode(' ', array_column($correspondingSegments, 'Einwand'));
+            $generatedStatement = $this->generateStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+
+            $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
+            if (0 === $violations->count()) {
+                $result->addStatement($generatedStatement);
+            } else {
+                $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
+            }
+
+            // create all corresponding segments
+            $counter = 1;
+            foreach ($correspondingSegments as $segmentData) {
+                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic);
+
+                // validate segment
+                $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
+
+                if (0 === $violations->count()) {
+                    $result->addSegment($generatedSegment);
+
+                    // needs to be persisted to make the PrePersistUniqueInternIdConstraint work
+                    $this->entityManager->persist($generatedSegment);
+                } else {
+                    $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
+                }
+
+                ++$counter;
+            }
+
+            unset($segments[$statementId]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<int, EntityInterface>
+     */
+    public function getGeneratedTags(): array
+    {
+        return $this->generatedTags;
+    }
+
+    /**
+     * Iterates through the given {@link Worksheet} and transfers each row into an array containing data for one segment.
+     *
+     * Does not create entities or accesses the database in any way.
+     *
+     * @return array<string, array<int, array<string, mixed>>> an array of segments grouped by their statement IDs
+     */
+    private function getGroupedSegmentsFromWorksheet(Worksheet $segmentsWorksheet, SegmentExcelImportResult $result): array
+    {
+        $columnNamesSegments = $this->getFirstRowOfWorksheet($segmentsWorksheet);
+        $segmentsWorksheetTitle = $this->getTitle($segmentsWorksheet);
+
+        $segments = [];
+        foreach ($segmentsWorksheet->getRowIterator(2) as $segmentLine => $row) {
+            $segmentIterator = $row->getCellIterator('A', $segmentsWorksheet->getHighestColumn());
+            $segmentData = array_map(function (Cell $cell) {
+                return $this->replaceLineBreak($cell->getValue());
+            }, iterator_to_array($segmentIterator));
+
+            if ($this->isEmpty($segmentData)) {
+                continue;
+            }
+
+            $segmentData = array_combine($columnNamesSegments, $segmentData);
+            if (!is_array($segmentData)) {
+                continue;
+            }
+            $segmentData['segment_line'] = $segmentLine;
+
+            $idConstraints = $this->validator->validate($segmentData[self::STATEMENT_ID], $this->notNullConstraint);
+            if (0 !== $idConstraints->count()) {
+                $result->addErrors($idConstraints, $segmentLine, $segmentsWorksheetTitle);
+
+                continue;
+            }
+
+            $statementId = $segmentData[self::STATEMENT_ID];
+            if (!array_key_exists($statementId, $segments)) {
+                $segments[$statementId] = [];
+            }
+
+            $segments[$statementId][] = $segmentData;
+        }
+
+        return $segments;
+    }
+
+    /**
+     * @return array{0: Worksheet, 1: Worksheet}
+     */
+    private function getSegmentImportWorksheets(SplFileInfo $fileInfo): array
+    {
+        $worksheets = $this->extractWorksheets($fileInfo);
+
+        if (2 > count($worksheets)) {
+            throw new MissingDataException('Not all worksheets found.');
+        }
+
+        [$segmentsWorksheet, $metaDataWorksheet] = $worksheets;
+
+        if (0 === $segmentsWorksheet->getHighestRow()) {
+            throw new MissingDataException('No segment data in rows found.');
+        }
+
+        if (0 === $metaDataWorksheet->getHighestRow()) {
+            throw new MissingDataException('No meta data in rows found.');
+        }
+
+        return $worksheets;
+    }
+
+    private function getTitle(Worksheet $worksheet): string
+    {
+        return $worksheet->getTitle() ?? '';
+    }
+
+    private function replaceLineBreak($value)
+    {
+        return str_replace(["_x000D_\n", "\n"], '<br>', $value);
+    }
+
+    /**
+     * @return array<int, Worksheet>
+     */
+    private function extractWorksheets(SplFileInfo $fileInfo): array
+    {
+        $spreadsheet = IOFactory::load($fileInfo->getPathname());
+
+        return $spreadsheet->getAllSheets();
+    }
+
+    /**
+     * @throws UnexpectedWorksheetNameException
+     */
+    private function getPublicStatement(string $statementType): string
+    {
+        switch ($statementType) {
+            case self::INSTITUTION:
+                return Statement::INTERNAL;
+            case self::PUBLIC:
+                return Statement::EXTERNAL;
+            default:
+                throw new UnexpectedWorksheetNameException($statementType, [self::PUBLIC, self::INSTITUTION]);
+        }
+    }
+
+    /**
+     * Checks if the given $input (array) only contains null values and empty strings.
+     *
+     * @param array<int, mixed> $input
+     */
+    public function isEmpty(array $input): bool
+    {
+        return empty(
+            array_filter(
+                $input,
+                static function ($field) {
+                    return null !== $field && (!is_string($field) || '' !== trim($field));
+                }
+            )
+        );
+    }
+
+    /**
+     * @param array $statementData  array which is holding the data of Statement to create
+     * @param int   $externIdOffset will be used to calculate next valid externId to ensure it being unique,
+     *                              because StatementRepository::getNextValidExternalIdForProcedure()
+     *                              only takes already persisted Statements and DraftStatements into account, it
+     *                              is necessary to add the number of already generated but not persisted
+     *                              to ensure getting a unique ID
+     *
+     * @throws CopyException
+     * @throws InvalidDataException
+     * @throws MissingPostParameterException
+     * @throws StatementElementNotFoundException
+     * @throws UserNotFoundException
+     *
+     * @see StatementRepository::getNextValidExternalIdForProcedure()
+     */
+    public function generateStatement(array $statementData, int $externIdOffset, int $line, string $currentWorksheetTitle): Statement
+    {
+        $generatedOriginalStatement = $this->createNewOriginalStatement($statementData, $externIdOffset, $line, $currentWorksheetTitle);
+
+        return $this->statementCopier->copyStatementObjectWithinProcedure(
+            $generatedOriginalStatement,
+            false,
+            true,
+            false
+        );
+    }
+
+    /**
+     * @throws AccessDeniedException
+     * @throws PathException
+     * @throws UserNotFoundException
+     * @throws DuplicatedTagTitleException
+     */
+    public function generateSegment(
+        Statement $statement,
+        array $segmentData,
+        int $counter,
+        int $line,
+        string $worksheetTitle,
+        TagTopic $miscTopic
+    ): Segment {
+        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
+            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
+        }
+
+        $procedure = $statement->getProcedure();
+
+        $segment = new Segment();
+        $segment->setParentStatementOfSegment($statement);
+        $segment->setProcedure($procedure);
+        $segment->setExternId($statement->getExternId().'-'.$counter);
+        $segment->setPhase('participation');
+        $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
+        $segment->setText($segmentData['Einwand'] ?? '');
+        $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
+        $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
+        $segment->setCreated(new DateTime());
+        $segment->setOrderInProcedure($counter);
+
+        // Handle Tags
+        if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
+            $procedureId = $statement->getProcedure()->getId();
+            $tagTitlesString = $segmentData['Schlagworte'];
+            if (is_numeric($tagTitlesString)) {
+                $tagTitlesString = (string) $tagTitlesString;
+            }
+            $tagTitles = explode(',', $tagTitlesString);
+
+            foreach ($tagTitles as $tagTitle) {
+                $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
+
+                $createNewTag = null === $matchingTag;
+                if ($createNewTag) {
+                    $matchingTag = $this->tagService->createTag(trim($tagTitle), $miscTopic, false);
+                }
+
+                // Check if valid tag
+                $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
+
+                if (0 === $violations->count()) {
+                    $segment->addTag($matchingTag);
+                    if ($createNewTag) {
+                        $this->generatedTags[] = $matchingTag;
+                    }
+                } else {
+                    $this->addImportViolations($violations, $line, $worksheetTitle);
+                }
+            }
+        }
+
+        return $segment;
+    }
+
+    /**
+     * This method only support creation of a statement without extra relations like files, paragraphs, documents,
+     * ...
+     *
+     * @param array<string, mixed> $statementData
+     * @param int                  $offset        this is necessary to allow calculating correct unique externId of
+     *                                            procedure for current statement
+     *
+     * @throws InvalidDataException
+     * @throws MissingPostParameterException
+     * @throws StatementElementNotFoundException
+     * @throws UserNotFoundException
+     */
+    private function createNewOriginalStatement(array $statementData, int $offset, int $line, string $currentWorksheetTitle): Statement
+    {
+        $newOriginalStatement = new Statement();
+        $newStatementMeta = new StatementMeta();
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+
+        if (null === $currentProcedure) {
+            throw new MissingPostParameterException('Current procedure is missing.');
+        }
+
+        $newOriginalStatement->setPublicStatement($statementData[self::PUBLIC_STATEMENT]);
+        if (Statement::EXTERNAL === $newOriginalStatement->getPublicStatement()) {
+            $newOriginalStatement->setOrganisation($this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID));
+            $newStatementMeta->setSubmitUId(User::ANONYMOUS_USER_ID);
+            $newStatementMeta->setOrgaName(User::ANONYMOUS_USER_ORGA_NAME);
+            $newStatementMeta->setOrgaDepartmentName(User::ANONYMOUS_USER_DEPARTMENT_NAME);
+            $newStatementMeta->setMiscDataValue(StatementMeta::SUBMITTER_ROLE, 'citizen');
+        } else {
+            $newStatementMeta->setOrgaName($statementData['Institution'] ?? '');
+            $newStatementMeta->setOrgaDepartmentName($statementData['Abteilung'] ?? '');
+            $newStatementMeta->setMiscDataValue(StatementMeta::SUBMITTER_ROLE, 'publicagency');
+        }
+
+        $newOriginalStatement->setManual();
+
+        $this->setSubmitType($statementData, $newOriginalStatement, $line, $currentWorksheetTitle);
+
+        $newOriginalStatement->setInternId($statementData['Eingangsnummer']);
+        $newOriginalStatement->setMemo($statementData['Memo'] ?? '');
+
+        // necessary to check incoming date-string:
+        // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
+//        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
+        if (0 === $violations->count()) {
+            $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());
+        } else {
+            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+        }
+
+        $statementText = $this->getStatementText($statementData, $line, $currentWorksheetTitle);
+        $newOriginalStatement->setText($statementText);
+        $newOriginalStatement->setProcedure($currentProcedure);
+        $newStatementMeta->setAuthorName($statementData['Name'] ?? '');
+        $newStatementMeta->setSubmitName($statementData['Name'] ?? '');
+        $newStatementMeta->setOrgaCity($statementData['Ort'] ?? '');
+        $newStatementMeta->setOrgaPostalCode($statementData['PLZ'] ?? '');
+        $newStatementMeta->setOrgaEmail($statementData['E-Mail'] ?? '');
+        $newStatementMeta->setOrgaStreet($statementData['Straße'] ?? '');
+        $newStatementMeta->setHouseNumber((string) ($statementData['Hausnummer'] ?? ''));
+
+        $violations = $this->validator->validate($statementData['Verfassungsdatum'], new DateStringConstraint());
+        if (0 === $violations->count()) {
+            $dateString = $statementData['Verfassungsdatum'];
+            $dateString = null == $dateString ? null : Carbon::parse($dateString)->toDate();
+            $newStatementMeta->setAuthoredDate($dateString);
+        } else {
+            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+        }
+
+        $newStatementMeta->setSubmitOrgaId($this->currentUser->getUser()->getOrganisationId());
+
+        $externId = $this->statementService->getNextValidExternalIdForProcedure(
+            $currentProcedure->getId(),
+            true,
+            $offset
+        );
+        $newOriginalStatement->setExternId($externId);
+
+        //always use standard statementElement for now:
+        $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
+        $newOriginalStatement->setElement($statementElement);
+        $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
+
+        //not supported:
+        // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,
+        // attachements, paragaph, polygon, feedback, documents, publication
+
+        $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+        $newOriginalStatement->setMeta($newStatementMeta);
+
+        $gdprConsent = new GdprConsent();
+        $gdprConsent->setStatement($newOriginalStatement);
+        $newOriginalStatement->setGdprConsent($gdprConsent);
+
+        return $newOriginalStatement;
+    }
+
+    public function mapSubmitType(string $incomingSubmitType): string
+    {
+        //use translation? (translation keys in form_options)
+        if (array_key_exists($incomingSubmitType, self::SUBMIT_TYPE_MAPPING)) {
+            return self::SUBMIT_TYPE_MAPPING[$incomingSubmitType];
+        }
+
+        throw new UnexpectedValueException("Invalid submit type: $incomingSubmitType");
+    }
+
+    /**
+     * Add error-entries from constraintValidations in reference to current line number.
+     */
+    public function addImportViolations(ConstraintViolationListInterface $errors, int $currentLineNumber, string $currentWorksheetTitle): void
+    {
+        // $currentLineNumber is the index of the statement/segment array derived from the xlsx. +2 is needed to
+        // compensate for arrays starting at 0 (while xslx tables start at 1) and also the first line being the headings
+        $currentLineNumber += 2;
+        foreach ($errors as $error) {
+            $this->errors[] = new ImportError($error, $currentLineNumber, $currentWorksheetTitle);
+        }
+    }
+
+    /**
+     * @return Statement[]
+     */
+    public function getGeneratedStatements(): array
+    {
+        return $this->generatedStatements;
+    }
+
+    /**
+     * @return Segment[]
+     */
+    public function getGeneratedSegments(): array
+    {
+        return $this->generatedSegments;
+    }
+
+    /**
+     * @return array<int, array>
+     */
+    public function getErrorsAsArray(): array
+    {
+        $errorArray = [];
+        foreach ($this->errors as $key => $error) {
+            $errorArray[] = $error->toArray($key);
+        }
+
+        return $errorArray;
+    }
+
+    /**
+     * @return array<int, ImportError>
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    public function hasErrors(): bool
+    {
+        return 0 !== count($this->errors);
+    }
+
+    private function getFirstRowOfWorksheet(Worksheet $worksheet): array
+    {
+        $rowData = $worksheet->rangeToArray('A1:'.$worksheet->getHighestColumn().'1');
+
+        return $rowData[0];
+    }
+
+    private function findOrCreateMiscTagTopic(): TagTopic
+    {
+        $procedure = $this->currentProcedureService->getProcedureWithCertainty();
+
+        // Check if Sonstiges-Topic exists, otherwise create it
+        $miscTopic = $this->tagService->findOneTopicByTitle(TagTopic::TAG_TOPIC_MISC, $procedure->getId());
+
+        if (null === $miscTopic) {
+            // create new Topic
+            $miscTopic = $this->tagService->createTagTopic(
+                TagTopic::TAG_TOPIC_MISC,
+                $procedure,
+                false
+            );
+        }
+
+        return $miscTopic;
+    }
+
+    private function setSubmitType(array $statementData, Statement $statement, int $line, string $worksheetTitle): void
+    {
+        $inputSubmitType = $statementData[self::SUBMIT_TYPE_COLUMN] ?? self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC;
+        $translatedSubmitTypes = array_keys(self::SUBMIT_TYPE_MAPPING);
+        $violationMessage = $this->translator->trans(
+            'segments.import.error.submitType',
+            [
+                'translatedSubmitTypes' => implode(', ', array_diff($translatedSubmitTypes, [''])),
+                'value'                 => $inputSubmitType,
+            ]
+        );
+        $violations = $this->validator->validate($inputSubmitType, new Assert\Regex([
+            'pattern' => $this->getSubmitTypePattern(),
+            'message' => $violationMessage,
+        ]));
+        if (0 === $violations->count()) {
+            $mappedSubmitType = $this->mapSubmitType($inputSubmitType);
+            $statement->setSubmitType($mappedSubmitType);
+        } else {
+            $this->addImportViolations($violations, $line, $worksheetTitle);
+        }
+    }
+
+    private function getSubmitTypePattern(): string
+    {
+        // Handling the whitespace needs special attention: first it is removed from the
+        // `implode` pattern building and afterwards appended to the pattern as `|^$` (read:
+        // "or any line that ends right after it starts").
+        $translatedSubmitTypes = array_keys(self::SUBMIT_TYPE_MAPPING);
+        $pattern = implode('|', array_diff($translatedSubmitTypes, ['']));
+
+        return "/(^($pattern)$)|(^$)/";
+    }
+
+    /**
+     * Get the first {@link Tag} entity with a title and procedure matching the given one.
+     *
+     * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
+     * found the database is searched.
+     *
+     * @throws PathException
+     */
+    private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
+    {
+        $titleCondition = $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue(trim($tagTitle), ...$this->tagResourceType->title),
+            $this->conditionFactory->propertyHasValue($procedureId, ...$this->tagResourceType->topic->procedure->id),
+        );
+
+        $matchingTags = $this->entityFetcher->listPrefilteredEntities($this->tagResourceType, $this->generatedTags, [$titleCondition]);
+        if ([] === $matchingTags) {
+            $matchingTags = $this->entityFetcher->listEntities(
+                $this->tagResourceType,
+                [$titleCondition]
+            );
+        }
+
+        return $matchingTags[0] ?? null;
+    }
+
+    /**
+     * @param array<string, mixed> $statementData
+     */
+    private function getStatementText(
+        array $statementData,
+        int $line,
+        string $currentWorksheetTitle
+    ): string {
+        $statementText = $statementData[self::STATEMENT_TEXT];
+
+        $violations = $this->validator->validate($statementText, new Assert\NotBlank(
+            null,
+            $this->translator->trans('error.text'),
+            false,
+            'trim'
+        ));
+        if (0 !== $violations->count()) {
+            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+        }
+
+        return $this->replaceLineBreak($statementText);
+    }
+}

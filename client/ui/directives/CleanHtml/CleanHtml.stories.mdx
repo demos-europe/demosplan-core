@@ -1,0 +1,64 @@
+import { Meta } from '@storybook/addon-docs'
+
+<Meta
+    title="Directives/CleanHtml"
+    parameters={{
+        viewMode: 'docs',
+        previewTabs: {
+            canvas: {
+                hidden: true
+            }
+        },
+    }} />
+
+# CleanHtml
+
+This directive sanitizes Html. It builds on the XSS sanitizer library [DOMPurify](https://github.com/cure53/DOMPurify).
+
+The directive can be passed a (probably html-)string directly, or alongside any [DOMPurify option](https://github.com/cure53/DOMPurify#can-i-configure-dompurify).
+
+## Simple usage
+
+Malicious code is filtered out, according to the DOMPurify [default behavior](https://github.com/cure53/DOMPurify#some-purification-samples-please).
+
+```html
+<template>
+  <div>
+    <span v-cleanhtml="someValue">
+  </div>
+</template>
+import { CleanHtml } from 'demosplan-ui/directives'
+
+export default {
+  name: 'MyComponent',
+
+  directives: {
+    cleanhtml: CleanHtml
+  },
+
+  //...
+}
+```
+
+## Usage with options
+
+Malicious code is filtered out, and only p and span tags are allowed.
+
+```html
+<template>
+  <div>
+    <span v-cleanhtml="{ content: someValue, options: { ALLOWED_TAGS: ['p', 'span'] }">
+  </div>
+</template>
+import { CleanHtml } from 'demosplan-ui/directives'
+
+export default {
+  name: 'MyComponent',
+
+  directives: {
+    cleanhtml: CleanHtml
+  },
+
+  //...
+}
+```

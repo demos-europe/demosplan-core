@@ -1,0 +1,29 @@
+{% if tracking_enabled is defined and tracking_enabled %}
+    <h2>Statistik und Webanalyse</h2>
+
+    <p>Diese Website verwendet <a class="{{ 'o-link--external u-pl-0_25'|prefixClass }}" target="_blank" href="https://matomo.org" rel="noopener noreferrer">Matomo</a>, eine quelloffene (Open Source) Anwendung, zur Erhebung
+        von Seitenbesuchen.</p>
+
+    <p><a class="o-link--external" target="_blank" href="https://www.datenschutzzentrum.de/uploads/projekte/verbraucherdatenschutz/20110315-webanalyse-piwik.pdf" rel="noopener noreferrer">Unabhängiges Landeszentrum
+            für Datenschutz Schleswig-Holstein zu Piwik (ehemaliger Projektname von Matomo)</a></p>
+
+    <p>
+        Matomo verwendet unter anderem sog. "Cookies", also Textdateien, die auf Ihrem Computer gespeichert werden, um eine
+        anonymisierte Analyse Ihres Besuchs der Website zu ermöglichen. Die durch den Cookie erzeugten Informationen über
+        Ihre Benutzung dieser Website werden auf die Server der Dataport AöR übertragen. Die Daten (inkl. der IP-Adresse)
+        werden nur zu internen Analysezwecken und zur Verbesserung der Anwendung verwendet.
+    </p>
+
+    {% if piwik.enable is defined and piwik.enable %}
+    <p>
+        Sie können der Analyse Ihres Seitenbesuchs widersprechen, indem Sie Ihre Cookie-Einstellungen bearbeiten.
+        Bitte klicken Sie hier, wenn Sie Ihre Cookie-Einstellungen ändern möchten:
+        <a href="#" data-change-cookie-consent="{# This attribute is used as a hook to append an EventListener in data_protection.twig.html #}">Cookie-Einstellungen ändern.</a>
+    </p>
+    {% endif %}
+
+    <p>
+        Die Aufzeichnung Ihrer Seitennutzung wird auch verhindert, wenn Sie in Ihrem Browser die Option einschalten, dass
+        Websites Ihren Besuch nicht verfolgen dürfen ("Do-not-track" oder "Verfolgung von Nutzeraktivitäten").
+    </p>
+{% endif %}

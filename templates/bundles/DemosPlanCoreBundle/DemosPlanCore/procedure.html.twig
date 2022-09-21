@@ -1,0 +1,18 @@
+{%  if templateVars.procedureLayer|default and 'participation' == templateVars.procedureLayer %}
+    {% set extendTwig = '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% else %}
+    {% set extendTwig = '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+{% endif %}
+{% extends extendTwig %}
+
+{% block component_part %}
+
+    {% block demosplanbundlecontent %}
+
+    {% endblock demosplanbundlecontent %}
+
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

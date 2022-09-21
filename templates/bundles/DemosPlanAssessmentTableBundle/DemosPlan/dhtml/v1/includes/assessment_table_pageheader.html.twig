@@ -1,0 +1,81 @@
+{#
+    Pageheader with submenu for...
+
+    - assessment_table_new_statement.html
+    - assessment_table_original_view.html
+    - assessment_table_view.html
+    - fragment_statement.html
+#}
+
+{% set procedureId = procedureId is defined ? procedureId : procedure %}
+{% set statementId = (statement is defined and statement.ident is defined) ? statement.ident : templateVars.statement.ident|default(0) %}
+
+{% set hashList = app.session.get('hashList', []) %}
+{% set assessmentFilterHash = (hashList[procedureId] is defined )? hashList[procedureId]['assessment']['hash']|default(null) : null %}
+{% set originalFilterHash = (hashList[procedureId] is defined )? hashList[procedureId]['original']['hash']|default(null) : null %}
+
+{# Append "#itemdisplay_uuidofstatement" to path to make assessment table scroll to item #}
+{% set statementIdUrlFragment = (statementId is same as(0)) ? '' : 'itemdisplay_' ~ statementId %}
+
+{% set links = {
+    assessment_table: [
+        {
+            href: path("dplan_assessmenttable_view_table", {'procedureId': procedureId, 'filterHash': assessmentFilterHash, '_fragment': statementIdUrlFragment}),
+            label: 'considerationtable',
+            feature: 'area_admin_assessmenttable',
+            key: 'assessment_table',
+            datacy: 'assessmentTable'
+        },
+        {
+            href: path('DemosPlan_statement_orga_list', {'procedureId': procedureId}),
+            label: 'statements.collected.list',
+            feature: 'area_statement_data_input_orga',
+            key: 'collected_list'
+        },
+        {
+            href: path('dplan_assessmenttable_view_original_table', {'procedureId': procedureId, 'filterHash': originalFilterHash}) ~ statement_original_hash|default,
+            label: 'statements.original',
+            feature: 'area_admin_assessmenttable',
+            key: 'assessment_table_original',
+            datacy: 'assessmentTableOriginal'
+        },
+        {
+            href: path('DemosPlan_statement_new_submitted', {'procedureId': procedureId}),
+            label: 'statement.new',
+            feature: 'feature_statement_data_input_orga',
+            icon: 'fa-plus',
+            key: 'new_statement',
+            datacy: 'createStatement'
+        }
+    ],
+    assessment_table_back: [
+        {
+            href: path("dplan_assessmenttable_view_table", {'procedureId': procedureId, 'filterHash': assessmentFilterHash, '_fragment': statementIdUrlFragment}),
+            label: 'considerationtable.back',
+            feature: 'area_admin_assessmenttable'
+        },
+    ]
+} %}
+
+{% set subnav = [] %}
+
+{% if area is defined and links[area]|filter(link => hasPermission(link.feature))|length >= 1 %}
+    {# Transform into a structure as expected by base_pageheader, excluding links that are not permitted #}
+    {% for subnavItem in links[area]|filter(subnavItem => subnavItem.feature is not defined or hasPermission(subnavItem.feature)) %}
+        {% set subnav = subnav|merge([{
+            current: highlighted is defined and subnavItem.key|default == highlighted|default,
+            href: subnavItem.href,
+            label: subnavItem.label|trans,
+            icon: subnavItem.icon|default,
+            datacy: subnavItem.datacy|default,
+            id: subnavItem.id|default
+        }]) %}
+    {% endfor %}
+{% endif %}
+
+{# Render the page header #}
+{% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+    heading: heading|trans,
+    subnav: subnav|length > 0 ? subnav : null,
+    flush: true
+} %}

@@ -1,0 +1,36 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: jumpnav
+//
+//  used to display a navigation that is only visible on focus
+//  and serves as a quick way for screen reader users to jump to
+//  important places on the page
+
+.c-jumpnav {
+    position: absolute;
+    top: $inuit-base-spacing-unit--small;
+    left: $inuit-base-spacing-unit--small;
+    z-index: $z-super;
+
+    a {
+        @include keyboard-focus {
+            display: block;
+            // The "min-width" fix is needed for safari, otherwise the focused area has a width of around 20px
+            // which makes it hard to spot for users.
+            min-width: 200px;
+            padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
+        }
+
+        &:not(:focus),
+        html.has-pointer-input & {
+            @extend %hide-visually;
+        }
+    }
+}

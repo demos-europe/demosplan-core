@@ -1,0 +1,132 @@
+{% if procedure|default and hasPermission('area_statements') %}
+
+    {% set statementCounts = render(path('DemosPlan_statement_get_count_internal', { 'procedure': procedure|default }))|json_decode  %}
+    {% set defaultSubmissionType = constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT')  %}
+    {# submissionType of orga of current user is the relevant one #}
+    {# the orga of the current user has to handle the draftstatements, not the ownerorga of the proceudre#}
+    {% set isDefaultSubmissionProcess = currentUser.orga.submissionType|default(defaultSubmissionType) == defaultSubmissionType %}
+    <nav
+        class="{{ 'c-pageheader__flyout c-flyout display--inline-block u-ml-lap-up u-mt-0_25-palm'|prefixClass }}"
+        data-actionmenu aria-label="{{ 'procedure.statements.mine'|trans }}"
+        data-cy="flyOutActionMenu">
+
+        <button
+            class="{{ 'c-flyout__trigger'|prefixClass }}"
+            type="button"
+            aria-haspopup="true">
+            <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
+                <i class="{{ 'fa fa-angle-down'|prefixClass }}" aria-hidden="true"></i>
+                {{ 'procedure.statements'|trans }}
+                {% if (hasPermission('area_statements_draft') and (statementCounts.drafts > 0 or statementCounts.ownDrafts > 0)) or
+                    (hasPermission('area_statements_released_group') and statementCounts.groupReleased > 0) %}
+                    <i class="{{ 'fa fa-bell color--system-error-dark'|prefixClass }}" aria-hidden="true"></i>
+                    <em class="hide-visually">{{ 'text.statements.owndraft.reminder'|trans }}</em>
+                {% endif %}
+            </span>
+        </button>
+
+        <div class="{{ 'c-flyout__content u-pt-0_5 u-pb-0_75'|prefixClass }}" role="menu">
+            <h3 class="{{ 'c-flyout__item weight--normal font-size-medium u-m-0 u-pb-0'|prefixClass }}">
+                <i class="{{ 'fa fa-folder-open u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
+                {{- "statements"|trans }} in Bearbeitung
+            </h3>
+
+            {% if hasPermission('area_statements_draft') %}
+                 <a
+                     class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                     data-cy="statementsDraft"
+                     href="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}"
+                     data-actionmenu-menuitem
+                 >
+                    {% if(currentUser.roles is defined and 'RCITIZ' in currentUser.roles) %}
+                        {{ "statements.draft"|trans }}
+                        <span class="{{ 'o-badge o-badge--small'|prefixClass }} {{ statementCounts.drafts > 0 ? 'o-badge--alert'|prefixClass : 'o-badge--light'|prefixClass }}">
+                            {{ statementCounts.drafts }}
+                        </span>
+                    {% else %}
+                        {{ "statements.owndraft"|trans }}
+                        <span class="{{ 'o-badge o-badge--small'|prefixClass }} {{ statementCounts.ownDrafts > 0 ? 'o-badge--alert'|prefixClass : 'o-badge--light'|prefixClass }}">
+                            {{ statementCounts.ownDrafts }}
+                        </span>
+                    {% endif %}
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_statements_released') and isDefaultSubmissionProcess %}
+                <a
+                    class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                    data-cy="statementsOwnrelease"
+                    href="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}"
+                    data-actionmenu-menuitem
+                >
+                    {{ "statements.ownrelease"|trans }}
+                    <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.ownReleased }}</span>
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_statements_released_group') and isDefaultSubmissionProcess %}
+                <a
+                    class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                    data-cy="statementsGrouprelease"
+                    href="{{ path('DemosPlan_statement_list_released_group',{'procedure':procedure}) }}"
+                    data-actionmenu-menuitem
+                >
+                    {{ "statements.grouprelease"|trans }}
+                    <span class="{{ 'o-badge o-badge--small'|prefixClass}} {{ statementCounts.groupReleased > 0 ? 'o-badge--alert'|prefixClass : 'o-badge--light'|prefixClass }}">
+                        {{ statementCounts.groupReleased }}
+                    </span>
+                </a>
+            {% endif %}
+
+
+            <h3 class="{{ 'c-flyout__item weight--normal font-size-medium u-m-0 u-mt-0_5 u-pb-0'|prefixClass }}">
+                <i class="{{ 'fa fa-folder-open u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
+                {{- 'statements.submitted'|trans|ucfirst -}}
+            </h3>
+
+            {% if hasPermission('area_statements_final') %}
+                <a
+                    class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                    data-cy="statementsOwnsubmit"
+                    href="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure}) }}" data-actionmenu-menuitem>
+                    {% if ('RCITIZ' in roles or not isDefaultSubmissionProcess) %}
+                        {% if ('RCITIZ' not in roles) %}
+                            {{ "statements.final"|trans }}
+                            <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.groupSubmitted }}</span>
+                        {% else %}
+                            {{ "statements.ownsubmit"|trans }}
+                            <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.ownSubmitted }}</span>
+                        {% endif %}
+                    {% else %}
+                        {{ "statements.final"|trans }}
+                        <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.groupSubmitted }}</span>
+                    {% endif %}
+                </a>
+                <a
+                    class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                    data-cy="statementsVoted"
+                    href="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure, '_fragment':'votedStatementsList'}) }}"
+                    data-actionmenu-menuitem
+                >
+                    {{ "statements.voted"|trans }}
+                    <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.voted }}</span>
+                </a>
+            {% endif %}
+
+            {% if hasPermission('area_statements_public') %}
+                <a
+                    class="{{ 'c-flyout__item c-flyout__item--padded'|prefixClass }}"
+                    data-cy="statementsPublic"
+                    href="{{ path('DemosPlan_statement_list_public',{'procedure':procedure}) }}"
+                    data-actionmenu-menuitem
+                >
+                    {{ "statements.public"|trans }}
+                    <span class="{{ 'o-badge o-badge--small o-badge--light'|prefixClass }}">{{ statementCounts.public }}</span>
+                </a>
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+{% endif %}

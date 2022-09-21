@@ -1,0 +1,188 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+//  The flyout component defines a box that reveals additional options on hover.
+//
+//  @improve T13061
+
+.c-flyout {
+    $flyout-trigger-color: $dp-token-color-brand-link;
+    $flyout-trigger-color-hover: $dp-token-color-brand-link-hover;
+    $flyout-trigger-color-focus: $dp-token-color-brand-highlight;
+
+
+    position: relative;
+
+    // !!!!!!!!!!!! C + P from _actionmenu.scss !!!!!!!!!!!!!!
+    .nojs & {
+        z-index: $z-fixed;
+
+        &:hover .c-flyout__content,
+        .c-flyout__trigger:focus + .c-flyout__content {
+            display: block;
+        }
+
+        // This block needs to be separate from the previous one because :focus-within is not supported
+        // in IE/Old Edge which leads to those browsers ignoring the whole block.
+        &:focus-within .c-flyout__content {
+            display: block;
+        }
+    }
+
+    .js & {
+        &:hover,
+        &:active,
+        &.is-expanded,
+        &__trigger:focus {
+            z-index: $z-fixed;
+
+            & .c-flyout__content {
+                display: block;
+            }
+        }
+    }
+    // End C + P from _actionmenu.scss
+
+    &:hover,
+    &.is-expanded {
+        z-index: $z-tooltip-super;
+    }
+
+    //  pill-like trigger for flyout
+    &__trigger {
+        @extend %btn-base;
+
+        // Here, revealing the menu on :focus is enough discoverability for the moment.
+        @include keyboard-focus($outline: false) {
+            outline: 0;
+
+            .c-flyout__trigger-inner {
+                color: $flyout-trigger-color-focus;
+            }
+        }
+
+        padding: $inuit-base-spacing-unit--tiny 0;
+
+        line-height: 20px;
+
+        //  make the outer element transparent
+        &,
+        &:hover {
+            background-color: transparent;
+            color: transparent;
+        }
+
+        //  make icons inherit hover colors
+        &:hover .fa,
+        &:active .fa {
+            color: inherit;
+        }
+
+        &-inner {
+            display: inline-block;
+
+            padding: 0 $inuit-base-spacing-unit * .75;
+            border-radius: math.div($dp-header-nav-height - 12px, 2);
+
+            background-color: $dp-color-white;
+            color: $flyout-trigger-color;
+
+            line-height: $dp-header-nav-height - 12px;
+
+            //  also behave like :hover on :hover of surrounding tooltip
+            &:hover,
+            .c-flyout:hover &,
+            .c-flyout.is-expanded & {
+                &,
+                i {
+                    color: $flyout-trigger-color-hover;
+                }
+            }
+        }
+    }
+
+    &__content {
+        position: absolute;
+
+        display: none;
+
+        background-color: $dp-color-neutral-dark-2;
+        color: $alternate-font-color;
+
+        // Show tooltip content on :hover of parent element, set z-index to trump other tooltips.
+        // The flyout is activated on :hover and via data-touch-flyout javascript hook.
+        .c-flyout:hover &,
+        .c-flyout.is-expanded & {
+            z-index: $z-tooltip-super;
+            right: 0;
+
+            display: block;
+            min-width: 100%;
+        }
+
+        //  default style of links in tooltip content
+        a {
+            color: $dp-color-white;
+
+            &:hover {
+                color: $dp-color-white;
+                text-decoration: underline;
+            }
+        }
+
+        h3 {
+            color: $dp-color-white !important;
+        }
+    }
+
+    //  flyout links
+    &__item {
+        @include keyboard-focus;
+
+        display: block;
+        padding: 6px 18px 6px 24px;
+
+        line-height: 20px;
+        white-space: nowrap;
+
+        // What do these do?
+        &:hover .fa,
+        &:focus .fa,
+        &:active .fa {
+            color: inherit;
+        }
+
+        //  normal line breaks in small text items
+        > * {
+            white-space: normal;
+        }
+
+        &--padded {
+            padding: 2px 18px 2px 47px;
+        }
+
+        //  logout button
+        &--btn {
+            @extend %btn-base;
+            width: 100%;
+
+            text-align: left;
+
+            background-color: $dp-color-neutral-base;
+            color: $dp-color-white;
+
+            &:hover {
+                background-color: $dp-color-neutral-dark-1;
+                color: $dp-color-white;
+            }
+        }
+    }
+}

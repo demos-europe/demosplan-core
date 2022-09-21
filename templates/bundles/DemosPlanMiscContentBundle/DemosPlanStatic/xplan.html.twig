@@ -1,0 +1,21 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': title|default('XPlanung')
+    }%}
+
+        {% block content %}
+
+            {# custom xplanning by customers #}
+            {% if templateVars.xplanning|default|length > 0 %}
+                <div class="{{ 'c-styled-html'|prefixClass }}">
+                    {{ templateVars.xplanning|wysiwyg(['h2', 'h3', 'h4']) }}
+                </div>
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}

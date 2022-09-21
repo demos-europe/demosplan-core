@@ -1,0 +1,61 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% set news = templateVars.news %}
+
+{% block component_part %}
+
+    {#  pageheader - display procedure title + nav link #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with {
+        link: path('DemosPlan_procedure_public_detail', {'procedure': procedure}),
+        link_caption: 'procedure.goto'|trans,
+        width_css: {
+            col1: 'width-map-toolbar',
+            col2: 'width-map-canvas'
+        },
+        cssClasses: '',
+        content_heading: getProcedureName(proceduresettings),
+        content_subheading: 'Aktuelle Mitteilung',
+        hideMetaMenu: true
+    } %}
+
+    <div class="layout--flush bg-color--white o-page__padded u-mb">
+
+        <aside class="layout__item width-map-toolbar u-p-0_5 show-lap-up-ib">
+
+            <p><strong>{{ news.modifydate|default()|dplanDate }}</strong></p>
+            {% if news.picture is defined and news.picture != "" %}
+                <img class="u-pr" src="{{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }}">
+                <p class="font-size-smaller overflow-word-break">{{ news.pictitle }}</p>
+            {% endif %}
+        </aside><!--
+
+     --><section class="layout__item width-map-canvas u-p-0_5 u-pl-0-lap-up overflow-word-break">
+
+            <h2>{{ news.title }}</h2>
+
+            <p class="weight--bold">{{ news.description|wysiwyg('img') }}</p>
+
+            <p>{{ news.text|wysiwyg('img') }}</p>
+
+            {% if news.pdf is defined and news.pdf != '' %}
+                <p>
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                        {{ news.pdftitle|default(news.pdf|getFile('name')) }}
+                        {% if(news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
+                            ({{ news.pdf|getFile('size') }} {{ news.pdf|getFile('mimeType') }})
+                        {% endif %}
+                    </a>
+                </p>
+            {% endif %}
+
+        </section>
+
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

@@ -1,0 +1,33 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+
+{% block demosplanbundlecontent %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'fragments.edit'|trans
+    } %}
+
+{% set hashList = app.session.get('hashList', []) %}
+{% set assessmentFilterHash = hashList[procedure]['assessment']['hash']|default(null) %}
+{% set user = currentUser %}
+
+{# available authorized users #}
+{% set authUsers = [] %}
+{% for authorizedUser in templateVars.authorizedUsersOfMyOrganization|default([]) %}
+{% set authUsers = authUsers|merge([{id: authorizedUser.id, name: authorizedUser.name}]) %}
+{% endfor %}
+
+    <dp-bulk-edit-fragment
+        :procedure-id="{{ procedure|default('')|json_encode }}"
+        filter-hash="{{ assessmentFilterHash }}"
+        :authorised-users="JSON.parse('{{ authUsers|json_encode|e('js', 'utf-8') }}')"
+        current-user-id="{{ user.ident }}">
+    </dp-bulk-edit-fragment>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-bulkEditStatementFragment.js']) }}
+{% endblock javascripts %}

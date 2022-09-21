@@ -1,0 +1,37 @@
+
+    {% set type = type|default('auto') %}
+    {# Wandle die Variablen in Timestamps um #}
+    {% if procedure.publicParticipationStartDate is defined %}
+        {% set ppStartTimestamp = getProcedureStartDate(procedure, type) %}
+    {% endif %}
+    {% if procedure.publicParticipationEndDate is defined %}
+        {% set ppEndTimestamp = getProcedureEndDate(procedure, type) %}
+    {% endif %}
+
+    {# Gib aus, wie viele Tage (inklusive heute) das Verfahren noch in der Beteiligung ist #}
+    {% set daysLeft = getProcedureDaysLeft(procedure, type) %}
+    {% if daysLeft %}
+        <span>{{ daysLeft|wysiwyg }}&nbsp;</span>
+    {% endif %}
+
+    {# Gib den Zeitraum aus #}
+    {% if hasPermission('feature_institution_participation') and ownsProcedure(procedure) %}
+        {{ ppStartTimestamp|default( "notspecified"|trans )|dplanDateAnnotated }}
+        –
+        {{ ppEndTimestamp|default( "notspecified"|trans )|dplanDateAnnotated }}
+        /
+        {{ procedure.publicParticipationStartDate|default( "notspecified"|trans )|dplanDateAnnotated }}
+        –
+        {{ procedure.publicParticipationEndDate|default( "notspecified"|trans )|dplanDateAnnotated }}
+     {#
+        Do not display obviously wrong dates to public users. Might be any very old timestamp
+        Used 10000 to avoid edgecases with timezone or old javatimestamp hassle
+        Use dplanDate Filter to avoid problems with strange formats
+     #}
+    {% elseif ppStartTimestamp|dplanDate('U') < 10000  or ppEndTimestamp|dplanDate('U') < 10000 %}
+        {{ "notspecified"|trans }}
+    {% else %}
+        {{ ppStartTimestamp|default( "notspecified"|trans )|dplanDateAnnotated }}
+        –
+        {{ ppEndTimestamp|default( "notspecified"|trans )|dplanDateAnnotated }}
+    {% endif %}

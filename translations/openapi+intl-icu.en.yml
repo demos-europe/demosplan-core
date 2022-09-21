@@ -1,0 +1,30 @@
+title: demosplan json:api 2.0
+description: OpenApi Description of the demosplan json:api methods available with the current users' roles.
+
+method:
+    list:
+        description: Get a paginated list of all resources of type `{type}`.
+    get:
+        description: Get the resource of type `{type}` with the specified `resourceId`.
+    update:
+        description: Update the resource of type `{type}` and `resourceId`.
+
+parameter:
+    query:
+        exclude: |
+            Relationships to be removed from the response which would be included by default.
+            **MUST** be a comma-separated list of relationship property names and **MAY**
+            use the dot-syntax for nested properties.
+            Example: `exclude=author,publisher.address`
+        filter: A Drupal-Filter-Extension compliant query filter.
+        include: |
+            Relationships to be added to the response as included resources. **MUST** be a comma-separated
+            list of relationship property names and **MAY** use the dot-syntax for nested properties.
+
+            Example: `include=author.contactInfo`
+        page_number: The current page for the response
+        page_size: The current page size for the response
+
+resource:
+    id: Resource id
+    section: '{type}'

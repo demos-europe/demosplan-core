@@ -1,0 +1,92 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  utility classes: border--<keyword>
+//
+//  border: <br-width> || <br-style> || <color>
+//  https://developer.mozilla.org/de/docs/Web/CSS/border
+
+$utility-border-color: $default-border-color;
+$utility-border-thickness: $dp-border-thickness;
+
+.border {
+
+    border: $utility-border-thickness solid $utility-border-color;
+
+    &--none {
+        border: none !important;
+    }
+
+    &--top {
+        border-top: $utility-border-thickness solid $utility-border-color;
+    }
+
+    &--right {
+        border-right: $utility-border-thickness solid $utility-border-color;
+    }
+
+    &--bottom {
+        border-bottom: $utility-border-thickness solid $utility-border-color;
+    }
+
+    &--left {
+        border-left: $utility-border-thickness solid $utility-border-color;
+    }
+
+    &--ends {
+        border: none;
+        border-bottom: 1px solid $utility-border-color;
+        border-top: 1px solid $utility-border-color;
+    }
+
+    &--normal {
+        border: 2px solid $dp-color-neutral-light-1 !important;
+    }
+
+    &-color--grey-light {
+        border-color: $dp-color-neutral-light-1 !important;
+    }
+
+    &-color--grey-light-1 {
+        border: 1px solid $dp-color-neutral-light-2 !important;
+    }
+
+    &--error {
+        border: 2px solid $dp-color-system-error !important;
+        margin: -1px 0;
+        box-shadow: none;
+    }
+
+    &-radius--6 {
+        border-radius: 6px;
+    }
+
+    &-between {
+        &-vertical {
+            & > *:not(.border-between-none) + * {
+                border-top: $utility-border-thickness solid $utility-border-color;
+            }
+        }
+
+        &-horizontal {
+            & > *:not(.border-between-none) + * {
+                border-left: $utility-border-thickness solid $utility-border-color;
+            }
+        }
+    }
+
+    &-interactive {
+        border-color: $dp-token-color-ui-interactive;
+    }
+}
+
+input[type='checkbox'].border--error {
+    border: 2px solid $dp-color-system-error !important;
+    box-shadow: 0 0 2px 2px $dp-color-system-error;
+}

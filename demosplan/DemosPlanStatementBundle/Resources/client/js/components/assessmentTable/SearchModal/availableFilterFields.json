@@ -1,0 +1,105 @@
+[
+  {
+    "id": "statementText",
+    "value": "text",
+    "label": "statement.text.short"
+  },
+  {
+    "id": "fragmentText",
+    "value": "fragment_text",
+    "label": "fragmenttext",
+    "permissions": ["area_statements_fragment"]
+  },
+  {
+    "id": "organisationName",
+    "value": "initialOrganisationName",
+    "label": "organisation",
+    "permissions": ["feature_institution_participation"]
+  },
+  {
+    "id": "authorName",
+    "value": "authorName",
+    "label": "author"
+  },
+  {
+    "id": "planDocument",
+    "value": "documentTitle",
+    "label": "plandocument.and.chapter",
+    "permissions": ["field_procedure_elements"]
+  },
+  {
+    "id": "voters",
+    "value": "votes.name",
+    "label": "voters",
+    "permissions": ["field_statement_votes"]
+  },
+  {
+    "id": "statementId",
+    "value": "externId",
+    "label": "statement.id"
+  },
+  {
+    "id": "orgaCity",
+    "value": "initialOrganisationCity",
+    "label": "city",
+    "permissions": ["feature_statement_search_orga_city"]
+  },
+  {
+    "id": "orgaPostalCode",
+    "value": "initialOrganisationPostalCode",
+    "label": "postalcode",
+    "permissions": ["feature_statement_search_orga_postal_code"]
+  },
+  {
+    "id": "typeOfSubmission",
+    "value": "submitType",
+    "label": "submit.type",
+    "permissions": ["feature_statement_search_type_of_submission"]
+  },
+  {
+    "id": "department",
+    "value": "initialOrganisationDepartmentName",
+    "label": "department",
+    "permissions": ["feature_statement_search_department"]
+  },
+  {
+    "id": "internId",
+    "value": "internId",
+    "label": "internId"
+  },
+  {
+    "id": "potentialAreas",
+    "value": "priorityAreaKeys",
+    "label": "potential.areas",
+    "permissions": ["field_statement_priority_area"]
+  },
+  {
+    "id": "municipalitiesNames",
+    "value": "municipalityNames",
+    "label": "counties.and.municipalities",
+    "permissions": ["field_statement_municipality"]
+  },
+  {
+    "id": "topics",
+    "value": "topicNames",
+    "label": "topics",
+    "permissions": ["feature_statements_tag", "feature_statement_fragments_tag"]
+  },
+  {
+    "id": "consideration",
+    "value": "recommendation",
+    "label": "considerationtext"
+  },
+  {
+    "id": "clusterName",
+    "value": "clusterName",
+    "label": "statement.cluster.name",
+    "permissions": ["feature_statement_cluster"]
+  },
+  {
+    "id": "memo",
+    "value": "memo",
+    "label": "memo",
+    "permissions": ["field_statement_memo"]
+  }
+]

@@ -1,0 +1,52 @@
+{#
+/**
+ * Make project settings available to javascript.
+ *
+ * @param {String}  publicCSSClassPrefix        Prefix that can be applied to all css class selectors in rendered
+ *                                              markup to avoid conflicts when using demosplan next to other platforms.
+ * @param {Boolean} omitPublicCSSClassPrefix    Whether to bypass publicCSSClassPrefix usage
+ */
+#}
+window.dplan = {
+    settings                : {
+        basicAuth           : '{{ basicAuth|default('') }}',
+        debug               : Boolean({{ app.debug|default(0) }}),
+        maxUploadSize       : {{ maxUploadSize|default(0) }},
+        useOpenGeoDb        : Boolean({{ useOpenGeoDb|default(0) }}),
+        publicCSSClassPrefix: "{{ omitPublicCSSClassPrefix|default ? '' : publicCSSClassPrefix|default }}"
+    },
+
+    paths                   : {
+        uploadPost          : "{{path('tus_upload') }}", {# global path for file uploader endpoint #}
+        urlPathPrefix       : "{{ urlPathPrefix|default('') }}"
+    },
+
+    permissions             :  JSON.parse("{{ exposedPermissions|default([])|json_encode }}"),
+    projectName             : "{{ projectName|default('') }}",
+    projectVersion          : "{{ projectVersion|default('') }}",
+    loggedIn                : Boolean({{ loggedin|default(0) }}),
+    currentUserId           : "{{ currentUser.id|default }}",
+    currentUser             : {
+        id: "{{ currentUser.id|default }}",
+        roles: "{{ currentUser.roles|default([])|json_encode }}"
+    },
+    sentryDsn               : "{{ sentry_dsn|default }}",
+    jwtToken                : "{{ jwtToken|default }}",
+
+    defaultProjectionLabel  : "{{ defaultProjectionLabel() }}",
+    defaultProjectionString  : "{{ defaultProjectionValue() }}",
+
+    {# `dplan.procedureId` is passed into the `X-Demosplan-Procedure-Id` request header of dpApi/dpRpc calls.
+       Also, it is used as part of sessionStorage keys or posted to api endpoints that were created before the
+       `X-Demosplan-Procedure-Id` request header was established. #}
+    {% if (procedure is defined and procedure is not null) or (proceduresettings is defined and proceduresettings is not null) %}
+    procedureId: "{{ proceduresettings.ident|default(procedure|default(0)) }}",
+    {% endif %}
+
+    {# keys for sessionStorage StatementFormaData #}
+    {% if procedure is defined and procedure is not null %}
+    procedureIdKey: "procedure_{{ proceduresettings.ident|default(0) }}",
+    currentStatementId: "{{ templateVars.draftStatementId|default(templateVars.draftStatement.id|default('new')) }}",
+    procedureStatementPriorityArea: Boolean({{ procedureStatementPriorityArea|default(0) }}),
+    {% endif %}
+};

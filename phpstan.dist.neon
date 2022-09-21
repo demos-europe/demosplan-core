@@ -1,0 +1,29 @@
+includes:
+    - %rootDir%/../../../vendor/phpstan/phpstan-symfony/extension.neon
+    - %rootDir%/../../../vendor/timeweb/phpstan-enum/extension.neon
+parameters:
+    tmpDir: %rootDir%/../../../infrastructure/.runtime
+    scanFiles:
+        - %rootDir%/../../../vendor/phayes/geophp/lib/adapters/GeoJSON.class.php
+        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Collection.class.php
+        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Geometry.class.php
+        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/LineString.class.php
+        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Point.class.php
+        - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Polygon.class.php
+        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
+    scanDirectories:
+        - %rootDir%/../../../lib
+#    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4
+#    autoload_directories:
+#        - %rootDir%/../../../demosplan/DemosPlanCoreBundle/DoctrineMigrations
+#        - %rootDir%/../../../vendor/phayes/geophp/lib/adapters
+#    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4
+#    autoload_files:
+#        - %rootDir%/../../../vendor/autoload.php
+#        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
+
+    excludes_analyse:
+        - %rootDir%/../../../demosplan/plugins
+        - %rootDir%/../../../demosplan/vendor
+        - %rootDir%/../../../vendor
+    level: 1

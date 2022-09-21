@@ -1,0 +1,232 @@
+404.title: "Seite nicht gefunden"
+500.title: "Ein Fehler ist aufgetreten"
+
+accessibility: "Barrierefreiheit"
+assessment.table: Abwägungstabelle
+assessment.table.anonymous: Abwägungstabelle ohne Namen
+assessment.table.cluster.detail: Stellungnahmengruppe Details
+assessment.table.statement.detail: Stellungnahme Details
+assessment.table.statements.original: Originalstellungnahmen
+assessment.table.statements.fragment: Stellungnahme aufteilen
+
+category.admin.new: Kategorie neu anlegen
+category.admin.edit: Kategorie bearbeiten
+category.admin: Kategorie erstellen
+
+dashboard.index: Übersicht
+
+drawing: Planzeichnung
+drawing.admin.adjustments.gis: Kartenausschnitt definieren
+drawing.admin.gis.layers: Planzeichnung/GIS
+drawing.admin.gis.layers.global: Liste der globalen GIS-Layer
+drawing.admin.gis.layer.global.edit: Globalen GIS-Layer editieren
+drawing.admin.gis.layer.new: GIS-Layer anlegen
+drawing.admin.gis.layer.edit: GIS-Layer editieren
+drawing.admin.territory: Geltungsbereich zeichnen
+drawing.map.new: Verortung herstellen
+
+element.admin.category: Kategorie bearbeiten
+element.admin.category.new: Kategorie anlegen
+element.detail.document.add: "Planungsdokument hinzufügen"
+element.detail.document.edit: "Planungsdokument bearbeiten"
+element.drawing.statement.new: Planzeichnung
+#----
+element.list: Planungsdokumente
+element.list.admin: Planungsdokumente
+element.paragraph.agreement: Textliche Festsetzungen
+element.paragraph: Kapitel
+element.paragraph.reason: Begründung
+
+elements.bulk.edit: "Planungsdokumente bearbeiten"
+elements.dashboard: Planungsdokumente und Planzeichnung
+
+email.invitation.write: E-Mail-Einladung verfassen
+
+export.titlepage: Deckblatt exportieren
+
+faq.admin: Häufige Fragen verwalten
+faq.admin.new: Häufige Frage neu anlegen
+faq.admin.edit: Häufige Frage bearbeiten
+faq.list: Häufige Fragen
+faq.public: Informationen
+
+forum.development: Weiterentwicklung
+forum.development.release.list: Releases
+forum.development.release.new: Neues Release anlegen
+forum.development.release.edit: Release bearbeiten
+forum.development.release.story.new: Neue Userstory erstellen
+forum.development.release.story.edit: Userstory bearbeiten
+forum.development.release.story.delete: Userstory löschen
+forum.development.release.story: Userstory - Detail
+forum.development.story.threadentry.new: Neuer Beitrag
+forum.development.story.threadentry.edit: Beitrag bearbeiten
+
+fragment.bulk.edit: Datensätze bearbeiten
+fragments.list: Datensätze
+fragments.list.archive: Datensatz - Archiv
+
+gdpr.consent.revoke.disabled: "Automatisierter Widerruf deaktiviert"
+
+help.contextualHelp.list: Kontexthilfe - Übersicht
+help.contextualHelp.edit: Bearbeiten
+history: Versionsverlauf
+import: "Import"
+invitable_institution.unregistered.administer: Unregistrierte Institutionen verwalten
+invitable_institution.unregistered.invite: Unregistrierte Institutionen einladen
+language.simple: Leichte Sprache
+
+mail.create.template: Mail - Template erstellen
+mail.status: Mail - Status
+
+misc.contact: Kontakt
+misc.howToLogin: Anmeldung
+misc.imprint: Impressum
+misc.dataProtection: Datenschutz
+misc.softwarecomponents: Verwendete Softwarekomponenten
+misc.information: Informationen
+misc.information.documents: Unterlagen
+misc.termsOfUse: Nutzungsbedingungen
+misc.xplanning: XPlanung
+
+
+news: Aktuelles/Mitteilungen
+news.admin: Aktuelles/Mitteilungen
+news.admin.new: Mitteilung anlegen
+news.admin.edit: Mitteilung bearbeiten
+news.detail: Detail
+news.export: Aktuelles
+news.global.export: Portalmitteilungen
+news.global: Aktuelles/Portalmitteilungen
+news.global.admin: Aktuelles/Portalmitteilungen
+news.global.admin.new: Portalmitteilung anlegen
+news.global.admin.edit: Portalmitteilung bearbeiten
+news.global.detail: Detail
+
+paragraph.agreement: Textliche Festsetzungen
+paragraph.agreement.edit: Kapitel bearbeiten
+paragraph.agreement.export: Textliche Festsetzungen
+paragraph.new: Kapitel anlegen
+paragraph.edit: Kapitel bearbeiten
+paragraph.reason: Begründung
+paragraph.reason.edit: Begründung bearbeiten
+paragraph.reason.export: Begruendung
+
+
+procedure: Verfahren
+procedure.public: Verfahren
+procedure.adjustments: Grundeinstellungen
+procedure.admin.list: Verfahren verwalten
+procedure.analysis: Auswertung
+procedure.boilerplates: Textbausteine
+procedure.boilerplate.edit: Textbaustein bearbeiten
+procedure.boilerplateGroup.edit: Textbausteingruppe bearbetien
+procedure.list: Beteiligung
+procedure.mail.submitters.send: E-Mail an alle Einreichenden verfassen
+procedure.mail.submitters.send.confirm: E-Mail an alle Einreichenden versenden
+procedure.master.adjustments: Blaupause - Einstellungen
+procedure.master: Blaupause
+procedure.master.admin: Blaupausen
+procedure.master.new: Blaupause anlegen
+procedure.new: Verfahren anlegen
+procedure.notifications: Benachrichtigungen
+procedure.proposal.create: Verfahren vorschlagen
+procedure.proposal.detail: Verfahrensvorschlag
+procedure.proposal.list: Liste der Verfahrensvorschläge
+procedure.public.agency.add: Institutionen hinzufügen
+procedure.public.agency.administration: Institutionen verwalten
+procedure.public.agency.list.export: Institutionen-Liste exportieren
+
+procedure.public.list: Liste der Planverfahren in der Öffentlichkeitsbeteiligung
+procedure.public.participation: Öffentlichkeitsbeteiligung
+procedure.report: Verfahrensprotokoll
+procedure.types: Verfahrenstypen
+procedure.type.edit: Verfahrenstyp bearbeiten
+procedure.type.create: Verfahrenstyp erstellen
+
+procedures.search.statements: Verfahrensübergreifende Stellungnahmensuche
+
+project.name: "{projectName}"
+
+service.mode: Wartungsmodus
+
+segments: "Abschnitte"
+segments.bulk.edit: "Abschnitte bearbeiten"
+segments.import: "Abschnitte importieren"
+segments.recommendations.create: "Erwiderungen verfassen"
+
+signLanguage: "Gebärdensprache"
+start.welcome: Willkommen
+
+statement.anonymize: Stellungnahme anonymisieren
+statement.do.fragment: Stellungnahme aufteilen
+statement.edit: Stellungnahme bearbeiten
+statement.view: Stellungnahme ansehen
+statement.indication.error: Stellungnahmen - Fehlanzeige
+statement.manual: Manuelle Stellungnahme anlegen
+statement.new: Stellungnahme anlegen
+statement.new.create: "Neue Stellungnahme verfassen"
+statement.own: Ihre Stellungnahme
+statement.print: Stellungnahmen drucken
+statement.public: Öffentliche Stellungnahme
+statement.submit: Stellungnahme einreichen
+statement.version: Stellungnahme Version
+statement.versions: Stellungnahme Versionen
+statement.vote: Stellungnahme mitzeichnen
+
+statement.bulk.edit: Stellungnahmen bearbeiten
+
+statements: Stellungnahmen
+statements.drafts: Meine Entwürfe
+statements.final.group: Einreichungen der Organisation
+statements.final.own: Meine Einreichungen
+statements.import: Stellungnahmen importieren
+statements.original: Originalstellungnahmen
+statements.other.companies: Veröffentlichte Einreichungen (Stellungnahmen anderer Institutionen)
+statements.released: Meine Freigaben
+statements.released.group: Freigaben der Organisation
+statements.send.per.email: Stellungnahme per E-Mail verschicken
+statements.uploaded.confirm: Importierte Stellungnahmen bestätigen
+statements.uploaded.recheck: Importierte Stellungnahmen überprüfen
+
+statistic: Statistik
+
+submitters: Einreichende
+
+titlepage: Deckblatt
+
+tag.administration_single: Schlagwort bearbeiten
+
+user.add.department: Neue Abteilung anlegen
+user.add.orga: Neue Organisation anlegen
+user.add.user: Neue*n Nutzer*in anlegen
+user.admin.member: Nutzende verwalten
+user.admin.departments: Abteilungen verwalten
+user.admin.orga.data: Daten der Organisation
+user.admin.orgas: Organisationen verwalten
+user.admin.user: Nutzende verwalten
+user.choose.orga: Auswahl der Organisation
+user.delete.departments: Abteilungen löschen
+user.delete.orga: Organisation löschen
+user.delete.user: Nutzer*in löschen
+user.edit.department: Abteilung bearbeiten
+user.edit.orga: Daten der Organisation bearbeiten
+user.edit.orga.branding: "Darstellung im öffentlichen Bereich bearbeiten"
+user.edit.profil: Meine Daten bearbeiten
+user.list.visibility.changes.invitable_institution: Änderungen der Sichtbarkeit in der Institutionen-Liste
+user.login: Anmelden
+user.mail.inbox: Posteingang
+user.mail.delete: Nachricht löschen
+user.mail.new: Neue Nachricht
+user.mail.outbox: Gesendete Nachrichten
+user.mail.read: Nachricht lesen
+user.participants: Teilnehmende
+user.password.recover: Passwort vergessen
+user.profile: Meine Daten
+user.invitable_institution.master: "Master-TöB-Liste"
+user.invitable_institution.master.merge: "Institutionen zusammenführen"
+user.invitable_institution.master.report: "Änderungen Master-TöB-Liste"
+user.profile.edit: Meine Daten
+user.register: Registrieren
+user.register.citizen: Registrieren
+user.statements: Ihre eingereichten Stellungnahmen
+user.welcome: Willkommen

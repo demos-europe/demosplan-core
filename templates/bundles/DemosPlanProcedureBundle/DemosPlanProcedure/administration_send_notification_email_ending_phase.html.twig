@@ -1,0 +1,17 @@
+{% block body_plain %}
+
+Guten Tag,
+
+zu Ihrer Information:
+
+Im Verfahren {{ templateVars.procedure.name|default() }} endet
+in {{ templateVars.daysToGo|default() }} Tagen ({{ templateVars.procedure.endDate|default()|dplanDate }})
+die Frist für den Verfahrensschritt "{{ templateVars.procedure.phaseName|default() }}".
+
+Freundliche Grüße
+
+
+-------------
+Sie erhalten diese E-Mail, weil Sie diese E-Mail-Benachrichtigung unter "Daten der Organisation" aktiviert haben. Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{#
+Renders a notification box with raised visual weight.
+
+message {String}: The actual message that is rendered inside the box.
+type {String}:    Error level (may be 'info', 'warning', 'error' or 'success'). Defaults to 'info'.
+#}
+
+{% set iconClasses = {
+    confirm: 'fa-check',
+    error: 'fa-exclamation-circle',
+    info: 'fa-info-circle',
+    warning: 'fa-exclamation-triangle'
+} %}
+
+{% set type = type|default('info') %}
+
+<div class="flash flash-{{ type }}">
+    <i class="fa {{ iconClasses[type] }}" aria-hidden="true"></i>
+    <p class="display--inline-block u-mb-0">
+        {{ message|wysiwyg }}
+    </p>
+</div>

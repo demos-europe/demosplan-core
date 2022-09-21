@@ -1,0 +1,82 @@
+<article class="o-box--forum layout__item u-11-of-12 u-mt">
+    <div class="layout__item u-4-of-5 border--right">
+        {%  if entry.user is defined %}
+            <p class="u-mr-">
+                {{ entry.text|default()|wysiwyg }}
+            </p>
+            {% if entry.documents is defined %}
+                {% for document in entry.documents %}
+                    <a
+                        target="_blank"
+                        rel="noopener"
+                        href="{{ path("core_file", { 'hash': document|getFile('hash') }) }}">
+                        <i class="fa fa-file-o"></i>
+                        {{ document|getFile('name') }}
+                        ({{ document|getFile('mimeType') }}
+                        {{ document|getFile('size','MB') }})
+                    </a>
+                {% endfor %}
+            {% endif %}
+            {% if entry.images is defined %}
+                {% for image in entry.images %}
+                    <img class="c-image c-image--detail" src="{{ path("core_logo", { 'hash': image|getFile('hash') }) }}">
+                {% endfor %}
+            {% endif %}
+            {% if entry.createDate|default() != entry.modifiedDate|default() %}
+                <p class="font-size-smaller">
+                    <strong>Dieser Beitrag wurde bearbeitet.</strong>
+                </p>
+            {% endif %}
+        {% endif %}
+        {% if entry.text == 'Moderator'%}
+            <strong>Der Beitrag wurde vom Moderator gelöscht.</strong>
+        {% endif %}
+        {% if entry.text == 'Verfasser'%}
+            <strong>Der Beitrag wurde vom Verfasser gelöscht.</strong>
+        {% endif %}
+    </div><!--
+ --><aside class="layout__item u-1-of-5">
+        {% if entry.user is defined %}
+            {% if entry.editable is defined and entry.editable == true %}
+                <p>
+                    <a class="btn-icns" href="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{"storyId": templateVars.userStory.ident, "threadEntryId": entry.ident })  }}">
+                        <i class="fa fa-pencil btn-icns-icon"></i>
+                        Der Beitrag kann noch bis {{ entry.limitToEdit|default()|dplanDate('H:i') }} Uhr editiert werden.
+                    </a>
+                </p>
+            {% endif %}
+            <p>
+                Beitrag von
+                <br>
+                <strong>{{ entry.user.ufirstname|default() }} {{ entry.user.ulastname|default() }}</strong>
+                {% if entry.userRoles is defined and entry.userRoles != false %}
+                    {% if 'RMODER' in entry.userRoles %}
+                        <br>
+                        <span class="font-size-smaller">
+                            ({{ "role.moder"|trans }})
+                        </span>
+                    {% endif %}
+                    {% if 'RFALST' in entry.userRoles %}
+                        <br>
+                        <span class="font-size-smaller">
+                            ({{ "role.falst"|trans }})
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </p>
+            <p class="font-size-smaller">
+                {{ entry.createDate|default()|dplanDate('d.m.y, H:i') }}
+            </p>
+            {% if permissions.feature_forum_thread_edit.enabled == true %}
+                <dp-accordion title="{{ 'moderate'|trans }}" id="moderation-beitragsID{{ entry.ident|default() }}">
+                    <div class="border u-p-0_5 u-mt-0_5">
+                        <a class="btn-icns u-m-0 display--block" href="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{"storyId": templateVars.userStory.ident, "threadEntryId": entry.ident })  }}">
+                        <i class="fa fa-pencil btn-icns-icon"></i>
+                            {{ 'entry.edit'|trans }}
+                        </a>
+                    </div>
+                </dp-accordion>
+            {% endif %}
+        {% endif %}
+    </aside>
+</article>

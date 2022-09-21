@@ -1,0 +1,47 @@
+internalPhases:
+    1:
+        name: procedure.phases.internal.configuration
+        key: configuration
+        permissionset: hidden
+    2:
+        name: procedure.phases.internal.earlyparticipation
+        key: earlyparticipation
+        permissionset: write
+    3:
+        name: procedure.phases.internal.participation
+        key: participation
+        permissionset: write
+    4:
+        name: procedure.phases.internal.analysis
+        key: evaluating
+        participationstate: !php/const demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure::PARTICIPATIONSTATE_FINISHED
+        permissionset: read
+    5:
+        name: procedure.phases.internal.closed
+        key: closed
+        participationstate: !php/const demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure::PARTICIPATIONSTATE_FINISHED
+        permissionset: read
+
+externalPhases:
+    1:
+        name: procedure.phases.external.configuration
+        key: configuration
+        permissionset: hidden
+    2:
+        name: procedure.phases.external.earlyparticipation
+        key: earlyparticipation
+        permissionset: write
+    3:
+        name: procedure.phases.external.participation
+        key: participation
+        permissionset: write
+    4:
+        name: procedure.phases.external.evaluating
+        key: evaluating
+        participationstate: !php/const demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure::PARTICIPATIONSTATE_FINISHED
+        permissionset: read
+    5:
+        name: procedure.phases.external.closed
+        key: closed
+        participationstate: !php/const demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure::PARTICIPATIONSTATE_FINISHED
+        permissionset: read

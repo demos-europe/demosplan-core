@@ -1,0 +1,18 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'segments.bulk.edit'|trans
+    } %}
+
+    <segments-bulk-edit
+        :procedure-id="{{ procedure|default|json_encode }}"
+    >
+    </segments-bulk-edit>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-administrationSegmentsBulkEdit.js']) }}
+{% endblock javascripts %}

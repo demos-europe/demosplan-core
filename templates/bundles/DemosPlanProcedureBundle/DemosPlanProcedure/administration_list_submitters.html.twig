@@ -1,0 +1,16 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'submitters'|trans
+    } %}
+
+    <dp-submitter-list
+        class="u-mb-2"
+        procedure-id="{{ procedure }}">
+    </dp-submitter-list>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationListSubmitters.js')}}
+{% endblock javascripts %}

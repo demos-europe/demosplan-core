@@ -1,0 +1,118 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:math';
+
+////
+/// @group components-loading
+////
+
+/// Used to indicate activity while the user is waiting for data to load.
+///
+/// @group components
+///
+/// @name .c-loading
+///
+/// @example markup
+///
+///    <!-- Spinner and Text beside it -->
+///    <dp-loading
+///         :is-loading="isLoading"/>
+///
+///    <!-- Spinner only -->
+///    <dp-loading
+///         :is-loading="isLoading"
+///         hide-label/>
+///
+///    <!-- Spinner and semi transparent block spanning whole parent element -->
+///    <dp-loading
+///         :is-loading="isLoading"
+///         :overlay="true"/>
+
+.c-loading {
+    $loading-color: $dp-token-color-brand-main !default;
+    $loading-color-bg: $dp-color-white !default;
+    $loading-size: $inuit-base-spacing-unit * .75 !default;
+    $loading-stroke: 2px !default;
+    $loading-zindex: $z-content-above;
+    $loading-overlay-bg: rgb(255 255 255 / 60%);
+
+    &--overlay {
+        left: 0;
+        position: absolute;
+        top: 0;
+        z-index: $loading-zindex;
+
+        height: 100%;
+        width: 100%;
+
+        background: $loading-overlay-bg;
+    }
+
+    &__inner {
+        left: 50%;
+        position: absolute;
+        top: 50%;
+
+        transform: translate(-50%, -50%);
+    }
+
+    &__spinner,
+    &__text {
+        display: inline-block;
+
+        height: $loading-size;
+
+        line-height: $loading-size;
+    }
+
+    &__spinner {
+        position: relative;
+
+        width: $loading-size;
+
+        &::before,
+        &::after {
+            left: 50%;
+            position: absolute;
+            top: 50%;
+
+            height: $loading-size;
+            margin: -(math.div($loading-size, 2));
+            width: $loading-size;
+
+            border-radius: 100%;
+            border-color: $loading-color transparent transparent;
+            border-style: solid;
+            border-width: $loading-stroke;
+            box-shadow: 0 0 0 1px transparent;
+            content: '';
+        }
+
+        &::before {
+            animation: spinning 2.4s cubic-bezier(.41, .26, .2, .62);
+            animation-iteration-count: infinite;
+        }
+
+        &::after {
+            animation: spinning 2.4s cubic-bezier(.51, .09, .21, .8);
+            animation-iteration-count: infinite;
+        }
+    }
+}
+
+@keyframes spinning {
+    from {
+        transform: rotate(0);
+    }
+
+    to {
+        transform: rotate(2turn);
+    }
+}

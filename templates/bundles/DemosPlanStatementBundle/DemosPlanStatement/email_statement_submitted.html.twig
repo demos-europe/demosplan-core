@@ -1,0 +1,31 @@
+{#logged in user & institution #}
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain -%}
+Guten Tag,
+
+vielen Dank für Ihre Stellungnahme.
+
+Sie haben soeben eine oder mehrere Stellungnahmen zu einem Verfahren eingereicht.
+Die Vorgangsnummern der Stellungnahmen lauten: {{ templateVars.externIds|default }}.
+Zur Bestätigung sind die eingegangenen Stellungnahmen dieser Mail als PDF angehängt.
+{% if templateVars.consultationTokenString is defined and templateVars.consultationTokenString is not null%}
+
+Sollte aufgrund von § 10 Abs. 6 BImSchG i. V. m. § 16 der Verordnung über das Genehmigungsverfahren (9. BImSchV) und § 5 Abs. 1 des Planungssicherstellungsgesetzes (PlanSiG ) der Erörterungstermin abgesagt und durch eine Online-Konsultation gem. § 5 Abs. 2 ff. PlanSiG ersetzt werden, wird dieses öffentlich über die bekannten Medien bekannt gemacht. Dieses gilt auch für die generelle Absage des Erörterungstermins.
+
+Im Falle einer Online-Konsultation besteht die Möglichkeit, Ihre Stellungnahme über die Plattform BOB-SH BImSchG abzugeben. Hierfür benötigen Sie einen Zugangscode für die Teilnahme.
+Ihr Zugangscode lautet {{ templateVars.consultationTokenString }}.
+{% endif %}
+
+Sie werden informiert, sobald eine Abwägung stattgefunden hat.
+
+Dies ist eine automatisch erzeugte Benachrichtigung. Bitte antworten Sie nicht darauf!
+
+Sie erhalten eine Rückmeldung von Ihrer zuständigen Dienststelle.
+
+Mit freundlichem Gruß
+
+{{ templateVars.procedureOrga.name }}
+{{ templateVars.procedureOrga.street }}
+{{ templateVars.procedureOrga.city }} {{ templateVars.procedureOrga.postalcode }}
+{{ templateVars.procedureEmail }}
+{% endblock body_plain %}

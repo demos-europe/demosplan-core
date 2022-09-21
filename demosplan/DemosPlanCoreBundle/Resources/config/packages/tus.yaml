@@ -1,0 +1,6 @@
+tus:
+    # Directory for cached files
+    cache_dir: '%kernel.cache_dir%/%kernel.environment%'
+
+    # Directory for finished uploads
+    upload_dir: '%demosplan.project_dir%/web/uploads'

@@ -1,0 +1,27 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% set user = {} %}
+{% set user = user|merge({ id: currentUser.id }) %}
+{% set user = user|merge({ firstname: currentUser.firstname }) %}
+{% set user = user|merge({ lastname: currentUser.lastname }) %}
+{% set user = user|merge({ orgaName: currentUser.organisationNameLegal }) %}
+{% set submitTypeOptions = [] %}
+
+{% for value, label in getFormOption('statement_submit_types.values', true) %}
+    {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
+{% endfor %}
+
+{% block component_part %}
+    <statement-segments-list
+        :current-user="JSON.parse('{{ user|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ procedure }}"
+        :recommendation-procedure-ids="JSON.parse('{{ recommendationProcedureIds|json_encode|e('js', 'utf-8') }}')"
+        statement-id="{{ statementId }}"
+        statement-extern-id="{{ statementExternId }}"
+        :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
+    </statement-segments-list>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'procedure-administrationStatementSegmentsList.js']) }}
+{% endblock javascripts %}

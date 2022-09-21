@@ -1,0 +1,6 @@
+# mit cache_sqlite_db ist es performanter als mit doctrine:dbal:memory:true
+liip_test_fixtures:
+    cache_db:
+        sqlite: Liip\TestFixturesBundle\Services\DatabaseBackup\SqliteDatabaseBackup
+
+liip_functional_test: ~

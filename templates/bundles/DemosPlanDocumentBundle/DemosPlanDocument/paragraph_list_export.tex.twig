@@ -1,0 +1,14 @@
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+{% block latex_definitions %}
+{{ parent() }}
+{% endblock %}
+{% block demosplanbundlecontent %}
+% {{ "heading"|trans }}
+\section*{ {{ title|latex|raw }} }
+{% for document in templateVars.list.documentlist %}
+% {{ document.id }}
+{
+\section*{\textbf { {{ document.title|latex|raw }}  } }
+{{ document.text|latexPrepareImage|latex|latexOutputImage|raw }}
+{% endfor %}
+{% endblock %}

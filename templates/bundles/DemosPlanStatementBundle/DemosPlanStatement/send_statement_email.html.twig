@@ -1,0 +1,16 @@
+{% block body_plain %}
+Der Teilnehmer / die Teilnehmerin {{ templateVars.user_name }} mit der E-Mail Adresse {{ templateVars.user_email }} sendet Ihnen eine Stellungnahme zur Kenntnis im Verfahren {{ templateVars.procedure_name|wysiwyg }} des Verfahrensträgers {{ templateVars.organisation_name|wysiwyg }}.
+
+{{ "news.text"|trans }}:
+
+{{ "id"|trans }}: {{ templateVars.statement_id }}
+{% if (templateVars.statement_document is defined) and (templateVars.statement_document|length > 0)  %}
+{{ "document"|trans }}: {{ templateVars.statement_document }} {% if templateVars.statement_singleDocument is defined %}/ {{ templateVars.statement_singleDocument }}{% endif %}
+{% endif %}
+{% if (templateVars.statement_paragraph is defined) and (templateVars.statement_paragraph|length > 0)  %}
+{{ "paragraph"|trans }}: {{ templateVars.statement_paragraph }}
+{% endif %}
+
+{{ "statement"|trans }}:
+{{ templateVars.statement_text|raw }}{# T15 check #}
+{%  endblock %}

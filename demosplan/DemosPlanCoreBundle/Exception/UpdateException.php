@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Exception;
+
+use RuntimeException;
+
+class UpdateException extends RuntimeException
+{
+    /**
+     * @return UpdateException
+     */
+    public static function alreadyRunning(): self
+    {
+        return new self('Update already running. If this is not true, delete file update.lock');
+    }
+
+    /**
+     * @return UpdateException
+     */
+    public static function branchSwitchNotAllowed(): self
+    {
+        return new self('Checkout branch when performing dplan:update in dev mode is invalid');
+    }
+
+    public static function assetBuildImpossible(): self
+    {
+        return new self('Cannot read current project, frontend assets will not be built');
+    }
+}

@@ -1,0 +1,495 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Controller\User;
+
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
+use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanUserBundle\Logic\UserHasher;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use Exception;
+use function in_array;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Throwable;
+
+/**
+ * Class DemosPlanAuthenticationController.
+ *
+ * Contains all actions which are closely connected to setting, checking, resetting the user authentication, or setting
+ * it all up by registering new users.
+ * Also contains pages that are directly linked to such activities, like confirmation pages.
+ */
+class DemosPlanUserAuthenticationController extends DemosPlanUserController
+{
+    /**
+     * @var UserService
+     */
+    protected $userService;
+
+    /**
+     * @var UserHandler
+     */
+    protected $userHandler;
+
+    public function __construct(
+        UserHandler $userHandler,
+        UserService $userService
+    ) {
+        $this->userHandler = $userHandler;
+        $this->userService = $userService;
+    }
+
+    /**
+     * Passwort ändern.
+     *
+     * @Route(
+     *     name="DemosPlan_user_change_password",
+     *     path="/password/change",
+     *     options={"expose": true}
+     * )
+     *
+     * @DplanPermissions("area_mydata_password")
+     *
+     * @return Response
+     *
+     * @throws Exception
+     */
+    public function changePasswordAction(Request $request)
+    {
+        $requestPostFields = collect($request->request->all())->only(
+            [
+                'userId',
+                'password_old',
+                'password_new',
+                'password_new_2',
+            ]
+        )->toArray();
+
+        $this->userHandler->changePasswordHandler($requestPostFields);
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    /**
+     * Request change of email.
+     * Send Mail to verify change of E-Mail-Address.
+     *
+     * @Route(
+     *     name="DemosPlan_user_change_email_request",
+     *     path="/email/change"
+     * )
+     *
+     * @DplanPermissions("feature_change_own_email")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    public function changeEmailRequestAction(Request $request, PasswordHasherFactoryInterface $hasherFactory)
+    {
+        $requestPostFields = collect($request->request->all())->only(
+            ['userId', 'password', 'newEmail'])->toArray();
+
+        $this->userHandler->requestEmailChange(
+            $requestPostFields['userId'],
+            $requestPostFields['password'],
+            $requestPostFields['newEmail'],
+            $hasherFactory
+        );
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    /**
+     * Set email address of user. Called via link which was sent to user via email.
+     *
+     * @Route(
+     *     name="DemosPlan_user_doubleoptin_change_email",
+     *     path="email/change/doubleoptin/{uId}/{key}"
+     * )
+     *
+     * @DplanPermissions("feature_change_own_email")
+     */
+    public function changeEmailConfirmationAction(string $uId, string $key): RedirectResponse
+    {
+        try {
+            //the actual change of the email address:
+            $user = $this->userHandler->getSingleUser($uId);
+            if (!$user instanceof User) {
+                return $this->redirectToRoute('core_home');
+            }
+            $user = $this->userHandler->changeEmailValidate($user, $key);
+
+            if ($user instanceof User) {
+                $this->getMessageBag()->add('confirm', 'confirm.email.changed', ['emailAddress' => $user->getEmail()]);
+
+                return $this->redirectToRoute('DemosPlan_user_portal');
+            }
+
+            $this->getMessageBag()->add('error', 'error.email.changed');
+        } catch (\Exception $e) {
+            // Fehler wurden schon geloggt, generischer Fehler wird ausgegeben
+        }
+
+        return $this->redirectToRoute('core_home_loggedin');
+    }
+
+    /**
+     * @Route(
+     *     name="DemosPlan_user_password_recover",
+     *     path="/password/recover",
+     *     options={"expose": true}
+     * )
+     *
+     *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws MessageBagException
+     */
+    public function recoverPasswordAction(Request $request)
+    {
+        $requestPost = $request->request;
+
+        if ($requestPost->has('email')) {
+            $email = $requestPost->get('email');
+            if (is_string($email)) {
+                $this->userHandler->recoverPasswordHandler($email);
+            }
+        }
+
+        return $this->renderTemplate(
+            '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
+            [
+                'title'        => 'user.password.recover',
+                'templateVars' => [],
+            ]
+        );
+    }
+
+    /**
+     * This Action is only needed to define the routes.
+     * Authentication is handled via guards located in Security/Authentication.
+     *
+     * @Route(
+     *     name="DemosPlan_user_login",
+     *     path="/user/login",
+     *     options={"expose": true})
+     * )
+     *
+     * @Route(
+     *     name="DemosPlan_user_login_osi_legacy",
+     *     path="/user/login/osi/legacy"
+     * )
+     *
+     * @Route(
+     *     name="DemosPlan_user_login_gateway",
+     *     path="/redirect/"
+     * )
+     */
+    public function loginAction(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
+    {
+        // this possibly never is never reached, but better safe than sorry
+        $this->logger->warning('Something weird happened, is guard authentication up and running?');
+        try {
+            if (!$currentUser->getUser() instanceof AnonymousUser) {
+                return $this->redirectToRoute('core_home_loggedin');
+            }
+        } catch (Throwable $exception) {
+            // do nothing as this would equal default action return value
+        }
+
+        return $this->redirectToRoute('core_home');
+    }
+
+    /**
+     * Alternatives Loginform auf einer ganzen Seite.
+     *
+     * @Route(
+     *     name="DemosPlan_user_login_alternative",
+     *     path="/dplan/login",
+     *     options={"expose": true}
+     * )
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @return Response
+     *
+     * @throws AccessDeniedException|Exception
+     */
+    public function alternativeLoginAction(CustomerService $customerService, ParameterBagInterface $parameterBag, CurrentUserInterface $currentUser, CacheInterface $cache)
+    {
+        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+            return $this->redirectToRoute('core_home_loggedin');
+        }
+
+        // Check whether login via form is enabled
+        if (!$this->getGlobalConfig()->isAlternativeLoginEnabled()) {
+            throw new AccessDeniedException();
+        }
+
+        $users = [];
+        $usersOsi = [];
+
+        if (true === $parameterBag->get('alternative_login_use_testuser')) {
+            // collect users for Login as
+            $users = $cache->get('login_testuser_list', function (ItemInterface $item) use ($parameterBag) {
+                $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
+
+                $testPassword = $parameterBag->get('alternative_login_testuser_defaultpass');
+
+                return $this->userService->getTestUsers($testPassword);
+            });
+        }
+
+        if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
+            $usersOsi = $cache->get('login_testuser_list_osi', function (ItemInterface $item) {
+                $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
+
+                return $this->userService->getTestUsersOsi($this->globalConfig->getProjectFolder());
+            });
+        }
+
+        $useSaml = false;
+        // this check needs to be reworked once we know better how to save saml parameters by customer
+        if ('' !== $parameterBag->get('saml_idp_entityid') &&
+            'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
+            $useSaml = true;
+        }
+
+        return $this->renderTemplate(
+            '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
+            [
+                'title'     => 'user.login',
+                'useSaml'   => $useSaml,
+                'loginList' => [
+                    'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'users'    => $users,
+                    'usersOsi' => $usersOsi,
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Ausloggen.
+     *
+     * Ausloggen bedeutet, dass ein Redirect auf die Homepage durchgeführt wird und bei diesem Response gleich
+     * noch der Cookie mit dem ident-Code entwertet wird.
+     *
+     * @Route(
+     *     name="DemosPlan_user_logout",
+     *     path="/user/logout"
+     * )
+     *
+     * @Route(
+     *     name="DemosPlan_user_logout_gateway",
+     *     path="/user/logout/gateway",
+     *     defaults={"toGateway": true}
+     * )
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @param bool $toGateway
+     *
+     * @throws Exception
+     */
+    public function logoutAction(
+        ParameterBagInterface $parameterBag,
+        PermissionsInterface $permissions,
+        Request $request,
+        SessionHandler $sessionHandler,
+        $toGateway = false): RedirectResponse
+    {
+        // let SAML handle logout when defined. It does no harm when user is logged in locally
+        if ('' !== $parameterBag->get('saml_idp_slo_url')) {
+            return $this->redirectToRoute('saml_logout');
+        }
+
+        $sessionHandler->logoutUser($request);
+        $response = $this->redirectToRoute('core_home');
+
+        if ($permissions->hasPermission('feature_has_logout_landing_page')) {
+            $response = $this->redirectToRoute('DemosPlan_user_logout_success');
+        }
+
+        if ($toGateway) {
+            $response = $this->redirect($this->globalConfig->getGatewayURL());
+        }
+
+        // clear dplan Cookies
+        foreach ($this->allowedCookieNames as $cookieName) {
+            $response->headers->clearCookie($cookieName);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Dislay logout landing page.
+     *
+     * @Route(
+     *     name="DemosPlan_user_logout_success",
+     *     path="/user/logout/success"
+     * )
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws MessageBagException
+     */
+    public function logoutSuccessAction(PermissionsInterface $permissions)
+    {
+        try {
+            if (!$permissions->hasPermission('feature_has_logout_landing_page')) {
+                return $this->redirectToRoute('core_home');
+            }
+
+            return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/logout_success.html.twig');
+        } catch (\Exception $e) {
+            return $this->handleError($e);
+        }
+    }
+
+    /**
+     * @Route(
+     *     name="DemosPlan_user_doubleoptin_invite_confirmation",
+     *     path="/doubleoptin/{uId}/{token}"
+     * )
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    public function confirmInvitationAction(UserHasher $userHasher, string $token, string $uId)
+    {
+        try {
+            $user = $this->getUserWithCertainty($uId);
+            $this->checkIsUserAllowedToChangePassword($user, $userHasher, $token);
+        } catch (InvalidArgumentException $exception) {
+            return $this->redirectToRoute('DemosPlan_user_login_alternative');
+        }
+
+        return $this->renderTemplate(
+            '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
+            [
+                'token'    => $token,
+                'uId'      => $uId,
+            ]
+        );
+    }
+
+    /**
+     * @Route(
+     *     name="DemosPlan_user_password_set",
+     *     path="/user/{uId}/setpass/{token}",
+     *     options={"expose": true}
+     * )
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    public function setPasswordAction(
+        FlashMessageHandler $flashMessageHandler,
+        LoginFormAuthenticator $loginFormAuthenticator,
+        Request $request,
+        UserAuthenticatorInterface $userAuthenticator,
+        UserHasher $userHasher,
+        UserService $userService,
+        string $token,
+        string $uId
+    ) {
+        try {
+            $newPassword = $request->request->get('password');
+            $newPassword2 = $request->request->get('password_new_2');
+
+            if (null === $newPassword || $newPassword !== $newPassword2 || '' === $newPassword) {
+                $this->messageBag->add('warning', 'error.user.password.not.identical');
+
+                throw new InvalidArgumentException('Password not identical or absent', 2);
+            }
+
+            $user = $this->getUserWithCertainty($uId);
+            $this->checkIsUserAllowedToChangePassword($user, $userHasher, $token);
+
+            $error = $this->userHandler->checkMandatoryErrorsPasswordStrength($newPassword);
+            if (0 !== count($error)) {
+                $flashMessageHandler->setFlashMessages($error);
+
+                throw new InvalidArgumentException('Password too weak', 4);
+            }
+
+            $userService->changePassword($uId, '', $newPassword, false);
+            $this->userHandler->setAccessConfirmed($user);
+
+            $this->messageBag->add('confirm', 'user.password.set');
+
+            // login user
+            return $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
+        } catch (InvalidArgumentException $exception) {
+            // set redirect according to exception thrown in this method
+            if (in_array($exception->getCode(), [2, 4], true)) {
+                return $this->redirectToRoute('DemosPlan_user_doubleoptin_invite_confirmation', ['uId' => $uId, 'token' => $token]);
+            }
+
+            return $this->redirectToRoute('core_home');
+        }
+    }
+
+    private function getUserWithCertainty(string $uId): User
+    {
+        $user = $this->userService->getSingleUser($uId);
+        if (!$user instanceof User) {
+            $this->messageBag->add('warning', 'error.user.registration.password');
+            $this->logger->warning('Could not find User to set Password', ['uId' => $uId]);
+
+            throw new InvalidArgumentException('User invalid', 1);
+        }
+
+        return $user;
+    }
+
+    private function checkIsUserAllowedToChangePassword(User $user, UserHasher $userHasher, string $token): void
+    {
+        // Password should only be set when hash is valid
+        if (!$userHasher->isValidPasswordEditHash($user, $token)) {
+            $this->messageBag->add('warning', 'error.user.password.not.allowed');
+
+            throw new InvalidArgumentException('Password not allowed to set', 3);
+        }
+    }
+}

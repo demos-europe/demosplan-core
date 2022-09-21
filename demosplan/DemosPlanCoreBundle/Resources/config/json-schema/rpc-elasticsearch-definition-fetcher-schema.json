@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "elasticsearchFieldDefinition.provide",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "elasticsearchFieldDefinition.provide"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "entity": {
+          "$id": "entity",
+          "type": "string"
+        },
+        "function": {
+          "$id": "function",
+          "type": "string"
+        },
+        "accessGroup": {
+          "$id": "accessGroup",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity",
+        "function",
+        "accessGroup"
+      ]
+    }
+  }
+}

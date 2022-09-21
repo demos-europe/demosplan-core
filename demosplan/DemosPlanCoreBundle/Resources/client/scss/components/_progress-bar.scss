@@ -1,0 +1,58 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.c-progress-bar {
+    $color-confirm: $dp-color-system-confirm--lightish;
+    $color-info: $dp-color-system-info--lightish;
+
+    margin: auto;
+    padding: $inuit-base-spacing-unit--small;
+    border-radius: $inuit-base-spacing-unit--tiny;
+    border: 1px solid $dp-color-neutral-light-2;
+
+    &__line {
+        height: 10px;
+        background: $color-confirm;
+
+        &.is-animated,
+        &.is-animated::before {
+            height: 4px;
+            width: 100%;
+            margin: 0;
+        }
+
+        &.is-animated {
+            background: $dp-bg-color-light;
+            display: flex;
+        }
+
+        &.is-animated::before {
+            background: $color-info;
+            content: '';
+            animation: sliding 2s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+    }
+
+    @keyframes sliding {
+        0% {
+            margin-left: 0;
+            margin-right: 100%;
+        }
+
+        50% {
+            margin-left: 25%;
+            margin-right: 0;
+        }
+
+        100% {
+            margin-left: 100%;
+            margin-right: 0;
+        }
+    }
+}

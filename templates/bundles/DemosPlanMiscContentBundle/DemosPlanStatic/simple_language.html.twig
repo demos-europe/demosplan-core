@@ -1,0 +1,22 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'language.simple'|trans,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+            <div class="{{ 'c-styled-html c-styled-html--large'|prefixClass }}">
+                {{ templateVars.customer.overviewDescriptionInSimpleLanguage|default|wysiwyg(['h2', 'h3', 'h4']) }}
+            </div>
+        {% endblock content %}
+    {% endembed %}
+
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}

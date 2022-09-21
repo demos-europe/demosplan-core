@@ -1,0 +1,25 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    {% set newPath = path('DemosPlan_faq_administration_faq_new') %}
+    {% set newCategoryPath = path('DemosPlan_faq_administration_category_new') %}
+
+    <h1>{{ "faq"|trans }}</h1>
+
+    <aside>
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', { color: 'primary', href: newPath, text: 'faq.new'|trans, attributes: ['data-cy=newFaq'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: newCategoryPath, text: 'category.create'|trans, attributes: ['data-cy=createNewCategory']}),
+            class: 'u-mb'
+        }) }}
+    </aside>
+
+    <dp-faq-list class="u-mb">
+    </dp-faq-list>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['faq-faqAdminList.js']) }}
+{% endblock %}

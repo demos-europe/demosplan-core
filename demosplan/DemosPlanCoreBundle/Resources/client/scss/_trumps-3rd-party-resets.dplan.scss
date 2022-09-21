@@ -1,0 +1,81 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// 3rd-Party resets
+//
+// @deprecated
+//  To override vendor styles, include them in
+//  demosplan/DemosPlanCoreBundle/Resources/client/scss/components/index.scss:48
+//
+// - jQuery ui sortable
+// - rateit
+// - leaflet
+
+
+// jQuery ui sortable
+.sortable .handle {
+    cursor: move;
+    background: transparent;
+}
+
+.sortable tr:nth-child(2n) {
+    background: transparent;
+}
+
+.sortable article {
+    font-size: $base-font-size;
+}
+
+.ui-sortable-helper {
+    display: table;
+    opacity: .6;
+}
+
+
+// RateIt
+.rateit {
+    button.rateit-reset {
+        color: $dp-button-bg-color-warning;
+    }
+
+    button.rateit-reset:hover,
+    button.rateit-reset:focus {
+        color: $dp-button-bg-color-warning-hover;
+    }
+
+    button.rateit-reset,
+    .rateit-selected,
+    .rateit-range,
+    .rateit-hover {
+        background: transparent !important;
+        cursor: pointer;
+    }
+
+    .rateit-selected {
+        top: 0;
+        padding-bottom: 1px;
+        color: $dp-color-main;
+        overflow: hidden;
+    }
+
+    .rateit-range .rateit-hover {
+        top: 0;
+        display: none;
+        padding-bottom: 1px;
+        color: $dp-color-black;
+        overflow: hidden;
+    }
+}
+
+
+// @see https://github.com/Leaflet/Leaflet/issues/4686
+.leaflet-fade-anim .leaflet-tile,
+.leaflet-zoom-anim .leaflet-zoom-animated {
+    will-change: auto !important;
+}

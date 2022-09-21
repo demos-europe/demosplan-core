@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "workflowPlaces.list.reorder",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "workflowPlacesOfProcedure.reorder"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "workflowPlaceId": {
+          "$id": "workflowPlaceId",
+          "type": "string"
+        },
+        "newWorkflowPlaceIndex": {
+          "$index": "index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "workflowPlaceId",
+        "newWorkflowPlaceIndex"
+      ]
+    }
+  }
+}

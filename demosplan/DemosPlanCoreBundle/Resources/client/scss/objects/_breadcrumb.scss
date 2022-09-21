@@ -1,0 +1,74 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////
+/// @group objects
+////
+
+///  Basic styling of breadcrumb in planner area. Markup is constructed in two places:
+///  demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb::getSnippetMarkup(url)
+///  DemosPlanCoreBundle/Services/Breadcrumb/Breadcrumb.php:154
+///  @example markup
+///  <nav aria-label="Breadcrumb" class="o-breadcrumb">
+///      <ol>
+///          <li>
+///              <a href="/app_dev.php/main">Start</a>
+///          </li>
+///          <li>
+///              <a href="/app_dev.php/verfahren/verwalten">Verfahren</a>
+///          </li>
+///          <li>
+///              <a href="/app_dev.php/verfahren/8683cad1-9dc5-4592-a77a-84c209541817/entrypoint">Testverfahren</a>
+///          </li>
+///          <li>
+///              <a href="." aria-current="page">Verfahrenseinstellungen</a>
+///          </li>
+///      </ol>
+///  </nav>
+
+.o-breadcrumb {
+    ol {
+        margin: 0;
+        display: inline-block;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    li {
+        display: inline;
+    }
+
+    li + li::before {
+        content: '';
+        display: inline-block;
+        margin-left: .8ch; // 'ch' is character width
+        margin-right: .6ch;
+        margin-bottom: .1ch;
+        border-top: .5ch solid transparent;
+        border-bottom: .5ch solid transparent;
+        border-left: .6ch solid $dp-color-neutral-light-1;
+    }
+
+    // Truncate long procedure titles
+    a {
+        @include keyboard-focus;
+        display: inline-block;
+        max-width: 660px;
+        overflow: hidden;
+
+        vertical-align: top; // must be here to make pseudo element positioning work with `display: inline-block`
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    [aria-current='page'] {
+        color: $default-font-color;
+        text-decoration: none;
+    }
+}

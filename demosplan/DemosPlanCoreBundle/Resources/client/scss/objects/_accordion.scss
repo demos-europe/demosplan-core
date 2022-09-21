@@ -1,0 +1,49 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Object: o-accordion
+//
+// This goes with DpAccordion.
+.o-accordion {
+
+    // Add opacity as a 2nd transitioned property (besides height which
+    // is transitioned in DpTransitionExpand.vue)
+    .expand-enter-active,
+    .expand-leave-active {
+        transition-property: opacity, height;
+    }
+
+    .expand-enter,
+    .expand-leave-to {
+        opacity: 0;
+    }
+
+    &--button {
+        width: 2.5%;
+
+        & i {
+            font-size: 1.8rem;
+            line-height: 1.2rem;
+        }
+    }
+
+    &--checkbox {
+        cursor: pointer;
+        width: 2.5%;
+    }
+
+    &--header-content {
+        cursor: pointer;
+        width: 96%;
+    }
+
+    &--title {
+        font-size: 1.2em !important;
+    }
+}

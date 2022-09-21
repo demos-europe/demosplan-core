@@ -1,0 +1,273 @@
+
+    {% set hasOrgaSwitcher = hasPermission('feature_switchorga') and currentUser.hasTwinUser %}
+
+    {% if currentUser.loggedin %}
+
+        {# loggedin state of userbox #}
+        <div class="c-nav__flyout c-flyout float--right text--right" data-actionmenu>
+
+            {# button which displays the name of current user and acts as the flyout trigger #}
+            <a
+                class="c-flyout__trigger"
+                href="{{ path("DemosPlan_user_portal") }}"
+                data-touch-flyout
+                aria-label="{{ 'user.menu'|trans }}"
+                aria-haspopup="true"
+                data-cy="currentUser">
+
+                {# if OrgaSwitcher user is a toeb, indicate with different color #}
+                <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight' : '' }}" data-extern-dataport="userMenuTrigger">
+
+                    {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
+
+                        {# if OrgaSwitcher user is a toeb, additionally indicate with different user icon #}
+                        <i class="fa fa-user{{ hasPermission('role_participant') ? '-circle-o' : '' }} u-mr-0_125" aria-hidden="true"></i>
+
+                        {{ currentUser.firstname }} {{ currentUser.lastname }}
+                        <i class="fa fa-exchange u-ml-0_125" aria-hidden="true"></i>
+
+                    {% else %}
+
+                        {# this is what normal users see #}
+                        <i class="fa fa-user u-mr-0_125" aria-hidden="true"></i>
+                        {{ currentUser.firstname }} {{ currentUser.lastname }}
+
+                    {% endif %}
+
+                </span>
+
+            </a>
+
+            {# flyout content #}
+            <span class="c-flyout__content text--left" role="menu" data-extern-dataport="userMenu">
+
+                {# display roles of current user #}
+                <div class="c-flyout__item u-mt-0_5">
+                    <i class="fa fa-shield float--left u-mt-0_125" aria-hidden="true"></i>
+                    <span class="display--block u-ml">
+                        {{- "roles"|trans -}}
+                    </span>
+                    <ul class="u-m-0 u-ml" data-cy="userRoles" data-extern-dataport="userRoles">
+                        {% if 'RMOPSM' in roles %}
+                            <li class="font-size-smaller">{{ "role.fpmu"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOPSA' in roles %}
+                            <li class="font-size-smaller">{{ "role.fpa"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOPPO' in roles %}
+                            <li class="font-size-smaller">{{ "role.fppb"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOPSD' in roles %}
+                            <li class="font-size-smaller">{{ "role.fpsb"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOPFB' in roles %}
+                            <li class="font-size-smaller">{{ "role.fpfb"|trans }}</li>
+                        {% endif %}
+                        {% if 'RPSOCO' in roles %}
+                            <li class="font-size-smaller">{{ "role.tbko"|trans }}</li>
+                        {% endif %}
+                        {% if 'RPSODE' in roles %}
+                            <li class="font-size-smaller">{{ "role.tbsb"|trans }}</li>
+                        {% endif %}
+                        {% if 'RPSUPP' in roles %}
+                            <li class="font-size-smaller">{{ "role.tbmaster"|trans }}</li>
+                        {% endif %}
+                        {% if 'RTEDIT' in roles %}
+                            <li class="font-size-smaller">{{ "role.editor"|trans }}</li>
+                        {% endif %}
+                        {% if 'RTSUPP' in roles %}
+                            <li class="font-size-smaller">{{ "role.supp"|trans }}</li>
+                        {% endif %}
+                        {% if 'RCITIZ' in roles %}
+                            <li class="font-size-smaller">{{ "role.citizen"|trans }}</li>
+                        {% endif %}
+                        {% if 'RINTPA' in roles %}
+                            <li class="font-size-smaller">{{ "role.prospect"|trans }}</li>
+                        {% endif %}
+                        {% if 'RGUEST' in roles %}
+                            <li class="font-size-smaller">{{ "role.guest"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMODER' in roles %}
+                            <li class="font-size-smaller">{{ "role.moder"|trans }}</li>
+                        {% endif %}
+                        {% if 'RFALST' in roles %}
+                            <li class="font-size-smaller">{{ "role.falst"|trans }}</li>
+                        {% endif %}
+                        {% if 'RDATA' in roles %}
+                            <li class="font-size-smaller">{{ "role.data"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOPHA' in roles %}
+                            <li class="font-size-smaller">{{ "role.haa"|trans }}</li>
+                        {% endif %}
+                        {% if 'RMOHAW' in roles %}
+                            <li class="font-size-smaller">{{ "role.haw"|trans }}</li>
+                        {% endif %}
+                        {% if roles is empty %}
+                            <li class="font-size-smaller">{{ "unknown"|trans }}</li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+
+                {# display / edit orga #}
+                {% if currentUser.organisationNameLegal is defined %}
+                    {% if hasPermission("area_manage_orgadata") %}
+                        <a
+                            class="c-flyout__item cf"
+                            href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
+                            data-actionmenu-menuitem>
+                            <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
+                            <span class="display--block u-ml" data-extern-dataport="orgaName">
+                                {{ currentUser.organisationNameLegal }}
+                            </span>
+                            <span class="display--block font-size-smaller u-ml">
+                                {{ currentUser.departmentNameLegal }}
+                            </span>
+                        </a>
+                    {% else %}
+                        <span class="c-flyout__item cf">
+                            <i class="fa fa-building-o float--left u-mt-0_125" aria-hidden="true"></i>
+                            <span class="display--block u-ml">
+                                {{ currentUser.organisationNameLegal }}
+                            </span>
+                            <span class="display--block font-size-smaller u-ml">
+                                {{ currentUser.departmentNameLegal }}
+                            </span>
+                        </span>
+                    {% endif %}
+                {% endif %}
+
+                {# subscribe to notifications #}
+                {% if hasPermission('area_subscriptions') %}
+                    <a
+                        class="c-flyout__item cf"
+                        href="{{ path("DemosPlan_procedure_list_subscriptions") }}"
+                        data-actionmenu-menuitem>
+                        <i class="fa fa-bell float--left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="display--block u-ml">
+                             {{ "notifications"|trans }}
+                        </span>
+                    </a>
+                {% endif %}
+
+                {# edit own profile #}
+                <a
+                    class="c-flyout__item cf"
+                    href="{{ path("DemosPlan_user_portal") }}"
+                    data-actionmenu-menuitem>
+                    <i class="fa fa-cog float--left u-mt-0_125" aria-hidden="true"></i>
+                    <span class="display--block u-ml" data-extern-dataport="userProfile">
+                        {{ "profile"|trans }}
+                    </span>
+                </a>
+
+                {#  administrative users may navigate to their entry route throughout the application
+                    1: list of procedures that are owned by user ('Fachplaner')
+                    2: list of procedures that a user can add manual statements to ('Datenerfasser')
+                    3: list of fragments that a user should work on ('Fachbehörde')
+                    4: Support and FachplanerMasteruser
+                    5: Redakteur
+                    6: Moderator
+                    7: PUBLIC_AGENCY_SUPPORT in bobhh project
+                #}
+                {%  if hasPermission('area_admin_procedures')
+                    or hasPermission('area_statement_data_input_orga')
+                    or ( hasPermission('feature_statements_fragment_advice') and hasPermission('feature_statements_fragment_update_complete') )
+                    or hasPermission('area_organisations_view')
+                    or hasPermission('area_manage_orgas')
+                    or hasPermission('area_admin_faq')
+                    or hasPermission('feature_forum_thread_edit')
+                    or hasPermission('area_platformtools')
+                %}
+                    <a
+                        class="c-flyout__item cf"
+                        href="{{ path('core_home_loggedin') }}"
+                        data-actionmenu-menuitem>
+                        <i class="fa fa-wrench float--left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="display--block u-ml" data-extern-dataport="administer">
+                            {{ "administer"|trans }}
+                        </span>
+                    </a>
+                {% endif %}
+
+                {# allow user to switch between two sessions - bobhh permission #}
+                {% if hasOrgaSwitcher %}
+                    <a
+                        class="c-flyout__item c-flyout__item--btn u-mt-0_5 cf"
+                        href="{{ path('DemosPlan_user_switch_orga') }}"
+                        data-actionmenu-menuitem>
+                        <i class="fa fa-exchange float--left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="display--block u-ml">
+                            {{- "organisation.switch"|trans -}}
+                        </span>
+                    </a>
+                {% endif %}
+
+                {# logout button #}
+                {% block logoutbtn %}
+                    <form action="{{ path("DemosPlan_user_logout") }}" method="POST">
+                        <button
+                            class="c-flyout__item c-flyout__item--btn cf {{ hasOrgaSwitcher ? '' : ' u-mt-0_5' }}"
+                            type="submit"
+
+                            data-actionmenu-menuitem>
+                            <i class="fa fa-sign-out float--left u-mt-0_125" aria-hidden="true"></i>
+                            <span class="display--block u-ml" data-extern-dataport="logout">
+                                {{ "logout"|trans }}
+                            </span>
+                        </button>
+                    </form>
+                {% endblock %}
+
+            </span>
+
+        </div>
+
+    {% else %}
+
+        {# loggedout state of userbox #}
+        <div class="c-nav__flyout c-flyout float--right text--right" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
+            {% if projectType == 'gateway' %}
+
+                <a
+                    class="c-flyout__trigger"
+                    href="{{ getStaticVariable('login_path') }}"
+                    aria-haspopup="{{ loggedout_simple is not defined and hasPermission('area_login_dialog') ? 'true' : 'false' }}"
+                    aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
+                    data-touch-flyout="loginLink"
+                    id="loginLink">
+                    <span class="c-flyout__trigger-inner">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                        {{ "login"|trans }}
+                    </span>
+                </a>
+
+                {# flyout with information about gateway login #}
+                {% if loggedout_simple is not defined and hasPermission('area_login_dialog') %}
+                    <span class="c-flyout__content text--left" role="menu" id="explanationLoginGateway">
+                        <p class="u-ph-0_5 u-pv-0_25 u-mb-0">
+                            {{ "explanation.login.gateway"|trans }}
+                        </p>
+                        <a
+                            class="c-flyout__item u-pl-0_5"
+                            href="{{ path( 'DemosPlan_misccontent_static_how_to_login') }}"
+                            data-actionmenu-menuitem
+                            aria-label="{{ 'more.information'|trans }} {{ "explanation.login.gateway"|trans }}">
+                            Weitere Infos...
+                        </a>
+                    </span>
+                {% endif %}
+
+            {% elseif projectType == 'portal' %}
+
+                <a class="c-flyout__trigger" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
+                    <span class="c-flyout__trigger-inner">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                        {{ "login"|trans }}
+                    </span>
+                </a>
+
+            {% endif %}
+        </div>
+
+    {% endif %}

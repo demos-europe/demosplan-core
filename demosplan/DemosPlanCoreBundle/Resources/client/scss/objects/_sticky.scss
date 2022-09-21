@@ -1,0 +1,67 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-sticky
+//
+//  used in conjunction with Stickier.js to apply sticky layout based on scroll position
+//  Markup Example can be found in Sticky.js
+
+
+$sticky-border-color: $default-border-color;
+$sticky-border-thickness: $dp-border-thickness;
+
+.o-sticky {
+    position: static;
+
+    // Prevent collapsing of margins from child elements by establishing a block formatting context.
+    // This is especially critical since if the outermost sticky container is smaller than the space it
+    // actually occupies, calculations for determining stickiness are far more complicated.
+    // We can't use overflow: auto; here because that would force the sticky elements to have scroll bars
+    // when controls that sit inside the sticky container are expanded to overlap the container boundaries.
+    // @see https://www.smashingmagazine.com/2017/12/understanding-css-layout-block-formatting-context/
+    &::after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+
+    &.is-bound {
+        position: absolute;
+        left: auto;
+        right: auto;
+    }
+
+    &.is-fixed {
+        position: fixed;
+        left: auto;
+        right: auto;
+    }
+
+    &.is-bound.is-top,
+    &.is-fixed.is-top {
+        bottom: auto;
+        top: 0;
+    }
+
+    &.is-bound.is-bottom,
+    &.is-fixed.is-bottom {
+        bottom: 0;
+        top: auto;
+    }
+
+    &--border {
+        &.is-fixed.is-top {
+            border-bottom: $sticky-border-thickness solid $sticky-border-color;
+        }
+
+        &.is-fixed.is-bottom {
+            border-top: $sticky-border-thickness solid $sticky-border-color;
+        }
+    }
+}

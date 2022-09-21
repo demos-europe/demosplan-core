@@ -1,0 +1,86 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  object: o-modal
+
+//  local vars
+$modal-bg-color: rgb(0 0 0 / 60%);
+$modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
+
+//  object container for modal
+.o-modal {
+    &__content,
+    &__backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    &__content {
+        z-index: $z-modal-window;
+        margin: auto;
+        width: $dp-page-width - $inuit-base-spacing-unit--huge;
+        height: fit-content;
+
+        // Limit dimensions for small viewports
+        max-width: calc(100% - #{$inuit-base-spacing-unit});
+        max-height: calc(100% - #{$inuit-base-spacing-unit});
+        overflow: auto;
+
+        background-color: $dp-bg-color;
+        box-shadow: $dp-token-box-shadow-3;
+        border-radius: $dp-token-rounded-medium;
+        transform: none;
+    }
+
+    &__backdrop {
+        z-index: $z-modal-overlay;
+        content: '';
+
+        background-color: $modal-bg-color;
+        cursor: pointer;
+    }
+
+    // Transition for backdrop
+    .backdrop {
+        &-enter-active,
+        &-leave-active {
+            transition: opacity .2s linear;
+        }
+
+        &-enter,
+        &-leave-to {
+            opacity: 0;
+        }
+    }
+
+    // Transition for modal
+    .content {
+        &-enter-active,
+        &-leave-active {
+            transition: transform .2s cubic-bezier(.5, 0, .5, 1), opacity .2s linear;
+        }
+
+        &-enter,
+        &-leave-to {
+            opacity: 0;
+            transform: scale(.6) translateY(10%);
+        }
+    }
+
+    &__body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0 $inuit-base-spacing-unit $inuit-base-spacing-unit;
+        margin: $inuit-base-spacing-unit 0 0;
+        height: auto;
+    }
+}

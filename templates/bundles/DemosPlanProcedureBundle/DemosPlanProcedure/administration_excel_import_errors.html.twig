@@ -1,0 +1,19 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: context == 'statements' ? 'statements.import'|trans : 'segments.import'|trans
+    } %}
+
+    <excel-import-errors
+        :errors="JSON.parse('{{ errors|default([])|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ procedure }}"
+        context="{{ context }}">
+    </excel-import-errors>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationExcelImportErrors.js') }}
+{% endblock javascripts %}

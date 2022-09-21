@@ -1,0 +1,331 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
+
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
+use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
+use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
+
+class MaintenanceController extends BaseController
+{
+    /**
+     * @var DraftStatementHandler
+     */
+    private $draftStatementHandler;
+
+    /**
+     * @var EmailAddressService
+     */
+    private $emailAddressService;
+
+    /**
+     * @var EntityContentChangeService
+     */
+    private $entityContentChangeService;
+
+    /**
+     * @var FileService
+     */
+    private $fileService;
+
+    /**
+     * @var ProcedureHandler
+     */
+    private $procedureHandler;
+
+    /**
+     * @var ProcedureNewsService
+     */
+    private $procedureNewsService;
+
+    /**
+     * @var PermissionsInterface
+     */
+    private $permissions;
+    /**
+     * @var MailService
+     */
+    private $mailService;
+    /**
+     * @var ParameterBagInterface
+     */
+    private $parameterBag;
+
+    public function __construct(
+        DraftStatementHandler $draftStatementHandler,
+        EmailAddressService $emailAddressService,
+        EntityContentChangeService $entityContentChangeService,
+        FileService $fileService,
+        MailService $mailService,
+        ParameterBagInterface $parameterBag,
+        PermissionsInterface $permissions,
+        ProcedureHandler $procedureHandler,
+        ProcedureNewsService $procedureNewsService
+    ) {
+        $this->draftStatementHandler = $draftStatementHandler;
+        $this->emailAddressService = $emailAddressService;
+        $this->entityContentChangeService = $entityContentChangeService;
+        $this->fileService = $fileService;
+        $this->mailService = $mailService;
+        $this->parameterBag = $parameterBag;
+        $this->permissions = $permissions;
+        $this->procedureHandler = $procedureHandler;
+        $this->procedureNewsService = $procedureNewsService;
+    }
+
+    /**
+     * User facing page for active service mode.
+     *
+     * @Route(path="/servicemode", name="core_service_mode")
+     * @DplanPermissions("area_demosplan")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    public function serviceModeAction(GlobalConfigInterface $globalConfig)
+    {
+        /** @var GlobalConfig $globalConfig */
+        if (false === $globalConfig->getPlatformServiceMode()) {
+            return $this->redirectToRoute('core_home');
+        }
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanCore/servicemode.html.twig',
+            [
+                'templateVars' => [
+                    'title' => 'service.mode',
+                ],
+                'serviceMode'  => true,
+            ]
+        );
+    }
+
+    /**
+     * Simple Action to evaluate response code for heartbeat monitoring.
+     *
+     * @Route(path="/_heartbeat", name="core_server_heartbeat")
+     * @DplanPermissions("area_demosplan")
+     */
+    public function heartbeatAction(): Response
+    {
+        return new Response('OK');
+    }
+
+    /**
+     * Maintenance tasks run as cron job.
+     *
+     * These tasks are run regularily *and* require a session which is
+     * why they are currently managed in this action
+     *
+     * @Route(path="/maintenance/{key}", name="core_maintenance")
+     *
+     * @DplanPermissions("area_demosplan")
+     *
+     * @param string $key
+     *
+     * @throws Throwable
+     */
+    public function maintenanceTasksAction(
+        AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
+        GlobalConfigInterface $globalConfig,
+        LoggerInterface $logger,
+        Request $request,
+        $key
+    ): JsonResponse {
+        // @improve T17071
+
+        /** @var GlobalConfig $globalConfig */
+        //Überprüfen des Maintenance Keys (parameters.yml)
+        if ($key !== $globalConfig->getMaintenanceKey()) {
+            $logger->warning('Maintenance key is NOT valid');
+
+            return new JsonResponse(
+                [
+                    'code'    => 404,
+                    'success' => 'false',
+                ]
+            );
+        }
+
+        $logger->info('Maintenance key is valid');
+        $frequency = $request->get('frequency');
+
+        switch ($frequency) {
+            case 'daily':
+                $logger->info('Starting daily maintenance Tasks');
+
+                //Notfication-Email for public agencies regarding soon ending  phases
+                $logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');
+                $this->procedureHandler->sendNotificationEmailOfDeadlineForPublicAgencies();
+
+                if ($this->permissions->hasPermission('feature_send_email_on_procedure_ending_phase_send_mails')) {
+                    //Create Mails for all unsubmitted draftstatemetns of soon ending procedures.
+                    $logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()');
+                    $numberOfCreatedMails = $this->createMailsForUnsubmittedDraftsInSoonEndingProcedures(7);
+                    $logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures(). Number of created mail_send entries:', [$numberOfCreatedMails]);
+                }
+
+                $logger->info('Maintenance: switchStatesOfNewsOfToday');
+                $this->setStateOfNewsOfToday();
+
+                if ($this->permissions->hasPermission('feature_auto_switch_to_procedure_end_phase')) {
+                    $logger->info('Maintenance: switchToEvaluationPhasesOnEndOfParticipationPhase()');
+                    $this->procedureHandler->switchToEvaluationPhasesOnEndOfParticipationPhase();
+                }
+
+                // Create notification mails with newly assigned tasks/segments to users
+                if ($this->permissions->hasPermission('feature_send_assigned_task_notification_email')) {
+                    $logger->info('Maintenance: sendAssignedTaskNotificationMails()');
+                    $numberOfCreatedNotificationMails = $this->entityContentChangeService->sendAssignedTaskNotificationMails(Segment::class);
+                    $logger->info('Maintenance: sendAssignedTaskNotificationMails(). Number of created mail_send entries:', [$numberOfCreatedNotificationMails]);
+                }
+
+                // delete orphan email addresses
+                $this->deleteOrphanEmailAddresses($logger);
+
+                $this->purgeSentEmails();
+
+                if ($globalConfig->doDeleteRemovedFiles()) {
+                    // @improve T14122
+                    $logger->info('Maintenance: remove soft deleted Files');
+                    $filesDeleted = $this->fileService->deleteSoftDeletedFiles();
+                    $logger->info('Maintenance: Soft deleted files deleted: ', [$filesDeleted]);
+
+                    $logger->info('Maintenance: remove orphaned Files');
+                    $filesDeleted = $this->fileService->removeOrphanedFiles();
+                    $logger->info('Maintenance: Orphaned Files deleted: ', [$filesDeleted]);
+
+                    $logger->info('Maintenance: remove temporary upload Files');
+                    $filesDeleted = $this->fileService->removeTemporaryUploadFiles();
+                    $logger->info('Maintenance: Temporary Uploaded Files deleted: ', [$filesDeleted]);
+
+                    $logger->info('Maintenance: check for deleted Files');
+                    $this->fileService->checkDeletedFiles();
+                }
+
+                // Rollback AnnotatedStatementPdf in box- or text-review status
+                if ($this->permissions->hasPermission('feature_annotated_statement_pdf_rollback_review_status')) {
+                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in boxes_review status back to ready_to_review');
+                    $boxReviewCount = $annotatedStatementPdfHandler->rollbackBoxReviewStatus();
+                    $logger->info("Maintenance: $boxReviewCount AnnotatedStatementPdfs in boxes_review status brought back to ready_to_review");
+
+                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in text_review status back to ready_to_convert');
+                    $textReviewCount = $annotatedStatementPdfHandler->rollbackTextReviewStatus();
+                    $logger->info("Maintenance: $textReviewCount AnnotatedStatementPdfs in text_review status brought back to ready_to_convert");
+                }
+                $logger->info('Daily Maintenance Tasks completed');
+                break;
+
+            default:
+                break;
+        }
+
+        //return result as JSON
+        return new JsonResponse(
+            [
+                'code'    => 100,
+                'success' => 'true',
+            ]
+        );
+    }
+
+    /**
+     * Checks if any EmailAddress entities are not referenced anymore and if so deletes them.
+     */
+    protected function deleteOrphanEmailAddresses(LoggerInterface $logger): void
+    {
+        try {
+            $numberOfDeletedEmailAddresses = $this->emailAddressService->deleteOrphanEmailAddresses();
+            $logger->info("Deleted $numberOfDeletedEmailAddresses orphan email addresses");
+        } catch (Exception $e) {
+            $logger->warning('Exception while removing orphan email addresses.', [$e]);
+        }
+    }
+
+    /**
+     * @throws Exception
+     * @throws Throwable
+     */
+    protected function createMailsForUnsubmittedDraftsInSoonEndingProcedures(int $exactlyDaysToGo): int
+    {
+        // handle externals:
+        $numberOfCreatedExternalMails = $this->draftStatementHandler
+            ->createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser($exactlyDaysToGo, false);
+
+        // handle internals:
+        $numberOfCreatedInternalMails = $this->draftStatementHandler
+            ->createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser($exactlyDaysToGo, true);
+
+        return $numberOfCreatedExternalMails + $numberOfCreatedInternalMails;
+    }
+
+    /**
+     * Set the state of all news, which are "prepared" to set state today, to the determined state.
+     *
+     * @throws Exception
+     */
+    protected function setStateOfNewsOfToday(): void
+    {
+        try {
+            $newsToSetState = $this->procedureNewsService->getNewsToSetStateToday();
+
+            $successfulSwitches = 0;
+            foreach ($newsToSetState as $news) {
+                try {
+                    $this->procedureNewsService->setState($news);
+                    ++$successfulSwitches;
+                } catch (NoDesignatedStateException $e) {
+                    $this->getLogger()->error('Set state of news failed, because designated state is not defined.', [$e]);
+                } catch (Exception $e) {
+                    $this->getLogger()->error("Set state of the news with ID {$news->getId()} failed", [$e]);
+                }
+            }
+
+            $this->getLogger()->info("Set states of {$successfulSwitches} news.");
+        } catch (Exception $e) {
+            $this->getLogger()->error('switching of news state failed', [$e]);
+        }
+    }
+
+
+    private function purgeSentEmails(): void
+    {
+        try {
+            $deleted = $this->mailService->deleteAfterDays((int) $this->parameterBag->get('email_delete_after_days'));
+            $this->logger->info("Deleted $deleted old emails");
+        } catch (Exception $e) {
+            $this->logger->error('Delete old emails failed', [$e]);
+        }
+
+    }
+}

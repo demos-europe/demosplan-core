@@ -1,0 +1,127 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+import DpInput from './DpInput'
+
+<Meta
+    title="Components/Input"
+    component={DpInput}
+    argTypes={{
+        maxlength: {
+            control: {
+                type: 'number'
+            }
+        }
+    }} />
+
+# Input
+
+The `DpInput` component is used for the following form input fields:
+- text
+- email
+- number
+- password
+- tel
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpInput },
+    template: `<dp-input v-bind="$props" />`
+});
+
+## Examples
+
+### Text input
+
+<Canvas>
+    <Story
+        name="Text input"
+        args={{
+            id: 'someId',
+            label: {
+                text: 'First name'
+            },
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Hint
+
+The `hint` property adds the provided string between label and input field.
+
+<Canvas>
+    <Story
+        name="Hint"
+        args={{
+            id: 'someId',
+            label: {
+                hint: 'This is a hint that explains what to enter in the input',
+                text: 'Contact person'
+            },
+            width: 'u-1-of-2'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Required
+
+If an input field is `required`, an asterisk will be added to its label.
+
+<Canvas>
+    <Story
+        name="Required"
+        args={{
+            id: 'someId',
+            label: {
+                text: 'Phone'
+            },
+            pattern: '^(\+?)(-| |[0-9]|\(|\))*$',
+            required: true,
+            type: 'tel',
+            width: 'u-1-of-4'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Disabled
+
+<Canvas>
+    <Story
+        name="Disabled"
+        args={{
+            disabled: true,
+            id: 'someId',
+            label: {
+                text: 'Email address'
+            },
+            pattern: '^(\+?)(-| |[0-9]|\(|\))*$',
+            type: 'email',
+            value: 'yourEmail@example.com',
+            width: 'u-1-of-4'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Tooltip
+
+The `tooltip` property adds a contextual help icon that reveals additional information on the input field when the user hovers
+over it with their mouse. It should be used sparingly and only to reveal non-critical information, whereas critical  information should be presented immediately.
+
+<Canvas>
+    <Story
+        name="Tooltip"
+        args={{
+            id: 'someId',
+            label: {
+                text: 'Last name',
+                tooltip: 'This is a text adding some more information on the input field'
+            },
+            type: 'text',
+            width: 'u-1-of-4'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>

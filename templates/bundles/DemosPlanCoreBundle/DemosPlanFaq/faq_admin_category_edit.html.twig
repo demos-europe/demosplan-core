@@ -1,0 +1,39 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% if templateVars.category.id is defined and templateVars.category.id != '' %}
+        {% set actionPath = path('DemosPlan_faq_administration_category_edit', {'categoryId': templateVars.category.id}) %}
+        <h1>{{ "category.update"|trans }}</h1>
+    {% else %}
+        {% set actionPath = path('DemosPlan_faq_administration_category_new', {'categoryId': ''}) %}
+        <h1>{{ "category.create"|trans }}</h1>
+    {% endif %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
+
+    <form class="cf" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
+        {# if the ID isn't set, don't send the value, even not an empty-Sting  #}
+        <input type="hidden" name="r_category_id" value="{{ templateVars.category.id }}" />
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'heading'|trans },
+                    control: { name: 'r_category_title', value: templateVars.category.title|default, attributes: ['data-cy=categoryTitle'] },
+                    type: 'text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewFAQ'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: cancelPath }),
+            class: 'u-mb'
+        }) }}
+    </form>
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundleValidate.js']) }}
+{% endblock %}

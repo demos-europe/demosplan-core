@@ -1,0 +1,55 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.description-list {
+
+    // Styles that apply to both `description-list` and `description-list-inline`
+    &,
+    &-inline {
+        margin-bottom: 0;
+
+        dt {
+            font-family: $bold-font-family;
+            font-weight: $bold-font-weight;
+        }
+    }
+
+    // Styles that apply to `description-list-inline`
+    &-inline {
+        display: inline-grid;
+
+        // First column will choose width based on content, however
+        // is capped at 40% width. This is a rather arbitrary value chosen
+        // based on the assumption that the actual description details will
+        // need a little bit more space than the term itself.
+        grid-template-columns: fit-content(40%) auto;
+
+        // If the description term exceeds 40% of the overall width,
+        // even long words should break in a readable manner.
+        dt {
+            @extend %break-words-with-hyphens;
+        }
+
+        dd {
+            @extend %break-words-with-hyphens;
+
+            margin-left: $inuit-base-spacing-unit--small;
+            white-space: pre-wrap;
+        }
+    }
+
+    // Styles that apply to `description-list`
+    dd {
+        margin-left: 0;
+
+        + dt {
+            margin-top: $inuit-base-spacing-unit--tiny;
+        }
+    }
+}

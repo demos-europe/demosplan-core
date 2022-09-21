@@ -1,0 +1,387 @@
+sidemenu:
+    data_entry:
+        label: 'data_entry'
+        path: ~
+        permission: 'area_statement_data_input_orga' # Can be either a string or an array (in which case it means HasAnyPermission)
+        children: # can be a string as reference to another menu or a regular list
+            my_procedures:
+                label: 'procedures.assigned'
+                path: 'DemosPlan_procedure_list_data_input_orga_procedures'
+                permission: 'area_statement_data_input_orga'
+                link_attributes:
+                    data-cy: 'myProcedures'
+            import:
+                label: 'import'
+                path: 'DemosPlan_procedure_import'
+                path_params: ['procedureId']
+                permission: 'area_admin_import'
+                link_attributes:
+                    data-cy: 'Import'
+    fragment_menu:
+        label: 'fragment.menu'
+        path: ~
+        permission: ['area_statement_fragments_department', 'area_statement_fragments_department_archive']
+        children:
+            fragments:
+                label: 'fragments'
+                path: 'DemosPlan_statement_fragment_list_fragment_reviewer'
+                permission: 'area_statement_fragments_department'
+                link_attributes:
+                    data-cy: 'fragments'
+            fragment_archive:
+                label: 'fragment.archive'
+                path: 'DemosPlan_statement_fragment_list_fragment_archived_reviewer'
+                permission: 'area_statement_fragments_department_archive'
+                link_attributes:
+                    data-cy: 'fragmentArchive'
+    administer:
+        label: 'administer'
+        path: ~
+        permission: 'area_preferences'
+        children:
+            organisations:
+                label: 'organisations'
+                path: 'DemosPlan_orga_list'
+                permission: 'area_organisations'
+                link_attributes:
+                    data-cy: 'organisations'
+            departments:
+                label: 'departments'
+                path: 'DemosPlan_department_list'
+                path_params: ['orgaId']
+                permission: 'area_manage_departments'
+                link_attributes:
+                    data-cy: 'departments'
+            users:
+                label: 'users'
+                path: 'DemosPlan_user_list'
+                permission: 'area_manage_users'
+                link_attributes:
+                    data-cy: 'users'
+            procedure_templates:
+                label: 'masters'
+                path: 'DemosPlan_procedure_templates_list'
+                child_paths: [
+                    'DemosPlan_master_new',
+                ]
+                permission: 'area_admin_procedure_templates'
+                link_attributes:
+                    data-cy: 'masters'
+                children: 'submenu_templates'
+            procedures:
+                label: 'procedures.orga'
+                path: 'DemosPlan_procedure_administration_get'
+                child_paths: [
+                    'DemosPlan_procedure_boilerplate_edit',
+                    'DemosPlan_procedure_boilerplate_group_edit',
+                    'DemosPlan_procedure_boilerplate_list',
+                    'DemosPlan_procedure_new',
+                    'DemosPlan_procedure_places_list',
+                    'DemosPlan_statement_administration_tag',
+                    'DemosPlan_statement_administration_tags',
+                    'DemosPlan_statement_new_submitted',
+                    'dm_plan_report_table_view',
+                    'dplan_statement_segments_list',
+                ]
+                permission: 'area_admin_procedures'
+                link_attributes:
+                    data-cy: 'procedureOrgas'
+                children: 'submenu_procedures'
+            invitable_institution_unregistered_administer:
+                label: 'invitable_institution.unregistered.administer'
+                path: 'DemosPlan_get_address_book_entries'
+                path_params: ['organisationId']
+                permission: 'area_admin_orga_address_book'
+                link_attributes:
+                    data-cy: 'publicagencyUnregisteredAdminister'
+            globalnews:
+                label: 'globalnews'
+                path: 'DemosPlan_globalnews_administration_news'
+                child_paths: [
+                    'DemosPlan_globalnews_administration_news_new_get',
+                    'DemosPlan_globalnews_administration_news_new_post',
+                    'DemosPlan_globalnews_administration_news_edit_get',
+                    'DemosPlan_globalnews_administration_news_edit_post',
+                ]
+                permission: 'area_admin_globalnews'
+                link_attributes:
+                    data-cy: 'globalNews'
+            faq:
+                label: 'faq'
+                path: 'DemosPlan_faq_administration_faq'
+                child_paths: [
+                    'DemosPlan_faq_administration_faq_new',
+                    'DemosPlan_faq_administration_faq_edit',
+                    'DemosPlan_faq_administration_category_new',
+                    'DemosPlan_faq_administration_category_edit',
+                ]
+                permission: 'area_admin_faq'
+                link_attributes:
+                    data-cy: 'faq'
+            customer_settings:
+                label: 'customer.settings'
+                path: 'dplan_user_customer_showSettingsPage'
+                permission: 'area_customer_settings'
+                link_attributes:
+                    data-cy: 'customerSettings'
+            inform_users:
+                label: 'inform.users'
+                path: 'dplan_customer_mail_send_all_users'
+                permission: 'area_customer_send_mail_to_users'
+                link_attributes:
+                    data-cy: 'informUsers'
+            text_procedures_types:
+                label: 'text.procedures.types'
+                path: 'DemosPlan_procedureType_list'
+                permission: 'area_procedure_type_edit'
+                link_attributes:
+                    data-cy: 'procedureTypes'
+    plattformtools:
+        label: 'platformtools'
+        path: ~
+        permission: 'area_platformtools'
+        children:
+            statistics:
+                label: 'statistics'
+                path: 'DemosPlan_statistics'
+                permission: 'area_statistics'
+                link_attributes:
+                    data-cy: 'statistics'
+            gislayer_global:
+                label: 'gislayer.global'
+                path: 'DemosPlan_map_administration_gislayer_global'
+                permission: 'area_admin_gislayer_global_edit'
+                link_attributes:
+                    data-cy: 'gislayerGlobal'
+            institution_list_change:
+                label: 'invitable_institution.list.change'
+                path: 'DemosPlan_orga_toeblist_changes'
+                permission: 'area_report_invitable_institutionlistchanges'
+                link_attributes:
+                    data-cy: 'publicAgencyListChange'
+            invitable_institution_master:
+                label: 'invitable_institution.master'
+                path: 'DemosPlan_user_mastertoeblist'
+                permission: 'area_manage_mastertoeblist'
+                link_attributes:
+                    data-cy: 'publicAgencyMaster'
+            invitable_institution_master_report:
+                label: 'invitable_institution.master.report'
+                path: 'DemosPlan_user_mastertoeblist_report'
+                permission: 'area_report_mastertoeblist'
+                link_attributes:
+                    data-cy: 'publicAgencyMasterReport'
+            invitable_institution_master_merge:
+                label: 'invitable_institution.master.merge'
+                path: 'DemosPlan_user_mastertoeblist_merge'
+                permission: 'area_merge_mastertoeblist'
+                link_attributes:
+                    data-cy: 'mergeMasterToebList'
+            context_help:
+                label: 'contextual.help'
+                path: 'dplan_contextual_help_list'
+                child_paths: ['dplan_contextual_help_new']
+                permission: 'area_admin_contextual_help_edit'
+                link_attributes:
+                    data-cy: 'contextualHelp'
+submenu_templates:
+    adjustments_general:
+        label: 'adjustments.general'
+        path: 'DemosPlan_procedure_edit_master'
+        path_params: ['procedure']
+        permission: 'area_admin_preferences'
+        link_attributes:
+            data-cy: 'generalSettings'
+            data-extern-dataport: 'generalSettings'
+    news:
+        label: 'news'
+        path: 'DemosPlan_news_administration_news'
+        child_paths: ['DemosPlan_news_administration_news_new_get', 'DemosPlan_news_administration_news_new_post']
+        path_params: ['procedure']
+        permission: 'area_admin_news'
+        link_attributes:
+            data-cy: 'Aktuelles'
+    plandocuments_menu:
+        label: 'plandocuments.menu'
+        path: 'DemosPlan_element_administration'
+        child_paths: [
+            'DemosPlan_element_import',
+            'DemosPlan_elements_administration_edit',
+            'DemosPlan_elements_administration_new',
+            'DemosPlan_map_administration_gislayer',
+            'DemosPlan_map_administration_gislayer_new',
+            'DemosPlan_map_administration_map',
+            'DemosPlan_plandocument_administration_paragraph_new',
+            'DemosPlan_singledocument_administration_edit',
+            'DemosPlan_singledocument_administration_new',
+        ]
+        path_params: ['procedure']
+        permission: [ 'area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map' ]
+        link_attributes:
+            data-cy: 'documentsAndMapSettings'
+            data-extern-dataport: 'documentsAndMapSettings'
+    invitable_institution_administer:
+        label: 'invitable_institution.administer'
+        path: 'DemosPlan_procedure_member_index'
+        child_paths: ['DemosPlan_procedure_member_add']
+        path_params: ['procedure']
+        permission: [ 'area_admin_invitable_institution','area_report_mastertoeblist', 'area_invite_unregistered_public_agencies' ]
+        link_attributes:
+            data-cy: 'procedureMember'
+    authorized_users:
+        label: 'authorized.users'
+        path: 'dplan_admin_procedure_authorized_users'
+        path_params: ['procedureId']
+        permission: 'area_admin_consultations'
+    boilerplates:
+        label: 'boilerplates'
+        path: 'DemosPlan_procedure_boilerplate_list'
+        child_paths: [
+            'DemosPlan_procedure_boilerplate_edit',
+            'DemosPlan_procedure_boilerplate_group_edit',
+        ]
+        path_params: ['procedure']
+        permission: 'area_admin_boilerplates'
+        link_attributes:
+            data-cy: 'Textbausteine'
+    tag_administration:
+        label: 'tag.administration'
+        path: 'DemosPlan_statement_administration_tags'
+        child_paths: ['DemosPlan_statement_administration_tag']
+        path_params: ['procedure']
+        permission: 'area_admin_statements_tag'
+        link_attributes:
+            data-cy: 'Schlagworte'
+    places:
+        label: 'places'
+        path: 'DemosPlan_procedure_template_places_list'
+        path_params: ['procedureId']
+        permission: 'area_manage_segment_places'
+        link_attributes:
+            data-cy: 'Bearbeitungsschritte'
+submenu_procedures:
+    procedure_name:
+        label: '{$procedureName}'
+        path: ~
+        list_item_attributes:
+            class: 'knp-sub-heading'
+    overview:
+        label: 'overview'
+        path: 'DemosPlan_procedure_dashboard'
+        path_params: ['procedure']
+        permission: 'area_admin_dashboard'
+        link_attributes:
+            data-cy: 'dashboard'
+            data-extern-dataport: 'dashboard'
+    configuration:
+        label: 'configuration'
+        path: ~
+        list_item_attributes:
+            class: 'knp-sub-heading'
+    adjustments_general:
+        label: 'adjustments.general'
+        path: 'DemosPlan_procedure_edit'
+        path_params: ['procedure']
+        permission: 'area_admin_preferences'
+        link_attributes:
+            data-cy: 'generalSettings'
+            data-extern-dataport: 'generalSettings'
+    import:
+        label: 'import'
+        path: 'DemosPlan_procedure_import'
+        path_params: ['procedureId']
+        permission: 'area_admin_import'
+        link_attributes:
+            data-cy: 'Import'
+    news:
+        label: 'news'
+        path: 'DemosPlan_news_administration_news'
+        child_paths: ['DemosPlan_news_administration_news_new_get', 'DemosPlan_news_administration_news_new_post']
+        path_params: ['procedure']
+        permission: 'area_admin_news'
+        link_attributes:
+            data-cy: 'Aktuelles'
+    plandocuments_menu:
+        label: 'plandocuments.menu'
+        path: 'DemosPlan_element_administration'
+        child_paths: [
+            'DemosPlan_element_import',
+            'DemosPlan_elements_administration_edit',
+            'DemosPlan_elements_administration_new',
+            'DemosPlan_map_administration_gislayer',
+            'DemosPlan_map_administration_gislayer_new',
+            'DemosPlan_map_administration_map',
+            'DemosPlan_plandocument_administration_paragraph_new',
+            'DemosPlan_singledocument_administration_edit',
+            'DemosPlan_singledocument_administration_new',
+        ]
+        path_params: ['procedure']
+        permission: ['area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map']
+        link_attributes:
+            data-cy: 'documentsAndMapSettings'
+            data-extern-dataport: 'documentsAndMapSettings'
+    invitable_institution_administer:
+        label: 'invitable_institution.administer'
+        path: 'DemosPlan_procedure_member_index'
+        child_paths: ['DemosPlan_procedure_member_add']
+        path_params: ['procedure']
+        permission: ['area_admin_invitable_institution','area_report_mastertoeblist', 'area_invite_unregistered_public_agencies']
+        link_attributes:
+            data-cy: 'procedureMember'
+    authorized_users:
+        label: 'authorized.users'
+        path: 'dplan_admin_procedure_authorized_users'
+        path_params: ['procedureId']
+        permission: 'area_admin_consultations'
+    analysis:
+        label: 'analysis'
+        path: ~
+        permission: 'area_admin_assessmenttable'
+        list_item_attributes:
+            class: 'knp-sub-heading'
+    considerationtable:
+        label: 'considerationtable'
+        path: 'dplan_assessmenttable_view_table'
+        child_paths: ['dplan_assessmenttable_view_original_table']
+        path_params: ['procedureId', 'filterHash']
+        permission: 'area_admin_assessmenttable'
+        link_attributes:
+            data-extern-dataport: 'assessmenttable'
+    statements:
+        label: 'statements'
+        path: 'dplan_procedure_statement_list'
+        path_params: ['procedureId']
+        permission: 'area_admin_statement_list'
+        link_attributes:
+            data-cy: 'statementslist'
+            data-extern-dataport: 'statementslist'
+    segments:
+        label: 'segments'
+        path: 'dplan_segments_list'
+        path_params: ['procedureId']
+        permission: 'area_statement_segmentation'
+        link_attributes:
+            data-cy: 'segmentslist'
+            data-extern-dataport: 'segmentslist'
+    submitters:
+        label: 'submitters'
+        path: 'dplan_submitters_list'
+        path_params: ['procedureId']
+        permission: 'area_admin_submitters'
+        link_attributes:
+            data-cy: 'submitterslist'
+            data-extern-dataport: 'submitterslist'
+    survey:
+        label: 'survey'
+        path: 'dplan_survey_new'
+        path_params: ['procedureId']
+        permission: 'area_survey_management'
+        link_attributes:
+            data-extern-dataport: 'survey'
+    procedure_mail_submitters:
+        label: 'procedure.mail.submitters'
+        path: 'dplan_procedure_mail_send_all_submitters_view'
+        path_params: ['procedureId']
+        permission: 'area_procedure_send_submitter_email'
+        link_attributes:
+            data-cy: 'procedureEmailSubmitters'

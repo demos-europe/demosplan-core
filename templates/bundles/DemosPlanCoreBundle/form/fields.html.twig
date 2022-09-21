@@ -1,0 +1,135 @@
+{% extends 'form_div_layout.html.twig' %}
+
+{# ########## Label #}
+{%- block form_row %}
+    {% apply spaceless %}
+        {{ form_errors(form) }}
+        {{ form_widget(form) }}
+    {% endapply %}
+{% endblock form_row -%}
+
+{# ########## Input #}
+{%- block form_widget_simple -%}
+    {%- set attr = attr|merge({'class': (attr.class|default('') ~ ' layout__item')|trim}) -%}
+    {%- set type = type|default('text') -%}
+    {% if type != 'hidden' %}
+        {{ form_label(form) }}
+    {% endif %}
+        <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}>
+    {% if type != 'hidden' %}
+        </label>
+    {% endif %}
+
+{%- endblock form_widget_simple -%}
+
+
+{%- block checkbox_widget -%}
+    {%- set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' cursor--pointer weight--normal')|trim}) -%}
+    {{ form_label(form) }}
+    <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+    </label>
+{%- endblock checkbox_widget -%}
+
+{%- block radio_widget -%}
+    <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+{%- endblock radio_widget -%}
+
+{# ########## Buttons #}
+{%- block button_widget -%}
+    {# Setze die Standardklasse des Labels #}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' btn btn--primary')|trim}) %}
+    {%- if label is empty -%}
+        {%- if label_format is not empty -%}
+            {% set label = label_format|replace({
+            '%name%': name,
+            '%id%': id,
+            }) %}
+        {%- else -%}
+            {% set label = name|humanize %}
+        {%- endif -%}
+    {%- endif -%}
+    <button type="{{ type|default('button') }}" {{ block('button_attributes') }}>{{ label|trans }}</button>
+{%- endblock button_widget -%}
+
+{%- block submit_widget -%}
+    {%- set type = type|default('submit') -%}
+    {# Setze die Standardklasse des Labels #}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' float--right')|trim}) %}
+    {%- if label is empty -%}
+        {% set label = 'save' %}
+    {%- endif -%}
+    {{ block('button_widget') }}
+{%- endblock submit_widget -%}
+
+{%- block reset_widget -%}
+    {%- set type = type|default('reset') -%}
+    {# Setze die Standardklasse des Labels #}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' btn btn--secondary')|trim}) %}
+    {%- if label is empty -%}
+        {% set label = 'abort' %}
+    {%- endif -%}
+    {{ block('button_widget') }}
+{%- endblock reset_widget -%}
+
+{%- block button_attributes -%}
+    {# gib die ID nur aus, wenn sie extra gesetzt ist #}
+    {% if id != 'form_' ~ name %}
+        id="{{ id }}"
+    {% endif %}
+
+    name="{{ full_name }}"{% if disabled %} disabled="disabled"{% endif -%}
+    {%- for attrname, attrvalue in attr -%}
+        {{- " " -}}
+        {%- if attrname in ['placeholder', 'title'] -%}
+            {{- attrname }}="{{ attrvalue|trans }}"
+        {%- elseif attrvalue is same as(true) -%}
+            {{- attrname }}="{{ attrname }}"
+        {%- elseif attrvalue is not same as(false) -%}
+            {{- attrname }}="{{ attrvalue }}"
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock button_attributes -%}
+
+{# ########## Label #}
+{%- block form_label -%}
+    {% if label is not same as(false) -%}
+        {# Setze die Standardklasse des Labels #}
+        {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' u-mb')|trim}) %}
+
+        {% if required -%}
+            {% set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) %}
+        {%- endif -%}
+        {% if label is empty -%}
+            {%- if label_format is not empty -%}
+                {% set label = label_format|replace({
+                '%name%': name,
+                '%id%': id,
+                }) %}
+            {%- else -%}
+                {% set label = name|humanize %}
+            {%- endif -%}
+        {%- endif -%}
+        <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}
+    {%- endif -%}
+{%- endblock form_label -%}
+
+{# ########## Attribute #}
+{%- block widget_attributes -%}
+    {# gib die ID nur aus, wenn sie extra gesetzt ist #}
+    {% if id != 'form_' ~ name %}
+        id="{{ id }}"
+    {% endif %}
+    name="{{ full_name }}"
+    {%- if disabled %} disabled="disabled"{% endif -%}
+    {%- if required %} required="required"{% endif -%}
+    {%- for attrname, attrvalue in attr -%}
+        {{- " " -}}
+        {%- if attrname in ['placeholder', 'title'] -%}
+            {{- attrname }}="{{ translation_domain is same as(false) ? attrvalue : attrvalue|trans({}, translation_domain) }}"
+        {%- elseif attrvalue is same as(true) -%}
+            {{- attrname }}="{{ attrname }}"
+        {%- elseif attrvalue is not same as(false) -%}
+            {{- attrname }}="{{ attrvalue }}"
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock widget_attributes -%}

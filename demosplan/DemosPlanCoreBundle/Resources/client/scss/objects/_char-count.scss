@@ -1,0 +1,49 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////
+/// @group objects
+////
+
+/// Styles a disabled input field that displays available characters for an input/textarea field.
+///
+/// @name .o-char-count
+///
+/// @example markup
+/// <label for="myField">
+///     Label of field
+/// </label>
+/// <p class="lbl__hint">
+///     {{ 'input.text.maxlength'|trans({'%maxlength%': 200, '%id%': 'r_myField_counter'})|wysiwyg('input') }}
+/// </p>
+/// <input name="r_myField" id="myField" type="text" value="" data-counter="r_myField_counter" maxlength="200">
+
+%char-count {
+    background: transparent;
+    border: none;
+
+    color: $dp-token-color-brand-highlight;
+
+    text-align: center;
+}
+
+.o-char-count {
+    @extend %char-count;
+    width: 30px;
+}
+
+.o-char-count--m {
+    @extend %char-count;
+    width: 35px;
+}
+
+.o-char-count--l {
+    @extend %char-count;
+    width: 42px;
+}

@@ -1,0 +1,19 @@
+{% block body_plain -%}
+
+{%- set count = templateVars.statements|length -%}
+Guten Tag,
+
+im Verfahren "{{ templateVars.procedure.name|default('') }}"
+{{ 'email.text.notification_for_released_statement.1'|trans({ count: count }) }} freigegeben.
+
+Bitte prüfen Sie die {{ 'email.text.notification_for_released_statement.2'|trans({ count: count }) }}
+und reichen Sie sie bei dem Verfahrensträger ein.
+
+Freundliche Grüße
+
+
+-------------
+Wenn Sie diese Mail nicht bekommen möchten, deaktivieren Sie die E-Mail-Benachrichtigung unter "Meine Daten".
+Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

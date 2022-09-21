@@ -1,0 +1,45 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.c-sliding-pagination {
+    pointer-events: all;
+}
+
+.c-sliding-pagination__list {
+    @extend %c-pager-list;
+
+    display: inline;
+}
+
+.c-sliding-pagination__list-element {
+    @extend %c-pager-item;
+
+    display: inline-block;
+
+    &--active {
+        @extend %c-pager-current;
+
+        > .c-sliding-pagination__page {
+            color: $dp-color-white;
+        }
+    }
+
+    &--disabled {
+        background: inherit;
+        color: inherit;
+        cursor: not-allowed;
+    }
+}
+
+.c-sliding-pagination__page {
+    &[disabled] {
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+}

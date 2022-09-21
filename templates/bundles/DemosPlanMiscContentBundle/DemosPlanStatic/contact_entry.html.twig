@@ -1,0 +1,115 @@
+<h1>{{ "contact"|trans }}</h1>
+<p>Sie benötigen weitere Auskünfte? Gerne helfen wir Ihnen weiter.</p>
+<p>
+    Rolf Lührs
+    <br>
+    DEMOS E-Partizipation GmbH
+    <br>
+    Büro Berlin: Panoramastr. 1, 10178 Berlin - Mitte
+    <br>
+    Büro Hamburg: Daimlerstraße 71c, 22761 Hamburg - Altona
+    <br>
+    Telefon: 030-2787846-0
+    <br>
+    E-Mail: <a href="mailto:info@demos-deutschland.de" rel="noopener noreferrer">info@demos-deutschland.de</a>
+    <br>
+    <a href="http://www.demos-deutschland.de/" rel="noopener noreferrer" target="_blank" >www.demos-deutschland.de</a>
+</p>
+
+{% if displayContactForm is not defined or displayContactForm == true %}
+    <h2>Kontaktformular</h2>
+    <p>
+        Ihre Anliegen können Sie uns über das Kontaktformular mitteilen.
+        <br>
+        Bitte prüfen Sie, ob sich Ihre Frage durch die "häufig gestellten Fragen" im Menü "Informationen" beantworten lässt.
+    </p>
+
+
+    <form action="{{ path('DemosPlan_misccontent_static_contact') }}" method="post" data-dp-validate>
+        <input name="action" type="hidden" value="contact">
+        <fieldset>
+            <legend>
+                {{ "request"|trans }}
+            </legend>
+            <label>
+                {{ "subject"|trans }}*
+                <select class="{{ 'layout__item u-pl-0'|prefixClass }}" name="r_subject" required>
+                    <option  value="">
+                        Kein
+                    </option>
+                    <option  value="Institutions-Listen Ergänzung">
+                        Institutions-Listen Ergänzung
+                    </option>
+                    <option  value="Registrierung">
+                        Registrierung
+                    </option>
+                    <option  value="Bedienung DEMOS-Plan">
+                        Bedienung DEMOS-Plan
+                    </option>
+                    <option  value="Fehlermeldung">
+                        Fehlermeldung
+                    </option>
+                    <option  value="Vorschlag/Anmerkung">
+                        Vorschlag/Anmerkung
+                    </option>
+                    <option value="Abmeldung zur Schulung/Veranstaltung">
+                        Schulung/Veranstaltung
+                    </option>
+                    <option  value="Sonstiges">
+                        Sonstiges
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                {{ "email.body"|trans }}*
+                {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
+                <textarea class="{{ 'height-130'|prefixClass }}" name="r_message" required></textarea>
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>{{ "personal.data"|trans }}</legend>
+
+            <label>
+                {{ "name.first"|trans }}*
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" name="r_firstname" required>
+            </label>
+
+            <label>
+                {{ "name.last"|trans }}*
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" name="r_lastname" required>
+            </label>
+
+            <label>
+                {{ "organisation"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" name="r_organisation">
+            </label>
+
+            <label>
+                {{ "email"|trans }}*
+                <input class="{{ 'layout__item'|prefixClass }}" type="email" name="r_email" required>
+            </label>
+
+            <label>
+                {{ "email.confirm"|trans }}*
+                <input class="{{ 'layout__item'|prefixClass }}" type="email" name="r_email2" data-dp-validate-should-equal="[name=r_email]">
+            </label>
+
+            <label>
+                {{ "phone"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" name="r_phone">
+            </label>
+
+            <label>
+                {{ "address"|trans }}
+                <input class="{{ 'layout__item'|prefixClass }}" type="text" name="r_address">
+            </label>
+
+            <p>
+                {{ "error.mandatoryfields"|trans }}
+            </p>
+        </fieldset>
+
+        <input class="{{ 'btn btn--primary float--right'|prefixClass }}" type="submit" value="{{ "send"|trans }}">
+    </form>
+{% endif %}

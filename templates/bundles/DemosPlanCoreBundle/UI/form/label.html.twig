@@ -1,0 +1,61 @@
+{# This is a ui component used via the Twig function call uiComponent('form.label')
+ Usage example:
+ uiComponent('form.label', { label: 'Übersetzter Text' }) // @improve: T17454 -> move trans-filter to the component call
+
+ text {String}:             label text to display
+ class {String}:            css classes
+ hint {String}:             hint to display inside the label; omit if not needed
+ labelRequired {String}:    if the form control is required, but you don't want an asterisk on the label, set this to false
+                            to override the 'required' prop on the form element
+ omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+
+{% set widthVars = {
+    full: ' u-1-of-1',
+    large: ' u-1-of-2',
+    medium: ' u-1-of-3',
+    small: ' u-1-of-4',
+    smaller: ' u-1-of-5',
+    tiny: ' u-1-of-6',
+    mini: ' u-1-of-8'
+} %}
+
+{% if tooltip|default %}
+    {% set class = class|default ~ ' u-pr display--inline-block' %}
+{% endif %}
+
+{% set width = widthVars[size|default('full')] %}
+{% set class = class|default ~ ' o-form__label ' ~ width|default %}
+
+{% if style|default == 'inline' %}
+    {% set class = class ~ ' display--inline' %}
+{% endif %}
+
+<label
+    for="{{ id|default }}"
+    class="{{ class|prefixClass(omitPrefix) }}">
+    {{ text|default|wysiwyg }}{% if required|default and (labelRequired is not defined or (labelRequired is defined and labelRequired == true)) %}*{% endif %}
+    {% if hint|default %}
+        <p class="{{ 'lbl__hint'|prefixClass(omitPrefix)}} {% if dataCounterHint|default %}{{ 'u-mb-0'|prefixClass(omitPrefix) }}{% endif %}">
+            {{ hint|trans|wysiwyg }}
+            {% if hintVar|default %}
+                <span class="{{ 'display--inline-block'|prefixClass(omitPrefix) }}">
+                    {{ hintVar }}
+                </span>
+            {% endif %}
+        </p>
+    {% endif %}
+    {% if dataCounterHint|default %}
+        <p class="{{ 'lbl__hint'|prefixClass(omitPrefix)}}">
+            {{ dataCounterHint|wysiwyg('input') }}
+        </p>
+    {% endif %}
+</label>
+{% if tooltip|default %}
+    <i
+        class="{{ 'fa fa-question-circle position--absolute u-mt-0_125 u-t-0 u-r-0'|prefixClass(omitPrefix) }}"
+        :aria-label="Translator.trans('contextual.help')"
+        v-tooltip="'{{ tooltip|trans }}'">
+    </i>
+{% endif %}

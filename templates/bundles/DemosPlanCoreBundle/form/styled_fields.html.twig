@@ -1,0 +1,137 @@
+{% extends 'form_div_layout.html.twig' %}
+
+{# ########## Label #}
+{%- block form_row %}
+    {% apply spaceless %}
+        {{ form_errors(form) }}
+        {{ form_widget(form) }}
+    {% endapply %}
+{% endblock form_row -%}
+
+{% block choice_widget_expanded %}
+    <fieldset>
+        {%- for child in form %}
+            {{- form_widget(child) -}}
+        {% endfor -%}
+    </fieldset>
+{% endblock %}
+
+{# ########## Input #}
+{%- block form_widget_simple -%}
+    {{ uiComponent('form.element', {
+        label: { text: label, name: name|default },
+        control: { value: value|default, name: name|default },
+        type: type|default('text'),
+        id: id|default,
+        required: required ?? true,
+        class: class|default
+    }) }}
+{%- endblock form_widget_simple -%}
+
+{%- block form_widget -%}
+    {% set params = {
+        label: { text: label },
+        control: { value: data|default, name: full_name|default },
+        type: type|default('text'),
+        id: id|default,
+        required: required ?? true,
+        class: class|default
+    } %}
+
+    {% if attr is defined %}
+        {% for key, value in attr %}
+            {% set valueToSet = value %}
+            {% if value == '1' %}
+                {% set valueToSet = true %}
+            {% elseif value == '0' %}
+                {% set valueToSet = false %}
+            {% endif %}
+            {% set params = params|merge({ (key): valueToSet }) %}
+        {% endfor %}
+    {% endif %}
+
+    {% if type|default('text') == 'tiptap' %}
+        {% set params = params|merge({ hiddenInput: full_name }) %}
+    {% endif %}
+
+    {{ uiComponent('form.element', params) }}
+{%- endblock form_widget -%}
+
+{% block checkbox_widget %}
+    {% set params = {
+        label: { text: label },
+        control: { value: data|default, name: full_name|default },
+        type: 'checkbox',
+        id: id|default,
+        required: required ?? true,
+        class: class|default,
+        checked: data == true
+    } %}
+
+    {% if attr is defined %}
+        {% for key, value in attr %}
+            {% set valueToSet = value %}
+            {% if value == '1' %}
+                {% set valueToSet = true %}
+            {% elseif value == '0' %}
+                {% set valueToSet = false %}
+            {% endif %}
+            {% set params = params|merge({ (key): valueToSet }) %}
+        {% endfor %}
+    {% endif %}
+
+    {{ uiComponent('form.element', params) }}
+{% endblock checkbox_widget %}
+
+{% block radio_widget %}
+    {{ uiComponent('form.input.radio', {
+        name: name|default,
+        value: value|default,
+        id: id|default,
+        validationRules: hint|default,
+        disabled: disabled ?? true,
+        class: class|default,
+        checked: checked|default(false)
+    }) }}
+{% endblock radio_widget %}
+
+{% block tiptap_widget %}
+    {{ uiComponent('form.tiptap', {
+        id: id|default,
+        value: value|default,
+        hiddenInput: hiddenInput|default(false)
+    }) }}
+{% endblock tiptap_widget %}
+
+{# ########## Buttons #}
+{% block submit_widget %}
+    {{ uiComponent('button', {
+        style: 'primary',
+        type: 'submit'
+    }) }}
+{% endblock submit_widget %}
+
+{% block reset_widget %}
+    {{ uiComponent('button', {
+        style: 'secondary',
+        type: 'reset'
+    }) }}
+{% endblock reset_widget %}
+
+{% block button_row %}
+    <div class="text--right">
+        {{- form_widget(form) -}}
+    </div>
+{% endblock button_row %}
+
+{# ########## Label #}
+{% block form_label %}
+    {{ uiComponent('form.label', {
+        text: label|default,
+        id: id|default,
+        hint: hint|default,
+        dataCounterHint: dataCounterHint|default,
+        required: required ?? true,
+        class: class|default
+    }) }}
+{% endblock form_label %}

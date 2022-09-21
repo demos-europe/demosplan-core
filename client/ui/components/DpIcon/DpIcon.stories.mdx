@@ -1,0 +1,396 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+
+import DpIcon from './DpIcon'
+
+import { ICONS } from './util/iconVariables'
+
+<Meta
+  argTypes={{
+      icon: {
+          options: Object.keys(ICONS),
+          control: { type: 'select' }
+      },
+      size: {
+          options: [
+              'small',
+              'medium',
+              'large'
+          ],
+          control: { type: 'select' }
+      }
+  }}
+  title="Components/Icon"
+  component={DpIcon} />
+
+# Icon
+
+The `DpIcon` component renders svg icons - mostly from fontawesome v5.
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpIcon },
+    template: `<dp-icon v-bind="this.$props" />`
+});
+
+## Icon Sizes
+
+### Large
+<Canvas>
+    <Story
+        name="Large"
+        args={{
+            icon: 'history',
+            size: 'large'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Medium
+<Canvas>
+    <Story
+        name="Medium"
+        args={{
+            icon: 'history',
+            size: 'medium'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Small
+<Canvas>
+    <Story
+        name="Small"
+        args={{
+            icon: 'history',
+            size: 'small'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Available Icons
+
+### Arrow left
+<Canvas>
+    <Story
+        name="Arrow left"
+        args={{
+            icon: 'arrow-left'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Arrow right
+<Canvas>
+    <Story
+        name="Arrow right"
+        args={{
+            icon: 'arrow-right'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Check
+Use to indicate success state within table rows.
+<Canvas>
+    <Story
+        name="Check"
+        args={{
+            icon: 'check'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Chevron Down
+Use as expand trigger for revealing patterns like collapsed table row or accordion.
+<Canvas>
+    <Story
+        name="Chevron Down"
+        args={{
+            icon: 'chevron-down'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Chevron Up
+Use as collapse trigger for revealing patterns like collapsed table row or accordion.
+<Canvas>
+    <Story
+        name="Chevron Up"
+        args={{
+            icon: 'chevron-up'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Clock
+Use to illustrate time based actions.
+<Canvas>
+    <Story
+        name="Clock"
+        args={{
+            icon: 'clock'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Close
+
+In overlay elements, it can be used to illustrate the "Close" trigger.
+
+Alias of: [`xmark`](#xmark)
+
+<Canvas>
+    <Story
+        name="Close"
+        args={{
+            icon: 'close'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Compress
+Use as trigger for leaving fullscreen mode along with [`expand`](#expand)
+<Canvas>
+    <Story
+        name="Compress"
+        args={{
+            icon: 'compress'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Delete
+The infamous trash can is used to indicate destructive actions.
+<Canvas>
+    <Story
+        name="Delete"
+        args={{
+            icon: 'delete'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Download
+Use to emphasize downloadable resources.
+<Canvas>
+    <Story
+        name="Download"
+        args={{
+            icon: 'download'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Drag Handle
+<Canvas>
+    <Story
+        name="Drag Handle"
+        args={{
+            icon: 'drag-handle'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Expand
+Use as trigger for entering fullscreen mode along with [`compress`](#compress)
+<Canvas>
+    <Story
+        name="Expand"
+        args={{
+            icon: 'expand'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Highlighter
+<Canvas>
+    <Story
+        name="Highlighter"
+        args={{
+            icon: 'highlighter'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### History
+Use to illustrate version history.
+<Canvas>
+    <Story
+        name="History"
+        args={{
+            icon: 'history'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Hourglass
+Use to illustrate indeterminate delay.
+<Canvas>
+    <Story
+        name="Hourglass"
+        args={{
+            icon: 'hourglass'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Info
+Use to illustrate info notifications.
+<Canvas>
+    <Story
+        name="Info"
+        args={{
+            icon: 'info'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Lock
+Use to illustrate that an item is edited by someone else.
+<Canvas>
+    <Story
+        name="Lock"
+        args={{
+            icon: 'lock'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Mail
+<Canvas>
+    <Story
+        name="Mail"
+        args={{
+            icon: 'mail'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Refresh
+<Canvas>
+    <Story
+        name="Refresh"
+        args={{
+            icon: 'refresh'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Search
+<Canvas>
+    <Story
+        name="Search"
+        args={{
+            icon: 'search'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Settings
+<Canvas>
+    <Story
+        name="Settings"
+        args={{
+            icon: 'settings'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Success
+Use to illustrate success notifications.
+<Canvas>
+    <Story
+        name="Success"
+        args={{
+            icon: 'success'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Tag
+<Canvas>
+    <Story
+        name="Tag"
+        args={{
+            icon: 'tag'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### Unlock
+Use to illustrate that an item is not being edited by someone else.
+<Canvas>
+    <Story
+        name="Unlock"
+        args={{
+            icon: 'unlock'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### User
+<Canvas>
+    <Story
+        name="User"
+        args={{
+            icon: 'user'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+### User (solid)
+<Canvas>
+    <Story
+        name="User (solid)"
+        args={{
+            icon: 'userSolid'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+
+### Xmark
+
+Use for these cases:
+
+* In tables, it can indicate success vs. error in columns with limited space in tandem with the "check" icon
+* In form fields, it can be the trigger to clear the field
+
+<Canvas>
+    <Story
+        name="Xmark"
+        args={{
+            icon: 'xmark'
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>

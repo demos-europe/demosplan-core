@@ -1,0 +1,19 @@
+{# Der Autoescaper soll nur die Tüddelchen ersetzen, den Rest nicht. #}
+{% autoescape 'csv' %}
+{% if part == 'procedure' %}
+"{{ "procedure"|trans }}","{{ "date.created"|trans }}","{{ "start"|trans }}","{{ "end"|trans }}","{{ "agency"|trans }}","{{ "planningagency"|trans }}","{{ "phase"|trans }}","{{ "phase.public"|trans }}","{{ "statements.of.invitable_institutions"|trans }}","{{ "statements.of.registered.citizens"|trans }}","{{ "statements.of.guests"|trans }}"
+{% for item in templateVars.procedureList %}
+"{{ item.name }}",{{ item.createdDate|default()|dplanDate }},{{ item.startDate|default()|dplanDate }},{{ item.endDate|default()|dplanDate }},"{{ item.orgaName }}","{% if item.psdOrga is defined %}{{ item.psdOrga.nameLegal }}{% else %}{{ "notspecified"|trans }}{% endif %}","{% if item.phaseName is defined %}{{ item.phaseName }}{% else %}{{ "notspecified"|trans }}{% endif %}","{% if item.publicParticipationPhaseName is defined %}{{ item.publicParticipationPhaseName }}{% else %}{{ "notspecified"|trans }}{% endif %}","{% if item.statementStatistic.amountOfToebStatementsOfProcedure is defined %}{{ item.statementStatistic.amountOfToebStatementsOfProcedure }}{% else %}{{ "notspecified"|trans }}{% endif %}","{% if item.statementStatistic.amountOfCitizenStatementsOfProcedure is defined %}{{ item.statementStatistic.amountOfCitizenStatementsOfProcedure }}{% else %}{{ "notspecified"|trans }}{% endif %}","{% if item.statementStatistic.amountOfGuestStatementsOfProcedure is defined %}{{ item.statementStatistic.amountOfGuestStatementsOfProcedure }}{% else %}{{ "notspecified"|trans }}{% endif %}"
+{% endfor %}
+{% endif %}
+{% if part == 'organisation' %}
+"{{ "organisation"|trans }}","{{ "email.participation"|trans }}","{{ "user.name"|trans }}","{{ "user.logon"|trans }}","{{ "role.fpa"|trans }}","{{ "role.fpsb"|trans }}","{{ "role.tbko"|trans }}","{{ "role.tbsb"|trans }}","{{ "role.fppb"|trans }}"
+{% for cnt in templateVars.orgaUsersList %}
+{% if cnt.users|length > 0 %}
+{% for user in cnt.users %}
+"{{ cnt.organisation.nameLegal }}","{{ cnt.organisation.email2 }}","{{ user.firstname }} {{ user.lastname }}","{{ user.login }}","{% for role in user.roles|default([]) %}{% if role == 'RMOPSA'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RMOPSD'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RPSOCO'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RPSODE'%} x {% endif %}{% endfor %}","{% for role in user.roles|default([]) %}{% if role == 'RMOPPO'%} x {% endif %}{% endfor %}"
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endautoescape %}

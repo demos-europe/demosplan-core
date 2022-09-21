@@ -1,0 +1,18 @@
+<?php
+
+namespace demosplan\DemosPlanCoreBundle\Services;
+
+use Symfony\Component\HttpFoundation\Request;
+
+interface SubdomainHandlerInterface
+{
+    public function setSubdomainParameter(Request $request): void;
+
+    /**
+     * Returns the url's subdomain if it exists and it is in allowedSubdomains' array.
+     * Otherwise returns the Config Parameter 'subdomain'.
+     */
+    public function getSubdomain(Request $request): string;
+
+    public function getUrlSubdomain(Request $request): string;
+}

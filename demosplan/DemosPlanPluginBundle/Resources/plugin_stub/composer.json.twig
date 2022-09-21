@@ -1,0 +1,11 @@
+{
+    "name": "{{ plugin_vendor }}/{{ plugin_config_name }}",
+    "description": "{{ plugin_description }}",
+    "license": "{{ plugin_license }}",
+    "autoload": {
+        "psr-4": {
+            "{{ plugin_namespace }}": ""
+        },
+        "exclude-from-classmap": ["Tests/"]
+    }
+}

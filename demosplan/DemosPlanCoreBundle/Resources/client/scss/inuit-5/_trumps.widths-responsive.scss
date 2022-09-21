@@ -1,0 +1,44 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*------------------------------------*\
+    #WIDTHS-RESPONSIVE
+\*------------------------------------*/
+
+/**
+ * Responsive width classes based on your responsive settings.
+ */
+
+// By default we will create wholes, halves, thirds, quarters, and fifths.
+// Predefine this Map to override.
+$inuit-widths-columns-responsive: (
+    1,
+    2,
+    3,
+    4,
+    5,
+) !default;
+
+// Loop over our breakpoints defined in _settings.responsive.scss
+@each $breakpoint in $breakpoints {
+
+    // Get the name of the breakpoint.
+    $alias: nth($breakpoint, 1);
+
+    @include media-query($alias) {
+
+        // Loop through each of our column sizes and generate its responsive width
+        // classes.
+        @each $inuit-widths-column in $inuit-widths-columns-responsive {
+            @include inuit-widths($inuit-widths-column, -#{$alias});
+        }
+
+    }
+
+}

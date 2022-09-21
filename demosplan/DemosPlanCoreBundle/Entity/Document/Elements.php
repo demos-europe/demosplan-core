@@ -1,0 +1,709 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Entity\Document;
+
+use DateTime;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+
+/**
+ * @ORM\Table(name="_elements")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository")
+ */
+class Elements extends CoreEntity implements UuidEntityInterface
+{
+    public const ELEMENTS_CATEGORY_MAP = 'map'; //like "Planzeichnung"
+    public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; //like "Gesamtstellungnahme" or "Fehlanzeige"
+    public const ELEMENTS_CATEGORY_FILE = 'file'; // like "Ergänzende Unterlagen" or "Landschaftsplan-Änderung"
+    public const ELEMENTS_CATEGORY_PARAGRAPH = 'paragraph'; //like "Begründung" or "Textliche Festsetzungen"
+    public const ELEMENTS_CATEGORY_CATEGORY = 'category'; // created element by customer
+
+    public const FILE_TYPE_ANSCHREIBEN = 'Anschreiben';
+    public const FILE_TYPE_ANSCHREIBEN_BETEILIGUNGSVERFAHREN = 'Anschreiben Beteiligungsverfahren';
+    public const FILE_TYPE_ANTRAGS_AUFTRAGSDOKUMENTE = 'Antrags- und Auftragsdokumente (Veranstaltung)';
+    public const FILE_TYPE_ARBEITSKREISPAPIER = 'Arbeitskreispapier I und II';
+    public const FILE_TYPE_AUBS_DRITTER_BLATT = 'AuBS 3er-Blatt';
+    public const FILE_TYPE_AUFHEBUNGSBESCHLUSS = 'Aufhebungsbeschluss';
+    public const FILE_TYPE_AUFSTELLUNGSBESCHLUSS = 'Aufstellungsbeschluss';
+    public const FILE_TYPE_AUSLEGUNGSBESCHLUSS = 'Auslegungsbeschluss';
+    public const FILE_TYPE_AUSWERTUNG = 'Auswertung';
+    public const FILE_TYPE_BEGRUENDUNG = 'Begründung';
+    public const FILE_TYPE_BEIBLATT_NACH_UBERNAHMEN = 'Beiblatt nachr. Übernahmen';
+    public const FILE_TYPE_BESCHLUSS_ZUR_FNP_ANDERUNG = 'Beschluss zur FNP-Änderung';
+    public const FILE_TYPE_BESCHLUSS_ZUR_LAPRO_ANDERUNG = 'Beschluss zur Lapro-Änderung';
+    public const FILE_TYPE_DRUCKSACHE = 'Drucksache';
+    public const FILE_TYPE_DURCHFUHRUNGSVERTRAG = 'Durchführungsvertrag';
+    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'Ergänzende Unterlage';
+    public const FILE_TYPE_ERSCHLIESSUNGSVERTRAG = 'Erschließungsvertrag';
+    public const FILE_TYPE_FESTSTELLUNG_PLANREIFE = 'Feststellung Planreife';
+    public const FILE_TYPE_FESTSTELLUNGSBESCHLUSS = 'Feststellungsbeschluss';
+    public const FILE_TYPE_FNP_AENDERUNG = 'FNP-Änderung';
+    public const FILE_TYPE_FPN_DRITTER_BLATT = 'FNP 3er-Blatt';
+    public const FILE_TYPE_FUNKTIONSPLAN = 'Funktionsplan';
+    public const FILE_TYPE_GREMIENNIEDERSCHRIFT = 'Gremienniederschrift';
+    public const FILE_TYPE_GROBABSTIMMUNGSPAPIER = 'Grobabstimmungspapier';
+    public const FILE_TYPE_GUTACHTEN = 'Gutachten';
+    public const FILE_TYPE_INFOBLATT = 'Infoblatt';
+    public const FILE_TYPE_INTERNER_VERMERK = 'Interner Vermerk';
+    public const FILE_TYPE_INTERNETTEXT = 'Internettext';
+    public const FILE_TYPE_KOSTENUBERNAHMEVERTRAG_VERTRAG = 'Kostenübernahmevertrag, Vorvertrag';
+    public const FILE_TYPE_LANDESPLANERISCHE_STELLUNGNAHME = 'Landesplanerische Stellungnahme';
+    public const FILE_TYPE_LAPRO_AENDERUNG = 'LaPro-Änderung';
+    public const FILE_TYPE_LAPRO_DRITTER_BLATT = 'LaPro 3er-Blatt';
+    public const FILE_TYPE_MITTEILUNG = 'Mitteilung (politische Gremien)';
+    public const FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE = 'Niederschrift (Grobabstimmung, Arbeitskreise)';
+    public const FILE_TYPE_NIEDERSCHRIFT_SONSTIGE = 'Niederschrift (sonstige)';
+    public const FILE_TYPE_NIEDERSCHRIFTEN = 'Niederschriften';
+    public const FILE_TYPE_PLANZEICHNUNG = 'Planzeichnung';
+    public const FILE_TYPE_PRAESENTATION = 'Präsentation';
+    public const FILE_TYPE_SCHLUSSMITTEILUNG = 'Schlussmitteilung';
+    public const FILE_TYPE_SCOPING_PAPIER = 'Scoping-Papier';
+    public const FILE_TYPE_SCOPING_PROTOKOLL = 'Scoping-Protokoll';
+    public const FILE_TYPE_SITZUNGSUNTERLAGE = 'Sitzungsunterlage';
+    public const FILE_TYPE_SONSTIGE_UNTERLAGE = 'sonstige Unterlage';
+    public const FILE_TYPE_STADTEBAULICHER_VERTRAG = 'Städtebaulicher Vertrag';
+    public const FILE_TYPE_STELLUNGNAHME = 'Stellungnahme';
+    public const FILE_TYPE_UBERSICHTSKARTE = 'Übersichtskarte';
+    public const FILE_TYPE_VERMERK_SONSTIGE = 'Vermerk (Sonstige)';
+    public const FILE_TYPE_VEROEFFENTLICHUNG = 'Veröffentlichung';
+    public const FILE_TYPE_VERORDNUNG = 'Verordnung';
+    public const FILE_TYPE_VERTEILER = 'Verteiler';
+    public const FILE_TYPE_VORHABEN_ERSCHLIESSUNGSPLAN = 'Vorhaben Erschliessungsplan';
+    public const FILE_TYPE_XPLANARCHIV = 'XPlanarchiv';
+    public const FILE_TYPE_ZUSAMMENFASSENDE_ERKLAERUNG = 'zusammenfassende Erklärung';
+    public const FILE_TYPE_ZWISCHENMITTEILUNG = 'Zwischenmitteilung';
+    public const STATEMENT_TYPE_FEHLANZEIGE = 'Fehlanzeige';
+
+    /**
+     * The maximum number of parents (technically) allowed when nesting {@link Elements} entities.
+     *
+     * E.g. `0` and smaller values would mean that no nesting of {@link Elements} entities is
+     * allowed. This value can be increased/decreased if necessary but before that look up and
+     * understand its usage, as it has performance implications.
+     */
+    public const MAX_PARENTS_COUNT = 10;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="_e_id", type="string", length=36, options={"fixed":true})
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     */
+    protected $id;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="_e_p_id", type="string", length=36, options={"fixed":true}, nullable=true)
+     */
+    protected $elementParentId;
+
+    /**
+     * @var Elements|null
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="children")
+     * @ORM\JoinColumn(name="_e_p_id", referencedColumnName="_e_id", onDelete="SET NULL")
+     */
+    protected $parent;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
+     */
+    protected $pId;
+
+    /**
+     * Das Procedure
+     * T4999 cascade={"persist"} needed because of doctrine fuckup when deleting procedures (!).
+     *
+     * @var Procedure
+     *
+     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="elements", cascade={"persist"})
+     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")
+     */
+    protected $procedure;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_e_category", type="string", length=36, options={"fixed":true}, nullable=false)
+     */
+    protected $category = '';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_e_title", type="string", length=256, nullable=false)
+     */
+    protected $title = '';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_e_icon", type="string", length=36, nullable=false)
+     */
+    protected $icon = '';
+
+    /**
+     * @var string
+     * @ORM\Column(name="_e_icon_title", type="string", options={"comment":"Content of title-tag for icon"})
+     */
+    protected $iconTitle = '';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_e_text", type="text", length=65535, nullable=false)
+     */
+    protected $text = '';
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_e_file", type="string", length=256, nullable=false, options={"default":""})
+     */
+    protected $file = '';
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="_e_order", type="integer", nullable=false)
+     */
+    protected $order;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="_e_enabled", type="boolean", nullable=false, options={"default":true})
+     */
+    protected $enabled = true;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="_e_deleted", type="boolean", nullable=false, options={"default":false})
+     */
+    protected $deleted = false;
+
+    /**
+     * @var DateTime
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
+     */
+    protected $createDate;
+
+    /**
+     * @var DateTime
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
+     */
+    protected $modifyDate;
+
+    /**
+     * @var DateTime
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
+     */
+    protected $deleteDate;
+
+    /**
+     * @var Collection<int,SingleDocument>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", mappedBy="element")
+     * @ORM\OrderBy({"order" = "ASC", "createDate" = "ASC"})
+     */
+    protected $documents;
+
+    /**
+     * @var Collection<int,Elements>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="parent")
+     * @ORM\OrderBy({"order" = "ASC"})
+     */
+    protected $children;
+
+    /**
+     * @var Collection<int,Orga>|Orga[]
+     *
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     * @ORM\JoinTable(
+     *     name="_elements_orga_doctrine",
+     *     joinColumns={@ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="CASCADE")}
+     * )
+     */
+    protected $organisations;
+
+    /**
+     * @var mixed
+     */
+    protected $type;
+
+    /**
+     * @var DateTime|null
+     *
+     * @ORM\Column(name = "_e_designated_switch_date", type = "datetime", nullable = true)
+     */
+    protected $designatedSwitchDate;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type = "string", nullable = true, options={"default":null, "comment":"Needed permission, to get this element."})
+     */
+    protected $permission;
+
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+        $this->organisations = new ArrayCollection();
+        $this->documents = new ArrayCollection();
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @deprecated use {@link Elements::getId()} instead
+     */
+    public function getIdent(): ?string
+    {
+        return $this->getId();
+    }
+
+    /**
+     * Set parent ElementId.
+     *
+     * @return Elements
+     */
+    public function setElementParentId(?string $parentId): self
+    {
+        $this->elementParentId = $parentId;
+
+        return $this;
+    }
+
+    /**
+     * Set parent element.
+     *
+     * @param Elements $parent
+     */
+    public function setParent(?Elements $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * Get parent element.
+     */
+    public function getParent(): ?Elements
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Get the Id of the related ParentElement.
+     */
+    public function getElementParentId(): ?string
+    {
+        return $this->elementParentId;
+    }
+
+    /**
+     * Set pId.
+     *
+     * @return Elements
+     */
+    public function setPId(string $pId): self
+    {
+        $this->pId = $pId;
+
+        return $this;
+    }
+
+    /**
+     * Get pId.
+     *
+     * @return string
+     *
+     * @deprecated this methods name is misleading (parent vs procedure), use
+     *             {@link Elements::getProcedure()} instead
+     */
+    public function getPId()
+    {
+        if (is_null($this->pId) && $this->procedure instanceof Procedure) {
+            $this->pId = $this->procedure->getId();
+        }
+
+        return $this->pId;
+    }
+
+    public function getProcedure(): Procedure
+    {
+        return $this->procedure;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setProcedure(Procedure $procedure): self
+    {
+        $this->procedure = $procedure;
+        $this->pId = $procedure->getId();
+
+        return $this;
+    }
+
+    /**
+     * Set eCategory.
+     *
+     * @return Elements
+     */
+    public function setCategory(string $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * Get eCategory.
+     */
+    public function getCategory(): string
+    {
+        return $this->category;
+    }
+
+    /**
+     * Set eTitle.
+     *
+     * @return Elements
+     */
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get eTitle.
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * Set eIcon.
+     *
+     * @return Elements
+     */
+    public function setIcon(string $icon): self
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * Get eIcon.
+     */
+    public function getIcon(): string
+    {
+        return $this->icon;
+    }
+
+    /**
+     * Set eText.
+     *
+     * @return Elements
+     */
+    public function setText(string $text): self
+    {
+        $this->text = $text;
+
+        return $this;
+    }
+
+    /**
+     * Get eText.
+     */
+    public function getText(): string
+    {
+        return $this->text;
+    }
+
+    public function getFile(): string
+    {
+        return $this->file;
+    }
+
+    public function setFile(string $file): void
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * Set eOrder.
+     *
+     * @return Elements
+     */
+    public function setOrder(int $order): self
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
+    /**
+     * Get eOrder.
+     */
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    /**
+     * Set eEnabled.
+     *
+     * @return Elements
+     */
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * Get eEnabled.
+     */
+    public function getEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Set eDeleted.
+     *
+     * @return Elements
+     */
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get eDeleted.
+     */
+    public function getDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set eCreateDate.
+     *
+     * @return Elements
+     */
+    public function setCreateDate(DateTime $createDate): self
+    {
+        $this->createDate = $createDate;
+
+        return $this;
+    }
+
+    /**
+     * Get eCreateDate.
+     */
+    public function getCreateDate(): DateTime
+    {
+        return $this->createDate;
+    }
+
+    /**
+     * Set eModifyDate.
+     *
+     * @return Elements
+     */
+    public function setModifyDate(DateTime $modifyDate): self
+    {
+        $this->modifyDate = $modifyDate;
+
+        return $this;
+    }
+
+    /**
+     * Get eModifyDate.
+     */
+    public function getModifyDate(): DateTime
+    {
+        return $this->modifyDate;
+    }
+
+    /**
+     * Set eDeleteDate.
+     *
+     * @return Elements
+     */
+    public function setDeleteDate(DateTime $deleteDate): self
+    {
+        $this->deleteDate = $deleteDate;
+
+        return $this;
+    }
+
+    /**
+     * Get eDeleteDate.
+     */
+    public function getDeleteDate(): DateTime
+    {
+        return $this->deleteDate;
+    }
+
+    /**
+     * @return ArrayCollection|SingleDocument[]
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    /**
+     * @param ArrayCollection $documents
+     */
+    public function setDocuments(Collection $documents): void
+    {
+        $this->documents = $documents;
+    }
+
+    /**
+     * @return ArrayCollection Elements
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param ArrayCollection $children
+     */
+    public function setChildren(Collection $children): void
+    {
+        $this->children = $children;
+    }
+
+    /**
+     * @return Collection<int,Orga>|Orga[]
+     */
+    public function getOrganisations(): Collection
+    {
+        return $this->organisations;
+    }
+
+    /**
+     * @param Collection<int, Orga> $organisations
+     */
+    public function setOrganisations(Collection $organisations): void
+    {
+        $this->organisations = $organisations;
+    }
+
+    public function addOrganisation(Orga $organisation): void
+    {
+        if (!$this->organisations->contains($organisation)) {
+            $this->organisations->add($organisation);
+        }
+    }
+
+    public function removeOrganisation(Orga $organisation): void
+    {
+        if ($this->organisations->contains($organisation)) {
+            $this->organisations->removeElement($organisation);
+        }
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getDesignatedSwitchDate(): ?DateTime
+    {
+        return $this->designatedSwitchDate;
+    }
+
+    /**
+     * @param DateTime $designatedSwitchDate
+     */
+    public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): void
+    {
+        $this->designatedSwitchDate = $designatedSwitchDate;
+    }
+
+    public function getIconTitle(): string
+    {
+        return $this->iconTitle;
+    }
+
+    public function setIconTitle(string $iconTitle): void
+    {
+        $this->iconTitle = $iconTitle;
+    }
+
+    /**
+     * This method will lead to an endless loop if an element can be have a child which have this element as a child.
+     *
+     * @return int - number of child elements including all children of children
+     */
+    public function countChildrenRecursively(): int
+    {
+        $children = $this->getChildren();
+        $numberOfChildren = $children->count();
+
+        /** @var Elements $child */
+        foreach ($children as $child) {
+            $numberOfChildren = $numberOfChildren + $child->countChildrenRecursively();
+        }
+
+        return $numberOfChildren;
+    }
+
+    public function getPermission(): ?string
+    {
+        return $this->permission;
+    }
+
+    public function hasPermission(?string $permissionString): bool
+    {
+        return null === $this->permission || $permissionString === $this->getPermission();
+    }
+
+    /**
+     * Will replace incoming empty string with null.
+     */
+    public function setPermission(string $permission): void
+    {
+        $this->permission = '' === $permission ? null : $permission;
+    }
+}

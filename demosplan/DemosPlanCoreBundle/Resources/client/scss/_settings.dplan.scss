@@ -1,0 +1,97 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// DPLAN CORE
+// Default Settings (override inuit settings, are overridden by project settings)
+
+// Inuitcss settings
+
+// The following values are derived from $inuit-base-font-size and $inuit-base-line-height:
+// - line-height of html element
+// - line-height outputted by inuit-font-size() mixin
+// - all $inuit-base-spacing-unit tokens
+// The $base-font-size is set further up the @import chain, in _settings-fonts.dplan.scss.
+// The $base variables are only mapped to inuit here, hence no !default.
+$inuit-base-font-size:          $base-font-size; // 16px.
+$inuit-base-line-height:        $base-line-height; // 24px. This is mapped to $inuit-base-spacing-unit
+
+$inuit-base-text-color:         $default-font-color !default;
+$inuit-base-background-color:   $dp-bg-color !default;
+
+$inuit-enable-layout--flush:    true !default;
+$inuit-enable-layout--auto:     true !default;
+$inuit-responsive-settings:     true !default;
+$inuit-use-fractions:           false !default;
+
+// dplan settings
+
+// Which components to skip by default when rendering scss
+$dp-skip-components: null !default;
+
+// The overall page width
+// @see https://yaits.demos-deutschland.de/T10428#208518
+$dp-page-width: 1366px !default;
+
+// Header settings
+$dp-header-logo-width: 534px !default;
+// This sets the height of the top navigation bar, it is used in several components
+$dp-header-nav-height: 48px !default;
+
+// Buttons
+$dp-button-radius: 3px !default;
+$dp-button-font-size: $base-font-size !default;
+
+// Forms
+$dp-input-radius: 3px !default;
+
+// Box
+$dp-box-radius: 5px !default;
+
+// Links
+$dp-links-textdecoration: 'none' !default;
+$dp-links-textdecoration-hover: 'underline' !default;
+
+// Transitions
+$transition-nav: false !default;
+$transition-speed-style-delay: '0.2s ease-in-out 0s' !default;
+
+// Borders
+$dp-border-thickness: 1px !default;
+
+// Width of map toolbar in public detail view - defined here because several components depend on it
+$map-toolbar-width: 300px !default;
+
+// Z-Indexes
+//
+$z-content:          0;
+$z-content-above:   10;
+// map
+$z-map:           1000;
+$z-map-popups:    1010;
+$z-map-toolbar:   1020;
+$z-map-hint:      1030;
+$z-map-progress:  1040;
+// header should trump all content except for tooltips
+$z-header:        1050;
+// tooltips
+$z-tooltip:       1100;
+$z-tooltip-super: 1190;
+
+// contextual flyout menus should trump tooltips but stack below huge sticky elements
+$z-flyout:        1300;
+
+// Fixed elements (should usually trump everything but the modal stuff
+$z-fixed:         1500;
+
+// Modal box
+$z-modal-overlay: 2000;
+$z-modal-window:  2001;
+
+// Trump it all!
+$z-super:        10000;

@@ -1,0 +1,4 @@
+<script nonce="{{ csp_nonce('script') }}">
+    document.querySelector('html').classList.remove('{{ 'nojs'|prefixClass(omitPrefix is defined ? omitPrefix : true) }}')
+    document.querySelector('html').classList.add('{{ 'js'|prefixClass(omitPrefix is defined ? omitPrefix : true) }}')
+</script>

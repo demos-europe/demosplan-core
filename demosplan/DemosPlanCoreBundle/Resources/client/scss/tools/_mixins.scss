@@ -1,0 +1,84 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// @mixin keyboard-focus()
+//
+// Applies styles to an element only when it is focused and if there was no pointer interaction before.
+// The `.has-pointer-input` class is applied in demosplan\DemosPlanCoreBundle\Resources\client\js\lib\DetectInput.js.
+//
+// Usage
+//
+// Without any arguments the mixin applies a focus style with 2px outline and highlighted color:
+// @include keyboard-focus();
+//
+// Any of the parameters may be overridden:
+// @include keyboard-focus($color: false);
+//
+// `padded` applies additional padding (which is then subtracted by a negative margin). Useful with inline elements.
+// @include keyboard-focus($padded: true);
+//
+// Apart from the focus styles this mixin applies, additional styles may be thrown onto the focused element:
+// @include keyboard-focus() {
+//     text-decoration: dashed;
+// };
+//
+@mixin keyboard-focus(
+    $outline: true,
+    $color: true,
+    $padded: false
+) {
+    // For pointer input, remove the focus ring, as user attention
+    // is already drawn to the element that is interacted with.
+    &:focus:not(:focus-visible) {
+        @if $outline {
+            outline: 0 transparent !important;
+        }
+    }
+
+    // For keyboard input, add a distinct styling for the focus state,
+    // as user attention needs to be drawn to the focused element.
+    &:focus:focus-visible {
+        transition: none;
+
+        @if $outline {
+            // The outline is combined with a bright background to let the focused element stand out even more.
+            background-color: $dp-color-white;
+            outline: 2px solid $dp-token-color-brand-link;
+        }
+
+        @if $color {
+            color: $dp-token-color-brand-highlight;
+        }
+
+        // While outline + color may be enough of a focus preset for most block level
+        // elements in Html (like buttons and the like), inline elements require
+        // some additional padding to better separate the text from the applied
+        // outline. To prevent the element from jumping, a negative margin is used.
+        @if $padded {
+            padding: 2px 3px;
+            margin: -2px -3px;
+        }
+
+        @content;
+    }
+}
+
+// @mixin unselectable()
+//
+// Applies styles to an element to prevent it from being selected by any means.
+@mixin unselectable(
+    $cursor-default: true
+) {
+    -webkit-touch-callout: none !important;
+    user-select: none !important;
+
+    @if $cursor-default {
+        cursor: default !important;
+    }
+}

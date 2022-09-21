@@ -1,0 +1,242 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Utility classes: color-<keyword>, bg-color-<keyword>
+//
+// color: <color>
+// https://developer.mozilla.org/de/docs/Web/CSS/color
+
+.color {
+    // Brand tokens
+    &-brand {
+        &-main {
+            color: $dp-token-color-brand-main;
+        }
+
+        &-main-contrast {
+            color: $dp-token-color-brand-main-contrast;
+        }
+
+        &-alt {
+            color: $dp-token-color-brand-alt;
+        }
+
+        &-alt-contrast {
+            color: $dp-token-color-brand-alt-contrast;
+        }
+
+        &-highlight {
+            color: $dp-token-color-brand-highlight;
+        }
+
+        &-cta-dark {
+            color: $dp-token-color-brand-cta-dark !important;
+        }
+    }
+
+    // UI tokens
+    &-ui {
+        &-dimmed-text {
+            color: $dp-token-color-ui-dimmed-text;
+        }
+
+        &-neutral-text {
+            color: $dp-token-color-ui-neutral-text;
+        }
+
+        &-confirm {
+            color: $dp-token-color-ui-confirm;
+        }
+
+        &-confirm-text {
+            color: $dp-token-color-ui-confirm-text;
+        }
+
+        &-info {
+            color: $dp-token-color-ui-info;
+        }
+
+        &-info-text {
+            color: $dp-token-color-ui-info-text;
+        }
+
+        &-warning {
+            color: $dp-token-color-ui-warning;
+        }
+
+        &-warning-text {
+            color: $dp-token-color-ui-warning-text;
+        }
+
+        &-error {
+            color: $dp-token-color-ui-error;
+        }
+
+        &-error-text {
+            color: $dp-token-color-ui-error-text;
+        }
+
+        &-interactive {
+            color: $dp-token-color-ui-interactive;
+        }
+
+        &-highlight {
+            color: $dp-token-color-ui-highlight;
+        }
+    }
+
+
+    // Utility classes mapping directly to color palette values
+    // @deprecated use brand/ui color tokens instead
+
+    &--highlight {
+        color: $dp-token-color-brand-highlight;
+    }
+
+    &--white {
+        color: $dp-color-white !important;
+    }
+
+    &--grey-light {
+        color: $dp-color-neutral-light-1;
+    }
+
+    //  Use for text that is slightly brighter than normal
+    //  Former selectors were `.dimmed` and `.empty`.
+    &--grey {
+        color: $dp-color-neutral-base !important;
+    }
+
+    &--grey-dark {
+        color: $dp-color-neutral-dark-1;
+    }
+
+    &--black {
+        color: $dp-color-black;
+    }
+
+    &--system-confirm {
+        color: $dp-color-system-confirm;
+    }
+
+    &--system-info {
+        color: $dp-color-system-info;
+    }
+
+    &--system-warning {
+        color: $dp-color-system-warning;
+    }
+
+    &--system-error {
+        color: $dp-color-system-error;
+    }
+
+    &--system-error-dark {
+        color: $dp-color-system-error--dark;
+    }
+}
+
+.bg-color {
+    // Brand tokens
+    &-brand {
+        &-main {
+            background-color: $dp-token-color-brand-main;
+        }
+
+        &-main-contrast {
+            background-color: $dp-token-color-brand-main-contrast;
+        }
+
+        &-alt {
+            background-color: $dp-token-color-brand-alt;
+        }
+
+        &-alt-contrast {
+            background-color: $dp-token-color-brand-alt-contrast;
+        }
+
+        &-highlight {
+            background-color: $dp-token-color-brand-highlight;
+        }
+    }
+
+    // UI tokens
+    &-ui {
+        &-neutral-light {
+            background-color: $dp-token-color-ui-bg-neutral-light;
+        }
+
+        &-neutral {
+            background-color: $dp-token-color-ui-neutral-bg;
+        }
+
+        &-confirm {
+            background-color: $dp-token-color-ui-confirm-bg;
+        }
+
+        &-info {
+            background-color: $dp-token-color-ui-info-bg;
+        }
+
+        &-warning {
+            background-color: $dp-token-color-ui-warning-bg;
+        }
+
+        &-error {
+            background-color: $dp-token-color-ui-error-bg;
+        }
+    }
+
+    // Utility classes mapping directly to color palette values
+    // @deprecated use brand/ui color tokens instead
+
+    &--system-confirm-light {
+        background-color: $dp-color-system-confirm--light;
+    }
+
+    &--system-info-light-1 {
+        background-color: $dp-color-system-info--light-1;
+    }
+
+    &--system-info-light-2 {
+        background-color: $dp-color-system-info--light-2;
+    }
+
+    &--system-warning-light {
+        background-color: $dp-color-system-warning--light;
+    }
+
+    &--system-warning-light-1 {
+        background-color: $dp-color-system-warning--light-1;
+    }
+
+    &--system-error-light {
+        background-color: $dp-color-system-error--light;
+    }
+
+    &--grey {
+        background-color: $dp-color-neutral-base;
+    }
+
+    &--grey-light {
+        background-color: $dp-color-neutral-light-1;
+    }
+
+    &--grey-light-1 {
+        background-color: $dp-color-neutral-light-2;
+    }
+
+    &--grey-light-2 {
+        background-color: $dp-color-neutral-light-3;
+    }
+
+    &--white {
+        background-color: $dp-color-white !important;
+    }
+}

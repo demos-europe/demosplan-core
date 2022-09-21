@@ -1,0 +1,145 @@
+{#
+Basic Table Component
+
+pass coloums as array.
+
+params:
+    elements: [{Array of Objects to display}],
+    omitCssPrefix, {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+    cols: [
+        {
+            title: trans.key for table-header *Required,
+            field: object,
+            direction: 'left|right|center',
+            href: 'href',
+            actions: [
+                {
+                    icon: 'fa-icon-class',
+                    title: 'trans.key',
+                    href: 'href',
+                },
+            ],
+        },
+    ]
+
+
+## basic example usage:
+
+- renders a table with two cols and applies the class to bolden the text to the first one
+
+```
+uiComponent('layout.table', {
+    elements: considerations,
+    cols: [
+        {
+            title: 'consideration.name',
+            field: 'title',
+            primary: true,
+        },
+        {
+            title: 'consideration.status',
+            field: 'status',
+        },
+    ]
+})
+```
+
+## advanced example usage:
+
+- renders a table with two cols.
+- the first col gets a link
+- the second col shows two icons with links
+
+```
+uiComponent('layout.table', {
+    elements: statements,
+    cols: [
+        {
+            title: 'consideration.name',
+            field: 'title',
+            href: 'href',
+        },
+        {
+            actions: [
+                {
+                    icon: 'fa-pencil',
+                    title: 'edit',
+                    href: 'href',
+                },
+                {
+                    icon: 'fa-trash',
+                    title: 'delete',
+                    href: 'href',
+                },
+            ],
+        }
+    ]
+})
+```
+#}
+<table class="c-table">
+    <thead>
+        <tr>
+            {% for col in cols %}
+                <th class="text--{{ col.direction|default('left') }}">{{ col.title|trans }}</th>
+            {% endfor %}
+            {% if actions is defined %}
+                <th class="width-40">{{ 'actions'|trans }}</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for el in elements %}
+            <tr>
+                {% for col in cols %}
+                    {% set widthVars = {
+                        full: ' u-1-of-1',
+                        large: ' u-1-of-2',
+                        medium: ' u-1-of-3',
+                        small: ' u-1-of-4',
+                        smaller: ' u-1-of-5',
+                        tiny: ' u-1-of-6',
+                        mini: ' u-1-of-8',
+                        none: '',
+                    } %}
+                    {% set omitPrefix  = omitCssPrefix ?? true %}
+                    {% set elementWidth = widthVars[col.size|default('none')] %}
+                    {% set textDirection = ' text--' ~ col.direction|default('left') %}
+                    {% set textWeight = '' %}
+                    {% if col.primary is defined and col.primary == true %}
+                        {% set textWeight = ' weight--bold' %}
+                    {% endif %}
+                    {% set classList = 'o-hellip--td' ~ textWeight ~ textDirection ~ elementWidth %}
+
+                    <td class="{{ 'o-hellip--td'|prefixClass }} {{ classList|prefixClass(omitPrefix) }}" title="{{ attribute(el, col.field) }}">
+                        {% if col.field is defined %}
+                            {% if col.href is defined %}
+                                {{ uiComponent('link', {
+                                    text: attribute(el, col.field),
+                                    href: attribute(el, col.href),
+                                }) }}
+                            {%  else %}
+                                {% if attribute(el, col.field) is same as(true) %}
+                                    <input type="checkbox" disabled checked="{{ attribute(el, col.field) }}">
+                                {% else %}
+                                    {{ attribute(el, col.field) }}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                {% if actions is defined %}
+                    {# show linked icons #}
+                    <td class="{{ 'width-40 text--center'|prefixClass(omitPrefix) }}">
+                        {% for action in actions %}
+                            {{ uiComponent('link', {
+                                text: "<i class=\"fa " ~ action.icon ~ "\" title=\"" ~ action.title|trans ~ "\"></i>",
+                                href: attribute(el, action.href),
+                            }) }}
+                        {% endfor %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

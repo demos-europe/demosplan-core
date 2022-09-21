@@ -1,0 +1,115 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: c-callout
+//
+//  Comprehensive description of usage
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-callout') {
+
+    //  callout container
+    .c-callout {
+        &__claim {
+            @include media-query('palm') {
+                @include inuit-font-size(33px, 1.5);
+            }
+
+            @include media-query('lap') {
+                @include inuit-font-size(40px);
+            }
+
+            @include media-query('desk-up') {
+                @include inuit-font-size($dp-token-font-size-brand-hero);
+            }
+
+            color: $dp-color-main;
+        }
+
+        &__subclaim {
+            @include media-query('palm') {
+                @include inuit-font-size(16px, none);
+            }
+
+            @include media-query('lap-up') {
+                @include inuit-font-size($dp-token-font-size-h3, none);
+            }
+
+            color: $dp-token-color-brand-highlight;
+        }
+
+        //  title container "Als Institution teilnehmen"
+        &__bullet {
+            @include media-query('palm') {
+                margin-bottom: $inuit-base-spacing-unit--small;
+            }
+            @include media-query('lap-up') {
+                margin-bottom: $inuit-base-spacing-unit * .75;
+                margin-left: -$inuit-base-spacing-unit;
+            }
+        }
+
+        &__bullet-title {
+            @include media-query('palm') {
+                @include inuit-font-size(16px);
+                margin-left: 32px;
+            }
+
+            //  force titles to word-break to visually maintain equal weight
+            @include media-query('lap') {
+                margin-left: 55px;
+                max-width: 300px;
+            }
+            @include media-query('desk') {
+                margin-left: 55px;
+                max-width: 300px;
+            }
+
+            @include media-query('wide') {
+                margin-left: 77px;
+                padding-top: $inuit-base-spacing-unit--small;
+            }
+
+            display: block;
+        }
+
+        &__bullet-icon {
+            @include media-query('palm') {
+                @include inuit-font-size(17px, 1.2);
+            }
+            @include media-query('lap') {
+                @include inuit-font-size(40px);
+            }
+
+            @include media-query('desk') {
+                @include inuit-font-size(40px);
+            }
+
+            @include media-query('wide') {
+                @include inuit-font-size(60px);
+            }
+        }
+
+        //  Make a text link on dark background stand out more
+        &__link {
+            @include keyboard-focus($padded: true);
+
+            &,
+            &:visited {
+                color: $dp-color-black;
+            }
+
+            &:hover,
+            &:active {
+                color: $dp-color-black;
+                text-decoration: underline;
+            }
+        }
+    }
+}

@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
+
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use demosplan\DemosPlanCoreBundle\Event\EventConcernTrait;
+
+class PostNewProcedureCreatedEvent extends DPlanEvent
+{
+    use EventConcernTrait;
+
+    /** @var Procedure */
+    protected $procedure;
+
+    /**
+     * Identifies a ProcedureCoupleToken, to allow to couple the procedures.
+     *
+     * @var string|null
+     */
+    private $token;
+
+    public function __construct(Procedure $procedure, string $token = null)
+    {
+        $this->procedure = $procedure;
+        $this->token = $token;
+    }
+
+    public function getProcedure(): Procedure
+    {
+        return $this->procedure;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+}

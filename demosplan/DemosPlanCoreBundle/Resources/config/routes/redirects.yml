@@ -1,0 +1,36 @@
+############################
+# Former MiscContentBundle #
+############################
+DemosPlan_misccontent_static_imprint_redirect:
+    path:  /{type}/impressum
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_misccontent_static_imprint", permanent: true }
+
+# Kept to support old (already published) links but not to be used for new implementations.
+# The type parameter indicates if the participation- or assessment-template should be used.
+DemosPlan_misccontent_static_dataprotection_redirect:
+    path:  /{type}/datenschutz
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_misccontent_static_dataprotection", permanent: true }
+
+DemosPlan_misccontent_static_softwarecomponents_redirect:
+    path:  /{type}/software
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_misccontent_static_softwarecomponents", permanent: true }
+
+DemosPlan_misccontent_static_contact_public:
+    path: /public/kontakt
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_misccontent_static_contact", permanent: true }
+
+DemosPlan_misccontent_static_documents_redirect:
+    path: /informationen/unterlagen
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_misccontent_static_documents", permanent: true }
+
+DemosPlan_procedure_public_detail_document_based_redirect:
+    path: /verfahren/{procedure}/index
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_procedure_public_detail", permanent: true }
+
+
+#####################
+# Former UserBundle #
+#####################
+DemosPlan_informationen_teilnehmende_redirect:
+    path: /informationen/teilnehmende
+    defaults: { _controller: 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction', route: "DemosPlan_informationen_teilnehmende", permanent: true }

@@ -1,0 +1,73 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: c-pager
+//
+//  used to display a paginated navigation
+
+//  container
+%c-pager-list {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+%c-pager-item {
+    &,
+    & > a {
+        @include keyboard-focus($padded: true);
+    }
+
+    padding-left: $inuit-base-spacing-unit--tiny;
+    padding-right: $inuit-base-spacing-unit--tiny;
+
+    &:last-child:not(:only-child, .c-sliding-pagination__list-element--active) {
+        padding-right: 0;
+    }
+}
+
+%c-pager-current {
+    background-color: $pager-color-active-bg;
+    border-radius: $inuit-base-spacing-unit--small;
+    color: $pager-color-active;
+}
+
+.c-pager {
+    text-align: right;
+
+    &__dropdown,
+    &__page-list,
+    &__page-item {
+        display: inline-block;
+    }
+
+    &__page-list,
+    &__page-item {
+        @extend %c-pager-list;
+    }
+
+    // Make screen readers announce value as whole numbers, not character by character.
+    // https://developer.mozilla.org/de/docs/Web/CSS/@counter-style/speak-as
+    &__dropdown-label {
+        speak-as: words;
+    }
+
+    &__dropdown select {
+        @include keyboard-focus($color: false);
+    }
+
+    &__page-item {
+        @extend %c-pager-item;
+
+        &.current {
+            @extend %c-pager-current;
+        }
+    }
+}

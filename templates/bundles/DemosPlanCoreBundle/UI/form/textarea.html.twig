@@ -1,0 +1,41 @@
+{#
+    This is a ui component used via the Twig function call uiComponent('form.textarea')
+
+    height {Number}: set a dedicated height for textarea
+    omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+{# set default classes #}
+{% set class = 'o-form__control-textarea' %}
+
+{% if height is defined and height in [60, 90, 130, 220, 500] %}
+    {% set class = class ~ " height-#{height}" %}
+{% endif %}
+
+{% if props is defined %}
+    {% set id = props.id %}
+    {% set name = props.name|default(props.id) %}
+    {% set class = class|default ~ props.class|default %}
+    {% set value = props.value %}
+    {% set disabled = props.disabled|default %}
+{% endif %}
+
+<textarea
+    id="{{ id|default }}"
+    name="{{ name|default }}"
+    class="{{ class|prefixClass(omitPrefix) }}"
+    {% if dataCounter is defined %}
+        data-counter="{{ dataCounter }}"
+    {% endif %}
+    {% if required|default %}
+        required
+    {% endif %}
+    {% if attributes is defined %}
+        {% for attr in attributes %}
+            {{ attr }}
+        {% endfor %}
+    {% endif %}
+    {% if disabled|default %}disabled{% endif %}>
+    {{- value|default -}}
+</textarea>

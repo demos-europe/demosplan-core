@@ -1,0 +1,19 @@
+/**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+/**
+ * This is the entrypoint for map_admin.html.twig
+ */
+
+import DpMapAdmin from '@DemosPlanMapBundle/components/admin/DpMapAdmin'
+import { initialize } from '@DemosPlanCoreBundle/InitVue'
+
+const components = { DpMapAdmin }
+
+initialize(components)

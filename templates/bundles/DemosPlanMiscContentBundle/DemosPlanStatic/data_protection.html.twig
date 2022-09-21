@@ -1,0 +1,60 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{# Wrap overridable blocks in Twig variables to override inside embed #}
+{% set customer_privacy_content %}
+    {% block customer_privacy %}
+        {# custom data protection notes by customers #}
+        {% if templateVars.customer.dataProtection|length > 0 %}
+            <h2>{{ 'data.protection.notes'|trans }}: {{ templateVars.customer.name }}</h2>
+            <div class="{{ 'c-styled-html u-mt-0_25'|prefixClass }}">
+                {{ templateVars.customer.dataProtection|wysiwyg(['h2', 'h3', 'h4']) }}
+            </div>
+        {% endif %}
+    {% endblock customer_privacy %}
+{% endset %}
+
+{% set orga_privacy_content %}
+    {% block orga_privacy %}
+        {# custom data protection notes by orgas #}
+        {% if templateVars.orgaDataProtectionTexts|length > 0 %}
+            <h2 class="{{ 'u-mt'|prefixClass }}">{{ 'data.protection.organisations'|trans }}</h2>
+            {% for orga in templateVars.orgaDataProtectionTexts %}
+                <details id="{{ orga.id }}">
+                    <summary class="{{ 'o-link--default cursor--pointer'|prefixClass }}">
+                        <h4 class="{{ 'display--inline'|prefixClass }}">
+                            {{ orga.name }}
+                        </h4>
+                    </summary>
+                    <div class="{{ 'c-styled-html u-mt-0_25'|prefixClass }}">
+                        {{ orga.dataProtection|wysiwyg(['h3', 'h4']) }}
+                    </div>
+                </details>
+            {% endfor %}
+        {% endif %}
+    {% endblock orga_privacy %}
+{% endset %}
+
+{% set system_privacy_content %}
+    {% block system_privacy %}
+        {% include '@DemosPlanMiscContent/DemosPlanStatic/data_protection_entry.html.twig' %}
+    {% endblock system_privacy %}
+{% endset %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'privacy'|trans,
+        'full_width': full_width|default(false)
+    }%}
+        {% block content %}
+            {{ customer_privacy_content }}
+            {{ orga_privacy_content }}
+            {{ system_privacy_content }}
+        {% endblock content %}
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['misccontent-dataProtection.js']) }}
+{% endblock javascripts %}

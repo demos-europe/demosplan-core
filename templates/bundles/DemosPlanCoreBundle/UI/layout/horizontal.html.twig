@@ -1,0 +1,48 @@
+
+{#
+   The Horizontal Layout Component.
+   Displays items in a row. Aligns them to the left or right.
+
+   align {String}: Where to align items inside the row. Possible values: 'left', 'right'.
+
+   classes {String}: Additional classes to be applied to the container.
+
+   gutter {String}: How much spacing is applied between items. Possible values: '0', '0_5', '1'.
+
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+
+{% set aligningClass = align|default('left') == 'right' ? 'text--right'|prefixClass(omitPrefix) : '' %}
+
+{% set outer = [classes|default]|merge([aligningClass]) %}
+
+{% set gutterMap = {
+    '0': 'u-mr-0',
+    '0_5': 'u-mr-0_5',
+    '1': 'u-mr'
+} %}
+
+{% set gutterClass = gutter|default in ['0', '0_5', '1'] ? gutterMap[gutter] : gutterMap['0'] %}
+
+<div class="{{ outer|join(' ')|prefixClass(omitPrefix) }}">
+    <!--
+    {% for item in items|default([]) %}
+
+        {# Apply right margin only if it is not the last item #}
+        {% if loop.last %}
+            {% set inner = ['display--inline-block'] %}
+        {% else %}
+            {% set inner = inner|default([])|merge([
+                gutterClass,
+                'display--inline-block'
+            ]) %}
+        {% endif %}
+
+      --><div class="{{ inner|join(' ')|prefixClass(omitPrefix) }}">
+            {{ item|wysiwyg('button') }}
+        </div><!--
+    {% endfor %}
+    -->
+</div>

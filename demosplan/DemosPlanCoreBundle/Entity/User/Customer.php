@@ -1,0 +1,522 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Entity\User;
+
+use demosplan\DemosPlanCoreBundle\Entity\Branding;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Video;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * @ORM\Table(name="customer")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
+ */
+class Customer extends CoreEntity implements UuidEntityInterface
+{
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
+     */
+    private $id;
+
+
+    /**
+     * @var Collection<int, CustomerCounty>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="customer", cascade={"persist"})
+     */
+    private $customerCounties;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
+     */
+    private $subdomain;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
+     */
+    private $imprint = '';
+
+    /**
+     * $orgas not mapped to a Table because they are now retrieved from {@link Customer::$orgaStatuses}.
+     *
+     * @var ArrayCollection
+     */
+    private $orgas;
+
+    /**
+     * @var Collection<int, UserRoleInCustomer>
+     *
+     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="customer")
+     */
+    protected $userRoles;
+
+    /**
+     * @var Collection<int, OrgaStatusInCustomer>
+     *
+     * @ORM\OneToMany(targetEntity="OrgaStatusInCustomer", mappedBy="customer")
+     */
+    protected $orgaStatuses;
+
+    /**
+     * Data privacy protection setting of the customer which is displayed as legal requirement on the website.
+     *
+     * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
+     *
+     * @ORM\Column(name="data_protection", type="text", length=65535, nullable=false)
+     *
+     * @var string
+     */
+    protected $dataProtection = '';
+
+    /**
+     * Terms of use of use setting of the customer which is displayed as legal requirement on the website.
+     *
+     * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
+     *
+     * @ORM\Column(type="text", length=65535, nullable=false)
+     *
+     * @var string
+     */
+    protected $termsOfUse = '';
+
+    /**
+     * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
+     *
+     * @ORM\Column(type="text", length=65535, nullable=false)
+     *
+     * @var string
+     */
+    protected $xplanning = '';
+
+    /**
+     * T15644:.
+     *
+     * @var Procedure
+     *
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="customer")
+     * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
+     */
+    protected $defaultProcedureBlueprint;
+
+    /**
+     * T16986
+     * Will be used to store licence information about used map by customer.
+     *
+     * @var string
+     *
+     * @ORM\Column(type="text", length=65535, nullable=false, options={"default":""})
+     */
+    protected $mapAttribution = '';
+
+    /**
+     * T16986
+     * A short Url with an ID as parameter.
+     * This defines the baselayer chosen by this customer.
+     * e.g. "https://wms.onmaps.de/?key=8ae2a661a3374681f5b409787b17f34c".
+     *
+     * @var string
+     *
+     *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
+     */
+    protected $baseLayerUrl = '';
+
+    /**
+     * T16986
+     * Layer of the baserlayers in public area.
+     * Additional layer on the baseLayer. E.g. used for coloring.
+     * e.g. "onmaps_graustufen" or "webatlasde".
+     *
+     * @var string
+     *
+     *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
+     */
+    protected $baseLayerLayers = '';
+
+    /**
+     * @var Branding|null
+     *
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
+     * @Assert\Valid
+     */
+    protected $branding;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
+     *
+     * @Assert\Length(max=65000)
+     */
+    protected $accessibilityExplanation = '';
+
+    /**
+     * Optional videos explaining the content and basic navigation of the website in sign language.
+     *
+     * @var Collection<int, Video>
+     *
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Video")
+     * @ORM\JoinTable(name="sign_language_overview_video",
+     *      joinColumns={@ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="video_id", referencedColumnName="id", unique=true)}
+     * )
+     */
+    private $signLanguageOverviewVideos;
+
+    /**
+     * Description text for the page in which {@link Customer::$signLanguageOverviewVideos} are shown.
+     *
+     * @var string
+     *
+     * @ORM\Column(type="text", nullable=false, options={"default":""})
+     */
+    private $signLanguageOverviewDescription = '';
+
+    /**
+     * A text that will be shown on a separate page, explaining content and navigation of the
+     * website in simple language.
+     *
+     * @var string
+     *
+     * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
+     *
+     * @Assert\Length(max=65536)
+     */
+    protected $overviewDescriptionInSimpleLanguage = '';
+
+    public function __construct(string $name, string $subdomain, string $mapAttribution = '')
+    {
+        $this->name = $name;
+        $this->subdomain = $subdomain;
+        $this->mapAttribution = $mapAttribution;
+        $this->userRoles = new ArrayCollection();
+        $this->orgaStatuses = new ArrayCollection();
+        $this->signLanguageOverviewVideos = new ArrayCollection();
+        $this->customerCounties = new ArrayCollection();
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return Collection<int, CustomerCounty>
+     */
+    public function getCustomerCounties(): Collection
+    {
+        return $this->customerCounties;
+    }
+
+    /**
+     * @param Collection<int, CustomerCounty> $customerCounties
+     */
+    public function setCustomerCounties(Collection $customerCounties): void
+    {
+        $this->customerCounties = $customerCounties;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
+
+    public function getSubdomain(): string
+    {
+        return $this->subdomain;
+    }
+
+    public function setSubdomain(string $subdomain)
+    {
+        $this->subdomain = $subdomain;
+    }
+
+    /**
+     * @return OrgaStatusInCustomer[]
+     */
+    public function getOrgaStatuses()
+    {
+        return $this->orgaStatuses;
+    }
+
+    /**
+     * @param Collection<int, OrgaStatusInCustomer> $orgaStatuses
+     */
+    public function setOrgaStatuses(Collection $orgaStatuses)
+    {
+        $this->orgaStatuses = $orgaStatuses;
+    }
+
+    public function getOrgas(): Collection
+    {
+        $orgas = new ArrayCollection();
+
+        /** @var OrgaStatusInCustomer $customerOrgaTypes */
+        foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
+            $orga = $customerOrgaTypes->getOrga();
+            if (!$orgas->contains($orga)) {
+                $orgas->add($orga);
+            }
+        }
+
+        return $orgas;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getEmailsOfUsersOfOrgas(): array
+    {
+        $mailAddresses = [];
+        /** @var Orga $orga */
+        foreach ($this->getOrgas() as $orga) {
+            /** @var User $user */
+            foreach ($orga->getUsers() as $user) {
+                $mailAddresses[] = $user->getEmail();
+            }
+        }
+
+        return $mailAddresses;
+    }
+
+    /**
+     * @param Collection<int, Orga> $orgas
+     */
+    public function setOrgas(Collection $orgas)
+    {
+        $this->orgas->clear();
+        foreach ($orgas as $orga) {
+            $this->addOrga($orga);
+        }
+    }
+
+    /**
+     * @return Collection<int, UserRoleInCustomer>|UserRoleInCustomer[]
+     */
+    public function getUserRoles()
+    {
+        return $this->userRoles;
+    }
+
+    public function addOrga(Orga $orga): bool
+    {
+        if (!$this->orgas->contains($orga)) {
+            $this->orgas[] = $orga;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function removeOrga(Orga $orga)
+    {
+        $this->orgas->removeElement($orga);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->id ?? '';
+    }
+
+    public function getImprint(): string
+    {
+        return $this->imprint;
+    }
+
+    public function setImprint(string $imprint)
+    {
+        $this->imprint = $imprint;
+    }
+
+    public function getDataProtection(): string
+    {
+        return $this->dataProtection;
+    }
+
+    public function setDataProtection(string $dataProtection)
+    {
+        $this->dataProtection = $dataProtection;
+    }
+
+    /**
+     * Set terms of use.
+     */
+    public function getTermsOfUse(): string
+    {
+        return $this->termsOfUse;
+    }
+
+    /**
+     * Get terms of use.
+     */
+    public function setTermsOfUse(string $termsOfUse): void
+    {
+        $this->termsOfUse = $termsOfUse;
+    }
+
+    public function getXplanning(): string
+    {
+        return $this->xplanning;
+    }
+
+    public function setXplanning(string $xplanning)
+    {
+        $this->xplanning = $xplanning;
+    }
+
+    /**
+     * @return Procedure|null
+     */
+    public function getDefaultProcedureBlueprint()
+    {
+        return $this->defaultProcedureBlueprint;
+    }
+
+    /**
+     * @param Procedure|null $defaultProcedureBlueprint
+     */
+    public function setDefaultProcedureBlueprint($defaultProcedureBlueprint): void
+    {
+        $this->defaultProcedureBlueprint = $defaultProcedureBlueprint;
+    }
+
+    public function setMapAttribution(string $mapAttribution): void
+    {
+        $this->mapAttribution = $mapAttribution;
+    }
+
+    public function getMapAttribution(): string
+    {
+        return $this->mapAttribution;
+    }
+
+    public function setBaseLayerUrl(string $baseLayerUrl): void
+    {
+        $this->baseLayerUrl = $baseLayerUrl;
+    }
+
+    public function getBaseLayerUrl(): string
+    {
+        return $this->baseLayerUrl;
+    }
+
+    public function getBaseLayerLayers(): string
+    {
+        return $this->baseLayerLayers;
+    }
+
+    public function setBaseLayerLayers(string $baseLayerLayers): void
+    {
+        $this->baseLayerLayers = $baseLayerLayers;
+    }
+
+    public function getBranding(): ?Branding
+    {
+        return $this->branding;
+    }
+
+    public function setBranding(?Branding $branding): void
+    {
+        $this->branding = $branding;
+    }
+
+    public function getAccessibilityExplanation(): string
+    {
+        return $this->accessibilityExplanation;
+    }
+
+    public function setAccessibilityExplanation(string $accessibilityExplanation): void
+    {
+        $this->accessibilityExplanation = $accessibilityExplanation;
+    }
+
+    /**
+     * @return Collection<int, Video>
+     */
+    public function getSignLanguageOverviewVideos(): Collection
+    {
+        return $this->signLanguageOverviewVideos;
+    }
+
+    public function addSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    {
+        if (!$this->signLanguageOverviewVideos->contains($signLanguageOverviewVideo)) {
+            $this->signLanguageOverviewVideos[] = $signLanguageOverviewVideo;
+        }
+
+        return $this;
+    }
+
+    public function removeSignLanguageOverviewVideo(Video $signLanguageOverviewVideo): self
+    {
+        $this->signLanguageOverviewVideos->removeElement($signLanguageOverviewVideo);
+
+        return $this;
+    }
+
+    public function setSignLanguageOverviewDescription(string $signLanguageOverviewDescription): self
+    {
+        $this->signLanguageOverviewDescription = $signLanguageOverviewDescription;
+
+        return $this;
+    }
+
+    public function getSignLanguageOverviewDescription(): string
+    {
+        return $this->signLanguageOverviewDescription;
+    }
+
+    public function getOverviewDescriptionInSimpleLanguage(): string
+    {
+        return $this->overviewDescriptionInSimpleLanguage;
+    }
+
+    public function setOverviewDescriptionInSimpleLanguage(string $overviewDescriptionInSimpleLanguage): self
+    {
+        $this->overviewDescriptionInSimpleLanguage = $overviewDescriptionInSimpleLanguage;
+
+        return $this;
+    }
+}

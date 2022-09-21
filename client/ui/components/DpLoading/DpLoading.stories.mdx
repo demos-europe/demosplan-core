@@ -1,0 +1,63 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs'
+import { action } from '@storybook/addon-actions'
+
+import DpLoading from './DpLoading'
+
+<Meta
+  title="Components/Loading"
+  component={DpLoading} />
+
+# Loading
+
+The `DpLoading` component renders a spinning animation alongside some explanatory text.
+
+It indicates background activity and is especially used when components load data on first page load.
+
+export const Template = (args, { argTypes }) => ({
+    props: Object.keys(argTypes),
+    components: { DpLoading },
+    template: `<dp-loading v-bind="$props" @click="action" />`,
+    methods: {
+      action: action('click')
+    }
+});
+
+## Default usage
+
+<Canvas>
+    <Story name="Default">
+        {Template.bind({})}
+    </Story>
+</Canvas>
+
+## Without label
+
+In contexts with limited space, use the `hide-label` prop.
+
+<Canvas>
+    <Story
+      name="hideLabel"
+      args={{
+          hideLabel: true
+      }}>
+      {Template.bind({})}
+    </Story>
+</Canvas>
+
+## As overlay
+
+To block interactions with content that is being refreshed, the `overlay` prop may be used.
+
+<Canvas withSource="open">
+    <h1>
+        Some content that is still present but covered by the loading component,
+        which makes it impossible to interact with said content.
+    </h1>
+    <Story
+        name="Overlay"
+        args={{
+            overlay: true
+        }}>
+        {Template.bind({})}
+    </Story>
+</Canvas>

@@ -1,0 +1,258 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// The Actionbox holds the information + interactive elements for participating in a procedure.
+// It serves as the starting point for user interaction on a procedure detail page.
+
+.c-actionbox {
+    $actionbox-border-radius:           $dp-token-rounded-small;               // buttons, input field
+    $actionbox-color:                   $dp-token-color-brand-cta;             // tab + content bg
+    $actionbox-color-dark:              $dp-token-color-brand-cta-dark;        // inactive tab
+    $actionbox-color-light:             $dp-token-color-brand-cta-light;       // tab:hover tab
+    $actionbox-color-contrast:          $dp-token-color-brand-cta-contrast;    // color of text/icons
+    $actionbox-color-dimmed:            $dp-token-color-brand-cta-contrast;    // button:disabled color
+    $actionbox-color-inactive:          $dp-token-color-brand-cta-dark;        // tab:inactive
+    $actionbox-color-bg-active:         $dp-token-color-brand-cta-light;       // button:active bg
+
+
+    // Max width to tackle resize of the sidebar
+    @include media-query('lap-up') {
+        max-width: $map-toolbar-width - $inuit-base-spacing-unit--small;
+    }
+
+    // Box without buttons
+    &--bare {
+        background-color: $actionbox-color;
+    }
+
+    // Tabs with icons
+    &__toggle {
+        @include keyboard-focus {
+            position: relative;
+            z-index: 1;
+        }
+
+        // This is one of the rare cases where global font tokens are used directly
+        // since atm we do not have any system of icon sizes.
+        @include inuit-font-size($dp-font-size-7);
+
+        display: block;
+        width: 100%;
+
+        background: $actionbox-color-dark;
+        color: $actionbox-color-contrast;
+        transition: none;
+
+        text-align: center;
+
+        .is-visible-actionbox-toggle > &,
+        .is-visible-actionbox-toggle > &:hover {
+            background-color: $actionbox-color;
+        }
+    }
+
+    &__toggle:hover {
+        color: $actionbox-color-contrast;
+        background: $actionbox-color-light;
+    }
+
+    &__toggle-shake {
+        transform: scale(1.05);
+        transition: 100ms transform ease-in-out;
+    }
+
+    // Actionbox content
+    &__panelwrapper {
+        padding-bottom: 0;
+
+        .c-actionbox--rounding & {
+            // Compensate subpixel rounding issues
+            /* stylelint-disable-next-line */
+            width: 99.99999%;
+        }
+    }
+
+    &__panel {
+        position: relative;
+
+        display: none;
+        padding: $inuit-base-spacing-unit--small;
+
+        background-color: $actionbox-color;
+
+        &.is-visible-actionbox {
+            display: block;
+        }
+    }
+
+    // Title + main action
+    &__title,
+    &__title--button {
+        color: $actionbox-color-contrast !important;
+
+        font-family: $normal-font-family;
+        font-weight: $normal-font-weight;
+        line-height: 1;
+    }
+
+    &__title {
+        font-size: 23px;
+    }
+
+    &__title--button {
+        @include keyboard-focus;
+
+        position: relative;
+
+        display: block;
+        padding: $inuit-base-spacing-unit--small;
+        width: 100%;
+
+        background-color: $actionbox-color-dimmed;
+        border: none;
+        border-radius: $actionbox-border-radius;
+        transition: none;
+
+        text-align: center;
+
+        &,
+        &:hover {
+            color: $actionbox-color-inactive !important;
+
+            text-decoration: none;
+        }
+
+        &.is-active:active {
+            box-shadow: $dp-token-box-shadow-1;
+            color: $actionbox-color-dark;
+        }
+
+        &.is-visible {
+            display: block !important;
+
+            &:hover {
+                cursor: not-allowed;
+            }
+        }
+
+        &.is-active {
+            background-color: $actionbox-color-contrast;
+            box-shadow: $dp-token-box-shadow-1;
+            color: $actionbox-color;
+
+            &:hover:not(:active),
+            &.is-activated:not(:active) {
+                color: $actionbox-color-dark;
+                box-shadow: $dp-token-box-shadow-2;
+                cursor: pointer;
+            }
+        }
+
+        &.has-i {
+            font-size: 20px;
+
+            i {
+                padding-right: 8px;
+            }
+        }
+    }
+
+    // Tool icons
+    &__tools {
+        height: $inuit-base-spacing-unit;
+        margin: $inuit-base-spacing-unit--small (-$inuit-base-spacing-unit--small) 0;
+    }
+
+    &__tool {
+        @extend %layout__item;
+        @extend .u-1-of-5;
+        @include keyboard-focus;
+
+        color: $actionbox-color-contrast;
+        cursor: pointer !important;
+
+        text-align: center;
+
+        &--dimmed,
+        &--dimmed:hover,
+        &--dimmed:hover i {
+            color: $actionbox-color-dimmed;
+        }
+
+        &:hover,
+        &.is-active {
+            color: $actionbox-color-contrast;
+
+            i {
+                font-size: 30px;
+            }
+        }
+
+        &:active {
+            color: $actionbox-color-light;
+        }
+    }
+
+    &__hint {
+        color: $actionbox-color-contrast;
+
+        font-size: $dp-token-font-size-small;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        a:hover {
+            color: $actionbox-color-dark;
+        }
+    }
+
+    &__link {
+        color: $actionbox-color-contrast !important;
+
+        text-decoration: underline;
+
+        &:hover {
+            color: $actionbox-color-dark !important;
+        }
+    }
+
+    // The arrow is used for highlighting active state of #markLocationButton
+    &__arrow {
+        @include media-query('lap-down') {
+            bottom: 14px;
+            right: 3px;
+
+            transform: rotate(90deg);
+        }
+
+        @include media-query('desk-up') {
+            bottom: 4px;
+            right: 8px;
+        }
+
+        position: absolute;
+
+        color: $actionbox-color-contrast;
+    }
+
+    // Consultation Token form
+    &__form-input {
+        // Do not change this without checking contrasts!
+        $form-input-bg: rgba($dp-color-white, .15);
+
+        border: 1px solid $dp-color-white !important;
+        background-color: $form-input-bg;
+        border-radius: $actionbox-border-radius;
+
+        &:focus {
+            background-color: transparent;
+        }
+    }
+}

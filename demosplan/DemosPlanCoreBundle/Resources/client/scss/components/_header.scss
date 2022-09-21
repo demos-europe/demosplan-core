@@ -1,0 +1,97 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  component: header
+//
+//  intended use across the project
+//  defines appearance of logos & header links
+
+//  let projects skip this
+@if not index($dp-skip-components, 'c-header') {
+    .c-header {
+        $header-logo-width: $dp-header-logo-width;
+        $header-switcher-bg-color: $dp-token-color-brand-nav-alt-bg;
+        $header-width-banner-right: 300px;
+
+
+        //  Project switcher
+        &__switcher {
+            &::after {
+                content: '';
+                display: table;
+                clear: both;
+            }
+
+            &-inner {
+                float: right;
+                width: calc(((100vw - #{$dp-page-width}) / 2) + #{$header-width-banner-right});
+                min-width: $header-width-banner-right;
+                background-color: $header-switcher-bg-color;
+
+                @include media-query('lap-down') {
+                    width: 100%;
+                }
+            }
+
+            //  Custom spacing for project switcher in the top right corner
+            &-menu {
+                background-color: $header-switcher-bg-color;
+
+                @include media-query('palm') {
+                    width: 100%;
+                }
+            }
+        }
+
+        &__logo-left {
+            width: auto;
+            max-width: 40%;
+            height: 5.5rem;
+            margin-left: $inuit-base-spacing-unit;
+            margin-top: $inuit-base-spacing-unit--small * 1.5;
+            margin-bottom: $inuit-base-spacing-unit--small;
+
+            @include media-query('desk-up') {
+                width: $header-logo-width;
+                max-width: 100%;
+                height: 100px;
+                margin-top: -$inuit-base-spacing-unit--small;
+                margin-bottom: $inuit-base-spacing-unit;
+            }
+        }
+
+        &__right {
+            float: right;
+            max-width: 50%;
+
+            @include media-query('desk-up') {
+                width: $header-width-banner-right;
+            }
+        }
+
+        &__logo-right {
+            max-height: 3.3rem;
+            width: auto;
+            float: right;
+            margin-top: $inuit-base-spacing-unit * 1.5;
+            margin-right: $inuit-base-spacing-unit;
+            max-width: calc(100% - #{$inuit-base-spacing-unit});
+
+            @include media-query('lap-up') {
+                max-height: 4rem;
+                margin-top: $inuit-base-spacing-unit;
+            }
+
+            @include media-query('desk-up') {
+                margin-top: $inuit-base-spacing-unit * 1.5;
+                padding: 0 $inuit-base-spacing-unit 0 0;
+            }
+        }
+    }
+}

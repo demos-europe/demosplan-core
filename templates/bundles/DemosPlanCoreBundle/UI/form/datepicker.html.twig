@@ -1,0 +1,34 @@
+{#
+    This is a ui component used via the Twig function call uiComponent('form.datepicker')
+
+    omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+<dp-datepicker
+    value="{{ value }}"
+    id="{{ id|default }}"
+    name="{{ name|default }}"
+    class="{{ class|default|prefixClass(omitPrefix) }}"
+    {% if maxDate is defined %}
+        max-date="{{ maxDate }}"
+    {% endif %}
+    {% if minDate is defined %}
+        min-date="{{ minDate }}"
+    {% endif %}
+    {% if calendarsAfter is defined %}
+        :calendars-after="{{ calendarsAfter }}"
+    {% endif %}
+    {% if calendarsBefore is defined %}
+        :calendars-before="{{ calendarsBefore }}"
+    {% endif %}
+    {% if required is defined %}
+        :required="true"
+    {% endif %}
+    {% if customAttrs is defined %}
+        {% for attr in customAttrs %}
+            {{ attr }}
+        {% endfor %}
+    {% endif %}>
+    {# nojs fallback #}
+    {{ uiComponent('form.input.text', { props: _context }) }}
+</dp-datepicker>

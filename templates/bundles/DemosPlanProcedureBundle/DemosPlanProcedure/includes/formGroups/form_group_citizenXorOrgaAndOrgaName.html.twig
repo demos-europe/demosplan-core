@@ -1,0 +1,41 @@
+<div class="{{ 'layout'|prefixClass }}">
+      <p
+        class="{{ 'layout__item u-1-of-2 weight--bold u-mb-0'|prefixClass }}"
+        id="submitterRoleLabel">
+        {{ "submitter.invitable_institution"|trans }}
+        {% if required|default(false) %}
+            <span aria-hidden="true">*</span>
+        {% endif %}
+      </p>
+      <fieldset
+        {% if required|default(false) %}
+            required
+        {% endif %}
+        role="radiogroup"
+        aria-labelledby="submitterRoleLabel"
+        aria-required="true">
+        <div class="{{ 'layout__item u-1-of-2 u-1-of-1-lap-down'|prefixClass }}">
+            {{ uiComponent('form.element', {
+                label: { text: 'citizen'|trans },
+                control: { name: 'r_submitter_role', value: 'citizen' },
+                type: 'radio',
+                id: 'r_submitter_role_citizen',
+            }) }}
+        </div><!--
+     --><div class="{{ 'layout__item u-1-of-2 u-1-of-1-lap-down'|prefixClass }}">
+            {{ uiComponent('form.element', {
+                label: { text: 'invitable_institution'|trans },
+                control: { name: 'r_submitter_role', value: 'publicagency' },
+                type: 'radio',
+                id: 'r_submitter_role_publicagency',
+            }) }}
+        </div>
+      </fieldset>
+    {{ uiComponent('form.element', {
+        label: { text: 'institution.name'|trans },
+        control: { name: 'r_userOrganisation', value: '' },
+        elementClass: 'layout__item ',
+        type: 'text',
+        id: 'r_userOrganisation',
+    }) }}
+</div>

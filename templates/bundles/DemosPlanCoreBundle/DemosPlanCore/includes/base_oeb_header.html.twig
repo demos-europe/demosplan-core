@@ -1,0 +1,190 @@
+{% set roles = currentUser.roles|default([]) %}
+
+{#  for menu highlighting in 'Weiterentwicklung' area #}
+{% set routesForDevelopment = [
+    "DemosPlan_forum_development",
+    "DemosPlan_forum_development_release_new",
+    "DemosPlan_forum_development_release_list",
+    "DemosPlan_forum_development_release_detail",
+    "DemosPlan_forum_development_userstory_detail",
+    "DemosPlan_forum_development_userstory_new",
+    "DemosPlan_forum_development_userstory_threadentry_new",
+    "DemosPlan_forum_development_release_edit"] %}
+
+
+{% apply spaceless %}
+
+    {# Header #}
+    <header class="c-header" aria-label="{{ 'header.main'|trans }}" role="banner">
+
+        {# Project switcher for SH platforms #}
+        {% if hasPermission('feature_project_switcher') %}
+            <div class="c-header__switcher">
+                <div class="c-header__switcher-inner">
+                    <div class="c-actionmenu c-header__switcher-menu" data-actionmenu>
+                        <button
+                            class="c-actionmenu__trigger c-actionmenu__trigger--padded btn--blank"
+                            type="button"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-label="{{ 'project.switcher'|trans }}"
+                        >
+                            {{ 'project.switcher'|trans }} <i class="fa fa-caret-down u-ml-0_25"></i>
+                        </button>
+                        <div class="c-actionmenu__menu" role="menu">
+                            {% for project in projects %}
+                                {% if project.current == true %}
+                                    <a
+                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        data-actionmenu-menuitem
+                                        data-actionmenu-current
+                                        aria-disabled="true"
+                                        aria-label="{{ project.ariaName }}"
+                                        role="menuitem"
+                                        tabindex="0">{{ project.name | wysiwyg }}</a>
+                                {% else %}
+                                    <a
+                                        href="{{ project.url }}"
+                                        data-actionmenu-menuitem
+                                        class="c-actionmenu__menuitem whitespace--normal"
+                                        aria-label="{{ project.ariaName }}"
+                                        role="menuitem">{{ project.name|wysiwyg }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <section class="o-page__header">
+            <a
+                href="{{ path('core_home') }}"
+                title="{{ 'home'|trans }}"
+                aria-hidden="true"
+                tabindex="-1">
+                {# This block defaults to the generic version of the BOB logo (without additional SH subclaim) #}
+                {% block header_logo_left %}
+                    <img
+                        class="c-header__logo-left"
+                        src="{{ asset('img/bob-logo.svg') }}"
+                        alt="{{ 'logo.alt.platform'|trans }}"
+                    >
+                {% endblock header_logo_left %}
+            </a>
+            <div class="c-header__right">
+                {# This block defaults to the SH Logo as discovered in T10274#207247 / T10428#211169 #}
+                {% block header_logo_right %}
+                    <img
+                        class="c-header__logo-right show-desk-up-i"
+                        src="{{ asset('img/logo-sh.png') }}"
+                        alt="{{ 'logo.alt.brand'|trans }}"
+                    >
+                    <img
+                        class="c-header__logo-right hide-desk-up-i"
+                        src="{{ asset('img/logo-sh-portrait.png') }}"
+                        alt="{{ 'logo.alt.brand'|trans }}"
+                    >
+                {% endblock header_logo_right %}
+            </div>
+        </section>
+    </header>
+
+
+    {# Navigation #}
+    {% if noNav is not defined or not noNav %}
+        <nav class="o-page__nav" aria-label="{{ 'menu.primary'|trans }}" role="navigation">
+
+            <ul id="jumpNavigation" class="c-nav position--relative" role="menubar">
+
+                {# Helper Checkbox for CSS-only menu-folding #}
+                <input id="responsive-menu-helper-checkbox" class="c-nav__menu-helper-checkbox" type="checkbox" hidden />
+
+                {# Label for responsively compressed menu #}
+                <label class="c-nav__menu-trigger" for="responsive-menu-helper-checkbox">
+                    <button
+                        class="btn btn--blank font-size-medium"
+                        data-responsive-menu-helper="{# This attribute is used as a hook to append an EventListener in GlobalEventlisteners.js #}"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                        <i class="fa fa-bars" aria-hidden="true"></i> {{ 'menu'|trans }}
+                    </button>
+                </label>
+
+                {# Navigation items are overridden in projects #}
+                {% block header_nav %}
+                    <ul class="c-nav__menu">
+
+                        {% if hasPermission('area_public_participation') %}
+                            <li class="c-nav__item{{ route_name == 'core_home' ? ' current' : '' }}" role="menuitem">
+                                <a
+                                    href="{{ path('core_home') }}"
+                                    {% if route_name == 'core_home' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
+                                >
+                                    {{ "home"|trans }}
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li class="c-nav__item{{ route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] ? ' current' : '' }}" role="menuitem">
+                            <a
+                                href="{{ path("DemosPlan_globalnews_news") }}"
+                                {% if route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
+                            >
+                                {{ "news"|trans }}
+                            </a>
+                        </li>
+
+                        <li class="c-nav__item{{ route_name == 'DemosPlan_misccontent_static_information' ? ' current' : '' }}" role="menuitem">
+                            <a
+                                href="{{ path('DemosPlan_misccontent_static_information') }}"
+                                {% if route_name == 'DemosPlan_misccontent_static_information' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
+                            >
+                                {{ "about.project"|trans }}
+                            </a>
+                        </li>
+
+                        <li class="c-nav__item{{ route_name == 'DemosPlan_faq' ? ' current' : '' }}" role="menuitem">
+                            <a
+                                href="{{ path("DemosPlan_faq") }}"
+                                {% if route_name == 'DemosPlan_faq' %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
+                            >
+                                {{ "faq"|trans }}
+                            </a>
+                        </li>
+
+                        {% if hasPermission('area_development') %}
+                            <li class="c-nav__item{{ route_name in routesForDevelopment ? ' current' : '' }}" role="menuitem">
+                                <a
+                                    href="{{ path('DemosPlan_forum_development', {'forum': 'forum'}) }}"
+                                    {% if route_name in routesForDevelopment %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
+                                >
+                                    {{ "development"|trans }}
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% include '@DemosPlanCore/DemosPlanCore/includes/base_header_nav_item_simple_language.html.twig' %}
+
+                        {% include '@DemosPlanCore/DemosPlanCore/includes/base_header_nav_item_sign_language.html.twig' %}
+                    </ul>
+                {% endblock header_nav %}
+
+                {# Userbox - some projects change default display #}
+                {% block header_userbox %}
+                    {% if serviceMode is not defined %}
+                        {% include '@DemosPlanCore/DemosPlanCore/includes/base_oeb_header_userbox.html.twig' %}
+                    {% endif %}
+                {% endblock header_userbox %}
+
+                <div id="currentPageDescription" class="hide-visually">
+                    {{ 'menu.currentPage'|trans }}
+                </div>
+
+            </ul>
+
+        </nav>
+    {% endif %}
+    {# end main nav #}
+
+{% endapply %}

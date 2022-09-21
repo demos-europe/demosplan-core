@@ -1,0 +1,210 @@
+{# Setze den Title. Wenn die Variable templateVars.title übergeben ist, nimm diese, ansonsten die Variable title  #}
+{% set templateTitle = templateVars.title|default(title|default) %}
+{% set title = pageTitle(templateTitle) %}
+{% set breadcrumbTitle = breadcrumbTitle(templateTitle) %}
+
+{% if procedure is defined and procedure is not null %}
+    {% set procedureStatementPriorityArea = procedureObject.procedureBehaviorDefinition.hasPriorityArea|default(false) %}
+{% endif %}
+
+{# set login url - override in bobhh which treats users from intranet differently #}
+{% block login_path %}
+    {{ setStaticVariable('login_path', gatewayURL) }}
+{% endblock login_path %}
+
+{% import "@DemosPlanCore/macros.html.twig" as partial %}
+
+<!DOCTYPE html>
+<html lang="de" class="nojs">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta charset="utf-8">
+        {% block base_favicons %}
+            {% include '@DemosPlanCore/DemosPlanCore/includes/base_favicons.html.twig' %}
+        {% endblock %}
+        <meta name="keywords" content="">
+        <meta name="author" content="DEMOS">
+        <meta name="viewport" content="width=device-width,minimum-scale=1.0">
+        {% block meta_head %}
+        {% endblock %}
+
+
+        {# Styles. Leave in header until critical css is in place. #}
+        {% block stylesheets %}
+            {{ webpackBundle('css.css') }}
+        {% endblock stylesheets %}
+
+        {% block component_header %}
+            <title>{{ title }}</title>
+        {% endblock component_header %}
+
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' %}
+
+        {# Prevent "flash of unstyled content" revealing vue inline templates being revealed before all css has loaded #}
+        <style>
+            [v-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body class="{% block base_body_classes %}{% endblock base_body_classes %}">
+        {% include '@DemosPlanCore/DemosPlanCore/includes/base_banner_outdated_browser_banner.html.twig' %}
+
+        {# Mount vue instance to this wrapper #}
+        <div id="app" class="o-page__wrapper">
+
+            {% block a11y_jump_navigation %}
+                {# @improve T17928 investigate focus vs. visibility  #}
+                <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
+                    <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
+                    <ul class="u-m-0 u-p-0">
+                        <li class="list-style-none">
+                            <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
+                        </li>
+                        <li class="list-style-none">
+                            <a href="#jumpContent">{{ 'jumpTo.mainContent'|trans }}</a>
+                        </li>
+                        {% block a11y_jump_markers %}{% endblock a11y_jump_markers %}
+                    </ul>
+                </nav>
+            {% endblock a11y_jump_navigation %}
+
+            {# Header #}
+            {% block header %}
+                {% include '@DemosPlanCore/DemosPlanCore/includes/base_header.html.twig' %}
+            {% endblock header %}
+
+
+            {# Main content #}
+            {# position--relative is needed here for the sticky sidemenu #}
+            <main id="mainContent" class="o-page__main layout bg-color--white position--relative">
+
+                {% block maincontent_section %}
+                    <section id="jumpContent" class="o-page__content layout__item position--relative" role="main">
+
+                        {% block breadcrumb %}
+                            <div class="flex flex-items-center flex-content-between u-pv-0_25">
+                                <nav class="o-breadcrumb" aria-label="Breadcrumb">
+                                    {# Wenn ein Breadcrumbobjekt explizit übergeben wurde, stelle dieses dar, ansonsten das Standardobjekt #}
+                                    {% if (templateVars.breadcrumb is defined) %}
+                                        {{ templateVars.breadcrumb.markup(currentUser, breadcrumbTitle|default(''), proceduresettings|default(null))|wysiwyg }}
+                                    {% else %}
+                                        {{ demosBreadcrumbRender(currentUser, breadcrumbTitle|default(''), proceduresettings|default(null), ownsProcedure(proceduresettings))|wysiwyg }}
+                                    {% endif %}
+                                </nav>
+
+                                {# Tooltip providing additional info about the current page. #}
+                                {% if templateVars.contextualHelpBreadcrumb|default([])|length > 0 %}
+                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                        helpText: templateVars.contextualHelpBreadcrumb
+                                    } %}
+                                {% endif %}
+                            </div>
+                        {% endblock breadcrumb %}
+
+                        {# Nojs notifications #}
+                        {% include '@DemosPlanCore/DemosPlanCore/includes/base_nojs_notifications.html.twig' %}
+
+                        {# Name of procedure #}
+                        <div class="cf border--top">
+                            {% if proceduresettings.name|default != '' %}
+                                <span class="o-hellip--nowrap color--grey display--inline-block u-pt-0_5 u-mb-0_25 u-pr-2">
+                                    {{ proceduresettings.name|default }}
+                                </span>
+                            {% else %}
+                                <span class="display--block u-pt-0_5"></span>
+                            {% endif %}
+
+                            {# Planners get a link to view their own procedure in participation area to verify that all settings are correct #}
+                            {% if
+                                procedure|default != '' and
+                                hasPermission('area_main_procedures') and
+                                hasPermission('area_public_participation') and
+                                hasPermission('area_preferences') and
+                                hasPermission('area_admin') and
+                                ownsProcedure(proceduresettings) and
+                                proceduresettings.master|default(false) is same as(false)
+                            %}
+
+                                <a
+                                    class="btn btn--outline btn--primary float--right u-mt-0_25"
+                                    data-cy="procedurePublicView"
+                                    href="{{ path( 'DemosPlan_procedure_public_detail', {'procedure': procedure}) }}"
+                                    title="{{ 'procedure.public.view'|trans }}">
+                                    <i class="fa fa-eye u-mr-0_25" aria-hidden="true"></i>{{ 'procedure.public.view'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {% block component_part %}{% endblock component_part %}
+
+                        {% block base_backtotop %}
+                            <p class="layout__item text--right u-mt">
+                                <a href="#" data-scroll-to-top="{# This attribute is used as a hook to append an EventListener in GlobalEventListener.js #}">
+                                    <i class="fa fa-arrow-up" aria-hidden="true"></i> {{ "backtotop"|trans }}
+                                </a>
+                            </p>
+                        {% endblock base_backtotop %}
+
+                    </section><!--
+
+                 -->{% block base_aside %}<!--
+                     --><aside
+                            data-toggle-sidebar-menu-container
+                            class="o-page__sidebar layout__item is-expanded u-mb"
+                            role="complementary">
+                            <div
+                                class="o-sticky"
+                                data-sticky="lap-up"
+                                data-sticky-context="mainContent">
+                                <button
+                                    data-toggle-sidebar-menu-trigger
+                                    type="button"
+                                    class="o-link--default btn--blank whitespace--nowrap u-mv-0_25">
+                                    <i
+                                        aria-hidden="true"
+                                        class="fa fa-chevron-right"></i>
+                                    {{ 'menu'|trans }}
+                                </button>
+                                <div
+                                    id="sideMenu"
+                                    class="border--top">
+                                    {% include '@DemosPlanCore/DemosPlanCore/includes/base_aside.html.twig' %}
+                                </div>
+                            </div>
+                        </aside>
+                    {% endblock base_aside %}
+
+                {% endblock maincontent_section %}
+            </main>
+
+
+            {# Footer #}
+            {% block base_footer %}
+                {% include '@DemosPlanCore/DemosPlanCore/includes/base_footer.html.twig' %}
+            {% endblock base_footer %}
+
+            {# Generic notification component (for cases where notifications are not handled in other Vue components) #}
+            <dp-notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></dp-notify-container>
+
+            {# Vue Modals port their contents here #}
+            <portal-target name="vueModals" multiple></portal-target>
+
+        </div>{# end #app #}
+
+        {# Exposes global variables to window #}
+        <script nonce="{{ csp_nonce('script') }}">
+            {% include '@DemosPlanCore/DemosPlanCore/js/dplan.settings.js.twig' with { omitPublicCSSClassPrefix: true } %}
+        </script>
+
+        {{ webpackBundles(['jquery-3.5.1.min.js'], true) }}
+        {% block javascripts %}
+            {{ webpackBundles(['runtime.js', 'common.js', 'bs.js', 'core.js', 'core-cookie.js']) }}
+        {% endblock javascripts %}
+
+        {# Matomo tracking code #}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/piwik.html.twig' %}
+
+    </body>
+</html>

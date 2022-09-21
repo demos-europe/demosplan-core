@@ -1,0 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+.o-notification-badge {
+    position: relative;
+    top: -9px;
+    left: -17px;
+
+    margin-right: 5px;
+    padding: 0 5px;
+
+    background: $dp-color-system-error;
+    border-radius: 10px;
+    color: $dp-color-white;
+
+    font-size: $dp-token-font-size-smaller;
+}

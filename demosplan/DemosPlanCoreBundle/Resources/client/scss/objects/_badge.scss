@@ -1,0 +1,95 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////
+/// @group objects
+////
+
+/// Small pill-like text-decorator used to highlight content
+///
+/// @name .o-badge
+///
+/// @example markup
+/// <span class="o-badge">
+///     2 entries
+/// </span>
+/// <span class="o-badge">
+///     2 entries
+/// </span>
+.o-badge {
+    @extend %o-hellip--nowrap;
+    vertical-align: text-bottom; // make badge appear aligned to inline text by default
+
+    display: inline-block;
+    max-width: 200px;
+
+    border-radius: $inuit-base-spacing-unit--small;
+
+    // Size variant: default
+    &:not(.o-badge--small) {
+        @include inuit-font-size($dp-token-font-size-small, $dp-token-font-size-small);
+        padding: 5px 9px;
+    }
+
+    // Size variant: small
+    &--small {
+        @include inuit-font-size($dp-token-font-size-smaller, $dp-token-font-size-smaller);
+        padding: 3px 7px;
+    }
+}
+
+/// ## Variations – Size
+///
+/// @example markup
+/// <span class="o-badge o-badge--dark">
+///     2 entries
+/// </span>
+/// <span class="o-badge o-badge--small o-badge--dark">
+///     2 entries
+/// </span>
+
+
+/// ## Variations – Color
+///
+/// @TODO check background color contrast of color variations
+///
+/// @example markup
+/// <span class="o-badge o-badge--light">
+///     light
+/// </span>
+/// <span class="o-badge o-badge--dark">
+///     dark
+/// </span>
+/// <span class="o-badge o-badge--alert">
+///     alert
+/// </span>
+
+.o-badge--light {
+    background-color: $dp-color-neutral-light-3;
+    color: $default-font-color;
+}
+
+.o-badge--dark {
+    background-color: $dp-color-neutral-light-2;
+}
+
+.o-badge--darker {
+    background-color: $dp-color-neutral-dark-1;
+    color: $dp-color-white;
+}
+
+.o-badge--alert {
+    background-color: $dp-color-system-error;
+    color: $dp-color-white;
+}
+
+.o-badge--transparent {
+    background: $dp-color-white;
+    background: rgba($dp-color-white, .7);
+}

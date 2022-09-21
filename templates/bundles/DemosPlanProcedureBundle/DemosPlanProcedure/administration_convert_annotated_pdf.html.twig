@@ -1,0 +1,34 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {% set allTags = templateVars.availableTopics|default([])|map(el => { id: el.id, title: el.title, tags: el.tags|map(tag => { id: tag.id, name: tag.title }) }) %}
+    {% set submitTypesOptions = [] %}
+    {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+        {% set submitTypesOptions = submitTypesOptions|merge([{ label: translated, value: key }]) %}
+    {% endfor %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'statements.uploaded.confirm'|trans
+    } %}
+
+    <p class="u-mb">
+        {{ 'statements.uploaded.confirm.hint'|trans }}
+    </p>
+
+    <dp-convert-annotated-pdf
+        current-procedure-phase="{{ templateVars.currentProcedurePhase|default('analysis') }}"
+        document-id="{{ templateVars.documentId }}"
+        :init-submitter="{{ templateVars.submitter|default({}) }}"
+        newest-intern-id="{{ templateVars.newestInternalId }}"
+        procedure-id="{{ procedure }}"
+        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')"
+        :tags="JSON.parse('{{ allTags|json_encode|e('js', 'utf-8') }}')"
+        :used-intern-ids="JSON.parse('{{ templateVars.usedInternIds|json_encode|e('js', 'utf-8') }}')">
+    </dp-convert-annotated-pdf>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'procedure-administrationConvertAnnotatedPdf.js']) }}
+{% endblock javascripts %}

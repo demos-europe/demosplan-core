@@ -1,0 +1,71 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="#ccc"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+
+        <span class="sf-toolbar-value">{{ collector.roles|join(',') }}</span>
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock toolbar %}
+
+{% block menu %}
+    {# This left-hand menu appears when using the full-screen profiler. #}
+    <span class="label">
+        <span class="icon">
+            <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="#ccc"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </span>
+        <strong>Permissions</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {# Optional, for showing the most details. #}
+    <h2>Permissions and User Roles</h2>
+
+    <h3>Roles</h3>
+
+    The currently logged-in user has the following roles:
+
+    <ul>
+        {% for role in collector.roles %}
+            <li>{{ role }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Permissions</h3>
+
+    {% if collector.permissionStats is not null %}
+    <p>
+        There are <strong>{{ collector.permissionStats.total }}</strong> Permissions in total of which
+        <strong>{{ collector.permissionStats.enabled }}</strong> are currently <em>enabled</em>
+        and <strong>{{ collector.permissionStats.exposed }}</strong>
+        <em>exposed</em> to the JS frontend.
+    </p>
+    {% endif %}
+
+    <p>
+        Currently enabled permissions are:
+    </p>
+
+    <table>
+        <tr>
+            <th>Permission Name</th>
+            <th>Permission Label</th>
+            <th>Exposed?</th>
+        </tr>
+
+        {% for permission in collector.permissions %}
+            <tr>
+                <td>
+                    <a href="https://dplan-documentation.demos-europe.eu/development/application-architecture/permissions/{{ permission.name|split('_')[0] }}/permission_{{ permission.name }}">
+                        {{ permission.name }}
+                    </a>
+                </td>
+                <td>{{ permission.label }}</td>
+                <td><strong>{{ permission.exposed ? '[x]' : '[ ]' }}</strong></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

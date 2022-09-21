@@ -1,0 +1,187 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// object: o-toggle
+//
+// used to toggle content, used in conjunction with js__toggleAnything
+// @improve T14353 T12068 rename to .o-toggle-anything
+// @deprecated Use a more dedicated UI pattern like DpAccordion
+
+
+//  object container
+.o-toggle {
+
+    //  setting visibility stuff only in responsive mode
+    &:not(.is-disabled-toggle) {
+        position: relative;
+    }
+
+    &__trigger {
+        @include keyboard-focus($color: false);
+
+        background: none;
+        border: none;
+
+        padding: 0;
+
+        //  apply trigger styles only for js capable devices
+        html:not(.nojs) & {
+            position: relative;
+            z-index: $z-content-above;
+
+            cursor: pointer;
+        }
+
+        .is-disabled-toggle & {
+            display: none;
+        }
+    }
+
+    &__icon {
+        @extend .fa;
+        @extend .fa-plus-circle;
+
+        //  requires the i.o-toggle__icon--caret to appear before the content of el.o-toggle__trigger
+        &--caret {
+            @extend .fa-caret-right;
+        }
+
+        &--angle {
+            @extend .fa-angle-down;
+        }
+
+        .is-active-toggle & {
+            @extend .fa-minus-circle;
+
+            &--caret {
+                @extend .fa-caret-down;
+                margin-left: -.2em;
+            }
+
+            &--angle {
+                @extend .fa-angle-up;
+            }
+        }
+
+        //  hide toggle icon for nojs context
+        html.nojs & {
+            display: none;
+        }
+    }
+
+    &__target {
+
+        //  apply toggle styles only to
+        //      * devices which are js capable
+        //      * instances of .o-toggle which are not disabled
+        //      * instances of .o-toggle which are not .o-toggle--not-animated
+        //      * instances of .o-toggle which are not .o-toggle--transition
+        html:not(.nojs) .o-toggle:not(.is-disabled-toggle, .o-toggle--not-animated, .o-toggle--transition) & {
+
+            display: none;
+
+            opacity: 0;
+
+            animation: toggle-out .5s ease-in-out;
+            animation-fill-mode: forwards;
+            transform: translateY(-100%);
+
+            //  active state
+            &.is-active {
+                display: block;
+
+                animation: toggle-in .5s ease-in-out;
+                animation-fill-mode: forwards;
+
+                &.table-row {
+                    display: table-row;
+                }
+            }
+
+            //  helper class toggled by javascript to negate the animation
+            //  just add .is-active + .is-active-toggle to the html
+            &.is-run {
+                animation-delay: -.5s;
+            }
+
+            //  helper class toggled by javascript to make the reverse animation visible
+            &.is-visible {
+                display: block;
+
+                opacity: 1;
+
+                transform: translateY(0);
+
+                &.table-row {
+                    display: table-row;
+                }
+            }
+        }
+
+        //  simple version that only shows/hides content without animation
+        html:not(.nojs) .o-toggle.o-toggle--not-animated & {
+            display: none;
+
+            &.is-active {
+                display: block;
+
+                &.table-row {
+                    display: table-row;
+                }
+            }
+        }
+
+        // simple transition version
+        html:not(.nojs) .o-toggle.o-toggle--transition & {
+            visibility: hidden;
+
+            height: 0;
+
+            opacity: 0;
+
+            transition: visibility 0s, opacity .5s linear;
+
+            &.is-active {
+                visibility: visible;
+
+                height: 100%;
+
+                opacity: 1;
+            }
+        }
+    }
+}
+
+@keyframes toggle-in {
+    0% {
+        opacity: 0;
+
+        transform: translateY(-100%);
+    }
+
+    100% {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+@keyframes toggle-out {
+    0% {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform: translateY(-100%);
+    }
+}

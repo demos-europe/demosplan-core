@@ -1,0 +1,102 @@
+# FormOptions are likely overridden in project. Please check whether to add
+# changes in their form_options.yml as well
+form_options:
+  statement_fragment_advice_values:
+    acknowledge: "fragment.vote.acknowledge"
+    partial: "fragment.vote.partial"
+    full: "fragment.vote.full"
+    no: "fragment.vote.no"
+
+  statement_submit_types:
+    values:
+      email: "submit.type.email"
+      fax: "submit.type.fax"
+      letter: "submit.type.letter"
+      eakte: "submit.type.eakte"
+      declaration: "submit.type.declaration"
+      unknown: "submit.type.unknown"
+      unspecified: "submit.type.unspecified"
+      system: "submit.type.system"
+    default: "unknown"
+
+  statement_status:
+    new: "new"
+    processing: "processing"
+    processed: "processed"
+    statementFinalSent: "statement.final.sent"
+
+  statement_priority:
+    A-Punkt: "statement.priority.a"
+    B-Punkt: "statement.priority.b"
+
+  project_planning_areas:
+    all:
+      label: "planningAreaComplete"
+      value: "all"
+    area1:
+      label: "planningArea1"
+      value: "I"
+    area2:
+      label: "planningArea2"
+      value: "II"
+    area3:
+      label: "planningArea3"
+      value: "III"
+
+  statement_user_group:
+    - "Landkreis, Stadt, Gemeinde"
+    - "Überörtlicher Träger"
+    - "Ministerium auf Landesebene"
+    - "Ministerium auf Bundesebene"
+    - "Freie Wohlfahrtspflege"
+    - "Fachverband"
+    - "Betroffene und ihre Verbände"
+    - "Privatgewerbliches Unternehmen"
+    - "Gemeinnützige Unternehmung"
+    - "Sozialversicherungsträger"
+    - "Ausbildungsstätte/Hochschule"
+    - "Stiftungen"
+    - "Einrichtungen/ Dienste"
+    - "Sonstige"
+
+  statement_user_position:
+    - "Führungskraft"
+    - "Mitarbeiter/in"
+    - "selbständig"
+    - "Sonstiges"
+
+  statement_user_state:
+    - "Baden-Württemberg"
+    - "Bayern"
+    - "Berlin"
+    - "Brandenburg"
+    - "Bremen"
+    - "Hamburg"
+    - "Hessen"
+    - "Mecklenburg-Vorpommern"
+    - "Niedersachsen"
+    - "Nordrhein-Westfalen"
+    - "Rheinland-Pfalz"
+    - "Saarland"
+    - "Sachsen"
+    - "Sachsen-Anhalt"
+    - "Schleswig-Holstein"
+    - "Thüringen"
+    - "Bund"
+
+# This does NOT add a new orga type! This is only meant as a look-up for translatable orga type labels.
+# New orga types need to be added to the _orga_types table in the DB. They should also be added
+# to OrgaType entity as constants for better usage in other places.
+  orga_types:
+        publicAgency:
+            name: "OPSORG"
+            label: "orgaType.invitable_institution"
+        planningAgency:
+            name: "OPAUTH"
+            label: "orgaType.planningagency"
+        municipality:
+            name: "OLAUTH"
+            label: "orgaType.municipality"
+        misc:
+            name: "OTDEFA"
+            label: "orgaType.misc"

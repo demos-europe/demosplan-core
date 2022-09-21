@@ -1,0 +1,26 @@
+{#
+    Input errors that fail frontend validation due to a lack of javascript are displayed here.
+
+    Note: When using flashbag.peekAll, messages are not cleared, so this partial should be included
+    before another one that uses flashbag.all.
+#}
+<noscript>
+    {% for type, flashMessages in app.session.flashbag.peekAll %}
+        {% for flashMessage in flashMessages %}
+            <p class="flash flash-{{ type }} u-m">
+                {#
+                    This is a very ugly quick fix against old messages being passed through the system.
+                    Unfortunately, it is not currently possible (to my knowledge (SG)) to log such
+                    occurences from here to a log file to track them down without facing exceptions.
+                    We probably should remove this conditional again after the plannincloud
+                    training sessions and properly fix this.
+                #}
+                {% if flashMessage.message is defined %}
+                    {{ flashMessage.message|nl2br }}
+                {% else %}
+                    {{ flashMessage|nl2br }}
+                {% endif %}
+            </p>
+        {% endfor %}
+    {% endfor %}
+</noscript>

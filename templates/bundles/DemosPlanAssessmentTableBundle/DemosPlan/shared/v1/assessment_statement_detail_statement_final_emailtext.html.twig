@@ -1,0 +1,36 @@
+<p>
+    Guten Tag,
+</p>
+
+<p>
+    Sie haben zum Bauleitplanverfahren {{ templateVars.table.procedure.name|default }}
+    im Rahmen der Beteiligung nach §4 Abs.2 BauGB Stellungnahmen abgegeben.
+    Der Bauleitplan wurde inzwischen vom Rat der Gemeinde/der Stadt abschließend (Flächennutzungsplan)
+    bzw. als Satzung (Bebauungsplan) beschlossen.
+</p>
+
+{% if statement.text|default|striptags|length < 2000 %}
+    <p>
+        Sie haben die folgende Stellungnahme abgegeben:
+    </p>
+
+    {# Contains markup, thats why we do not use a container here #}
+    {{ statement.text|default }}
+{% endif %}
+
+<p>
+    Der Rat der Gemeinde/der Stadt hat zu Ihrer Stellungnahme wie folgt entschieden:
+</p>
+
+{# Contains markup, thats why we do not use a container here #}
+{{ statement.recommendation|default }}
+
+<p>
+    Bei dieser Mitteilung handelt es sich nicht um einen Verwaltungsakt im Sinne des Landesverwaltungsgesetzes.
+    Den beschlossenen Stand der Planung (Planzeichnung und Begründung) können Sie bei der Gemeinde einsehen.
+</p>
+
+<p>
+    Mit freundlichen Grüßen<br>
+    {{ templateVars.table.procedure.orgaName|default }}
+</p>

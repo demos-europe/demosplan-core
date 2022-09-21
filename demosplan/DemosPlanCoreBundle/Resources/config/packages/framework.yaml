@@ -1,0 +1,23 @@
+framework:
+    assets: ~
+    #esi:             ~
+    secret:          '%secret%'
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    trusted_hosts: ~
+    session:
+        handler_id: 'demosplan\DemosPlanCoreBundle\Logic\SessionHandler'
+        cookie_samesite: 'lax'
+        #save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+    fragments:       ~
+    http_method_override: true
+
+    http_client:
+        default_options:
+            max_redirects: 7
+            proxy: '%proxy_dsn%'
+
+    request:
+        formats:
+            jsonapi: ['application/vnd.api+json']

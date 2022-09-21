@@ -1,0 +1,107 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': templateVars.release.title|default(),
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            <a href="{{ path('DemosPlan_forum_development_release_detail', {'releaseId': templateVars.userStory.releaseId}) }}">
+                <i class="fa fa-long-arrow-left"></i>
+                Zurück zum Release
+            </a>
+
+            {% if templateVars.phasePermissions is defined and templateVars.phasePermissions.new_threadEntry == true %}
+                <a class="btn btn--primary float--right" href="{{ path('DemosPlan_forum_development_userstory_threadentry_new', { 'storyId': templateVars.userStory.ident }) }}">
+                    Neuen Beitrag schreiben
+                </a>
+            {% endif %}
+            <article class="o-box--forum u-mt box-shadow-2">
+                <div class="layout__item u-4-of-5 border--right">
+                    <h2 class="u-pr">
+                       {{ templateVars.userStory.title|default() }}
+                    </h2>
+                    <hr>
+                    <p class="u-pr">
+                        {{ templateVars.userStory.description|default()|wysiwyg }}
+                    </p>
+                    <div class="position--relative u-pr">
+                        <i class="fa fa-comments"></i>
+                        {{ templateVars.entries.thread.numberOfEntries|default() }}
+                        {% if templateVars.votes is defined %}
+                            <i class="fa fa-circle u-ml-"></i>
+                            {{ templateVars.userStory.sumVotes|default() }} Punkte <span class="weight--bold">(</span>
+                            {% if templateVars.userStory.offlineVotes is defined and 1 == templateVars.userStory.offlineVotes %}
+                                {{ templateVars.userStory.offlineVotes|default() }} Offline-Punkt,
+                            {% else %}
+                                {{ templateVars.userStory.offlineVotes|default() }} Offline-Punkte,
+                            {% endif %}
+                            {% if templateVars.userStory.onlineVotes is defined and 0 < templateVars.userStory.onlineVotes %}
+                                <v-popover class="display--inline-block">
+                                    <button type="button" class="btn--blank o-link--default weight--bold">
+                                        <i class="fa fa-caret-right"></i>
+                                        {% if 1 == templateVars.userStory.onlineVotes|default() %}
+                                            {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVote'|trans }}
+                                        {% else %}
+                                            {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVotes'|trans }}
+                                        {% endif %}
+                                    </button>
+                                    <template v-slot:popover>
+                                        <div class="space-inset-s">
+                                            {% for vote in templateVars.votes %}
+                                                {%  if vote.numberOfVotes > 0 %}
+                                                    <dl class="description-list">
+                                                        <dt class="weight--bold">
+                                                            {% for i in 1..vote.numberOfVotes %}
+                                                                <i class="fa fa-circle color-brand-main" aria-hidden="true"></i>
+                                                            {% endfor %}
+                                                            <span class="hide-visually">{{ vote.numberOfVotes }} {{ 'userStory.votes'|trans }}</span>
+                                                        </dt>
+                                                        <dd> {{ vote.orgaName|default() }}</dd>
+                                                    </dl>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </template>
+                                </v-popover>
+                            {% else %}
+                                {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVotes'|trans }}
+                            {% endif %}
+                            <span class="weight--bold"> )</span>
+                        {% endif %}
+                    </div>
+                </div><!--
+             --><aside class="layout__item u-1-of-5">
+                    {% if permissions.feature_forum_dev_story_edit.enabled == true %}
+                        <dp-accordion title="{{ 'moderate'|trans }}" id="moderation-beitragsID{{ templateVars.userStory.ident|default() }}">
+                            <div class="border u-p-0_5 u-mt-0_5">
+                                <a
+                                    class="btn-icns u-m-0 display--block"
+                                    href="{{ path('DemosPlan_forum_development_userstory_edit', {'releaseId': templateVars.userStory.releaseId, 'storyId': templateVars.userStory.ident }) }}">
+                                    <i class="fa fa-pencil btn-icns-icon" aria-hidden="true"></i>
+                                    {{ 'userStory.edit'|trans }}
+                                </a>
+                            </div>
+                        </dp-accordion>
+                    {% endif %}
+                </aside>
+            </article>
+
+            {% if  templateVars.entries is defined %}
+                {%  for entry in templateVars.entries.entryList %}
+                    {% include '@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_list_entry.html.twig' %}
+                {% endfor %}
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-developmentReleaseStory.js']) }}
+{% endblock %}

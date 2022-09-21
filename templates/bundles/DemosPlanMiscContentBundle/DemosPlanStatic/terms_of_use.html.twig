@@ -1,0 +1,25 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'terms.of.use'|trans,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+            {# terms of use by customers #}
+            {% if templateVars.customer.termsOfUse|length > 0 %}
+                <div class="{{ 'c-styled-html u-mt-0_25'|prefixClass }}">
+                    {{ templateVars.customer.termsOfUse|wysiwyg(['h2', 'h3', 'h4']) }}
+                </div>
+            {% endif %}
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['misccontent-genericBundle.js']) }}
+{% endblock javascripts %}

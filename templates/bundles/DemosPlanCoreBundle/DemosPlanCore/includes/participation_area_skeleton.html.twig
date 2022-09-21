@@ -1,0 +1,31 @@
+{% block title_text %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with
+    {
+        link: link|default,
+        link_caption: link_caption|default,
+        width_css: {
+            col1: col1|default('u-1-of-4'),
+            col2: col2|default( full_width_pageheader|default(false) == true ? 'u-1-of-1'|prefixClass : 'u-3-of-4'|prefixClass )
+        },
+        prefixCssClass: true,
+        content_heading: content_heading|default,
+        content_subheading: content_subheading|default,
+        full_width: full_width_pageheader|default(false)
+    } %}
+{% endblock title_text %}
+
+<div id="content" class="{{ 'o-page__padded bg-color--white'|prefixClass }}">
+    {% apply spaceless %}
+
+        {% if full_width|default(false) != true %}
+            <aside class="{{ 'layout__item u-1-of-4 u-1-of-1-lap-down show-desk-up-ib-empty u-p-0_5-palm u-p-lap-up u-pr-0-lap-up'|prefixClass }}">
+                {% block aside %}{% endblock aside %}
+            </aside>
+        {% endif %}
+
+        <section class="{{ 'layout__item  u-1-of-1-palm'|prefixClass }}  {{ full_width|default == true ? '' : 'u-3-of-4'|prefixClass }} {{ (flush|default == true ? 'u-pl-0' : 'u-p-0_5-palm u-p-lap-up')|prefixClass }}">
+            {% block content %}{% endblock content %}
+        </section>
+
+    {% endapply %}
+</div>

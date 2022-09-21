@@ -1,0 +1,50 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Used to style the login- and register pages in user bundle.
+///
+/// @group components
+///
+/// @name .c-login-register
+
+.c-login-register {
+    $page-login-border-color: $default-border-color;
+
+    @include media-query('desk-up') {
+        &.is-separated {
+            display: flex;
+
+            &::before {
+                margin-left: $inuit-base-spacing-unit--large;
+                margin-right: $inuit-base-spacing-unit--large;
+                content: '';
+                width: 1px;
+                order: 2; // The pseudo element has to be placed between the columns
+                background-color: $page-login-border-color;
+            }
+        }
+
+        // In views with only one column, let it breathe a little more.
+        &__col-full {
+            max-width: 500px;
+        }
+
+        // In views with two columns, fine tune column width to account for expected content
+        // and apply order to have the separator (pseudo element) between the columns.
+        &__col-left {
+            order: 1;
+            max-width: 310px;
+        }
+
+        &__col-right {
+            order: 3;
+            max-width: 340px;
+        }
+    }
+}

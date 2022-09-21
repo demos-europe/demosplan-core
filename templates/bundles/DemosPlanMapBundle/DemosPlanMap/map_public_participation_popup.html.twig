@@ -1,0 +1,11 @@
+{# Der Inhalt wird in ein JavaScript-Template gerendert und darf keine Zeilenumbrüche haben #}
+{% apply spaceless %}
+    {% autoescape 'js' %}
+        "<div class='{{ 'map_popup'|prefixClass }}'>
+            <h2 class='{{ 'font-size-small u-ml-0'|prefixClass }}'><a href='{{ procedureUrl|default('___procedureUrl___') }}'>{{ procedureTitle|default('___title___') }}</a></h2>
+            <p class='{{ 'font-size-smaller u-ml-0'|prefixClass }}'><strong>{{ 'procedure.public.phase'|trans }}</strong>: {{ phase|default('___phase___') }}<br><strong>{{ 'period'|trans }}</strong>: {{ periodStart|default('___start___') }} - {{ periodEnd|default('___end___') }}</p>
+            <p class='{{ 'font-size-smaller u-ml-0'|prefixClass }}'>{{ shortText|default('___shortText___') }}</p>
+            <p class='{{ 'font-size-smaller u-m-0'|prefixClass }}'><a href='{{ procedureUrl|default('___procedureUrl___') }}' class='{{ 'btn btn--primary'|prefixClass }}'>{{ 'detail.view'|trans }}</a></p>
+        </div>"
+    {% endautoescape %}
+{% endapply %}

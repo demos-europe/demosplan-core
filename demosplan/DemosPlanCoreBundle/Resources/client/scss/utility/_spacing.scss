@@ -1,0 +1,222 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:list';
+@use 'sass:math';
+
+/* stylelint-disable max-line-length, declaration-block-single-line-max-declarations */
+
+//  Utility classes: Spacing
+//
+//  https://github.com/inuitcss/inuitcss/blob/develop/utilities/_utilities.spacing.scss
+//
+//  Generated classes as well as manually added classes look like this:
+//  .u-mb-0_5
+//  .u-p
+//  .u-mr-0_25
+//  .u-pt-0_5-desk-up
+//
+//  @TODO check if so many responsive spacing classes are needed
+//  @TODO refine scale, read more at https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62
+
+// Inline spacing: put stuff next to each other maintaining a small space between items.
+.space-inline-xs > * + * {
+    &:not(.flex-item-end) {
+        margin-left: $inuit-base-spacing-unit--tiny;
+    }
+}
+
+.space-inline-s > * + * {
+    &:not(.flex-item-end) {
+        margin-left: $inuit-base-spacing-unit--small;
+    }
+}
+
+.space-inline-m > * + * {
+    &:not(.flex-item-end) {
+        margin-left: $inuit-base-spacing-unit;
+    }
+}
+
+// Stack spacing: put stuff below each other maintaining a small space between items.
+.space-stack-xs > * + * {
+    margin-top: $inuit-base-spacing-unit--tiny;
+}
+
+.space-stack-s > * + * {
+    margin-top: $inuit-base-spacing-unit--small;
+}
+
+.space-stack-m > * + * {
+    margin-top: $inuit-base-spacing-unit;
+}
+
+.space-stack-l > * + * {
+    margin-top: $inuit-base-spacing-unit--large;
+}
+
+// Inset spacing: create a boxed padding for items.
+.space-inset-xs {
+    padding: $inuit-base-spacing-unit--tiny;
+}
+
+.space-inset-s {
+    padding: $inuit-base-spacing-unit--small;
+}
+
+.space-inset-m {
+    padding: $inuit-base-spacing-unit;
+}
+
+// Auto values
+
+.u-ml-auto {
+    margin-left: auto;
+}
+
+.u-mr-auto {
+    margin-right: auto;
+}
+
+.u-mh-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.u-mv-auto {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+//  Custom fractions > padding
+
+.u-pt-0_125 { padding-top: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+
+.u-p-0_75 { padding: $inuit-base-spacing-unit--tiny * 3 !important; }
+.u-pr-0_75 { padding-right: $inuit-base-spacing-unit--tiny * 3 !important; }
+.u-pb-0_75 { padding-bottom: $inuit-base-spacing-unit--tiny * 3 !important; }
+.u-pl-1_5 { padding-left: 3 * $inuit-base-spacing-unit--small !important; }
+
+//  Custom fractions > margin
+
+.u-mt-0_125 { margin-top: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+.u-mr-0_125 { margin-right: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+.u-ml-0_125 { margin-left: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+
+.u-m-0_75 { margin: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-mt-0_75 { margin-top: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-mr-0_75 { margin-right: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-ml-0_75 { margin-left: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-mb-0_75 { margin-bottom: $inuit-base-spacing-unit--small * 1.5 !important; }
+
+.u-mt-1_5 { margin-top: 3 * $inuit-base-spacing-unit--small !important; }
+.u-ml-1_5 { margin-left: 3 * $inuit-base-spacing-unit--small !important; }
+
+
+//  Custom fractions > negative margin
+
+.u-n-ml { margin-left: -$inuit-base-spacing-unit !important; }
+.u-n-ml-0_5 { margin-left: -$inuit-base-spacing-unit--small !important; }
+.u-n-ml-0_25 { margin-left: -$inuit-base-spacing-unit--tiny !important; }
+.u-n-mt-0_25 { margin-top: -$inuit-base-spacing-unit--tiny !important; }
+.u-n-mt-0_5 { margin-top: -$inuit-base-spacing-unit--small !important; }
+.u-n-mt { margin-top: -$inuit-base-spacing-unit !important; }
+.u-n-mr { margin-right: -$inuit-base-spacing-unit !important; }
+
+
+//  Combined spacing > padding
+
+.u-ph-0 { padding-right: 0 !important; padding-left: 0 !important; }
+.u-pv-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+
+.u-ph-0_125 { padding-left: math.div($inuit-base-spacing-unit--tiny, 2) !important; padding-right: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+.u-pv-0_125 { padding-top: math.div($inuit-base-spacing-unit--tiny, 2) !important; padding-bottom: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+
+.u-ph-0_25 { padding-left: $inuit-base-spacing-unit--tiny !important; padding-right: $inuit-base-spacing-unit--tiny !important; }
+.u-pv-0_25 { padding-top: $inuit-base-spacing-unit--tiny !important; padding-bottom: $inuit-base-spacing-unit--tiny !important; }
+
+.u-ph-0_5 { padding-right: $inuit-base-spacing-unit--small !important; padding-left: $inuit-base-spacing-unit--small !important; }
+.u-pv-0_5 { padding-top: $inuit-base-spacing-unit--small !important; padding-bottom: $inuit-base-spacing-unit--small !important; }
+
+.u-ph-0_75 { padding-right: $inuit-base-spacing-unit--small * 1.5 !important; padding-left: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-pv-0_75 { padding-top: $inuit-base-spacing-unit--small * 1.5 !important; padding-bottom: $inuit-base-spacing-unit--small * 1.5 !important; }
+
+.u-ph { padding-right: $inuit-base-spacing-unit !important; padding-left: $inuit-base-spacing-unit !important; }
+.u-pv { padding-top: $inuit-base-spacing-unit !important; padding-bottom: $inuit-base-spacing-unit !important; }
+
+
+//  Combined spacing > margin
+
+.u-mv-0 { margin-top: 0 !important; margin-bottom: 0 !important; }
+
+.u-mh-0_125 { margin-right: math.div($inuit-base-spacing-unit--tiny, 2) !important; margin-left: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+.u-mv-0_125 { margin-top: math.div($inuit-base-spacing-unit--tiny, 2) !important; margin-bottom: math.div($inuit-base-spacing-unit--tiny, 2) !important; }
+
+.u-mh-0_25 { margin-right: $inuit-base-spacing-unit--tiny !important; margin-left: $inuit-base-spacing-unit--tiny !important; }
+.u-mv-0_25 { margin-top: $inuit-base-spacing-unit--tiny !important; margin-bottom: $inuit-base-spacing-unit--tiny !important; }
+
+.u-mh-0_5 { margin-right: $inuit-base-spacing-unit--small !important; margin-left: $inuit-base-spacing-unit--small !important; }
+.u-mv-0_5 { margin-top: $inuit-base-spacing-unit--small !important; margin-bottom: $inuit-base-spacing-unit--small !important; }
+
+.u-mh-0_75 { margin-right: $inuit-base-spacing-unit--small * 1.5 !important; margin-left: $inuit-base-spacing-unit--small * 1.5 !important; }
+.u-mv-0_75 { margin-top: $inuit-base-spacing-unit--small * 1.5 !important; margin-bottom: $inuit-base-spacing-unit--small * 1.5 !important; }
+
+.u-mh { margin-right: $inuit-base-spacing-unit !important; margin-left: $inuit-base-spacing-unit !important; }
+.u-mv { margin-top: $inuit-base-spacing-unit !important; margin-bottom: $inuit-base-spacing-unit !important; }
+
+
+//  Generated classes
+
+$dplan-spacing-properties: (
+    'p': 'padding',
+    'm': 'margin'
+);
+
+$dplan-spacing-directions: (
+    null: null,
+    't': '-top',
+    'r': '-right',
+    'b': '-bottom',
+    'l': '-left'
+);
+
+$dplan-spacing-sizes: (
+    '-0_25': $inuit-base-spacing-unit--tiny,
+    '-0_5': $inuit-base-spacing-unit--small,
+    null: $inuit-base-spacing-unit,
+    '-2': $inuit-base-spacing-unit--large,
+    '-0': 0
+);
+
+@each $property-short, $property in $dplan-spacing-properties {
+
+    @each $direction-short, $direction in $dplan-spacing-directions {
+
+        @each $size, $value in $dplan-spacing-sizes {
+
+            .u-#{$property-short}#{$direction-short}#{$size} {
+                #{$property}#{$direction}: $value !important;
+            }
+
+            // Loop over breakpoints defined in _settings.responsive.scss
+            @each $breakpoint in $breakpoints {
+
+                // Get the name of the breakpoint.
+                $alias: list.nth($breakpoint, 1);
+
+                @include media-query($alias) {
+
+                    .u-#{$property-short}#{$direction-short}#{$size}-#{$alias} {
+                        #{$property}#{$direction}: $value !important;
+                    }
+                }
+            }
+        }
+    }
+}

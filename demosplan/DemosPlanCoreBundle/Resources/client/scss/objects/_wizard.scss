@@ -1,0 +1,280 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS E-Partizipation GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:color';
+
+.o-wizard {
+
+    padding-bottom: $inuit-base-spacing-unit--small;
+
+    &__trigger {
+        @include inuit-font-size($dp-token-font-size-large);
+        bottom: $inuit-base-spacing-unit--small;
+        position: absolute;
+        right: 0;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        font-family: $normal-font-family;
+        font-weight: $normal-font-weight;
+    }
+
+    &__trigger-icon {
+        @include inuit-font-size($dp-token-font-size-large);
+        vertical-align: middle;
+
+        line-height: 0;
+    }
+
+    legend:not(.is-label) {
+        color: $dp-color-main;
+        cursor: pointer;
+
+        i.caret {
+            @extend .fa;
+            @extend .fa-caret-right;
+            width: $inuit-base-spacing-unit--small;
+        }
+
+        i.fa-check {
+            display: none;
+            margin-left: 5px;
+        }
+
+        &.is-active-toggle {
+            i.caret {
+                @extend .fa-caret-down;
+            }
+        }
+    }
+
+    .o-wizard__content {
+        display: none;
+
+        &.is-active {
+            display: block;
+
+            //  style accordion content only with not activated wizard
+            form:not(.o-wizard-mode) & {
+                padding: $inuit-base-spacing-unit--small;
+
+                background: $dp-bg-color-light;
+            }
+        }
+    }
+
+    // Hide plain tooltip texts that are revealed in wizard mode
+    form:not(.o-wizard-mode) & {
+        [data-wizard-tooltip-plain] {
+            display: none;
+        }
+    }
+
+    .o-wizard-mode & {
+        .o-wizard__content {
+            min-height: 222px;
+        }
+
+        &.o-wizard--active {
+            left: 0;
+            position: absolute;
+            top: 0;
+            z-index: $z-super;
+
+            max-width: $dp-page-width;
+            padding: 62px 22px 48px;
+            margin-left: $inuit-base-spacing-unit--small;
+            width: 133.33%;
+
+            background: $dp-color-white;
+
+            @include media-query('lap-down') {
+                padding-bottom: 85px;
+            }
+            @include media-query('lap-down') {
+                padding-bottom: 120px;
+            }
+
+            legend:not(.is-label) {
+                display: none;
+            }
+
+            .o-wizard__header {
+                position: absolute;
+                top: 22px;
+                left: 22px;
+                color: $dp-color-main;
+            }
+
+            .o-wizard__main {
+                float: right;
+                width: calc(75% - 22px);
+                margin-top: 8px;
+
+                @include media-query('lap-down') {
+                    width: 100%;
+                }
+            }
+
+            .o-wizard__content {
+                min-height: 222px;
+            }
+
+            // Simply hide the tooltip trigger altogether in wizard mode.
+            // An alternative text is rendered instead.
+            [data-wizard-tooltip] {
+                display: none;
+            }
+        }
+
+        &__close {
+            position: absolute;
+            right: 20px;
+            top: 6px;
+
+            color: $dp-token-color-brand-link;
+            cursor: pointer;
+
+            font-size: 24px;
+        }
+
+        &__btn {
+            bottom: 22px;
+            position: absolute;
+
+            @include media-query('palm') {
+                left: auto !important;
+                right: 22px;
+            }
+
+            &--prev {
+                left: 22px;
+
+                @include media-query('palm') {
+                    bottom: 65px;
+                }
+            }
+
+            &--next,
+            &--done {
+                right: 22px;
+            }
+        }
+
+        &__mark {
+            bottom: 22px;
+            left: calc((100% - 44px) / 4 + 44px);
+            position: absolute;
+
+            margin: 0;
+
+            font-weight: normal;
+
+            @include media-query('lap-down') {
+                bottom: 62px;
+                right: 22px;
+                left: auto;
+            }
+            @include media-query('palm') {
+                bottom: 100px;
+            }
+        }
+
+        &__menu {
+
+            @include media-query('lap-down') {
+                display: none;
+            }
+
+            ul {
+                position: relative;
+
+                margin: 0;
+
+                list-style: none;
+
+                li {
+                    position: relative;
+
+                    margin: 6px 0;
+
+                    cursor: pointer;
+
+                    &.active,
+                    &.active i {
+                        color: $dp-token-color-brand-main;
+                    }
+
+                    &.active i {
+                        background-color: $dp-token-color-brand-main;
+                    }
+
+                    &.finished i {
+                        background: transparent;
+                    }
+
+                    &::before {
+                        left: 7px;
+                        position: absolute;
+                        top: 20px;
+
+                        height: 16px;
+                        width: 0;
+
+                        border-left: 1px solid $dp-color-neutral-base;
+                        content: '';
+                    }
+
+                    &:last-child::before {
+                        content: none;
+                    }
+
+                    i {
+                        margin-right: 10px;
+                        font-size: 17px;
+                        color: $dp-color-neutral-base;
+                        border-radius: 50%;
+                        width: 14px;
+                        height: 14px;
+                        position: relative;
+                        background: $dp-color-neutral-base;
+                        top: 2px;
+
+                        &::before {
+                            position: absolute;
+                            top: -1px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.o-wizard__bg {
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: $z-modal-overlay;
+
+    display: none;
+
+    background: color.adjust($dp-color-neutral-dark-1, $alpha: -.25);
+
+    .o-wizard-mode & {
+        display: block;
+    }
+}
+
+fieldset[data-wizard-finished='true'] legend i.fa-check {
+    display: inline-block !important;
+}

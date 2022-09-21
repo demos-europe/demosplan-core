@@ -1,0 +1,90 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
+
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+
+/**
+ * @template-extends DplanResourceType<Statement>
+ *
+ * @property-read ProcedureResourceType $procedure
+ * @property-read StatementResourceType $statements
+ * @property-read StatementResourceType $statementsCreatedFromOriginal
+ * @property-read StatementResourceType $original
+ * @property-read End                   $deleted
+ * @property-read StatementResourceType $headStatement
+ * @property-read StatementResourceType $movedStatement
+ */
+final class OriginalStatementResourceType extends DplanResourceType
+{
+    public static function getName(): string
+    {
+        return 'OriginalStatement';
+    }
+
+    public function getEntityClass(): string
+    {
+        return Statement::class;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasAnyPermissions(
+            'feature_json_api_original_statement',
+            'feature_import_statement_via_email'
+        );
+    }
+
+    public function getAccessCondition(): FunctionInterface
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return $this->conditionFactory->false();
+        }
+
+        return $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyIsNull(...$this->original->id),
+            $this->conditionFactory->propertyIsNull(...$this->headStatement->id),
+            $this->conditionFactory->propertyIsNull(...$this->movedStatement),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id)
+        );
+    }
+
+    public function isReferencable(): bool
+    {
+        return true;
+    }
+
+    public function isDirectlyAccessible(): bool
+    {
+        return $this->currentUser->hasPermission('feature_json_api_original_statement');
+    }
+
+    protected function getProperties(): array
+    {
+        $properties = [
+            $this->createAttribute($this->id)->readable(true)->filterable(),
+        ];
+
+        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
+            $properties[] = $this->createToManyRelationship($this->statements)->readable()
+                ->aliasedPath($this->statementsCreatedFromOriginal);
+        }
+
+        return $properties;
+    }
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "segment.bulk.edit",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "consultationToken.manual.create"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "submitterName": {
+          "$id": "submitterName",
+          "type": "string"
+        },
+        "submitterEmailAddress": {
+          "$id": "submitterEmailAddress",
+          "type": "string"
+        },
+        "note": {
+          "$id": "note",
+          "type": "string"
+        },
+        "submitterCity": {
+          "$id": "submitterCity",
+          "type": "string"
+        },
+        "submitterPostalCode": {
+          "$id": "submitterPostalCode",
+          "type": "string"
+        },
+        "submitterStreet": {
+          "$id": "submitterStreet",
+          "type": "string"
+        },
+        "submitterHouseNumber": {
+          "$id": "submitterHouseNumber",
+          "type": "string"
+        }
+      },
+      "required": [
+        "submitterName",
+        "submitterEmailAddress",
+        "note"
+      ]
+    }
+  }
+}

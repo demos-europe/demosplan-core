@@ -1,0 +1,9 @@
+{% if hasPermission('field_procedure_single_document_text') %}
+    <dp-text-area
+        id="r_text"
+        label="{{ 'text'|trans }}"
+        name="r_text"
+        reduced-height
+        value="{{ text }}">
+    </dp-text-area>
+{% endif %}

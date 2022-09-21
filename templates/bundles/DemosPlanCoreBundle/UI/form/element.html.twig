@@ -1,0 +1,122 @@
+{# This is a ui component used via the Twig function call uiComponent('form.element')
+   It displays an input element paired with a label
+   Parameters:
+   label {Object}:          options for label uiComponent
+   control {Object}:        options for form control uiComponent
+   id {String}:             id of the form control, used by 'for'-attribute of the label
+   type {String}:           type of form element, needed to define allowed tags for wysiwyg filter
+   order {String}:          set to 'reverse' if you want to display the label after the control, otherwise omit
+   required {Boolean}:      set to true if the form element is required, otherwise omit
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+   show {Boolean}:          Pass a boolean here to render/not render element
+#}
+
+{# Set fallback of input type to 'text'. #}
+{% if type is not defined %}
+    {% set type = 'text' %}
+{% endif %}
+
+{# Define allowedTags for wysiwyg-filter when rendering component. #}
+{# The input tag is needed in all components because the label might use it to display a char count hint #}
+{% set allowedTags = ['label', 'input'] %}
+{% if type == 'select' %}
+    {% set allowedTags = allowedTags|merge(['select', 'option', 'optgroup']) %}
+{% elseif type == 'textarea' %}
+    {% set allowedTags = allowedTags|merge(['textarea']) %}
+{% elseif type == 'tiptap' %}
+    {% set allowedTags = allowedTags|merge(['dp-tiptap', 'textarea']) %}
+{% elseif type == 'datepicker' %}
+    {% set allowedTags = allowedTags|merge(['dp-datepicker']) %}
+{% elseif type == 'date_range_picker' %}
+    {% set allowedTags = allowedTags|merge(['dp-date-range-picker']) %}
+{% endif %}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+{% set widthVars = {
+    full: ' u-1-of-1',
+    larger: ' u-2-of-3',
+    large: ' u-1-of-2',
+    medium: ' u-1-of-3',
+    small: ' u-1-of-4',
+    smaller: ' u-1-of-5',
+    tiny: ' u-1-of-6',
+    mini: ' u-1-of-8',
+    0: ''
+} %}
+
+{% set elementWidth = widthVars[elementSize|default('full')] %}
+
+{% set label = label|merge(_context) %}
+{% set control = control|merge(_context) %}
+
+{# define path and merge parent options into options for label and control component #}
+{% if type != 'select' and type != 'textarea' and type != 'tiptap' and type != 'datepicker' %}
+    {% set controlPath = 'form.input.' ~ type %}
+{% else %}
+    {% set controlPath = 'form.' ~ type %}
+{% endif %}
+
+{# This blocks connects a maximum char count with a char count hint on the label. #}
+{# If the element has a maxCharCount-prop the corresponding maxlength-attribute and the label hint are added automatically #}
+{% if maxCharCount is defined %}
+    {% set label = label|merge({
+            dataCounterHint: "input.text.maxlength"|trans({ maxlength: maxCharCount, id: "#{control.id}_counter", "o-char-count": "o-char-count"|prefixClass(omitPrefix) }),
+        omitCssPrefix: omitPrefix
+        })
+    %}
+    {% set attributes = control.attributes|default([]) %}
+    {% set attributes = attributes|merge(["maxlength=#{maxCharCount}"]) %}
+    {% set control = control|merge({
+        attributes: attributes,
+        dataCounter: "#{control.id}_counter",
+        omitCssPrefix: omitPrefix
+    }) %}
+{% endif %}
+
+{% set labelComponent = uiComponent('form.label', label) %}
+{% set controlComponent = uiComponent(controlPath, control) %}
+
+{# set items in desired order #}
+{% if reverse is not defined %}
+    {# for checkbox and radio, default to reverse order #}
+    {% if type == 'checkbox' or type == 'radio' %}
+        {% set items = [controlComponent]|merge([labelComponent]) %}
+    {# for everything else, default to normal order (= label first) #}
+    {% else %}
+        {% set items = [labelComponent]|merge([controlComponent]) %}
+    {% endif %}
+{% elseif reverse is defined %}
+    {% if reverse == true %}
+        {% set items = [controlComponent]|merge([labelComponent]) %}
+    {% else %}
+        {% set items = [labelComponent]|merge([controlComponent]) %}
+    {% endif %}
+{% endif %}
+
+{# `elementStyle` would be replaced by using form.group #}
+{% if elementStyle|default %}
+    {% set style = 'display--' ~ elementStyle %}
+    {% set class = class|default ~ ' ' ~ style %}
+{% endif %}
+
+{% if elementStyle|default == 'inline' %}
+    {% set class = class|default ~ ' ' ~ 'u-mr-0_5' %}
+{% endif %}
+
+{% if elementWidth|default %}
+    {% set class = class|default ~ ' ' ~ elementWidth %}
+{% endif %}
+
+{% if elementClass|default %}
+    {% set class = class|default ~ ' ' ~ elementClass %}
+{% endif %}
+
+{% if type == 'checkbox' or type == 'radio' %}
+    {% set class = class|default ~ ' o-form__element--' ~ type %}
+{% endif %}
+
+<div class="{{ class|default|prefixClass(omitPrefix) }}">
+    {% for item in items|default([]) %}
+        {{ item|wysiwyg(allowedTags) }}
+    {% endfor %}
+</div>

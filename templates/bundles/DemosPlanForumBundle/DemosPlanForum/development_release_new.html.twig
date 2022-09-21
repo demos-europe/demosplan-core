@@ -1,0 +1,69 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'Neues Release erstellen',
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            <form name="newRelease" action="{{ path('DemosPlan_forum_development_release_new') }}" method="post" enctype="multipart/form-data">
+                <label>
+                    {{ "title"|trans }}*
+                    <input class="layout__item" name="r_title" type="text" value="{{templateVars.request.r_title|default() }}">
+                </label>
+
+                <label class="u-mb-0" for="r_description">
+                    {{ "description"|trans }}
+                </label>
+                <dp-tiptap
+                    value="{{ templateVars.request.r_text|default() }}"
+                    hidden-input="r_description"
+                    class="u-mb">
+                </dp-tiptap>
+
+                <label>
+                    {{ "phase"|trans }}*
+                    <select class="layout__item u-pl-0" name="r_phase">
+                        {% for phase in templateVars.releasePhases %}
+                            <option value="{{ phase.key }}">
+                                {{ phase.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label for="r_startdate">
+                    {{ "period"|trans }}
+                </label>
+                <dp-date-range-picker
+                    start-id="r_startdate"
+                    start-name="r_startdate"
+                    start-value="{{ templateVars.request.r_startdate|default() }}"
+                    end-id="r_enddate"
+                    end-name="r_enddate"
+                    end-value="{{templateVars.request.r_enddate|default()}}"
+                    :enforce-plausible-dates="false">
+                </dp-date-range-picker>
+
+                <div class="text--right space-inline-s">
+                    <input class="btn btn--primary" type="submit" name="saveNewRelease" value="{{ "save"|trans }}">
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_forum_development') }}">
+                        {{ "abort"|trans }}
+                    </a>
+                </div>
+
+            </form>
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['tiptap.js', 'forum-developmentReleaseNew.js']) }}
+{% endblock javascripts %}

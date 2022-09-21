@@ -1,0 +1,27 @@
+{% block body_plain %}
+
+Guten Tag,
+
+Ihre Einwendung zum Verfahren {{ procedureExternalName }} ist eingegangen.
+
+Wir führen Ihre Einwendung unter der Nummer {{ statementExternId }}.
+
+Sollte aufgrund von § 10 Abs. 6 BImSchG i. V. m. § 16 der Verordnung über das Genehmigungsverfahren (9. BImSchV) und
+§ 5 Abs. 1 des Planungssicherstellungsgesetzes (PlanSiG ) der Erörterungstermin abgesagt und durch eine
+Online-Konsultation gem. § 5 Abs. 2 ff. PlanSiG ersetzt werden, wird dieses öffentlich über die bekannten Medien
+bekannt gemacht. Dieses gilt auch für die generelle Absage des Erörterungstermins.
+
+Im Falle einer Online-Konsultation besteht die Möglichkeit, Ihre Stellungnahme über die Plattform BOB-SH BImSchG abzugeben.
+Hierfür benötigen Sie einen Zugangscode für die Teilnahme. Ihr Zugangscode lautet {{ consultationToken }}.
+
+Dies ist eine automatisch erzeugte Benachrichtigung. Bitte antworten Sie nicht darauf! Für Rückfragen kontaktieren Sie
+bitte die verfahrensführende Behörde.
+
+Mit freundlichem Gruß
+
+{{ signature.legalName }}
+{{ signature.street }}
+{{ signature.city }} {{ signature.postalcode }}
+{{ signature.email }}
+
+{% endblock %}

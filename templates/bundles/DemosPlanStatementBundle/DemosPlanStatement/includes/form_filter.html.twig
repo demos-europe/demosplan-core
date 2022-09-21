@@ -1,0 +1,160 @@
+{% set draftListFilters = app.session.get('draftListFilters') %}
+{% set rootTemplate = app.request.attributes.get('templateName') %}
+{% set procedureFilters = attribute(draftListFilters, procedure) %}
+{% set templateFilters = attribute(procedureFilters, rootTemplate) %}
+
+            {# filter entries #}
+            <fieldset class="{{ 'layout__item space-stack-s u-pb-0-palm u-1-of-2-lap u-1-of-3-desk-up'|prefixClass }}">
+
+                <legend>
+                    {{ "filter"|trans }}
+                </legend>
+
+                {# used in list_public_published #}
+                {% if show_filter_orga is defined %}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'organisation'|trans },
+                        control: {
+                            name: 'f_organisation',
+                            options: [{ label: 'all'|trans, value: '' }]|merge(templateVars.list.filters.filters.orga|map(orga => {
+                                label: orga.label|default ~ ' (' ~ orga.count ~ ')',
+                                value: orga.value,
+                                selected: templateFilters.organisationId == orga.value
+                            })) },
+                        id: 'f_organisation',
+                        type: 'select'
+                    }) }}
+                {% endif %}
+
+                {{ uiComponent('form.element', {
+                    label: { text: 'document'|trans },
+                    control: {
+                        name: 'f_document',
+                        options: templateVars.list.filters.filters.element is defined
+                        ? [{ label: 'all'|trans, value: '' }]|merge(templateVars.list.filters.filters.element|map(document => {
+                            label: document.label ~ ' (' ~ document.count ~ ')'|default('notspecified'|trans),
+                            value: document.value,
+                            selected: templateFilters.elementsId == document.value
+                        }))
+                        : [{ label: '', value: '' }] },
+                    id: 'f_document',
+                    type: 'select',
+                    elementClass: 'u-mt-0'|prefixClass,
+                    attributes: ['data-cy=documentFilter']
+                }) }}
+
+                {% if show_filter_department is defined %}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'department'|trans },
+                        control: {
+                            name: 'f_department',
+                            options: templateVars.list.filters.filters.department is defined
+                            ? [{ label: 'all'|trans, value: '' }]|merge(templateVars.list.filters.filters.department|map(department => { label: department.label ~ ' (' ~ department.count ~ ')'|default('notspecified'|trans), value: department.value|default, selected: templateFilters.departmentId == department.value }))
+                            : [{ label: '', value: '' }]
+                        },
+                        id: 'f_department',
+                        type: 'select'
+                    }) }}
+                {% endif %}
+
+                {% if show_filter_statement is defined %}
+                    {{ uiComponent('form.element', {
+                        label: { text: 'statement'|trans },
+                        control: {
+                            name: 'f_scope',
+                            options: [
+                                {
+                                    label: 'statements.group'|trans,
+                                    value: 'group',
+                                    selected: templateFilters.scope == 'group'
+                                },
+                                {
+                                    label: 'statements.own'|trans,
+                                    value: 'own',
+                                    selected: templateFilters.scope == 'own'
+                                }
+                            ]},
+                        id: 'f_scope',
+                        type: 'select',
+                        elementClass: 'u-mb-0_5-lap-down'|prefixClass
+                    }) }}
+                {% endif %}
+
+            </fieldset><!--
+
+            {# sort entries #}
+         --><fieldset class="{{ 'layout__item space-stack-s u-pb-0-lap-down u-1-of-2-lap u-1-of-3-desk-up'|prefixClass }}">
+                <legend class="hide-visually">
+                    {{ 'sortation'|trans }}
+                </legend>
+
+                {# Do not display Sorts in own released list as sorting leads to quite complex Backend issues atm #}
+                {% if filter_target != 'released' %}
+                    {% set sortOptions = [
+                        { label: 'date.created', value: 'createdDate' },
+                        { label: 'date.submitted', value: 'submittedDate', show: show_filter_sort_option_submitted is defined },
+                        { label: 'paragraph', value: 'paragraph' },
+                        { label: 'document', value: 'document' },
+                        { label: 'department', value: 'department', show: show_filter_sort_option_department is defined }
+                    ] %}
+
+                    {{ uiComponent('form.element', {
+                        label: { text: 'sortation.sortby'|trans, class: 'lbl--spaced u-mt-0-palm'|prefixClass },
+                        control: {
+                            name: 'f_sort',
+                            options: sortOptions|filter(option => option.show is not defined or option.show)|map(option => {
+                                label: option.label|trans,
+                                value: option.value,
+                                selected: templateFilters.sortBy == option.value
+                            })
+                        },
+                        id: 'f_sort',
+                        type: 'select'
+                    }) }}
+
+                    {{ uiComponent('form.element', {
+                        label: { text: 'sortation.direction'|trans },
+                        control: {
+                            name: 'f_sort_ascdesc',
+                            options: [
+                                {
+                                    label: 'ascending'|trans,
+                                    value: 'asc',
+                                    selected: templateFilters.sortDirection == 'asc'
+                                },
+                                {
+                                    label: 'descending'|trans,
+                                    value: 'desc',
+                                    selected: templateFilters.sortDirection == 'desc'
+                                }
+                            ],
+                            attributes: ['data-cy=sort_Order_ascdesc']
+                        },
+                        id: 'f_sort_ascdesc',
+                        type: 'select',
+                        elementClass: 'u-mb-0_5-lap-down'|prefixClass
+                    }) }}
+                {% endif %}
+
+            </fieldset><!--
+
+            {# searchterm / submit filters #}
+         --><fieldset class="{{ 'layout__item space-stack-s u-1-of-2-lap u-1-of-3-desk-up'|prefixClass }}">
+
+            {{ uiComponent('form.element', {
+                label: { text: 'search'|trans, class: 'lbl--spaced u-mt-0-lap-down'|prefixClass },
+                control: {
+                    name: 'search_word',
+                    value: templateFilters.searchWord
+                },
+                id: 'search_word',
+                type: 'text',
+                elementClass: 'u-mb'|prefixClass
+            }) }}
+
+            {{ uiComponent('button-row', {
+                primary: uiComponent('button', { type: 'submit', text: 'apply'|trans, attributes: ['data-cy=applyButton', 'data-submit-filter-set'] }),
+                secondary: uiComponent('button', { color: 'secondary', text: 'reset'|trans, href: path('DemosPlan_statement_list_' ~ filter_target, { 'procedure' : procedure, 'reset': true }) })
+            }) }}
+
+            </fieldset>
