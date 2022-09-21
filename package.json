@@ -41,6 +41,7 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
+    "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
     "@sentry/browser": "^7.12.1",
     "@sentry/integrations": "^7.12.1",
@@ -58,7 +59,6 @@
     "deep-object-diff": "^1.1.7",
     "demosplan-ui": "file:client/ui",
     "dompurify": "^2.4.0",
-    "dp-consent": "file:lib/demos-europe/cookie-consent",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",
     "intl-messageformat": "^10.1.4",
