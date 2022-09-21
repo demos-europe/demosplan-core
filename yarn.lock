@@ -1082,6 +1082,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
+"@demos-europe/dp-consent@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@demos-europe/dp-consent/-/dp-consent-1.1.2.tgz#7a3be33bce15eb4af15f060f2f466f20cde8c298"
+  integrity sha512-qtzS0XnNRUiOQ02MlV3duHjUxlXLZcTHwxIMh/VAYIzwJmWAapRgVg9bwe7hZIIRR/Qho4zlEwszGPv6n2UsJw==
+
 "@efrane/vuex-json-api@0.0.38":
   version "0.0.38"
   resolved "https://registry.yarnpkg.com/@efrane/vuex-json-api/-/vuex-json-api-0.0.38.tgz#11a183bf6f85f22f4da68ee82656c6c7bde87a52"
@@ -3583,9 +3588,6 @@ dot-case@^3.0.4:
   dependencies:
     no-case "^3.0.4"
     tslib "^2.0.3"
-
-"dp-consent@file:lib/demos-europe/cookie-consent":
-  version "1.1.1"
 
 duplexer@^0.1.2:
   version "0.1.2"
