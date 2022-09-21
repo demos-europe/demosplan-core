@@ -74,7 +74,7 @@
 <script>
 import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton, DpDetails, DpIcon, DpInput } from 'demosplan-ui/components'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import lscache from 'lscache'

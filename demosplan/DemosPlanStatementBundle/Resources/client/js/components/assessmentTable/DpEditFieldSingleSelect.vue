@@ -77,7 +77,7 @@
 
 <script>
 import DpEditField from './DpEditField'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

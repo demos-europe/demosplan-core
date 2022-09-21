@@ -200,7 +200,7 @@
 import { DpDetails, DpInput } from 'demosplan-ui/components'
 import availableFilterFields from './availableFilterFields.json'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpModal from '@DemosPlanCoreBundle/components/DpModal'
 import { hasAnyPermissions } from '@DpJs/lib/utils/hasPermission'
 import { mapMutations } from 'vuex'

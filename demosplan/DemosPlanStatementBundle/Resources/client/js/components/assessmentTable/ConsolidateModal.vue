@@ -210,7 +210,7 @@ import { checkResponse, dpApi, handleResponseMessages } from '@DemosPlanCoreBund
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DemosPlanCoreBundle/components/DpModal'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectStatementCluster from '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 

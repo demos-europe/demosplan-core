@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import DpRadio from '@DemosPlanCoreBundle/components/form/DpRadio'
+import DpRadio from '@DpJs/components/core/form/DpRadio'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

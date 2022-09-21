@@ -123,10 +123,10 @@
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 import debounce from '@DpJs/lib/utils/debounce'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
 
 export default {
   name: 'LayerSettings',

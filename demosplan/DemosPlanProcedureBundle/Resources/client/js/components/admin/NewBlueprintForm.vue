@@ -138,11 +138,11 @@
 import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
-import DpFormRow from '@DemosPlanCoreBundle/components/form/DpFormRow'
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpFormRow from '@DpJs/components/core/form/DpFormRow'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 
 export default {
   name: 'NewBlueprintForm',

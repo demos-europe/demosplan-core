@@ -220,7 +220,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import DpEditableList from '@DemosPlanCoreBundle/components/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
-import DpRadio from '@DemosPlanCoreBundle/components/form/DpRadio'
+import DpRadio from '@DpJs/components/core/form/DpRadio'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {

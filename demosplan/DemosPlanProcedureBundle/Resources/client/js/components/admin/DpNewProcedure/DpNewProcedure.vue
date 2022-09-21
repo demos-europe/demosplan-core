@@ -11,12 +11,12 @@
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDateRangePicker from '@DemosPlanCoreBundle/components/form/DpDateRangePicker'
-import DpFormRow from '@DemosPlanCoreBundle/components/form/DpFormRow'
+import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
+import DpFormRow from '@DpJs/components/core/form/DpFormRow'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
 
 export default {

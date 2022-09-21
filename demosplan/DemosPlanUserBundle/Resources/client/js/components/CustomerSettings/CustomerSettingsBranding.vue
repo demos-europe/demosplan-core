@@ -70,8 +70,8 @@
 
 <script>
 import { DpDetails, DpLabel } from 'demosplan-ui/components'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
 
 export default {

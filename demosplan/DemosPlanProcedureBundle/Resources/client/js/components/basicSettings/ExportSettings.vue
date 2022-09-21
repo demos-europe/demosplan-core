@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpCheckboxGroup from '@DemosPlanCoreBundle/components/DpCheckboxGroup'
 
 export default {

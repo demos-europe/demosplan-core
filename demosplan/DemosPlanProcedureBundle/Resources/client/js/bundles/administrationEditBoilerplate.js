@@ -12,7 +12,7 @@
  */
 
 import DpEditBoilerplate from '../components/admin/DpEditBoilerplate'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

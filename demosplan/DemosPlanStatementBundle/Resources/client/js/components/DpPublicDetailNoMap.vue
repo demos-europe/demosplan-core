@@ -28,7 +28,7 @@ export default {
     DpPublicSurvey,
     DpPublicStatementList,
     DpMapModal: () => import('@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
-    DpSelect: () => import('@DemosPlanCoreBundle/components/form/DpSelect'),
+    DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
     DpVideoPlayer: () => import('@DemosPlanCoreBundle/components/DpVideoPlayer'),
     ElementsList: () => import('@DemosPlanDocumentBundle/components/ElementsList')
   },

@@ -46,9 +46,9 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { DpLabel } from 'demosplan-ui/components'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'StatementReplySelect',

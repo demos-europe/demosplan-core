@@ -59,7 +59,7 @@
 
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'DpBoilerPlate',

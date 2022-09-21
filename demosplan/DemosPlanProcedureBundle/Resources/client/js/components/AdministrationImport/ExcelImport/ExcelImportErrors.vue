@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import DpProgressBar from '@DemosPlanCoreBundle/components/DpProgressBar'
 
