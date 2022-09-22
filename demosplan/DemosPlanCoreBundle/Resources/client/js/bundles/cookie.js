@@ -7,6 +7,6 @@
  * All rights reserved
  */
 
-import { dpConsent } from 'dp-consent/dist/dp-consent.es.min'
+import { dpConsent } from '@demos-europe/dp-consent/dist/dp-consent.es.min'
 
 window.DpConsent = dpConsent

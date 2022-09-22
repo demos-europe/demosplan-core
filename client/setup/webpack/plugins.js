@@ -24,7 +24,7 @@ const webpackProdOnlyPlugins = []
 const webpackDefaultPlugins = [
   new CleanWebpackPlugin(),
   new ESLintWebpackPlugin({
-    baseConfig: require(resolveDir('./infrastructure/linters/eslintrc')),
+    baseConfig: require('../../../eslintrc'),
     cache: true,
     emitError: false,
     extensions: ['js', 'vue'],

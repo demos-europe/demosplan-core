@@ -1,0 +1,54 @@
+.idea/
+*/vendor
+node_modules
+yarn-error.log
+docker-compose.yml
+phpstan.neon
+.npm/
+.config/
+.z*
+.*
+!.gitignore
+!.gitkeep
+!.babelrc
+!.dpconfig.yml
+!.php_cs
+!.env
+.ssh/
+.lnav
+!.github
+logs
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/demosplan/DemosPlanCoreBundle/Resources/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/demosplan/DemosPlanCoreBundle/Resources/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.cache
+/.php-cs-fixer-header.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
