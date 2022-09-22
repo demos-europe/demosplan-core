@@ -15,7 +15,8 @@ const log = require('./webpack/log').log
 
 function projectConfig (mode, project) {
   const frontendIntegratorCommand = [
-    `bin/${project}`,
+    'bin/console',
+    '-vvv',
     'dplan:frontend:integrator'
   ]
 
@@ -26,16 +27,23 @@ function projectConfig (mode, project) {
   let beConfigOutput = null
   try {
     beConfigOutput = spawnSync('php', frontendIntegratorCommand, {
-      windowsHide: true
+      env: {
+        'ACTIVE_PROJECT': project,
+        'DEVELOPMENT_CONTAINER': '1'
+      },
+      windowsHide: true,
     })
 
     if (beConfigOutput.status !== 0) {
       log(chalk.red('An error occurred during configuration loading'))
       log(beConfigOutput.stdout.toString())
+      log(beConfigOutput.stderr.toString())
+
       process.exit(0)
     }
   } catch (e) {
     log(chalk.red(e))
+
     process.exit(0)
   }
 
