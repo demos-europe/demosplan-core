@@ -1,0 +1,77 @@
+name: Format (PHP)
+
+on:
+    pull_request:
+        paths:
+            - '**.php'
+            - '.php-cs-fixer.php'
+            - '!lib/**'
+jobs:
+    cancel:
+        name: 'Cancel Previous Runs'
+        runs-on: ubuntu-latest
+        timeout-minutes: 3
+        steps:
+            -   uses: styfle/cancel-workflow-action@0.10.0
+                with:
+                    workflow_id: "php-cs-fixer"
+                    access_token: ${{ secrets.GITHUB_TOKEN }}
+    php-cs-fixer:
+        runs-on: ubuntu-20.04
+        steps:
+            -   uses: actions/checkout@v3
+                with:
+                    ref: ${{ github.head_ref }}
+
+            -   name: Cache php dependencies
+                uses: actions/cache@v3.0.8
+                with:
+                    path: |
+                        ~/.composer/cache
+                        vendor
+                    key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
+
+            -   name: Setup PHP with composer v2
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '7.3'
+                    extensions: gd soap sockets zip
+                    tools: composer:v2
+
+            -   name: Install composer dependencies
+                run: |
+                    composer --version
+                    composer install --no-interaction
+
+            -   name: Get list of changed files
+                uses: jitterbit/get-changed-files@v1
+                id: files
+
+            -   name: Run php-cs-fixer
+                run: "vendor/bin/php-cs-fixer fix --config .php-cs-fixer.php ${{ steps.files.outputs.added_modified }}"
+
+#            GPG Signing is currently not fully working but this config gets us pretty close.
+#            -   name: Import GPG key
+#                id: import_gpg
+#                uses: crazy-max/ghaction-import-gpg@v5.0.0
+#                with:
+#                    gpg_private_key: ${{ secrets.DEVOPS_GPG_SECRET_KEY }}
+#                    passphrase: ${{ secrets.DEVOPS_GPG_PASSWORD }}
+#                    git_user_signingkey: true
+#                    git_commit_gpgsign: true
+#                    git_config_global: true
+#
+#            -   name: GPG user IDs
+#                run: |
+#                    echo "fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}"
+#                    echo "keyid:       ${{ steps.import_gpg.outputs.keyid }}"
+#                    echo "name:        ${{ steps.import_gpg.outputs.name }}"
+#                    echo "email:       ${{ steps.import_gpg.outputs.email }}"
+
+            -   name: Commit
+                run: |
+                    git add .
+                    git commit -m "style: Apply php-cs-fixer" --no-gpg-sign
+                    git push

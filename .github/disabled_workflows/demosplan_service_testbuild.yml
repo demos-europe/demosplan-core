@@ -1,0 +1,42 @@
+name: Springboot CI
+
+on:
+    pull_request:
+        paths:
+            - './services/**'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Set up JDK 1.8
+              uses: actions/setup-java@v1
+              with:
+                  java-version: 1.8
+
+            - name: Maven Build
+              working-directory: ./services
+              run: |
+                  mvn clean install -DskipTests -f spring-boot/pom.xml
+
+
+#            - name: Maven Prebuild
+#              working-directory: ./services/importer/PC026_DSL_Demos_Import
+#              run: |
+#                mvn clean package -DskipTests
+#                mv importer/PC026_DSL_Demos_Import/target spring-boot/lib
+#              with:
+#                 name: import-artifact
+#                 path: services/spring-boot/lib
+#
+#            - name: Build with Maven
+#              working-directory: ./services/spring-boot
+#              run: mvn clean install -DskipTests
+#              with:
+#                  name: import-artifact
+#                  path: services/spring-boot/lib
+
+

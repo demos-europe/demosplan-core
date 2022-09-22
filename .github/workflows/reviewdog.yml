@@ -1,0 +1,74 @@
+name: Run Reviewdog
+
+on:
+  pull_request:
+    paths:
+      - '**.php'
+      - '**.js'
+      - '**.vue'
+
+jobs:
+  cancel:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+        -   uses: styfle/cancel-workflow-action@0.10.0
+            with:
+                workflow_id: "reviewdog"
+                access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  reviewdog:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: reviewdog/action-setup@v1.0.3
+
+      - name: Setup PHP with composer v2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.3'
+          extensions: gd soap sockets zip
+          tools: composer:v2
+
+      - name: Cache php modules
+        uses: actions/cache@v3.0.8
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
+
+      - name: Miscellaneous runtime caches
+        uses: actions/cache@v3.0.8
+        with:
+          path: |
+            infrastructure/.runtime/cache
+          key: ${{ runner.os }}-infrastructure-runtime
+          restore-keys: |
+            ${{ runner.os }}-infrastructure-runtime
+
+      - name: Configure repman
+        run: |
+              composer config --global --auth http-basic.demos.repo.repman.demos-europe.eu token ${{ secrets.REPMAN_TOKEN }}
+
+      - name: Install composer dependencies
+        run: |
+          composer --version
+          composer install --no-interaction
+
+      - name: Create parameters.yml
+        run: |
+          printf "parameters:\n  database_name: test\n" > projects/blp/app/config/parameters.yml
+
+      - name: Warmup cache
+        run: DEVELOPMENT_CONTAINER=1 php bin/blp cache:clear
+
+      - name: Woof
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          reviewdog -reporter=github-pr-review -tee -diff="git diff ${{ github.base_ref }}"

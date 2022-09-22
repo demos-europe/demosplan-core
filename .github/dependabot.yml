@@ -1,0 +1,109 @@
+version: 2
+updates:
+  # JS/CSS Dependencies of dplandocs
+  - package-ecosystem: npm
+    directory: "/documentation"
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    labels:
+      - documentation
+      - dependencies:yarn
+    ignore:
+        # needs webpack 5, we won't get webpack 5 in the Docs until Vuepress 2 is released
+        - dependency-name: sass-loader
+          versions:
+              - ">= 11"
+        - dependency-name: slash
+          versions:
+              - ">= 4.0"
+
+  # JS/CSS Dependencies of demosplan
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    ignore:
+      # D3 Upgrades are blocked because 8.x is not installing propperly
+      # my guess: soething with fsevents 2.0
+      - dependency-name: d3-sankey-diagram
+        versions:
+          - ">= 0.8.0"
+          - "< 99"
+
+      # Jest upgrade is blocked because the vue-test-utils don't support it yet for Vue 2
+      - dependency-name: jest
+        versions:
+            - ">= 27"
+
+      # Is Vue 3 only
+      - dependency-name: vue-loader
+        versions:
+            - ">= 16"
+    labels:
+      - dependencies:yarn
+
+    # JS/CSS Dependencies of demosplan-ui
+  - package-ecosystem: npm
+    directory: "/client/ui"
+    schedule:
+        interval: daily
+        time: "09:00"
+        timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    labels:
+        - dependencies:yarn
+
+    # DocX Importer Dependencies
+  - package-ecosystem: maven
+    directory: "/services/importer/PC026_DSL_Demos_Import"
+    schedule:
+        interval: daily
+        time: "09:00"
+        timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    labels:
+        - dependencies:maven
+
+    # Spring Boot aka demosplan service
+  - package-ecosystem: maven
+    directory: "/services/spring-boot"
+    schedule:
+        interval: daily
+        time: "09:00"
+        timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    labels:
+        - dependencies:maven
+    ignore:
+      # see pom.xml for the rational
+      - dependency-name: com.sun.xml.messaging.saaj/saaj-impl
+        versions:
+          - "> 1.5.3"
+
+  # PHP Dependencies of demosplan
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies:composer
+    ignore:
+      - dependency-name: phpunit/phpunit
+        versions:
+          - ">= 9.a"
+          - "< 10"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
