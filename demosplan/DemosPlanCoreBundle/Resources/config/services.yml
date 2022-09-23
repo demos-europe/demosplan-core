@@ -182,6 +182,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
+            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
@@ -238,7 +239,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -367,6 +368,10 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory:
+        arguments:
+            $logger: '@demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader:
         lazy: true
@@ -1090,6 +1095,11 @@ services:
     EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+
+    EDT\Wrapping\Utilities\SchemaPathProcessor:
+        arguments:
+            $propertyPathProcessorFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
     Intervention\Image\ImageManager: ~
 
