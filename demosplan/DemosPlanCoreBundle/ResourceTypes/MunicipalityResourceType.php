@@ -42,15 +42,16 @@ final class MunicipalityResourceType extends DplanResourceType
             return false;
         }
 
-        $formDefinition = $procedure->getStatementFormDefinition();
-        if (null === $formDefinition) {
-            return false;
-        }
+        if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
+            $formDefinition = $procedure->getStatementFormDefinition();
+            if (null === $formDefinition) {
+                return false;
+            }
 
-        if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
-            return false;
+            if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
+                return false;
+            }
         }
-
         return $this->currentUser->hasPermission('field_statement_municipality');
     }
 

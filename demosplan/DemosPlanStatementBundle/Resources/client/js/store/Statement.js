@@ -8,6 +8,7 @@
  */
 
 import { dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { hasAnyPermissions } from '@DpJs/lib/utils/hasPermission'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 /**
@@ -471,9 +472,29 @@ export default {
         'attachments.file',
         'files'
       ]
-
+      // The fragmentsElements are available in includes with the following permission
       if (hasPermission('area_statement_fragments')) {
         includes.push('fragmentsElements')
+      }
+      // County is available and readable with the following permission
+      let countyFields = {}
+      if (hasPermission('field_statement_county')) {
+        countyFields = { County: 'name' }
+      }
+      // PriorityArea is available and readable with the following permission
+      let prorityAreaFields = {}
+      if (hasPermission('field_statement_priority_area')) {
+        prorityAreaFields = { PriorityArea: 'name' }
+      }
+      // Municipality is available and readable with the following permission
+      let municipalityFields = {}
+      if (hasPermission('field_statement_municipality')) {
+        municipalityFields = { Municipality: 'name' }
+      }
+      // // isSubmittedByCitizen is available and readable with one of the following permissions
+      const statementFields = []
+      if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
+        statementFields.push('isSubmittedByCitizen')
       }
 
       return dpApi({
@@ -492,12 +513,12 @@ export default {
           // Size: data.pagination.size,
           fields: {
             Statement: [
+              ...statementFields,
               'anonymous',
               'assignee',
               'attachments',
               'authoredDate',
               'authorName',
-              'clusterName',
               'counties',
               'document',
               'documentParentId',
@@ -507,10 +528,8 @@ export default {
               'files',
               'filteredFragmentsCount',
               'formerExternId',
-              'fragments',
               'fragmentsCount',
               'fragmentsElements',
-              'isSubmittedByCitizen',
               'initialOrganisationDepartmentName',
               'initialOrganisationName',
               'isCluster',
@@ -522,14 +541,11 @@ export default {
               'movedToProcedureName',
               'municipalities',
               'name',
-              'organisationName',
-              'organisationDepartmentName',
               'originalId',
               'paragraph',
               'paragraphParentId',
               'parentId',
               'phase',
-              'placeholderStatementId',
               'polygon',
               'priority',
               'priorityAreas',
@@ -538,7 +554,6 @@ export default {
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
-              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
@@ -553,23 +568,22 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
+            ...countyFields,
             Claim: [
               'name',
               'orgaName'
             ].join(),
-            County: 'name',
             Elements: 'title',
             File: [
               'filename',
               'hash'
             ].join(),
-            FragmentElement: [
+            StatementFragmentsElements: [
               'elementTitle',
               'paragraphTitle'
             ].join(),
-            Municipality: 'name',
-            ParagraphVersion: 'title',
-            PriorityArea: 'name',
+            ...municipalityFields,
+            ...prorityAreaFields,
             SingleDocument: [
               'parentId',
               'title'

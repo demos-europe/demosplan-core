@@ -52,14 +52,15 @@ final class PriorityAreaResourceType extends DplanResourceType
         if (!$behaviorDefinition->hasPriorityArea()) {
             return false;
         }
+        if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
+            $formDefinition = $procedure->getStatementFormDefinition();
+            if (null === $formDefinition) {
+                return false;
+            }
 
-        $formDefinition = $procedure->getStatementFormDefinition();
-        if (null === $formDefinition) {
-            return false;
-        }
-
-        if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
-            return false;
+            if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
+                return false;
+            }
         }
 
         return $this->currentUser->hasPermission('field_statement_priority_area');
