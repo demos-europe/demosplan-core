@@ -12,7 +12,7 @@
  */
 
 import DpMapModal from '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

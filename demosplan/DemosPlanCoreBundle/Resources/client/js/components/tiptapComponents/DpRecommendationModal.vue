@@ -74,7 +74,7 @@ import { mapMutations, mapState } from 'vuex'
 import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTableSearch'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpInsertableRecommendation from './DpRecommendationModal/DpInsertableRecommendation'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 
 export default {

@@ -53,7 +53,7 @@ import { mapActions, mapGetters, mapState } from 'vuex'
 import BoilerplatesStore from '@DemosPlanProcedureBundle/store/Boilerplates'
 import DpBoilerPlate from './DpBoilerPlate'
 import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

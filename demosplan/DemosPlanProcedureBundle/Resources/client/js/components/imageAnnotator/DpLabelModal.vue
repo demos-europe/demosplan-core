@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 
 export default {

@@ -11,7 +11,7 @@
 import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/FormActions'
 import { mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import DpPublicStatementList from '@DemosPlanStatementBundle/components/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DemosPlanProcedureBundle/components/survey/DpPublicSurvey'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
