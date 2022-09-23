@@ -11,7 +11,7 @@
  * This is the entry point for development_release_edit.html.twig
  */
 
-import DpDateRangePicker from '@DemosPlanCoreBundle/components/form/DpDateRangePicker'
+import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

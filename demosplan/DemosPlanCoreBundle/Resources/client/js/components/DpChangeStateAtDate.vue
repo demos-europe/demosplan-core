@@ -94,9 +94,9 @@
 <script>
 import { formatDate, toDate } from '@DpJs/lib/utils/date'
 import { de } from 'vuejs-datepicker/dist/locale'
-import DpDatepicker from '@DemosPlanCoreBundle/components/form/DpDatepicker'
+import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import { DpLabel } from 'demosplan-ui/components'
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
 
 export default {
   name: 'DpChangeStateAtDate',

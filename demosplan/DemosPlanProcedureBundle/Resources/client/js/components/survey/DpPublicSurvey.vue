@@ -160,10 +160,10 @@
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpPublicSurveyComment from '@DemosPlanProcedureBundle/components/survey/DpPublicSurveyComment'
 import DpSurveyChart from '@DemosPlanProcedureBundle/components/survey/DpSurveyChart'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import MatchMedia from '@DpJs/lib/MatchMedia'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 

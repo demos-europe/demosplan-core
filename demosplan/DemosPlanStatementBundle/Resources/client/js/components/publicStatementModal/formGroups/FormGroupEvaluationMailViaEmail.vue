@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

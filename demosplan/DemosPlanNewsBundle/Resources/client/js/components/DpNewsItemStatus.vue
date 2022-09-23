@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import DpToggle from '@DemosPlanCoreBundle/components/form/DpToggle'
+import DpToggle from '@DpJs/components/core/form/DpToggle'
 import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
 
 export default {

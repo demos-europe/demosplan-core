@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
 
 export default {
   name: 'ProcedureTypeSelect',

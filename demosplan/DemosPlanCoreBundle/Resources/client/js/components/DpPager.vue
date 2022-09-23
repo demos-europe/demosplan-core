@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSlidingPagination from '@DemosPlanCoreBundle/components/DpSlidingPagination'
 
 export default {

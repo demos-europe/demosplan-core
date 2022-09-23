@@ -87,7 +87,7 @@
 
 <script>
 import { DpLabel } from 'demosplan-ui/components'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'MasterToebListMerge',

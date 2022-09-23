@@ -102,7 +102,7 @@
 
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
-import DpFormRow from '@DemosPlanCoreBundle/components/form/DpFormRow'
+import DpFormRow from '@DpJs/components/core/form/DpFormRow'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
