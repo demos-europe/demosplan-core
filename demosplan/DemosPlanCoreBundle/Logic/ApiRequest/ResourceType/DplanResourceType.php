@@ -30,6 +30,7 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
@@ -121,6 +122,11 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
+
+    /**
+     * @var MessageFormatter
+     */
+    private $messageFormatter;
 
     /**
      * Please don't use `@required` for DI. It should only be used in base classes like this one.
@@ -363,5 +369,14 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         }
 
         return Carbon::instance($date)->toIso8601String();
+    }
+
+    protected function getMessageFormatter(): MessageFormatter
+    {
+        if (null === $this->messageFormatter) {
+            $this->messageFormatter = new MessageFormatter();
+        }
+
+        return $this->messageFormatter;
     }
 }

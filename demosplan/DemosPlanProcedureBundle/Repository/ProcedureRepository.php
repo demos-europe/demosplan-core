@@ -58,6 +58,7 @@ use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;
+use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -66,7 +67,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\FluentQueries\FluentQuery;
@@ -405,8 +405,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $entityManager->remove($statementFragment);
         }
 
-        $statementsToDelete = $entityManager->getRepository(Statement::class)
-            ->findBy(['procedure' => $procedureId]);
+        $statementsToDelete = $this->getStatementRepository()->findBy([
+            'procedure' => $procedureId,
+        ]);
         foreach ($statementsToDelete as $statementToDelete) {
             $statementToDelete->getPriorityAreas()->clear();
             $statementToDelete->getMunicipalities()->clear();
@@ -732,15 +733,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         if (array_key_exists('authorizedUsers', $data)) {
-            /** @var UserRepository $userRepository */
-            $userRepository = $this->getEntityManager()->getRepository(User::class);
-            $usersToAdd = [];
-
-            foreach ($data['authorizedUsers'] as $userId) {
-                $user = $userRepository->find($userId);
-                $usersToAdd[] = $user;
-            }
-            $procedure->setAuthorizedUsers($usersToAdd);
+            $usersToSet = $this->getUserRepository()->findBy([
+                'id' => $data['authorizedUsers'],
+            ]);
+            $procedure->setAuthorizedUsers($usersToSet);
         }
 
         // Settings
@@ -1098,8 +1094,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     public function deleteStatements(string $procedureId): int
     {
         try {
-            $amountOfDeletedStatements =
-                $this->getEntityManager()->getRepository(Statement::class)
+            $amountOfDeletedStatements = $this->getStatementRepository()
                     ->deleteByProcedure($procedureId);
         } catch (Exception $e) {
             $this->getLogger()->error('Delete Statement of a procedure failed ', [$e]);
@@ -1414,5 +1409,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             || array_key_exists('designatedEndDate', $data['settings'])) {
             $procedureSettings->setDesignatedPhaseChangeUser($data['currentUser']);
         }
+    }
+
+    private function getStatementRepository(): StatementRepository
+    {
+        return $this->getEntityManager()->getRepository(Statement::class);
+    }
+
+    private function getUserRepository(): UserRepository
+    {
+        return $this->getEntityManager()->getRepository(User::class);
     }
 }

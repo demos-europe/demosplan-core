@@ -3138,7 +3138,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     }
 
     /**
-     * @param User $assignee
+     * @param User|null $assignee
      */
     public function setAssignee($assignee)
     {
