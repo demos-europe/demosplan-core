@@ -259,14 +259,13 @@ class LoadUserData extends TestFixture
         $customer->setAccessibilityExplanation('Barrierefreiheitserklärung');
         $manager->persist($customer);
 
-        $this->setReference('testCustomer', $customer);
+        $this->setReference(LoadCustomerData::HINDSIGHT, $customer);
 
         $customerBrandenburg = new Customer('Brandenburg', 'brandenburg');
         $customerBrandenburg->setAccessibilityExplanation('Barrierefreiheitserklärung');
         $manager->persist($customerBrandenburg);
 
-        $this->setReference('testCustomer', $customer);
-        $this->setReference('testCustomerBrandenburg', $customerBrandenburg);
+        $this->setReference(LoadCustomerData::BB, $customerBrandenburg);
 
         $manager->flush();
 

@@ -54,7 +54,7 @@ class ReportSubscriber extends BaseEventSubscriber
     {
         try {
             $inData = $event->getInData();
-            $currentProcedure = $event->getCurrentProcedureArray();
+            $currentProcedure = $event->getOriginalProcedureArray();
             $procedureId = $event->getProcedureId();
             /** @var \demosplan\DemosPlanCoreBundle\Entity\User\User $user */
             $user = $event->getUser();

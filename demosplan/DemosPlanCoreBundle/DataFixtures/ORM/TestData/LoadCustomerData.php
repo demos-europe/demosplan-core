@@ -15,6 +15,11 @@ use Doctrine\Persistence\ObjectManager;
 
 class LoadCustomerData extends TestFixture
 {
+    /**
+     * @deprecated use {@link LoadCustomerData::BRANDENBURG} instead
+     */
+    public const BB = 'testCustomerBrandenburg';
+    public const HINDSIGHT = 'testCustomer';
     public const ROSTOCK = 'Rostock';
     public const BRANDENBURG = 'Brandenburg';
     public const SCHLESWIGHOLSTEIN = 'Schleswig-Holstein';
