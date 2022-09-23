@@ -46,7 +46,7 @@
 <script>
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import dayjs from 'dayjs'
-import DpDatepicker from '@DemosPlanCoreBundle/components/form/DpDatepicker'
+import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpTimePicker from './DpTimePicker'
 
 dayjs.extend(customParseFormat)

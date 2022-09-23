@@ -68,8 +68,8 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
-import DpToggle from '@DemosPlanCoreBundle/components/form/DpToggle'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import DpToggle from '@DpJs/components/core/form/DpToggle'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

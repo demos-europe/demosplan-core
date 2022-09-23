@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 

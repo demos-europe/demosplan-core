@@ -105,7 +105,7 @@
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import qs from 'qs'
 

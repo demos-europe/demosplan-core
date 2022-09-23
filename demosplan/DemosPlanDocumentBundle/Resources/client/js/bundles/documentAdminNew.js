@@ -12,8 +12,8 @@
  */
 
 import { DpInput } from 'demosplan-ui/components'
-import DpRadio from '@DemosPlanCoreBundle/components/form/DpRadio'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpRadio from '@DpJs/components/core/form/DpRadio'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

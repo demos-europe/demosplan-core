@@ -94,8 +94,8 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
-import DpRadio from '@DemosPlanCoreBundle/components/form/DpRadio'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpRadio from '@DpJs/components/core/form/DpRadio'
 import formGroupMixin from '../mixins/formGroupMixin'
 import FormGroupPostalAndCity from './FormGroupPostalAndCity'
 import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'

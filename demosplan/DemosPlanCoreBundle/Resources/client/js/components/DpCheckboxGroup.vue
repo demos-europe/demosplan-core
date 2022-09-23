@@ -28,7 +28,7 @@
 
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 
 export default {
   name: 'DpCheckboxGroup',

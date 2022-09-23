@@ -229,9 +229,9 @@ import { CleanHtml, VPopover } from 'demosplan-ui/directives'
 import { DpIcon, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'StatementSegment',

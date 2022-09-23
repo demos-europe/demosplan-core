@@ -9,7 +9,7 @@
 
 <script>
 import DpMapView from '@DemosPlanMapBundle/components/map/DpMapView'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
 
 export default {

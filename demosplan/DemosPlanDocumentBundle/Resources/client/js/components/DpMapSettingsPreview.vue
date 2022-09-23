@@ -233,10 +233,10 @@
 
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDatepicker from '@DemosPlanCoreBundle/components/form/DpDatepicker'
+import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
 import DpOlMapLayerVector from '@DemosPlanMapBundle/components/map/DpOlMapLayerVector'
-import DpToggle from '@DemosPlanCoreBundle/components/form/DpToggle'
+import DpToggle from '@DpJs/components/core/form/DpToggle'
 import { fromExtent } from 'ol/geom/Polygon'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 

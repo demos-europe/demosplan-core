@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import DpCheckbox from '../form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpStickyElement from '../shared/DpStickyElement'
 
 export default {
@@ -44,7 +44,7 @@ export default {
 
   components: {
     DpCheckbox,
-    DpSearchField: () => import(/* webpackChunkName: "dp-search-field" */ '../form/DpSearchField'),
+    DpSearchField: () => import(/* webpackChunkName: "dp-search-field" */ '@DpJs/components/core/form/DpSearchField'),
     DpStickyElement
   },
 

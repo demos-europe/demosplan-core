@@ -14,7 +14,7 @@
 import AdministrationMaster from '../lib/AdministrationMaster'
 import DpBasicSettings from '../components/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings
-import DpDateRangePicker from '@DemosPlanCoreBundle/components/form/DpDateRangePicker'
+import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpEmailList from '../components/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import DPWizard from '../lib/DPWizard'

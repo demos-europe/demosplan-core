@@ -81,7 +81,7 @@
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import { getFileIdsByHash } from '@DemosPlanCoreBundle/components/DpUpload/utils/GetFileIdsByHash'

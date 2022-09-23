@@ -712,7 +712,7 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpDetails } from 'demosplan-ui/components'
-import DpTextArea from '@DemosPlanCoreBundle/components/form/DpTextArea'
+import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

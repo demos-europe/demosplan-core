@@ -10,7 +10,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import CopyPasteButton from '@DemosPlanCoreBundle/components/CopyPasteButton'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectDocument from './../fragment/SelectDocument'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 

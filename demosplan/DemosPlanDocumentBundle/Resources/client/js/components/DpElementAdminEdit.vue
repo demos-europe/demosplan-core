@@ -9,8 +9,8 @@
 
 <script>
 import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
-import DpDatetimePicker from '@DemosPlanCoreBundle/components/form/DpDatetimePicker'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
 import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
 

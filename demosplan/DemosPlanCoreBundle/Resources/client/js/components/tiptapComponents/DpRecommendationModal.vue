@@ -75,7 +75,7 @@ import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTab
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpInsertableRecommendation from './DpRecommendationModal/DpInsertableRecommendation'
 import DpModal from '@DemosPlanCoreBundle/components/DpModal'
-import DpSearchField from '@DemosPlanCoreBundle/components/form/DpSearchField'
+import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 
 export default {
   name: 'DpRecommendationModal',

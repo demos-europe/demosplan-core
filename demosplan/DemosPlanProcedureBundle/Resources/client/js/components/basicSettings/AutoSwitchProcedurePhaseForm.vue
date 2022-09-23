@@ -87,11 +87,11 @@
 </template>
 
 <script>
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
-import DpDateRangePicker from '@DemosPlanCoreBundle/components/form/DpDateRangePicker'
-import DpDatetimePicker from '@DemosPlanCoreBundle/components/form/DpDatetimePicker'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
+import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import { DpLabel } from 'demosplan-ui/components'
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { formatDate } from '@DpJs/lib/utils/date'
 
 export default {

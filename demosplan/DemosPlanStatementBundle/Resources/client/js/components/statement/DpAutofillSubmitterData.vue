@@ -147,7 +147,7 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpInput } from 'demosplan-ui/components'
-import DpMultiselect from '@DemosPlanCoreBundle/components/form/DpMultiselect'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 const emptySubmitterData = {
