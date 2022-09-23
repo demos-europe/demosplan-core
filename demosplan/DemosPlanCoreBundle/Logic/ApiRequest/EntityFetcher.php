@@ -73,7 +73,7 @@ class EntityFetcher implements EntityFetcherInterface
      */
     private $schemaPathProcessor;
 
-    public function __construct(ManagerRegistry $managerRegistry, TypeProviderInterface $typeProvider)
+    public function __construct(ManagerRegistry $managerRegistry, SchemaPathProcessor $schemaPathProcessor)
     {
         $this->managerRegistry = $managerRegistry->getManager();
         $this->conditionFactory = new DqlConditionFactory();
@@ -84,7 +84,7 @@ class EntityFetcher implements EntityFetcherInterface
             }
         };
         $this->queryGenerator = new QueryGenerator($this->managerRegistry);
-        $this->schemaPathProcessor = new SchemaPathProcessor($typeProvider);
+        $this->schemaPathProcessor = $schemaPathProcessor;
     }
 
     /**
