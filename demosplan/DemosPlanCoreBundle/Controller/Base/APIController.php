@@ -442,7 +442,10 @@ abstract class APIController extends BaseController
         foreach ($fieldset as $typeIdentifier => $propertiesString) {
             try {
                 // Checking if the type exists and is a resource type implementation.
-                $type = $this->resourceTypeProvider->getAvailableType($typeIdentifier, ResourceTypeInterface::class);
+                $type = $this->resourceTypeProvider->requestType($typeIdentifier)
+                    ->instanceOf(ResourceTypeInterface::class)
+                    ->available(true)
+                    ->getTypeInstance();
                 $nonReadableProperties = $this->fieldsValidator->getNonReadableProperties($propertiesString, $type);
                 if ([] !== $nonReadableProperties) {
                     $unknownPropertiesString = $this->messageFormatter->propertiesToString($nonReadableProperties);
@@ -495,7 +498,8 @@ abstract class APIController extends BaseController
         // retrieve the accessed resource type from the request
         if (is_string($resourceTypeName)) {
             try {
-                $this->resourceTypeProvider->getType($resourceTypeName);
+                $this->resourceTypeProvider->requestType($resourceTypeName)
+                    ->getTypeInstance();
             } catch (TypeRetrievalAccessException $exception) {
                 // The accessed resource type is probably not a generic one, thus we can not
                 // continue to validate the 'include' properties.
@@ -504,7 +508,10 @@ abstract class APIController extends BaseController
 
             // if the type exists at all (see `getType` above) then it must be an
             // available, directly accessible resource type
-            $type = $this->resourceTypeProvider->getAvailableType($resourceTypeName, ResourceTypeInterface::class);
+            $type = $this->resourceTypeProvider->requestType($resourceTypeName)
+                ->instanceOf(ResourceTypeInterface::class)
+                ->available(true)
+                ->getTypeInstance();
             if (!$type->isDirectlyAccessible()) {
                 throw new InvalidArgumentException("The resource type '$resourceTypeName' is not directly accessible");
             }
