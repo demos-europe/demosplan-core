@@ -476,22 +476,20 @@ export default {
       if (hasPermission('area_statement_fragments')) {
         includes.push('fragmentsElements')
       }
+      let additionalFields = {}
       // County is available and readable with the following permission
-      let countyFields = {}
       if (hasPermission('field_statement_county')) {
-        countyFields = { County: 'name' }
+        additionalFields.countyFields = { County: 'name' }
       }
       // PriorityArea is available and readable with the following permission
-      let prorityAreaFields = {}
       if (hasPermission('field_statement_priority_area')) {
-        prorityAreaFields = { PriorityArea: 'name' }
+        additionalFields.prorityAreaFields = { PriorityArea: 'name' }
       }
       // Municipality is available and readable with the following permission
-      let municipalityFields = {}
       if (hasPermission('field_statement_municipality')) {
-        municipalityFields = { Municipality: 'name' }
+        additionalFields.municipalityFields = { Municipality: 'name' }
       }
-      // // isSubmittedByCitizen is available and readable with one of the following permissions
+      // isSubmittedByCitizen is available and readable with one of the following permissions
       const statementFields = []
       if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
         statementFields.push('isSubmittedByCitizen')
@@ -568,7 +566,7 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
-            ...countyFields,
+            ...additionalFields,
             Claim: [
               'name',
               'orgaName'
@@ -582,8 +580,6 @@ export default {
               'elementTitle',
               'paragraphTitle'
             ].join(),
-            ...municipalityFields,
-            ...prorityAreaFields,
             SingleDocument: [
               'parentId',
               'title'
