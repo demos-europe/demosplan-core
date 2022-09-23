@@ -91,7 +91,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { DpLoading } from 'demosplan-ui/components'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

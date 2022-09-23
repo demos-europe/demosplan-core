@@ -56,7 +56,7 @@
 import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { DpInput } from 'demosplan-ui/components'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {

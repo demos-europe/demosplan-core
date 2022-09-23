@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
