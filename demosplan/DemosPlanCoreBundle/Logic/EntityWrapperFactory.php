@@ -56,10 +56,10 @@ class EntityWrapperFactory implements WrapperFactoryInterface
 
     public function __construct(
         ManagerRegistry $managerRegistry,
+        SchemaPathProcessor $schemaPathProcessor,
         TypeProviderInterface $typeProvider
     ) {
         $this->propertyAccessor = new ProxyPropertyAccessor($managerRegistry->getManager());
-        $schemaPathProcessor = new SchemaPathProcessor($typeProvider);
         $this->propertyReader = new CachingPropertyReader($this->propertyAccessor, $schemaPathProcessor);
         $this->typeAccessor = new CacheableTypeAccessor($typeProvider);
         $this->conditionEvaluator = new ConditionEvaluator($this->propertyAccessor);

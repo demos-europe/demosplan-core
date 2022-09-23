@@ -494,7 +494,7 @@ export default {
           this.fetchSegmentIds({
             filter: filter,
             fields: {
-              StatementSegment: ['id']
+              StatementSegment: ['id'].join()
             }
           })
         })
