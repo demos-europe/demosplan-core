@@ -350,7 +350,7 @@
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpRadio from '@DpJs/components/core/form/DpRadio'

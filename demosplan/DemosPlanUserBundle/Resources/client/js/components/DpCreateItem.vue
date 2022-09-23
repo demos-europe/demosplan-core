@@ -47,7 +47,7 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {

@@ -33,7 +33,7 @@ export default {
 
   components: {
     DpAccordion,
-    DpButtonRow: () => import('./DpButtonRow')
+    DpButtonRow: () => import('@DpJs/components/core/DpButtonRow')
   },
 
   mixins: [dpValidateMixin],
