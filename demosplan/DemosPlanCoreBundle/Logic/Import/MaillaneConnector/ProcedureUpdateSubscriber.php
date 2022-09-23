@@ -100,7 +100,7 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
     public function updateAccount(ProcedureEditedEvent $event): void
     {
         if ($this->permissions->hasPermission('feature_import_statement_via_email')) {
-            $beforeUpdateProcedureData = $event->getCurrentProcedureArray();
+            $beforeUpdateProcedureData = $event->getOriginalProcedureArray();
             $updateData = $event->getInData();
 
             $procedure = $this->procedureService->getProcedureWithCertainty(
