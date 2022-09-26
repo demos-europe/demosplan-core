@@ -663,7 +663,7 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

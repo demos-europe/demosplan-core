@@ -384,7 +384,7 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

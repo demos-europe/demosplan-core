@@ -223,7 +223,7 @@ export default {
     DpButton,
     DpTextWrapper,
     DpMultiselect,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
   },
 
   props: {

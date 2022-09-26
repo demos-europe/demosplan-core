@@ -31,7 +31,7 @@
       headings - determine which heading level (h1-h6) buttons should be visible in menu. It is an array with numbers , e.g. [1,2,3,4,5,6]
       table - true/false - if tables should be supported and buttons for inserting tables should be added this prop has to be true
 
-     To use tiptap import the component dynamically: components = { DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap') } }
+     To use tiptap import the component dynamically: components = { DpTiptap: () => import('@DpJs/components/core/DpTiptap') } }
 
    -->
 </documentation>

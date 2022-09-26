@@ -12,7 +12,7 @@
  */
 
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

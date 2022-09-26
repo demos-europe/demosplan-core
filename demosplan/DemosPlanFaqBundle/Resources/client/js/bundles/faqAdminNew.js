@@ -11,7 +11,7 @@
  * This is the entrypoint for faq_admin_new.html.twig
  */
 
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

@@ -207,7 +207,7 @@ export default {
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
   },
 
   mixins: [dpValidateMixin],

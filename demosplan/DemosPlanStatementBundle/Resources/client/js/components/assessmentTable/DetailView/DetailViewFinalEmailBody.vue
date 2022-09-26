@@ -20,7 +20,7 @@ export default {
   name: 'AssessmentStatementDetailFinalEmail',
 
   components: {
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
   },
 
   props: {

@@ -12,7 +12,7 @@
  */
 
 import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DemosPlanUserBundle/lib/UrlPreview'

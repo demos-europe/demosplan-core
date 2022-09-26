@@ -103,7 +103,7 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
   },
 
   directives: {

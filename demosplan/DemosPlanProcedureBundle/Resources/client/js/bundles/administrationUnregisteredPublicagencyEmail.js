@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_unregistered_publicagency_email.html.twig
  */
 import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

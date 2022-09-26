@@ -11,7 +11,7 @@ import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
-  DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+  DpTiptap: () => import('@DpJs/components/core/DpTiptap')
 }
 
 initialize(components).then(() => {

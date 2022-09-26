@@ -11,7 +11,7 @@
  * This is the entry point for development_release_story_edit.html.twig
  */
 
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpTiptap }

@@ -112,7 +112,7 @@ export default {
     DpButton,
     DpHeightLimit,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
   },
 
   props: {

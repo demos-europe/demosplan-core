@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpResizableImage from '@DemosPlanCoreBundle/components/tiptapComponents/DpResizableImage'
+import DpResizableImage from '@DpJs/components/core/tiptapComponents/DpResizableImage'
 import { Node } from 'tiptap'
 import { nodeInputRule } from 'tiptap-commands'
 

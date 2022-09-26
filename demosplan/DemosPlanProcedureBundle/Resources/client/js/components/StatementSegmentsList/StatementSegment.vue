@@ -245,7 +245,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
     VPopover
   },
 

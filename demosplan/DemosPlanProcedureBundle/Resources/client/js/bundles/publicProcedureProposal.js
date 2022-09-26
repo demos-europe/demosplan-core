@@ -11,7 +11,7 @@
  * This is the entrypoint for procedure_proposal.html.twig
  */
 import DpProcedureCoordinate from '@DemosPlanProcedureBundle/components/basicSettings/DpProcedureCoordinate'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

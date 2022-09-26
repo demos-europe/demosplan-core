@@ -12,7 +12,7 @@
  */
 
 import DpChangeStateAtDate from '@DemosPlanCoreBundle/components/DpChangeStateAtDate'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpTiptap from '@DpJs/components/core/DpTiptap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
