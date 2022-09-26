@@ -122,7 +122,7 @@
 <script>
 import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'

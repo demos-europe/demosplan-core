@@ -31,7 +31,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import { DpLabel } from 'demosplan-ui/components'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 
