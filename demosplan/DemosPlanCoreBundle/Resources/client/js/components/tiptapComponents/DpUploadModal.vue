@@ -61,7 +61,7 @@
 <script>
 import { DpInput } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 
 export default {
   name: 'DpUploadModal',

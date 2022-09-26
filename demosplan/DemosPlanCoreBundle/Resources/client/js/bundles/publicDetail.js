@@ -13,7 +13,7 @@
  */
 
 import DpPublicDetailNoMap from '@DemosPlanStatementBundle/components/DpPublicDetailNoMap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import DpVideoPlayer from '@DemosPlanCoreBundle/components/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'

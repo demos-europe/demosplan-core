@@ -52,7 +52,7 @@
 
 <script>
 import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 
 export default {
   name: 'ExcelImport',

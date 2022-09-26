@@ -17,7 +17,7 @@ import DpPublicDetail from '@DemosPlanMapBundle/components/publicdetail/DpPublic
 import DpPublicLayerListWrapper from '@DemosPlanMapBundle/components/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DemosPlanProcedureBundle/components/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DemosPlanMapBundle/components/publicdetail/controls/DpUnfoldToolbarControl'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import DpVideoPlayer from '@DemosPlanCoreBundle/components/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import layers from '@DemosPlanMapBundle/store/Layers'
