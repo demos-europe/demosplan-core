@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from './DpAccordion'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {

@@ -8,7 +8,7 @@
  */
 
 import { bootstrap } from '@DpJs/bootstrap'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
 import initGlobalEventListener from '@DpJs/lib/GlobalEventListener'
 import { initStore } from './store/initStore'
