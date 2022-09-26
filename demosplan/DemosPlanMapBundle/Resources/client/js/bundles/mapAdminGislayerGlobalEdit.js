@@ -11,7 +11,7 @@
  * This is the entrypoint for mmap_admin_gislayer_global_edit.html.twig
  */
 
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import GisLayerEdit from '@DemosPlanMapBundle/lib/GisLayerEdit'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

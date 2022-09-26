@@ -13,7 +13,7 @@
 
 import AnimateById from '@DpJs/lib/AnimateById'
 import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

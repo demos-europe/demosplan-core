@@ -12,7 +12,7 @@
  */
 
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
