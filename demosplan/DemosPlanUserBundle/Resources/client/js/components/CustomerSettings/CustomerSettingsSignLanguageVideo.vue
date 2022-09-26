@@ -82,9 +82,9 @@
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
-import { getFileIdsByHash } from '@DemosPlanCoreBundle/components/DpUpload/utils/GetFileIdsByHash'
+import { getFileIdsByHash } from '@DpJs/components/core/DpUpload/utils/GetFileIdsByHash'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',

@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import { DpLabel } from 'demosplan-ui/components'

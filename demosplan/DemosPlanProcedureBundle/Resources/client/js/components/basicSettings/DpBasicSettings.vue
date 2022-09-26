@@ -33,7 +33,7 @@ export default {
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
     DpTiptap,
-    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'),
+    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DpJs/components/core/DpUpload/DpUploadFiles'),
     ExportSettings
   },
 

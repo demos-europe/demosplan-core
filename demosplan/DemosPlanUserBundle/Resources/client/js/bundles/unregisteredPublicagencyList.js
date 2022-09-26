@@ -10,7 +10,7 @@
 /**
  * This is the entry point for unregistered_publicagency_list.html.twig
  */
-import DpToggleForm from '@DemosPlanCoreBundle/components/DpToggleForm'
+import DpToggleForm from '@DpJs/components/core/DpToggleForm'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpToggleForm }

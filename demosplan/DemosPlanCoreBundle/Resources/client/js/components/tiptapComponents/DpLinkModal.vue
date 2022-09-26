@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { DpInput } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'

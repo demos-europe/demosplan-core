@@ -13,7 +13,7 @@
 
 import DpChangeStateAtDate from '@DemosPlanCoreBundle/components/DpChangeStateAtDate'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import newsAdminInit from '../lib/newsAdmin'

@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import { DpInput } from 'demosplan-ui/components'
 
 export default {

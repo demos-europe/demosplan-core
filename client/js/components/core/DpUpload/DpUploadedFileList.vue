@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import DpUploadedFile from '@DemosPlanCoreBundle/components/DpUpload/DpUploadedFile'
+import DpUploadedFile from './DpUploadedFile'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {

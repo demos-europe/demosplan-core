@@ -65,7 +65,7 @@
 import { mapActions, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpLoading } from 'demosplan-ui/components'
-import DpTreeList from '@DemosPlanCoreBundle/components/DpTreeList/DpTreeList'
+import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 import formatBytes from '@DpJs/lib/utils/formatBytes'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 

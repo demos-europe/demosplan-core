@@ -88,7 +88,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpButtonRow from '@DemosPlanCoreBundle/components/DpButtonRow'
+import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpEditField from '@DemosPlanStatementBundle/components/assessmentTable/DpEditField'
 import { DpLoading } from 'demosplan-ui/components'
