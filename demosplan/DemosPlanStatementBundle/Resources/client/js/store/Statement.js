@@ -479,15 +479,15 @@ export default {
       let additionalFields = {}
       // County is available and readable with the following permission
       if (hasPermission('field_statement_county')) {
-        additionalFields.countyFields = { County: 'name' }
+        additionalFields.County = 'name'
       }
       // PriorityArea is available and readable with the following permission
       if (hasPermission('field_statement_priority_area')) {
-        additionalFields.prorityAreaFields = { PriorityArea: 'name' }
+        additionalFields.PriorityArea = 'name'
       }
       // Municipality is available and readable with the following permission
-      if (hasPermission('field_statement_municipality')) {
-        additionalFields.municipalityFields = { Municipality: 'name' }
+      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+        additionalFields.Municipality = 'name'
       }
       // isSubmittedByCitizen is available and readable with one of the following permissions
       const statementFields = []
