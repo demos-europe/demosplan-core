@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import DpAccordion from './DpAccordion'
+import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {
@@ -33,7 +33,7 @@ export default {
 
   components: {
     DpAccordion,
-    DpButtonRow: () => import('@DpJs/components/core/DpButtonRow')
+    DpButtonRow: () => import('./DpButtonRow')
   },
 
   mixins: [dpValidateMixin],
