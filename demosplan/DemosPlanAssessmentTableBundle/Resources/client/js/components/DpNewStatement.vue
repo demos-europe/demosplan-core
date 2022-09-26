@@ -10,7 +10,7 @@
 <script>
 import { DpButton, DpInput, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters } from 'vuex'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpAutofillSubmitterData from '@DemosPlanStatementBundle/components/statement/DpAutofillSubmitterData'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'

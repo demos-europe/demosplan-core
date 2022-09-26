@@ -12,7 +12,7 @@
  */
 
 /*
- * import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+ * import DpAccordion from '@DpJs/components/core/DpAccordion'
  * import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
  */
 import dpValidate from '@DpJs/lib/validation/dpValidate'
