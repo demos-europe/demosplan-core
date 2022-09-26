@@ -174,6 +174,12 @@ export default {
   ],
 
   props: {
+    resetFromRoot: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     user: {
       type: Object,
       required: false,
@@ -283,6 +289,16 @@ export default {
     }
   },
 
+  watch: {
+    /**
+     * Whenever localUser changes (which may be the case if a "Reset" button is clicked),
+     * the initial orga is restored via api call.
+     */
+    localUser () {
+      this.setInitialOrgaData()
+    }
+  },
+
   methods: {
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
@@ -381,6 +397,22 @@ export default {
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
+    setInitialOrgaData () {
+      /*
+       * Fetch organisation only
+       * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
+       * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
+       */
+      if (this.isUserSet || this.isManagingSingleOrganisation) {
+        this.fetchCurrentOrganisation()
+            .then((response) => {
+              if (response && response.data) {
+                this.setOrganisationWithDepartments(response)
+              }
+            })
+      }
+    },
+
     setOrganisationDepartments (departments) {
       const orgaDepartments = {}
 
@@ -413,22 +445,12 @@ export default {
   },
 
   mounted () {
-    /*
-     * Fetch organisation only
-     * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
-     * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
-     */
-    if (this.isUserSet || this.isManagingSingleOrganisation) {
-      this.fetchCurrentOrganisation()
-        .then((response) => {
-          if (response && response.data) {
-            this.setOrganisationWithDepartments(response)
-          }
-        })
-    }
+    this.setInitialOrgaData()
 
     this.$root.$on('user-reset', () => {
-      this.resetData()
+      if (this.resetFromRoot) {
+        this.resetData()
+      }
     })
   }
 }

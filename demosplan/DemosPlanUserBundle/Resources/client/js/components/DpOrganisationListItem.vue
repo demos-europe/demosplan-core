@@ -70,7 +70,6 @@
         form-name="organisationForm"
         :primary="editable"
         secondary
-        :secondary-text="Translator.trans('close')"
         @primary-action="dpValidateAction('organisationForm', save)"
         @secondary-action="reset" />
     </div>
