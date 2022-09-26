@@ -38,7 +38,7 @@
 
 {% endif %}
 
-<div class="c-at__controls o-sticky o-sticky--border" data-sticky="lap-up">
+<div>
     <div class="u-pt-0_125 layout--flush">
         <div class="layout__item u-2-of-4">
 
@@ -109,14 +109,6 @@
                     href="{{ href_assign }}">
                     {{ label }}
                 </a>
-            {% elseif not readonly %}
-                <div class="float--right space-inline-s">
-                    <input class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down u-ph-0_75" type="submit" name="submit_item_button" value="{{ "save"|trans }}">
-                    <input class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down u-ph-0_75" type="submit" name="submit_item_return_button" v-save-and-return value="{{ "save.and.return.to.list"|trans }}">
-                    <a class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down u-ph-0_75" role="button" href="{{ path('dplan_assessmenttable_view_table', {'procedureId':procedure, 'filterHash': templateVars.filterHash, '_fragment': 'itemdisplay_' ~ statement.ident }) }}">
-                        {{ "abort"|trans }}
-                    </a>
-                </div>
             {% endif %}
         </div>
 
