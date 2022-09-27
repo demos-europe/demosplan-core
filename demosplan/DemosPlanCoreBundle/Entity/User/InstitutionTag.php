@@ -40,8 +40,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="tags")
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_id", referencedColumnName="_o_id", onDelete="CASCADE")},
+     *     joinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      * )
      */
     protected $participationInstitutions;

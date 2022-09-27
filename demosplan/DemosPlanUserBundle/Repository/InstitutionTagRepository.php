@@ -11,7 +11,6 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 
 class InstitutionTagRepository extends CoreRepository implements ObjectInterface
 {
-
     /**
      * @param $entityId
      *

@@ -380,8 +380,8 @@ class Orga extends SluggedEntity
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", inversedBy="participationInstitutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_t_id", referencedColumnName="_t_id", onDelete="CASCADE")}
+     *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
      * )
      */
     protected $tags;
