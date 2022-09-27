@@ -3,11 +3,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table
@@ -50,8 +52,24 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      */
     protected $owner;
 
-    public function __construct()
+    /**
+     * @var DateTime
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime", nullable=false)
+     */
+    private $creationDate;
+
+    /**
+     * @var DateTime
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime", nullable=false)
+     */
+    private $modificationDate;
+
+    public function __construct(string $title, Orga $owner)
     {
+        $this->title = $title;
+        $this->owner = $owner;
         $this->participationInstitutions = new ArrayCollection();
     }
 
@@ -84,5 +102,28 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     public function setTaggedInstitutions(Collection $taggedInstitutions): void
     {
         $this->participationInstitutions = $taggedInstitutions;
+    }
+
+    public function getCreationDate(): DateTime
+    {
+        return $this->creationDate;
+    }
+
+    public function getModificationDate(): DateTime
+    {
+        return $this->modificationDate;
+    }
+
+    /**
+     * @return bool - true if the given statement was added to this tag, otherwise false
+     */
+    public function addInstitution(Orga $institution): bool
+    {
+        if (!$this->participationInstitutions->contains($institution)) {
+            $this->participationInstitutions->add($institution);
+            return true;
+        }
+
+        return false;
     }
 }
