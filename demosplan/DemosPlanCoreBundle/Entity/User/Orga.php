@@ -375,6 +375,17 @@ class Orga extends SluggedEntity
      */
     protected $administratableProcedures;
 
+    /**
+     * @var Collection<int,InstitutionTag>
+     *
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", inversedBy="participationInstitutions", cascade={"persist", "refresh"})
+     * @ORM\JoinTable(
+     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="_t_id", referencedColumnName="_t_id", onDelete="CASCADE")}
+     * )
+     */
+    protected $tags;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -387,6 +398,7 @@ class Orga extends SluggedEntity
         $this->statusInCustomers = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?string
