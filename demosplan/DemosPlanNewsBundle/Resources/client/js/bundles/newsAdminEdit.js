@@ -12,7 +12,7 @@
  */
 
 import DpChangeStateAtDate from '@DemosPlanCoreBundle/components/DpChangeStateAtDate'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
@@ -20,7 +20,7 @@ import newsAdminInit from '../lib/newsAdmin'
 
 const components = {
   DpChangeStateAtDate,
-  DpTiptap,
+  DpEditor,
   DpUploadFiles
 }
 

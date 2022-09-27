@@ -62,7 +62,7 @@
         <label class="u-mt u-mb-0_25">
           {{ Translator.trans('email.body') }}
         </label>
-        <dp-tiptap
+        <dp-editor
           :value="emailText"
           hidden-input="r_publicRejectionEmail" />
       </div>
@@ -78,7 +78,7 @@ export default {
   name: 'DpStatementPublish',
 
   components: {
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor')
   },
 
   props: {

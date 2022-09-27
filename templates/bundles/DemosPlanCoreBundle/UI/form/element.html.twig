@@ -23,8 +23,8 @@
     {% set allowedTags = allowedTags|merge(['select', 'option', 'optgroup']) %}
 {% elseif type == 'textarea' %}
     {% set allowedTags = allowedTags|merge(['textarea']) %}
-{% elseif type == 'tiptap' %}
-    {% set allowedTags = allowedTags|merge(['dp-tiptap', 'textarea']) %}
+{% elseif type == 'editor' %}
+    {% set allowedTags = allowedTags|merge(['dp-editor', 'textarea']) %}
 {% elseif type == 'datepicker' %}
     {% set allowedTags = allowedTags|merge(['dp-datepicker']) %}
 {% elseif type == 'date_range_picker' %}
@@ -50,7 +50,7 @@
 {% set control = control|merge(_context) %}
 
 {# define path and merge parent options into options for label and control component #}
-{% if type != 'select' and type != 'textarea' and type != 'tiptap' and type != 'datepicker' %}
+{% if type != 'select' and type != 'textarea' and type != 'editor' and type != 'datepicker' %}
     {% set controlPath = 'form.input.' ~ type %}
 {% else %}
     {% set controlPath = 'form.' ~ type %}

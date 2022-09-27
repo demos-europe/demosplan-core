@@ -91,7 +91,7 @@
           <p class="lbl__hint u-mb-0_5">
             {{ Translator.trans('consideration.text.add.explanation') }}
           </p>
-          <dp-tiptap
+          <dp-editor
             :value="options.recommendation.value"
             @input="updateRecommendationText"
             :toolbar-items="{ boilerPlate: 'consideration' }"
@@ -209,7 +209,7 @@ export default {
     DpMultiselect,
     DpButton,
     DpTextWrapper,
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor')
   },
 
   props: {

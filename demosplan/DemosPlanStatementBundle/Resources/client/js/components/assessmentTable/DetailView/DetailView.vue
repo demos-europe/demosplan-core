@@ -41,7 +41,7 @@ export default {
     DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'),
 
     DpSlidebar: () => import(/* webpackChunkName: "slidebar" */ '@DemosPlanCoreBundle/components/DpSlidebar'),
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor'),
     DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DemosPlanStatementBundle/components/statement/DpVersionHistory'),
     StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DemosPlanStatementBundle/components/assessmentTable/StatementReplySelect'),
     StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DemosPlanStatementBundle/components/voter/StatementVoter')

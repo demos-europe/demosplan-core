@@ -127,7 +127,7 @@
             *
           </span>
         </label>
-        <dp-tiptap
+        <dp-editor
           class="u-mb-0_5"
           hidden-input="r_text"
           id="statementText"
@@ -663,7 +663,7 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor'),
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

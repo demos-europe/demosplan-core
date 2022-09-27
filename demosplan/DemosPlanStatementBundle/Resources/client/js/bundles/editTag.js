@@ -11,12 +11,12 @@
  * This is the entrypoint for edit_tag.html.twig
  */
 
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 
-const components = { DpTiptap }
+const components = { DpEditor }
 
 initialize(components).then(() => {
   dpValidate()

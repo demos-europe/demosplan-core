@@ -21,7 +21,7 @@ export default {
     DpMultiselect,
     DpDataTable,
     DpDatetimePicker,
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor'),
     DpUploadFiles
   },
 

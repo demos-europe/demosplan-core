@@ -12,14 +12,14 @@
  */
 
 import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DemosPlanUserBundle/lib/UrlPreview'
 
 const components = {
   DpAccordion,
-  DpTiptap
+  DpEditor
 }
 
 initialize(components).then(() => {

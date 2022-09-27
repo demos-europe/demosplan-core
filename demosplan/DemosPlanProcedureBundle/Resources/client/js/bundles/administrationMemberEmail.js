@@ -14,7 +14,7 @@ import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import { DpLabel } from 'demosplan-ui/components'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
@@ -23,7 +23,7 @@ const components = {
   DpEmailList,
   DpInlineNotification,
   DpLabel,
-  DpTiptap
+  DpEditor
 }
 
 initialize(components).then(() => {

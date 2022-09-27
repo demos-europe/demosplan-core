@@ -13,14 +13,14 @@
 
 import DpEditBoilerplate from '../components/admin/DpEditBoilerplate'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
   DpEditBoilerplate,
   DpMultiselect,
-  DpTiptap
+  DpEditor
 }
 
 initialize(components).then(() => {

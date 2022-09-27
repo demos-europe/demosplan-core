@@ -13,14 +13,14 @@
 
 /*
  * import DpAccordion from '@DpJs/components/core/DpAccordion'
- * import DpTiptap from '@DpJs/components/core/DpTiptap'
+ * import DpEditor from '@DpJs/components/core/DpEditor'
  */
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import ProcedureTypeSelect from '@DemosPlanProcedureBundle/components/admin/ProcedureTypeSelect'
 
-const components = { DpTiptap: () => import('@DpJs/components/core/DpTiptap'), ProcedureTypeSelect }
-// Const components = { DpAccordion, DpTiptap }
+const components = { DpEditor: () => import('@DpJs/components/core/DpEditor'), ProcedureTypeSelect }
+// Const components = { DpAccordion, DpEditor }
 const stores = {}
 const apiStores = []
 

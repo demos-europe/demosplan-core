@@ -12,7 +12,7 @@
     <dp-label
       :for="`createComment:${segmentId}`"
       :text="Translator.trans('comment.add')" />
-    <dp-tiptap
+    <dp-editor
       :id="`createComment:${segmentId}`"
       ref="createComment"
       :value="text"
@@ -33,7 +33,7 @@ import dayjs from 'dayjs'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import { DpLabel } from 'demosplan-ui/components'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 
 export default {
   name: 'CreateCommentForm',
@@ -41,7 +41,7 @@ export default {
   components: {
     DpButtonRow,
     DpLabel,
-    DpTiptap
+    DpEditor
   },
 
   props: {

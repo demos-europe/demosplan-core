@@ -8,7 +8,7 @@
 </license>
 
 <documentation>
-  <!-- DpTiptap component
+  <!-- DpEditor component
       - contains menubar with a number of buttons and an editor
       - use this component without the inline-editing-wrapper TiptapEditText.vue if you want to add a text editor to a form element (as in new statement view)
       - use this component with the inline-editing-wrapper TiptapEditText.vue if you want to save the text directly via inline-editing (as in assessment table)
@@ -31,7 +31,7 @@
       headings - determine which heading level (h1-h6) buttons should be visible in menu. It is an array with numbers , e.g. [1,2,3,4,5,6]
       table - true/false - if tables should be supported and buttons for inserting tables should be added this prop has to be true
 
-     To use tiptap import the component dynamically: components = { DpTiptap: () => import('@DpJs/components/core/DpTiptap') } }
+     To use tiptap import the component dynamically: components = { DpEditor: () => import('@DpJs/components/core/DpEditor') } }
 
    -->
 </documentation>
@@ -417,16 +417,16 @@ import TipTapInsertAtCursorPos from '@DpJs/lib/TiptapPlugins/TipTapInsertAtCurso
 import TiptapObscure from '@DpJs/lib/TiptapPlugins/tiptapObscure'
 
 export default {
-  name: 'DpTiptap',
+  name: 'DpEditor',
 
   components: {
     DpIcon,
     EditorMenuBar,
     EditorContent,
-    DpBoilerPlateModal: () => import('./tiptapComponents/DpBoilerPlateModal'),
-    DpLinkModal: () => import('./tiptapComponents/DpLinkModal'),
-    DpRecommendationModal: () => import('./tiptapComponents/DpRecommendationModal'),
-    DpUploadModal: () => import('./tiptapComponents/DpUploadModal')
+    DpBoilerPlateModal: () => import('./editorComponents/DpBoilerPlateModal'),
+    DpLinkModal: () => import('./editorComponents/DpLinkModal'),
+    DpRecommendationModal: () => import('./editorComponents/DpRecommendationModal'),
+    DpUploadModal: () => import('./editorComponents/DpUploadModal')
   },
 
   directives: {

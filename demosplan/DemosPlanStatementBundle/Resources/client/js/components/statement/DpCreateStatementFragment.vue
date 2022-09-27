@@ -12,7 +12,7 @@ import { mapActions, mapGetters } from 'vuex'
 import CopyPasteButton from '@DemosPlanCoreBundle/components/CopyPasteButton'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectDocument from './../fragment/SelectDocument'
-import DpTiptap from '@DpJs/components/core/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor'
 
 export default {
 
@@ -22,7 +22,7 @@ export default {
     CopyPasteButton,
     DpMultiselect,
     DpSelectDocument,
-    DpTiptap
+    DpEditor
   },
 
   props: {

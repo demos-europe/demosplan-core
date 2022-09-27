@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <dp-tiptap
+  <dp-editor
     hidden-input="r_send_body"
     :procedure-id="procedureId"
     :toolbar-items="toolbarItems"
@@ -20,7 +20,7 @@ export default {
   name: 'AssessmentStatementDetailFinalEmail',
 
   components: {
-    DpTiptap: () => import('@DpJs/components/core/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor')
   },
 
   props: {
