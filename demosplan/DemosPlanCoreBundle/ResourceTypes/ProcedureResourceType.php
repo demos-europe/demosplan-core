@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
 use function is_array;
 
 /**
@@ -86,16 +87,23 @@ final class ProcedureResourceType extends DplanResourceType
      */
     private $phasePermissionsetLoader;
 
+    /**
+     * @var ProcedureRepository
+     */
+    private $procedureRepository;
+
     public function __construct(
         PhasePermissionsetLoader $phasePermissionsetLoader,
         DraftStatementService $draftStatementService,
         ProcedureAccessEvaluator $accessEvaluator,
-        ProcedureExtension $procedureExtension
+        ProcedureExtension $procedureExtension,
+        ProcedureRepository $procedureRepository
     ) {
         $this->phasePermissionsetLoader = $phasePermissionsetLoader;
         $this->accessEvaluator = $accessEvaluator;
         $this->procedureExtension = $procedureExtension;
         $this->draftStatementService = $draftStatementService;
+        $this->procedureRepository = $procedureRepository;
     }
 
     public function getEntityClass(): string
@@ -297,11 +305,12 @@ final class ProcedureResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->importEmailAddress)->readable(
                 false,
                 function (Procedure $procedure): ?string {
-                    if (null === $procedure->getMaillaneConnection()) {
+                    if (null === $this->procedureRepository->getMaillaneConnection($procedure->getId())) {
                         return null;
                     }
+                    $mailconnection = $this->procedureRepository->getMaillaneConnection($procedure->getId());
 
-                    return $procedure->getMaillaneConnection()->getRecipientEmailAddress();
+                    return $mailconnection->getRecipientEmailAddress();
                 }
             );
 
@@ -310,11 +319,12 @@ final class ProcedureResourceType extends DplanResourceType
             )->readable(
                 false,
                 function (Procedure $procedure): ?array {
-                    if (null === $procedure->getMaillaneConnection()) {
+                    if (null === $this->procedureRepository->getMaillaneConnection($procedure->getId())) {
                         return null;
                     }
+                    $mailconnection = $this->procedureRepository->getMaillaneConnection($procedure->getId());
 
-                    return $procedure->getMaillaneConnection()->getAllowedSenderEmailAddresses(
+                    return $mailconnection->getAllowedSenderEmailAddresses(
                     )->map(
                         static function (EmailAddress $address): string {
                             return $address->getFullAddress();

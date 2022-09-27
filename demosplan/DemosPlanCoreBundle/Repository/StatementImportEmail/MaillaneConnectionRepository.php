@@ -67,11 +67,12 @@ class MaillaneConnectionRepository extends FluentRepository
      *
      * @throws ViolationsException
      */
-    public function createMaillaneConnection(?string $maillaneAccountId, string $recipientMailAddress): MaillaneConnection
+    public function createMaillaneConnection(?string $maillaneAccountId, string $recipientMailAddress,$procedure): MaillaneConnection
     {
         $maillaneConnection = new MaillaneConnection();
         $maillaneConnection->setMaillaneAccountId($maillaneAccountId);
         $maillaneConnection->setRecipientEmailAddress($recipientMailAddress);
+        $maillaneConnection->setProcedure($procedure);
 
         // validation
         $violations = $this->validator->validate($maillaneConnection);

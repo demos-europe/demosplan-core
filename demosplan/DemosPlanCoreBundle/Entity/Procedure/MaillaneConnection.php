@@ -77,6 +77,16 @@ class MaillaneConnection implements UuidEntityInterface
      */
     protected $allowedSenderEmailAddresses;
 
+    /**
+     * every maillaneconnection belong to a procedure
+     * It fully depends on permissions and availability of the external Maillane service.
+     *
+     * @var Procedure
+     *
+     * @ORM\OneToOne(targetEntity="Procedure", cascade={"persist", "remove"})
+     */
+    private $procedure;
+
     public function __construct()
     {
         $this->allowedSenderEmailAddresses = new ArrayCollection();
@@ -121,5 +131,15 @@ class MaillaneConnection implements UuidEntityInterface
     public function setAllowedSenderEmailAddresses(Collection $allowedSenderEmailAddresses): void
     {
         $this->allowedSenderEmailAddresses = $allowedSenderEmailAddresses;
+    }
+
+    public function setProcedure(Procedure $procedure): void
+    {
+        $this->procedure = $procedure;
+    }
+
+    public function getProcedure(): Procedure
+    {
+        return $this->procedure;
     }
 }
