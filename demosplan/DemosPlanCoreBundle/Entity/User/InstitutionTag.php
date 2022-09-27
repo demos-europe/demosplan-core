@@ -34,6 +34,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     protected $title;
 
     /**
+     * Institutions which were tagged with this tag (by the owner of this tag).
+     *
      * @var Collection<int,Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="tags")
@@ -45,6 +47,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     protected $participationInstitutions;
 
     /**
+     * Institution, which has created the tag and therefore is allowed to use, read, edit and delete it.
+     *
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"})
