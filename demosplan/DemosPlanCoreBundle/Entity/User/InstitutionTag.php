@@ -38,8 +38,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="tags")
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_id", referencedColumnName="_o_id")}
+     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="_id", referencedColumnName="_o_id", onDelete="CASCADE")},
      * )
      */
     protected $participationInstitutions;
@@ -47,8 +47,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"})
+     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false)
      */
     protected $owner;
 
