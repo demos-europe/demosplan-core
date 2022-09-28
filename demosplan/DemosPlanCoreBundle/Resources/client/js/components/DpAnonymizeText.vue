@@ -54,11 +54,11 @@ import {
   Underline
 } from 'tiptap-extensions'
 import { Editor, EditorContent, EditorMenuBubble } from 'tiptap'
-import PreventDrop from '@DpJs/lib/TiptapPlugins/preventDrop'
-import PreventKeyboardInput from '@DpJs/lib/TiptapPlugins/preventKeyboardInput'
-import TiptapAnonymize from '@DpJs/lib/TiptapPlugins/tiptapAnonymize'
-import TiptapObscure from '@DpJs/lib/TiptapPlugins/tiptapObscure'
-import TiptapUnAnonymize from '@DpJs/lib/TiptapPlugins/tiptapUnAnonymize'
+import PreventDrop from '@DpJs/components/core/DpEditor/libs/preventDrop'
+import PreventKeyboardInput from '@DpJs/components/core/DpEditor/libs/preventKeyboardInput'
+import TiptapAnonymize from '@DpJs/components/core/DpEditor/libs/tiptapAnonymize'
+import TiptapObscure from '@DpJs/components/core/DpEditor/libs/tiptapObscure'
+import TiptapUnAnonymize from '@DpJs/components/core/DpEditor/libs/tiptapUnAnonymize'
 
 export default {
   name: 'DpAnonymizeText',

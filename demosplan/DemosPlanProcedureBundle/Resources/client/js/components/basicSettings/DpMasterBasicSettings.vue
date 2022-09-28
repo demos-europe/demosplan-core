@@ -17,7 +17,7 @@ export default {
   components: {
     DpEmailList,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles: () => import('@DpJs/components/core/DpUpload/DpUploadFiles')
   },
 

@@ -106,7 +106,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import qs from 'qs'
 
 export default {

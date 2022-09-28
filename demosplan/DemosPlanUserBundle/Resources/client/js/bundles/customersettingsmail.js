@@ -11,7 +11,7 @@ import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
-  DpEditor: () => import('@DpJs/components/core/DpEditor')
+  DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
 }
 
 initialize(components).then(() => {

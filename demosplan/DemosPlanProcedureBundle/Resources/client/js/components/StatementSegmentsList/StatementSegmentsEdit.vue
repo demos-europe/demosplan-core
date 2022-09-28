@@ -103,7 +103,7 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   directives: {

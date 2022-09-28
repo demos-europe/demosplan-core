@@ -11,7 +11,7 @@
  * This is the entry point for development_release_story_threadentry_edit.html.twig
  */
 
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

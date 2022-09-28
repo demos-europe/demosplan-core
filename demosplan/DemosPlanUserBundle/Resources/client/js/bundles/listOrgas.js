@@ -13,7 +13,7 @@
 
 import DpCreateItem from '../components/DpCreateItem'
 import DpOrganisationList from '@DemosPlanUserBundle/components/DpOrganisationList'
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '../lib/UrlPreview'

@@ -20,7 +20,7 @@ export default {
   name: 'AssessmentStatementDetailFinalEmail',
 
   components: {
-    DpEditor: () => import('@DpJs/components/core/DpEditor')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   props: {

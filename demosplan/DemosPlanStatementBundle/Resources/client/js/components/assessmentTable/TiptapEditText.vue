@@ -112,7 +112,7 @@ export default {
     DpButton,
     DpHeightLimit,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   props: {

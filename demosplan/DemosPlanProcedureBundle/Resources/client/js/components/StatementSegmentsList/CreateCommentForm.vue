@@ -33,7 +33,7 @@ import dayjs from 'dayjs'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import { DpLabel } from 'demosplan-ui/components'
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 
 export default {
   name: 'CreateCommentForm',

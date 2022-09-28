@@ -245,7 +245,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     VPopover
   },
 

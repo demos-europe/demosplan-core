@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpResizableImage from '@DpJs/components/core/editorComponents/DpResizableImage'
+import DpResizableImage from '@DpJs/components/core/DpEditor/DpResizableImage'
 import { Node } from 'tiptap'
 import { nodeInputRule } from 'tiptap-commands'
 

@@ -12,7 +12,7 @@
  */
 
 import DpSurveyStatus from '../components/DpSurveyStatus'
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

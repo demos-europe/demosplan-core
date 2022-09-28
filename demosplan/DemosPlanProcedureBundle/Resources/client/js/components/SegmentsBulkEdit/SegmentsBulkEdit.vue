@@ -217,7 +217,7 @@ export default {
     DpInlineNotification: () => import('@DemosPlanCoreBundle/components/DpInlineNotification'),
     DpMultiselect,
     DpRadio,
-    DpEditor: () => import('@DpJs/components/core/DpEditor'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     SelectedTagsList
   },
 

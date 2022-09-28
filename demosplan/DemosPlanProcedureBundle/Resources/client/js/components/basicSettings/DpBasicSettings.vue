@@ -15,7 +15,7 @@ import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpEmailList from './DpEmailList'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import ExportSettings from './ExportSettings'
 import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
 

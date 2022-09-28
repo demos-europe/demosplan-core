@@ -11,7 +11,7 @@
  * This is the entrypoint for paragraph_admin_edit.html.twig
  */
 
-import DpEditor from '@DpJs/components/core/DpEditor'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

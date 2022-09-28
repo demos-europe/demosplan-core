@@ -207,7 +207,7 @@ export default {
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   mixins: [dpValidateMixin],

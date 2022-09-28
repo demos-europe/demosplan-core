@@ -384,7 +384,7 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: () => import('@DpJs/components/core/DpEditor'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

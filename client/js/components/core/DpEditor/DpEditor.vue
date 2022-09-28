@@ -31,7 +31,7 @@
       headings - determine which heading level (h1-h6) buttons should be visible in menu. It is an array with numbers , e.g. [1,2,3,4,5,6]
       table - true/false - if tables should be supported and buttons for inserting tables should be added this prop has to be true
 
-     To use tiptap import the component dynamically: components = { DpEditor: () => import('@DpJs/components/core/DpEditor') } }
+     To use tiptap import the component dynamically: components = { DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor') } }
 
    -->
 </documentation>
@@ -403,18 +403,18 @@ import {
 } from 'tiptap'
 
 import { CleanHtml } from 'demosplan-ui/directives'
-import { createSuggestion } from '@DpJs/lib/TiptapPlugins/TipTapBuildSuggestion'
+import { createSuggestion } from './libs/TipTapBuildSuggestion'
 import { DpIcon } from 'demosplan-ui/components'
-import { handleWordPaste } from '@DpJs/lib/TiptapPlugins/handleWordPaste'
+import { handleWordPaste } from './libs/handleWordPaste'
 import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import TiptapCustomDelete from '@DpJs/lib/TiptapPlugins/TiptapCustomDelete'
-import TiptapCustomImage from '@DpJs/lib/TiptapPlugins/TiptapCustomImage'
-import TiptapCustomInsert from '@DpJs/lib/TiptapPlugins/TiptapCustomInsert'
-import TiptapCustomLink from '@DpJs/lib/TiptapPlugins/TiptapCustomLink'
-import TiptapCustomMark from '@DpJs/lib/TiptapPlugins/TiptapCustomMark'
-import TipTapInsertAtCursorPos from '@DpJs/lib/TiptapPlugins/TipTapInsertAtCursorPos'
-import TiptapObscure from '@DpJs/lib/TiptapPlugins/tiptapObscure'
+import TiptapCustomDelete from './libs/TiptapCustomDelete'
+import TiptapCustomImage from './libs/TiptapCustomImage'
+import TiptapCustomInsert from './libs/TiptapCustomInsert'
+import TiptapCustomLink from './libs/TiptapCustomLink'
+import TiptapCustomMark from './libs/TiptapCustomMark'
+import TipTapInsertAtCursorPos from './libs/TipTapInsertAtCursorPos'
+import TiptapObscure from './libs/tiptapObscure'
 
 export default {
   name: 'DpEditor',
@@ -423,10 +423,10 @@ export default {
     DpIcon,
     EditorMenuBar,
     EditorContent,
-    DpBoilerPlateModal: () => import('./editorComponents/DpBoilerPlateModal'),
-    DpLinkModal: () => import('./editorComponents/DpLinkModal'),
-    DpRecommendationModal: () => import('./editorComponents/DpRecommendationModal'),
-    DpUploadModal: () => import('./editorComponents/DpUploadModal')
+    DpBoilerPlateModal: () => import('./DpBoilerPlateModal'),
+    DpLinkModal: () => import('./DpLinkModal'),
+    DpRecommendationModal: () => import('./DpRecommendationModal'),
+    DpUploadModal: () => import('./DpUploadModal')
   },
 
   directives: {

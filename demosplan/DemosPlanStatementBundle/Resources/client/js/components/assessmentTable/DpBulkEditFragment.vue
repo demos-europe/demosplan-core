@@ -223,7 +223,7 @@ export default {
     DpButton,
     DpTextWrapper,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   props: {
