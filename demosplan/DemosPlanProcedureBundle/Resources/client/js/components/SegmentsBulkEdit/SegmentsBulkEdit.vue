@@ -95,7 +95,7 @@
               :label="Translator.trans('segments.bulk.edit.recommendations.radio.text.replace')"
               @change="actions.addRecommendations.isTextAttached = false" />
           </div>
-          <dp-tiptap
+          <dp-editor
             id="addRecommendationTipTap"
             editor-id="recommendationText"
             v-model="actions.addRecommendations.text"
@@ -217,7 +217,7 @@ export default {
     DpInlineNotification: () => import('@DemosPlanCoreBundle/components/DpInlineNotification'),
     DpMultiselect,
     DpRadio,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     SelectedTagsList
   },
 
@@ -382,7 +382,7 @@ export default {
         addTagIds: this.actions.addTags.selected.map(tag => tag.id),
         removeTagIds: this.actions.deleteTags.selected.map(tag => tag.id),
         segmentIds: this.segments,
-        // Text of DpTipTap and attach bool to determine if the text is replaced or attached - default: true
+        // Text of DpEditor and attach bool to determine if the text is replaced or attached - default: true
         recommendationTextEdit: {
           text: this.actions.addRecommendations.text,
           attach: this.actions.addRecommendations.isTextAttached

@@ -54,7 +54,7 @@
                 class="u-mr" />
             </template>
             <template v-slot:edit>
-              <dp-tiptap
+              <dp-editor
                 :value="segment.attributes.text"
                 :toolbar-items="{ linkButton: true }"
                 @input="(val) => updateSegmentText(segment.id, val)"
@@ -67,7 +67,7 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <dp-tiptap
+      <dp-editor
         hidden-input="statementText"
         @input="updateStatementText"
         :value="statement.attributes.fullText || ''"
@@ -103,7 +103,7 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   directives: {

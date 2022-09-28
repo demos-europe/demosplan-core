@@ -94,7 +94,7 @@
           {{ Translator.trans('consideration.text.add.explanation') }}
         </p>
 
-          <dp-tiptap
+          <dp-editor
             :value="options.consideration.value"
             :toolbar-items="{ boilerPlate: 'consideration' }"
             @input="updateConsiderationText"
@@ -223,7 +223,7 @@ export default {
     DpButton,
     DpTextWrapper,
     DpMultiselect,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   props: {

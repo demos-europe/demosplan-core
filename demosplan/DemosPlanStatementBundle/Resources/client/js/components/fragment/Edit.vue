@@ -32,7 +32,7 @@
           :for="fragmentId+':r_considerationAdvice'">
           {{ Translator.trans('fragment.consideration') }}
         </label>
-        <dp-tiptap
+        <dp-editor
           ref="tiptap"
           :procedure-id="procedureId"
           v-model="considerationAdvice"
@@ -106,7 +106,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import qs from 'qs'
 
 export default {
@@ -115,7 +115,7 @@ export default {
   components: {
     DpButton,
     DpMultiselect,
-    DpTiptap
+    DpEditor
   },
 
   props: {

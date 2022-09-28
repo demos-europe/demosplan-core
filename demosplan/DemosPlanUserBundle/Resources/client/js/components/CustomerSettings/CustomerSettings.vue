@@ -44,7 +44,7 @@
         <dp-label
           for="r_imprint"
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
-        <dp-tiptap
+        <dp-editor
           id="r_imprint"
           v-model="customer.imprint"
           :headings="[2,3,4]"
@@ -62,7 +62,7 @@
         <dp-label
           for="r_dataProtection"
           :text="Translator.trans('customer.data.protection.explanation')" />
-        <dp-tiptap
+        <dp-editor
           id="r_dataProtection"
           v-model="customer.dataProtection"
           :headings="[2,3,4]"
@@ -80,7 +80,7 @@
         <dp-label
           for="r_termsOfUse"
           :text="Translator.trans('customer.terms.of.use.explanation')" />
-        <dp-tiptap
+        <dp-editor
           id="r_termsOfUse"
           v-model="customer.termsOfUse"
           :headings="[2,3,4]"
@@ -98,7 +98,7 @@
         <dp-label
           for="r_xplanning"
           :text="Translator.trans('customer.xplanning.explanation')" />
-        <dp-tiptap
+        <dp-editor
           id="r_xplanning"
           v-model="customer.xplanning"
           :headings="[2,3,4]"
@@ -117,7 +117,7 @@
         <dp-label
           :text="Translator.trans('customer.signLanguage.explanation.label')"
           for="signLanguageOverviewDescription" />
-        <dp-tiptap
+        <dp-editor
           id="signLanguageOverviewDescription"
           hidden-input="r_signLanguageOverviewDescription"
           v-model="customer.signLanguageOverviewDescription"
@@ -143,7 +143,7 @@
         <dp-label
           for="r_accessibilityExplanation"
           :text="Translator.trans('customer.accessibility.explanation.label')" />
-        <dp-tiptap
+        <dp-editor
           id="r_accessibilityExplanation"
           v-model="customer.accessibilityExplanation"
           :headings="[2,3,4]"
@@ -160,7 +160,7 @@
         <dp-label
           for="r_simpleLanguage"
           :text="Translator.trans('customer.simpleLanguage.label')" />
-        <dp-tiptap
+        <dp-editor
           id="r_simpleLanguage"
           v-model="customer.overviewDescriptionInSimpleLanguage"
           :headings="[2,3,4]"
@@ -207,7 +207,7 @@ export default {
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   mixins: [dpValidateMixin],
