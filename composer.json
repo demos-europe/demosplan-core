@@ -4,6 +4,9 @@
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
+    "repositories": [
+        {"type": "composer", "url": "https://demos.repo.repman.demos-europe.eu"}
+    ],
     "require": {
         "php": ">=7.3,<8",
         "ext-ctype": "*",
@@ -30,6 +33,7 @@
         "cebe/php-openapi": "^1.5",
         "cocur/slugify": "^4.0",
         "composer/package-versions-deprecated": "1.11.99.5",
+        "demos-europe/demosplan-addon-maillane": "dev-main",
         "demos-europe/edt-dql": "^0.12.3",
         "demos-europe/edt-extra": "^0.12.7",
         "demos-europe/edt-jsonapi": "^0.12.3",

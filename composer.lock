@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1916f6d34e685b76ff3272e3a15e04b",
+    "content-hash": "402ebc919769f529da1c8ec7bf09d9ac",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1231,6 +1231,45 @@
                 }
             ],
             "time": "2021-07-31T17:03:58+00:00"
+        },
+        {
+            "name": "demos-europe/demosplan-addon-maillane",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:demos-europe/demosplan-addon-maillane.git",
+                "reference": "52c49783cb7afd902d8d9a020138e55427ddae0f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon-maillane/zipball/52c49783cb7afd902d8d9a020138e55427ddae0f",
+                "reference": "52c49783cb7afd902d8d9a020138e55427ddae0f",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://demos.repo.repman.demos-europe.eu/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": "<=7.4"
+            },
+            "type": "demosplan-addon",
+            "autoload": {
+                "psr-4": {
+                    "DemosEurope\\DemosplanAddonMaillane\\": "src/"
+                }
+            },
+            "notification-url": "https://demos.repo.repman.demos-europe.eu/downloads",
+            "license": [
+                "proprietary"
+            ],
+            "description": "Maillane Addon for demosplan",
+            "support": {
+                "source": "https://github.com/demos-europe/demosplan-addon-maillane/tree/main"
+            },
+            "time": "2022-09-28T11:21:28+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -21895,7 +21934,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "demos-europe/demosplan-addon-maillane": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -21924,5 +21965,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
