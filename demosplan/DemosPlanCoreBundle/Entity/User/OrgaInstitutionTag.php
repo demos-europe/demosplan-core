@@ -13,9 +13,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository")
+ * @ORM\Entity(repositoryClass="OrgaInstitutionTagRepository")
  */
-class InstitutionTag extends CoreEntity implements UuidEntityInterface
+class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null

@@ -376,9 +376,8 @@ class Orga extends SluggedEntity
     protected $administratableProcedures;
 
     /**
-     * @var Collection<int,InstitutionTag>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", inversedBy="participationInstitutions", cascade={"persist", "remove"})
+     * @var Collection<int,OrgaInstitutionTag>
+     * @ORM\ManyToMany(targetEntity="OrgaInstitutionTag", inversedBy="participationInstitutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
@@ -1470,7 +1469,7 @@ class Orga extends SluggedEntity
     /**
      * @return bool - true, if the given tag was added to this institution, otherwise false.
      */
-    public function addTag(InstitutionTag $tag): bool
+    public function addTag(OrgaInstitutionTag $tag): bool
     {
         if (!$this->tags->contains($tag)) {
             $this->tags->add($tag);
