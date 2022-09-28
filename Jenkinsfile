@@ -47,7 +47,8 @@ pipeline {
                     reuseNode true,
                     args '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
                 }
-            },
+            }
+
             steps {
                 sh 'sleep 10' // maybe we don't even need this?
                 sh 'yarn add file:client/ui'
