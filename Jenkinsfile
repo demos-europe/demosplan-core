@@ -15,17 +15,19 @@ pipeline {
 
         stage('Setup Container') {
             steps {
-                wrap([$class: 'BuildUser']) {
-                    def uname = env.BUILD_USER
-                    def uid = env.BUILD_USER_ID
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        def uname = env.BUILD_USER
+                        def uid = env.BUILD_USER_ID
 
-                    sh 'docker run -d --name ${BUILD_TAG} -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$uname --env CURRENT_HOST_USERID=$uid $containerName'
+                        sh 'docker run -d --name ${BUILD_TAG} -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=$uname --env CURRENT_HOST_USERID=$uid $containerName'
+                    }
+
+                    sh 'sleep 10' // maybe we don't even need this?
+                    sh 'yarn add file:client/ui'
+                    sh 'yarn install --prefer-offline --frozen-lockfile'
+                    sh 'composer install --no-interaction'
                 }
-
-                sh 'sleep 10' // maybe we don't even need this?
-                sh 'yarn add file:client/ui'
-                sh 'yarn install --prefer-offline --frozen-lockfile'
-                sh 'composer install --no-interaction'
             }
         }
 
