@@ -26,7 +26,7 @@ pipeline {
                     """
 
                     sh 'sleep 10' // maybe we don't even need this?
-                    sh 'docker exec pwd'
+                    sh 'docker exec ${BUILD_TAG} pwd'
                     sh 'docker exec ${BUILD_TAG} yarn add file:client/ui'
                     sh 'docker exec ${BUILD_TAG} yarn install --prefer-offline --frozen-lockfile'
                     sh 'docker exec ${BUILD_TAG} composer install --no-interaction'
