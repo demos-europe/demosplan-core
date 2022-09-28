@@ -164,9 +164,7 @@ export default {
         },
         user: {
           componentName: 'dp-user-form-fields',
-          componentProps: {
-            resetFromRoot: true
-          },
+          componentProps: {},
           formName: 'newUserForm',
           resetEvent: 'user-reset',
           updateEvent: 'user-update'

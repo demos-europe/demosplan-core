@@ -174,12 +174,6 @@ export default {
   ],
 
   props: {
-    resetFromRoot: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
     user: {
       type: Object,
       required: false,
@@ -448,7 +442,7 @@ export default {
     this.setInitialOrgaData()
 
     this.$root.$on('user-reset', () => {
-      if (this.resetFromRoot) {
+      if (!this.isUserSet) {
         this.resetData()
       }
     })
