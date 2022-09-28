@@ -128,6 +128,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     {
         if (!$this->institutions->contains($institution)) {
             $this->institutions->add($institution);
+            $institution->addTag($this);
             return true;
         }
 
