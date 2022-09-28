@@ -17,14 +17,11 @@ pipeline {
             steps {
                 script {
                     wrap([$class: 'BuildUser']) {
-                        def uname = env.BUILD_USER
-                        def uid = env.BUILD_USER_ID
-
                         sh """
                             docker run -d --name ${BUILD_TAG} \
                                 -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
-                                --env CURRENT_HOST_USERNAME=${BUILD_USER} \
-                                --env CURRENT_HOST_USERID=${BUILD_USER_ID} $containerName
+                                --env CURRENT_HOST_USERNAME=$BUILD_USER \
+                                --env CURRENT_HOST_USERID=$BUILD_USER_ID $containerName
                         """
                     }
 
