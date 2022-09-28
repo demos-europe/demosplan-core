@@ -25,41 +25,42 @@ def cancelPreviousBuilds() {
 def containerName = "demosdeutschland/demosplan-development:4.3"
 
 pipeline {
-    agent {label 'docker && metal'}
     options {
         buildDiscarder(logRotator(numToKeepStr: "10", daysToKeepStr: "10"))
     }
     stages {
-        stage('Check for previous builds') {
+        stage('Prepare') {
             steps {
                 script{
                     cancelPreviousBuilds()
+                    sh 'mkdir -p .build'
+                    sh 'mkdir -p .cache'
                 }
             }
         }
-        stage('Preparations') {
+
+        stage('Setup Container') {
+            agent {
+                label 'docker && metal'
+                docker {
+                    image: containerName
+                    reuseNode: true,
+                    args: '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
+                }
+            },
             steps {
-            // TODO: move to proper jenkins docker support
-                withCredentials([usernamePassword(credentialsId: 'Docker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh '''docker login --username $USERNAME --password $PASSWORD && docker pull demosdeutschland/{$containerName}'''
-                }
-                script{
-                    demosTester.construct("testContainer", env.BRANCH_NAME + env.BUILD_NUMBER)
-                    build = demosTester.buildContainer()
-                    env.CONTAINER_NAME = demosTester.containerName
-                }
-                echo "$CONTAINER_NAME"
-                sh "mkdir -p .build"
-                sh "$build"
+                sh 'sleep 10' // maybe we don't even need this?
+                sh 'yarn add file:client/ui'
+                sh 'yarn install --prefer-offline --frozen-lockfile'
+                sh 'composer install --no-interaction'
             }
         }
 
         stage('PHPUnit: Core') {
-            steps{
+            steps {
                 script {
                     try {
-                        test = demosTester.coreTest()
-                        sh "$test"
+                        sh 'APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml'
                     } catch (err) {
                         echo "PHPUnit Failed: ${err}"
                     }
@@ -67,11 +68,6 @@ pipeline {
                     junit checksName: "Core Tests", healthScaleFactor: 5.0, testResults: ".build/jenkins-build-phpunit-core.junit.xml"
                 }
             }
-        }
-    }
-    post {
-        always{
-            sh 'docker rm -f $CONTAINER_NAME'
         }
     }
 }
