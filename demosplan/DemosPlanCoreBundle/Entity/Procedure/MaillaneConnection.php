@@ -84,6 +84,7 @@ class MaillaneConnection implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\OneToOne(targetEntity="Procedure", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable = false,  referencedColumnName="_p_id")
      */
     private $procedure;
 
