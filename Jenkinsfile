@@ -18,7 +18,7 @@ pipeline {
                 script {
                     sh """
                         docker run -d --name ${BUILD_TAG} \
-                            -v .:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
+                            -v $WORKSPACE:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
                             --env CURRENT_HOST_USERNAME=$CONTAINER_USER_NAME \
                             --env CURRENT_HOST_USERID=$CONTAINER_USER_ID \
                             -w /srv/www \
