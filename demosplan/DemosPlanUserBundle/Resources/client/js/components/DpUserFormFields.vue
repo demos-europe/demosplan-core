@@ -283,16 +283,6 @@ export default {
     }
   },
 
-  watch: {
-    /**
-     * Whenever localUser changes (which may be the case if a "Reset" button is clicked),
-     * the initial orga is restored via api call.
-     */
-    localUser () {
-      this.setInitialOrgaData()
-    }
-  },
-
   methods: {
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
