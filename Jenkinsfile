@@ -43,9 +43,9 @@ pipeline {
             agent {
                 label 'docker && metal'
                 docker {
-                    image: containerName
-                    reuseNode: true,
-                    args: '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
+                    image containerName
+                    reuseNode true,
+                    args '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
                 }
             },
             steps {
