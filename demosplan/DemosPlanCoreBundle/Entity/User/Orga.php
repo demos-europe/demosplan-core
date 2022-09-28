@@ -377,7 +377,7 @@ class Orga extends SluggedEntity
 
     /**
      * @var Collection<int,OrgaInstitutionTag>
-     * @ORM\ManyToMany(targetEntity="OrgaInstitutionTag", inversedBy="participationInstitutions", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity="OrgaInstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}

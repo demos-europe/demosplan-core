@@ -31,7 +31,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var string
      * @ORM\Column(type="string", length=255, nullable=false)
      */
-    protected $title;
+    protected $label;
 
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
@@ -44,7 +44,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      * )
      */
-    protected $participationInstitutions;
+    protected $institutions;
 
     /**
      * Institution, which has created the tag and therefore is allowed to use, read, edit and delete it.
@@ -72,9 +72,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
 
     public function __construct(string $title, Orga $owner)
     {
-        $this->title = $title;
+        $this->label = $title;
         $this->owner = $owner;
-        $this->participationInstitutions = new ArrayCollection();
+        $this->institutions = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -95,9 +95,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @return Collection<int, Orga>
      */
-    public function getTaggedInstitutions(): Collection
+    public function getInstitutions(): Collection
     {
-        return $this->participationInstitutions;
+        return $this->institutions;
     }
 
     /**
@@ -105,7 +105,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      */
     public function setTaggedInstitutions(Collection $taggedInstitutions): void
     {
-        $this->participationInstitutions = $taggedInstitutions;
+        $this->institutions = $taggedInstitutions;
     }
 
     public function getCreationDate(): DateTime
@@ -123,11 +123,21 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      */
     public function addInstitution(Orga $institution): bool
     {
-        if (!$this->participationInstitutions->contains($institution)) {
-            $this->participationInstitutions->add($institution);
+        if (!$this->institutions->contains($institution)) {
+            $this->institutions->add($institution);
             return true;
         }
 
         return false;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
     }
 }
