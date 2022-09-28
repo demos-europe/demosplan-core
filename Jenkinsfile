@@ -28,6 +28,16 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr: "10", daysToKeepStr: "10"))
     }
+
+    agent {
+        label 'docker && metal'
+        docker {
+            image containerName
+            reuseNode true,
+            args '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
+        }
+    }
+
     stages {
         stage('Prepare') {
             steps {
@@ -40,15 +50,6 @@ pipeline {
         }
 
         stage('Setup Container') {
-            agent {
-                label 'docker && metal'
-                docker {
-                    image containerName
-                    reuseNode true,
-                    args '-v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ --env CURRENT_HOST_USERNAME=${BUILD_USER} --env CURRENT_HOST_USERID={BUILD_USER_ID}'
-                }
-            }
-
             steps {
                 sh 'sleep 10' // maybe we don't even need this?
                 sh 'yarn add file:client/ui'
