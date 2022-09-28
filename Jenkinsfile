@@ -30,7 +30,6 @@ pipeline {
     }
 
     agent {
-        label 'docker && metal'
         docker {
             image containerName
             reuseNode true,
