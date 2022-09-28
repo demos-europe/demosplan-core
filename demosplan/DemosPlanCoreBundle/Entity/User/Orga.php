@@ -1461,7 +1461,10 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    public function getTags()
+    /**
+     * @return ArrayCollection<int, OrgaInstitutionTag>
+     */
+    public function getTags(): ArrayCollection
     {
         return $this->tags;
     }
