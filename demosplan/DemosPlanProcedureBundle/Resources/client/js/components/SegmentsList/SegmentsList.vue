@@ -237,7 +237,7 @@ import DpColumnSelector from '@DemosPlanCoreBundle/components/DpDataTable/DpColu
 import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpSlidingPagination from '@DemosPlanCoreBundle/components/DpSlidingPagination'
-import DpStickyElement from '@DemosPlanCoreBundle/components/shared/DpStickyElement'
+import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
