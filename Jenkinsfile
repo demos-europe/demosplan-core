@@ -17,6 +17,9 @@ pipeline {
             steps {
                 script {
                     wrap([$class: 'BuildUser']) {
+                        def BUILD_USER = env.BUILD_USER
+                        def BUILD_USER_ID = env.BUILD_USER_ID
+
                         sh """
                             docker run -d --name ${BUILD_TAG} \
                                 -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
