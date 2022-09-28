@@ -403,18 +403,18 @@ import {
 } from 'tiptap'
 
 import { CleanHtml } from 'demosplan-ui/directives'
-import { createSuggestion } from './libs/TipTapBuildSuggestion'
+import { createSuggestion } from './libs/editorBuildSuggestion'
 import { DpIcon } from 'demosplan-ui/components'
 import { handleWordPaste } from './libs/handleWordPaste'
 import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import TiptapCustomDelete from './libs/TiptapCustomDelete'
-import TiptapCustomImage from './libs/TiptapCustomImage'
-import TiptapCustomInsert from './libs/TiptapCustomInsert'
-import TiptapCustomLink from './libs/TiptapCustomLink'
-import TiptapCustomMark from './libs/TiptapCustomMark'
-import TipTapInsertAtCursorPos from './libs/TipTapInsertAtCursorPos'
-import TiptapObscure from './libs/tiptapObscure'
+import EditorCustomDelete from './libs/editorCustomDelete'
+import EditorCustomImage from './libs/editorCustomImage'
+import EditorCustomInsert from './libs/editorCustomInsert'
+import EditorCustomLink from './libs/editorCustomLink'
+import EditorCustomMark from './libs/editorCustomMark'
+import EditorInsertAtCursorPos from './libs/editorInsertAtCursorPos'
+import EditorObscure from './libs/editorObscure'
 
 export default {
   name: 'DpEditor',
@@ -1072,7 +1072,7 @@ export default {
     ]
 
     if (this.toolbar.boilerPlate) {
-      extensions.push(new TipTapInsertAtCursorPos())
+      extensions.push(new EditorInsertAtCursorPos())
     }
 
     if (this.suggestions.length > 0) {
@@ -1086,16 +1086,16 @@ export default {
     }
 
     if (this.toolbar.imageButton) {
-      extensions.push(new TiptapCustomImage())
+      extensions.push(new EditorCustomImage())
     }
 
     if (this.toolbar.linkButton) {
       extensions.push(new Link())
-      extensions.push(new TiptapCustomLink())
+      extensions.push(new EditorCustomLink())
     }
 
     if (this.toolbar.obscure) {
-      extensions.push(new TiptapObscure())
+      extensions.push(new EditorObscure())
     }
 
     if (this.toolbar.listButtons) {
@@ -1114,8 +1114,8 @@ export default {
     }
 
     if (this.toolbar.insertAndDelete) {
-      extensions.push(new TiptapCustomDelete())
-      extensions.push(new TiptapCustomInsert())
+      extensions.push(new EditorCustomDelete())
+      extensions.push(new EditorCustomInsert())
 
       this.diffMenu.buttons = [
         {
@@ -1132,7 +1132,7 @@ export default {
     }
 
     if (this.toolbar.mark) {
-      extensions.push(new TiptapCustomMark())
+      extensions.push(new EditorCustomMark())
 
       this.diffMenu.buttons.unshift({
         label: 'editor.mark',
