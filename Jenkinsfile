@@ -23,8 +23,8 @@ pipeline {
                         sh """
                             docker run -d --name ${BUILD_TAG} \
                                 -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
-                                --env CURRENT_HOST_USERNAME=${env.BUILD_USER} \
-                                --env CURRENT_HOST_USERID=${env.BUILD_USER_ID} \
+                                --env CURRENT_HOST_USERNAME=${env.CONTAINER_USER_NAME} \
+                                --env CURRENT_HOST_USERID=${env.CONTAINER_USER_ID} \
                                 -w /srv/www \
                                 $containerName
                         """
