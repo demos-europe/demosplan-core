@@ -17,8 +17,8 @@ pipeline {
             steps {
                 script {
                     wrap([$class: 'BuildUser']) {
-                        echo """${env.BUILD_USER}"""
-                        echo """${env.BUILD_USER_ID}"""
+                        echo env.BUILD_USER
+                        echo env.BUILD_USER_ID
 
                         sh """
                             docker run -d --name ${BUILD_TAG} \
