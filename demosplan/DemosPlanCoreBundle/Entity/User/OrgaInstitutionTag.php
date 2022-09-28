@@ -108,11 +108,11 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param Collection<int, Orga> $taggedInstitutions
+     * @param Collection<int, Orga> $institutions
      */
-    public function setTaggedInstitutions(Collection $taggedInstitutions): void
+    public function setInstitutions(Collection $institutions): void
     {
-        $this->institutions = $taggedInstitutions;
+        $this->institutions = $institutions;
     }
 
     public function getCreationDate(): DateTime
