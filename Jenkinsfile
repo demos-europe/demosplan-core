@@ -16,19 +16,14 @@ pipeline {
         stage('Setup Container') {
             steps {
                 script {
-                    wrap([$class: 'BuildUser']) {
-                        echo env.BUILD_USER
-                        echo env.BUILD_USER_ID
-
-                        sh """
-                            docker run -d --name ${BUILD_TAG} \
-                                -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
-                                --env CURRENT_HOST_USERNAME=${env.CONTAINER_USER_NAME} \
-                                --env CURRENT_HOST_USERID=${env.CONTAINER_USER_ID} \
-                                -w /srv/www \
-                                $containerName
-                        """
-                    }
+                    sh """
+                        docker run -d --name ${BUILD_TAG} \
+                            -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
+                            --env CURRENT_HOST_USERNAME=$CONTAINER_USER_NAME \
+                            --env CURRENT_HOST_USERID=$CONTAINER_USER_ID \
+                            -w /srv/www \
+                            $containerName
+                    """
 
                     sh 'sleep 10' // maybe we don't even need this?
                     sh 'docker exec ${BUILD_TAG} yarn add file:client/ui'
