@@ -238,6 +238,7 @@ export default {
       this.restoreUser(this.user.id).then(() => {
         const userFormFields = this.$refs[`user-form-fields-${this.user.id}`]
         userFormFields.$data.localUser = JSON.parse(JSON.stringify(userFormFields.$props.user))
+        userFormFields.setInitialOrgaData()
         this.isOpen = !this.isOpen
 
         const inputsWithErrors = this.$el.querySelector('[data-dp-validate="userForm"]').querySelectorAll('.is-invalid')
