@@ -18,7 +18,7 @@ pipeline {
                 script {
                     sh """
                         docker run -d --name ${BUILD_TAG} \
-                            -v ${PWD}:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
+                            -v .:/srv/www -v /var/cache/demosplanCI/:/srv/www/.cache/ \
                             --env CURRENT_HOST_USERNAME=$CONTAINER_USER_NAME \
                             --env CURRENT_HOST_USERID=$CONTAINER_USER_ID \
                             -w /srv/www \
@@ -27,7 +27,7 @@ pipeline {
 
                     sh 'sleep 10' // maybe we don't even need this?
                     sh 'docker exec ${BUILD_TAG} pwd'
-                    sh 'docker exec ${BUILD_TAG} yarn add file:client/ui'
+                    // sh 'docker exec ${BUILD_TAG} yarn add file:client/ui'
                     sh 'docker exec ${BUILD_TAG} yarn install --prefer-offline --frozen-lockfile'
                     sh 'docker exec ${BUILD_TAG} composer install --no-interaction'
                 }
