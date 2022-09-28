@@ -29,10 +29,10 @@ class Version20220928110438 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('CREATE TABLE orga_orga_institution_tag (orga__o_id CHAR(36) NOT NULL, orga_institution_tag_id CHAR(36) NOT NULL, INDEX IDX_F903E7DE57022B64 (orga__o_id), UNIQUE INDEX UNIQ_F903E7DED3164222 (orga_institution_tag_id), PRIMARY KEY(orga__o_id, orga_institution_tag_id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE orga_institution_tag (id CHAR(36) NOT NULL, _o_id CHAR(36) NOT NULL, label VARCHAR(255) NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, INDEX IDX_5F64F7EA86245470 (_o_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE orga_institution_tag (id CHAR(36) NOT NULL, owner_id CHAR(36) NOT NULL, `label` VARCHAR(255) NOT NULL, creation_date DATETIME NOT NULL, modification_date DATETIME NOT NULL, INDEX IDX_5F64F7EA7E3C61F9 (owner_id), UNIQUE INDEX unique_label_for_orga (owner_id, `label`), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE orga_orga_institution_tag ADD CONSTRAINT FK_F903E7DE57022B64 FOREIGN KEY (orga__o_id) REFERENCES _orga (_o_id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE orga_orga_institution_tag ADD CONSTRAINT FK_F903E7DED3164222 FOREIGN KEY (orga_institution_tag_id) REFERENCES orga_institution_tag (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE orga_institution_tag ADD CONSTRAINT FK_5F64F7EA86245470 FOREIGN KEY (_o_id) REFERENCES _orga (_o_id)');
+        $this->addSql('ALTER TABLE orga_institution_tag ADD CONSTRAINT FK_5F64F7EA7E3C61F9 FOREIGN KEY (owner_id) REFERENCES _orga (_o_id)');
     }
 
     /**

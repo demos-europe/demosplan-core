@@ -19,8 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @ORM\Table
- * @ORM\Entity(repositoryClass="OrgaInstitutionTagRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner_id", "label"})})
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaInstitutionTagRepository")
  */
 class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
 {
@@ -55,7 +55,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      * @var Orga
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"})
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false)
+     * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
     protected $owner;
 
