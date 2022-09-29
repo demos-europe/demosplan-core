@@ -49,7 +49,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      *
      * @var Collection<int,Orga>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="tags")
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
     protected $institutions;
 
