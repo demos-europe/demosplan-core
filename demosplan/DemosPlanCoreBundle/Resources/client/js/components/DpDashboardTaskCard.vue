@@ -27,7 +27,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpButton } from 'demosplan-ui/components'
-import DpCard from '@DemosPlanCoreBundle/components/DpCard'
+import DpCard from '@DpJs/components/core/DpCard'
 
 export default {
   name: 'DpDashboardTaskCard',
