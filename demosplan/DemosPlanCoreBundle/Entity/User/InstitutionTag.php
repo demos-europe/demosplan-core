@@ -20,8 +20,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner_id", "label"})})
- * @ORM\Entity(repositoryClass="InstitutionTagRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner", "label"})})
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository")
  */
 class InstitutionTag extends CoreEntity implements UuidEntityInterface
 {
