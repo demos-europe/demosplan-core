@@ -4,7 +4,7 @@
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaInstitutionTag;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
@@ -13,20 +13,20 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Repository\OrgaInstitutionTagRepository;
+use demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @template-extends DplanResourceType<OrgaInstitutionTag>
- * @template-implements UpdatableDqlResourceTypeInterface<OrgaInstitutionTag>
+ * @template-extends DplanResourceType<InstitutionTag>
+ * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
  *
  * @property-read End                     $label
  * @property-read OrgaResourceType        $institutions
  * @property-read OrgaResourceType        $owner
  */
-class OrgaInstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
+class InstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
     /**
      * @var ValidatorInterface
@@ -34,14 +34,14 @@ class OrgaInstitutionTagResourceType extends DplanResourceType implements Updata
     private $validator;
 
     /**
-     * @var OrgaInstitutionTagRepository
+     * @var InstitutionTagRepository
      */
-    private $orgaInstitutionTagRepository;
+    private $InstitutionTagRepository;
 
-    public function __construct(OrgaInstitutionTagRepository $orgaInstitutionTagRepository, ValidatorInterface $validator)
+    public function __construct(InstitutionTagRepository $InstitutionTagRepository, ValidatorInterface $validator)
     {
         $this->validator = $validator;
-        $this->orgaInstitutionTagRepository = $orgaInstitutionTagRepository;
+        $this->InstitutionTagRepository = $InstitutionTagRepository;
     }
 
     protected function getProperties(): array
@@ -70,12 +70,12 @@ class OrgaInstitutionTagResourceType extends DplanResourceType implements Updata
 
     public static function getName(): string
     {
-        return 'OrgaInstitutionTag';
+        return 'InstitutionTag';
     }
 
     public function getEntityClass(): string
     {
-        return OrgaInstitutionTag::class;
+        return InstitutionTag::class;
     }
 
     public function isAvailable(): bool
@@ -100,7 +100,7 @@ class OrgaInstitutionTagResourceType extends DplanResourceType implements Updata
     }
 
     /**
-     * @param OrgaInstitutionTag $tag
+     * @param InstitutionTag $tag
      */
     public function updateObject(object $tag, array $properties): ResourceChange
     {
@@ -142,7 +142,7 @@ class OrgaInstitutionTagResourceType extends DplanResourceType implements Updata
         $owner = $this->currentUser->getUser()->getOrga();
         $label = $properties[$this->label->getAsNamesInDotNotation()];
 
-        $tag = new OrgaInstitutionTag($label, $owner);
+        $tag = new InstitutionTag($label, $owner);
 
         $violations = $this->validator->validate($tag);
         if (0 !== $violations->count()) {
@@ -156,7 +156,7 @@ class OrgaInstitutionTagResourceType extends DplanResourceType implements Updata
     }
 
     /**
-     * @param OrgaInstitutionTag $tag
+     * @param InstitutionTag $tag
      */
     public function delete(object $tag): ResourceChange
     {

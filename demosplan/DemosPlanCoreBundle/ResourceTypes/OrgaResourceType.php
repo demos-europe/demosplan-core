@@ -62,7 +62,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
- * @property-read OrgaInstitutionTagResourceType   $tags
+ * @property-read InstitutionTagResourceType       $tags
  */
 final class OrgaResourceType extends DplanResourceType
 {
