@@ -11,12 +11,30 @@
   <div>
     <dl class="description-list u-mb-0_5">
       <template v-if="userName">
-        <dt class="weight--normal">
-          {{ Translator.trans('username') }}
-        </dt>
-        <dd class="u-mb color--grey">
-          {{ user.userName }}
-        </dd>
+        <template v-if="user.userName == user.email">
+          <dt class="weight--normal">
+            {{ Translator.trans('username') }} / {{ Translator.trans('email') }}
+          </dt>
+          <dd class="u-mb color--grey">
+            {{ user.userName }}
+          </dd>
+        </template>
+
+        <template v-else>
+          <dt class="weight--normal">
+            {{ Translator.trans('username') }}
+          </dt>
+          <dd class="u-mb color--grey">
+            {{ user.userName }}
+          </dd>
+
+          <dt class="weight--normal">
+            {{ Translator.trans('email') }}
+          </dt>
+          <dd class="u-mb color--grey">
+            {{ user.email }}
+          </dd>
+        </template>
       </template>
 
       <template v-if="hasPermission('area_mydata_organisation')">
@@ -46,12 +64,15 @@
       <dd class="u-mb color--grey">
         {{ user.firstName }}
       </dd>
-      <dt class="weight--normal">
-        {{ Translator.trans('email') }}
-      </dt>
-      <dd class="u-mb color--grey">
-        {{ user.email }}
-      </dd>
+
+      <template v-if="!userName">
+        <dt class="weight--normal">
+          {{ Translator.trans('email') }}
+        </dt>
+        <dd class="u-mb color--grey">
+          {{ user.email }}
+        </dd>
+      </template>
     </dl>
 
     <input
