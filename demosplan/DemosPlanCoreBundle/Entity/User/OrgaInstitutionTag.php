@@ -61,7 +61,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
-    protected $owner;
+    protected $owningOrganisation;
 
     /**
      * @var DateTime
@@ -77,10 +77,10 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      */
     private $modificationDate;
 
-    public function __construct(string $title, Orga $owner)
+    public function __construct(string $title, Orga $owningOrganisation)
     {
         $this->label = $title;
-        $this->owner = $owner;
+        $this->owningOrganisation = $owningOrganisation;
         $this->institutions = new ArrayCollection();
     }
 
@@ -89,9 +89,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getOwner(): Orga
+    public function getOwningOrganisation(): Orga
     {
-        return $this->owner;
+        return $this->owningOrganisation;
     }
 
     /**
