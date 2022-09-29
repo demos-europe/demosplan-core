@@ -124,7 +124,7 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpTableCard from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
