@@ -383,7 +383,7 @@ class Orga extends SluggedEntity
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", unique=true)}
      * )
      */
-    protected $tags;
+    protected $assignedTags;
 
     public function __construct()
     {
@@ -397,7 +397,7 @@ class Orga extends SluggedEntity
         $this->statusInCustomers = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
-        $this->tags = new ArrayCollection();
+        $this->assignedTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -1464,9 +1464,9 @@ class Orga extends SluggedEntity
     /**
      * @return ArrayCollection<int, OrgaInstitutionTag>
      */
-    public function getTags(): ArrayCollection
+    public function getAssignedTags(): ArrayCollection
     {
-        return $this->tags;
+        return $this->assignedTags;
     }
 
     /**
@@ -1474,8 +1474,8 @@ class Orga extends SluggedEntity
      */
     public function addTag(OrgaInstitutionTag $tag): bool
     {
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
+        if (!$this->assignedTags->contains($tag)) {
+            $this->assignedTags->add($tag);
             $tag->addInstitution($this);
 
             return true;
