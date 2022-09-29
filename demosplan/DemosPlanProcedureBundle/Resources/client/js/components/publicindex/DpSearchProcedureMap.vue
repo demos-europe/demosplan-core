@@ -211,7 +211,7 @@
 <script>
 import { DpInput, DpLoading } from 'demosplan-ui/components'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpAutocomplete from '@DemosPlanCoreBundle/components/DpAutocomplete'
+import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import proj4 from 'proj4'
