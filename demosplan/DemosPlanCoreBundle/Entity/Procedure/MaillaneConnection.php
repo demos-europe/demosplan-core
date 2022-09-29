@@ -88,9 +88,10 @@ class MaillaneConnection implements UuidEntityInterface
      */
     private $procedure;
 
-    public function __construct()
+    public function __construct(Procedure $procedure)
     {
         $this->allowedSenderEmailAddresses = new ArrayCollection();
+        $this->procedure = $procedure;
     }
 
     public function getId(): ?string
@@ -132,11 +133,6 @@ class MaillaneConnection implements UuidEntityInterface
     public function setAllowedSenderEmailAddresses(Collection $allowedSenderEmailAddresses): void
     {
         $this->allowedSenderEmailAddresses = $allowedSenderEmailAddresses;
-    }
-
-    public function setProcedure(Procedure $procedure): void
-    {
-        $this->procedure = $procedure;
     }
 
     public function getProcedure(): Procedure
