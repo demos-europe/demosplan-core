@@ -390,7 +390,7 @@ class Orga extends SluggedEntity
      *
      * @ORM\OneToMany(targetEntity="InstitutionTag", mappedBy="owningOrganisation")
      * @ORM\JoinColumn(referencedColumnName="id")
-     * @ORM\OrderBy({"order" = "ASC"})
+     * @ORM\OrderBy({"label" = "ASC"})
      */
     protected $ownTags;
 
