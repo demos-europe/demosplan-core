@@ -78,7 +78,7 @@ class MaillaneConnection implements UuidEntityInterface
     protected $allowedSenderEmailAddresses;
 
     /**
-     * every maillaneconnection belong to a procedure
+     * Every maillaneconnection belongs to an (actual, non-template) procedure. But not every procedure needs to be connected to a {@link MaillaneConnection}.
      * It fully depends on permissions and availability of the external Maillane service.
      *
      * @var Procedure
