@@ -94,11 +94,6 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
         return $this->owner;
     }
 
-    public function setOwner(Orga $owner): void
-    {
-        $this->owner = $owner;
-    }
-
     /**
      * @return Collection<int, Orga>
      */
