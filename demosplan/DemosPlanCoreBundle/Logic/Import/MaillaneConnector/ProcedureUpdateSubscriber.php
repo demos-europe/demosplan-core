@@ -157,7 +157,7 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
             $procedure->getName()
         );
 
-        $this->maillaneSynchronizer->createAccount($accountEmail, $procedure->getId());
+        $this->maillaneSynchronizer->createAccount($accountEmail, $procedure);
 
         $this->entityManager->flush();
     }

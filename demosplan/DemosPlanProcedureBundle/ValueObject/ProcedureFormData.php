@@ -85,8 +85,9 @@ class ProcedureFormData extends ValueObject
                 ->getValues();
 
             $this->allowedSenderEmailAddresses = new ArrayCollection();
-            if ($procedureRepository->getMaillaneConnection($procedure->getId()) !== null)  {
-                $this->allowedSenderEmailAddresses = $procedureRepository->getMaillaneConnection($procedure->getId())
+            $maillaneConnection = $procedureRepository->getMaillaneConnection($procedure->getId());
+            if (null !== $maillaneConnection)  {
+                $this->allowedSenderEmailAddresses = $maillaneConnection
                     ->getAllowedSenderEmailAddresses()
                     ->map(static function (EmailAddress $emailAddress): EmailAddressVO {
                         return new EmailAddressVO($emailAddress->getFullAddress());
