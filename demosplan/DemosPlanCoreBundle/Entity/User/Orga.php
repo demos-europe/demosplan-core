@@ -376,14 +376,14 @@ class Orga extends SluggedEntity
     protected $administratableProcedures;
 
     /**
-     * @var Collection<int,OrgaInstitutionTag>
-     * @ORM\ManyToMany(targetEntity="OrgaInstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
+     * @var Collection<int,InstitutionTag>
+     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", unique=true)}
      * )
      */
-    protected $tags;
+    protected $assignedTags;
 
     public function __construct()
     {
@@ -397,7 +397,7 @@ class Orga extends SluggedEntity
         $this->statusInCustomers = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
-        $this->tags = new ArrayCollection();
+        $this->assignedTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -1461,18 +1461,21 @@ class Orga extends SluggedEntity
         return $this;
     }
 
-    public function getTags()
+    /**
+     * @return ArrayCollection<int, InstitutionTag>
+     */
+    public function getAssignedTags(): ArrayCollection
     {
-        return $this->tags;
+        return $this->assignedTags;
     }
 
     /**
      * @return bool - true, if the given tag was added to this institution, otherwise false.
      */
-    public function addTag(OrgaInstitutionTag $tag): bool
+    public function addTag(InstitutionTag $tag): bool
     {
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
+        if (!$this->assignedTags->contains($tag)) {
+            $this->assignedTags->add($tag);
             $tag->addInstitution($this);
 
             return true;

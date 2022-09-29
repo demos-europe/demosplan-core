@@ -17,12 +17,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner_id", "label"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaInstitutionTagRepository")
+ * @ORM\Entity(repositoryClass="InstitutionTagRepository")
  */
-class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
+class InstitutionTag extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
@@ -37,6 +38,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255, nullable=false)
+     *
+     * @Assert\NotNull(message="institutionTag.label.not.null")
+     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     protected $label;
 
@@ -45,7 +49,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      *
      * @var Collection<int,Orga>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="tags")
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
     protected $institutions;
 
@@ -57,7 +61,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
-    protected $owner;
+    protected $owningOrganisation;
 
     /**
      * @var DateTime
@@ -73,10 +77,10 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
      */
     private $modificationDate;
 
-    public function __construct(string $title, Orga $owner)
+    public function __construct(string $title, Orga $owningOrganisation)
     {
         $this->label = $title;
-        $this->owner = $owner;
+        $this->owningOrganisation = $owningOrganisation;
         $this->institutions = new ArrayCollection();
     }
 
@@ -85,14 +89,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
         return $this->id;
     }
 
-    public function getOwner(): Orga
+    public function getOwningOrganisation(): Orga
     {
-        return $this->owner;
-    }
-
-    public function setOwner(Orga $owner): void
-    {
-        $this->owner = $owner;
+        return $this->owningOrganisation;
     }
 
     /**
@@ -128,6 +127,7 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     {
         if (!$this->institutions->contains($institution)) {
             $this->institutions->add($institution);
+            $institution->addTag($this);
             return true;
         }
 

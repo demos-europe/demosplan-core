@@ -168,8 +168,8 @@ services:
     demosplan\DemosPlanUserBundle\Repository\OrgaRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Orga'
 
-    demosplan\DemosPlanUserBundle\Repository\OrgaInstitutionTagRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\OrgaInstitutionTag'
+    demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag'
 
     demosplan\DemosPlanUserBundle\Repository\MasterToebRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb'
