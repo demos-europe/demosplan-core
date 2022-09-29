@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner_id", "label"})})
@@ -37,6 +38,9 @@ class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255, nullable=false)
+     *
+     * @Assert\NotNull(message="institutionTag.label.not.null")
+     * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     protected $label;
 
