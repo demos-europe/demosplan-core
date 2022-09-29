@@ -127,7 +127,7 @@
             *
           </span>
         </label>
-        <dp-tiptap
+        <dp-editor
           class="u-mb-0_5"
           hidden-input="r_text"
           id="statementText"
@@ -623,7 +623,7 @@ import { CleanHtml } from 'demosplan-ui/directives'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
@@ -663,7 +663,7 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

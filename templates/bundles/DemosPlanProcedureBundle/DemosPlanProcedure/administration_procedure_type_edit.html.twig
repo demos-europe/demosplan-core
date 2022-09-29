@@ -64,14 +64,14 @@
             </div>
             <h2 class="u-mt u-mb-0">{{ 'form.fields.and.hint.texts'|trans }}</h2>
             <div class="u-pt">
-                {{ form_row(form.procedureUiDefinition.statementFormHintStatement, { class: 'u-mb-0_25', type: 'tiptap' }) }}
-                {{ form_row(form.procedureUiDefinition.statementFormHintPersonalData, { class: 'u-mb-0_25', type: 'tiptap' }) }}
-                {{ form_row(form.procedureUiDefinition.statementFormHintRecheck, { class: 'u-mb-0_25', type: 'tiptap' }) }}
+                {{ form_row(form.procedureUiDefinition.statementFormHintStatement, { class: 'u-mb-0_25', type: 'editor' }) }}
+                {{ form_row(form.procedureUiDefinition.statementFormHintPersonalData, { class: 'u-mb-0_25', type: 'editor' }) }}
+                {{ form_row(form.procedureUiDefinition.statementFormHintRecheck, { class: 'u-mb-0_25', type: 'editor' }) }}
                 {# customAttrs-suggestions-allowSpace: should be set to true but thats broken by tiptap @see https://github.com/ueberdosis/tiptap/issues/823 #}
                 {# after updating tipttap to version 2 this should be checked again #}
                 {{ form_row(form.procedureUiDefinition.statementPublicSubmitConfirmationText, {
                     class: 'u-mb-0_25',
-                    type: 'tiptap',
+                    type: 'editor',
                     attr: {
                         customAttrs: [
                             ':fullscreen-button=false',

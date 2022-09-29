@@ -12,9 +12,9 @@
  */
 
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
-const components = { DpDateRangePicker, DpTiptap }
+const components = { DpDateRangePicker, DpEditor }
 
 initialize(components)

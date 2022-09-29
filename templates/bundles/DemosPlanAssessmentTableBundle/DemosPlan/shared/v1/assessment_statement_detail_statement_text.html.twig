@@ -19,7 +19,7 @@
                                 {{ "statement"|trans }}
                             </label>
                             {% if not readonly %}
-                                <dp-tiptap
+                                <dp-editor
                                     :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
                                     editor-id="statementText"
                                     hidden-input="r_text"
@@ -30,7 +30,7 @@
                                         mark: true
                                     }"
                                     :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
-                                </dp-tiptap>
+                                </dp-editor>
                             {% else %}
                                 <span class="c-styled-html overflow-word-break">
                                     {{- statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? ['dp-obscure'] : []) -}}
@@ -99,7 +99,7 @@
                         </label>
 
                         {% if not readonly %}
-                            <dp-tiptap
+                            <dp-editor
                                 class="u-mb-0_5"
                                 editor-id="recommendationText"
                                 :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
@@ -110,7 +110,7 @@
                                     linkButton: true
                                 }"
                                 v-model="currentRecommendation">
-                            </dp-tiptap>
+                            </dp-editor>
                         {% else %}
                             <span class="overflow-word-break">
                                 {{- statement.recommendation|default('<p>n/a</p>')|wysiwyg -}}

@@ -15,7 +15,7 @@ import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpEmailList from './DpEmailList'
 import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import ExportSettings from './ExportSettings'
 import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
 
@@ -32,8 +32,8 @@ export default {
     DpInput,
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpTiptap,
-    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'),
+    DpEditor,
+    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DpJs/components/core/DpUpload/DpUploadFiles'),
     ExportSettings
   },
 

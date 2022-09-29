@@ -381,6 +381,22 @@ export default {
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
+    setInitialOrgaData () {
+      /*
+       * Fetch organisation only
+       * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
+       * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
+       */
+      if (this.isUserSet || this.isManagingSingleOrganisation) {
+        this.fetchCurrentOrganisation()
+            .then((response) => {
+              if (response && response.data) {
+                this.setOrganisationWithDepartments(response)
+              }
+            })
+      }
+    },
+
     setOrganisationDepartments (departments) {
       const orgaDepartments = {}
 
@@ -413,22 +429,12 @@ export default {
   },
 
   mounted () {
-    /*
-     * Fetch organisation only
-     * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
-     * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
-     */
-    if (this.isUserSet || this.isManagingSingleOrganisation) {
-      this.fetchCurrentOrganisation()
-        .then((response) => {
-          if (response && response.data) {
-            this.setOrganisationWithDepartments(response)
-          }
-        })
-    }
+    this.setInitialOrgaData()
 
     this.$root.$on('user-reset', () => {
-      this.resetData()
+      if (!this.isUserSet) {
+        this.resetData()
+      }
     })
   }
 }

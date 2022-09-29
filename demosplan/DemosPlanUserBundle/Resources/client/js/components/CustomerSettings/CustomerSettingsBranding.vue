@@ -72,7 +72,7 @@
 import { DpDetails, DpLabel } from 'demosplan-ui/components'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 
 export default {
   name: 'CustomerSettingsBranding',

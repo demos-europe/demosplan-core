@@ -74,7 +74,7 @@ import { mapActions, mapState } from 'vuex'
 import debounce from '@DpJs/lib/utils/debounce'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import dpSelectAllMixin from '@DpJs/lib/utils/dpSelectAllMixin'
-import DpTableCardListHeader from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCardListHeader'
+import DpTableCardListHeader from '@DpJs/components/core/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 

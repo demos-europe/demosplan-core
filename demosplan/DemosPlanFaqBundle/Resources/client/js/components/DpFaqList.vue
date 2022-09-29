@@ -51,7 +51,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpFaqCategoryItem from './DpFaqCategoryItem'
 import DpFaqItem from './DpFaqItem'
 import { DpLoading } from 'demosplan-ui/components'
-import DpTreeList from '@DemosPlanCoreBundle/components/DpTreeList/DpTreeList'
+import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 
 export default {
   name: 'DpFaqList',

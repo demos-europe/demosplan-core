@@ -10,7 +10,7 @@
 import { DOMParser } from 'prosemirror-model'
 import { Node } from 'tiptap'
 
-export default class TipTapInsertAtCursorPos extends Node {
+export default class EditorInsertAtCursorPos extends Node {
   get name () {
     return 'insertHTML'
   }

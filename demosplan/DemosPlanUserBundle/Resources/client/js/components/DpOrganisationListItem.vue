@@ -70,7 +70,6 @@
         form-name="organisationForm"
         :primary="editable"
         secondary
-        :secondary-text="Translator.trans('close')"
         @primary-action="dpValidateAction('organisationForm', save)"
         @secondary-action="reset" />
     </div>
@@ -79,7 +78,7 @@
 
 <script>
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpTableCard from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import { mapState } from 'vuex'
 

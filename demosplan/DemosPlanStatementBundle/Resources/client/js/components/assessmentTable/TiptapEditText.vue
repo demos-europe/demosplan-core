@@ -8,10 +8,10 @@
 </license>
 
 <documentation>
-  <!-- Wrapper component for DpTiptap.vue
+  <!-- Wrapper component for DpEditor.vue
    - contains save/reset/update/toggleEdit methods
    - use this component if you want to save text directly via the editor/inline-editing (as in assessment table)
-   - do not use this component if you save text via a form element (as in new statement view), use only DpTipTap instead with hidden input prop (prop value is the hidden input id and name)
+   - do not use this component if you save text via a form element (as in new statement view), use only DpEditor instead with hidden input prop (prop value is the hidden input id and name)
    -->
 </documentation>
 
@@ -26,7 +26,7 @@
     </p>
 
     <div v-if="isEditing">
-      <dp-tiptap
+      <dp-editor
         class="u-mb-0_5"
         ref="editor"
         :entity-id="entityId"
@@ -112,7 +112,7 @@ export default {
     DpButton,
     DpHeightLimit,
     DpLoading,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
   },
 
   props: {

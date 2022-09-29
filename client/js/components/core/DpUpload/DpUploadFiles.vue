@@ -48,8 +48,8 @@
 
 <script>
 import { DpLabel } from 'demosplan-ui/components'
-import DpUpload from '@DemosPlanCoreBundle/components/DpUpload/DpUpload'
-import DpUploadedFileList from '@DemosPlanCoreBundle/components/DpUpload/DpUploadedFileList'
+import DpUpload from './DpUpload'
+import DpUploadedFileList from './DpUploadedFileList'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
