@@ -385,6 +385,15 @@ class Orga extends SluggedEntity
      */
     protected $assignedTags;
 
+    /**
+     * @var Collection<int,InstitutionTag>
+     *
+     * @ORM\OneToMany(targetEntity="InstitutionTag", mappedBy="owningOrganisation")
+     * @ORM\JoinColumn(referencedColumnName="id")
+     * @ORM\OrderBy({"order" = "ASC"})
+     */
+    protected $ownTags;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -1475,5 +1484,10 @@ class Orga extends SluggedEntity
             $this->assignedTags->add($tag);
             $tag->addInstitution($this);
         }
+    }
+
+    public function addOwningTag(InstitutionTag $tag): void
+    {
+        $this->ownTags->add($tag);
     }
 }
