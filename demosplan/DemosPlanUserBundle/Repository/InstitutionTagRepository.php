@@ -32,7 +32,7 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
         $manager->persist($tag);
         $manager->flush();
 
-        return $this->get($tag);
+        return $tag;
     }
 
     /**
