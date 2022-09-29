@@ -1486,8 +1486,16 @@ class Orga extends SluggedEntity
         }
     }
 
-    public function addOwningTag(InstitutionTag $tag): void
+    public function addOwnTag(InstitutionTag $tag): void
     {
         $this->ownTags->add($tag);
+    }
+
+    /**
+     * @return Collection<int, InstitutionTag>
+     */
+    public function getOwnTags(): Collection
+    {
+        return $this->ownTags;
     }
 }
