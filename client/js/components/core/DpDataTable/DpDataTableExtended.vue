@@ -140,10 +140,10 @@
 </template>
 
 <script>
-import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTableSearch'
+import dataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 import DomPurify from 'dompurify'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
-import DpSelectPageItemCount from '@DemosPlanCoreBundle/components/DpDataTable/DpSelectPageItemCount'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import DpSelectPageItemCount from '@DpJs/components/core/DpDataTable/DpSelectPageItemCount'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import SlidingPagination from 'vue-sliding-pagination'

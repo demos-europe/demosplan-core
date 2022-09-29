@@ -106,7 +106,7 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: () => import(/* webpackChunkName: "dp-data-table" */ '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'),
+    DpDataTable: () => import(/* webpackChunkName: "dp-data-table" */ '@DpJs/components/core/DpDataTable/DpDataTable'),
     DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DemosPlanCoreBundle/components/DpInlineNotification'),
     DpSelect
   },
