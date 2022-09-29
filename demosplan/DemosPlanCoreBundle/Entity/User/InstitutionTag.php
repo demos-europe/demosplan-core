@@ -21,9 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owner_id", "label"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaInstitutionTagRepository")
+ * @ORM\Entity(repositoryClass="InstitutionTagRepository")
  */
-class OrgaInstitutionTag extends CoreEntity implements UuidEntityInterface
+class InstitutionTag extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null

@@ -376,8 +376,8 @@ class Orga extends SluggedEntity
     protected $administratableProcedures;
 
     /**
-     * @var Collection<int,OrgaInstitutionTag>
-     * @ORM\ManyToMany(targetEntity="OrgaInstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
+     * @var Collection<int,InstitutionTag>
+     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", unique=true)}
@@ -1462,7 +1462,7 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @return ArrayCollection<int, OrgaInstitutionTag>
+     * @return ArrayCollection<int, InstitutionTag>
      */
     public function getAssignedTags(): ArrayCollection
     {
@@ -1472,7 +1472,7 @@ class Orga extends SluggedEntity
     /**
      * @return bool - true, if the given tag was added to this institution, otherwise false.
      */
-    public function addTag(OrgaInstitutionTag $tag): bool
+    public function addTag(InstitutionTag $tag): bool
     {
         if (!$this->assignedTags->contains($tag)) {
             $this->assignedTags->add($tag);

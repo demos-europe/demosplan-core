@@ -4,17 +4,17 @@
 namespace demosplan\DemosPlanUserBundle\Repository;
 
 
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaInstitutionTag;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 
-class OrgaInstitutionTagRepository extends CoreRepository implements ObjectInterface
+class InstitutionTagRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @param $entityId
      *
-     * @return OrgaInstitutionTag|null
+     * @return InstitutionTag|null
      */
     public function get($entityId)
     {
@@ -22,9 +22,9 @@ class OrgaInstitutionTagRepository extends CoreRepository implements ObjectInter
     }
 
     /**
-     * @param OrgaInstitutionTag $tag
+     * @param InstitutionTag $tag
      *
-     * @return OrgaInstitutionTag
+     * @return InstitutionTag
      */
     public function addObject($tag)
     {
@@ -36,9 +36,9 @@ class OrgaInstitutionTagRepository extends CoreRepository implements ObjectInter
     }
 
     /**
-     * @param OrgaInstitutionTag $tag
+     * @param InstitutionTag $tag
      *
-     * @return OrgaInstitutionTag
+     * @return InstitutionTag
      */
     public function updateObject($tag)
     {
@@ -58,7 +58,7 @@ class OrgaInstitutionTagRepository extends CoreRepository implements ObjectInter
     public function delete($tagId)
     {
         $tag = $this->get($tagId);
-        if (!$tag instanceof OrgaInstitutionTag) {
+        if (!$tag instanceof InstitutionTag) {
             throw new ResourceNotFoundException("InstitutionTag with ID {$tag} was not found.");
         }
 
@@ -66,7 +66,7 @@ class OrgaInstitutionTagRepository extends CoreRepository implements ObjectInter
     }
 
     /**
-     * @param OrgaInstitutionTag $tag
+     * @param InstitutionTag $tag
      *
      * @return bool
      */
