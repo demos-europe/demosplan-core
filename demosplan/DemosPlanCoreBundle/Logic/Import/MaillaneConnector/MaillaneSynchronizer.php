@@ -137,7 +137,7 @@ class MaillaneSynchronizer
      * @throws MaillaneApiException if the interaction with the server fails
      * @throws ViolationsException  if validation fails
      */
-    public function createAccount(string $email,$procedure): MaillaneConnection
+    public function createAccount(string $email, Procedure $procedure): MaillaneConnection
     {
         $url = $this->maillaneRouter->accountList();
         try {
