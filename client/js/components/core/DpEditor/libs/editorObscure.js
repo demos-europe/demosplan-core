@@ -20,7 +20,7 @@
 import { markInputRule, markPasteRule, toggleMark } from 'tiptap-commands'
 import { Mark } from 'tiptap'
 
-export default class TiptapObscure extends Mark {
+export default class EditorObscure extends Mark {
   get name () {
     return 'obscure'
   }

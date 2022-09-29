@@ -144,7 +144,7 @@ import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTab
 import DomPurify from 'dompurify'
 import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
 import DpSelectPageItemCount from '@DemosPlanCoreBundle/components/DpDataTable/DpSelectPageItemCount'
-import DpStickyElement from '@DemosPlanCoreBundle/components/shared/DpStickyElement'
+import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import SlidingPagination from 'vue-sliding-pagination'
 

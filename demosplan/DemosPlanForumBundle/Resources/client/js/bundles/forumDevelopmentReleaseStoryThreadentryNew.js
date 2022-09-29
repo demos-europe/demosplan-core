@@ -11,12 +11,12 @@
  * This is the entry point for development_release_story_threadentry_new.html.twig
  */
 
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
-  DpTiptap,
+  DpEditor,
   DpUploadFiles
 }
 

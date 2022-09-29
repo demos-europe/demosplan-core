@@ -14,7 +14,7 @@
 import DpMapModal from '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpPublicDetailNoMap from '@DemosPlanStatementBundle/components/DpPublicDetailNoMap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
 import StatementForm from '@DemosPlanStatementBundle/lib/StatementForm'

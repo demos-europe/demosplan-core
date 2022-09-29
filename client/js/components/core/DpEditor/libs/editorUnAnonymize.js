@@ -20,7 +20,7 @@
 import { markInputRule, markPasteRule, toggleMark } from 'tiptap-commands'
 import { Mark } from 'tiptap'
 
-export default class TiptapUnAnonymize extends Mark {
+export default class EditorUnAnonymize extends Mark {
   get name () {
     return 'unanonymize'
   }
