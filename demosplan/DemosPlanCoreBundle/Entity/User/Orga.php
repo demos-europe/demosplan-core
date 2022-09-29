@@ -380,7 +380,7 @@ class Orga extends SluggedEntity
      * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", unique=true)}
+     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
      * )
      */
     protected $assignedTags;
