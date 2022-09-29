@@ -94,7 +94,7 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: () => import('@DemosPlanCoreBundle/components/DpVideoPlayer')
+    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer')
   },
 
   mixins: [dpValidateMixin],
