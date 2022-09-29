@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import DpAutocomplete from '@DemosPlanCoreBundle/components/DpAutocomplete'
+import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
 import { DpButton } from 'demosplan-ui/components'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { formatDate } from '@DpJs/lib/utils/date'
