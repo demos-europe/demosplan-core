@@ -1469,18 +1469,11 @@ class Orga extends SluggedEntity
         return $this->assignedTags;
     }
 
-    /**
-     * @return bool - true, if the given tag was added to this institution, otherwise false.
-     */
-    public function addTag(InstitutionTag $tag): bool
+    public function addTag(InstitutionTag $tag): void
     {
         if (!$this->assignedTags->contains($tag)) {
             $this->assignedTags->add($tag);
             $tag->addInstitution($this);
-
-            return true;
         }
-
-        return false;
     }
 }
