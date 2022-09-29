@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\ProcedureRepository")
+ *
+ * @MaillaneConnectionProcedureTemplateConstraint()
  */
 class MaillaneConnection implements UuidEntityInterface
 {
