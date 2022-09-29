@@ -81,7 +81,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     {
         $this->label = $title;
         $this->owningOrganisation = $owningOrganisation;
-        $owningOrganisation->addOwningTag($this);
+        $owningOrganisation->addOwnTag($this);
         $this->institutions = new ArrayCollection();
     }
 
