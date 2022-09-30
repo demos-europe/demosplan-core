@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Constraint\MaillaneConnectionProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\ProcedureRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository")
  *
  * @MaillaneConnectionProcedureTemplateConstraint()
  */
@@ -86,8 +87,8 @@ class MaillaneConnection implements UuidEntityInterface
      *
      * @var Procedure
      *
-     * @ORM\OneToOne(targetEntity="Procedure", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable = false,  referencedColumnName="_p_id")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable = false, referencedColumnName="_p_id")
      */
     private $procedure;
 
