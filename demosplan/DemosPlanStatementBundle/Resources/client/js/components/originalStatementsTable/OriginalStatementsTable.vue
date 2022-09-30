@@ -132,7 +132,7 @@
 import { mapActions, mapGetters, mapState } from 'vuex'
 import changeUrlforPager from '@DpJs/lib/utils/changeUrlforPager'
 import DpExportModal from '@DemosPlanStatementBundle/components/assessmentTable/DpExportModal'
-import DpPager from '@DemosPlanCoreBundle/components/DpPager'
+import DpPager from '@DpJs/components/core/DpPager'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
