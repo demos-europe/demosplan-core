@@ -235,7 +235,6 @@ services:
         lazy: true
         arguments:
             $types: !tagged dplan.resourceType
-            $logger: '@demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
