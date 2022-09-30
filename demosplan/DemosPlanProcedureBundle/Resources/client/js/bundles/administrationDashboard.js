@@ -12,7 +12,7 @@
  */
 
 import DpContextualHelp from '@DemosPlanCoreBundle/components/DpContextualHelp'
-import DpDashboardTaskCard from '@DemosPlanCoreBundle/components/DpDashboardTaskCard'
+import DpDashboardTaskCard from '@DpJs/components/core/DpDashboardTaskCard'
 import DpStatementSegmentsStatusCharts from '@DemosPlanProcedureBundle/components/charts/DpStatementSegmentsStatusCharts'
 import DpSurveyChart from '@DemosPlanProcedureBundle/components/survey/DpSurveyChart'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
