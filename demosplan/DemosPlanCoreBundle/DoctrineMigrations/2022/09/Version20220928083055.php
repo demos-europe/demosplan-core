@@ -5,22 +5,13 @@ namespace Application\Migrations;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class Version20220928083055 extends AbstractMigration implements ContainerAwareInterface
+class Version20220928083055 extends AbstractMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    private const RESTRICT_TO_PROJECT = 'blp';
-
     public function getDescription(): string
     {
-        return 'refs T: test Migration';
-
+        return 'refs T29168: add a new proprety ´procedureId` in maillane_connection,procedure ids with a maillane connection
+         will be copied there and the proprety `maillane_connection_id` will be removed from procedure';
     }
 
     /**
@@ -28,12 +19,9 @@ class Version20220928083055 extends AbstractMigration implements ContainerAwareI
      */
     public function up(Schema $schema): void
     {
-        if (self::RESTRICT_TO_PROJECT !== $this->container->getParameter('project_folder')){
-            return;
-        }
+        $this->abortIfNotMysql();
 
         $matchingRecords = $this->getMatchingRecordsToUp();
-        $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE maillane_connection ADD procedure_id CHAR(36) DEFAULT NULL');
         $this->addSql('ALTER TABLE maillane_connection ADD CONSTRAINT FK_71C04D1D1624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_71C04D1D1624BCD2 ON maillane_connection (procedure_id)');
@@ -48,7 +36,6 @@ class Version20220928083055 extends AbstractMigration implements ContainerAwareI
         $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D02AC0C069A');
         $this->addSql('DROP INDEX UNIQ_D1A01D02AC0C069A ON _procedure');
         $this->addSql('ALTER TABLE _procedure DROP COLUMN maillane_connection_id');
-        //$this->addSql('ALTER TABLE maillane_connection ALTER COLUMN procedure_id CHAR(36) NOT NULL');
     }
 
     /**
@@ -56,9 +43,6 @@ class Version20220928083055 extends AbstractMigration implements ContainerAwareI
      */
     public function down(Schema $schema): void
     {
-        if (self::RESTRICT_TO_PROJECT !== $this->container->getParameter('project_folder')){
-            return;
-        }
         $this->abortIfNotMysql();
 
         $matchingRecords = $this->getMatchingRecordsToDown();
@@ -87,10 +71,6 @@ class Version20220928083055 extends AbstractMigration implements ContainerAwareI
             'mysql' !== $this->connection->getDatabasePlatform()->getName(),
             "Migration can only be executed safely on 'mysql'."
         );
-    }
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
     }
 
     public function getMatchingRecordsToUp()
