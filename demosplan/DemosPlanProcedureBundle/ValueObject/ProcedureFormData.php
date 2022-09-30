@@ -57,12 +57,7 @@ class ProcedureFormData extends ValueObject
      */
     private $allowedSenderEmailAddresses;
 
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
-    public function __construct(Procedure $procedure = null, ProcedureRepository $procedureRepository)
+    public function __construct(Procedure $procedure = null)
     {
         if (null === $procedure) {
             $this->agencyMainEmailAddress = new EmailAddressVO('');
@@ -85,15 +80,6 @@ class ProcedureFormData extends ValueObject
                 ->getValues();
 
             $this->allowedSenderEmailAddresses = new ArrayCollection();
-            $maillaneConnection = $procedureRepository->getMaillaneConnection($procedure->getId());
-            if (null !== $maillaneConnection)  {
-                $this->allowedSenderEmailAddresses = $maillaneConnection
-                    ->getAllowedSenderEmailAddresses()
-                    ->map(static function (EmailAddress $emailAddress): EmailAddressVO {
-                        return new EmailAddressVO($emailAddress->getFullAddress());
-                    }
-                );
-            }
         }
     }
 

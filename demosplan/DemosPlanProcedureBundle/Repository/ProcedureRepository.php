@@ -912,27 +912,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function getMaillaneConnection(string $procedureId): MaillaneConnection
-    {
-        try {
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('maillaneconnection')
-                ->from(MaillaneConnection::class, 'maillaneconnection')
-                ->where('maillaneconnection.procedure= :procedureId')
-                ->setParameter('procedureId', $procedureId)
-                ->getQuery();
-
-            return $query->getResult();
-        } catch (Exception $e) {
-            $this->logger->warning('The procedure with ID: '.$procedureId.' has no Maillane Connection: ', [$e]);
-            throw $e;
-        }
-    }
-
     public function addObject($entity)
     {
         throw new NotYetImplementedException('Method not yet implemented.');

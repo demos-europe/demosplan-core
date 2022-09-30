@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector;
 
+use demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ContentField;
 use Throwable;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector\Exception\MaillaneApiException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 class ProcedureUpdateSubscriber extends BaseEventSubscriber
 {
@@ -55,24 +55,24 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
     private $entityManager;
 
     /**
-     * @var ProcedureRepository
+     * @var MaillaneConnectionRepository
      */
-    private $procedureRepository;
+    private $maillaneConnectionRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
+        MaillaneConnectionRepository $maillaneConnectionRepository,
         MaillaneSynchronizer $maillaneSynchronizer,
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
-        ProcedureService $procedureService,
-        ProcedureRepository $procedureRepository
+        ProcedureService $procedureService
     ) {
         $this->maillaneSynchronizer = $maillaneSynchronizer;
         $this->messageBag = $messageBag;
         $this->permissions = $permissions;
         $this->procedureService = $procedureService;
         $this->entityManager = $entityManager;
-        $this->procedureRepository = $procedureRepository;
+        $this->maillaneConnectionRepository = $maillaneConnectionRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -115,7 +115,7 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
                 $beforeUpdateProcedureData[ContentField::ID]
             );
 
-            $maillaneConnection = $this->procedureRepository->getMaillaneConnection($procedure->getId());
+            $maillaneConnection = $this->maillaneConnectionRepository->getMaillaneConnection($procedure->getId());
             try {
                 if (null === $maillaneConnection) {
                     // if an existing procedure gets edited and has no maillane connection, create one
@@ -140,8 +140,10 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
     {
         if ($this->permissions->hasPermission('feature_import_statement_via_email')) {
             $procedureData = $event->getProcedureData();
-            if ('' !== $procedureData['maillaneAccountId']) {
-                $this->maillaneSynchronizer->deleteAccount($procedureData['maillaneAccountId']);
+            $procedureId = $procedureData['id'];
+            $maillaneConnection = $this->maillaneConnectionRepository->getMaillaneConnection($procedureId);
+            if (null !== $maillaneConnection) {
+                $this->maillaneSynchronizer->deleteAccount($maillaneConnection->getMaillaneAccountId());
             }
         }
     }

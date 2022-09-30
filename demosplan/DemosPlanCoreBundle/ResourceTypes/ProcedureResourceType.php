@@ -59,8 +59,6 @@ use function is_array;
  * @property-read End                                 $daysLeft
  * @property-read End                                 $statementSubmitted
  * @property-read End                                 $owningOrganisationName
- * @property-read End                                 $allowedSenderEmailAddresses
- * @property-read End                                 $importEmailAddress
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
@@ -87,23 +85,16 @@ final class ProcedureResourceType extends DplanResourceType
      */
     private $phasePermissionsetLoader;
 
-    /**
-     * @var ProcedureRepository
-     */
-    private $procedureRepository;
-
     public function __construct(
         PhasePermissionsetLoader $phasePermissionsetLoader,
         DraftStatementService $draftStatementService,
         ProcedureAccessEvaluator $accessEvaluator,
-        ProcedureExtension $procedureExtension,
-        ProcedureRepository $procedureRepository
+        ProcedureExtension $procedureExtension
     ) {
         $this->phasePermissionsetLoader = $phasePermissionsetLoader;
         $this->accessEvaluator = $accessEvaluator;
         $this->procedureExtension = $procedureExtension;
         $this->draftStatementService = $draftStatementService;
-        $this->procedureRepository = $procedureRepository;
     }
 
     public function getEntityClass(): string
@@ -299,39 +290,6 @@ final class ProcedureResourceType extends DplanResourceType
                 ->readable(false, [$this->phasePermissionsetLoader, 'getInternalPhasePermissionset']);
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
                 ->readable(false, [$this->phasePermissionsetLoader, 'getExternalPhasePermissionset']);
-        }
-
-        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $properties[] = $this->createAttribute($this->importEmailAddress)->readable(
-                false,
-                function (Procedure $procedure): ?string {
-                    if (null === $this->procedureRepository->getMaillaneConnection($procedure->getId())) {
-                        return null;
-                    }
-                    $mailconnection = $this->procedureRepository->getMaillaneConnection($procedure->getId());
-
-                    return $mailconnection->getRecipientEmailAddress();
-                }
-            );
-
-            $properties[] = $this->createAttribute(
-                $this->allowedSenderEmailAddresses
-            )->readable(
-                false,
-                function (Procedure $procedure): ?array {
-                    if (null === $this->procedureRepository->getMaillaneConnection($procedure->getId())) {
-                        return null;
-                    }
-                    $mailconnection = $this->procedureRepository->getMaillaneConnection($procedure->getId());
-
-                    return $mailconnection->getAllowedSenderEmailAddresses(
-                    )->map(
-                        static function (EmailAddress $address): string {
-                            return $address->getFullAddress();
-                        }
-                    )->toArray();
-                }
-            );
         }
 
         return $properties;
