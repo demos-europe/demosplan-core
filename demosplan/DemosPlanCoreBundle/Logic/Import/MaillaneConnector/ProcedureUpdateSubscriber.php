@@ -59,7 +59,6 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
      */
     private $procedureRepository;
 
-
     public function __construct(
         EntityManagerInterface $entityManager,
         MaillaneSynchronizer $maillaneSynchronizer,
