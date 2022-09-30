@@ -65,7 +65,7 @@ export default {
   components: {
     CreateCommentForm,
     DpButton,
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
     DpLoading,
     SegmentComment: () => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')
   },

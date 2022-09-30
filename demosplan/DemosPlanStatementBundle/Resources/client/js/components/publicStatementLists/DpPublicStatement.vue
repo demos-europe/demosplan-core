@@ -241,7 +241,7 @@
 import { CleanHtml } from 'demosplan-ui/directives'
 import DomPurify from 'dompurify'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
