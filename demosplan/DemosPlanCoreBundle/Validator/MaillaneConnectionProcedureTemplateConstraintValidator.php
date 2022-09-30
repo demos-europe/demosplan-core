@@ -26,7 +26,7 @@ class MaillaneConnectionProcedureTemplateConstraintValidator extends ConstraintV
 
     private function validateTyped(MaillaneConnection $maillaneConnection, MaillaneConnectionProcedureTemplateConstraint $constraint): void
     {
-        if ($maillaneConnection->getProcedure()->getMaster() && null !== $maillaneConnection->getProcedure()) {
+        if ($maillaneConnection->getProcedure()->getMaster()) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
