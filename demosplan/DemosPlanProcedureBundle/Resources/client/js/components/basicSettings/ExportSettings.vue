@@ -55,7 +55,7 @@
 
 <script>
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpCheckboxGroup from '@DemosPlanCoreBundle/components/DpCheckboxGroup'
+import DpCheckboxGroup from '@DpJs/components/core/DpCheckboxGroup'
 
 export default {
   name: 'ExportSettings',
