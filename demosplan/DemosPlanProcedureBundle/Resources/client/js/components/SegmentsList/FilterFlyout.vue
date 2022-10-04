@@ -159,7 +159,7 @@
 import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapGetters, mapMutations } from 'vuex'
-import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTableSearch'
+import dataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpResettableInput from '@DemosPlanCoreBundle/components/DpResettableInput'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
