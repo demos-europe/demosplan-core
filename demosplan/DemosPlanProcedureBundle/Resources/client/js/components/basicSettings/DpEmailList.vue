@@ -1,45 +1,46 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+(c) 2010-present DEMOS E-Partizipation GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
   <div>
     <dp-editable-list
-      :entries="emails"
-      @reset="resetForm"
-      @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
-      :translation-keys="translationKeys"
-      ref="listComponent">
+        :entries="emails"
+        @reset="resetForm"
+        @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+        :translation-keys="translationKeys"
+        ref="listComponent">
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
-            type="email"
-            :value="entry.mail"
-            :name="formFieldName"
-            class="hide-visually">
+              type="email"
+              :value="entry.mail"
+              :name="formFieldName"
+              class="hide-visually">
         </span>
       </template>
 
       <template v-slot:form>
         <dp-input
-          id="emailAddress"
-          data-cy="emailAddressList"
-          :placeholder="Translator.trans('email.address')"
-          type="email"
-          v-model="formFields.mail"
-          width="u-1-of-2"
-          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
+            id="emailAddress"
+            data-cy="emailAddressList"
+            :placeholder="Translator.trans('email.address')"
+            type="email"
+            v-model="formFields.mail"
+            width="u-1-of-2"
+            @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
       </template>
     </dp-editable-list>
   </div>
 </template>
 
 <script>
+import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpEditableList from '@DpJs/components/core/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
 import validateEmail from '@DpJs/lib/validation/utils/validateEmail'
@@ -62,6 +63,12 @@ export default {
       type: String,
       required: false,
       default: 'agencyExtraEmailAddresses[][fullAddress]'
+    },
+
+    procedureId: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
 
@@ -134,6 +141,25 @@ export default {
       this.formFields.mail = this.emails[index].mail
       this.itemIndex = index
     })
+
+    if (this.formFieldName === 'agencyExtraEmailAddresses[][fullAddress]') {
+      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', procedure: this.procedureId })
+      const params = {
+        fields: {
+          MaillaneConnection: ['allowedSenderEmailAddresses'].join()
+        }
+      }
+
+      return dpApi.get(url, params, { serialize: true })
+          .then(response => {
+            if (response.data.data.length !== 0) {
+              this.emails = response.data.data.attributes.allowedSenderEmailAddresses
+            }
+          })
+          .catch((e) => {
+            console.error(e)
+          })
+    }
   }
 }
 </script>
