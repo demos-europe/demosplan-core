@@ -22,8 +22,7 @@ class Version20220928083055 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $matchingRecords = $this->getMatchingRecordsToUp();
-        $this->addSql('ALTER TABLE maillane_connection ADD procedure_id CHAR(36) DEFAULT NULL');
-        $this->addSql('ALTER TABLE maillane_connection ADD CONSTRAINT FK_71C04D1D1624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
+        $this->addSql('ALTER TABLE maillane_connection ADD procedure_id CHAR(36) NULL');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_71C04D1D1624BCD2 ON maillane_connection (procedure_id)');
         foreach ($matchingRecords as $matchingRecord) {
             $this->addSql('UPDATE maillane_connection SET procedure_id = :procedureId
@@ -36,6 +35,9 @@ class Version20220928083055 extends AbstractMigration
         $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D02AC0C069A');
         $this->addSql('DROP INDEX UNIQ_D1A01D02AC0C069A ON _procedure');
         $this->addSql('ALTER TABLE _procedure DROP COLUMN maillane_connection_id');
+        $this->addSql('DELETE FROM maillane_connection WHERE procedure_id is NULL');
+        $this->addSql('ALTER TABLE maillane_connection CHANGE procedure_id procedure_id CHAR(36) NOT NULL');
+        $this->addSql('ALTER TABLE maillane_connection ADD CONSTRAINT FK_71C04D1D1624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id)');
     }
 
     /**
@@ -46,7 +48,7 @@ class Version20220928083055 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $matchingRecords = $this->getMatchingRecordsToDown();
-        $this->addSql('ALTER TABLE _procedure ADD maillane_connection_id CHAR(36) DEFAULT NULL');
+        $this->addSql('ALTER TABLE _procedure ADD maillane_connection_id CHAR(36) NULL');
         $this->addSql('ALTER TABLE _procedure ADD CONSTRAINT FK_D1A01D02AC0C069A FOREIGN KEY (maillane_connection_id) REFERENCES maillane_connection (id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D1A01D02AC0C069A ON _procedure (maillane_connection_id)');
         foreach ($matchingRecords as $matchingRecord) {
