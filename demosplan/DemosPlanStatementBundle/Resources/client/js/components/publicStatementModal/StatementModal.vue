@@ -627,7 +627,7 @@ import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
-import MultistepNav from '@DemosPlanCoreBundle/components/MultistepNav'
+import MultistepNav from '@DpJs/components/core/MultistepNav'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
