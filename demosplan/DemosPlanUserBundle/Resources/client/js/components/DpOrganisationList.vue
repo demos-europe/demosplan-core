@@ -153,7 +153,7 @@
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapState } from 'vuex'
-import DpCheckboxGroup from '@DemosPlanCoreBundle/components/DpCheckboxGroup'
+import DpCheckboxGroup from '@DpJs/components/core/DpCheckboxGroup'
 import DpOrganisationListItem from './DpOrganisationListItem'
 import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 import dpSelectAllMixin from '@DpJs/lib/utils/dpSelectAllMixin'
