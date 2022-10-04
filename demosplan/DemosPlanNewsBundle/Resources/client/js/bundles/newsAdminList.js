@@ -12,7 +12,7 @@
  */
 
 import DpNewsAdminList from '@DemosPlanNewsBundle/components/DpNewsAdminList'
-import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
+import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
