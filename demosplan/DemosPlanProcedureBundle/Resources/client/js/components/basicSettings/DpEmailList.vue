@@ -143,10 +143,10 @@ export default {
     })
 
     if (this.formFieldName === 'agencyExtraEmailAddresses[][fullAddress]') {
-      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', procedure: this.procedureId })
+      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', resourceId: this.procedureId })
       const params = {
         fields: {
-          MaillaneConnection: ['allowedSenderEmailAddresses'].join()
+          MaillaneConnection: ['allowedSenderEmailAddresses', 'procedureId'].join()
         }
       }
 

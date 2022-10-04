@@ -208,7 +208,7 @@ export default {
 
   methods: {
     fetchImportEmailAddresses () {
-      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', procedure: this.procedureId })
+      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', resourceId: this.procedureId })
       const params = {
         fields: {
           MaillaneConnection: [
