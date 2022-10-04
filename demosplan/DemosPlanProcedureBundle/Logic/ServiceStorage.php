@@ -339,7 +339,6 @@ class ServiceStorage
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'publicParticipationPublicationEnabled');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::ALLOWED_SENDER_EMAIL_ADDRESSES, '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'customer', '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'xtaPlanId', '');
@@ -508,7 +507,6 @@ class ServiceStorage
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::ALLOWED_SENDER_EMAIL_ADDRESSES, '');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationName');
