@@ -231,7 +231,7 @@ import { CleanHtml } from 'demosplan-ui/directives'
 import DpAnonymizeText from '@DemosPlanCoreBundle/components/DpAnonymizeText'
 import { DpButton } from 'demosplan-ui/components'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
+import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 
 export default {
   name: 'DpStatementAnonymize',

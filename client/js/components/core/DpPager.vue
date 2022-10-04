@@ -60,8 +60,8 @@
 </template>
 
 <script>
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpSlidingPagination from '@DemosPlanCoreBundle/components/DpSlidingPagination'
+import DpMultiselect from './form/DpMultiselect'
+import DpSlidingPagination from './DpSlidingPagination'
 
 export default {
   name: 'DpPager',

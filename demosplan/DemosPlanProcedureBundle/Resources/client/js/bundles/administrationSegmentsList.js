@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
-import DpSlidebar from '@DemosPlanCoreBundle/components/DpSlidebar'
+import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import SegmentFilterStore from '../store/SegmentFilter'

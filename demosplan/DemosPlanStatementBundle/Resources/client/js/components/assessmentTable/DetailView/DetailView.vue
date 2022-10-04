@@ -40,7 +40,7 @@ export default {
     // Only needed in statement detail view
     DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'),
 
-    DpSlidebar: () => import(/* webpackChunkName: "slidebar" */ '@DemosPlanCoreBundle/components/DpSlidebar'),
+    DpSlidebar: () => import(/* webpackChunkName: "slidebar" */ '@DpJs/components/core/DpSlidebar'),
     DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DemosPlanStatementBundle/components/statement/DpVersionHistory'),
     StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DemosPlanStatementBundle/components/assessmentTable/StatementReplySelect'),
