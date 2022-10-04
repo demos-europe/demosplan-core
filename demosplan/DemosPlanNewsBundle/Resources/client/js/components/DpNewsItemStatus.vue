@@ -23,7 +23,7 @@
 
 <script>
 import DpToggle from '@DpJs/components/core/form/DpToggle'
-import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
+import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 
 export default {
   name: 'DpNewsItemStatus',
