@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_procedure_type_list.html.twig
  */
 
-import DpCard from '@DemosPlanCoreBundle/components/DpCard'
+import DpCard from '@DpJs/components/core/DpCard'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpCard }

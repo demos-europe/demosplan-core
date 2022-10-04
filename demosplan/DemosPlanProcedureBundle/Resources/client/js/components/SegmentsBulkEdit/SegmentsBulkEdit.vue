@@ -214,7 +214,7 @@ export default {
     ActionStepper,
     ActionStepperAction,
     ActionStepperResponse,
-    DpInlineNotification: () => import('@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpInlineNotification: () => import('@DpJs/components/core/DpInlineNotification'),
     DpMultiselect,
     DpRadio,
     DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
