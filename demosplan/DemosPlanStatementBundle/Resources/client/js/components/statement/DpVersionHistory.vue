@@ -76,7 +76,7 @@ export default {
   name: 'DpVersionHistory',
 
   components: {
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
     DpLoading,
     DpVersionHistoryDay
   },
