@@ -11,7 +11,7 @@
  * This is the entry point for administration_dashboard.html.twig
  */
 
-import DpContextualHelp from '@DemosPlanCoreBundle/components/DpContextualHelp'
+import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import DpDashboardTaskCard from '@DpJs/components/core/DpDashboardTaskCard'
 import DpStatementSegmentsStatusCharts from '@DemosPlanProcedureBundle/components/charts/DpStatementSegmentsStatusCharts'
 import DpSurveyChart from '@DemosPlanProcedureBundle/components/survey/DpSurveyChart'
