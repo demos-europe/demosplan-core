@@ -12,7 +12,7 @@
  */
 
 import DpAdminLayerList from '../components/admin/DpAdminLayerList'
-import DpSplitButton from '@DemosPlanCoreBundle/components/DpSplitButton'
+import DpSplitButton from '@DpJs/components/core/DpSplitButton'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
