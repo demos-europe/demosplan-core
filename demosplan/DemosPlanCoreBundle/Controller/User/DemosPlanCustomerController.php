@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
+use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,7 +54,10 @@ class DemosPlanCustomerController extends BaseController
             // Using a resource instead of the unrestricted entity is done here to easily notice
             // missing authorizations in the API contract until the page is migrated to an API
             // approach completely.
-            $customerResourceType = $resourceTypeProvider->getReadableAvailableType(CustomerResourceType::getName());
+            $customerResourceType = $resourceTypeProvider->requestType(CustomerResourceType::getName())
+                ->instanceOf(ResourceTypeInterface::class)
+                ->available(true)
+                ->getTypeInstance();
             $currentCustomer = $customerHandler->getCurrentCustomer();
             $customerResource = $wrapperFactory->createWrapper($currentCustomer, $customerResourceType);
 

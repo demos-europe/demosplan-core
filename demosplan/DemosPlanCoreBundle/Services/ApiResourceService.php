@@ -103,7 +103,10 @@ class ApiResourceService
      */
     public function makeCollectionOfResources($data, string $resourceTypeName): Collection
     {
-        $resourceType = $this->resourceTypeProvider->getReadableAvailableType($resourceTypeName);
+        $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
+            ->instanceOf(ResourceTypeInterface::class)
+            ->available(true)
+            ->getTypeInstance();
 
         return new Collection($data, $resourceType->getTransformer(), $resourceType::getName());
     }
@@ -130,7 +133,10 @@ class ApiResourceService
      */
     public function makeItemOfResource($data, string $resourceTypeName): Item
     {
-        $resourceType = $this->resourceTypeProvider->getReadableAvailableType($resourceTypeName);
+        $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
+            ->instanceOf(ResourceTypeInterface::class)
+            ->available(true)
+            ->getTypeInstance();
 
         return new Item($data, $resourceType->getTransformer(), $resourceType::getName());
     }
