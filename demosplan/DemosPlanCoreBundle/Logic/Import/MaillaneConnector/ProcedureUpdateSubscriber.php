@@ -56,7 +56,7 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
         MaillaneConnectionRepository $maillaneConnectionRepository,
         MaillaneSynchronizer $maillaneSynchronizer,
         MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
+        PermissionsInterface $permissions
     ) {
         $this->maillaneSynchronizer = $maillaneSynchronizer;
         $this->messageBag = $messageBag;
