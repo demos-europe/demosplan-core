@@ -10,19 +10,19 @@
 import { Mark } from 'tiptap'
 import { toggleMark } from 'tiptap-commands'
 
-export default class TiptapCustomDelete extends Mark {
+export default class EditorCustomMark extends Mark {
   get name () {
-    return 'delete'
+    return 'mark'
   }
 
   get schema () {
     return {
       parseDOM: [
         {
-          tag: 'del'
+          tag: 'mark'
         }
       ],
-      toDOM: () => ['del', { title: Translator.trans('text.deleted') }, 0]
+      toDOM: () => ['mark', { title: Translator.trans('text.mark') }, 0]
     }
   }
 

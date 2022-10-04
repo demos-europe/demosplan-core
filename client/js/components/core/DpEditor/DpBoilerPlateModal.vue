@@ -10,7 +10,7 @@
 <documentation>
   <!-- This component contains the UI for inserting boilerplates into a textarea
 
-    If used in combination with DpTiptap.vue and its wrapper TipTapEditText.vue (as is currently the case), the
+    If used in combination with DpEditor.vue and its wrapper TipTapEditText.vue (as is currently the case), the
     button to open the modal is located in TipTapEditText.vue; otherwise, you need to define it.
 
    -->

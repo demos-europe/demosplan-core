@@ -50,7 +50,7 @@
         {% endfor %}
     {% endif %}
 
-    {% if type|default('text') == 'tiptap' %}
+    {% if type|default('text') == 'editor' %}
         {% set params = params|merge({ hiddenInput: full_name }) %}
     {% endif %}
 
@@ -96,7 +96,7 @@
 {% endblock radio_widget %}
 
 {% block tiptap_widget %}
-    {{ uiComponent('form.tiptap', {
+    {{ uiComponent('form.editor', {
         id: id|default,
         value: value|default,
         hiddenInput: hiddenInput|default(false)

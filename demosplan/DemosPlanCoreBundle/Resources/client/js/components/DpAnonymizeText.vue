@@ -54,11 +54,11 @@ import {
   Underline
 } from 'tiptap-extensions'
 import { Editor, EditorContent, EditorMenuBubble } from 'tiptap'
-import PreventDrop from '@DpJs/lib/TiptapPlugins/preventDrop'
-import PreventKeyboardInput from '@DpJs/lib/TiptapPlugins/preventKeyboardInput'
-import TiptapAnonymize from '@DpJs/lib/TiptapPlugins/tiptapAnonymize'
-import TiptapObscure from '@DpJs/lib/TiptapPlugins/tiptapObscure'
-import TiptapUnAnonymize from '@DpJs/lib/TiptapPlugins/tiptapUnAnonymize'
+import PreventDrop from '@DpJs/components/core/DpEditor/libs/preventDrop'
+import PreventKeyboardInput from '@DpJs/components/core/DpEditor/libs/preventKeyboardInput'
+import EditorAnonymize from '@DpJs/components/core/DpEditor/libs/editorAnonymize'
+import EditorObscure from '@DpJs/components/core/DpEditor/libs/editorObscure'
+import EditorUnAnonymize from '@DpJs/components/core/DpEditor/libs/editorUnAnonymize'
 
 export default {
   name: 'DpAnonymizeText',
@@ -110,8 +110,9 @@ export default {
       disableInputRules: true,
       disablePasteRules: true,
       extensions: [
-        new TiptapAnonymize(),
-        new TiptapUnAnonymize(),
+        new EditorAnonymize(),
+        new EditorUnAnonymize(),
+        new EditorObscure(),
         new PreventKeyboardInput(),
         new PreventDrop(),
         new Bold(),
@@ -121,7 +122,6 @@ export default {
         new ListItem(),
         new Underline(),
         new History(),
-        new TiptapObscure(),
         new HardBreak()
       ],
       onUpdate: () => {

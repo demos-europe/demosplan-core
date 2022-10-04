@@ -279,7 +279,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import SearchAndSorting from '@DemosPlanStatementBundle/components/assessmentTable/TocView/SearchAndSorting'
 
 export default {

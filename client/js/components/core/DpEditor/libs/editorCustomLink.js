@@ -9,7 +9,7 @@
 
 import { Link } from 'tiptap-extensions'
 
-export default class TiptapCustomLink extends Link {
+export default class EditorCustomLink extends Link {
   get defaultOptions () {
     return {
       openOnClick: false,

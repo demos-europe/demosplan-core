@@ -103,7 +103,7 @@ export default {
       const { DpLabel } = await import('demosplan-ui/components')
       return DpLabel
     },
-    DpResettableInput: () => import('@DemosPlanCoreBundle/components/DpResettableInput')
+    DpResettableInput: () => import('@DpJs/components/core/DpResettableInput')
   },
 
   directives: {

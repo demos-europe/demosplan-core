@@ -16,7 +16,6 @@ const log = require('./webpack/log').log
 function projectConfig (mode, project) {
   const frontendIntegratorCommand = [
     'bin/console',
-    '-vvv',
     'dplan:frontend:integrator'
   ]
 

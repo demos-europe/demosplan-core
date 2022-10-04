@@ -1,5 +1,5 @@
 {#
-    This is a ui component used via the Twig function call uiComponent('form.tiptap')
+    This is a ui component used via the Twig function call uiComponent('form.editor')
 
     boilerPlate {String}
     customAttrs {Array}:        Set custom attributes on the outer element container,
@@ -40,7 +40,7 @@
     {% set toolbarItems = toolbarItems|merge({ 'obscure': true }) %}
 {% endif %}
 
-<dp-tiptap
+<dp-editor
     value="{{ value }}"
     class="{{ 'u-mb'|prefixClass(omitPrefix) }}"
     {% if boilerPlate|default != '' %}
@@ -92,4 +92,4 @@
     {% endif %}>
     {# nojs fallback #}
     {{ uiComponent('form.textarea', { props: _context }) }}
-</dp-tiptap>
+</dp-editor>

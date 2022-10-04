@@ -803,14 +803,14 @@
                                                 showPlainHint: true
                                             } %}
 
-                                            <dp-tiptap
+                                            <dp-editor
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureDescriptionPublic"
                                                 :toolbar-items="{ listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
-                                            </dp-tiptap>
+                                            </dp-editor>
                                         </div>
                                     {% endblock oeb_desc %}
                                 {% endif %}
@@ -829,14 +829,14 @@
                                             {{ 'explanation.public.participation.contact'|trans }}
                                         </p>
 
-                                        <dp-tiptap
+                                        <dp-editor
                                             id="r_publicParticipationContact"
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="publicParticipationContact"
                                             :toolbar-items="{ listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}">
-                                        </dp-tiptap>
+                                        </dp-editor>
                                     </div>
                                 {% endif %}
 
@@ -918,12 +918,12 @@
                                             cssClasses:'float--right u-mt-0_125',
                                             showPlainHint: true
                                         } %}
-                                        <dp-tiptap
+                                        <dp-editor
                                             value="{{ proceduresettings.settings.links|default }}"
                                             hidden-input="r_links"
                                             ref="r_links"
                                             :toolbar-items="{ linkButton: true }" >
-                                        </dp-tiptap>
+                                        </dp-editor>
                                     </div>
                                 {% endif %}
 

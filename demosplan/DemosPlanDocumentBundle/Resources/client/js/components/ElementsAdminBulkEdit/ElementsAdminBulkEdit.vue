@@ -81,7 +81,7 @@ import ActionStepper from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit
 import ActionStepperResponse from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'

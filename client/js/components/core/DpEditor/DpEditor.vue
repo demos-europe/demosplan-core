@@ -8,7 +8,7 @@
 </license>
 
 <documentation>
-  <!-- DpTiptap component
+  <!-- DpEditor component
       - contains menubar with a number of buttons and an editor
       - use this component without the inline-editing-wrapper TiptapEditText.vue if you want to add a text editor to a form element (as in new statement view)
       - use this component with the inline-editing-wrapper TiptapEditText.vue if you want to save the text directly via inline-editing (as in assessment table)
@@ -31,7 +31,7 @@
       headings - determine which heading level (h1-h6) buttons should be visible in menu. It is an array with numbers , e.g. [1,2,3,4,5,6]
       table - true/false - if tables should be supported and buttons for inserting tables should be added this prop has to be true
 
-     To use tiptap import the component dynamically: components = { DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap') } }
+     To use tiptap import the component dynamically: components = { DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor') } }
 
    -->
 </documentation>
@@ -403,30 +403,30 @@ import {
 } from 'tiptap'
 
 import { CleanHtml } from 'demosplan-ui/directives'
-import { createSuggestion } from '@DpJs/lib/TiptapPlugins/TipTapBuildSuggestion'
+import { createSuggestion } from './libs/editorBuildSuggestion'
 import { DpIcon } from 'demosplan-ui/components'
-import { handleWordPaste } from '@DpJs/lib/TiptapPlugins/handleWordPaste'
+import { handleWordPaste } from './libs/handleWordPaste'
 import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import TiptapCustomDelete from '@DpJs/lib/TiptapPlugins/TiptapCustomDelete'
-import TiptapCustomImage from '@DpJs/lib/TiptapPlugins/TiptapCustomImage'
-import TiptapCustomInsert from '@DpJs/lib/TiptapPlugins/TiptapCustomInsert'
-import TiptapCustomLink from '@DpJs/lib/TiptapPlugins/TiptapCustomLink'
-import TiptapCustomMark from '@DpJs/lib/TiptapPlugins/TiptapCustomMark'
-import TipTapInsertAtCursorPos from '@DpJs/lib/TiptapPlugins/TipTapInsertAtCursorPos'
-import TiptapObscure from '@DpJs/lib/TiptapPlugins/tiptapObscure'
+import EditorCustomDelete from './libs/editorCustomDelete'
+import EditorCustomImage from './libs/editorCustomImage'
+import EditorCustomInsert from './libs/editorCustomInsert'
+import EditorCustomLink from './libs/editorCustomLink'
+import EditorCustomMark from './libs/editorCustomMark'
+import EditorInsertAtCursorPos from './libs/editorInsertAtCursorPos'
+import EditorObscure from './libs/editorObscure'
 
 export default {
-  name: 'DpTiptap',
+  name: 'DpEditor',
 
   components: {
     DpIcon,
     EditorMenuBar,
     EditorContent,
-    DpBoilerPlateModal: () => import('./tiptapComponents/DpBoilerPlateModal'),
-    DpLinkModal: () => import('./tiptapComponents/DpLinkModal'),
-    DpRecommendationModal: () => import('./tiptapComponents/DpRecommendationModal'),
-    DpUploadModal: () => import('./tiptapComponents/DpUploadModal')
+    DpBoilerPlateModal: () => import('./DpBoilerPlateModal'),
+    DpLinkModal: () => import('./DpLinkModal'),
+    DpRecommendationModal: () => import('./DpRecommendationModal'),
+    DpUploadModal: () => import('./DpUploadModal')
   },
 
   directives: {
@@ -1072,7 +1072,7 @@ export default {
     ]
 
     if (this.toolbar.boilerPlate) {
-      extensions.push(new TipTapInsertAtCursorPos())
+      extensions.push(new EditorInsertAtCursorPos())
     }
 
     if (this.suggestions.length > 0) {
@@ -1086,16 +1086,16 @@ export default {
     }
 
     if (this.toolbar.imageButton) {
-      extensions.push(new TiptapCustomImage())
+      extensions.push(new EditorCustomImage())
     }
 
     if (this.toolbar.linkButton) {
       extensions.push(new Link())
-      extensions.push(new TiptapCustomLink())
+      extensions.push(new EditorCustomLink())
     }
 
     if (this.toolbar.obscure) {
-      extensions.push(new TiptapObscure())
+      extensions.push(new EditorObscure())
     }
 
     if (this.toolbar.listButtons) {
@@ -1114,8 +1114,8 @@ export default {
     }
 
     if (this.toolbar.insertAndDelete) {
-      extensions.push(new TiptapCustomDelete())
-      extensions.push(new TiptapCustomInsert())
+      extensions.push(new EditorCustomDelete())
+      extensions.push(new EditorCustomInsert())
 
       this.diffMenu.buttons = [
         {
@@ -1132,7 +1132,7 @@ export default {
     }
 
     if (this.toolbar.mark) {
-      extensions.push(new TiptapCustomMark())
+      extensions.push(new EditorCustomMark())
 
       this.diffMenu.buttons.unshift({
         label: 'editor.mark',

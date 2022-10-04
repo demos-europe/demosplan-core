@@ -17,7 +17,7 @@ import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpSelectStatementCluster from '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'
 import DpStatementPublish from '@DemosPlanStatementBundle/components/statement/DpStatementPublish'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
@@ -37,7 +37,7 @@ export default {
     DpSelect,
     DpSelectStatementCluster,
     DpStatementPublish,
-    DpTiptap,
+    DpEditor,
     DpUploadFiles,
     StatementVoter
   },
