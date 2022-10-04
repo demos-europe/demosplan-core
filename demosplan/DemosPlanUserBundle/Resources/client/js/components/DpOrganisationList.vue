@@ -158,7 +158,7 @@ import DpOrganisationListItem from './DpOrganisationListItem'
 import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 import dpSelectAllMixin from '@DpJs/lib/utils/dpSelectAllMixin'
 import DpSkeletonBox from '@DemosPlanCoreBundle/components/DpSkeletonBox'
-import DpSlidingPagination from '@DemosPlanCoreBundle/components/DpSlidingPagination'
+import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {

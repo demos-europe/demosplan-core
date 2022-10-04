@@ -84,7 +84,7 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: () => import(/* webpackChunkName: "sliding-pagination" */ '@DemosPlanCoreBundle/components/DpSlidingPagination'),
+    DpSlidingPagination: () => import(/* webpackChunkName: "sliding-pagination" */ '@DpJs/components/core/DpSlidingPagination'),
     DpTableCardListHeader,
     DpUserListExtendedItem
   },
