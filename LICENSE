@@ -105,11 +105,19 @@ client/js/legacy/leaflet/proj4/proj4leaflet.js
 
 client/js/legacy/leaflet/proj4/proj4-compressed.js
 
-    Proj4js -- Javascript reprojection library
+    Proj4js -- Javascript reprojection library.
     Licensed under MIT license.
 
-    Copyright (c) 2014, Mike Adair, Richard Greenwood, Didier Richard,
-    Stephen Irons, Olivier Terral and Calvin Metcalf
+    Authors:
+    - Mike Adair madairATdmsolutions.ca
+    - Richard Greenwood richATgreenwoodmap.com
+    - Didier Richard didier.richardATign.fr
+    - Stephen Irons stephen.ironsATclear.net.nz
+    - Olivier Terral oterralATgmail.com
+    - Calvin Metcalf cmetcalfATappgeo.com
+
+    Copyright (c) 2014, Mike Adair, Richard Greenwood, Didier Richard, Stephen Irons,
+    Olivier Terral and Calvin Metcalf
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
