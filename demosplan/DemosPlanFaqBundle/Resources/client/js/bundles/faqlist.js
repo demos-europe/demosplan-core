@@ -13,7 +13,7 @@
 
 import { highlightActiveLinks } from '@DpJs/lib/HighlightHashLink'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DemosPlanCoreBundle/components/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const components = {
   RegisterFlyout

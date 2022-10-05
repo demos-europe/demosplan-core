@@ -1,12 +1,3 @@
-/**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
- *
- * This file is part of the package demosplan,
- * for more information see the license file.
- *
- * All rights reserved
- */
-
 /*
  Leaflet.markercluster, Provides Beautiful Animated Marker Clustering functionality for Leaflet, a JS library for interactive maps.
  https://github.com/Leaflet/Leaflet.markercluster
