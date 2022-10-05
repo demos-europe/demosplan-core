@@ -54,7 +54,7 @@ statements and fragments is now in DpAssessmentTableCard.vue
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import DpSwitcher from '@DemosPlanCoreBundle/components/DpSwitcher'
+import DpSwitcher from '@DpJs/components/core/DpSwitcher'
 
 export default {
   name: 'DpFragmentsSwitcher',
