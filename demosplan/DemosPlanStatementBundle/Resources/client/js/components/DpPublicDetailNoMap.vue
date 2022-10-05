@@ -29,7 +29,7 @@ export default {
     DpPublicStatementList,
     DpMapModal: () => import('@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
     DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
-    DpVideoPlayer: () => import('@DemosPlanCoreBundle/components/DpVideoPlayer'),
+    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
     ElementsList: () => import('@DemosPlanDocumentBundle/components/ElementsList')
   },
 

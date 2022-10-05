@@ -127,7 +127,7 @@
             *
           </span>
         </label>
-        <dp-tiptap
+        <dp-editor
           class="u-mb-0_5"
           hidden-input="r_text"
           id="statementText"
@@ -627,7 +627,7 @@ import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
-import MultistepNav from '@DemosPlanCoreBundle/components/MultistepNav'
+import MultistepNav from '@DpJs/components/core/MultistepNav'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
@@ -663,7 +663,7 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

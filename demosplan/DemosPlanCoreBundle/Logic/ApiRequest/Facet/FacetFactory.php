@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
+use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
@@ -89,7 +90,10 @@ class FacetFactory
     private function createAggregationFilterGroups(GroupedFacetInterface $facetDefinition, array $itemCounts, array $rawFilter): Collection
     {
         $resourceType = $facetDefinition->getGroupsResourceType();
-        $resourceType = $this->resourceTypeProvider->getReadableAvailableType($resourceType);
+        $resourceType = $this->resourceTypeProvider->requestType($resourceType)
+            ->instanceOf(ResourceTypeInterface::class)
+            ->available(true)
+            ->getTypeInstance();
         $groupsLoadConditions = $facetDefinition->getGroupsLoadConditions();
 
         // load the groups to be shown in the facet
@@ -97,7 +101,10 @@ class FacetFactory
 
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
-            $itemResourceType = $this->resourceTypeProvider->getReadableAvailableType($facetDefinition->getItemsResourceType());
+            $itemResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
+                ->instanceOf(ResourceTypeInterface::class)
+                ->available(true)
+                ->getTypeInstance();
 
             return collect($this->entityFetcher->listPrefilteredEntities($itemResourceType, $facetDefinition->getGroupItems($group), []));
         });
@@ -183,7 +190,10 @@ class FacetFactory
      */
     private function createAggregationFilterRootItems(FacetInterface $facetDefinition, array $itemCount, array $rawFilter): Collection
     {
-        $itemsResourceType = $this->resourceTypeProvider->getReadableAvailableType($facetDefinition->getItemsResourceType());
+        $itemsResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
+            ->instanceOf(ResourceTypeInterface::class)
+            ->available(true)
+            ->getTypeInstance();
         $items = $this->entityFetcher->listEntities(
             $itemsResourceType,
             $facetDefinition->getRootItemsLoadConditions(),
@@ -209,7 +219,10 @@ class FacetFactory
      */
     private function createAggregationFilterGroupItems(FacetInterface $facetDefinition, object $group, array $itemCounts, array $selections): Collection
     {
-        $itemResourceType = $this->resourceTypeProvider->getReadableAvailableType($facetDefinition->getItemsResourceType());
+        $itemResourceType = $this->resourceTypeProvider->requestType($facetDefinition->getItemsResourceType())
+            ->instanceOf(ResourceTypeInterface::class)
+            ->available(true)
+            ->getTypeInstance();
         $items = $this->entityFetcher->listPrefilteredEntities($itemResourceType, $facetDefinition->getGroupItems($group), []);
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);

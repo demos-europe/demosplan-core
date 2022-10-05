@@ -30,7 +30,7 @@ export default {
     DpPublicLayerListWrapper,
     DpPublicSurvey,
     DpUnfoldToolbarControl,
-    DpVideoPlayer: () => import('@DemosPlanCoreBundle/components/DpVideoPlayer'),
+    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
     StatementModal
   },
 

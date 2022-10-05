@@ -105,8 +105,8 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSimplifiedNewStatementForm from '@DemosPlanProcedureBundle/components/DpSimplifiedNewStatementForm'
 import EmailImportDate from './EmailImportDate'

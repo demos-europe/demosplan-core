@@ -85,7 +85,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpBulkEditHeader from '@DemosPlanCoreBundle/components/DpBulkEditHeader'
+import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
 import { DpLoading } from 'demosplan-ui/components'
 import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'

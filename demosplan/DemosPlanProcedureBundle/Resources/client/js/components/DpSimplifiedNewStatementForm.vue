@@ -290,7 +290,7 @@
         :text="Translator.trans('statement.text.short')"
         for="r_text"
         required />
-      <dp-tiptap
+      <dp-editor
         ref="statementText"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
@@ -384,7 +384,7 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

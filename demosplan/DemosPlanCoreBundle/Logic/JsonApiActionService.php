@@ -343,7 +343,7 @@ class JsonApiActionService extends AbstractApiService
 
     protected function normalizeTypeName(string $typeName): string
     {
-        return $this->typeProvider->handleCasing($typeName);
+        return $typeName;
     }
 
     protected function getPagination(ParameterBag $query): ?APIPagination

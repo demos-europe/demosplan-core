@@ -97,7 +97,7 @@
           class="u-mb-0_5" />
       </div>
       <div v-else>
-        <dp-tiptap
+        <dp-editor
           editor-id="recommendationText"
           :toolbar-items="{
             boilerPlate: 'consideration',
@@ -245,7 +245,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     VPopover
   },
 

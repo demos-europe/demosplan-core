@@ -11,8 +11,8 @@
  * This is the entrypoint for news_admin_edit.html.twig
  */
 
-import DpChangeStateAtDate from '@DemosPlanCoreBundle/components/DpChangeStateAtDate'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpChangeStateAtDate from '@DpJs/components/core/DpChangeStateAtDate'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
@@ -20,7 +20,7 @@ import newsAdminInit from '../lib/newsAdmin'
 
 const components = {
   DpChangeStateAtDate,
-  DpTiptap,
+  DpEditor,
   DpUploadFiles
 }
 

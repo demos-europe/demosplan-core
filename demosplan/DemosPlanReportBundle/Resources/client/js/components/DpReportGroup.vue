@@ -57,9 +57,9 @@
 <script>
 import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpLoading } from 'demosplan-ui/components'
-import DpSlidingPagination from '@DemosPlanCoreBundle/components/DpSlidingPagination'
+import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 
 export default {
   name: 'DpReportGroup',

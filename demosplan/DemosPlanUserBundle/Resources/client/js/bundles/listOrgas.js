@@ -13,7 +13,7 @@
 
 import DpCreateItem from '../components/DpCreateItem'
 import DpOrganisationList from '@DemosPlanUserBundle/components/DpOrganisationList'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '../lib/UrlPreview'
@@ -22,7 +22,7 @@ const stores = {}
 const components = {
   DpCreateItem,
   DpOrganisationList,
-  DpTiptap
+  DpEditor
 }
 
 const apiStores = ['orga', 'customer']

@@ -14,10 +14,10 @@
 
 import DpPublicDetailNoMap from '@DemosPlanStatementBundle/components/DpPublicDetailNoMap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import DpVideoPlayer from '@DemosPlanCoreBundle/components/DpVideoPlayer'
+import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
-import RegisterFlyout from '@DemosPlanCoreBundle/components/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DemosPlanStatementBundle/lib/StatementForm'
 import TableWrapper from '@DpJs/lib/TableWrapper'
 
