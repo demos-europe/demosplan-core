@@ -45,9 +45,8 @@ export default {
     },
 
     switchDate: {
-      type: [Number, null],
-      required: true,
-      default: null
+      type: [Number, String],
+      required: true
     },
 
     switchState: {
@@ -58,7 +57,7 @@ export default {
 
   computed: {
     tooltipText () {
-      return this.switchDate !== null
+      return this.switchDate !== ''
         ? `${Translator.trans('phase.autoswitch.date')} ${(new Date(this.switchDate)).toLocaleDateString('de-DE')}<br>${Translator.trans('phase.autoswitch.value')} ${Translator.trans(this.switchState)}`
         : ''
     }

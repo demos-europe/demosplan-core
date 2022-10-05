@@ -57,7 +57,7 @@
       <template v-slot:enabled="rowData">
         <dp-news-item-status
           class="flex space-inline-xs u-mt-0_125"
-          :switch-date="rowData.designatedSwitchDate || null"
+          :switch-date="rowData.designatedSwitchDate || ''"
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
           :determined-to-switch="rowData.determinedToSwitch || false"
