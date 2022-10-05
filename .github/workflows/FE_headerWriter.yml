@@ -1,0 +1,44 @@
+name: Run FE_headerWriter
+
+on:
+  pull_request:
+    paths:
+      - '**.scss'
+      - '**.js'
+      - '**.vue'
+
+jobs:
+  cancel:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+        -   uses: styfle/cancel-workflow-action@0.10.0
+            with:
+                workflow_id: "FE_headerWriter"
+                access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  FE_headerWriter:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Run headerWriter
+        run: |
+          pwd
+          python3 .github/FE_header_writer/headerWriter.py -p /home/runner/work/demosplan-core/demosplan -i **/node_modules/**/* demosplan/DemosPlanCoreBundle/Resources/client/js/legacy/*/*.js demosplan/DemosPlanCoreBundle/Resources/client/js/ResourceTypes.js -a -v
+        shell: bash
+
+      - name: Configure git
+        run: |
+          git config  user.email ${{ secrets.DEVOPS_GPG_EMAIL }}
+          git config  user.name "Demos-CI"
+      - name: Commit
+        run: |
+              git pull
+              git add .
+              git commit -m "style: Update license header"
+              git push
