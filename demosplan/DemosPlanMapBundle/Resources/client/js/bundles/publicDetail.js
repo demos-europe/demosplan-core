@@ -24,7 +24,7 @@ import layers from '@DemosPlanMapBundle/store/Layers'
 import Map from '@DemosPlanMapBundle/components/publicdetail/Map'
 import MapTools from '@DemosPlanMapBundle/components/publicdetail/controls/MapTools'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
-import RegisterFlyout from '@DemosPlanCoreBundle/components/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DemosPlanStatementBundle/lib/StatementForm'
 import TableWrapper from '@DpJs/lib/TableWrapper'
 
