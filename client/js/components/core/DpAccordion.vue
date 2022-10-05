@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import DpTransitionExpand from '@DemosPlanCoreBundle/components/DpTransitionExpand'
+import DpTransitionExpand from '@DpJs/components/core/DpTransitionExpand'
 
 export default {
   name: 'DpAccordion',

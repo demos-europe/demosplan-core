@@ -228,7 +228,7 @@
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpAnonymizeText from '@DemosPlanCoreBundle/components/DpAnonymizeText'
+import DpAnonymizeText from '@DpJs/components/core/DpAnonymizeText'
 import { DpButton } from 'demosplan-ui/components'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
