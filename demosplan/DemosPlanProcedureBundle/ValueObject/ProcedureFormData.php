@@ -19,6 +19,7 @@ use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 /**
  * Stores the data of an procedure sent or shown in a form.
@@ -79,14 +80,6 @@ class ProcedureFormData extends ValueObject
                 ->getValues();
 
             $this->allowedSenderEmailAddresses = new ArrayCollection();
-            if ($procedure->getMaillaneConnection() !== null) {
-                $this->allowedSenderEmailAddresses = $procedure->getMaillaneConnection()
-                    ->getAllowedSenderEmailAddresses()
-                    ->map(static function (EmailAddress $emailAddress): EmailAddressVO {
-                        return new EmailAddressVO($emailAddress->getFullAddress());
-                    }
-                );
-            }
         }
     }
 

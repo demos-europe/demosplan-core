@@ -21,8 +21,12 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @template-extends FluentRepository<MaillaneConnection>
+ */
 class MaillaneConnectionRepository extends FluentRepository
 {
     /**
@@ -44,21 +48,26 @@ class MaillaneConnectionRepository extends FluentRepository
     /**
      * Fetch procedure by Maillane account ID
      *
-     * @throws NonUniqueResultException
      * @throws NoResultException
      */
     public function getProcedureByMaillaneAccountId(string $accountId): Procedure
     {
-        $query = $this->getEntityManager()
-            ->createQueryBuilder()
-            ->select('procedure')
-            ->from(Procedure::class, 'procedure')
-            ->join('procedure.maillaneConnection', 'mc')
-            ->where('mc.maillaneAccountId = :accountId')
-            ->setParameter('accountId', $accountId)
-            ->getQuery();
+        $maillaneConnection = $this->findOneBy([
+            'maillaneAccountId' => $accountId,
+        ]);
 
-        return $query->getSingleResult();
+        if (!$maillaneConnection instanceof MaillaneConnection) {
+            throw new NoResultException();
+        }
+
+        return $maillaneConnection->getProcedure();
+    }
+
+    public function getMaillaneConnection(string $procedureId): ?MaillaneConnection
+    {
+        return $this->findOneBy([
+            'procedure' => $procedureId,
+        ]);
     }
 
     /**
@@ -67,9 +76,9 @@ class MaillaneConnectionRepository extends FluentRepository
      *
      * @throws ViolationsException
      */
-    public function createMaillaneConnection(?string $maillaneAccountId, string $recipientMailAddress): MaillaneConnection
+    public function createMaillaneConnection(?string $maillaneAccountId, string $recipientMailAddress, Procedure $procedure): MaillaneConnection
     {
-        $maillaneConnection = new MaillaneConnection();
+        $maillaneConnection = new MaillaneConnection($procedure);
         $maillaneConnection->setMaillaneAccountId($maillaneAccountId);
         $maillaneConnection->setRecipientEmailAddress($recipientMailAddress);
 

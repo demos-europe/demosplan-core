@@ -13,6 +13,21 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector;
 
 use Cocur\Slugify\Slugify;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use EDT\JsonApi\Schema\ContentField;
+use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Throwable;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
@@ -25,20 +40,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector\Exception\Maill
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EDT\JsonApi\Schema\ContentField;
-use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Throwable;
 
 /**
  * Manage access synchronization with a Maillane instance.
@@ -137,7 +138,7 @@ class MaillaneSynchronizer
      * @throws MaillaneApiException if the interaction with the server fails
      * @throws ViolationsException  if validation fails
      */
-    public function createAccount(string $email): MaillaneConnection
+    public function createAccount(string $email, Procedure $procedure): MaillaneConnection
     {
         $url = $this->maillaneRouter->accountList();
         try {
@@ -160,7 +161,8 @@ class MaillaneSynchronizer
 
         $maillaneConnection = $this->maillaneConnectionRepository->createMaillaneConnection(
             $responseContent[ContentField::DATA][ContentField::ID],
-            $responseContent[ContentField::DATA][ContentField::ATTRIBUTES]['email']
+            $responseContent[ContentField::DATA][ContentField::ATTRIBUTES]['email'],
+            $procedure
         );
         $this->maillaneConnectionRepository->persistEntities([$maillaneConnection]);
 
