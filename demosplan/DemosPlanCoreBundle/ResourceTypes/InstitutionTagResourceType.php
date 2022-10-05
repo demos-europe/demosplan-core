@@ -5,6 +5,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
@@ -23,8 +24,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
  *
  * @property-read End                     $label
+ * @property-read OrgaResourceType        $taggedInstitutions
  * @property-read OrgaResourceType        $institutions
- * @property-read OrgaResourceType        $owner
+ * @property-read OrgaResourceType        $owningOrganisation
+ *
  */
 class InstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
@@ -51,16 +54,15 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             ->filterable()
             ->sortable();
         $label = $this->createAttribute($this->label)
-            ->readable(true)
+            ->readable()
             ->filterable()
             ->sortable();
-        $institutions = $this->createAttribute($this->institutions)
-            ->readable(true)
+        $institutions = $this->createAttribute($this->taggedInstitutions)
+            ->readable()
             ->filterable()
-            ->sortable();
-
+            ->sortable()
+            ->aliasedPath($this->institutions);
         if ($this->currentUser->hasPermission('area_manage_segment_places')) {
-            $id->initializable(true);
             $label->initializable();
             $institutions->initializable(true);
         }
@@ -80,13 +82,18 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     public function isAvailable(): bool
     {
-        // TODO: Implement isAvailable() method.
-        return $this->currentUser->hasPermission('not_existing_yet');
+
+        return $this->currentUser->hasAnyPermissions(
+            'feature_institution_tag_create',
+            'feature_institution_tag_read',
+            'feature_institution_tag_update',
+            'feature_institution_tag_delete',
+        );
     }
 
     public function isReferencable(): bool
     {
-        // TODO: Implement isReferencable() method.
+        return true;
     }
 
     public function isDirectlyAccessible(): bool
@@ -96,7 +103,19 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     public function getAccessCondition(): PathsBasedInterface
     {
-        // TODO: Implement getAccessCondition() method.
+        $userOrga = $this->currentUser->getUser()->getOrga();
+
+        if (null === $userOrga
+            || !$this->currentUser->hasPermission('feature_institution_tag_read')
+        ) {
+
+            return $this->conditionFactory->false();
+        }
+
+        return $this->conditionFactory->propertyHasValue(
+            $userOrga->getId(),
+            ...$this->owningOrganisation
+        );
     }
 
     /**
@@ -106,8 +125,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
     {
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->label, [$tag, 'setLabel']);
-        $updater->ifPresent($this->owner, [$tag, 'setOwner']);
-        $updater->ifPresent($this->institutions, [$tag, 'setInstitutions']);
+        $updater->ifPresent($this->taggedInstitutions, [$tag, 'setInstitutions']);
 
         $violations = $this->validator->validate($tag);
         if (0 !== $violations->count()) {
@@ -119,7 +137,11 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     public function getUpdatableProperties(object $updateTarget): array
     {
-        if ($this->currentUser->hasPermission('not_existing_yet')) {
+        /** @var InstitutionTag $updateTarget */
+        if ($this->currentUser->hasPermission('feature_institution_tag_update')
+            && $this->currentUser->getUser()->getOrga()->getId() === $updateTarget->getOwningOrganisation()->getId()
+        ) {
+
             return $this->toProperties(
                 $this->label,
                 $this->institutions,
@@ -131,7 +153,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     public function isCreatable(): bool
     {
-        // TODO: Implement isCreatable() method.
+        return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
     /**
@@ -160,6 +182,13 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     public function delete(object $tag): ResourceChange
     {
+        if (!$this->currentUser->hasPermission('feature_institution_tag_delete')) {
+            throw new InvalidArgumentException('Insufficient permissions');
+        }
+        if ($this->currentUser->getUser()->getOrga()->getId() !== $tag->getOwningOrganisation()->getId()) {
+            throw new InvalidArgumentException('the requested tag does not belong to this organisation');
+        }
+
         $resourceChange = new ResourceChange($tag, $this, []);
         $resourceChange->addEntityToDelete($tag);
 
