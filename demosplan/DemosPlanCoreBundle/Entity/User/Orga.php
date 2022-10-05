@@ -1487,6 +1487,13 @@ class Orga extends SluggedEntity
         }
     }
 
+    public function removeTag(InstitutionTag $tag): void
+    {
+        if ($this->assignedTags->contains($tag)) {
+            $this->assignedTags->removeElement($tag);
+        }
+    }
+
     public function addOwnTag(InstitutionTag $tag): void
     {
         $this->ownTags->add($tag);
@@ -1498,5 +1505,12 @@ class Orga extends SluggedEntity
     public function getOwnTags(): Collection
     {
         return $this->ownTags;
+    }
+
+    public function removeOwnTag(InstitutionTag $tag): void
+    {
+        if ($this->ownTags->contains($tag)) {
+            $this->ownTags->removeElement($tag);
+        }
     }
 }
