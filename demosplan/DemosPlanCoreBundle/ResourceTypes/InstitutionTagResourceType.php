@@ -186,6 +186,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
                    return true;
                 });
             });
+        $owner->addOwnTag($tag);
 
         $violations = $this->validator->validate($tag);
         if (0 !== $violations->count()) {
