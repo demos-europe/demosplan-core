@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "402ebc919769f529da1c8ec7bf09d9ac",
+    "content-hash": "026271702bfedf61cae4dae2c01551e6",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1238,12 +1238,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:demos-europe/demosplan-addon-maillane.git",
-                "reference": "52c49783cb7afd902d8d9a020138e55427ddae0f"
+                "reference": "f7335814898d0961bac24cfacbdbdade7f750f04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon-maillane/zipball/52c49783cb7afd902d8d9a020138e55427ddae0f",
-                "reference": "52c49783cb7afd902d8d9a020138e55427ddae0f",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon-maillane/zipball/f7335814898d0961bac24cfacbdbdade7f750f04",
+                "reference": "f7335814898d0961bac24cfacbdbdade7f750f04",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1269,7 +1269,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon-maillane/tree/main"
             },
-            "time": "2022-09-28T11:21:28+00:00"
+            "time": "2022-10-04T14:47:50+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
