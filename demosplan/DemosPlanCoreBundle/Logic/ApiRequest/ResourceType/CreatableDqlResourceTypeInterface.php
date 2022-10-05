@@ -23,13 +23,6 @@ use EDT\Wrapping\Contracts\Types\CreatableTypeInterface;
 interface CreatableDqlResourceTypeInterface extends ResourceTypeInterface, CreatableTypeInterface
 {
     /**
-     * @return array<int, string>
-     */
-    public function getPropertiesRequiredForCreation();
-
-    public function isCreatable(): bool;
-
-    /**
      * Create an object of the type specified in {@link ResourceTypeInterface::getEntityClass}
      * and set the fields as given in $properties.
      *
