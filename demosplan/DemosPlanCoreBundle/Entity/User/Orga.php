@@ -407,6 +407,7 @@ class Orga extends SluggedEntity
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
         $this->assignedTags = new ArrayCollection();
+        $this->ownTags = new ArrayCollection();
     }
 
     public function getId(): ?string

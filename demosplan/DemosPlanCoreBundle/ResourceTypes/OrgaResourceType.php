@@ -218,8 +218,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->statusInCustomers)->readable(false, [$this, 'getRegistration']),
         ];
 
-        //todo:
-        if ($this->currentUser->hasPermission('not_existing_yet')) {
+        if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $properties[] = $this->createToManyRelationship($this->tags)->readable()->filterable();
         }
 
