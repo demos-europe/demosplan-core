@@ -1,10 +1,10 @@
 <license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS E-Partizipation GmbH.
 
-This file is part of the package demosplan,
-for more information see the license file.
+  This file is part of the package demosplan,
+  for more information see the license file.
 
-All rights reserved
+  All rights reserved
 </license>
 
 <template>
@@ -219,7 +219,10 @@ export default {
           }
         },
         fields: {
-          MaillaneConnection: ['recipientEmailAddress', 'allowedSenderEmailAddresses'].join()
+          MaillaneConnection: [
+            'allowedSenderEmailAddresses',
+            'recipientEmailAddress'
+          ].join()
         }
       }
 

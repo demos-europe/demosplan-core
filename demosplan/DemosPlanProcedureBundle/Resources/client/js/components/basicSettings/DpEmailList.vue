@@ -1,39 +1,39 @@
 <license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
+  (c) 2010-present DEMOS E-Partizipation GmbH.
 
-This file is part of the package demosplan,
-for more information see the license file.
+  This file is part of the package demosplan,
+  for more information see the license file.
 
-All rights reserved
+  All rights reserved
 </license>
 
 <template>
   <div>
     <dp-editable-list
-        :entries="emails"
-        @reset="resetForm"
-        @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
-        :translation-keys="translationKeys"
-        ref="listComponent">
+      :entries="emails"
+      @reset="resetForm"
+      @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      :translation-keys="translationKeys"
+      ref="listComponent">
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
-              type="email"
-              :value="entry.mail"
-              :name="formFieldName"
-              class="hide-visually">
+            type="email"
+            :value="entry.mail"
+            :name="formFieldName"
+            class="hide-visually">
         </span>
       </template>
 
       <template v-slot:form>
         <dp-input
-            id="emailAddress"
-            data-cy="emailAddressList"
-            :placeholder="Translator.trans('email.address')"
-            type="email"
-            v-model="formFields.mail"
-            width="u-1-of-2"
-            @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
+          id="emailAddress"
+          data-cy="emailAddressList"
+          :placeholder="Translator.trans('email.address')"
+          type="email"
+          v-model="formFields.mail"
+          width="u-1-of-2"
+          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
       </template>
     </dp-editable-list>
   </div>
