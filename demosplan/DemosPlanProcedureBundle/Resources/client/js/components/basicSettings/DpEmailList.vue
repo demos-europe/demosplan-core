@@ -40,7 +40,6 @@ All rights reserved
 </template>
 
 <script>
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpEditableList from '@DpJs/components/core/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
 import validateEmail from '@DpJs/lib/validation/utils/validateEmail'
@@ -63,12 +62,6 @@ export default {
       type: String,
       required: false,
       default: 'agencyExtraEmailAddresses[][fullAddress]'
-    },
-
-    procedureId: {
-      type: String,
-      required: false,
-      default: ''
     }
   },
 
@@ -79,7 +72,6 @@ export default {
       },
       itemIndex: null,
       emails: this.initEmails,
-      maillaneId: '',
       translationKeys: {
         new: Translator.trans('email.address.new'),
         add: Translator.trans('email.address.add'),
@@ -106,40 +98,6 @@ export default {
       this.emails.push({
         mail: this.formFields.mail
       })
-      this.createMaillaneConnection()
-    },
-
-    createMaillaneConnection () {
-      if (!this.maillaneId) {
-        const payload = {
-          type: 'MaillaneConnection'
-        }
-        return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MaillaneConnection' }), {}, { data: payload })
-      }
-    },
-
-    fetchAllowedSenderAddresses () {
-      const url = Routing.generate('api_resource_get', { resourceType: 'MaillaneConnection', procedure: this.procedureId })
-      const params = {
-        fields: {
-          MaillaneConnection: ['allowedSenderEmailAddresses', 'id'].join()
-        }
-      }
-
-      return dpApi.get(url, params, { serialize: true })
-          .then(response => {
-            if (response.data.data.length !== 0) {
-              response.data.data[0].attributes.allowedSenderEmailAddresses.forEach(
-                  emailAddress => {
-                    this.emails.push({ mail: emailAddress })
-                    this.maillaneId = response.data.data[0].id
-                  }
-              )
-            }
-          })
-          .catch((e) => {
-            console.error(e)
-          })
     },
 
     handleSubmit (index) {
@@ -176,10 +134,6 @@ export default {
       this.formFields.mail = this.emails[index].mail
       this.itemIndex = index
     })
-
-    if (this.formFieldName.includes('allowedSenderEmailAddresses[][fullAddress]')) {
-      this.fetchAllowedSenderAddresses()
-    }
   }
 }
 </script>
