@@ -1,13 +1,11 @@
 <?php
 
 /**
- * This is a special php-cs-fixer config set to just
- * add or update the copyright information in the
- * file headers.
+ * This file is part of the package demosplan.
  *
- * To invoke this, simply call
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
  *
- * `vendor/bin/php-cs-fixer fix --config .php-cs-fixer-header.php`
+ * All rights reserved
  */
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
