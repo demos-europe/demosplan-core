@@ -10,41 +10,21 @@
 <template>
   <div>
     <dl class="description-list u-mb-0_5">
-      <template v-if="userName">
-        <template v-if="user.userName == user.email">
-          <dt class="weight--normal">
-            {{ Translator.trans('username') }} / {{ Translator.trans('email') }}
-          </dt>
-          <dd class="u-mb color--grey">
-            {{ user.userName }}
-          </dd>
-        </template>
-
-        <template v-else>
-          <dt class="weight--normal">
-            {{ Translator.trans('username') }}
-          </dt>
-          <dd class="u-mb color--grey">
-            {{ user.userName }}
-          </dd>
-
-          <dt class="weight--normal">
-            {{ Translator.trans('email') }}
-          </dt>
-          <dd class="u-mb color--grey">
-            {{ user.email }}
-          </dd>
-        </template>
-      </template>
+      <dt class="weight--bold">
+        {{ Translator.trans('username') }}
+      </dt>
+      <dd class="u-mb color--grey">
+        {{ user.userName }}
+      </dd>
 
       <template v-if="hasPermission('area_mydata_organisation')">
-        <dt class="weight--normal">
+        <dt class="weight--bold">
           {{ Translator.trans('organisation') }}
         </dt>
         <dd class="u-mb color--grey">
           {{ user.organisationName }}
         </dd>
-        <dt class="weight--normal">
+        <dt class="weight--bold">
           {{ Translator.trans('department') }}
         </dt>
         <dd class="u-mb color--grey">
@@ -52,47 +32,44 @@
         </dd>
       </template>
 
-      <dt class="weight--normal">
+      <dt class="weight--bold">
         {{ Translator.trans('name') }}
       </dt>
       <dd class="u-mb color--grey">
         {{ user.lastName }}
       </dd>
-      <dt class="weight--normal">
+      <dt class="weight--bold">
         {{ Translator.trans('name.first') }}
       </dt>
       <dd class="u-mb color--grey">
         {{ user.firstName }}
       </dd>
-
-      <template v-if="!userName">
-        <dt class="weight--normal">
-          {{ Translator.trans('email') }}
-        </dt>
-        <dd class="u-mb color--grey">
-          {{ user.email }}
-        </dd>
-      </template>
+      <dt class="weight--bold">
+        {{ Translator.trans('email') }}
+      </dt>
+      <dd class="u-mb color--grey">
+        {{ user.email }}
+      </dd>
     </dl>
 
     <input
-      type="hidden"
-      name="email"
-      :value="user.email">
+        type="hidden"
+        name="email"
+        :value="user.email">
     <input
-      type="hidden"
-      name="lastname"
-      :value="user.lastName">
+        type="hidden"
+        name="lastname"
+        :value="user.lastName">
 
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
-        id="assignedTaskNotification"
-        name="assignedTaskNotification"
-        class="u-mb-0_25"
-        :label="Translator.trans('email.daily.subscribe')"
-        v-model="isDailyDigestChecked"
-        value-to-send="on"
-        standalone />
+          id="assignedTaskNotification"
+          name="assignedTaskNotification"
+          class="u-mb-0_25"
+          :label="Translator.trans('email.daily.subscribe')"
+          v-model="isDailyDigestChecked"
+          value-to-send="on"
+          standalone />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>
