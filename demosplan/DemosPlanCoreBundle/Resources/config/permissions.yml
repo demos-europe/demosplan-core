@@ -927,7 +927,7 @@ feature_institution_tag_read:
     loginRequired: true
 feature_institution_tag_update:
     descriptions: |-
-        within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to 
         group them by a custom category/label.
         When enabled this permission allows to alter the tags
         that belong to the current organisation.
