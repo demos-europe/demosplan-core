@@ -911,7 +911,7 @@ feature_institution_tag_create:
     loginRequired: true
 feature_institution_tag_delete:
     descriptions: |-
-        within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to 
         group them by a custom category/label.
         When enabled this permission allows deleting tags
         given by the current organisation.
