@@ -40,9 +40,9 @@ pipeline {
                     try {
                         sh """
                         docker exec ${BUILD_TAG} \
-                            /bin/zsh -c "APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled \
+                            /bin/zsh -c "'APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled \
                                 vendor/bin/phpunit --testsuite core \
-                                --log-junit .build/jenkins-build-phpunit-core.junit.xml"
+                                --log-junit .build/jenkins-build-phpunit-core.junit.xml'"
                         """
                     } catch (err) {
                         echo "PHPUnit Failed: ${err}"
