@@ -239,4 +239,5 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             }
         );
     }
+    //
 }
