@@ -53,23 +53,23 @@
     </dl>
 
     <input
-        type="hidden"
-        name="email"
-        :value="user.email">
+      type="hidden"
+      name="email"
+      :value="user.email">
     <input
-        type="hidden"
-        name="lastname"
-        :value="user.lastName">
+      type="hidden"
+      name="lastname"
+      :value="user.lastName">
 
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
-          id="assignedTaskNotification"
-          name="assignedTaskNotification"
-          class="u-mb-0_25"
-          :label="Translator.trans('email.daily.subscribe')"
-          v-model="isDailyDigestChecked"
-          value-to-send="on"
-          standalone />
+        id="assignedTaskNotification"
+        name="assignedTaskNotification"
+        class="u-mb-0_25"
+        :label="Translator.trans('email.daily.subscribe')"
+        v-model="isDailyDigestChecked"
+        value-to-send="on"
+        standalone />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>
