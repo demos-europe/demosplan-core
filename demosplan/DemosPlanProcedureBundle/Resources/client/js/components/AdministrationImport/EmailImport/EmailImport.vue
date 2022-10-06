@@ -13,34 +13,34 @@ All rights reserved
     <template v-else>
       <template v-if="isInbox">
         <email-import-hint
-            :allowed-email-addresses="allowedEmailAddresses"
-            :import-email-address="importEmailAddress" />
+          :allowed-email-addresses="allowedEmailAddresses"
+          :import-email-address="importEmailAddress" />
 
         <dp-inline-notification
-            v-if="importEmailAddress"
-            dismissible
-            :dismissible-key="lsKeyNoAttachments"
-            :message="Translator.trans('statement.import_email.no_attachments_hint')"
-            type="warning" />
+          v-if="importEmailAddress"
+          dismissible
+          :dismissible-key="lsKeyNoAttachments"
+          :message="Translator.trans('statement.import_email.no_attachments_hint')"
+          type="warning" />
 
         <dp-data-table
-            v-if="items.length && importEmailAddress"
-            has-flyout
-            :header-fields="headerFields"
-            is-expandable
-            :items="items"
-            track-by="id">
+          v-if="items.length && importEmailAddress"
+          has-flyout
+          :header-fields="headerFields"
+          is-expandable
+          :items="items"
+          track-by="id">
           <template v-slot:subject="{ subject }">
             <div class="o-hellip__wrapper">
               <div
-                  v-text="subject"
-                  class="o-hellip--nowrap" />
+                v-text="subject"
+                class="o-hellip--nowrap" />
             </div>
           </template>
           <template v-slot:from="{ from }">
             <span
-                v-text="from"
-                class="whitespace--nowrap" />
+              v-text="from"
+              class="whitespace--nowrap" />
           </template>
           <template v-slot:date="{ date }">
             <email-import-date :date="date" />
@@ -51,16 +51,16 @@ All rights reserved
           <template v-slot:flyout="{ statementId, id }">
             <div class="text--right">
               <button
-                  v-if="statementId === null"
-                  v-text="Translator.trans('import.verb')"
-                  v-tooltip="Translator.trans('statement.import_email.text')"
-                  class="btn--blank o-link--default"
-                  @click.prevent="importEmailId(id)" />
+                v-if="statementId === null"
+                v-text="Translator.trans('import.verb')"
+                v-tooltip="Translator.trans('statement.import_email.text')"
+                class="btn--blank o-link--default"
+                @click.prevent="importEmailId(id)" />
               <a
-                  v-else
-                  v-text="Translator.trans('statement')"
-                  v-tooltip="Translator.trans('statement.edit')"
-                  :href="Routing.generate('dplan_statement_segments_list',{ statementId: statementId, procedureId: procedureId })" />
+                v-else
+                v-text="Translator.trans('statement')"
+                v-tooltip="Translator.trans('statement.edit')"
+                :href="Routing.generate('dplan_statement_segments_list',{ statementId: statementId, procedureId: procedureId })" />
             </div>
           </template>
           <template v-slot:expandedContent="{ text }">
@@ -69,35 +69,35 @@ All rights reserved
         </dp-data-table>
 
         <dp-inline-notification
-            v-else-if="items.length === 0 && importEmailAddress"
-            :message="Translator.trans('items.none.currently')"
-            type="info" />
+          v-else-if="items.length === 0 && importEmailAddress"
+          :message="Translator.trans('items.none.currently')"
+          type="info" />
       </template>
 
       <template v-if="emailToImport !== null && !renderInbox">
         <div class="u-mb-0_5">
           <button
-              @click.prevent="renderEmailList"
-              class="btn--blank o-link--default"
-              v-text="Translator.trans('back.to.import.email')" />
+            @click.prevent="renderEmailList"
+            class="btn--blank o-link--default"
+            v-text="Translator.trans('back.to.import.email')" />
         </div>
       </template>
 
       <dp-inline-notification
-          v-if="!renderInbox"
-          type="confirm"
-          :message="Translator.trans('email.import.statement.info')" />
+        v-if="!renderInbox"
+        type="confirm"
+        :message="Translator.trans('email.import.statement.info')" />
 
       <dp-simplified-new-statement-form
-          v-if="!renderInbox"
-          :allow-file-upload="true"
-          :expand-all="true"
-          :init-values="emailData"
-          :newest-intern-id="newestInternId"
-          :procedure-id="procedureId"
-          :statement-import-email-id="emailToImport"
-          :submit-type-options="submitTypeOptions"
-          :used-intern-ids="usedInternIds" />
+        v-if="!renderInbox"
+        :allow-file-upload="true"
+        :expand-all="true"
+        :init-values="emailData"
+        :newest-intern-id="newestInternId"
+        :procedure-id="procedureId"
+        :statement-import-email-id="emailToImport"
+        :submit-type-options="submitTypeOptions"
+        :used-intern-ids="usedInternIds" />
     </template>
   </div>
 </template>
@@ -222,13 +222,13 @@ export default {
       }
 
       return dpApi.get(url, params, {serialize: true})
-          .then(response => {
-            this.allowedEmailAddresses = response.data?.data[0]?.attributes.allowedSenderEmailAddresses ?? []
-            this.importEmailAddress = response.data?.data[0]?.attributes.recipientEmailAddress ?? null
-          })
-          .catch((e) => {
-            console.error(e)
-          })
+        .then(response => {
+          this.allowedEmailAddresses = response.data?.data[0]?.attributes.allowedSenderEmailAddresses ?? []
+          this.importEmailAddress = response.data?.data[0]?.attributes.recipientEmailAddress ?? null
+        })
+        .catch((e) => {
+          console.error(e)
+        })
     },
 
     fetchStatementImportEmails () {
@@ -264,31 +264,31 @@ export default {
       }
 
       return dpApi.get(emailRoute, params, { serialize: true })
-          .then(({ data }) => {
-            const items = data.data
-                .map(item => {
-                  return this.flattenItem(item, data.included)
-                })
-                .sort((a, b) => {
-                  if (!!a.statementId === !!b.statementId) {
-                    return a.date < b.date ? 1 : -1
-                  } else {
-                    return Number(!!a.statementId) - Number(!!b.statementId)
-                  }
-                })
+        .then(({ data }) => {
+          const items = data.data
+            .map(item => {
+              return this.flattenItem(item, data.included)
+            })
+            .sort((a, b) => {
+              if (!!a.statementId === !!b.statementId) {
+                return a.date < b.date ? 1 : -1
+              } else {
+                return Number(!!a.statementId) - Number(!!b.statementId)
+              }
+            })
 
             this.items = Object.freeze(items)
-          })
-          .catch((e) => {
-            console.error(e)
-          })
+        })
+        .catch((e) => {
+          console.error(e)
+        })
     },
 
     fetchResources () {
       Promise.all([this.fetchStatementImportEmails(), this.fetchImportEmailAddresses()])
-          .then(() => {
-            this.isLoading = false
-          })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     flattenItem ({ attributes, id, relationships }, included) {
