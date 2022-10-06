@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Type;
 
 /**
@@ -97,7 +98,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return 'Statement';
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->buildAccessCondition($this);
     }

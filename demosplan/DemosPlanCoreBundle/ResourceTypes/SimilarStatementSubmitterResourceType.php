@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<ProcedurePerson>
@@ -102,7 +102,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

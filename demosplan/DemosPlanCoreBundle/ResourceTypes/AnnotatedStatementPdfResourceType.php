@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Exception;
 
 /**
@@ -54,7 +54,7 @@ final class AnnotatedStatementPdfResourceType extends DplanResourceType implemen
         return 'AnnotatedStatementPdf';
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

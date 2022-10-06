@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Video>
@@ -60,7 +60,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->allConditionsApply(
             // for now the access to SignLanguageOverviewVideos is limited to the ones uploaded

@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
@@ -61,7 +61,7 @@ final class TagTopicResourceType extends DplanResourceType implements CreatableD
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

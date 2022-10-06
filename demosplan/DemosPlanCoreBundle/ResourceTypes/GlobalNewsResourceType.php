@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PathException;
 
 /**
@@ -91,7 +91,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
     /**
      * @throws PathException
      */
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
     }

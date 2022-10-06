@@ -22,7 +22,7 @@ use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleExceptio
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements CreatableDqlResourceTypeInterface<Tag>
@@ -62,7 +62,7 @@ final class TagResourceType extends DplanResourceType implements CreatableDqlRes
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

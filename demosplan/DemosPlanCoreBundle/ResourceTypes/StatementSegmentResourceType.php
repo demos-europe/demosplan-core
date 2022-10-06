@@ -29,7 +29,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\plugins\workflow\SegmentsManager\ElasticsearchQueries\QuerySegment;
 use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Type;
 
 /**
@@ -101,7 +101,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

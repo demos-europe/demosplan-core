@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResour
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Type;
 
 /**
@@ -82,7 +82,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_list');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $conditions = [
             // always get non-deleted users only

@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * Boilerplate means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints".
@@ -58,7 +58,7 @@ final class BoilerplateResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_boilerplates');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

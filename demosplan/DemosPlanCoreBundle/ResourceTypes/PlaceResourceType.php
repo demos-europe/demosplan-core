@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -68,7 +68,7 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         return $this->currentUser->hasPermission('area_statement_segmentation');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

@@ -23,6 +23,7 @@ use demosplan\DemosPlanUserBundle\Logic\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Tightenco\Collect\Support\Collection as TightencoCollection;
 
 /**
@@ -100,7 +101,7 @@ final class OrgaResourceType extends DplanResourceType
         return 'Orga';
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $extendedOrgaAccess = $this->currentUser->hasAnyPermissions(
             'area_manage_orgadata',

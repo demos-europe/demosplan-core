@@ -22,6 +22,7 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use function is_array;
 
 /**
@@ -113,7 +114,7 @@ final class ProcedureResourceType extends DplanResourceType
         return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $user = $this->currentUser->getUser();
         $userOrganisation = $user->getOrga();

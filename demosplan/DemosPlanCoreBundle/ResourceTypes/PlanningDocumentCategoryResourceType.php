@@ -26,6 +26,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PathException;
 use function in_array;
 
@@ -109,7 +110,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
      */
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
