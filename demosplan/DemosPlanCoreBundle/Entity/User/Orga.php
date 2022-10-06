@@ -377,7 +377,8 @@ class Orga extends SluggedEntity
 
     /**
      * @var Collection<int,InstitutionTag>
-     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="institutions", cascade={"persist", "remove"})
+     *
+     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
      * @ORM\JoinTable(
      *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE", unique=true)}
@@ -392,7 +393,7 @@ class Orga extends SluggedEntity
      * @ORM\JoinColumn(referencedColumnName="id")
      * @ORM\OrderBy({"order" = "ASC"})
      */
-    protected $ownTags;
+    protected $ownInstitutionTags;
 
     public function __construct()
     {
@@ -407,7 +408,7 @@ class Orga extends SluggedEntity
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
         $this->assignedTags = new ArrayCollection();
-        $this->ownTags = new ArrayCollection();
+        $this->ownInstitutionTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -1479,38 +1480,38 @@ class Orga extends SluggedEntity
         return $this->assignedTags;
     }
 
-    public function addTag(InstitutionTag $tag): void
+    public function addAssignedTag(InstitutionTag $tag): void
     {
         if (!$this->assignedTags->contains($tag)) {
             $this->assignedTags->add($tag);
-            $tag->addInstitution($this);
+            $tag->addTaggedInstitution($this);
         }
     }
 
-    public function removeTag(InstitutionTag $tag): void
+    public function removeAssignedTag(InstitutionTag $tag): void
     {
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
         }
     }
 
-    public function addOwnTag(InstitutionTag $tag): void
+    public function addOwnInstitutionTag(InstitutionTag $tag): void
     {
-        $this->ownTags->add($tag);
+        $this->ownInstitutionTags->add($tag);
     }
 
     /**
      * @return Collection<int, InstitutionTag>
      */
-    public function getOwnTags(): Collection
+    public function getOwnInstitutionTags(): Collection
     {
-        return $this->ownTags;
+        return $this->ownInstitutionTags;
     }
 
-    public function removeOwnTag(InstitutionTag $tag): void
+    public function removeOwnInstitutionTag(InstitutionTag $tag): void
     {
-        if ($this->ownTags->contains($tag)) {
-            $this->ownTags->removeElement($tag);
+        if ($this->ownInstitutionTags->contains($tag)) {
+            $this->ownInstitutionTags->removeElement($tag);
         }
     }
 }

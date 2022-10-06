@@ -1,5 +1,12 @@
 <?php declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
@@ -15,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Repository\InstitutionTagRepository;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -27,7 +33,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @property-read End                     $label
  * @property-read OrgaResourceType        $taggedInstitutions
- * @property-read OrgaResourceType        $institutions
  * @property-read OrgaResourceType        $owningOrganisation
  *
  */
@@ -38,15 +43,9 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     private $validator;
 
-    /**
-     * @var InstitutionTagRepository
-     */
-    private $InstitutionTagRepository;
-
-    public function __construct(InstitutionTagRepository $InstitutionTagRepository, ValidatorInterface $validator)
+    public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
-        $this->InstitutionTagRepository = $InstitutionTagRepository;
     }
 
     protected function getProperties(): array
@@ -55,18 +54,18 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             ->readable(true)
             ->filterable();
         $label = $this->createAttribute($this->label);
-        $institutions = $this->createAttribute($this->taggedInstitutions);
+        $taggedInstitutions = $this->createAttribute($this->taggedInstitutions);
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $label->readable()->filterable()->sortable();
-            $institutions->readable()->filterable()->sortable()->aliasedPath($this->institutions);
+            $taggedInstitutions->readable()->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
             $label->initializable();
-            $institutions->initializable(true);
+            $taggedInstitutions->initializable(true);
         }
 
-        return [$id, $label, $institutions];
+        return [$id, $label, $taggedInstitutions];
     }
 
     public static function getName(): string
@@ -121,28 +120,34 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
      */
     public function updateObject(object $tag, array $properties): ResourceChange
     {
-        $currentTaggedInstitutions = $tag->getInstitutions();
+        $currentTaggedInstitutions = $tag->getTaggedInstitutions();
 
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->label, [$tag, 'setLabel']);
-        $updater->ifPresent($this->taggedInstitutions, [$tag, 'setInstitutions']);
+        $updater->ifPresent($this->taggedInstitutions, [$tag, 'setTaggedInstitutions']);
 
         $violations = $this->validator->validate($tag);
         if (0 !== $violations->count()) {
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
-        $addedInstitutions = $this->getAddedTaggedInstitutions($currentTaggedInstitutions, $tag->getInstitutions());
+        $addedInstitutions = $this->getAddedTaggedInstitutions(
+            $currentTaggedInstitutions,
+            $tag->getTaggedInstitutions()
+        );
         $addedInstitutions->forAll(
             static function (int $key, Orga $orga) use ($tag): bool {
-                $orga->addTag($tag);
+                $orga->addAssignedTag($tag);
                 return true;
             }
         );
-        $removedInstitutions = $this->getRemovedTaggedInstitutions($currentTaggedInstitutions, $tag->getInstitutions());
+        $removedInstitutions = $this->getRemovedTaggedInstitutions(
+            $currentTaggedInstitutions,
+            $tag->getTaggedInstitutions()
+        );
         $removedInstitutions->forAll(
             static function (int $key, Orga $orga) use ($tag): bool {
-                $orga->removeTag($tag);
+                $orga->removeAssignedTag($tag);
                 return true;
             }
         );
@@ -158,7 +163,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $this->toProperties(
             $this->label,
-            $this->institutions,
+            $this->taggedInstitutions,
         );
     }
 
@@ -178,15 +183,17 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         $tag = new InstitutionTag($label, $owner);
 
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->taggedInstitutions,
+        $updater->ifPresent(
+            $this->taggedInstitutions,
             static function (Collection $institutions) use ($tag): void {
-                $tag->setInstitutions($institutions);
+                $tag->setTaggedInstitutions($institutions);
                 $institutions->forAll(static function (int $key, Orga $orga) use ($tag) : bool {
-                   $orga->addTag($tag);
-                   return true;
+                    $orga->addAssignedTag($tag);
+                    return true;
                 });
-            });
-        $owner->addOwnTag($tag);
+            }
+        );
+        $owner->addOwnInstitutionTag($tag);
 
         $violations = $this->validator->validate($tag);
         if (0 !== $violations->count()) {
@@ -208,13 +215,13 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             throw new InvalidArgumentException('Insufficient permissions');
         }
 
-        $tag->getInstitutions()->forAll(
+        $tag->getTaggedInstitutions()->forAll(
             static function (Orga $orga) use ($tag): bool {
-                $orga->removeTag($tag);
+                $orga->removeAssignedTag($tag);
                 return true;
             }
         );
-        $tag->getOwningOrganisation()->removeOwnTag($tag);
+        $tag->getOwningOrganisation()->removeOwnInstitutionTag($tag);
 
         $resourceChange = new ResourceChange($tag, $this, []);
         $resourceChange->addEntityToDelete($tag);
@@ -222,8 +229,10 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         return $resourceChange;
     }
 
-    private function getAddedTaggedInstitutions(Collection $currentTaggedInstitutions, Collection $newTaggedInstitutions): Collection
-    {
+    private function getAddedTaggedInstitutions(
+        Collection $currentTaggedInstitutions,
+        Collection $newTaggedInstitutions
+    ): Collection {
         return $newTaggedInstitutions->filter(
             static function (Orga $newOrga) use ($currentTaggedInstitutions): bool {
                 return !$currentTaggedInstitutions->contains($newOrga);
@@ -231,13 +240,14 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         );
     }
 
-    private function getRemovedTaggedInstitutions(Collection $currentTaggedInstitutions, Collection $newTaggedInstitutions): Collection
-    {
+    private function getRemovedTaggedInstitutions(
+        Collection $currentTaggedInstitutions,
+        Collection $newTaggedInstitutions
+    ): Collection {
         return $currentTaggedInstitutions->filter(
             static function (Orga $newOrga) use ($newTaggedInstitutions): bool {
                 return !$newTaggedInstitutions->contains($newOrga);
             }
         );
     }
-    //
 }
