@@ -919,7 +919,7 @@ feature_institution_tag_delete:
     loginRequired: true
 feature_institution_tag_read:
     descriptions: |-
-        within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to 
         group them by a custom category/label.
         When enabled this permission allows reading the tags
         given by the current organisation.
