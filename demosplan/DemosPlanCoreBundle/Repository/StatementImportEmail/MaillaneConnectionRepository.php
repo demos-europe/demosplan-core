@@ -63,7 +63,7 @@ class MaillaneConnectionRepository extends FluentRepository
         return $maillaneConnection->getProcedure();
     }
 
-    public function getMaillaneConnection(string $procedureId): ?MaillaneConnection
+    public function getMaillaneConnectionByProcedureId(string $procedureId): ?MaillaneConnection
     {
         return $this->findOneBy([
             'procedure' => $procedureId,

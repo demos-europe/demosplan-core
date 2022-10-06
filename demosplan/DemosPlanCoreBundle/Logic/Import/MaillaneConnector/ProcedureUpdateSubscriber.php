@@ -99,7 +99,7 @@ class ProcedureUpdateSubscriber extends BaseEventSubscriber
         if ($this->permissions->hasPermission('feature_import_statement_via_email')) {
             $procedureData = $event->getProcedureData();
             $procedureId = $procedureData['id'];
-            $maillaneConnection = $this->maillaneConnectionRepository->getMaillaneConnection($procedureId);
+            $maillaneConnection = $this->maillaneConnectionRepository->getMaillaneConnectionByProcedureId($procedureId);
             if (null !== $maillaneConnection) {
                 $this->maillaneSynchronizer->deleteAccount($maillaneConnection->getMaillaneAccountId());
             }
