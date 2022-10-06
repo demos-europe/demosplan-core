@@ -27,6 +27,7 @@ use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
+use function in_array;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
@@ -224,12 +225,16 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentId->readable(true);
             $title->readable(true);
             $documents->readable(true);
-            $properties = array_merge($properties, [
-                 $fileInfo,
-                 $filePathWithHash,
-                 $children,
-                 $index
-             ]);
+            if (!in_array($fileInfo, $properties, true)) {
+                $properties[] = $fileInfo;
+            }
+            if (!in_array($filePathWithHash, $properties, true)) {
+                $properties[] = $filePathWithHash;
+            }
+            if (!in_array($children, $properties, true)) {
+                $properties[] = $children;
+            }
+            $properties[] = $index;
         }
 
         if ($this->isBulkEditAllowed()) {
@@ -239,8 +244,10 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         if ($this->currentUser->hasPermission('feature_admin_element_edit')) {
             $id->filterable();
+            if (!in_array($index, $properties, true)) {
+                $properties[] = $index;
+            }
             $properties = array_merge($properties, [
-                $index,
                 $this->createAttribute($this->designatedSwitchDate)->readable(false, function (Elements $category): ?string {
                     return $this->formatDate($category->getDesignatedSwitchDate());
                 }),

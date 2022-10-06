@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 use DateTime;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use function collect;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -104,7 +105,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected $typeAccessor;
 
     /**
-     * @var WrapperFactoryInterface
+     * @var WrapperObjectFactory
      */
     protected $wrapperFactory;
 
@@ -347,7 +348,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $event->getProperties();
     }
 
-    protected function getWrapperFactory(): WrapperFactoryInterface
+    protected function getWrapperFactory(): WrapperObjectFactory
     {
         return $this->wrapperFactory;
     }

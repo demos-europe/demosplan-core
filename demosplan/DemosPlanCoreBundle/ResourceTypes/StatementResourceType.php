@@ -331,14 +331,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $authorName = $this->createAttribute($this->authorName)->aliasedPath($this->meta->authorName);
         $submitName = $this->createAttribute($this->submitName)->aliasedPath($this->meta->submitName);
+        $properties[] = $authorName;
+        $properties[] = $submitName;
 
         if ($this->currentUser->hasPermission('area_search_submitter_in_procedures')) {
-            $properties[] = $authorName->filterable();
-            $properties[] = $submitName->filterable();
+            $authorName->filterable();
+            $submitName->filterable();
         }
 
         if ($this->currentUser->hasPermission('area_admin_submitters')) {
-            $properties[] = $submitName->filterable();
+            $submitName->filterable();
         }
 
         if ($this->hasAssessmentPermission()) {
@@ -361,8 +363,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $properties[] = $this->createAttribute($this->paragraphTitle)
                 ->readable(true)->aliasedPath($this->paragraph->title);
             $properties[] = $this->createToOneRelationship($this->assignee)->readable()->filterable();
-            $properties[] = $authorName->readable(true)->filterable();
-            $properties[] = $submitName->readable(true)->filterable()->sortable();
+            $authorName->readable(true)->filterable();
+            $submitName->readable(true)->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

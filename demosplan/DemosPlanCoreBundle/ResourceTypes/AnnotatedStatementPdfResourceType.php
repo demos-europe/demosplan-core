@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
-use EDT\JsonApi\ResourceTypes\SetableProperty;
 use EDT\Querying\Contracts\FunctionInterface;
 use Exception;
 
@@ -170,9 +170,9 @@ final class AnnotatedStatementPdfResourceType extends DplanResourceType implemen
      * Warning: only readable (no filtering/sorting) due to sanitization in
      * {@link File::getFileName}.
      *
-     * @param array<int, SetableProperty> $properties
+     * @param array<int, PropertyBuilder> $properties
      *
-     * @return array<int, SetableProperty>
+     * @return array<int, PropertyBuilder>
      */
     private function addDenormalizedFileName(array $properties): array
     {

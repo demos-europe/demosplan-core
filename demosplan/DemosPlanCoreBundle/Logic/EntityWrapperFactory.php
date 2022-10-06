@@ -26,14 +26,14 @@ use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use EDT\Wrapping\Utilities\TypeAccessor;
+use EDT\Wrapping\WrapperFactories\WrapperObject;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
 /**
  * Service to wrap entities into an object that prevents access to properties not allowed by the
  * corresponding {@link ResourceTypeInterface}.
- *
- * @template-implements WrapperFactoryInterface<EntityInterface, TwigableWrapperObject>
  */
-class EntityWrapperFactory implements WrapperFactoryInterface
+class EntityWrapperFactory extends WrapperObjectFactory
 {
     /**
      * @var TypeAccessor
@@ -63,9 +63,15 @@ class EntityWrapperFactory implements WrapperFactoryInterface
         $this->propertyReader = new CachingPropertyReader($this->propertyAccessor, $schemaPathProcessor);
         $this->typeAccessor = new CacheableTypeAccessor($typeProvider);
         $this->conditionEvaluator = new ConditionEvaluator($this->propertyAccessor);
+        parent::__construct(
+            $this->typeAccessor,
+            $this->propertyReader,
+            $this->propertyAccessor,
+            $this->conditionEvaluator
+        );
     }
 
-    public function createWrapper(object $object, ReadableTypeInterface $type): TwigableWrapperObject
+    public function createWrapper(object $object, ReadableTypeInterface $type): WrapperObject
     {
         return new TwigableWrapperObject(
             $object,

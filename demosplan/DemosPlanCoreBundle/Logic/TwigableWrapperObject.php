@@ -14,9 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyAccessorInterface;
-use EDT\Querying\Contracts\SliceException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
@@ -58,7 +58,7 @@ class TwigableWrapperObject extends WrapperObject
      * @param array $arguments
      * @return mixed|void|null
      * @throws PathException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws SortException
      */
     public function __call(string $methodName, array $arguments = [])

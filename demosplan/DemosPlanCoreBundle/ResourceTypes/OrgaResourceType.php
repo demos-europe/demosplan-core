@@ -166,6 +166,7 @@ final class OrgaResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
+        $statusInCustomers = $this->createToManyRelationship($this->statusInCustomers);
         $properties = [
             $this->createAttribute($this->id)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
@@ -214,7 +215,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
                 return $orga->getDepartments();
             }),
-            $this->createToManyRelationship($this->statusInCustomers)->readable(false, [$this, 'getRegistration']),
+            $statusInCustomers,
         ];
 
         if ($this->currentUser->hasPermission('feature_orga_branding_edit')) {
@@ -227,7 +228,9 @@ final class OrgaResourceType extends DplanResourceType
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
         if ($this->currentUser->hasPermission('area_organisations')) {
-            $properties[] = $this->createToManyRelationship($this->statusInCustomers)->sortable()->filterable();
+            $statusInCustomers->sortable()->filterable();
+        } else {
+            $statusInCustomers->readable(false, [$this, 'getRegistration']);
         }
 
         if ($this->currentUser->hasPermission('area_manage_users')) {
