@@ -208,20 +208,22 @@ export default {
 
   methods: {
     fetchImportEmailAddresses () {
-      const url = Routing.generate('api_resource_get', {
-        resourceType: 'MaillaneConnection',
-        procedure: this.procedureId
-      })
+      const url = Routing.generate('api_resource_list', { resourceType: 'MaillaneConnection' })
       const params = {
+        filter: {
+          procedureFilter: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
         fields: {
-          MaillaneConnection: [
-            'allowedSenderEmailAddresses',
-            'recipientEmailAddress'
-          ].join()
+          MaillaneConnection: ['recipientEmailAddress'].join()
         }
       }
 
-      return dpApi.get(url, params, {serialize: true})
+      return dpApi.get(url, params, { serialize: true })
         .then(response => {
           this.allowedEmailAddresses = response.data?.data[0]?.attributes.allowedSenderEmailAddresses ?? []
           this.importEmailAddress = response.data?.data[0]?.attributes.recipientEmailAddress ?? null
@@ -277,7 +279,7 @@ export default {
               }
             })
 
-            this.items = Object.freeze(items)
+          this.items = Object.freeze(items)
         })
         .catch((e) => {
           console.error(e)
