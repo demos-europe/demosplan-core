@@ -219,7 +219,7 @@ export default {
           }
         },
         fields: {
-          MaillaneConnection: ['recipientEmailAddress'].join()
+          MaillaneConnection: ['recipientEmailAddress', 'allowedSenderEmailAddresses'].join()
         }
       }
 

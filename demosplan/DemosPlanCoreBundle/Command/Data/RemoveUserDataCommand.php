@@ -934,7 +934,6 @@ class RemoveUserDataCommand extends CoreCommand
             'addressBookEntries'          => '-', //??
             'addresses'                   => '-', //??
             'agencyExtraEmailAddresses'   => '-', //??
-            'allowedSenderEmailAddresses' => '-', //??
             'agencyMainEmailAddress'      => 'companyEmail',
             'assignee'                    => 'name',
             'authorizedUsers'             => '-', //??

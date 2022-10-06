@@ -39,8 +39,6 @@ use Symfony\Component\Validator\Constraints\Valid;
  */
 abstract class AbstractProcedureFormType extends AbstractType
 {
-    public const ALLOWED_SENDER_EMAIL_ADDRESSES = 'allowedSenderEmailAddresses';
-
     public const AGENCY_MAIN_EMAIL_ADDRESS = 'agencyMainEmailAddress';
 
     public const AGENCY_EXTRA_EMAIL_ADDRESSES = 'agencyExtraEmailAddresses';
@@ -137,24 +135,6 @@ abstract class AbstractProcedureFormType extends AbstractType
                         ]
                     );
                 }
-            );
-        }
-
-        if ($this->permissions->hasPermissions([
-            'feature_import_statement_via_email',
-            'field_import_statement_email_addresses',
-        ])) {
-            $builder->add(
-                self::ALLOWED_SENDER_EMAIL_ADDRESSES,
-                CollectionType::class,
-                [
-                    'entry_type'   => EmailAddressType::class,
-                    'allow_add'    => true,
-                    'allow_delete' => true,
-                    'prototype'    => true,
-                    'by_reference' => false,
-                    'constraints'  => new Valid(),
-                ]
             );
         }
 

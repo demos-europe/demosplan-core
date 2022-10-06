@@ -1352,7 +1352,6 @@ class DemosPlanProcedureController extends BaseController
                     $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
                     $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
                     $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
-                    $inData[AbstractProcedureFormType::ALLOWED_SENDER_EMAIL_ADDRESSES] = $procedureFormData->getAllowedSenderEmailAddressesFullStrings();
                 }
 
                 $this->validateAdministrationEditInput($inData);
