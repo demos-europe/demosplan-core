@@ -26,10 +26,10 @@ pipeline {
                     """
 
                     sh 'sleep 10' // maybe we don't even need this?
-                    sh 'docker exec ${BUILD_TAG} pwd'
-                    sh 'docker exec ${BUILD_TAG} yarn add file:client/ui'
-                    sh 'docker exec ${BUILD_TAG} yarn install --prefer-offline --frozen-lockfile'
-                    sh 'docker exec ${BUILD_TAG} composer install --no-interaction'
+                    sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} pwd'
+                    sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} yarn add file:client/ui'
+                    sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} yarn install --prefer-offline --frozen-lockfile'
+                    sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} composer install --no-interaction'
                 }
             }
         }
@@ -39,8 +39,8 @@ pipeline {
                 script {
                     try {
                         sh """
-                        docker exec ${BUILD_TAG} rm -rf /tmp/core-application
-                        docker exec ${BUILD_TAG} /bin/zsh -c "APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml"
+                        docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} rm -rf /tmp/core-application
+                        docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} /bin/zsh -c "APP_TEST_SHARD=core SYMFONY_DEPRECATIONS_HELPER=disabled vendor/bin/phpunit --testsuite core --log-junit .build/jenkins-build-phpunit-core.junit.xml"
                         """
                     } catch (err) {
                         echo "PHPUnit Failed: ${err}"
