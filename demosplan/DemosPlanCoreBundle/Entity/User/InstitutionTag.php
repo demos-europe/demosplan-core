@@ -58,7 +58,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
      *
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownTags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
     protected $owningOrganisation;
