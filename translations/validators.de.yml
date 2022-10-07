@@ -13,6 +13,7 @@ error.mandatoryfield.visibility: "Bitte füllen Sie auch das Feld \"Sichtbarkeit
 error.news.description.toolong: "Der Kurztext für die Mitteilung ist zu lang. Bitte kürzen Sie ihn."
 error.news.text.toolong: "Der Mitteilungstext ist zu lang. Bitte kürzen Sie ihn."
 file.video.invalid: "Die Datei kann nicht als Video verwendet werden."
+institutionTag.label.not.null: "Der Feld 'Titel' darf nicht leer sein."
 mail.body.max.length: "Der Inhalt der E-Mail ist zu lang, bitte reduzieren Sie ihn auf {{ limit }} Zeichen."
 mail.body.notblank: "Der Inhalt der E-Mail darf nicht leer sein."
 mail.send.true: "Sie müssen diesen Entwurf an Ihre eigene E-Mail-Adresse senden, aktivieren Sie hierzu bitte das entsprechende Feld."
