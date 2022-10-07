@@ -39,16 +39,6 @@ updates:
     labels:
         - dependencies:yarn
 
-    # DocX Importer Dependencies
-  - package-ecosystem: maven
-    directory: "/services/importer/PC026_DSL_Demos_Import"
-    schedule:
-        interval: daily
-        time: "09:00"
-        timezone: Europe/Berlin
-    open-pull-requests-limit: 10
-    labels:
-        - dependencies:maven
 
   # PHP Dependencies of demosplan
   - package-ecosystem: composer
