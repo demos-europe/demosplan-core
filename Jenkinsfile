@@ -9,6 +9,7 @@ pipeline {
                 script{
                     sh 'mkdir -p .build'
                     sh 'mkdir -p .cache'
+                    sh 'dp git:init --depth=2'
                 }
             }
         }
@@ -27,7 +28,6 @@ pipeline {
 
                     sh 'sleep 10' // maybe we don't even need this?
                     sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} pwd'
-                    sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} dp git:init --depth=2'
                     sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} yarn add file:client/ui'
                     sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} yarn install --prefer-offline --frozen-lockfile'
                     sh 'docker exec --user $CONTAINER_USER_NAME ${BUILD_TAG} composer install --no-interaction'
