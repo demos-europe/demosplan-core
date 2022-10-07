@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Constraint\MaillaneConnectionProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,6 +22,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository")
+ *
+ * @MaillaneConnectionProcedureTemplateConstraint()
  */
 class MaillaneConnection implements UuidEntityInterface
 {
@@ -77,9 +81,21 @@ class MaillaneConnection implements UuidEntityInterface
      */
     protected $allowedSenderEmailAddresses;
 
-    public function __construct()
+    /**
+     * Every maillaneconnection belongs to an (actual, non-template) procedure. But not every procedure needs to be connected to a {@link MaillaneConnection}.
+     * It fully depends on permissions and availability of the external Maillane service.
+     *
+     * @var Procedure
+     *
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable = false, referencedColumnName="_p_id", unique=true)
+     */
+    private $procedure;
+
+    public function __construct(Procedure $procedure)
     {
         $this->allowedSenderEmailAddresses = new ArrayCollection();
+        $this->procedure = $procedure;
     }
 
     public function getId(): ?string
@@ -121,5 +137,10 @@ class MaillaneConnection implements UuidEntityInterface
     public function setAllowedSenderEmailAddresses(Collection $allowedSenderEmailAddresses): void
     {
         $this->allowedSenderEmailAddresses = $allowedSenderEmailAddresses;
+    }
+
+    public function getProcedure(): Procedure
+    {
+        return $this->procedure;
     }
 }

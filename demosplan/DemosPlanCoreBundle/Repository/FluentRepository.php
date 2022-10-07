@@ -24,6 +24,11 @@ use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\FluentQueries\SliceDefinition;
 use EDT\Querying\FluentQueries\SortDefinition;
 
+/**
+ * @template T of object
+ *
+ * @template-extends CoreRepository<T>
+ */
 abstract class FluentRepository extends CoreRepository
 {
     /**
