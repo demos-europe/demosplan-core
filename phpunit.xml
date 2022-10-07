@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    bootstrap="tests/backend/bootstrap.php"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTodoAnnotatedTests="true"
+    verbose="false"
+>
+    <coverage processUncoveredFiles="false">
+        <include>
+            <directory suffix=".php">demosplan</directory>
+        </include>
+    </coverage>
+    <listeners>
+        <listener class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+    </listeners>
+    <testsuites>
+        <testsuite name="core">
+            <directory>tests/backend/core</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
