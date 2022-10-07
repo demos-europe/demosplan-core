@@ -47,18 +47,18 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
      *
-     * @var Collection<int,Orga>
+     * @var Collection<int, Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
-    protected $institutions;
+    protected $taggedInstitutions;
 
     /**
      * Institution, which has created the tag and therefore is allowed to use, read, edit and delete it.
      *
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownTags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
      */
     protected $owningOrganisation;
@@ -81,8 +81,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     {
         $this->label = $title;
         $this->owningOrganisation = $owningOrganisation;
-        $owningOrganisation->addOwnTag($this);
-        $this->institutions = new ArrayCollection();
+        $owningOrganisation->addOwnInstitutionTag($this);
+        $this->taggedInstitutions = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -98,17 +98,17 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @return Collection<int, Orga>
      */
-    public function getInstitutions(): Collection
+    public function getTaggedInstitutions(): Collection
     {
-        return $this->institutions;
+        return $this->taggedInstitutions;
     }
 
     /**
      * @param Collection<int, Orga> $institutions
      */
-    public function setInstitutions(Collection $institutions): void
+    public function setTaggedInstitutions(Collection $institutions): void
     {
-        $this->institutions = $institutions;
+        $this->taggedInstitutions = $institutions;
     }
 
     public function getCreationDate(): DateTime
@@ -124,11 +124,11 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * @return bool - true if the given statement was added to this tag, otherwise false
      */
-    public function addInstitution(Orga $institution): bool
+    public function addTaggedInstitution(Orga $institution): bool
     {
-        if (!$this->institutions->contains($institution)) {
-            $this->institutions->add($institution);
-            $institution->addTag($this);
+        if (!$this->taggedInstitutions->contains($institution)) {
+            $this->taggedInstitutions->add($institution);
+            $institution->addAssignedTag($this);
             return true;
         }
 
