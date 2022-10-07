@@ -47,7 +47,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
      *
-     * @var Collection<int,Orga>
+     * @var Collection<int, Orga>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
