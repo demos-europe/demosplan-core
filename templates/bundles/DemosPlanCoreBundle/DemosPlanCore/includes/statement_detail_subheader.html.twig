@@ -38,79 +38,79 @@
 
 {% endif %}
 
-<div>
-    <div class="u-pt-0_125 layout--flush">
-        <div class="layout__item u-2-of-4">
 
-            {# The css class "c-actionmenuat__trigger" is used here only lazily to style the single links
-               with the same line height as the "real actionmenu". some day the line height stuff has to be extracted. #}
+<div class="u-pt-0_125 layout--flush">
+    <div class="layout__item u-2-of-4">
 
-            {# Assignment (a.k.a. Claim) #}
-            {% if hasPermission('feature_statement_assignment') %}
-                {% if statement.assignee.id|default != currentUser.ident %}
-                    <a class="c-actionmenu__trigger o-tooltip display--inline-block u-mr-0_5"
-                        href="{{ href_assign }}"
-                        data-cy="claim">
-                        <i class="fa {{ icon }}" aria-hidden="true"></i>
-                        <div class="o-tooltip__content">
-                            {{ text }}
-                        </div>
-                    </a>
-                {% else %}
-                    <a class="c-actionmenu__trigger o-tooltip o-link--default display--inline-block u-mr-0_5"
-                        href="{{ href_unassign }}"
-                        data-cy="unclaim">
-                        <i class="fa {{ icon }}" aria-hidden="true"></i>
-                        <div class="o-tooltip__content">
-                            {{ text }}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endif %}
+        {# The css class "c-actionmenuat__trigger" is used here only lazily to style the single links
+           with the same line height as the "real actionmenu". some day the line height stuff has to be extracted. #}
 
-            {# Copy item #}
-            {% if assigned|default(false) or not hasPermission('feature_statement_assignment') %}
-                <a class="c-actionmenu__trigger btn-icns u-mb-0" href="{{ path("dm_plan_assessment_single_copy", {'statement': templateVars.table.statement.ident, 'procedure': procedure}) }}" name="copyStatement">
-                    <i class="fa fa-files-o" aria-hidden="true"></i>
-                    {{ 'copy'|trans }}
+        {# Assignment (a.k.a. Claim) #}
+        {% if hasPermission('feature_statement_assignment') %}
+            {% if statement.assignee.id|default != currentUser.ident %}
+                <a class="c-actionmenu__trigger o-tooltip display--inline-block u-mr-0_5"
+                    href="{{ href_assign }}"
+                    data-cy="claim">
+                    <i class="fa {{ icon }}" aria-hidden="true"></i>
+                    <div class="o-tooltip__content">
+                        {{ text }}
+                    </div>
+                </a>
+            {% else %}
+                <a class="c-actionmenu__trigger o-tooltip o-link--default display--inline-block u-mr-0_5"
+                    href="{{ href_unassign }}"
+                    data-cy="unclaim">
+                    <i class="fa {{ icon }}" aria-hidden="true"></i>
+                    <div class="o-tooltip__content">
+                        {{ text }}
+                    </div>
                 </a>
             {% endif %}
+        {% endif %}
 
-            {# Release cluster #}
-            {% if entity|default == 'cluster' %}
-                <a href="{{ path('DemosPlan_cluster_resolve', { 'headStatementId': statement.ident, 'procedure': procedure }) }} "
-                   class="c-actionmenu__trigger btn-icns u-mb-0"
-                   data-form-actions-confirm="{{ 'check.cluster.release'|trans }}"
-                   data-form-actions-confirm-simple
-                    {{ readonly ? 'disabled' }}
-                >
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                    {{ 'cluster.release'|trans }}
-                </a>
-            {% endif %}
+        {# Copy item #}
+        {% if assigned|default(false) or not hasPermission('feature_statement_assignment') %}
+            <a class="c-actionmenu__trigger btn-icns u-mb-0" href="{{ path("dm_plan_assessment_single_copy", {'statement': templateVars.table.statement.ident, 'procedure': procedure}) }}" name="copyStatement">
+                <i class="fa fa-files-o" aria-hidden="true"></i>
+                {{ 'copy'|trans }}
+            </a>
+        {% endif %}
 
-            {% if hasPermission('feature_assessmenttable_single_statement_pdf') %}
-                <button
-                    type="button"
-                    class="btn--blank o-link--default"
-                    data-export-form="{# This attribute is used as a hook to append an EventListener in assessment_statement.html.twig #}">
-                    <i class="fa fa-share-square" aria-hidden="true"></i>
-                    {{ 'pdf.export'|trans }}
-                </button>
-            {% endif %}
+        {# Release cluster #}
+        {% if entity|default == 'cluster' %}
+            <a href="{{ path('DemosPlan_cluster_resolve', { 'headStatementId': statement.ident, 'procedure': procedure }) }} "
+               class="c-actionmenu__trigger btn-icns u-mb-0"
+               data-form-actions-confirm="{{ 'check.cluster.release'|trans }}"
+               data-form-actions-confirm-simple
+                {{ readonly ? 'disabled' }}
+            >
+                <i class="fa fa-times" aria-hidden="true"></i>
+                {{ 'cluster.release'|trans }}
+            </a>
+        {% endif %}
 
-        </div><!--
+        {% if hasPermission('feature_assessmenttable_single_statement_pdf') %}
+            <button
+                type="button"
+                class="btn--blank o-link--default"
+                data-export-form="{# This attribute is used as a hook to append an EventListener in assessment_statement.html.twig #}">
+                <i class="fa fa-share-square" aria-hidden="true"></i>
+                {{ 'pdf.export'|trans }}
+            </button>
+        {% endif %}
 
-     --><div class="layout__item u-pt-0_125 u-2-of-4 cf vertical-align--baseline u-mb-0_25">
-            {% if statement.assignee.id|default != currentUser.ident and hasPermission('feature_statement_assignment') %}
-                <a
-                    class="btn btn--primary float--right u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                    data-cy="statementAssignmentOverride"
-                    href="{{ href_assign }}">
-                    {{ label }}
-                </a>
-            {% endif %}
-        </div>
+    </div><!--
 
+ --><div class="layout__item u-pt-0_125 u-2-of-4 cf vertical-align--baseline u-mb-0_25">
+        {% if statement.assignee.id|default != currentUser.ident and hasPermission('feature_statement_assignment') %}
+            <a
+                class="btn btn--primary float--right u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                data-cy="statementAssignmentOverride"
+                href="{{ href_assign }}">
+                {{ label }}
+            </a>
+        {% endif %}
     </div>
+
 </div>
+
