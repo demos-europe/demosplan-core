@@ -10,7 +10,7 @@
 <template>
   <dp-email-list
     :init-emails="allowedEmailAddresses"
-    :form-field-name="formFieldName" />
+    form-field-name="allowedSenderEmailAddresses[][fullAddress]" />
 </template>
 
 <script>
@@ -38,8 +38,7 @@ export default {
 
   data () {
     return {
-      allowedEmailAddresses: [],
-      formFieldName: 'allowedSenderEmailAddresses[][fullAddress]'
+      allowedEmailAddresses: []
     }
   },
 
