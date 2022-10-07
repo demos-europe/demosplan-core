@@ -12,10 +12,10 @@ import { DpButton, DpInput } from 'demosplan-ui/components'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpEmailList from './DpEmailList'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import ExportSettings from './ExportSettings'
 import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
 
@@ -27,12 +27,12 @@ export default {
     DpButton,
     DpDateRangePicker,
     DpDatetimePicker,
+    DpEditor,
     DpEmailList,
     DpInlineNotification,
     DpInput,
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpEditor,
     DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DpJs/components/core/DpUpload/DpUploadFiles'),
     ExportSettings
   },

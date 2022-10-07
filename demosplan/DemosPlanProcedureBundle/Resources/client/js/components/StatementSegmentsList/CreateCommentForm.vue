@@ -32,16 +32,16 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import { DpLabel } from 'demosplan-ui/components'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpLabel } from 'demosplan-ui/components'
 
 export default {
   name: 'CreateCommentForm',
 
   components: {
     DpButtonRow,
-    DpLabel,
-    DpEditor
+    DpEditor,
+    DpLabel
   },
 
   props: {
