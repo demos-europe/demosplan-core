@@ -213,7 +213,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         $violations = $this->validator->validate($owningOrganisation);
 
         $tag->getTaggedInstitutions()->forAll(
-            function (Orga $taggedInstitution) use ($tag, $violations): bool {
+            function (int $key, Orga $taggedInstitution) use ($tag, $violations): bool {
                 $taggedInstitution->removeAssignedTag($tag);
                 $institutionViolations = $this->validator->validate($taggedInstitution);
                 $violations->addAll($institutionViolations);
