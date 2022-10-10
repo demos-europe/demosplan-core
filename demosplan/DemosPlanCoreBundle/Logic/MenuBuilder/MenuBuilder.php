@@ -102,7 +102,11 @@ class MenuBuilder
             $procedureId = $this->currentProcedure->getId();
             if ($request->hasSession() && $request->getSession()->has('hashList')) {
                 // If there is a hashlist in the current session, get the hash
-                $filterHash = $request->getSession()->get('hashList')[$procedureId]['assessment']['hash'];
+                try {
+                    $filterHash = $request->getSession()->get('hashList')[$procedureId]['assessment']['hash'];
+                } catch (\Exception $e) {
+                    //Do nothing
+                }
             }
         }
 
