@@ -20,7 +20,6 @@ $finder = PhpCsFixer\Finder::create()
         'node_modules',
         'services',
         'Soap',
-        // could be deleted once #7315 is merged
         'var',
         'vendor',
     ]);
