@@ -34,24 +34,22 @@ class ElasticsearchFilterArrayTransformer
     {
         $filter = [];
         if ((!\is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
+
             return $filter;
         }
 
         foreach ($bucket as $entry) {
-            // No need to return emtpy filters
-            if ($entry[$countKey] > 0) {
-                $filterEntry = [
-                    'count' => $entry[$countKey],
-                    'label' => \array_key_exists($entry[$labelKey], $labelMap) ? $labelMap[$entry[$labelKey]] : $entry[$labelKey],
-                    'value' => $entry[$valueKey],
-                ];
-                // Setze einen Stadardwert, wenn kein Label angegeben ist
-                if ('' === $filterEntry['label']) {
-                    $filterEntry['label'] = 'Keine Zuordnung';
-                    $filterEntry['value'] = ElasticSearchService::EMPTY_FIELD;
-                }
-                $filter[] = $filterEntry;
+            $filterEntry = [
+                'count' => $entry[$countKey],
+                'label' => \array_key_exists($entry[$labelKey], $labelMap) ? $labelMap[$entry[$labelKey]] : $entry[$labelKey],
+                'value' => $entry[$valueKey],
+            ];
+            // Setze einen Stadardwert, wenn kein Label angegeben ist
+            if ('' === $filterEntry['label']) {
+                $filterEntry['label'] = 'Keine Zuordnung';
+                $filterEntry['value'] = ElasticSearchService::EMPTY_FIELD;
             }
+            $filter[] = $filterEntry;
         }
 
         // sortiere nach Label
