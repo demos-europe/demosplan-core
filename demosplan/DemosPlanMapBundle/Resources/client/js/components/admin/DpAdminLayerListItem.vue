@@ -147,12 +147,12 @@
     </div>
 
     <!-- recursive nesting inside -->
-    <draggable
+    <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
-      :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
-      v-model="childElements"
-      v-bind="draggableOptions">
+      :draggable-class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      :opts="draggableOptions"
+      v-model="childElements">
       <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
@@ -164,14 +164,14 @@
       <div
         v-if="childElements.length <= 0"
         class="o-sortablelist__spacer" />
-    </draggable>
+    </dp-draggable>
 
     <!-- if special category that looks like an Layer and hides all his children -->
-    <draggable
+    <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
-      :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
-      v-bind="draggableOptions"
+      :draggable-class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      :opts="draggableOptions"
       v-model="childElements"
       @add="onAddToCategoryWithChildrenHidden">
       <dp-admin-layer-list-item
@@ -185,14 +185,14 @@
       <div
         v-if="childElements.length <= 0"
         class="o-sortablelist__spacer" />
-    </draggable>
+    </dp-draggable>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
-import draggable from 'vuedraggable'
+import DpDraggable from '@DpJs/components/core/DpDraggable'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import { v4 as uuid } from 'uuid'
 
@@ -200,7 +200,7 @@ export default {
   name: 'DpAdminLayerListItem',
 
   components: {
-    draggable: draggable
+    DpDraggable
   },
 
   props: {
@@ -631,10 +631,10 @@ export default {
       get () {
         return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
       },
-      set (value) {
+      set ({newOrder}) {
         this.setChildrenFromCategory({
           categoryId: this.element.id,
-          data: value,
+          data: newOrder,
           orderType: 'treeOrder',
           parentOrder: this.layer.attributes.treeOrder
         })

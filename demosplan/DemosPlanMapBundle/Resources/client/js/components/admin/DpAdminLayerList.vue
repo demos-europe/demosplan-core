@@ -78,11 +78,11 @@
         </div>
       </div>
     </div>
-    <draggable
+    <dp-draggable
       v-if="false === this.isLoading"
-      v-bind="draggableOptions"
+      :opts="draggableOptions"
       v-model="currentList"
-      :class="{'color--grey': false === isEditable}">
+      :draggable-class="{'color--grey': false === isEditable}">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentList"
         :key="item.id"
@@ -93,7 +93,7 @@
         data-cy="overlaysMapLayerListItem"
         :index="idx"
         :parent-order-position="1" />
-    </draggable>
+    </dp-draggable>
 
     <dp-loading
       v-if="isLoading"
@@ -127,11 +127,11 @@
           </div>
       </div>
     </div>
-    <draggable
+    <dp-draggable
       v-if="false === this.isLoading"
-      v-bind="draggableOptionsForBaseLayer"
+      :opts="draggableOptionsForBaseLayer"
       v-model="currentBaseList"
-      :class="{'color--grey': false === isEditable}">
+      :draggable-class="{'color--grey': false === isEditable}">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentBaseList"
         :key="item.id"
@@ -141,7 +141,7 @@
         layer-type="base"
         data-cy="baseMapLayerListItem"
         :index="idx" />
-    </draggable>
+    </dp-draggable>
     <div class="layout--flush u-mt u-mb">
       <h3 class="layout__item u-1-of-3">
         {{ Translator.trans('map.base.minimap') }}
@@ -191,7 +191,7 @@
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
-import draggable from 'vuedraggable'
+import DpDraggable from '@DpJs/components/core/DpDraggable'
 import lscache from 'lscache'
 import { scrollTo } from 'vue-scrollto'
 
@@ -200,9 +200,9 @@ export default {
 
   components: {
     DpAdminLayerListItem,
+    DpDraggable,
     DpButton,
-    DpLoading,
-    draggable
+    DpLoading
   },
 
   props: {
@@ -237,11 +237,11 @@ export default {
       get () {
         return (this.currentTab === 'mapOrder') ? this.mapList : this.treeList
       },
-      set (value) {
+      set ({newOrder}) {
         if (this.currentTab === 'mapOrder') {
-          this.mapList = value
+          this.mapList = newOrder
         } else {
-          this.treeList = value
+          this.treeList = newOrder
         }
       }
     },
@@ -250,11 +250,11 @@ export default {
       get () {
         return (this.currentTab === 'mapOrder') ? this.mapBaseList : this.treeBaseList
       },
-      set (value) {
+      set ({newOrder}) {
         if (this.currentTab === 'mapOrder') {
-          this.mapBaseList = value
+          this.mapBaseList = newOrder
         } else {
-          this.treeBaseList = value
+          this.treeBaseList = newOrder
         }
       }
     },

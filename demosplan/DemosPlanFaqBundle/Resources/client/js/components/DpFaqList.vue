@@ -15,7 +15,7 @@
       :tree-data="transformedCategories"
       :branch-identifier="branchFunc()"
       :options="options"
-      @tree-data-change="updateCategorySort">
+      @tree:change="updateCategorySort">
       <template v-slot:header="">
         <div class="layout--flush">
           <div class="layout__item u-4-of-12">
