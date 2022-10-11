@@ -60,7 +60,6 @@ export default {
      */
     draggableClass: {
       type: [String, Object],
-
       required: false,
       default: ''
     },
