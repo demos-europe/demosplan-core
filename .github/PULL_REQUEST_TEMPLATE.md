@@ -26,7 +26,6 @@ and the reasoning behind the solution. -->
 Delete the checkbox if it doesn't apply/isn't necessary.
 
 - [ ] Tests updated/created
-- [ ] Execute [PHPUnit core tests](http://dplan-documentation.ad.berlin.demos-europe.eu/development/tests/php) `vendor/bin/phpunit --testsuite core` if BE was changed
 - [ ] Update documentation
 - [ ] Link all relevant tickets
 - [ ] Move the tickets on the board accordingly
