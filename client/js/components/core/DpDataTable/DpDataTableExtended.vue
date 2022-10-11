@@ -87,6 +87,7 @@
       @items-selected="emitSelectedItems"
       :items="onPageItems"
       :search-string="searchString"
+      :should-be-selected-items="currentlySelectedItems"
       :track-by="trackBy">
       <template
         v-for="el in sortableFilteredFields"
@@ -147,6 +148,7 @@ import DpSelectPageItemCount from './DpSelectPageItemCount'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import SlidingPagination from 'vue-sliding-pagination'
+import tableSelectAllItems from '@DpJs/lib/utils/tableSelectAllItems'
 
 export default {
   name: 'DpDataTableExtended',
@@ -157,6 +159,8 @@ export default {
     DpStickyElement,
     SlidingPagination
   },
+
+  mixins: [tableSelectAllItems],
 
   props: {
     defaultSortOrder: {
