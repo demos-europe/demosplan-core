@@ -102,6 +102,8 @@ class MenuBuilder
             $procedureId = $this->currentProcedure->getId();
             if ($request->hasSession() && $request->getSession()->has('hashList')) {
                 // If there is a hashlist in the current session, get the hash
+                // I thought an empty catch is fine here as it clearly represents what the software supposed to do:
+                // Try to get the correct hash list for the current procedure. If you can't, that's fine, do nothing.
                 try {
                     $filterHash = $request->getSession()->get('hashList')[$procedureId]['assessment']['hash'];
                 } catch (\Exception $e) {
