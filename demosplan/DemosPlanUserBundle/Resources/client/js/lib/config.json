@@ -1,0 +1,360 @@
+{
+  "Portalconfig": {
+    "mapView": {
+      "backgroundImage": "https://geodienste.hamburg.de/lgv-config/img/backgroundCanvas.jpeg",
+      "extent": [
+        442800,
+        5809000,
+        738000,
+        6102200
+      ],
+      "startResolution": 5.2916638091682096
+    },
+    "searchBar": {
+      "minChars": 3,
+      "placeholder": "translate#common:modules.searchbar.placeholder.addressTopicParcel",
+      "gazetteer": {
+        "minChars": 3,
+        "serviceId": "6",
+        "searchAddress": true,
+        "searchStreets": true,
+        "searchHouseNumbers": true,
+        "searchDistricts": true,
+        "searchParcels": true
+      },
+      "elasticSearch": {
+        "minChars": 3,
+        "serviceId": "elastic",
+        "type": "GET",
+        "triggerEvent": {
+          "channel": "Parser",
+          "event": "addGdiLayer"
+        },
+        "payload": {
+          "id": "query",
+          "params": {
+            "query_string": "",
+            "typ": [
+              "sensorthings",
+              "wms"
+            ],
+            "size": 30
+          }
+        },
+        "searchStringAttribute": "query_string",
+        "responseEntryPath": "hits.hits",
+        "hitMap": {
+          "name": "_source.name",
+          "id": "_source.id",
+          "source": "_source"
+        },
+        "hitType": "common:modules.searchbar.type.subject",
+        "hitIcon": "bi-list-ul"
+      }
+    },
+    "menu": {
+      "tree": {
+        "name": "translate#common:menu.topics",
+        "icon": "bi-stack",
+        "isAlwaysExpanded": [
+          "SelectedLayer"
+        ]
+      },
+      "tools": {
+        "name": "translate#common:menu.tools.name",
+        "icon": "bi-tools",
+        "children": {
+          "parcelSearch": {
+            "name": "translate#common:menu.tools.parcelSearch",
+            "icon": "bi-search",
+            "serviceId": "6",
+            "storedQueryID": "Flurstueck",
+            "configJSON": "https://geodienste.hamburg.de/lgv-config/gemarkungen_hh.json",
+            "parcelDenominator": false
+          },
+          "addWMS": {
+            "name": "translate#common:menu.tools.addWms",
+            "icon": "bi-plus-lg"
+          },
+          "measure": {
+            "name": "translate#common:menu.tools.measure",
+            "icon": "bi-rulers"
+          },
+          "gfi": {
+            "name": "translate#common:menu.tools.getInfos",
+            "icon": "bi-info-circle-fill",
+            "active": true
+          },
+          "print": {
+            "name": "translate#common:menu.tools.print",
+            "icon": "bi-printer-fill",
+            "printServiceId": "mapfish",
+            "printAppId": "master",
+            "filename": "Ausdruck",
+            "title": "Mein Titel"
+          },
+          "supplyCoord": {
+            "name": "translate#common:menu.tools.supplyCoord",
+            "icon": "bi-bullseye"
+          },
+          "searchByCoord": {
+            "name": "translate#common:menu.tools.searchByCoord",
+            "icon": "bi-search"
+          },
+          "coordToolkit": {
+            "name": "translate#common:menu.tools.coordToolkit",
+            "icon": "bi-globe",
+            "heightLayerId": "19173",
+            "heightElementName": "value_0",
+            "heightValueWater": "-20",
+            "heightValueBuilding": "200"
+          },
+          "fileImport": {
+            "name": "translate#common:menu.tools.fileImport",
+            "icon": "bi-box-arrow-in-down"
+          },
+          "draw": {
+            "name": "translate#common:menu.tools.draw",
+            "icon": "bi-pencil-fill",
+            "renderToWindow": false,
+            "iconList": [
+              {
+                "id": "iconPoint",
+                "type": "simple_point",
+                "value": "simple_point"
+              },
+              {
+                "id": "iconMeadow",
+                "type": "image",
+                "scale": 0.8,
+                "value": "wiese.png"
+              },
+              {
+                "id": "gelber Pin",
+                "type": "image",
+                "scale": 0.5,
+                "value": "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
+              }
+            ]
+          },
+          "saveSelection": {
+            "name": "translate#common:menu.tools.saveSelection",
+            "simpleMap": true,
+            "icon": "bi-bookmark-check"
+          },
+          "shadow": {
+            "name": "Schatten",
+            "icon": "bi-lamp-fill",
+            "isShadowEnabled": true
+          }
+        }
+      },
+      "legend": {
+        "name": "common:modules.legend.name",
+        "icon": "bi-lightbulb",
+        "showCollapseAllButton": true
+      },
+      "contact": {
+        "name": "translate#common:menu.contact",
+        "icon": "bi-envelope-fill",
+        "serviceId": "80002",
+        "from": [
+          {
+            "email": "lgvgeoportal-hilfe@gv.hamburg.de",
+            "name": "LGVGeoportalHilfe"
+          }
+        ],
+        "to": [
+          {
+            "email": "lgvgeoportal-hilfe@gv.hamburg.de",
+            "name": "LGVGeoportalHilfe"
+          }
+        ],
+        "includeSystemInfo": true
+      }
+    },
+    "controls": {
+      "orientation3d": true,
+      "button3d": true,
+      "toggleMenu": true,
+      "fullScreen": true,
+      "zoom": true,
+      "orientation": true,
+      "mousePosition": true,
+      "attributions": true,
+      "buttonOblique": true
+    },
+    "treeType": "default",
+    "singleBaselayer": true
+  },
+  "Themenconfig": {
+    "Hintergrundkarten": {
+      "name": "translate#common:tree.backgroundMaps",
+      "Layer": [
+        {
+          "id": [
+            "13534",
+            "13537",
+            "13538",
+            "13539",
+            "13540",
+            "13541",
+            "13535",
+            "13536"
+          ],
+          "name": "Geobasiskarten (Schriftplatte)"
+        },
+        {
+          "id": [
+            "368",
+            "369",
+            "370",
+            "371",
+            "372",
+            "373",
+            "374",
+            "376",
+            "13923",
+            "13924",
+            "378",
+            "379",
+            "380",
+            "375",
+            "377",
+            "13920",
+            "381",
+            "382",
+            "383",
+            "384",
+            "385",
+            "386",
+            "387",
+            "388",
+            "389",
+            "13921",
+            "390",
+            "391",
+            "392",
+            "393",
+            "13922",
+            "394",
+            "395",
+            "396",
+            "397"
+          ],
+          "name": "ALKIS farbig"
+        },
+        {
+          "id": [
+            "149",
+            "150",
+            "151",
+            "152",
+            "153",
+            "154",
+            "155",
+            "157",
+            "13926",
+            "13927",
+            "159",
+            "160",
+            "161",
+            "156",
+            "158",
+            "13928",
+            "162",
+            "163",
+            "164",
+            "165",
+            "166",
+            "167",
+            "168",
+            "169",
+            "170",
+            "13930",
+            "171",
+            "172",
+            "173",
+            "174",
+            "13931",
+            "175",
+            "176",
+            "177",
+            "178"
+          ],
+          "name": "ALKIS grau-blau"
+        },
+        {
+          "id": [
+            "717",
+            "718",
+            "719",
+            "720",
+            "13712",
+            "13709",
+            "13714",
+            "13716"
+          ],
+          "name": "Geobasiskarten (farbig)"
+        },
+        {
+          "id": [
+            "4736",
+            "12062",
+            "4745",
+            "4739",
+            "12061",
+            "4742",
+            "12060",
+            "12059"
+          ],
+          "name": "Geobasiskarten (schwarz-grau)"
+        },
+        {
+          "id": [
+            "1043",
+            "1044",
+            "1045",
+            "1046",
+            "13649",
+            "13652",
+            "13654",
+            "13656"
+          ],
+          "name": "Geobasiskarten (grau-blau)"
+        },
+        {
+          "id": "452",
+          "name": "Luftbilder DOP 20 (DOP 40 mit Umland)"
+        },
+        {
+          "id": "94"
+        },
+        {
+          "id": "453",
+          "visibility": true
+        }
+      ]
+    },
+    "Fachdaten_3D": {
+      "name": "translate#common:tree.subjectData3D",
+      "Layer": [
+        {
+          "id": "12883",
+          "name": "Gelände",
+          "visibility": true
+        },
+        {
+          "id": "16101",
+          "name": "Brueckenflaechen HH",
+          "visibility": true
+        },
+        {
+          "id": "12884",
+          "name": "Gebäude LoD2",
+          "visibility": true
+        }
+      ]
+    }
+  }
+}

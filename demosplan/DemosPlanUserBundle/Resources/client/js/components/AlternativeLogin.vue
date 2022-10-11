@@ -9,6 +9,8 @@
 
 <template>
   <div>
+    <master-portal />
+    <div id="masterportal-root"></div>
     <slot
       :header-fields="headerFields"
       :login-route="loginRoute"
@@ -17,9 +19,24 @@
   </div>
 </template>
 
+<script src="https://geodienste.hamburg.de/lgv-config/special_loaders.js"></script>
+<script src="https://geoportal-hamburg.de/mastercode/cesium/1_95/Cesium.js"></script>
 <script>
+/* eslint-ignore nextline */
+import Backbone from 'backbone'
+/* eslint-ignore nextline */
+import Radio from 'backbone.radio'
+import MasterPortal from '../lib/master-portal-umd'
+import Config from '../lib/config'
+
+window.Config = Config
+
 export default {
   name: 'AlternativeLogin',
+
+  components: {
+    MasterPortal
+  },
 
   props: {
     loginRoute: {
@@ -59,6 +76,11 @@ export default {
         return el
       })
     }
+  },
+
+  created () {
+    console.log('on created', this.$options.computed)
+    // MasterPortal.install(this.$options.parent)
   }
 }
 </script>
