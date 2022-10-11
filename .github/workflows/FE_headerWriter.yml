@@ -29,7 +29,7 @@ jobs:
       - name: Run headerWriter
         run: |
           pwd
-          python3 .github/FE_header_writer/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i **/node_modules/**/* demosplan/DemosPlanCoreBundle/Resources/client/js/legacy/*/*.js demosplan/DemosPlanCoreBundle/Resources/client/js/ResourceTypes.js -a -v
+          python3 .github/FE_header_writer/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i **/node_modules/**/* */demosplan/DemosPlanCoreBundle/Resources/client/js/legacy/*/*.js *demosplan/DemosPlanCoreBundle/Resources/client/js/ResourceTypes.js *demosplan/DemosPlanCoreBundle/Resources/client/js/lib/* -a -v
         shell: bash
 
       - name: Configure git
