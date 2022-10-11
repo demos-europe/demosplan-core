@@ -3478,7 +3478,9 @@ class StatementService extends CoreService
             }
 
             $aggregations = $resultSet->getAggregations();
-            $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+            if (0 === $result['hits']['total']) {
+                $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+            }
 
             $aggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
