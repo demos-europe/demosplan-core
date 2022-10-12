@@ -208,17 +208,28 @@ export default {
 
   methods: {
     fetchImportEmailAddresses () {
-      const url = Routing.generate('api_resource_get', { resourceType: 'Procedure', resourceId: this.procedureId })
+      const url = Routing.generate('api_resource_list', { resourceType: 'MaillaneConnection' })
       const params = {
+        filter: {
+          procedureFilter: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
         fields: {
-          Procedure: ['importEmailAddress', 'allowedSenderEmailAddresses'].join()
+          MaillaneConnection: [
+            'allowedSenderEmailAddresses',
+            'recipientEmailAddress'
+          ].join()
         }
       }
 
       return dpApi.get(url, params, { serialize: true })
         .then(response => {
-          this.importEmailAddress = response.data.data.attributes.importEmailAddress
-          this.allowedEmailAddresses = response.data.data.attributes.allowedSenderEmailAddresses ?? []
+          this.allowedEmailAddresses = response.data?.data[0]?.attributes.allowedSenderEmailAddresses ?? []
+          this.importEmailAddress = response.data?.data[0]?.attributes.recipientEmailAddress ?? null
         })
         .catch((e) => {
           console.error(e)

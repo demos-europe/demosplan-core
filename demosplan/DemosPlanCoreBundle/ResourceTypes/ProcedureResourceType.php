@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
 use function is_array;
 
 /**
@@ -58,8 +59,6 @@ use function is_array;
  * @property-read End                                 $daysLeft
  * @property-read End                                 $statementSubmitted
  * @property-read End                                 $owningOrganisationName
- * @property-read End                                 $allowedSenderEmailAddresses
- * @property-read End                                 $importEmailAddress
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
@@ -291,37 +290,6 @@ final class ProcedureResourceType extends DplanResourceType
                 ->readable(false, [$this->phasePermissionsetLoader, 'getInternalPhasePermissionset']);
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
                 ->readable(false, [$this->phasePermissionsetLoader, 'getExternalPhasePermissionset']);
-        }
-
-        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $properties[] = $this->createAttribute($this->importEmailAddress)->readable(
-                false,
-                function (Procedure $procedure): ?string {
-                    if (null === $procedure->getMaillaneConnection()) {
-                        return null;
-                    }
-
-                    return $procedure->getMaillaneConnection()->getRecipientEmailAddress();
-                }
-            );
-
-            $properties[] = $this->createAttribute(
-                $this->allowedSenderEmailAddresses
-            )->readable(
-                false,
-                function (Procedure $procedure): ?array {
-                    if (null === $procedure->getMaillaneConnection()) {
-                        return null;
-                    }
-
-                    return $procedure->getMaillaneConnection()->getAllowedSenderEmailAddresses(
-                    )->map(
-                        static function (EmailAddress $address): string {
-                            return $address->getFullAddress();
-                        }
-                    )->toArray();
-                }
-            );
         }
 
         return $properties;
