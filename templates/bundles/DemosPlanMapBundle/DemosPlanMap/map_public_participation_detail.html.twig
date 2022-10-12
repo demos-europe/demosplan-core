@@ -298,7 +298,7 @@
 
                 {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
                 {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
-                {% set planPfd = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
+                {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
                 {% if procedureSettings.planPDF|default|length > 0 %}
                     {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
                 {% endif %}
@@ -318,7 +318,9 @@
                         }
                     }]) %}
                 {% endfor %}
-                {% set display_legend_box = layers_with_legend_files|length > 0 %}
+                {% if false == display_legend_box %}
+                    {% set display_legend_box = layers_with_legend_files|length > 0 %}
+                {% endif %}
 
                 {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
                 {% if false == display_legend_box %}
@@ -326,9 +328,9 @@
                 {% endif %}
 
                 <dp-layer-legend
-                    :display-legend-box="Boolean({{ display_legend_box }})"
+                    v-show="Boolean({{ display_legend_box }})"
                     :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ procedureSettings.planPDF|json_encode|e('js', 'utf-8') }}')">
+                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
                 </dp-layer-legend>
 
             {% endblock map_toolbar_legend %}
