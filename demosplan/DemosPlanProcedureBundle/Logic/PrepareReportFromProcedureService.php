@@ -281,7 +281,12 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
         }
 
-        $user = $this->currentUser->getUser();
+        $user = null;
+        try {
+            $user = $this->currentUser->getUser();
+        } catch (UserNotFoundException $e) {
+            $this->logger->info('No user found for log creation');
+        }
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
             $sourceProcedure,
             $destinationProcedure,
