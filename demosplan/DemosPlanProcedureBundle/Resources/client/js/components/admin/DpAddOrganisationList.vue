@@ -143,6 +143,8 @@ export default {
 
               // Reset selected items so that the footer updates accordingly
               this.selectedItems = []
+              // Also reset selection in DpDataTableExtended as this.selectedItems resets only local variable
+              this.$refs.dataTable.resetSelection()
             })
         })
         .catch(() => {
