@@ -230,8 +230,8 @@ const LayersStore = {
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
         const layerParam = layer.attributes.layers
-        // We do only need url for getLegendGraphic, no custom params
-        const layerUrlSplit = layer.attributes.url.split('?')
+        const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
+        const legendUrlBase = layer.attributes.url + delimiter
         // Get layer layers
         const layerParamSplit = layerParam.split(',').map(function (item) {
           return item.trim()
@@ -239,7 +239,7 @@ const LayersStore = {
         // Add each layer layer to GetLegendGraphic request
         for (let j = 0; j < layerParamSplit.length; j++) {
           if (layer.attributes.isEnabled) {
-            const legendUrl = layerUrlSplit[0] + '?Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+            const legendUrl = legendUrlBase + 'Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
             const legend = {
               layerId: layer.id,
               treeOrder: layer.attributes.treeOrder,
