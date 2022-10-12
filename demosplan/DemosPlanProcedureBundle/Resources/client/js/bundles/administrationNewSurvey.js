@@ -11,14 +11,14 @@
  * This is the entrypoint for administration_new_survey.html.twig
  */
 
-import DpSurveyStatus from '../components/DpSurveyStatus'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import DpSurveyStatus from '../components/DpSurveyStatus'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
-  DpSurveyStatus,
-  DpEditor
+  DpEditor,
+  DpSurveyStatus
 }
 
 initialize(components).then(() => {

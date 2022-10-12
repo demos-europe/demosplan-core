@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "id": "text-recognition",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "$id": "#/properties/data",
+      "type": "object",
+      "required": [
+        "type",
+        "id",
+        "attributes"
+      ],
+      "properties": {
+        "type": {
+          "$id": "#/properties/data/properties/type",
+          "type": "string"
+        },
+        "id": {
+          "$id": "#/properties/data/properties/id",
+          "type": "string"
+        },
+        "attributes": {
+          "$id": "#/properties/data/properties/attributes",
+          "type": "object",
+          "required": [
+            "pipeline_id",
+            "parameters",
+            "error_url",
+            "error_auth"
+          ],
+          "properties": {
+            "pipeline_id": {
+              "$id": "#/properties/data/properties/attributes/properties/pipeline_id",
+              "type": "string"
+            },
+            "parameters": {
+              "$id": "#/properties/data/properties/attributes/properties/parameters",
+              "type": "object",
+              "required": [
+                "de.demos-deutschland.URLSource:0:URL",
+                "de.demos-deutschland.URLSource:0:authorization",
+                "de.demos-deutschland.URLTarget:0:URL",
+                "de.demos-deutschland.URLTarget:0:authorization"
+              ],
+              "properties": {
+                "de.demos-deutschland.URLSource:0:URL": {
+                  "$id": "#/properties/data/properties/attributes/properties/parameters/properties/de.demos-deutschland.URLSource%3A0%3AURL",
+                  "type": "string"
+                },
+                "de.demos-deutschland.URLSource:0:authorization": {
+                  "$id": "#/properties/data/properties/attributes/properties/parameters/properties/de.demos-deutschland.URLSource%3A0%3Aauthorization",
+                  "type": "string"
+                },
+                "de.demos-deutschland.URLTarget:0:URL": {
+                  "$id": "#/properties/data/properties/attributes/properties/parameters/properties/de.demos-deutschland.URLTarget%3A0%3AURL",
+                  "type": "string"
+                },
+                "de.demos-deutschland.URLTarget:0:authorization": {
+                  "$id": "#/properties/data/properties/attributes/properties/parameters/properties/de.demos-deutschland.URLTarget%3A0%3Aauthorization",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            },
+            "error_url": {
+              "$id": "#/properties/data/properties/attributes/properties/error_url",
+              "type": "string"
+            },
+            "error_auth": {
+              "$id": "#/properties/data/properties/attributes/properties/error_auth",
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

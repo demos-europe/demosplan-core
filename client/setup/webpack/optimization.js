@@ -26,7 +26,7 @@ const chunkSplitting = {
       name: 'common',
       chunks: 'all',
       enforce: true,
-      test: /[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](translations\.json|routes\.json)/,
+      test: /[\\/]client[\\/]js[\\/]generated[\\/](translations\.json|routes\.json)/,
       priority: 2,
       reuseExistingChunk: true
     },

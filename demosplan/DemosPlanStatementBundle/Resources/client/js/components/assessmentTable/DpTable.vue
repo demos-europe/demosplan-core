@@ -263,7 +263,7 @@ export default {
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpMoveStatementModal'),
     DpPager,
-    DpSlidebar: () => import(/* webpackChunkName: "dp-slidebar" */ '@DemosPlanCoreBundle/components/DpSlidebar'),
+    DpSlidebar: () => import(/* webpackChunkName: "dp-slidebar" */ '@DpJs/components/core/DpSlidebar'),
     DpAssessmentTableCard,
     DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DemosPlanStatementBundle/components/statement/DpVersionHistory')
   },

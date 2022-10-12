@@ -27,6 +27,11 @@ use ReflectionException;
 use ReflectionProperty;
 use Tightenco\Collect\Support\Collection;
 
+/**
+ * @template T of object
+ *
+ * @template-extends ServiceEntityRepository<T>
+ */
 abstract class CoreRepository extends ServiceEntityRepository
 {
     /**

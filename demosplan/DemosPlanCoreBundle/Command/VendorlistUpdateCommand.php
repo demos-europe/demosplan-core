@@ -219,13 +219,6 @@ class VendorlistUpdateCommand extends CoreCommand
                     // we may have private packages that should be hidden
                     return !in_array($packageInfo['package'], self::JS_PACKAGE_DENYLIST, true);
                 })
-                ->merge([
-                    // rateIt is a legacy dependency not managed by npm
-                    [
-                        'package' => 'rate-it',
-                        'license' => 'MIT',
-                    ],
-                ])
                 ->unique('package')
                 ->sortBy('package');
 

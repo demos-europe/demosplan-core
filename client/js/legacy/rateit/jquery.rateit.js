@@ -1,13 +1,4 @@
-/**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
- *
- * This file is part of the package demosplan,
- * for more information see the license file.
- *
- * All rights reserved
- */
-
-﻿/*! RateIt | v1.0.22 / 05/27/2014 | https://rateit.codeplex.com/license
+/*! RateIt | v1.0.22 / 05/27/2014 | https://rateit.codeplex.com/license
     http://rateit.codeplex.com | Twitter: @gjunge
 */
 (function ($) {

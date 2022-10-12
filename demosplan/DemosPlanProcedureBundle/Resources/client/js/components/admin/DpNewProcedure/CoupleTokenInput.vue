@@ -28,7 +28,7 @@
   </div>
 </template>
 <script>
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpInput } from 'demosplan-ui/components'
 import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import length from 'demosplan-ui/shared/props'

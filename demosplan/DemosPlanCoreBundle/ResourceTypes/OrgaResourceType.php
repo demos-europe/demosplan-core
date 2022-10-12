@@ -62,6 +62,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
  * @property-read RoleResourceType                 $allowedRoles
+ * @property-read InstitutionTagResourceType       $ownInstitutionTags
  */
 final class OrgaResourceType extends DplanResourceType
 {
@@ -216,6 +217,10 @@ final class OrgaResourceType extends DplanResourceType
             }),
             $this->createToManyRelationship($this->statusInCustomers)->readable(false, [$this, 'getRegistration']),
         ];
+
+        if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
+            $properties[] = $this->createToManyRelationship($this->ownInstitutionTags)->readable()->filterable();
+        }
 
         if ($this->currentUser->hasPermission('feature_orga_branding_edit')) {
             $properties[] = $this->createToOneRelationship($this->branding)->readable();

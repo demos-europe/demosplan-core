@@ -10,23 +10,21 @@
 <template>
   <div>
     <dl class="description-list u-mb-0_5">
-      <template v-if="userName">
-        <dt class="weight--normal">
-          {{ Translator.trans('username') }}
-        </dt>
-        <dd class="u-mb color--grey">
-          {{ user.userName }}
-        </dd>
-      </template>
+      <dt class="weight--bold">
+        {{ Translator.trans('username') }}
+      </dt>
+      <dd class="u-mb color--grey">
+        {{ user.userName }}
+      </dd>
 
       <template v-if="hasPermission('area_mydata_organisation')">
-        <dt class="weight--normal">
+        <dt class="weight--bold">
           {{ Translator.trans('organisation') }}
         </dt>
         <dd class="u-mb color--grey">
           {{ user.organisationName }}
         </dd>
-        <dt class="weight--normal">
+        <dt class="weight--bold">
           {{ Translator.trans('department') }}
         </dt>
         <dd class="u-mb color--grey">
@@ -34,19 +32,19 @@
         </dd>
       </template>
 
-      <dt class="weight--normal">
+      <dt class="weight--bold">
         {{ Translator.trans('name') }}
       </dt>
       <dd class="u-mb color--grey">
         {{ user.lastName }}
       </dd>
-      <dt class="weight--normal">
+      <dt class="weight--bold">
         {{ Translator.trans('name.first') }}
       </dt>
       <dd class="u-mb color--grey">
         {{ user.firstName }}
       </dd>
-      <dt class="weight--normal">
+      <dt class="weight--bold">
         {{ Translator.trans('email') }}
       </dt>
       <dd class="u-mb color--grey">

@@ -1,0 +1,54 @@
+framework:
+    test: ~
+    session:
+        storage_id: session.storage.mock_file
+    profiler:
+        enabled: false
+        collect: false
+
+web_profiler:
+    toolbar: false
+    intercept_redirects: false
+
+sentry:
+    tracing:
+        enabled: false
+
+parameters:
+    advancedsearchservice_index_name_prefix: 'core_test'
+    email_bouncefile_path: "%kernel.cache_dir%"
+
+    kernel.secret: 'testsecret'
+
+    database_host: ''
+    database_user: ''
+    database_password: ''
+
+    roles_allowed:
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::BOARD_MODERATOR
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::CITIZEN
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::CONTENT_EDITOR
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::CUSTOMER_MASTER_USER
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GUEST
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::ORGANISATION_ADMINISTRATION
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PLANNING_AGENCY_ADMIN
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PLANNING_AGENCY_WORKER
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PLANNING_SUPPORTING_DEPARTMENT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PLATFORM_SUPPORT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PRIVATE_PLANNING_AGENCY
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PROCEDURE_CONTROL_UNIT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PROCEDURE_DATA_INPUT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PROSPECT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PUBLIC_AGENCY_COORDINATION
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PUBLIC_AGENCY_SUPPORT
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::PUBLIC_AGENCY_WORKER
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Tests\CoreApplication\Permissions\Permissions:
+
+    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
+        '@Tests\CoreApplication\Permissions\Permissions'

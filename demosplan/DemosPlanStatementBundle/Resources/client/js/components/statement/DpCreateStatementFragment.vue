@@ -9,10 +9,10 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import CopyPasteButton from '@DemosPlanCoreBundle/components/CopyPasteButton'
+import CopyPasteButton from '@DpJs/components/core/CopyPasteButton'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectDocument from './../fragment/SelectDocument'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 
 export default {
 
@@ -20,9 +20,9 @@ export default {
 
   components: {
     CopyPasteButton,
+    DpEditor,
     DpMultiselect,
-    DpSelectDocument,
-    DpEditor
+    DpSelectDocument
   },
 
   props: {

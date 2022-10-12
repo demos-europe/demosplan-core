@@ -16,10 +16,13 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\ClauseInterface;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderByInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
+use EDT\Querying\Contracts\SliceException;
 use EDT\Querying\Contracts\SortMethodInterface;
+use EDT\Querying\Pagination\OffsetBasedPagination;
 
 /**
  * Instances of this class will load specific properties only and wrap them in a {@link PartialDTO}.
@@ -50,6 +53,35 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
      */
     public function getObjects(array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): iterable
     {
+        $queryBuilder = $this->generateQueryBuilder($conditions, $sortMethods, $offset, $limit);
+        $this->replaceSelect($queryBuilder);
+        $result = $queryBuilder->getQuery()->getResult();
+
+        return array_map(static function (array $properties): PartialDTO {
+            return new PartialDTO($properties);
+        }, $result);
+    }
+
+    /**
+     * @param list<ClauseInterface>      $conditions
+     * @param list<OrderByInterface>     $sortMethods
+     * @param OffsetBasedPagination|null $pagination
+     *
+     * @return iterable<PartialDTO>
+     *
+     * @throws MappingException
+     * @throws SliceException
+     */
+    public function getEntities(array $conditions, array $sortMethods, ?object $pagination): iterable
+    {
+        if (null === $pagination) {
+            $offset = 0;
+            $limit = null;
+        } else {
+            $offset = $pagination->getOffset();
+            $limit = $pagination->getLimit();
+        }
+
         $queryBuilder = $this->generateQueryBuilder($conditions, $sortMethods, $offset, $limit);
         $this->replaceSelect($queryBuilder);
         $result = $queryBuilder->getQuery()->getResult();

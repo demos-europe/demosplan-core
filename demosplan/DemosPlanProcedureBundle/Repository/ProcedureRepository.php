@@ -10,12 +10,20 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
-use function array_key_exists;
-use function array_merge;
-use function array_unique;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\TransactionRequiredException;
+use EDT\Querying\FluentQueries\FluentQuery;
+use Exception;
+use Symfony\Component\Validator\Validation;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -29,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -61,17 +70,9 @@ use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepositor
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\TransactionRequiredException;
-use EDT\Querying\FluentQueries\FluentQuery;
-use Exception;
-use Symfony\Component\Validator\Validation;
+use function array_key_exists;
+use function array_merge;
+use function array_unique;
 
 class ProcedureRepository extends SluggedRepository implements ArrayInterface, ObjectInterface
 {
@@ -231,7 +232,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure = clone $procedureMaster;
             $procedure->setFiles(null);
             $procedure->setMasterTemplate(false);
-            $procedure->setMaillaneConnection(null);
             $em->persist($procedure); //persist procedure to get new UUID()
             // Copy Blaupausen Proceduresettings
             $procedureSettings = clone $procedureMaster->getSettings();

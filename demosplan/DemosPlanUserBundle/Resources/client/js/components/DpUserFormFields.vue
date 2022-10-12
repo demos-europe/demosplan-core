@@ -252,7 +252,8 @@ export default {
      * - user is set: roles for current organisation
      */
     allowedRolesForOrga () {
-      return (this.currentUserOrga.id === '') ? this.rolesInRelationshipFormat
+      return (this.currentUserOrga.id === '')
+        ? this.rolesInRelationshipFormat
         : Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
     },
 
@@ -389,11 +390,11 @@ export default {
        */
       if (this.isUserSet || this.isManagingSingleOrganisation) {
         this.fetchCurrentOrganisation()
-            .then((response) => {
-              if (response && response.data) {
-                this.setOrganisationWithDepartments(response)
-              }
-            })
+          .then((response) => {
+            if (response && response.data) {
+              this.setOrganisationWithDepartments(response)
+            }
+          })
       }
     },
 

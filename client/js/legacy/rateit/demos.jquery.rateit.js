@@ -1,17 +1,18 @@
 /**
  * (c) 2010-present DEMOS E-Partizipation GmbH.
  *
+ * This file is a modified version of RateIt v1.0.22.
+ * RateIt | v1.0.22 / 05/27/2014 | https://rateit.codeplex.com/license
+ * http://rateit.codeplex.com | Twitter: @gjunge
+ *
  * This file is part of the package demosplan,
  * for more information see the license file.
  *
  * All rights reserved
  */
 
-/* Demos-Version mit Icons von Font Awesome anstatt Hintergrund-Sprite. Änderungen sind in den Zeilen 160-167 eingefügt.
+// Demos-Version mit Icons von Font Awesome anstatt Hintergrund-Sprite. Änderungen sind in den Zeilen 160-167 eingefügt.
 
-/*! RateIt | v1.0.22 / 05/27/2014 | https://rateit.codeplex.com/license
-    http://rateit.codeplex.com | Twitter: @gjunge
-*/
 (function ($) {
   $.rateit = {
     aria: {

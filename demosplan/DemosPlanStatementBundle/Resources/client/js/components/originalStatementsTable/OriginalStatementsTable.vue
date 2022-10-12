@@ -140,7 +140,7 @@ export default {
 
   components: {
     DpExportModal,
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
     DpPager,
     OriginalStatementsTableItem

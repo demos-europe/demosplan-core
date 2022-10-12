@@ -158,7 +158,7 @@ import CardPane from '@DemosPlanProcedureBundle/components/splitStatement/CardPa
 import dayjs from 'dayjs'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { generateRangeChangeMap } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/utilities'
 import ProcessingPage from '@DemosPlanProcedureBundle/components/splitStatement/ProcessingPage'
