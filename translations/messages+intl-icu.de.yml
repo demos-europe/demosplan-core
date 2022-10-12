@@ -337,15 +337,13 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
-check.mail.result.citizen: >-
-    Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
-    Die E-Mail geht an die/den Einreichende*n und alle Mitzeichnende*n.
-    Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen erhalten die E-Mail ebenfalls.
 check.mail.result: >-
     Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
-    Die E-Mail geht an die einreichende Institutions-Koordination und die von der Institution
-    hinterlegte E-Mail-Adresse für die Beteiligung.
+    {sentTo}
     Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen erhalten die E-Mail ebenfalls.
+check.mail.result.citizen: "Die E-Mail geht an die/den Einreichende*n."
+check.mail.result.citizenAndVoters: "Die E-Mail geht an die/den Einreichende*n und alle Mitzeichnende*n."
+check.mail.result.institutions: "Die E-Mail geht an die einreichende Institutions-Koordination und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung."
 check.master.invitable_institution.delete: "Wollen Sie diese Organisation wirklich löschen? Der Vorgang kann nicht mehr rückgängig gemacht werden."
 check.invitable_institutions.marked.delete: "Sind Sie sicher, dass Sie die markierten Institutionen aus Ihrem Verfahren löschen möchten?"
 check.release.delete: "Sind Sie sicher, dass Sie dieses Release und alle dazugehörigen User Stories löschen möchten?"
