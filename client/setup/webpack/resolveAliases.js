@@ -17,8 +17,8 @@ function resolveAliases () {
     vue: 'vue/dist/vue.esm.js'
   }
 
-  glob.sync(config.bundlesPath + 'Demos*Bundle').forEach(dir => {
-    const jsDir = dir + '/Resources/client/js'
+  glob.sync(config.bundlesPath + '*').forEach(dir => {
+    const jsDir = 'client/js/bundles/' + dir
 
     if (fs.existsSync(jsDir)) {
       aliases['@' + dir.split('/').pop()] = jsDir

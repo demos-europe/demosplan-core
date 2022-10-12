@@ -33,8 +33,8 @@ class Config {
     this.mode = (mode === 'production') ? 'production' : mode
 
     this.absoluteRoot = path.resolve(__dirname, this.relativeRoot) + '/'
-    this.bundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
-    this.bundleEntryPointsGlob = this.bundlesPath + 'DemosPlan*/Resources/client/js/bundles/*.js'
+    this.bundlesPath = path.resolve(__dirname, this.relativeRoot) + 'client/js/bundles/'
+    this.bundleEntryPointsGlob = this.bundlesPath + 'client/js/bundles/**/*.js'
 
     this.cssPurge = {
       /**
