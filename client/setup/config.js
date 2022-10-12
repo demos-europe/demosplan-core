@@ -89,9 +89,7 @@ class Config {
         'tooltip' // V-tooltip
       ],
       defaultExcludePatterns: [
-        'has-tooltip',
-        // Ids (we can't use a simple regex here because of classes with the same scheme :-/ )
-        'drop-save-msg'
+        'has-tooltip'
       ]
     }
 
