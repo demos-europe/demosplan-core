@@ -14,7 +14,7 @@ services:
         volumes:
             - 'db_storage:/var/lib/mysql'
             - '/home/vallejo/Projects/demosplan-core/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
-    development:
+    production:
         image: 'demosdeutschland/demosplan-production:latest'
         environment:
             - CURRENT_HOST_USERNAME=rafael
@@ -29,7 +29,7 @@ services:
             - DATABASE_PASS=mypass
         volumes:
             - 'file_storage:/opt/uploads'
-        hostname: demosplan-development
+        hostname: demosplan-production
         networks:
             demosplan_production_network:
                 aliases:
