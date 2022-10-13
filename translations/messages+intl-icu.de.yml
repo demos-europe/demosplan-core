@@ -623,6 +623,7 @@ considerationadvice: "Abwägung / Empfehlung"
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
+considerationtable_ascii: "Abwaegungstabelle"
 # considerationtext = considerationadvice
 considerationtext: "Abwägungstext"
 consolidate: "Gruppieren"

@@ -189,7 +189,7 @@ class ExportService
         // Dictonary with keys to obtain
         $dictionary = [
             'statements'         => 'statements',
-            'considerationtable' => 'considerationtable',
+            'considerationtable' => 'considerationtable_ascii',
             'originals'          => 'statements.original',
             'attachment'         => 'attachment',
             'elements'           => 'elements',
@@ -435,14 +435,14 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->translator->trans('considerationtable').'/%s.docx';
+            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
                 case 'statementsOnly':
-                    $filename = sprintf($filename, $this->translator->trans('considerationtable').'_Liste');
+                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste');
                     break;
 
                 case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->translator->trans('considerationtable').'_Liste_mit_Datensaetzen');
+                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen');
                     break;
             }
 
@@ -484,14 +484,14 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->translator->trans('considerationtable').'/%s.docx';
+            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
                 case 'statementsOnly':
-                    $filename = sprintf($filename, $this->translator->trans('considerationtable').'_Liste_Anonym');
+                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_Anonym');
                     break;
 
                 case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->translator->trans('considerationtable').'_Liste_mit_Datensaetzen_Anonym');
+                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen_Anonym');
                     break;
             }
 
@@ -503,7 +503,7 @@ class ExportService
                 $outputResult->getStatements(),
                 [$this->statementService, 'getStatementsByIds']
             );
-            $folderName = $procedureName.'/'.$this->literals['statements'].'/'.$this->translator->trans('considerationtable').'/'.$this->literals['attachment'].'/';
+            $folderName = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/'.$this->literals['attachment'].'/';
             $this->attachStatementFilesToZip($statementEntities, $folderName, $zip);
 
             $this->logger->info('abwaegung_list_anonym created',
