@@ -129,6 +129,16 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
         }
     }
 
+    public function removeTaggedInstitution(Orga $institution): void
+    {
+        if ($institution->getAssignedTags()->contains($this)) {
+            $institution->removeAssignedTag($this);
+        }
+        if ($this->taggedInstitutions->contains($institution)) {
+            $this->taggedInstitutions->removeElement($institution);
+        }
+    }
+
     public function getLabel(): string
     {
         return $this->label;
