@@ -130,13 +130,30 @@ export default {
     setContainerHeight () {
       const cardBottomValues = this.$refs.card.map((card) => card.$el.getBoundingClientRect().bottom)
       const maxBottom = Math.max(...cardBottomValues)
-      const containerBounds = this.$el.getBoundingClientRect()
+      const containerBounds = this.getContainerBounds()
       this.containerMinHeight = `${maxBottom + containerBounds.height - containerBounds.bottom}px`
+    },
+
+    getContainerBounds () {
+      const offset = window.pageYOffset || document.documentElement.scrollTop
+
+      return {
+        bottom: -offset + this.containerSize.top + this.containerSize.height,
+        height: this.containerSize.height,
+        top: -offset + this.containerSize.top
+      }
     }
   },
 
   mounted () {
+    this.containerSize = this.$el.getBoundingClientRect()
     this.positionCards()
+
+    document.addEventListener('resize', this.positionCards)
+  },
+
+  unmounted () {
+    document.removeEventListener('resize', this.positionCards)
   }
 }
 </script>

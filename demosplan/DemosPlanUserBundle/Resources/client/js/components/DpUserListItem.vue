@@ -20,89 +20,83 @@
     :open="isOpen">
     <!-- Item header -->
     <template v-slot:header>
-      <!-- 'Select item' checkbox -->
-      <div class="u-mt-0_75 display--inline-block u-valign--top o-accordion--checkbox">
-        <input
-          type="checkbox"
-          :id="`selected` + user.id"
-          :checked="selected"
-          name="elementsToAdminister[]"
-          :value="user.id"
-          data-cy="userItemSelect"
-          @change="$emit('item:selected', user.id)">
-      </div><!--
-         Toggle expanded/collapsed
-   --><div
-        @click="isOpen = false === isOpen"
-        class="display--inline-block o-accordion--header-content">
-          <div>
-           <div class="weight--bold u-10-of-12 u-mt-0_75 u-mb-0_5 display--inline-block">
-              {{ initialUser.attributes.firstname }} {{ initialUser.attributes.lastname }}
-           </div><!--
-         --><div class="o-accordion--button float--right text--right u-mt-0_75 display--inline">
-            <button
-              type="button"
-              data-cy="userListItemToggle"
-              class="btn--blank o-link--default">
-              <i
-                class="fa"
-                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
-            </button>
-          </div>
-
+      <div class="flex flex-items-start">
+        <div class="position--relative u-z-content-above u-mt-0_75">
+          <input
+            type="checkbox"
+            :checked="selected"
+            name="elementsToAdminister[]"
+            :value="user.id"
+            data-cy="userItemSelect"
+            @change="$emit('item:selected', user.id)">
+        </div>
         <div
-          data-cy="editItemToggle"
-          class="layout u-mb-0_5"
-          data-dp-validate="organisationForm">
+          @click="isOpen = false === isOpen"
+          class="cursor--pointer u-pv-0_75 u-ph-0_25 flex-grow"
+          data-cy="organisationListTitle">
           <div
-            class="u-1-of-2 layout__item"
-            v-if="hasRoles">
+            data-cy="editItemToggle"
+            class="layout">
+            <div class="layout__item u-1-of-1 weight--bold u-mb-0_5 o-hellip--nowrap">
+              {{ initialUser.attributes.firstname }} {{ initialUser.attributes.lastname }}
+            </div>
             <div
-              v-for="(role, idx) in userRoles"
-              :key="idx">
-              {{ Translator.trans(role.attributes.name) }}<br>
+              class="u-1-of-2 layout__item"
+              v-if="hasRoles">
+              <div
+                v-for="(role, idx) in userRoles"
+                :key="idx">
+                {{ Translator.trans(role.attributes.name) }}<br>
+              </div>
+            </div><!--
+         --><div
+              v-else
+              class="u-4-of-12 layout__item">
+              {{ Translator.trans('unknown') }}<br>
+            </div><!--
+         --><div
+              v-if="userOrga"
+              class="layout__item u-1-of-2">
+              {{ Translator.trans(userOrga.attributes.name) }}
+              <br>
+              <div
+                v-if="userDepartment !== null"
+                class="u-1-of-2 display--inline">
+                {{ Translator.trans(userDepartment.attributes.name) }}
+              </div>
             </div>
-          </div><!--
-       --><div
-            v-else
-            class="u-4-of-12 layout__item">
-            {{ Translator.trans('unknown') }}<br>
-          </div><!--
-       --><div
-            v-if="userOrga"
-            class="layout__item u-1-of-2">
-            {{ Translator.trans(userOrga.attributes.name) }}
-            <br>
-            <div
-              v-if="userDepartment !== null"
-              class="u-1-of-2 display--inline">
-              {{ Translator.trans(userDepartment.attributes.name) }}
-            </div>
-          </div>
-
-          <!--  Registration status --><!--
-       --><div class="layout__item u-pt-0_5 u-pb-0_5">
-            <div v-if="user.attributes.profileCompleted">
-              {{ Translator.trans('user.registration.completed') }}
-            </div>
-            <div v-else-if="user.attributes.accessConfirmed">
-              {{ Translator.trans('user.registration.confirmed') }}
-            </div>
-            <div v-else-if="user.attributes.invited">
-              {{ Translator.trans('user.registration.invitation.sent') }}
-            </div>
-            <div v-else>
-              {{ Translator.trans('user.registration.invitation.outstanding') }}
+            <!--  Registration status -->
+            <div class="layout__item u-pt-0_5">
+              <div v-if="user.attributes.profileCompleted">
+                {{ Translator.trans('user.registration.completed') }}
+              </div>
+              <div v-else-if="user.attributes.accessConfirmed">
+                {{ Translator.trans('user.registration.confirmed') }}
+              </div>
+              <div v-else-if="user.attributes.invited">
+                {{ Translator.trans('user.registration.invitation.sent') }}
+              </div>
+              <div v-else>
+                {{ Translator.trans('user.registration.invitation.outstanding') }}
+              </div>
             </div>
           </div>
         </div>
+        <button
+          @click="isOpen = false === isOpen"
+          type="button"
+          data-cy="userListItemToggle"
+          class="btn--blank o-link--default u-pv-0_75">
+          <dp-icon
+            aria-hidden="true"
+            :aria-label="ariaLabel"
+            :icon="icon" />
+        </button>
       </div>
-    </div>
     </template>
 
     <!-- Item content / editable data -->
     <div
-      class="u-mt"
       data-cy="userForm"
       data-dp-validate="userForm">
       <dp-user-form-fields
@@ -124,6 +118,7 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { DpIcon } from 'demosplan-ui/components'
 import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
@@ -133,6 +128,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpIcon,
     DpTableCard,
     DpUserFormFields
   },
@@ -177,6 +173,10 @@ export default {
       roles: 'items'
     }),
 
+    ariaLabel () {
+      return Translator.trans(this.isOpen ? 'aria.collapse' : 'aria.expand')
+    },
+
     hasDepartment () {
       return this.initialUser.hasRelationship('department')
     },
@@ -201,6 +201,10 @@ export default {
         (this.userOrga !== null && this.userOrga.toString().toLowerCase().includes(this.filterValue.toLowerCase())) ||
         (this.userDepartment !== null && this.userDepartment.toString().toLowerCase().includes(this.filterValue.toLowerCase()))
       )
+    },
+
+    icon () {
+      return this.isOpen ? 'chevron-up' : 'chevron-down'
     },
 
     userDepartment () {
