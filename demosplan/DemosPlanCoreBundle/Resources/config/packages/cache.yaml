@@ -2,7 +2,9 @@ framework:
     cache:
         # Put the unique name of your app here: the prefix seed
         # is used to compute stable namespaces for cache keys.
-        prefix_seed: 'DEMOS/dplan_%demosplan.project_name%'
+        prefix_seed: 'DEMOS/dplan_%project_prefix%'
         pools:
             doctrine.cache_pool:
                 adapter: 'cache.adapter.%cache_doctrine%'
+            doctrine.system_cache_pool:
+                adapter: 'cache.adapter.filesystem'

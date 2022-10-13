@@ -170,7 +170,7 @@ export default {
          * Triggers uppy file-removed event (we are instead using a custom file-remove event. we do not want files to
          * be removed on resetting the uppy ui
          */
-        this.uppy.reset()
+        this.uppy.cancelAll()
       }, 2000)
 
       this.$emit('uploads-completed', result)
