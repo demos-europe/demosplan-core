@@ -121,18 +121,12 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
         return $this->modificationDate;
     }
 
-    /**
-     * @return bool - true if the given statement was added to this tag, otherwise false
-     */
-    public function addTaggedInstitution(Orga $institution): bool
+    public function addTaggedInstitution(Orga $institution): void
     {
         if (!$this->taggedInstitutions->contains($institution)) {
             $this->taggedInstitutions->add($institution);
             $institution->addAssignedTag($this);
-            return true;
         }
-
-        return false;
     }
 
     public function getLabel(): string
