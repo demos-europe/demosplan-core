@@ -307,8 +307,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *
      * @Route(
      *     name="DemosPlan_user_logout",
-     *     path="/user/logout",
-     *     options={"expose": true}
+     *     path="/user/logout"
      * )
      *
      * @Route(
