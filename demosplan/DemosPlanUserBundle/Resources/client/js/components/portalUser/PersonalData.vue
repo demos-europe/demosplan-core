@@ -108,12 +108,6 @@ export default {
     user: {
       type: Object,
       required: true
-    },
-
-    // Set to true if username should be displayed
-    userName: {
-      type: Boolean,
-      default: false
     }
   },
 
@@ -130,6 +124,25 @@ export default {
         : 'statements.yours.list.description.short'
       return Translator.trans(transkey, { href: Routing.generate('DemosPlan_user_statements') })
     }
+  },
+
+  methods: {
+    setUserDefaultValues () {
+      const userProperties = ['organisationName', 'departmentName', 'lastName', 'firstName', 'userName', 'email']
+
+      if(this.user && typeof this.user === 'object') {
+        for (let key of userProperties) {
+          if (!this.user[key]) {
+            this.user[key] = '-'
+          }
+        }
+      }
+      return this.user
+    }
+  },
+
+  beforeMount () {
+    this.setUserDefaultValues()
   }
 }
 </script>
