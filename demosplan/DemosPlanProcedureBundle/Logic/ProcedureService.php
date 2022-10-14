@@ -12,32 +12,6 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\Contracts\SortMethodInterface;
-use Exception;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use ReflectionException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Tightenco\Collect\Support\Collection;
-use TypeError;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
@@ -74,9 +48,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
@@ -113,6 +87,32 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\ConditionFactoryInterface;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
+use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tightenco\Collect\Support\Collection;
+use TypeError;
 use function array_key_exists;
 use function array_merge;
 use function array_unique;
@@ -1252,6 +1252,11 @@ class ProcedureService extends CoreService
 
             // Necessary data for the PostProcedureDeletedEvent
             $procedureData = [
+                'id' => $procedureId,
+            ];
+
+            // Necessary data for the PostProcedureDeletedEvent
+            $procedureData = [
                 'id'                => $procedureId,
                 'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
             ];
@@ -1299,7 +1304,11 @@ class ProcedureService extends CoreService
                 $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
             }
 
-            $data['currentUser'] = $this->currentUser->getUser();
+            try {
+                $data['currentUser'] = $this->currentUser->getUser();
+            } catch (UserNotFoundException $e) {
+                $this->logger->info('Procedure updated without known user');
+            }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
 
             $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);

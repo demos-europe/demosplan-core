@@ -12,10 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
-use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateMaillaneConnectionConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -33,11 +37,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ProcedureTypeConstraint;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="_procedure")
@@ -56,7 +55,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ProcedureTypeConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
  * @ProcedureMasterTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  * @ProcedureAllowedSegmentsConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
- * @ProcedureTemplateMaillaneConnectionConstraint()
  */
 class Procedure extends SluggedEntity
 {
@@ -629,19 +627,6 @@ class Procedure extends SluggedEntity
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\File", mappedBy="procedure", cascade={"remove"})
      */
     private $files;
-
-    /**
-     * Procedure templates never have a maillaneConnection, so this must be NULL for them.
-     * All other procedures can have a maillaneConnection but also don't need to.
-     * It fully depends on permissions and availability of the external Maillane service.
-     *
-     * @var MaillaneConnection|null
-     *
-     * @ORM\OneToOne(targetEntity="MaillaneConnection", cascade={"persist", "remove"})
-     *
-     * @Assert\IsNull(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
-     */
-    private $maillaneConnection;
 
     // @improve T26104
     /**
@@ -2386,21 +2371,6 @@ class Procedure extends SluggedEntity
         $this->xtaPlanId = $xtaPlanId;
 
         return $this;
-    }
-
-    /**
-     * Sets the maillaneConnection. NULL can be used to remove the relationship.
-     * For example as a safety measure, when copying a procedure, to not have
-     * 2 procedures with the same maillaneConnection as that would lead to an error.
-     */
-    public function setMaillaneConnection(?MaillaneConnection $maillaneConnection): void
-    {
-        $this->maillaneConnection = $maillaneConnection;
-    }
-
-    public function getMaillaneConnection(): ?MaillaneConnection
-    {
-        return $this->maillaneConnection;
     }
 
     /**

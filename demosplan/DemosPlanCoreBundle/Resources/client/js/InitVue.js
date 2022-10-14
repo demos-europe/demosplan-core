@@ -29,8 +29,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     /* eslint-disable no-new */
     const vm = new Vue({
       el: '#app',
-      // DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
-      // register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
+      /*
+       * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
+       * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
+       */
       components: { ...components, DpAccordion, DpNotifyContainer },
       store: store,
       mounted () {

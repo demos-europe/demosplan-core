@@ -12,15 +12,15 @@
  */
 
 import DpEditBoilerplate from '../components/admin/DpEditBoilerplate'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
   DpEditBoilerplate,
-  DpMultiselect,
-  DpEditor
+  DpEditor,
+  DpMultiselect
 }
 
 initialize(components).then(() => {
