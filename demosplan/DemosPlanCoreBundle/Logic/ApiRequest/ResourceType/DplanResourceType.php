@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
-use DateTime;
 use function collect;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
@@ -38,8 +38,8 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\TypeAccessor;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use function in_array;
 use function is_array;
 use IteratorAggregate;
@@ -104,7 +104,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected $typeAccessor;
 
     /**
-     * @var WrapperFactoryInterface
+     * @var WrapperObjectFactory
      */
     protected $wrapperFactory;
 
@@ -347,7 +347,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $event->getProperties();
     }
 
-    protected function getWrapperFactory(): WrapperFactoryInterface
+    protected function getWrapperFactory(): WrapperObjectFactory
     {
         return $this->wrapperFactory;
     }

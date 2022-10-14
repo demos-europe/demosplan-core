@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFormDefinition>
@@ -25,7 +25,7 @@ use EDT\Querying\Contracts\FunctionInterface;
  */
 final class StatementFormDefinitionResourceType extends DplanResourceType
 {
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedureTypeEditAllowed = $this->currentUser->hasPermission('area_procedure_type_edit');
 

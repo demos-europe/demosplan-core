@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Facets\AssigneesFacet;
@@ -27,9 +27,9 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\plugins\workflow\SegmentsManager\ElasticsearchQueries\QuerySegment;
 use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use EDT\JsonApi\ResourceTypes\SetableProperty;
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Type;
 
 /**
@@ -101,7 +101,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -231,7 +231,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
     protected function getProperties(): array
     {
-        return array_map(static function (SetableProperty $property): SetableProperty {
+        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
             return $property->filterable()->sortable();
         }, [
             $this->createAttribute($this->id)->readable(true),
