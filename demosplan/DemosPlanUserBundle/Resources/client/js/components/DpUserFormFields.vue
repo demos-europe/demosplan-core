@@ -252,7 +252,8 @@ export default {
      * - user is set: roles for current organisation
      */
     allowedRolesForOrga () {
-      return (this.currentUserOrga.id === '') ? this.rolesInRelationshipFormat
+      return (this.currentUserOrga.id === '')
+        ? this.rolesInRelationshipFormat
         : Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
     },
 
@@ -381,6 +382,22 @@ export default {
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
+    setInitialOrgaData () {
+      /*
+       * Fetch organisation only
+       * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
+       * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
+       */
+      if (this.isUserSet || this.isManagingSingleOrganisation) {
+        this.fetchCurrentOrganisation()
+          .then((response) => {
+            if (response && response.data) {
+              this.setOrganisationWithDepartments(response)
+            }
+          })
+      }
+    },
+
     setOrganisationDepartments (departments) {
       const orgaDepartments = {}
 
@@ -413,22 +430,12 @@ export default {
   },
 
   mounted () {
-    /*
-     * Fetch organisation only
-     * - in DpUserListItem (= isUserSet), not in DpCreateItem (= isUserSet === false)
-     * - for users who can only create users for their own organisation (currently Fachplaner-Masteruser)
-     */
-    if (this.isUserSet || this.isManagingSingleOrganisation) {
-      this.fetchCurrentOrganisation()
-        .then((response) => {
-          if (response && response.data) {
-            this.setOrganisationWithDepartments(response)
-          }
-        })
-    }
+    this.setInitialOrgaData()
 
     this.$root.$on('user-reset', () => {
-      this.resetData()
+      if (!this.isUserSet) {
+        this.resetData()
+      }
     })
   }
 }

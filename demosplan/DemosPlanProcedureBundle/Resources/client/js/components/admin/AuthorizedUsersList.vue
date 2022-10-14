@@ -291,9 +291,9 @@
 <script>
 import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton, DpInput } from 'demosplan-ui/components'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDataTableExtended from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTableExtended'
+import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 

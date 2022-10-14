@@ -142,7 +142,7 @@
                     for="noteText">
                     {{ "instruction"|trans }}
                 </label>
-                <dp-tiptap
+                <dp-editor
                     :value="JSON.parse('{{ element.text|default|json_encode|e('js') }}')"
                     class="u-mb-0_75"
                     hidden-input="r_text"
@@ -152,7 +152,7 @@
                         headings: [3, 4, 5]
                     }"
                     data-cy="noteText">
-                </dp-tiptap>
+                </dp-editor>
 
                 {% if hasPermission('feature_auto_switch_element_state') %}
                     <div

@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
-import DpTableCard from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCard'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
+import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

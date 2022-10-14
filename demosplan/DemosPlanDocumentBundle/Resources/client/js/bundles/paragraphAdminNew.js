@@ -11,12 +11,12 @@
  * This is the entrypoint for paragraph_admin_new.html.twig
  */
 
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
-  DpTiptap
+  DpEditor
 }
 
 initialize(components).then(() => {

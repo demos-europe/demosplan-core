@@ -97,7 +97,7 @@
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapState } from 'vuex'
-import DpTableCard from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 
 export default {
   name: 'DpUserListExtendedItem',

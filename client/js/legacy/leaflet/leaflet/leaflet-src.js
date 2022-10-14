@@ -1,12 +1,3 @@
-/**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
- *
- * This file is part of the package demosplan,
- * for more information see the license file.
- *
- * All rights reserved
- */
-
 /*
  Leaflet 1.0.1+ffcfcc1, a JS library for interactive maps. http://leafletjs.com
  (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade

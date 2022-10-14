@@ -13,7 +13,7 @@
 
 import AnimateById from '@DpJs/lib/AnimateById'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpSplitButton from '@DemosPlanCoreBundle/components/DpSplitButton'
+import DpSplitButton from '@DpJs/components/core/DpSplitButton'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpFlyout, DpSplitButton }

@@ -10,14 +10,14 @@
 /**
  * This is the entrypoint for procedure_proposal.html.twig
  */
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpProcedureCoordinate from '@DemosPlanProcedureBundle/components/basicSettings/DpProcedureCoordinate'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 initialize({
-  DpProcedureCoordinate,
-  DpTiptap
+  DpEditor,
+  DpProcedureCoordinate
 }).then(() => {
   dpValidate()
 })

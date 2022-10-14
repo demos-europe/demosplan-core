@@ -141,7 +141,7 @@
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { formatDate } from '@DpJs/lib/utils/date'

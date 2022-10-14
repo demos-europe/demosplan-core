@@ -19,11 +19,11 @@
                 <label class="u-mb-0">
                     {{ "description"|trans }}
                 </label>
-                <dp-tiptap
+                <dp-editor
                     value="{{ templateVars.userStory.description|default() }}"
                     hidden-input="r_description"
                     class="u-mb">
-                </dp-tiptap>
+                </dp-editor>
 
                 <div class="text--right space-inline-s">
                     <input class="btn btn--primary" type="submit" name="saveUserStory" value="{{ "save"|trans }}">

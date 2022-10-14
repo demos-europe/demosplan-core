@@ -196,12 +196,12 @@
                 <label for="r_links" class="u-mb-0">
                     {{ "linkbox"|trans }}
                 </label>
-                <dp-tiptap
+                <dp-editor
                     value="{{ proceduresettings.settings.links|default() }}"
                     hidden-input="r_links"
                     ref="r_links"
                     :toolbar-items="{ linkButton: true }" >
-                </dp-tiptap>
+                </dp-editor>
             {% endif %}
 
             {% if hasPermission('field_procedure_contact_person') %}
@@ -211,11 +211,11 @@
                         {{ 'explanation.public.participation.contact'|trans }}
                     </p>
                 </label>
-                <dp-tiptap
+                <dp-editor
                     value="{{ proceduresettings.publicParticipationContact|default( "notspecified"|trans ) }}"
                     hidden-input="r_publicParticipationContact"
                     :toolbar-items="{ listButtons: false }">
-                </dp-tiptap>
+                </dp-editor>
             {% endif %}
 
             {% if hasPermission('feature_statement_notify_counties') %}

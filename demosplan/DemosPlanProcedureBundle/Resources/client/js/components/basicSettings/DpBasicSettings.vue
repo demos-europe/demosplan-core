@@ -9,13 +9,14 @@
 
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
+import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpEmailList from './DpEmailList'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import ExportSettings from './ExportSettings'
 import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
 
@@ -24,16 +25,17 @@ export default {
 
   components: {
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DemosPlanProcedureBundle/components/basicSettings/AutoSwitchProcedurePhaseForm'),
+    DpAllowedSenderEmailList,
     DpButton,
     DpDateRangePicker,
     DpDatetimePicker,
+    DpEditor,
     DpEmailList,
     DpInlineNotification,
     DpInput,
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpTiptap,
-    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'),
+    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DpJs/components/core/DpUpload/DpUploadFiles'),
     ExportSettings
   },
 
@@ -159,41 +161,6 @@ export default {
 
     unselectAllAuthUsers () {
       this.selectedAuthUsers = []
-    },
-
-    // This method is only in use for bobHH.
-    updateParticipationDescriptionAndName (plisId) {
-      this.isLoadingPlisData = true
-      this.getDataPlis(plisId, 'DemosPlan_plis_get_procedure')
-        .then(data => {
-          if (data.code === 100 && data.success === true) {
-            const procedureDescriptionText = data.procedure.planungsanlass
-            let msg = Translator.trans('statement.save.notification')
-            if (procedureDescriptionText === this.procedureDescription) {
-              msg = Translator.trans('warning.plis.no.changes')
-            }
-            this.procedureDescription = procedureDescriptionText
-            dplan.notify.notify('confirm', Translator.trans(Translator.trans('information.short.imported.successfully') + ' ' + msg))
-          } else {
-            dplan.notify.notify('error', Translator.trans('error.plis.getplanningcause'))
-          }
-          this.isLoadingPlisData = false
-        })
-
-      this.getDataPlis(plisId, 'DemosPlan_plis_get_procedure_name')
-        .then(data => {
-          if (data.code === 100 && data.success === true) {
-            const procedureNameNew = data.procedureName
-            let msg = Translator.trans('statement.save.notification')
-            if (procedureNameNew === this.procedureName) {
-              msg = Translator.trans('warning.plis.no.changes')
-            }
-            this.procedureName = procedureNameNew
-            dplan.notify.notify('confirm', Translator.trans(Translator.trans('information.short.imported.successfully') + ' ' + msg))
-          } else {
-            dplan.notify.notify('error', Translator.trans('error.procedure.name.not.imported'))
-          }
-        })
     }
   },
 

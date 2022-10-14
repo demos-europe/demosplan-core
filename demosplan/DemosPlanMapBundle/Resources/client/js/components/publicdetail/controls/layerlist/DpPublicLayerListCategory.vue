@@ -107,7 +107,7 @@ export default {
     },
 
     id () {
-      return 'layergroup' + this.group.id.replace(/\-/g, '')
+      return 'layergroup' + this.group.id.replaceAll('-', '')
     },
 
     isTopLevelCategory () {

@@ -66,7 +66,7 @@
             <td>
               {{ submitter }}
             </td>
-            <td>
+            <td v-cleanhtml="element">
               {{ element }}
             </td>
             <td>
@@ -185,11 +185,13 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
+import { CleanHtml } from "demosplan-ui/directives"
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpHeightLimit from '@DpJs/components/core/HeightLimit'
 import { formatDate } from '@DpJs/lib/utils/date'
+import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {
   name: 'OriginalStatementsTableItem',
@@ -197,6 +199,10 @@ export default {
   components: {
     DpFlyout,
     DpHeightLimit
+  },
+
+  directives: {
+    cleanhtml: CleanHtml
   },
 
   props: {
@@ -228,29 +234,33 @@ export default {
   },
 
   computed: {
+    ...mapGetters('assessmentTable', ['elements', 'paragraph']),
     ...mapState('statement', ['statements', 'selectedElements']),
 
     element () {
-      let element = ''
+      let elementTitle = ''
 
-      if (typeof this.statement !== 'undefined') {
-        return element
-      }
-
-      if (this.statement.element.title !== '') {
-        element += this.statement.element.title
-        if (this.statement.document.title !== '') {
-          element += ` / ${this.statement.document.title}`
+      if (hasOwnProp(this.statement, 'elements') && this.statement.elements.title !== '') {
+        elementTitle = this.statement.elements.title
+        if (hasOwnProp(this.statement, 'document') && this.statement.document.title !== '') {
+          elementTitle += ` / ${this.statement.document.title}`
         }
       } else {
-        element += Translator.trans('notspecified')
+        const element = this.statement.elementId ? this.elements.find((el) => el.id === this.statement.elementId) : null
+
+        elementTitle = element ? element.title : Translator.trans('notspecified')
       }
 
-      if (this.statement.paragraph.title !== '') {
-        element += `<br>${this.statement.paragraph.title}`
+      if (hasOwnProp(this.statement, 'paragraph')) {
+        const elementParagraphs = this.selectedElementParagraph()
+
+        if (elementParagraphs && this.statement.paragraphParentId) {
+          const paragraph = elementParagraphs.find((el) => el.id === this.statement.paragraphParentId)
+          elementTitle += `<br>${paragraph.title}`
+        }
       }
 
-      return element
+      return elementTitle
     },
 
     statement () {
@@ -294,8 +304,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statement', ['updateStatement']),
-
     formatDate (date) {
       return formatDate(date)
     },
@@ -320,6 +328,10 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
+    },
+
+    selectedElementParagraph () {
+      return this.statement.elementId && this.paragraph[this.statement.elementId] ? this.paragraph[this.statement.elementId] : []
     },
 
     toggleModal () {

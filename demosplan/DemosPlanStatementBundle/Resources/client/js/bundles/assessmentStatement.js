@@ -14,7 +14,7 @@
 import AssessmentStatement from './../lib/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import DetailView from '@DemosPlanStatementBundle/components/assessmentTable/DetailView/DetailView'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'

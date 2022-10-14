@@ -57,7 +57,7 @@
       <template v-slot:enabled="rowData">
         <dp-news-item-status
           class="flex space-inline-xs u-mt-0_125"
-          :switch-date="rowData.designatedSwitchDate || null"
+          :switch-date="rowData.designatedSwitchDate || ''"
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
           :determined-to-switch="rowData.determinedToSwitch || false"
@@ -75,8 +75,8 @@
 
 <script>
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpBulkEditHeader from '@DemosPlanCoreBundle/components/DpBulkEditHeader'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpNewsItemStatus from './DpNewsItemStatus'
 import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
 

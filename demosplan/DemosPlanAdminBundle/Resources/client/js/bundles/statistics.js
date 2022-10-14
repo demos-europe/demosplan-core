@@ -7,11 +7,13 @@
  * All rights reserved
  */
 
+
+
 /**
  * This is the entrypoint for statistics.html.twig
  */
 
-import DpDataTableExtended from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTableExtended'
+import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatisticsCharts from '../components/StatisticsCharts'
 

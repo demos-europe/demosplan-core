@@ -48,7 +48,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpCard from '@DemosPlanCoreBundle/components/DpCard'
+import DpCard from '@DpJs/components/core/DpCard'
 import { DpLoading } from 'demosplan-ui/components'
 import ProcedureCharts from '@DemosPlanProcedureBundle/components/charts/ProcedureCharts'
 

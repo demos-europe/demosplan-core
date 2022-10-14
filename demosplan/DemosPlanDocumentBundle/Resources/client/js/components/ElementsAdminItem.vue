@@ -38,7 +38,7 @@
 import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpToggle from '@DpJs/components/core/form/DpToggle'
-import DpTooltipIcon from '@DemosPlanCoreBundle/components/DpTooltipIcon'
+import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 
 export default {
   name: 'ElementsAdminItem',

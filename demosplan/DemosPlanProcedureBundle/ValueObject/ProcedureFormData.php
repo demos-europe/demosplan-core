@@ -19,6 +19,7 @@ use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 /**
  * Stores the data of an procedure sent or shown in a form.
@@ -51,18 +52,12 @@ class ProcedureFormData extends ValueObject
      */
     protected $allowedSegmentAccessProcedureIds;
 
-    /**
-     * @var Collection<int, EmailAddressVO>
-     */
-    private $allowedSenderEmailAddresses;
-
     public function __construct(Procedure $procedure = null)
     {
         if (null === $procedure) {
             $this->agencyMainEmailAddress = new EmailAddressVO('');
             $this->agencyExtraEmailAddresses = new ArrayCollection();
             $this->allowedSegmentAccessProcedureIds = [];
-            $this->allowedSenderEmailAddresses = new ArrayCollection();
         } else {
             $this->agencyMainEmailAddress = new EmailAddressVO($procedure->getAgencyMainEmailAddress());
             $this->agencyExtraEmailAddresses = $procedure->getAgencyExtraEmailAddresses()->map(
@@ -77,16 +72,6 @@ class ProcedureFormData extends ValueObject
                     return $allowedProcedure->getId();
                 })
                 ->getValues();
-
-            $this->allowedSenderEmailAddresses = new ArrayCollection();
-            if ($procedure->getMaillaneConnection() !== null) {
-                $this->allowedSenderEmailAddresses = $procedure->getMaillaneConnection()
-                    ->getAllowedSenderEmailAddresses()
-                    ->map(static function (EmailAddress $emailAddress): EmailAddressVO {
-                        return new EmailAddressVO($emailAddress->getFullAddress());
-                    }
-                );
-            }
         }
     }
 
@@ -114,14 +99,6 @@ class ProcedureFormData extends ValueObject
     }
 
     /**
-     * @return Collection<int, EmailAddressVO>
-     */
-    public function getAllowedSenderEmailAddresses(): Collection
-    {
-        return $this->allowedSenderEmailAddresses;
-    }
-
-    /**
      * @param Collection<int, EmailAddressVO> $agencyExtraEmailAddresses
      */
     public function setAgencyExtraEmailAddresses(Collection $agencyExtraEmailAddresses): void
@@ -129,32 +106,14 @@ class ProcedureFormData extends ValueObject
         $this->agencyExtraEmailAddresses = $agencyExtraEmailAddresses;
     }
 
-    /**
-     * @param Collection<int, EmailAddressVO> $allowedSenderEmailAddresses
-     */
-    public function setAllowedSenderEmailAddresses(Collection $allowedSenderEmailAddresses): void
-    {
-        $this->allowedSenderEmailAddresses = $allowedSenderEmailAddresses;
-    }
-
     public function addExtraEmailAddress(EmailAddressVO $agencyExtraEmailAddress): void
     {
         $this->agencyExtraEmailAddresses->add($agencyExtraEmailAddress);
     }
 
-    public function addAllowedSenderEmailAddress(EmailAddressVO $allowedSenderEmailAddress): void
-    {
-        $this->allowedSenderEmailAddresses->add($allowedSenderEmailAddress);
-    }
-
     public function removeExtraEmailAddress(EmailAddressVO $agencyExtraEmailAddress): void
     {
         $this->agencyExtraEmailAddresses->removeElement($agencyExtraEmailAddress);
-    }
-
-    public function removeAllowedSenderEmailAddress(EmailAddressVO $allowedSenderEmailAddress): void
-    {
-        $this->allowedSenderEmailAddresses->removeElement($allowedSenderEmailAddress);
     }
 
     /**
@@ -168,19 +127,6 @@ class ProcedureFormData extends ValueObject
             }
         )->toArray();
     }
-
-    /**
-     * @return array<int, string>
-     */
-    public function getAllowedSenderEmailAddressesFullStrings(): array
-    {
-        return $this->allowedSenderEmailAddresses->map(
-            function (EmailAddressVO $address): string {
-                return $address->getFullAddress();
-            }
-        )->toArray();
-    }
-
 
     /**
      * @return array<int, string>

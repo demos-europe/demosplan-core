@@ -10,15 +10,15 @@
 <script>
 import { DpButton, DpInput, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters } from 'vuex'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpAutofillSubmitterData from '@DemosPlanStatementBundle/components/statement/DpAutofillSubmitterData'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpSelectStatementCluster from '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'
 import DpStatementPublish from '@DemosPlanStatementBundle/components/statement/DpStatementPublish'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import StatementVoter from '@DemosPlanStatementBundle/components/voter/StatementVoter'
@@ -37,7 +37,7 @@ export default {
     DpSelect,
     DpSelectStatementCluster,
     DpStatementPublish,
-    DpTiptap,
+    DpEditor,
     DpUploadFiles,
     StatementVoter
   },

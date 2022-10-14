@@ -14,7 +14,7 @@
 import AssessmentStatement from '@DemosPlanStatementBundle/lib/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import DpNewStatement from './../components/DpNewStatement'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'
 import VoterStore from '@DemosPlanStatementBundle/store/Voter'

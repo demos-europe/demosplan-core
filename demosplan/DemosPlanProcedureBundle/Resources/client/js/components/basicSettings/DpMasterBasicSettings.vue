@@ -17,8 +17,8 @@ export default {
   components: {
     DpEmailList,
     DpMultiselect,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
-    DpUploadFiles: () => import('@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles')
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpUploadFiles: () => import('@DpJs/components/core/DpUpload/DpUploadFiles')
   },
 
   props: {
