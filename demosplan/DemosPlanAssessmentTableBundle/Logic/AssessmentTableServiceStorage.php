@@ -322,7 +322,7 @@ class AssessmentTableServiceStorage
                 $this->getMessageBag()->add('error', 'error.date.invalid');
             }
 
-            //Ensure hour, minute and second will be untouched, to avoid change order in ATable.
+            //On UPDATE: Ensure hour, minute and second will stay untouched, to avoid changing of order by submitDate.
             $currentlySavedDate = Carbon::instance($currentStatement->getSubmitObject());
             $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']["submitted_date"]);
             $incomingDate->setTime($currentlySavedDate->hour, $currentlySavedDate->minute, $currentlySavedDate->second);

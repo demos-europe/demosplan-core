@@ -61,25 +61,42 @@ class SamlUserFactoryTest extends FunctionalTestCase
     public function testCreateNewUserFromSAML(): void
     {
         $attributes = [
-            'country'      => [''],
-            'givenName'    => ['Hannah'],
-            'houseNumber'  => [''],
-            'ID'           => ['886227c04d14045c16c42d706427d8392fd64417'],
-            'localityName' => [''],
-            'mail'         => ['mail.needs@citiz.en'],
-            'orgaMail'     => [''],
-            'orgaName'     => [''],
-            'orgaType'     => [''],
-            'postalCode'   => [''],
-            'street'       => [''],
-            'surname'      => ['Lotta'],
+            'country'       => [''],
+            'givenName'     => ['Hannah'],
+            'houseNumber'   => [''],
+            'ID'            => ['886227c04d14045c16c42d706427d8392fd64417'],
+            'localityName'  => [''],
+            'email'         => ['mail.needs@citiz.en'],
+            'orgaMail'      => [''],
+            'orgaName'      => [''],
+            'orgaType'      => [''],
+            'postalCode'    => [''],
+            'street'        => [''],
+            'surname'       => ['Lotta'],
         ];
 
         $user = $this->sut->createUser($attributes['ID'][0], $attributes);
         self::assertInstanceOf(User::class, $user);
         $anonymousUser = new AnonymousUser();
         self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
-        self::assertEquals($anonymousUser->getOrga()->getDepartments()->first()->getId(), $user->getDepartment()->getId());
+        self::assertEquals($attributes['ID'][0], $user->getLogin());
+    }
+
+    public function testCreateNewUserFromSAMLServicekonto(): void
+    {
+        $attributes = [
+            'email'       => ['Sarah@connell.de'],
+            'givenName'   => ['Sarah'],
+            'bPK'         => ['VjEuQkI6OmRlLmFrZGIuYnBrLnNzb0Bsb2dpbi1zdGFnZS5iYXVsZWl0cGxhbnVuZy1vbmxpbmUuZGU6OmxvUlF1c25qTXQ0bVN4eUFtNExQZkZPbTdjd1JiWjRQc3FFNTltcERWbnc6OjIwMjItMDktMjNUMTU6MTQ6NTM='],
+            'surname'     => ['Connell'],
+            'ID'          => ['loRQusnjMt4mSxyAm4LPfFOm7cwRbZ4PsqE59mpDVnw'],
+            'sessionIndex'=> '54204e12-af28-4b20-806b-e21fced6ad8a::30065ff8-40b7-42b7-82c4-80c26d993959',
+        ];
+
+        $user = $this->sut->createUser($attributes['ID'][0], $attributes);
+        self::assertInstanceOf(User::class, $user);
+        $anonymousUser = new AnonymousUser();
+        self::assertEquals($anonymousUser->getOrga()->getId(), $user->getOrga()->getId());
         self::assertEquals($attributes['ID'][0], $user->getLogin());
     }
 
@@ -124,18 +141,18 @@ class SamlUserFactoryTest extends FunctionalTestCase
     private function getOrgaLoginAttributes(): array
     {
         return [
-            'country'      => ['de'],
-            'givenName'    => [''],
-            'houseNumber'  => ['14'],
-            'ID'           => ['du-886227c04d14045c16c42d706427d8392fd64417'],
-            'localityName' => ['Erlangen'],
-            'mail'         => ['mail.needs@tobes.et'],
-            'orgaMail'     => ['orgaMailneeds@tobes.et'],
-            'orgaName'     => ['Franken Plus GmbH & Co. KGaA'],
-            'orgaType'     => ['NNatPers'],
-            'postalCode'   => ['91058'],
-            'street'       => ['Frauenweiherstr.'],
-            'surname'      => [''],
+            'country'       => ['de'],
+            'givenName'     => [''],
+            'houseNumber'   => ['14'],
+            'ID'            => ['du-886227c04d14045c16c42d706427d8392fd64417'],
+            'localityName'  => ['Erlangen'],
+            'email'         => ['mail.needs@tobes.et'],
+            'orgaMail'      => ['orgaMailneeds@tobes.et'],
+            'orgaName'      => ['Franken Plus GmbH & Co. KGaA'],
+            'orgaType'      => ['NNatPers'],
+            'postalCode'    => ['91058'],
+            'street'        => ['Frauenweiherstr.'],
+            'surname'       => [''],
         ];
     }
 }

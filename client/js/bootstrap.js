@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+
+
 import availableTranslations from '@DpJs/generated/translations.json'
 import exposedRoutes from '@DpJs/generated/routes.json'
 import { hasPermission } from '@DpJs/lib/utils/hasPermission'

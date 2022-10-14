@@ -10,15 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use function array_key_exists;
-use function array_map;
-use function array_merge;
-use function array_unique;
-use function array_values;
 use Carbon\Carbon;
 use Closure;
-use function collect;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ClusterCitizenInstitutionSorter;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
@@ -31,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
@@ -46,9 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -83,6 +73,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
@@ -142,20 +133,26 @@ use Elastica\Query\BoolQuery;
 use Elastica\Type;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
-use function in_array;
-use function is_array;
-use function is_string;
 use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
-use const PHP_INT_MAX;
 use RuntimeException;
-use function strcmp;
-use function strlen;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
+use function array_key_exists;
+use function array_map;
+use function array_merge;
+use function array_unique;
+use function array_values;
+use function collect;
+use function in_array;
+use function is_array;
+use function is_string;
+use function strcmp;
+use function strlen;
+use const PHP_INT_MAX;
 
 class StatementService extends CoreService
 {
@@ -4689,8 +4686,13 @@ class StatementService extends CoreService
             // set default value if not set e.g. in manual statement
             if ('' === $data['r_submitted_date']) {
                 $data['r_submitted_date'] = Carbon::now()->format('d.m.Y H:i:s');
+            } else {
+                $incomingDate = Carbon::createFromTimestamp(strtotime($data['r_submitted_date']));
+                $now = Carbon::now();
+                //On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
+                $incomingDate->setTime($now->hour, $now->minute, $now->second);
+                $statement['submittedDate'] = $incomingDate->format('d.m.Y H:i:s');
             }
-            $statement['submittedDate'] = $data['r_submitted_date'];
         }
 
         if (array_key_exists('r_ident', $data)) {
