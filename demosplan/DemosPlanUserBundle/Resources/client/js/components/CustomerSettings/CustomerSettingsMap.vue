@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import debounce from '@DpJs/lib/utils/debounce'
+import { debounce } from 'demosplan-utils'
 import { DpInput } from 'demosplan-ui/components'
 import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
 

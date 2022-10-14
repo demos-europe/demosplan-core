@@ -17,7 +17,7 @@ import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotifi
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import ExportSettings from './ExportSettings'
-import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
+import { sortAlphabetically } from 'demosplan-utils'
 
 export default {
   name: 'DpBasicSettings',

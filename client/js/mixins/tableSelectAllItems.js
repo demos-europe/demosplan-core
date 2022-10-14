@@ -28,7 +28,7 @@
  *   @items-toggled="handleToggleItem" />
  */
 
-import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
+import uniqueArrayByObjectKey from './utils/uniqueArrayByObjectKey'
 
 export default {
   data () {

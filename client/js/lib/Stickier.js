@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import getScrollTop from '@DpJs/lib/utils/getScrollTop'
+import { getScrollTop } from 'demosplan-utils'
 import MatchMedia from '@DpJs/lib/MatchMedia'
 
 /**
