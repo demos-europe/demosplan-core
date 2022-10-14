@@ -1,3 +1,12 @@
+/**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 // import { DATE_FORMAT_LONG, formatDate, toDate } from './utils/date'
 // import { hasPermisson, hasAllPermissions, hasAnyPermissions } from './utils/hasPermission'
 // import changeUrlforPager from './utils/changeUrlforPager'
