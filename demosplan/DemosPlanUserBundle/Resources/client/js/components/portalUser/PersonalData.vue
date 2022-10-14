@@ -14,7 +14,7 @@
         {{ Translator.trans('username') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.userName }}
+        {{ userData.userName }}
       </dd>
 
       <template v-if="hasPermission('area_mydata_organisation')">
@@ -22,13 +22,13 @@
           {{ Translator.trans('organisation') }}
         </dt>
         <dd class="u-mb color--grey">
-          {{ user.organisationName }}
+          {{ userData.organisationName }}
         </dd>
         <dt class="weight--bold">
           {{ Translator.trans('department') }}
         </dt>
         <dd class="u-mb color--grey">
-          {{ user.departmentName }}
+          {{ userData.departmentName }}
         </dd>
       </template>
 
@@ -36,19 +36,19 @@
         {{ Translator.trans('name') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.lastName }}
+        {{ userData.lastName }}
       </dd>
       <dt class="weight--bold">
         {{ Translator.trans('name.first') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.firstName }}
+        {{ userData.firstName }}
       </dd>
       <dt class="weight--bold">
         {{ Translator.trans('email') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.email }}
+        {{ userData.email }}
       </dd>
     </dl>
 
@@ -88,6 +88,15 @@
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 
+const userProperties = [
+  'organisationName',
+  'departmentName',
+  'lastName',
+  'firstName',
+  'userName',
+  'email'
+]
+
 export default {
   name: 'PersonalData',
 
@@ -107,13 +116,17 @@ export default {
 
     user: {
       type: Object,
-      required: true
+      required: true,
+      validator: (prop) => {
+        return Object.keys(prop).every(key => userProperties.includes(key))
+      }
     }
   },
 
   data () {
     return {
-      isDailyDigestChecked: this.isDailyDigestEnabled
+      isDailyDigestChecked: this.isDailyDigestEnabled,
+      userData: this.setUserData()
     }
   },
 
@@ -127,22 +140,21 @@ export default {
   },
 
   methods: {
-    setUserDefaultValues () {
-      const userProperties = ['organisationName', 'departmentName', 'lastName', 'firstName', 'userName', 'email']
+    setUserData () {
+      let userData = {...this.user}
+      this.changeDefaultValues(userData)
 
-      if(this.user && typeof this.user === 'object') {
-        for (let key of userProperties) {
-          if (!this.user[key]) {
-            this.user[key] = '-'
-          }
+      return userData
+    },
+
+    changeDefaultValues (user) {
+      for (let key of userProperties) {
+        if (!user[key]) {
+          user[key] = '-'
         }
       }
-      return this.user
+      return user
     }
-  },
-
-  beforeMount () {
-    this.setUserDefaultValues()
   }
 }
 </script>
