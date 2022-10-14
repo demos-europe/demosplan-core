@@ -25,8 +25,8 @@ services:
             - PHP_MEMORY_MAX=2G
             - DATABASE_NAME=diplanbau
             - DATABASE_HOST=172.20.255.3
-            - DATABASE_USER=dockerdb
-            - DATABASE_PASS=mypass
+            - DATABASE_USER=root
+            - DATABASE_PASS=
         volumes:
             - 'file_storage:/opt/uploads'
         hostname: demosplan-production
