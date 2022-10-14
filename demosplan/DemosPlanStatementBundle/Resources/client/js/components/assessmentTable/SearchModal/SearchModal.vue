@@ -85,12 +85,14 @@
           <div class="layout--flush">
             <dp-checkbox
               v-for="checkbox in filterCheckBoxesItems"
+              :id="checkbox.id"
               :key="'checkbox_' + checkbox.id"
               v-model="checkbox.checked"
-              :id="checkbox.id"
               class="layout__item u-1-of-2"
-              name="search_fields[]"
-              :label="Translator.trans(checkbox.label)" />
+              :label="{
+                text: Translator.trans(checkbox.label)
+              }"
+              name="search_fields[]" />
 
             <!-- department is added as hidden field when organisation is selected -->
             <input

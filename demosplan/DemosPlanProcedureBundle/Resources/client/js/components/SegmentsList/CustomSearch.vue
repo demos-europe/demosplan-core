@@ -41,10 +41,12 @@
             v-if="isLoading === false">
             <dp-checkbox
               v-for="({label, value}, i) in fields"
-              :checked="selectedFields.includes(value)"
-              :key="i"
               :id="value"
-              :label="Translator.trans(label)"
+              :key="i"
+              :checked="selectedFields.includes(value)"
+              :label="{
+                text: Translator.trans(label)
+              }"
               @change="handleChange(value, !selectedFields.includes(value))" />
           </div>
           <div
