@@ -9,8 +9,7 @@
 // import getAnimationEventName from './utils/getAnimationEventName'
 // import getScrollTop from './utils/getScrollTop'
 // import hasOwnProp from './utils/hasOwnProp'
-// import sortAlphabetically from './utils/sortAlphabetically'
-import tableSelectAllItems from './utils/tableSelectAllItems'
+import sortAlphabetically from './utils/sortAlphabetically'
 import uniqueArrayByObjectKey from './utils/uniqueArrayByObjectKey'
 import throttle from './utils/throttle'
 
@@ -29,8 +28,7 @@ export {
   // hasPermisson,
   // hasAllPermissions,
   // hasAnyPermissions,
-  // sortAlphabetically,
-  tableSelectAllItems,
+  sortAlphabetically,
   throttle,
   // toDate,
   uniqueArrayByObjectKey
