@@ -22,8 +22,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>

@@ -54,9 +54,8 @@ class TwigableWrapperObject extends WrapperObject
     }
 
     /**
-     * @param string $methodName
-     * @param array $arguments
      * @return mixed|void|null
+     *
      * @throws PathException
      * @throws PaginationException
      * @throws SortException

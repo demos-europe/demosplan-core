@@ -29,6 +29,7 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     {
         return 'GlobalNewsCategory';
     }
+
     public function getEntityClass(): string
     {
         return Category::class;

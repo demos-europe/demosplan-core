@@ -88,7 +88,7 @@ class StatementImportEmailResourceType extends DplanResourceType
             $this->createToOneRelationship($this->forwardingUser)->readable(),
             $this->createAttribute($this->subject)->readable(),
             $this->createAttribute($this->from)->readable(),
-            $this->createAttribute($this->plainTextContent)->readable(false, static function(StatementImportEmail $statementImportEmail): string {
+            $this->createAttribute($this->plainTextContent)->readable(false, static function (StatementImportEmail $statementImportEmail): string {
                 return (new Parsedown())->text($statementImportEmail->getPlainTextContent());
             }),
             $this->createAttribute($this->htmlTextContent)->readable(),

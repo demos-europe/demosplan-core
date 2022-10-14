@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
@@ -21,7 +20,6 @@ use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
