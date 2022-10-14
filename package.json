@@ -58,6 +58,7 @@
     "dayjs": "^1.11.5",
     "deep-object-diff": "^1.1.7",
     "demosplan-ui": "file:client/ui",
+    "demosplan-utils": "file:client/js/utils",
     "dompurify": "^2.4.0",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",

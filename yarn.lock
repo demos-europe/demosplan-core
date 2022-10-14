@@ -3477,6 +3477,9 @@ delayed-stream@~1.0.0:
     tailwindcss "^3.1.8"
     v-tooltip "2.1.3"
 
+"demosplan-utils@file:client/js/utils":
+  version "2022.1.0"
+
 detect-newline@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"

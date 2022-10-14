@@ -241,7 +241,7 @@ import DpStickyElement from '@DemosPlanCoreBundle/components/shared/DpStickyElem
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
-import tableSelectAllItems from '@DpJs/lib/utils/tableSelectAllItems'
+import { tableSelectAllItems } from 'demosplan-utils'
 
 export default {
   name: 'SegmentsList',

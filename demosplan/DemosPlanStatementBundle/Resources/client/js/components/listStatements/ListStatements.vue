@@ -286,7 +286,7 @@ import DpStickyElement from '@DemosPlanCoreBundle/components/shared/DpStickyElem
 import { formatDate } from '@DpJs/lib/utils/date'
 import SearchModal from '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DemosPlanStatementBundle/components/StatementMetaData'
-import tableSelectAllItems from '@DpJs/lib/utils/tableSelectAllItems'
+import { tableSelectAllItems } from 'demosplan-utils'
 
 export default {
   name: 'ListStatements',
