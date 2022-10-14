@@ -459,6 +459,56 @@ class OrgaService extends CoreService
     }
 
     /**
+     * Get Count of accepted orga types for current customer
+     * (municipality -> Verfahrensträger, institutions -> Institutionen, planningAgency -> Planungsbüros)
+     *
+     * @return  array<string, int>
+     */
+    public function getCountOfOrgaTypesForCurrentCustomer(): array
+    {
+        $orgaTypeCountStatusCondition = $this->conditionFactory->propertyHasValue(
+            OrgaStatusInCustomer::STATUS_ACCEPTED,
+            ...$this->orgaResourceType->statusInCustomers->status
+        );
+        $orgaTypeMunicipalityCondition = $this->conditionFactory->propertyHasValue(
+            OrgaType::MUNICIPALITY,
+            ...$this->orgaResourceType->statusInCustomers->orgaType->name
+        );
+        $orgaTypePlanningAgenyCondition = $this->conditionFactory->propertyHasValue(
+            OrgaType::PLANNING_AGENCY,
+            ...$this->orgaResourceType->statusInCustomers->orgaType->name
+        );
+        $orgaTypeInstitutionCondition = $this->conditionFactory->propertyHasValue(
+            OrgaType::PUBLIC_AGENCY,
+            ...$this->orgaResourceType->statusInCustomers->orgaType->name
+        );
+        $municipalityCount = $this->entityFetcher->getEntityCount(
+            $this->orgaResourceType,
+            [$orgaTypeCountStatusCondition, $orgaTypeMunicipalityCondition]
+        );
+        $planningAgencyCount = $this->entityFetcher->getEntityCount(
+            $this->orgaResourceType,
+            [$orgaTypeCountStatusCondition, $orgaTypePlanningAgenyCondition]
+        );
+        $institutionCount = $this->entityFetcher->getEntityCount(
+            $this->orgaResourceType,
+            [$orgaTypeCountStatusCondition, $orgaTypeInstitutionCondition]
+        );
+
+        $municipalityKey = $this->translator->trans('procedure.agency');
+        $planningAgencyKey = $this->translator->trans('planningagency');
+        $institutionKey = $this->translator->trans('invitable_institution');
+        $restultBox = [
+            $municipalityKey => $municipalityCount,
+            $institutionKey => $institutionCount,
+            $planningAgencyKey => $planningAgencyCount
+        ];
+        arsort($restultBox);
+
+        return  $restultBox;
+    }
+
+    /**
      * Load existing notifications for the Organisation.
      *
      * @throws Exception
