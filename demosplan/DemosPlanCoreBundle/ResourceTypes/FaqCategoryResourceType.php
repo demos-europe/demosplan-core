@@ -2,11 +2,19 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<FaqCategory>
@@ -45,7 +53,7 @@ class FaqCategoryResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->false();
     }

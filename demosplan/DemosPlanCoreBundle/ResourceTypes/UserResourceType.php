@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<User>
@@ -148,7 +148,7 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         // Without this permission users can use their own User resource only.
         if ($this->currentUser->hasPermission('area_manage_users')) {

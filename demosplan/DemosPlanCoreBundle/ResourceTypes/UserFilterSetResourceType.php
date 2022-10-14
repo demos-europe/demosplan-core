@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<UserFilterSet>
@@ -64,7 +64,7 @@ class UserFilterSetResourceType extends DplanResourceType
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $user = $this->currentUser->getUser();
         $procedure = $this->currentProcedureService->getProcedure();

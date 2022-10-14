@@ -18,13 +18,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
-use EDT\JsonApi\ResourceTypes\SetableProperty;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Exception;
 
 /**
@@ -54,7 +54,7 @@ final class AnnotatedStatementPdfResourceType extends DplanResourceType implemen
         return 'AnnotatedStatementPdf';
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -170,9 +170,9 @@ final class AnnotatedStatementPdfResourceType extends DplanResourceType implemen
      * Warning: only readable (no filtering/sorting) due to sanitization in
      * {@link File::getFileName}.
      *
-     * @param array<int, SetableProperty> $properties
+     * @param array<int, PropertyBuilder> $properties
      *
-     * @return array<int, SetableProperty>
+     * @return array<int, PropertyBuilder>
      */
     private function addDenormalizedFileName(array $properties): array
     {

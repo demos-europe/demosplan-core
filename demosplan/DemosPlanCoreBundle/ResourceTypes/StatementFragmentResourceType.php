@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFragment>
@@ -179,7 +179,7 @@ final class StatementFragmentResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureType>
@@ -32,7 +32,7 @@ use EDT\Querying\Contracts\FunctionInterface;
  */
 final class ProcedureTypeResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->true();
     }

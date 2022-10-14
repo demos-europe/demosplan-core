@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use EDT\JsonApi\ResourceTypes\GetableProperty;
+use EDT\JsonApi\ResourceTypes\Property;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 
 /**
@@ -22,7 +22,7 @@ use EDT\Wrapping\Contracts\Types\TypeInterface;
 class GetPropertiesEvent extends DPlanEvent
 {
     /**
-     * @var array<int, GetableProperty>
+     * @var array<int, Property>
      */
     private $properties;
 
@@ -32,8 +32,8 @@ class GetPropertiesEvent extends DPlanEvent
     private $type;
 
     /**
-     * @param TypeInterface<O>            $type
-     * @param array<int, GetableProperty> $properties
+     * @param TypeInterface<O>     $type
+     * @param array<int, Property> $properties
      */
     public function __construct(TypeInterface $type, array $properties)
     {
@@ -42,14 +42,14 @@ class GetPropertiesEvent extends DPlanEvent
     }
 
     /**
-     * @return array<int, GetableProperty>
+     * @return array<int, Property>
      */
     public function getProperties(): array
     {
         return $this->properties;
     }
 
-    public function addProperty(GetableProperty $property): void
+    public function addProperty(Property $property): void
     {
         $this->properties[] = $property;
     }
