@@ -11,7 +11,7 @@
  * This is the entrypoint for list.html.twig
  */
 
-import DpReportListing from '../components/DpReportListing'
+import DpReportListing from '@DemosPlanReportBundle/components/DpReportListing'
 import { hasPermission } from '@DpJs/lib/utils/hasPermission'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

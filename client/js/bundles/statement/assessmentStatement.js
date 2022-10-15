@@ -11,7 +11,7 @@
  * This is the entrypoint for assessment_statement.html.twig and cluster_detail.html.twig
  */
 
-import AssessmentStatement from './../lib/AssessmentStatement'
+import AssessmentStatement from '@DemosPlanStatementBundle/lib/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import DetailView from '@DemosPlanStatementBundle/components/assessmentTable/DetailView/DetailView'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'

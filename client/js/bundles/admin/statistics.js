@@ -15,7 +15,7 @@
 
 import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import StatisticsCharts from '../components/StatisticsCharts'
+import StatisticsCharts from '@DemosPlanAdminBundle/components/StatisticsCharts'
 
 initialize({ DpDataTableExtended }).then(() => {
   // eslint-disable-next-line no-new

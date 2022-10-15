@@ -11,12 +11,12 @@
  * This is the entrypoint for list_statement_fragments.html.twig
  */
 
-import assessmentTableStore from './../store/AssessmentTable'
-import DpFragmentList from './../components/fragmentList/DpFragmentList'
-import DpFragmentListFilterModal from './../components/fragmentList/DpFragmentListFilterModal'
-import fragmentStore from './../store/Fragment'
+import assessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import DpFragmentList from '@DemosPlanStatementBundle/components/fragmentList/DpFragmentList'
+import DpFragmentListFilterModal from '@DemosPlanStatementBundle/components/fragmentList/DpFragmentListFilterModal'
+import fragmentStore from '@DemosPlanStatementBundle/store/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ListStatementFragments from './../lib/ListStatementFragments'
+import ListStatementFragments from '@DemosPlanStatementBundle/lib/ListStatementFragments'
 
 const components = {
   DpFragmentList,

@@ -13,7 +13,7 @@
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import SegmentFilterStore from '../store/SegmentFilter'
+import SegmentFilterStore from '@DemosPlanProcedureBundle/store/SegmentFilter'
 import SegmentsList from '@DemosPlanProcedureBundle/components/SegmentsList/SegmentsList'
 
 const components = {

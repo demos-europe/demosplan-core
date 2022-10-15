@@ -11,13 +11,13 @@
  * This is the entry point for administration_edit.html.twig
  */
 
-import AdministrationMaster from '../lib/AdministrationMaster'
-import DpBasicSettings from '../components/basicSettings/DpBasicSettings'
+import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
+import DpBasicSettings from '@DemosPlanProcedureBundle/components/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpEmailList from '../components/basicSettings/DpEmailList'
+import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
-import DPWizard from '../lib/DPWizard'
+import DPWizard from '@DemosPlanProcedureBundle/lib/DPWizard'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DemosPlanUserBundle/lib/UrlPreview'
 

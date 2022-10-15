@@ -12,9 +12,9 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import SegmentSlidebar from '../store/SegmentSlidebar'
-import SplitStatementStore from '../store/SplitStatementStore'
-import StatementSegmentsList from '../components/StatementSegmentsList/StatementSegmentsList'
+import SegmentSlidebar from '@DemosPlanProcedureBundle/store/SegmentSlidebar'
+import SplitStatementStore from '@DemosPlanProcedureBundle/store/SplitStatementStore'
+import StatementSegmentsList from '@DemosPlanProcedureBundle/components/StatementSegmentsList/StatementSegmentsList'
 
 const components = {
   StatementSegmentsList

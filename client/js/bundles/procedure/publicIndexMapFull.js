@@ -12,9 +12,9 @@
  * where the map is more or less across the whole site
  */
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import locationStore from './../store/Location'
-import Procedures from '../components/publicindex/Procedures'
-import procedureStore from './../store/Procedure'
+import locationStore from '@DemosPlanProcedureBundle/store/Location'
+import Procedures from '@DemosPlanProcedureBundle/components/publicindex/Procedures'
+import procedureStore from '@DemosPlanProcedureBundle/store/Procedure'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const stores = {

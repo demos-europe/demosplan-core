@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_list_survey_comments.html.twig
  */
-import DpSurveyCommentsList from '../components/survey/DpSurveyCommentsList'
+import DpSurveyCommentsList from '@DemosPlanProcedureBundle/components/survey/DpSurveyCommentsList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpSurveyCommentsList }

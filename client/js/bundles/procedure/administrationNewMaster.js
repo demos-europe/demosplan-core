@@ -11,11 +11,11 @@
  * This is the entrypoint for administration_new_master.html.twig
  */
 
-import AdministrationMaster from '../lib/AdministrationMaster'
-import DpEmailList from '../components/basicSettings/DpEmailList'
+import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
+import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import NewBlueprintForm from '../components/admin/NewBlueprintForm'
+import NewBlueprintForm from '@DemosPlanProcedureBundle/components/admin/NewBlueprintForm'
 
 const components = { DpEmailList, NewBlueprintForm }
 

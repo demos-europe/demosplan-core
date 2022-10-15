@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for mastertoeblist.html.twig
  */
-import DpMasterToebList from '../components/DpMasterToebList'
+import DpMasterToebList from '@DemosPlanUserBundle/components/DpMasterToebList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 initialize({ DpMasterToebList })

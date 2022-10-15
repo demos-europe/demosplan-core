@@ -12,8 +12,8 @@
  */
 
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import DeleteFragmentButton from './../lib/DeleteFragmentButton'
-import DpCreateStatementFragment from './../components/statement/DpCreateStatementFragment'
+import DeleteFragmentButton from '@DemosPlanStatementBundle/lib/DeleteFragmentButton'
+import DpCreateStatementFragment from '@DemosPlanStatementBundle/components/statement/DpCreateStatementFragment'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

@@ -13,7 +13,7 @@
 
 import AssessmentTable from '@DemosPlanStatementBundle/lib/AssessmentTable'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import AssessmentTableToc from '../components/assessmentTable/TocView/AssessmentTableToc'
+import AssessmentTableToc from '@DemosPlanStatementBundle/components/assessmentTable/TocView/AssessmentTableToc'
 import DpBulkEditFragment from '@DemosPlanStatementBundle/components/assessmentTable/DpBulkEditFragment'
 import DpBulkEditStatement from '@DemosPlanStatementBundle/components/assessmentTable/DpBulkEditStatement'
 import DpTable from '@DemosPlanStatementBundle/components/assessmentTable/DpTable'
