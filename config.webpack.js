@@ -87,7 +87,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       css: config.stylesEntryPoint,
       publiccss: config.publicStylesEntryPoint,
-      ...bundleEntryPoints(config.bundleEntryPointsGlob),
+      ...bundleEntryPoints(config.clientBundleGlob, config.oldBundleGlob),
     }
   },
   output: {

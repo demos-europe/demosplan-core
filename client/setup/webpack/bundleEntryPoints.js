@@ -9,12 +9,14 @@
 
 const glob = require('glob')
 
-function bundleEntryPoints (bundleEntryPointsGlob) {
+function bundleEntryPoints (clientBundleGlob, oldBundleGlob) {
   const entries = {}
 
-  glob.sync(bundleEntryPointsGlob).forEach(filename => {
-    const bundle = filename.replace(/^.*DemosPlan/, '').replace(/Bundle.*$/, '').toLowerCase()
-    const name = filename.replace(/^.*bundles\//, '').replace('.js', '')
+  glob.sync(clientBundleGlob).forEach(filename => {
+    const parts = filename.split('/')
+
+    const bundle = parts[parts.length - 2];
+    const name = parts[parts.length - 1].replace('.js', '')
 
     entries[bundle + '-' + name] = filename
   })
