@@ -28,6 +28,7 @@ transpiledModules = transpiledModules.concat(
     '@efrane/vuex-json-api',
     '@mapbox', // Ol sub-dependency
     'demosplan-ui',
+    'demosplan-utils',
     'tiptap',
     'tiptap-commands',
     'tiptap-extensions',
