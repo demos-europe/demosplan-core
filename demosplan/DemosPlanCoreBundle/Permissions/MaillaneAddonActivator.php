@@ -11,37 +11,46 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonActivatorInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 
-/**
- *
- */
 class MaillaneAddonActivator implements AddonActivatorInterface
 {
-
     /**
-     * @var array<string, Permission>
+     * @var PermissionCollectionInterface
      */
     private $permissions;
 
     /**
-     * @retrun list<ConditionalPermission>
+     * @param PermissionCollectionInterface $permissions FIXME: inject correct instance (i.e. create a service definition in the addon that uses the correct YAML)
      */
+    public function __construct(
+        PermissionCollectionInterface $permissions,
+        CustomerService $customerProvider
+    ) {
+        $this->permissions = $permissions;
+    }
+
     public function getAddonPermissionsWithDefaults(): array
     {
         return [
             $this->createPermission('feature_import_statement_via_email')
-                // parameter: path, operator, value, memberOf
-                ->addUserCondition('', '=', 'OR_GROUP', Role::PLANNING_AGENCY_ADMIN)
-                ->addUserCondition('', '=', 'OR_GROUP', Role::PLANNING_AGENCY_WORKER)
-                // parameters: conjunction = AND, memberOf = null
-                ->addUserGroup('OR'),
+                ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
+                ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
+                ->addUserGroup('OR_GROUP', 'OR')
+                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID)
         ];
     }
 
     protected function createPermission(string $name): ConditionalPermission
     {
-        return new ConditionalPermission($this->permissions[$name]);
+        return new ConditionalPermission($this->permissions->getPermission($name));
+    }
+
+    public function getPackageName(): string
+    {
+        // FIXME: return correct package name
+        return '';
     }
 }

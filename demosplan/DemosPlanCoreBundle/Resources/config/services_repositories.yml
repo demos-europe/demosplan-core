@@ -6,6 +6,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
+    demosplan\DemosPlanCoreBundle\Repository\DplanAddonRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\DplanAddon'
+
     demosplan\plugins\FloodControl\Repository\FloodRepository:
         $entityClass: 'demosplan\plugins\FloodControl\Entity\Flood'
 

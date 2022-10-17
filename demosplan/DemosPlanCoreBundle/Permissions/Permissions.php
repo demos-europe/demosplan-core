@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonRegistry;
 use Symfony\Component\HttpFoundation\Session\Session;
 use function array_key_exists;
 use function array_map;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
@@ -39,9 +39,7 @@ use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use function stripos;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 /**
@@ -108,18 +106,30 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
+    /**
+     * @var PermissionCollectionInterface
+     */
+    private $permissionCollection;
+
+    /**
+     * @var AddonRegistry
+     */
+    private $addonRegistry;
+
     public function __construct(
-        CacheInterface $cache,
+        AddonRegistry $addonRegistry,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
+        PermissionCollectionInterface $permissionCollection,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureRepository $procedureRepository
     ) {
-        $this->cache = $cache;
+        $this->permissionCollection = $permissionCollection;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
+        $this->addonRegistry = $addonRegistry;
     }
 
     /**
@@ -1000,26 +1010,7 @@ class Permissions implements PermissionsInterface
      */
     protected function setInitialPermissions(): void
     {
-        // cache parsing of permissions.yml, saves ~200ms
-        $permissions = $this->cache->get('permissionsYml', function (ItemInterface $item) {
-            $this->logger->info('Read Permissions from yml');
-            $permissions = collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
-                ->map(
-                    static function ($permissionsArray, $permissionName) {
-                        return Permission::instanceFromArray($permissionName, $permissionsArray);
-                    }
-                )->toArray();
-
-            // set long ttl only in prod mode to improve DX in dev mode when working with permissions
-            $ttl = $this->globalConfig->isProdMode() ? 3600 : 10;
-
-            $this->logger->info('Save Permissions into cache with ttl '.$ttl);
-            $item->expiresAfter($ttl);
-
-            return $permissions;
-        });
-
-        $this->permissions = $permissions;
+        $this->permissions = $this->permissionCollection->toArray();
     }
 
     /**
@@ -1156,6 +1147,30 @@ class Permissions implements PermissionsInterface
      */
     protected function evaluatePermission($permission): void
     {
+        $addonAndPermission = explode(':', $permission);
+        switch (count($addonAndPermission)) {
+            case 1:
+                $addonIdentifier = null;
+                break;
+            case 2:
+                $addonIdentifier = $addonAndPermission[0];
+                $permission = $addonIdentifier[1];
+                break;
+            default:
+                throw new InvalidArgumentException("Invalid permission: $permission");
+        }
+
+        if (null !== $addonIdentifier) {
+            $allAddonPermissions = $this->addonRegistry->getAllAddonPermissions();
+            $evaluatablePermission = $allAddonPermissions[$addonIdentifier][$permission];
+
+            if ($evaluatablePermission->isPermissionEnabled($this->user, $this->procedure, $this->user->getCurrentCustomer())) {
+                return;
+            }
+
+            throw AccessDeniedException::missingPermission($permission, $this->user);
+        }
+
         // deny permission when permissions are not defined at all
         if (!is_array($this->permissions) || 0 === count($this->permissions)) {
             throw AccessDeniedException::missingPermissions($this->user);

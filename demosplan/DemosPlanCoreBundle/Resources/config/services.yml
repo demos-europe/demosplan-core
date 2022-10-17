@@ -292,9 +292,15 @@ services:
         decorates: Sentry\Monolog\Handler
         arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
 
+    demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
+        arguments:
+            $path: !php/const 'demosplan\DemosPlanCoreBundle\Permissions::PERMISSIONS_YML'
+            $cacheKey: 'permissionsYml'
+
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         arguments:
             $logger: '@monolog.logger.dplan'
+            $permissionCollection: demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
