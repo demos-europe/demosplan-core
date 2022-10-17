@@ -121,7 +121,7 @@ interface PermissionsInterface
      */
     public function hasPermissions(array $permissions, string $operator = 'AND'): bool;
 
-    public function setProcedure(Procedure $procedure);
+    public function setProcedure(?Procedure $procedure);
 
     /**
      * Enable a set of permissions.

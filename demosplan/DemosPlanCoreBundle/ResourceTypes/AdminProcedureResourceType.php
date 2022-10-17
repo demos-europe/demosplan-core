@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * This class limits the access to {@link Procedure} instances to those, that are allowed
@@ -157,7 +157,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_procedures');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $conditions = $this->procedureService->getAdminProcedureConditions(
             false,

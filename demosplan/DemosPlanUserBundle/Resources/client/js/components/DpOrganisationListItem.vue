@@ -18,37 +18,30 @@
     :open="isOpen">
     <!-- Item header -->
     <template v-slot:header>
-      <div
-        v-if="editable && selectable"
-        class="u-mt-0_75 display--inline-block o-accordion--checkbox">
-        <!-- 'Select item' checkbox -->
+      <div class="flex">
         <input
+          v-if="editable && selectable"
           type="checkbox"
           :id="`selected` + organisation.id"
           :checked="selected"
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
-      </div><!--
-   --><div
-        @click="isOpen = false === isOpen"
-        :class="{'u-pl-0_5': false === selectable}"
-        class="display--inline-block o-accordion--header-content">
         <div
-          class="weight--bold u-10-of-12 u-mt-0_75 u-mb-0_5 display--inline-block o-hellip--nowrap"
+          @click="isOpen = false === isOpen"
+          class="weight--bold cursor--pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 flex-grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>
-          <!-- Toggle expanded/collapsed -->
-        <div class="o-accordion--button float--right text--right u-mt-0_5 display--inline">
-          <button
-            type="button"
-            data-cy="accordionToggleBtn"
-            class="btn--blank o-link--default">
-            <i
-              class="fa"
-              :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
-          </button>
-        </div>
+        <button
+          @click="isOpen = false === isOpen"
+          type="button"
+          data-cy="accordionToggleBtn"
+          class="btn--blank o-link--default">
+          <dp-icon
+            aria-hidden="true"
+            :aria-label="ariaLabel"
+            :icon="icon" />
+        </button>
       </div>
     </template>
 
@@ -70,7 +63,6 @@
         form-name="organisationForm"
         :primary="editable"
         secondary
-        :secondary-text="Translator.trans('close')"
         @primary-action="dpValidateAction('organisationForm', save)"
         @secondary-action="reset" />
     </div>
@@ -79,7 +71,8 @@
 
 <script>
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpTableCard from '@DemosPlanCoreBundle/components/DpTableCardList/DpTableCard'
+import { DpIcon } from 'demosplan-ui/components'
+import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import { mapState } from 'vuex'
 
@@ -88,6 +81,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpIcon,
     DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
     DpTableCard
   },
@@ -146,6 +140,10 @@ export default {
       pendingOrganisations: 'items'
     }),
 
+    ariaLabel () {
+      return Translator.trans(this.isOpen ? 'aria.collapse' : 'aria.expand')
+    },
+
     initialOrganisation () {
       return (this.moduleName === '') ? this.$store.state.orga.initial[this.organisation.id] : this.$store.state.orga[this.moduleName].initial[this.organisation.id]
     },
@@ -155,6 +153,10 @@ export default {
      */
     editable () {
       return hasPermission('area_manage_orgas_all') || hasPermission('feature_orga_edit_all_fields') || hasPermission('area_organisations_applications_manage')
+    },
+
+    icon () {
+      return this.isOpen ? 'chevron-up' : 'chevron-down'
     }
   },
 

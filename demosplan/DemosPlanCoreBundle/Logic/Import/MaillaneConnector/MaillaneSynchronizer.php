@@ -13,6 +13,21 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector;
 
 use Cocur\Slugify\Slugify;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use EDT\JsonApi\Schema\ContentField;
+use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Throwable;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
@@ -25,20 +40,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Import\MaillaneConnector\Exception\Maill
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EDT\JsonApi\Schema\ContentField;
-use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Throwable;
+use function in_array;
 
 /**
  * Manage access synchronization with a Maillane instance.
@@ -137,7 +139,7 @@ class MaillaneSynchronizer
      * @throws MaillaneApiException if the interaction with the server fails
      * @throws ViolationsException  if validation fails
      */
-    public function createAccount(string $email): MaillaneConnection
+    public function createAccount(string $email, Procedure $procedure): MaillaneConnection
     {
         $url = $this->maillaneRouter->accountList();
         try {
@@ -160,7 +162,8 @@ class MaillaneSynchronizer
 
         $maillaneConnection = $this->maillaneConnectionRepository->createMaillaneConnection(
             $responseContent[ContentField::DATA][ContentField::ID],
-            $responseContent[ContentField::DATA][ContentField::ATTRIBUTES]['email']
+            $responseContent[ContentField::DATA][ContentField::ATTRIBUTES]['email'],
+            $procedure
         );
         $this->maillaneConnectionRepository->persistEntities([$maillaneConnection]);
 
@@ -173,7 +176,7 @@ class MaillaneSynchronizer
      * Maillane, adding all that do not and deleting all existing in Maillane but not
      * in the update data.
      *
-     * @param array<string, mixed> $updateData
+     * @param list<non-empty-string> $newAllowedSenderEmailAddresses
      *
      * @throws HttpExceptionInterface
      * @throws JsonException
@@ -182,18 +185,10 @@ class MaillaneSynchronizer
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editAccount(MaillaneConnection $maillaneConnection, array $updateData): void
+    public function editAccount(MaillaneConnection $maillaneConnection, array $newAllowedSenderEmailAddresses): void
     {
-        // Get sender addresses that are in the updateData
-        $mailAddressesToUpdate = [];
-        if (isset($updateData['allowedSenderEmailAddresses']) && 0 < count(
-                $updateData['allowedSenderEmailAddresses']
-            )) {
-            $mailAddressesToUpdate = $updateData['allowedSenderEmailAddresses'];
-        }
-
         // Get the pre-update list of already existing sender addresses
-        $allowedSenderEmailAddresses = $maillaneConnection->getAllowedSenderEmailAddresses();
+        $oldAllowedSenderEmailAddresses = $maillaneConnection->getAllowedSenderEmailAddresses();
         // get all users for the account from Maillane
         $existingUsersMaillane = $this->getAllUsersForTheAccountFromMaillane(
             $maillaneConnection->getMaillaneAccountId()
@@ -202,28 +197,28 @@ class MaillaneSynchronizer
         // Add new sender to the maillane account
         $savedAllowedMailAddresses = $this->addAllowedEmailAddressesToTheAccount(
             $maillaneConnection->getMaillaneAccountId(),
-            $mailAddressesToUpdate,
+            $newAllowedSenderEmailAddresses,
             $existingUsersMaillane
         );
 
         // Keep emailAddresses that already exist and are in updateData
-        foreach ($allowedSenderEmailAddresses as $allowedSenderEmailAddress) {
-            if (in_array($allowedSenderEmailAddress->getFullAddress(), $mailAddressesToUpdate, true)
+        foreach ($oldAllowedSenderEmailAddresses as $oldAllowedSenderEmailAddress) {
+            if (in_array($oldAllowedSenderEmailAddress->getFullAddress(), $newAllowedSenderEmailAddresses, true)
                 && in_array(
-                    $allowedSenderEmailAddress->getFullAddress(),
+                    $oldAllowedSenderEmailAddress->getFullAddress(),
                     $existingUsersMaillane,
                     true
                 )) {
-                $savedAllowedMailAddresses[] = $allowedSenderEmailAddress;
+                $savedAllowedMailAddresses[] = $oldAllowedSenderEmailAddress;
             }
         }
 
         // Delete no longer used users in Maillane
         $savedAllowedMailAddresses = $this->deleteNoLongerUsedUsersInMaillane(
             $existingUsersMaillane,
-            $mailAddressesToUpdate,
+            $newAllowedSenderEmailAddresses,
             $maillaneConnection->getMaillaneAccountId(),
-            $allowedSenderEmailAddresses,
+            $oldAllowedSenderEmailAddresses,
             $savedAllowedMailAddresses
         );
 
@@ -269,7 +264,7 @@ class MaillaneSynchronizer
     /**
      * Fetches all users for a given account from Maillane.
      *
-     * @return array<int, string>
+     * @return array{data: array<int, string>}
      *
      * @throws HttpExceptionInterface
      * @throws TransportExceptionInterface
@@ -296,7 +291,7 @@ class MaillaneSynchronizer
      * @param array<int, string> $mailAddressesToUpdate
      * @param array<int, string> $existingUsersMaillane
      *
-     * @return array<int, string>
+     * @return list<EmailAddress>
      *
      * @throws MessageBagException
      */
@@ -347,10 +342,11 @@ class MaillaneSynchronizer
     /**
      * Deletes users in Maillane that have been removed in DemosPlan.
      *
-     * @param array<string, array>          $existingUsersMaillane
-     * @param array<int, array>             $mailAddressesToUpdate
-     * @param Collection<int, EmailAddress> $allowedSenderEmailAddresses
-     * @param array<int, EmailAddress>      $savedAllowedMailAddresses
+     * @param array<string, array{id: non-empty-string, attributes: array{email: non-empty-string}}> $existingUsersMaillane
+     * @param list<non-empty-string>                                                                 $mailAddressesToUpdate
+     * @param non-empty-string                                                                       $accountId
+     * @param Collection<int, EmailAddress>                                                          $allowedSenderEmailAddresses
+     * @param array<int, EmailAddress>                                                               $savedAllowedMailAddresses
      *
      * @return array<int, EmailAddress>
      *

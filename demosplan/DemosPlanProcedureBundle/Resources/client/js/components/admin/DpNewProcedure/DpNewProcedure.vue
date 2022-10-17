@@ -13,11 +13,11 @@ import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpFormRow from '@DpJs/components/core/form/DpFormRow'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 
 export default {
   name: 'DpNewProcedure',

@@ -12,7 +12,7 @@
  */
 
 import DpPublicDetailNoMap from '@DemosPlanStatementBundle/components/DpPublicDetailNoMap'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'

@@ -11,7 +11,7 @@
     <label class="u-mb-0" for="r_text">
         {{ "fragment"|trans }}
     </label>
-    <dp-tiptap
+    <dp-editor
         class="u-mb"
         hidden-input="r_text"
         :toolbar-items="{
@@ -20,7 +20,7 @@
             obscure: true
          }"
         v-model="fragmentText">
-    </dp-tiptap>
+    </dp-editor>
 
     {# meta #}
     <div class="layout__item u-1-of-2 u-pl-0">

@@ -290,7 +290,7 @@
         :text="Translator.trans('statement.text.short')"
         for="r_text"
         required />
-      <dp-tiptap
+      <dp-editor
         ref="statementText"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
@@ -349,14 +349,14 @@
 
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import SimilarStatementSubmitters from '@DemosPlanProcedureBundle/components/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
@@ -384,7 +384,7 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles,
     SimilarStatementSubmitters
   },

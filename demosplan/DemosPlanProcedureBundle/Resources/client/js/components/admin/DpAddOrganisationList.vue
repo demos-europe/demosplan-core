@@ -50,7 +50,7 @@
 import { mapActions, mapState } from 'vuex'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
-import DpDataTableExtended from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTableExtended'
+import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
 
 export default {
   name: 'DpAddOrganisationList',
@@ -143,6 +143,8 @@ export default {
 
               // Reset selected items so that the footer updates accordingly
               this.selectedItems = []
+              // Also reset selection in DpDataTableExtended as this.selectedItems resets only local variable
+              this.$refs.dataTable.resetSelection()
             })
         })
         .catch(() => {

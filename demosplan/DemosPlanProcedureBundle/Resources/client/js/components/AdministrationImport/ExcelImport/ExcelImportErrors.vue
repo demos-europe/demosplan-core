@@ -74,8 +74,8 @@
 
 <script>
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
-import DpProgressBar from '@DemosPlanCoreBundle/components/DpProgressBar'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import DpProgressBar from '@DpJs/components/core/DpProgressBar'
 
 export default {
   name: 'ExcelImportErrors',

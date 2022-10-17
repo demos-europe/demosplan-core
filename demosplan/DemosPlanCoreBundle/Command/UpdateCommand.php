@@ -63,6 +63,10 @@ EOT
         $fs = new DemosFilesystem();
 
         $isDeployment = $input->getOption('deploy');
+        // enforce deployment environment when deployed on production
+        if (!$isDeployment && $this->parameterBag->get('prod_deployment')) {
+            $isDeployment = true;
+        }
         $updateLockFile = DemosPlanPath::getRootPath('update.lock');
         $env = $isDeployment ? 'prod' : 'dev';
         $rootPath = DemosPlanPath::getRootPath();
@@ -117,6 +121,7 @@ EOT
                 // load yarn dependencies
                 ->addShell(['yarn', 'install', '--frozen-lockfile'], $rootPath)
                 ->addShell(['yarn', 'add', 'file:client/ui'], $rootPath)
+                ->addShell(['yarn', 'add', 'file:client/js-utils'], $rootPath)
                 ->run();
         }
 

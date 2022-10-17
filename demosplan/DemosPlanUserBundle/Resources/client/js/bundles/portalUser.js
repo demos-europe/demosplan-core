@@ -12,7 +12,7 @@
  */
 
 import ChangePassword from '@DemosPlanUserBundle/components/portalUser/ChangePassword'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import PersonalData from '@DemosPlanUserBundle/components/portalUser/PersonalData'

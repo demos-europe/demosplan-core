@@ -10,20 +10,20 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
-import DpInlineNotification from '@DemosPlanCoreBundle/components/DpInlineNotification'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpLabel } from 'demosplan-ui/components'
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
   DpAccordion,
+  DpEditor,
   DpEmailList,
   DpInlineNotification,
-  DpLabel,
-  DpTiptap
+  DpLabel
 }
 
 initialize(components).then(() => {

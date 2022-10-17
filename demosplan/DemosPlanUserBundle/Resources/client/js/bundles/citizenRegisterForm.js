@@ -14,7 +14,7 @@
 import CitizenRegisterForm from '@DemosPlanUserBundle/components/citizenRegisterForm/CitizenRegisterForm'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DemosPlanCoreBundle/components/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const components = {
   CitizenRegisterForm,

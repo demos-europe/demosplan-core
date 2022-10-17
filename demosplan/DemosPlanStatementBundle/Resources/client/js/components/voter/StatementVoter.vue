@@ -218,7 +218,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import DpEditableList from '@DemosPlanCoreBundle/components/DpEditableList'
+import DpEditableList from '@DpJs/components/core/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'

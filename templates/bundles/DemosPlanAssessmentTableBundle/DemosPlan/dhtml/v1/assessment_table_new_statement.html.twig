@@ -510,7 +510,7 @@
                             for="r_text"
                             required>
                         </dp-label>
-                        <dp-tiptap
+                        <dp-editor
                             :value="values.text"
                             class="o-form__control-tiptap u-mb-0_75"
                             hidden-input="r_text"
@@ -522,7 +522,7 @@
                                 strikethrough: true
                             }"
                             procedure-id="{{ templateVars.table.procedure.ident }}">
-                        </dp-tiptap>
+                        </dp-editor>
                     {% endif %}
 
                     {{

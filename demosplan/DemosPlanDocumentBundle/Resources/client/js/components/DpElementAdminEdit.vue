@@ -8,10 +8,10 @@
 </license>
 
 <script>
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { makeFormPost } from 'demosplan-utils'
 
 export default {
@@ -21,7 +21,7 @@ export default {
     DpMultiselect,
     DpDataTable,
     DpDatetimePicker,
-    DpTiptap: () => import('@DemosPlanCoreBundle/components/DpTiptap'),
+    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
     DpUploadFiles
   },
 

@@ -30,8 +30,7 @@
           :max-number-of-files="1"
           needs-hidden-input
           name="r_customerLogo"
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
-          @upload-success="() => 'haha'" />
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }" />
       </div><!--
    --><div
         class="layout__item u-1-of-2"
@@ -72,7 +71,7 @@
 import { DpDetails, DpLabel } from 'demosplan-ui/components'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
+import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 
 export default {
   name: 'CustomerSettingsBranding',

@@ -30,13 +30,12 @@ use EDT\JsonApi\RequestHandling\EntityFetcherInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\ObjectProviderInterface;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SliceException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
 use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
 use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
@@ -136,7 +135,7 @@ class EntityFetcher implements EntityFetcherInterface
      * @param array<int, SortMethodInterface>     $sortMethods
      *
      * @throws MappingException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws PathException
      */
     public function getEntityPaginator(ReadableTypeInterface $type, APIPagination $pagination, array $conditions, array $sortMethods = []): DemosPlanPaginator
@@ -212,7 +211,7 @@ class EntityFetcher implements EntityFetcherInterface
      * @return array<int, O>
      *
      * @throws PathException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws SortException
      */
     public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array

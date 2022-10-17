@@ -101,7 +101,7 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DemosPlanCoreBundle/components/DpInlineNotification'),
+    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
     DpLabel,
     DpSelect
   },

@@ -87,7 +87,7 @@ class MenuBuilder
      */
     private function setAvailableRouteParameters(Request $request): void
     {
-        # get orgaId
+        // get orgaId
         try {
             $currentUser = $this->currentUserService->getUser();
             $orgaId = $currentUser->getOrganisationId();
@@ -100,10 +100,7 @@ class MenuBuilder
         if (null !== $this->currentProcedure) {
             // If there is a procedure, get the procedureId
             $procedureId = $this->currentProcedure->getId();
-            if ($request->hasSession() && $request->getSession()->has('hashList')) {
-                // If there is a hashlist in the current session, get the hash
-                $filterHash = $request->getSession()->get('hashList')[$procedureId]['assessment']['hash'];
-            }
+            $filterHash = $this->getFilterHashForProcedure($procedureId, $request);
         }
 
         $this->availableRouteParameters = [
@@ -111,8 +108,25 @@ class MenuBuilder
             'procedureId'       => $procedureId,
             'orgaId'            => $orgaId,
             'organisationId'    => $orgaId,
-            'filterHash'        => $filterHash
+            'filterHash'        => $filterHash,
         ];
+    }
+
+    /**
+     * Get the filterHash for a given procedureId if the procedure can be found in the Hash list.
+     * Otherwise returns null as a default value.
+     */
+    private function getFilterHashForProcedure(string $procedureId, Request $request): ?string
+    {
+        $filterHash = null;
+        if ($request->hasSession() && $request->getSession()->has('hashList')) {
+            $hashList = $request->getSession()->get('hashList');
+            if (array_key_exists($procedureId, $hashList)) {
+                $filterHash = $hashList[$procedureId]['assessment']['hash'];
+            }
+        }
+
+        return $filterHash;
     }
 
     /**

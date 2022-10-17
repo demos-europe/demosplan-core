@@ -19,11 +19,11 @@
                 <label class="u-mb-0" for="r_description">
                     {{ "description"|trans }}
                 </label>
-                <dp-tiptap
+                <dp-editor
                     value="{{ templateVars.release.description|default() }}"
                     hidden-input="r_description"
                     class="u-mb">
-                </dp-tiptap>
+                </dp-editor>
 
                 <label>
                     {{ "phase"|trans }}

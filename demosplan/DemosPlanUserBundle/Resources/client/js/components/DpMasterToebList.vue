@@ -195,20 +195,20 @@
 import {
   bindFullScreenChange,
   isActiveFullScreen,
+  makeFormPost,
   toggleFullscreen,
   unbindFullScreenChange
 } from 'demosplan-utils'
-import dataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTableSearch'
+import dataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DemosPlanCoreBundle/components/DpDataTable/DpDataTable'
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
 import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'
 import DpNewMasterToeb from './DpMasterToebList/DpNewMasterToeb'
-import DpSelectPageItemCount from '@DemosPlanCoreBundle/components/DpDataTable/DpSelectPageItemCount'
-import DpStickyElement from '@DemosPlanCoreBundle/components/shared/DpStickyElement'
+import DpSelectPageItemCount from '@DpJs/components/core/DpDataTable/DpSelectPageItemCount'
+import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpUpdateMastertoeb from './DpMasterToebList/DpUpdateMastertoeb'
-import { makeFormPost } from 'demosplan-utils'
 import Scroller from '@DpJs/directives/scroller'
 import SlidingPagination from 'vue-sliding-pagination'
 

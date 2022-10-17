@@ -53,7 +53,7 @@
 </template>
 <script>
 import { DpButton } from 'demosplan-ui/components'
-import DpProgressBar from '@DemosPlanCoreBundle/components/DpProgressBar'
+import DpProgressBar from '@DpJs/components/core/DpProgressBar'
 
 export default {
   name: 'ProcessingPage',
