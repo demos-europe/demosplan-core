@@ -903,7 +903,7 @@ feature_institution_participation:
     loginRequired: true
 feature_institution_tag_create:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows creating a tag
         setting the owningOrganisation to the current organisation.
@@ -911,7 +911,7 @@ feature_institution_tag_create:
     loginRequired: true
 feature_institution_tag_delete:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows deleting tags
         given by the current organisation.
@@ -919,7 +919,7 @@ feature_institution_tag_delete:
     loginRequired: true
 feature_institution_tag_read:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows reading the tags
         given by the current organisation.
@@ -927,7 +927,7 @@ feature_institution_tag_read:
     loginRequired: true
 feature_institution_tag_update:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows to alter the tags
         that belong to the current organisation.
@@ -1965,6 +1965,16 @@ feature_statement_notify_counties:
     label: 'Notify counties about new statements'
     loginRequired: true
     parent: feature_statement
+feature_statement_polygon_set:
+    description: |-
+        Allow adding/modifying the statement-polygon property
+    label: 'used for statement editing & manual statement creation'
+    loginRequired: true
+feature_statement_polygon_read:
+    description: |-
+        Allows read-access to the statement polygon property
+    label: 'allows read-access to the statement polygon property'
+    loginRequired: true
 feature_statement_public_allowed_needs_verification:
     description: 'Indicates, that publication of statements need to be verified by FP.'
     expose: true
