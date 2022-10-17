@@ -19,7 +19,6 @@
 // import getScrollTop from './utils/getScrollTop'
 // import hasOwnProp from './utils/hasOwnProp'
 import sortAlphabetically from './utils/sortAlphabetically'
-import uniqueArrayByObjectKey from './utils/uniqueArrayByObjectKey'
 import throttle from './utils/throttle'
 
 export {
@@ -39,6 +38,5 @@ export {
   // hasAnyPermissions,
   sortAlphabetically,
   throttle,
-  // toDate,
-  uniqueArrayByObjectKey
+  // toDate
 }
