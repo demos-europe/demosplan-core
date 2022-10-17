@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Addons;
 
 use demosplan\DemosPlanCoreBundle\Entity\DplanAddon;
-use demosplan\DemosPlanCoreBundle\Permissions\ConditionalPermission;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\DplanAddonRepository;
@@ -80,7 +80,7 @@ class AddonRegistry
         $permissions = $activator->getAddonPermissionsWithDefaults();
 
         return collect($permissions)
-            ->mapWithKeys(function (ConditionalPermission $conditionalPermission): array {
+            ->mapWithKeys(function (PermissionDecision $conditionalPermission): array {
                 $permissionMetadata = $conditionalPermission->getPermission();
                 $evaluatablePermission = new EvaluatablePermission(
                     $conditionalPermission,

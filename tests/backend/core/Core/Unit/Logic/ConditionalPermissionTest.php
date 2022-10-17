@@ -13,7 +13,7 @@ namespace Tests\Core\Core\Unit\Logic;
 
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Permissions\ConditionalPermission;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use PHPUnit\Framework\TestCase;
 
@@ -59,10 +59,10 @@ class ConditionalPermissionTest extends TestCase
         self::assertEquals(self::TEST_ONLY_USER_CONDITION, $userCondition);
     }
 
-    protected function createPermission(string $name): ConditionalPermission
+    protected function createPermission(string $name): PermissionDecision
     {
         $newPermission = Permission::instanceFromArray($name, []);
 
-        return new ConditionalPermission($newPermission);
+        return new PermissionDecision($newPermission);
     }
 }

@@ -31,9 +31,9 @@ class EvaluatablePermission
     private $conditionEvaluator;
 
     /**
-     * @var ConditionalPermission
+     * @var PermissionDecision
      */
-    private $conditionalPermission;
+    private $permissionDecision;
 
     /**
      * @var DrupalFilterParser
@@ -48,12 +48,12 @@ class EvaluatablePermission
      * @param DrupalFilterParser<FunctionInterface<bool>> $filterParser
      */
     public function __construct(
-        ConditionalPermission $conditionalPermission,
+        PermissionDecision $conditionalPermission,
         ConditionEvaluator $conditionEvaluator,
         DrupalFilterParser $filterParser
     ) {
         $this->conditionEvaluator = $conditionEvaluator;
-        $this->conditionalPermission = $conditionalPermission;
+        $this->permissionDecision = $conditionalPermission;
         $this->filterParser = $filterParser;
     }
 
@@ -62,14 +62,14 @@ class EvaluatablePermission
      */
     public function isPermissionEnabled(?User $user, ?Procedure $procedure, ?Customer $customer): bool
     {
-        return $this->evaluate($this->conditionalPermission->getUserConditon(), $user, $user, $procedure, $customer)
-            && $this->evaluate($this->conditionalPermission->getProcedureCondition(), $procedure, $user, $procedure, $customer)
-            && $this->evaluate($this->conditionalPermission->getCustomerCondition(), $customer, $user, $procedure, $customer);
+        return $this->evaluate($this->permissionDecision->getUserConditon(), $user, $user, $procedure, $customer)
+            && $this->evaluate($this->permissionDecision->getProcedureCondition(), $procedure, $user, $procedure, $customer)
+            && $this->evaluate($this->permissionDecision->getCustomerCondition(), $customer, $user, $procedure, $customer);
     }
 
     public function getPermissionMetadata(): Permission
     {
-        return $this->conditionalPermission->getPermission();
+        return $this->permissionDecision->getPermission();
     }
 
     /**

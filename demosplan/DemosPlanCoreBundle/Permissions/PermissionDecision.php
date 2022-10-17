@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 use InvalidArgumentException;
 use function array_key_exists;
 
-class ConditionalPermission
+class PermissionDecision
 {
     /**
      * @var Permission

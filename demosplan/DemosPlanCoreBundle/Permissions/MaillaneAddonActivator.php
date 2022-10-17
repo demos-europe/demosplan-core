@@ -43,9 +43,9 @@ class MaillaneAddonActivator implements AddonActivatorInterface
         ];
     }
 
-    protected function createPermission(string $name): ConditionalPermission
+    protected function createPermission(string $name): PermissionDecision
     {
-        return new ConditionalPermission($this->permissions->getPermission($name));
+        return new PermissionDecision($this->permissions->getPermission($name));
     }
 
     public function getPackageName(): string
