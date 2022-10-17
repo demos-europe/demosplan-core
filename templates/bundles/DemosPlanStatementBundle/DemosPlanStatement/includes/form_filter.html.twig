@@ -154,7 +154,7 @@
 
             {{ uiComponent('button-row', {
                 primary: uiComponent('button', { type: 'submit', text: 'apply'|trans, attributes: ['data-cy=applyButton', 'data-submit-filter-set'] }),
-                secondary: uiComponent('button', { color: 'secondary', text: 'reset'|trans, href: path('DemosPlan_statement_list_' ~ filter_target, { 'procedure' : procedure, 'reset': true }) })
+                secondary: uiComponent('button', { color: 'secondary', text: 'reset'|trans, href: path('DemosPlan_statement_list_' ~ filter_target, { 'procedure' : procedure, 'reset': true }), attributes: ['data-cy=resetFilter'] })
             }) }}
 
             </fieldset>
