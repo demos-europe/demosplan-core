@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -11,9 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-/**
- * ...
- */
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+
 class DrupalFilterGroup
 {
     /**
@@ -57,13 +57,16 @@ class DrupalFilterGroup
     }
 
     /**
-     * @return array{conjunction: non-empty-string, memberOf: null|non-empty-string}
+     * @return array{conjunction: non-empty-string, memberOf?: non-empty-string}
      */
-    public function toArray()
+    public function toArray(): array
     {
-        $filterGroupArray = ['conjunction' => $this->conjunction];
+        $filterGroupArray = [
+            DrupalFilterParser::CONJUNCTION => $this->conjunction,
+        ];
+
         if (null !== $this->memberOf) {
-            $filterGroupArray['memberOf'] = $this->memberOf;
+            $filterGroupArray[DrupalFilterParser::MEMBER_OF] = $this->memberOf;
         }
 
         return $filterGroupArray;

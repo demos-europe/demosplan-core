@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -11,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-/**
- * ...
- */
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use InvalidArgumentException;
+
 class DrupalFilterCondition
 {
     /**
@@ -27,90 +28,58 @@ class DrupalFilterCondition
     private $operator;
 
     /**
-     * @var ?mixed
+     * @var mixed|null
      */
     private $value;
 
     /**
-     * @var ?string
+     * @var string|null
      */
     private $memberOf;
 
     /**
+     * @var bool
+     */
+    private $parameter;
+
+    /**
      * @param mixed $value
      */
-    public function __construct(string $path, string $operator, $value, string $memberOf)
+    public function __construct(string $path, string $operator, $value, ?string $memberOf, bool $parameter)
     {
         $this->path = $path;
         $this->operator = $operator;
         $this->value = $value;
         $this->memberOf = $memberOf;
-    }
-
-    public function setPath(string $path): self
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
-    public function setOperator(string $operator): self
-    {
-        $this->operator = $operator;
-
-        return $this;
+        $this->parameter = $parameter;
+        if ($parameter) {
+            switch ($value) {
+                case EvaluatablePermission::CURRENT_USER_ID:
+                case EvaluatablePermission::CURRENT_PROCEDURE_ID:
+                case EvaluatablePermission::CURRENT_CUSTOMER_ID:
+                    break;
+                default:
+                    throw new InvalidArgumentException("Invalid parameter.");
+            }
+        }
     }
 
     /**
-     * @param mixed $value
+     * @return array{path: non-empty-string, operator: non-empty-string, value: mixed, memberOf?: non-empty-string, parameter: bool}
      */
-    public function setValue($value): self
+    public function toArray(): array
     {
-        $this->value = $value;
-
-        return $this;
-    }
-
-    public function setMemberOf(string $memberOf): self
-    {
-        $this->memberOf = $memberOf;
-
-        return $this;
-    }
-
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    public function getOperator(): string
-    {
-        return $this->operator;
-    }
-
-    /**
-     * @return null|mixed
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function getMemberOf(): string
-    {
-        return $this->memberOf;
-    }
-
-    /**
-     * @return array{path: non-empty-string, operator: non-empty-string, value: mixed, memberOf: non-empty-string}
-     */
-    public function toArray()
-    {
-        return [
-            'path'     => $this->path,
-            'operator' => $this->operator,
-            'value'    => $this->value,
-            'memberOf' => $this->memberOf,
+        $filterConditionArray = [
+            DrupalFilterParser::PATH      => $this->path,
+            DrupalFilterParser::OPERATOR  => $this->operator,
+            DrupalFilterParser::VALUE     => $this->value,
+            PermissionDecision::PARAMETER => $this->parameter,
         ];
+
+        if (null !== $this->memberOf) {
+            $filterConditionArray[DrupalFilterParser::MEMBER_OF] = $this->memberOf;
+        }
+
+        return $filterConditionArray;
     }
 }

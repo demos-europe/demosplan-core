@@ -16,13 +16,15 @@ use function array_key_exists;
 
 class PermissionDecision
 {
+    public const PARAMETER = 'parameter';
+
     /**
      * @var Permission
      */
     private $permission;
 
     /**
-     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
     private $customerCondition = [];
 
@@ -32,7 +34,7 @@ class PermissionDecision
     private $customerConditionCounter = 0;
 
     /**
-     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
     private $procedureCondition = [];
 
@@ -42,7 +44,7 @@ class PermissionDecision
     private $procedureConditionCounter = 0;
 
     /**
-     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @var list<array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
     private $userCondition = [];
 
@@ -64,9 +66,21 @@ class PermissionDecision
      *
      * @return $this
      */
-    public function addUserCondition(string $path, string $operator, $value, string $memberOf = null): self
-    {
-        $this->userCondition["filter_condition_$this->userConditionCounter"]['condition'] = (new DrupalFilterCondition($path, $operator, $value, $memberOf))->toArray();
+    public function addUserCondition(
+        string $path,
+        string $operator,
+        $value,
+        string $memberOf = null,
+        bool $parameter = false
+    ): self {
+        $filterName = "filter_condition_$this->userConditionCounter";
+        $this->userCondition[$filterName]['condition'] = (new DrupalFilterCondition(
+            $path,
+            $operator,
+            $value,
+            $memberOf,
+            $parameter
+        ))->toArray();
         $this->userConditionCounter += 1;
 
         return $this;
@@ -80,9 +94,21 @@ class PermissionDecision
      *
      * @return $this
      */
-    public function addProcedureCondition(string $path, string $operator, $value, string $memberOf = null): self
-    {
-        $this->procedureCondition["filter_condition_$this->procedureConditionCounter"]['condition'] = (new DrupalFilterCondition($path, $operator, $value, $memberOf))->toArray();
+    public function addProcedureCondition(
+        string $path,
+        string $operator,
+        $value,
+        string $memberOf = null,
+        bool $parameter = false
+    ): self {
+        $filterName = "filter_condition_$this->procedureConditionCounter";
+        $this->procedureCondition[$filterName]['condition'] = (new DrupalFilterCondition(
+            $path,
+            $operator,
+            $value,
+            $memberOf,
+            $parameter
+        ))->toArray();
         $this->procedureConditionCounter += 1;
 
         return $this;
@@ -96,9 +122,21 @@ class PermissionDecision
      *
      * @return $this
      */
-    public function addCustomerCondition(string $path, string $operator, $value, string $memberOf = null): self
-    {
-        $this->customerCondition["filter_condition_$this->customerConditionCounter"]['condition'] = (new DrupalFilterCondition($path, $operator, $value, $memberOf))->toArray();
+    public function addCustomerCondition(
+        string $path,
+        string $operator,
+        $value,
+        string $memberOf = null,
+        bool $parameter = false
+    ): self {
+        $filterName = "filter_condition_$this->customerConditionCounter";
+        $this->customerCondition[$filterName]['condition'] = (new DrupalFilterCondition(
+            $path,
+            $operator,
+            $value,
+            $memberOf,
+            $parameter
+        ))->toArray();
         $this->customerConditionCounter += 1;
 
         return $this;
@@ -164,25 +202,25 @@ class PermissionDecision
     }
 
     /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
-    public function getCustomerCondition(): array
+    public function getCustomerFilters(): array
     {
         return $this->customerCondition;
     }
 
     /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
-    public function getProcedureCondition(): array
+    public function getProcedureFilters(): array
     {
         return $this->procedureCondition;
     }
 
     /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
+     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
      */
-    public function getUserConditon(): array
+    public function getUserFilters(): array
     {
         return $this->userCondition;
     }

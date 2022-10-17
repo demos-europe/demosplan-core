@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonActivatorInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 
 class MaillaneAddonActivator implements AddonActivatorInterface
 {
@@ -25,10 +24,8 @@ class MaillaneAddonActivator implements AddonActivatorInterface
     /**
      * @param PermissionCollectionInterface $permissions FIXME: inject correct instance (i.e. create a service definition in the addon that uses the correct YAML)
      */
-    public function __construct(
-        PermissionCollectionInterface $permissions,
-        CustomerService $customerProvider
-    ) {
+    public function __construct(PermissionCollectionInterface $permissions)
+    {
         $this->permissions = $permissions;
     }
 
@@ -39,7 +36,7 @@ class MaillaneAddonActivator implements AddonActivatorInterface
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
                 ->addUserGroup('OR_GROUP', 'OR')
-                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID)
+                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true)
         ];
     }
 
@@ -50,7 +47,7 @@ class MaillaneAddonActivator implements AddonActivatorInterface
 
     public function getPackageName(): string
     {
-        // FIXME: return correct package name
+        // FIXME: return correct package name, ideally read from the composer.json and not hardcoded here
         return '';
     }
 }

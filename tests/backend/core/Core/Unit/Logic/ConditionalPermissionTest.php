@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\Logic;
 
-
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use PHPUnit\Framework\TestCase;
@@ -20,25 +20,35 @@ use PHPUnit\Framework\TestCase;
 class ConditionalPermissionTest extends TestCase
 {
     private const TEST_ONLY_USER_CONDITION = [
-        [
+        'filter_condition_0' => [
             'condition' => [
-                'path'     => '',
-                'operator' => '=',
-                'value'    => Role::PLANNING_AGENCY_ADMIN,
-                'memberOf' => 'OR_GROUP',
+                'path'      => 'roleInCustomer.role.code',
+                'operator'  => '=',
+                'value'     => Role::PLANNING_AGENCY_ADMIN,
+                'memberOf'  => 'OR_GROUP',
+                'parameter' => false,
             ],
         ],
-        [
+        'filter_condition_1' => [
             'condition' => [
-                'path'     => '',
-                'operator' => '=',
-                'value'    => Role::PLANNING_AGENCY_WORKER,
-                'memberOf' => 'OR_GROUP',
+                'path'      => 'roleInCustomer.role.code',
+                'operator'  => '=',
+                'value'     => Role::PLANNING_AGENCY_WORKER,
+                'memberOf'  => 'OR_GROUP',
+                'parameter' => false,
             ],
         ],
-        [
+        'OR_GROUP' => [
             'group' => [
                 'conjunction' => 'OR',
+            ],
+        ],
+        'filter_condition_2' => [
+            'condition' => [
+                'path'      => 'roleInCustomer.customer.id',
+                'operator'  => '=',
+                'value'     => '$currentCustomerId',
+                'parameter' => true,
             ],
         ],
     ];
@@ -46,16 +56,17 @@ class ConditionalPermissionTest extends TestCase
     public function testWithUserOnly(): void
     {
         $myPermission = $this->createPermission('feature_import_statement_via_email')
-            ->addUserCondition('', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
-            ->addUserCondition('', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
-            ->addUserGroup('OR');
+            ->addUserCondition('roleInCustomer.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
+            ->addUserCondition('roleInCustomer.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
+            ->addUserGroup('OR_GROUP', 'OR')
+            ->addUserCondition('roleInCustomer.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true);
 
-        $userCondition = $myPermission->getUserConditon();
-        $procedureCondition = $myPermission->getProcedureCondition();
-        $customerCondition = $myPermission->getCustomerCondition();
+        $userCondition = $myPermission->getUserFilters();
+        $procedureCondition = $myPermission->getProcedureFilters();
+        $customerCondition = $myPermission->getCustomerFilters();
 
-        self::assertNull($procedureCondition);
-        self::assertNull($customerCondition);
+        self::assertEmpty($procedureCondition);
+        self::assertEmpty($customerCondition);
         self::assertEquals(self::TEST_ONLY_USER_CONDITION, $userCondition);
     }
 
