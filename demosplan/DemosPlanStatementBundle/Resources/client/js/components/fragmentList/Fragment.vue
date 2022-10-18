@@ -504,7 +504,7 @@ import DpItemRow from '../assessmentTable/ItemRow'
 import DpTextWrapper from '@DpJs/components/core/TextWrapper'
 import { formatDate } from '@DpJs/lib/utils/date'
 import { getFileInfo } from '@DpJs/lib/FileInfo'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpStatementFragment',

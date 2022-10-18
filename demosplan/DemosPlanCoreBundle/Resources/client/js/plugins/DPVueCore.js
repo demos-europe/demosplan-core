@@ -12,7 +12,7 @@
  */
 
 import { extendedEmit, extendedOn } from '../lib/ExtendedVueEvents'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import MatchMedia from '@DpJs/lib/MatchMedia'
 
 const DPVueCorePlugin = {

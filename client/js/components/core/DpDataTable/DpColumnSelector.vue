@@ -45,7 +45,7 @@
 <script>
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpColumnSelector',

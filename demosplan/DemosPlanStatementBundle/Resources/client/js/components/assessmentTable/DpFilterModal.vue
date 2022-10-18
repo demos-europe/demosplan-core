@@ -221,7 +221,7 @@ import DpModal from '@DpJs/components/core/DpModal'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpFilterModal',

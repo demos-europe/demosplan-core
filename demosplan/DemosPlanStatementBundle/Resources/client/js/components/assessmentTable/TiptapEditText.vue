@@ -103,7 +103,7 @@ import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { Base64 } from 'js-base64'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpHeightLimit from '@DpJs/components/core/HeightLimit'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'TiptapEditText',

@@ -9,7 +9,7 @@
 
 import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
 const SplitStatementStore = {

@@ -212,7 +212,7 @@ import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectStatementCluster from '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 const emptyAssignee = {
   id: '',

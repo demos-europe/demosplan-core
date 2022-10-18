@@ -238,7 +238,7 @@ import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
 import DpOlMapLayerVector from '@DemosPlanMapBundle/components/map/DpOlMapLayerVector'
 import DpToggle from '@DpJs/components/core/form/DpToggle'
 import { fromExtent } from 'ol/geom/Polygon'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpMapSettingsPreview',
