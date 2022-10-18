@@ -99,7 +99,7 @@ class ValidCssVarsConstraintValidator extends ConstraintValidator
                 new Assert\Type('string'),
                 new Assert\NotNull(),
                 new Assert\NotBlank(),
-                new Assert\Regex('/^#([0-9a-f]{3}|[0-9a-f]{6})$/'),
+                new Assert\Regex('/^#([0-9a-f]{3}|[0-9a-f]{6})$/i'),
             ]),
         ];
     }
