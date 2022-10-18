@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementStatistic;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Exception;
@@ -54,6 +55,7 @@ class DemosPlanAdminController extends BaseController
     public function generateStatisticsAction(
         Environment $twig,
         OrgaService $orgaService,
+        CustomerService $customerProvider,
         ProcedureService $procedureService,
         StatementService $statementService,
         UserService $userService,
@@ -102,7 +104,7 @@ class DemosPlanAdminController extends BaseController
 
         $undeletedUsers = $userService->getUndeletedUsers();
         $templateVars['rolesList'] = $userService->collectRoleStatistics($undeletedUsers);
-        $templateVars['orgaList'] = $orgaService->getCountOfOrgaTypesForCurrentCustomer();
+        $templateVars['orgaList'] = $orgaService->getOrgaCountByTypeTranslated($customerProvider->getCurrentCustomer());
         $templateVars['orgaUsersList'] = $userService->getOrgaUsersList();
 
         $title = 'statistic';
