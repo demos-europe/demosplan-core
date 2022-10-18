@@ -7,41 +7,31 @@
  * All rights reserved
  */
 
-// import { DATE_FORMAT_LONG, formatDate, toDate } from './utils/date'
 import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './utils/fullscreen'
-// import { hasPermisson, hasAllPermissions, hasAnyPermissions } from './utils/hasPermission'
 import changeUrlforPager from './utils/changeUrlforPager'
 import debounce from './utils/debounce'
 import deepMerge from './utils/deepMerge'
 import formatBytes from './utils/formatBytes'
 import getAnimationEventName from './utils/getAnimationEventName'
 import getScrollTop from './utils/getScrollTop'
-// import hasOwnProp from './utils/hasOwnProp'
 import { makeFormPost } from './utils/makeFormPost'
 import sortAlphabetically from './utils/sortAlphabetically'
 import throttle from './utils/throttle'
-import uniqueArrayByObjectKey from "./uniqueArrayByObjectKey";
+import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 
 export {
   bindFullScreenChange,
   changeUrlforPager,
-  // DATE_FORMAT_LONG,
   debounce,
   deepMerge,
-  // formatDate,
   formatBytes,
   isActiveFullScreen,
   getAnimationEventName,
   getScrollTop,
-  // hasOwnProp,
-  // hasPermisson,
-  // hasAllPermissions,
-  // hasAnyPermissions,
   makeFormPost,
   sortAlphabetically,
   throttle,
   toggleFullscreen,
   unbindFullScreenChange,
   uniqueArrayByObjectKey,
-  // toDate
 }
