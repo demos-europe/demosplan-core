@@ -9,7 +9,7 @@
 
 const glob = require('glob')
 
-function bundleEntryPoints (clientBundleGlob, oldBundleGlob) {
+function bundleEntryPoints (clientBundleGlob) {
   const entries = {}
 
   glob.sync(clientBundleGlob).forEach(filename => {

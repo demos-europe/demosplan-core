@@ -25,17 +25,6 @@ function resolveAliases () {
     }
   })
 
-  /**
-   * This should not be needed as we're moving away from individual
-   * aliases per bundle towards a single @DpJs alias at the root
-   * of client/js.
-   */
-  // glob.sync(config.clientBundlesPath + '/*').forEach(dir => {
-  //   if (fs.existsSync(dir)) {
-  //     aliases['@' + dir.split('/').pop()] = dir
-  //   }
-  // })
-
   return aliases
 }
 
