@@ -7,16 +7,16 @@
  * All rights reserved
  */
 
-import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './utils/fullscreen'
-import changeUrlforPager from './utils/changeUrlforPager'
-import debounce from './utils/debounce'
-import deepMerge from './utils/deepMerge'
-import formatBytes from './utils/formatBytes'
-import getAnimationEventName from './utils/getAnimationEventName'
-import getScrollTop from './utils/getScrollTop'
-import { makeFormPost } from './utils/makeFormPost'
-import sortAlphabetically from './utils/sortAlphabetically'
-import throttle from './utils/throttle'
+import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
+import changeUrlforPager from './changeUrlforPager'
+import debounce from './debounce'
+import deepMerge from './deepMerge'
+import formatBytes from './formatBytes'
+import getAnimationEventName from './getAnimationEventName'
+import getScrollTop from './getScrollTop'
+import { makeFormPost } from './makeFormPost'
+import sortAlphabetically from './sortAlphabetically'
+import throttle from './throttle'
 import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 
 export {
