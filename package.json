@@ -45,7 +45,7 @@
     "@efrane/vuex-json-api": "0.0.38",
     "@sentry/browser": "^7.12.1",
     "@sentry/integrations": "^7.12.1",
-    "@sentry/tracing": "^7.12.1",
+    "@sentry/tracing": "^7.15.0",
     "@uppy/core": "^3.0.1",
     "@uppy/drag-drop": "^3.0.0",
     "@uppy/progress-bar": "^3.0.0",
