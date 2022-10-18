@@ -2,8 +2,10 @@ version: '3.4'
 services:
     db:
         image: 'mariadb:10.4'
+        ports:
+            - 3306
         networks:
-            demosplan_production_network:
+            demosplan-production-network:
                 aliases:
                     - database
                 ipv4_address: 172.20.255.3
@@ -16,6 +18,9 @@ services:
             - '/home/vallejo/Projects/demosplan-core/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
     production:
         image: 'demosdeutschland/demosplan-production:latest'
+        ports:
+            - 22
+            - 80
         environment:
             - CURRENT_HOST_USERNAME=rafael
             - CURRENT_HOST_USERID=5054
@@ -31,7 +36,7 @@ services:
             - 'file_storage:/opt/uploads'
         hostname: demosplan-production
         networks:
-            demosplan_production_network:
+            demosplan-production-network:
                 aliases:
                     - demosplan
                     - dplan
@@ -39,11 +44,15 @@ services:
         extra_hosts:
             - 'diplanbau.dplan.local:172.20.255.2'
         command: /bin/bash -c "envsubst < /etc/nginx/conf.d/symfony.conf.template > /etc/nginx/symfony && nginx -g 'daemon off;'"
-    message_queue:
+    message-queue:
         image: 'demosdeutschland/message-queue:1.0'
+        ports:
+            - 4369
+            - 5672
+            - 15672
         hostname: message-queue
         networks:
-            demosplan_production_network:
+            demosplan-production-network:
                 aliases:
                     - rabbitmq
                     - message-queue
@@ -54,13 +63,16 @@ services:
             - CURRENT_HOST_USERID=0
     search6:
         image: 'demosdeutschland/demosplan-search6:1.1'
+        ports:
+            - 22
+            - 9200
         networks:
-            demosplan_production_network:
+            demosplan-production-network:
                 ipv4_address: 172.20.255.6
         volumes:
             - 'es6_storage:/usr/share/elasticsearch/data'
 networks:
-    demosplan_production_network:
+    demosplan-production-network:
         internal: false
         driver: bridge
         ipam:
