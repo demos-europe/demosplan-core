@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'EmailImportDate',
@@ -33,7 +33,7 @@ export default {
     },
 
     dateLong () {
-      return formatDate(this.date, DATE_FORMAT_LONG)
+      return formatDate(this.date, 'long')
     }
   }
 }

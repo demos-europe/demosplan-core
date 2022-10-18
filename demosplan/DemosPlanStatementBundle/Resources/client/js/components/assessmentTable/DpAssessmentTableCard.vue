@@ -735,6 +735,7 @@
 </template>
 
 <script>
+import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
@@ -742,8 +743,6 @@ import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
-import { formatDate } from '@DpJs/lib/utils/date'
-import { hasOwnProp } from 'demosplan-utils'
 import TableCardFlyoutMenu from '@DemosPlanStatementBundle/components/assessmentTable/TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
 import { VPopover } from 'demosplan-ui/directives'

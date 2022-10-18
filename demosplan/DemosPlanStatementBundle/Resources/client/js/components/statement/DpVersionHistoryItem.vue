@@ -154,7 +154,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpLoading } from 'demosplan-ui/components'
-import { formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'DpVersionHistoryItem',

@@ -144,7 +144,7 @@ import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'AdministrationProceduresList',

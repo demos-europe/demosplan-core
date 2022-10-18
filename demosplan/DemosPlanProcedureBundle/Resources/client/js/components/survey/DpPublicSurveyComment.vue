@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {

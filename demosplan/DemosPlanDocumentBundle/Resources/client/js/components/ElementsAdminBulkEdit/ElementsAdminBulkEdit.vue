@@ -76,7 +76,7 @@
 
 <script>
 import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
+import { formatDate, hasOwnProp } from 'demosplan-utils'
 import ActionStepper from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
@@ -84,7 +84,6 @@ import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
-import { hasOwnProp } from 'demosplan-utils'
 import lscache from 'lscache'
 
 export default {
@@ -136,7 +135,7 @@ export default {
   computed: {
     confirmStateChangeMessage () {
       return Translator.trans('elements.bulk.edit.change.state.confirmation', {
-        datetime: formatDate(this.actions.setEnabled.datetime, DATE_FORMAT_LONG),
+        datetime: formatDate(this.actions.setEnabled.datetime, 'long'),
         state: Translator.trans(this.currentStateOption.label)
       })
     },
