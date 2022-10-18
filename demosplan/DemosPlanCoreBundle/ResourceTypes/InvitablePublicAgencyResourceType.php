@@ -91,9 +91,12 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 ...$this->statusInCustomers->customer->id
             ),
             // avoid already invited organisations
-            $this->conditionFactory->propertyHasNotValue(
-                $procedure->getId(),
-                ...$this->procedureInvitations->id
+            $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasNotValue(
+                    $procedure->getId(),
+                    ...$this->procedureInvitations->id
+                ),
+                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations->orga)
             )
         );
     }
