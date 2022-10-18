@@ -130,6 +130,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
     }
 
     /**
+     * test
      * some of the following attributes are (currently) only needed in the assessment table,
      * remove them from the defaults when sparse fieldsets are supported.
      *
