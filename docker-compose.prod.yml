@@ -1,0 +1,76 @@
+version: '3.4'
+services:
+    db:
+        image: 'mariadb:10.4'
+        networks:
+            demosplan_production_network:
+                aliases:
+                    - database
+                ipv4_address: 172.20.255.3
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+            - MYSQL_USER=dockerdb
+            - MYSQL_PASSWORD=mypass
+        volumes:
+            - 'db_storage:/var/lib/mysql'
+            - '/home/vallejo/Projects/demosplan-core/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
+    production:
+        image: 'demosdeutschland/demosplan-production:latest'
+        environment:
+            - CURRENT_HOST_USERNAME=rafael
+            - CURRENT_HOST_USERID=5054
+            - PROJECT_NAME=diplanbau
+            - PHP_UPLOAD_MAX=2G
+            - PHP_EXECUTION_TIME_MAX=1200
+            - PHP_MEMORY_MAX=2G
+            - DATABASE_NAME=diplanbau
+            - DATABASE_HOST=172.20.255.3
+            - DATABASE_USER=root
+            - DATABASE_PASS=
+        volumes:
+            - 'file_storage:/opt/uploads'
+        hostname: demosplan-production
+        networks:
+            demosplan_production_network:
+                aliases:
+                    - demosplan
+                    - dplan
+                ipv4_address: 172.20.255.2
+        extra_hosts:
+            - 'diplanbau.dplan.local:172.20.255.2'
+        command: /bin/bash -c "envsubst < /etc/nginx/conf.d/symfony.conf.template > /etc/nginx/symfony && nginx -g 'daemon off;'"
+    message_queue:
+        image: 'demosdeutschland/message-queue:1.0'
+        hostname: message-queue
+        networks:
+            demosplan_production_network:
+                aliases:
+                    - rabbitmq
+                    - message-queue
+                    - mq
+                ipv4_address: 172.20.255.5
+        environment:
+            - CURRENT_HOST_USERNAME=root
+            - CURRENT_HOST_USERID=0
+    search6:
+        image: 'demosdeutschland/demosplan-search6:1.1'
+        networks:
+            demosplan_production_network:
+                ipv4_address: 172.20.255.6
+        volumes:
+            - 'es6_storage:/usr/share/elasticsearch/data'
+networks:
+    demosplan_production_network:
+        internal: false
+        driver: bridge
+        ipam:
+            config:
+                -
+                    subnet: 172.20.255.0/24
+volumes:
+    db_storage:
+        driver: local
+    file_storage:
+        driver: local
+    es6_storage:
+        driver: local
