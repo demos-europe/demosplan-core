@@ -10,8 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use Exception;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -22,18 +33,8 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use Exception;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Throwable;
 
 class MaintenanceController extends BaseController
 {
@@ -71,10 +72,12 @@ class MaintenanceController extends BaseController
      * @var PermissionsInterface
      */
     private $permissions;
+
     /**
      * @var MailService
      */
     private $mailService;
+
     /**
      * @var ParameterBagInterface
      */
@@ -156,7 +159,7 @@ class MaintenanceController extends BaseController
      * @throws Throwable
      */
     public function maintenanceTasksAction(
-        AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
+        EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         Request $request,
@@ -183,6 +186,7 @@ class MaintenanceController extends BaseController
         switch ($frequency) {
             case 'daily':
                 $logger->info('Starting daily maintenance Tasks');
+                $eventDispatcher->dispatch(new DailyMaintenanceEvent());
 
                 //Notfication-Email for public agencies regarding soon ending  phases
                 $logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');
@@ -232,18 +236,6 @@ class MaintenanceController extends BaseController
                     $logger->info('Maintenance: check for deleted Files');
                     $this->fileService->checkDeletedFiles();
                 }
-
-                // Rollback AnnotatedStatementPdf in box- or text-review status
-                if ($this->permissions->hasPermission('feature_annotated_statement_pdf_rollback_review_status')) {
-                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in boxes_review status back to ready_to_review');
-                    $boxReviewCount = $annotatedStatementPdfHandler->rollbackBoxReviewStatus();
-                    $logger->info("Maintenance: $boxReviewCount AnnotatedStatementPdfs in boxes_review status brought back to ready_to_review");
-
-                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in text_review status back to ready_to_convert');
-                    $textReviewCount = $annotatedStatementPdfHandler->rollbackTextReviewStatus();
-                    $logger->info("Maintenance: $textReviewCount AnnotatedStatementPdfs in text_review status brought back to ready_to_convert");
-                }
-                $logger->info('Daily Maintenance Tasks completed');
                 break;
 
             default:
