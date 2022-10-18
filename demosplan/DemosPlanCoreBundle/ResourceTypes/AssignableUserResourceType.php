@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<User>
@@ -53,7 +53,7 @@ final class AssignableUserResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_json_api_user');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
