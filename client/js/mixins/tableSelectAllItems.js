@@ -28,7 +28,7 @@
  *   @items-toggled="handleToggleItem" />
  */
 
-import uniqueArrayByObjectKey from '@DpJs/lib/utils/uniqueArrayByObjectKey'
+import { uniqueArrayByObjectKey } from 'demosplan-utils'
 
 export default {
   data () {
