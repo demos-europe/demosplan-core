@@ -307,6 +307,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $writableProperties[] = $this->similarStatementSubmitters;
         }
 
+        if ($this->currentUser->hasPermission('feature_statement_polygon_set')) {
+            $writableProperties[] = $this->polygon;
+        }
+
         return $this->toProperties(...$writableProperties);
     }
 

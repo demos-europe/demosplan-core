@@ -4819,6 +4819,12 @@ class StatementService extends CoreService
             $statement['originalAttachmentFiles'] = $originalAttachmentFiles;
         }
 
+        if ($this->permissions->hasPermission('feature_statement_polygon_set')
+            && array_key_exists('r_polygon', $data)
+        ) {
+            $statement['polygon'] = $data['r_polygon'];
+        }
+
         $statement['externId'] = $this->getNextValidExternalIdForProcedure($statement['pId'], $isManualStatement);
 
         return $statement;
