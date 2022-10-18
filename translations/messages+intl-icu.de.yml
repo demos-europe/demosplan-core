@@ -1763,6 +1763,7 @@ insert: "Einfügen"
 institution: "Institution"
 institution.name: "Name der Institution"
 institution.represents: "vertretene Institution"
+institution.tags.management: 'Instituionen verschlagworten'
 instruction: "Hinweistext"
 internal: "Intern"
 internalnote: "Interne Notiz"

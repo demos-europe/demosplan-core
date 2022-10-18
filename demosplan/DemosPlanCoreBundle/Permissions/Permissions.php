@@ -295,6 +295,7 @@ class Permissions implements PermissionsInterface
 
         if ($this->user->hasRole(Role::ORGANISATION_ADMINISTRATION)) {         // Fachplaner-Masteruser GLAUTH Kommune
             $this->enablePermissions([
+                'area_institution_tag_manage',
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
                 'area_manage_users',  // User verwalten
