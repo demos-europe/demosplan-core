@@ -20,6 +20,7 @@ import getScrollTop from './utils/getScrollTop'
 import { makeFormPost } from './utils/makeFormPost'
 import sortAlphabetically from './utils/sortAlphabetically'
 import throttle from './utils/throttle'
+import uniqueArrayByObjectKey from "./uniqueArrayByObjectKey";
 
 export {
   bindFullScreenChange,
@@ -41,5 +42,6 @@ export {
   throttle,
   toggleFullscreen,
   unbindFullScreenChange,
+  uniqueArrayByObjectKey,
   // toDate
 }
