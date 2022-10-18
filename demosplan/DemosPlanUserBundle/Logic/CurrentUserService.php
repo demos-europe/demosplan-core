@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class CurrentUserService implements CurrentUserInterface
@@ -33,8 +34,13 @@ class CurrentUserService implements CurrentUserInterface
      * @var PermissionsInterface
      */
     private $permissions;
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
 
     public function __construct(
+        LoggerInterface $logger,
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         TokenStorageInterface $tokenStorage
@@ -42,6 +48,7 @@ class CurrentUserService implements CurrentUserInterface
         $this->tokenStorage = $tokenStorage;
         $this->customerHandler = $customerHandler;
         $this->permissions = $permissions;
+        $this->logger = $logger;
     }
 
     public function getUser(): User
@@ -88,6 +95,7 @@ class CurrentUserService implements CurrentUserInterface
     {
         $token = $this->tokenStorage->getToken();
         if (!$token instanceof DemosToken) {
+            $this->logger->error('invalid user', [$token, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 30)]);
             throw new UserNotFoundException('Token could not be found');
         }
 

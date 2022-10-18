@@ -88,7 +88,7 @@ adjustments.general.error.public.participation.maxlength: "\"Ansprechperson für
 adjustments.general.error.public.procedure.description.maxlength: "\"Öffentliche Verfahrensbeschreibung\" darf nicht länger als 10.000 Zeichen sein"
 adjustments: "Einstellungen"
 administer: "Verwalten"
-administration.alt: "Behörde"
+administration.alt: "Institution"
 administration: "Verwaltung"
 affirmative: "Zustimmend"
 advisory.board.activities: "Aktivitäten im virtuellen Anwenderbeirat"
@@ -337,8 +337,13 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
-check.mail.result.citizen: "Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten? Die E-Mail geht an den einreichenden und an alle mitzeichnenden Bürger*innen, sowie an alle im Kopie-Feld eingetragenen E-Mail-Adressen."
-check.mail.result: "Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten? Die E-Mail geht an die einreichende Institutions-Koordination, die bei der Institution hinterlegte E-Mail-Adresse für die Beteiligung sowie an die eingetragenen E-Mail-Adressen im Kopie-Feld."
+check.mail.result: >-
+    Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
+    {sentTo}
+    Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen erhalten die E-Mail ebenfalls.
+check.mail.result.citizen: "Die E-Mail geht an die/den Einreichende*n."
+check.mail.result.citizenAndVoters: "Die E-Mail geht an die/den Einreichende*n und alle Mitzeichnende*n."
+check.mail.result.institutions: "Die E-Mail geht an die einreichende Institutions-Koordination und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung."
 check.master.invitable_institution.delete: "Wollen Sie diese Organisation wirklich löschen? Der Vorgang kann nicht mehr rückgängig gemacht werden."
 check.invitable_institutions.marked.delete: "Sind Sie sicher, dass Sie die markierten Institutionen aus Ihrem Verfahren löschen möchten?"
 check.release.delete: "Sind Sie sicher, dass Sie dieses Release und alle dazugehörigen User Stories löschen möchten?"
@@ -529,9 +534,29 @@ confirm.statement.deleted: "Die Stellungnahme wurde gelöscht."
 confirm.statement.detach.cluster.element: "Die Stellungnahme {statementId} wurde aus der Gruppe {clusterId} gelöst."
 confirm.statement.final.not.sent: "Die Schlussmitteilung wurde noch nicht versendet."
 confirm.statement.final.sent.date: "Die Schlussmitteilung wurde am <strong>{date} Uhr</strong> versendet."
-confirm.statement.final.sent.only.voters: "Die Schlussmitteilung wurde erfolgreich an {numVoters} Mitzeichnende versendet. Sie haben eine E-Mail in Kopie erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
-confirm.statement.final.sent.voters: "Die Schlussmitteilung wurde erfolgreich an die/den Einreicher*in und {numVoters} Mitzeichnende versendet. Sie haben eine E-Mail in Kopie erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
-confirm.statement.final.sent: "Die Schlussmitteilung wurde erfolgreich an die/den Einreicher*in versendet. Sie und eingetragene Empfänger*innen im Kopie-Feld haben die E-Mail ebenfalls erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
+confirm.statement.final.sent: >-
+    {sent_to, select,
+        citizen_only {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n versendet.}
+        citizen_and_voters {{voters_count, plural,
+            =1    {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n und # Mitzeichnende*n versendet.}
+            other {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n und # Mitzeichnende versendet.}
+        }}
+        voters_only {{voters_count, plural,
+            =1    {Die Schlussmitteilung wurde erfolgreich an # Mitzeichnende*n versendet.}
+            other {Die Schlussmitteilung wurde erfolgreich an # Mitzeichnende versendet.}
+        }}
+        institution_only {
+            Die Schlussmitteilung wurde erfolgreich an die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung versendet.
+        }
+        institution_and_coordination {
+            Die Schlussmitteilung wurde erfolgreich an die einreichende Institutions-Koordination
+            und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung versendet.
+        }
+        other {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n versendet.}
+    }
+confirm.statement.final.sent.emailCC: >-
+    Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen haben die E-Mail ebenfalls erhalten.
+    Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf "Schlussmitteilung versendet".
 confirm.statement.fragment.created: "Ein neuer Datensatz wurde erstellt."
 confirm.statement.id.copied: "Stellungnahme <a href=\"{link}\" target=\"_blank\">{externId}</a> wurde erfolgreich kopiert."
 confirm.statement.id.copied.nolink: "Stellungnahme {externId} wurde erfolgreich kopiert."
@@ -623,6 +648,7 @@ considerationadvice: "Abwägung / Empfehlung"
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
+considerationtable_ascii: "Abwaegungstabelle"
 # considerationtext = considerationadvice
 considerationtext: "Abwägungstext"
 consolidate: "Gruppieren"

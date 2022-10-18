@@ -137,6 +137,11 @@ class ExportService
     private $currentUser;
 
     /**
+     * @var CurrentProcedureService
+     */
+    private $currentProcedureService;
+
+    /**
      * @var ZipExportService
      */
     private $zipExportService;
@@ -144,6 +149,7 @@ class ExportService
     public function __construct(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
         DraftStatementService $draftStatementService,
         ElementsService $elementsService,
@@ -179,6 +185,7 @@ class ExportService
         $this->statementService = $statementService;
         $this->translator = $translator;
         $this->zipExportService = $zipExportService;
+        $this->currentProcedureService = $currentProcedureService;
     }
 
     /**
@@ -189,7 +196,7 @@ class ExportService
         // Dictonary with keys to obtain
         $dictionary = [
             'statements'         => 'statements',
-            'considerationtable' => 'considerationtable',
+            'considerationtable' => 'considerationtable_ascii',
             'originals'          => 'statements.original',
             'attachment'         => 'attachment',
             'elements'           => 'elements',
@@ -235,76 +242,87 @@ class ExportService
             }
         }
 
+        //should be empty, because this method is triggered from procedure list.
+        $storedProcedure = $this->currentProcedureService->getProcedure();
+
         $startTime = microtime(true);
         $procedureIds = is_array($procedureIds) ? $procedureIds : [$procedureIds];
         foreach ($procedureIds as $procedureId) {
-            $procedureAsArray = $this->getProcedureOutput()->getProcedureWithPhaseNames($procedureId);
-            $procedureNameField = $useExternalProcedureName ? 'externalName' : 'name';
-            $procedureName = $this->toExportableProcedureName($procedureAsArray[$procedureNameField], $procedureId);
-            $this->logger->info('Creating Zips for Procedure', ['id' => $procedureId, 'name' => $procedureName]);
+            $procedureToExport = $this->procedureService->getProcedure($procedureId);
+            if ($procedureToExport instanceof Procedure) {
+                $this->permissions->setProcedure($procedureToExport);
+                $this->permissions->checkProcedurePermission();
 
-            //get all PDFs
+                $procedureAsArray = $this->getProcedureOutput()->getProcedureWithPhaseNames($procedureId);
+                $procedureNameField = $useExternalProcedureName ? 'externalName' : 'name';
+                $procedureName = $this->toExportableProcedureName($procedureAsArray[$procedureNameField], $procedureId);
+                $this->logger->info('Creating Zips for Procedure', ['id' => $procedureId, 'name' => $procedureName]);
 
-            //Institutionen-Liste
-            if ($this->permissions->hasPermission('feature_procedure_export_include_public_interest_bodies_member_list')) {
-                $zip = $this->addMemberListToZip($procedureId, $procedureName, $zip);
-            }
+                //get all PDFs
 
-            //Titelblatt
-            $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                //Institutionen-Liste
+                if ($this->permissions->hasPermission('feature_procedure_export_include_public_interest_bodies_member_list')) {
+                    $zip = $this->addMemberListToZip($procedureId, $procedureName, $zip);
+                }
 
-            //Aktuelles
-            $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                //Titelblatt
+                $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
 
-            //Abwägungstabelle mit Namen
-            if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
-                $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
-            }
+                //Aktuelles
+                $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
 
-            if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
-                $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
-            }
+                //Abwägungstabelle mit Namen
+                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                }
 
-            //Abwägungstabelle ohne Namen (anonym)
-            if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
-                $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
-            }
+                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                }
 
-            if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
-                $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
-            }
+                //Abwägungstabelle ohne Namen (anonym)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                }
 
-            //OriginalStellungnahmen
-            if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
-                $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
-            }
+                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                }
 
-            //Paragraph Elements
-            $zip = $this->addParagraphElementsToZip($procedureId, $procedureName, $zip);
+                //OriginalStellungnahmen
+                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
+                    $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
+                }
 
-            //Planzeichnung
-            $zip = $this->addMapToZip($procedureId, $procedureName, $zip);
+                //Paragraph Elements
+                $zip = $this->addParagraphElementsToZip($procedureId, $procedureName, $zip);
 
-            //Planunsgdokumente ()
-            $zip = $this->addAllPlanningDocumentsToZip($procedureId, $procedureName, $zip);
+                //Planzeichnung
+                $zip = $this->addMapToZip($procedureId, $procedureName, $zip);
 
-            //Stellungnahmen ToeB (Endfassungen)
-            if ($this->permissions->hasPermission('feature_procedure_export_include_statement_final_group')) {
-                $zip = $this->addStatementsFinalGroupToZip($procedureId, $procedureName, $zip);
-            }
-            //Stellungnahmen ToeB (Freigaben)
-            if ($this->permissions->hasPermission('feature_procedure_export_include_statement_released')) {
-                $zip = $this->addStatementsReleasedToZip($procedureId, $procedureName, $zip);
-            }
-            //Stellungnahmen Buerger (Endfassungen)
-            if ($this->permissions->hasPermission('feature_procedure_export_include_public_statements')) {
-                $zip = $this->addPublicStatementsToZip($procedureId, $procedureName, $zip);
-            }
-            // reports
-            if ($this->permissions->hasPermission('feature_export_protocol')) {
-                $zip = $this->addReportToZip($procedureId, $procedureName, $zip);
+                //Planunsgdokumente ()
+                $zip = $this->addAllPlanningDocumentsToZip($procedureId, $procedureName, $zip);
+
+                //Stellungnahmen ToeB (Endfassungen)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_statement_final_group')) {
+                    $zip = $this->addStatementsFinalGroupToZip($procedureId, $procedureName, $zip);
+                }
+                //Stellungnahmen ToeB (Freigaben)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_statement_released')) {
+                    $zip = $this->addStatementsReleasedToZip($procedureId, $procedureName, $zip);
+                }
+                //Stellungnahmen Buerger (Endfassungen)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_public_statements')) {
+                    $zip = $this->addPublicStatementsToZip($procedureId, $procedureName, $zip);
+                }
+                // reports
+                if ($this->permissions->hasPermission('feature_export_protocol')) {
+                    $zip = $this->addReportToZip($procedureId, $procedureName, $zip);
+                }
             }
         }
+
+        $this->permissions->setProcedure($storedProcedure);
 
         $this->logger->info('Time needed to create ProcedureZip: '.number_format(microtime(true) - $startTime, 2).'s');
 

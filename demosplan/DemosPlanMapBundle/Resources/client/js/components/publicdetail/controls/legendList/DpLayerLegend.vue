@@ -10,7 +10,7 @@
 <template>
   <div>
     <div
-      v-if="displayLegendBox || hasPermission('feature_map_layer_legend_file') || hasPermission('feature_map_use_plan_draw_pdf')"
+      v-if="hasPermission('feature_map_layer_legend_file') || hasPermission('feature_map_use_plan_draw_pdf')"
       :class="prefixClass('c-map__group')">
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
@@ -19,18 +19,18 @@
       </button>
     </div>
 
-    <template v-if="displayLegendBox && (hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf'))">
+    <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
       <ul
         :class="prefixClass('c-map__group js__mapLayerLegends')"
         v-show="unfolded">
         <li
-          v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.length > 0"
+          v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
           :class="prefixClass('list-style-none')">
           <a
             :class="prefixClass('c-map__group-item display--block')"
             target="_blank"
             :href="Routing.generate('core_file', { hash: planPdf.hash })"
-            :title="Translator.trans('legend.download') (planPdf.mimeType, planPdf.size)">
+            :title="planPdfTitle">
             <i
               :class="prefixClass('fa fa-download')"
               aria-hidden="true" />
@@ -77,19 +77,14 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
-    displayLegendBox: {
-      type: Boolean,
-      required: true
-    },
-
     layersWithLegendFiles: {
       type: Array,
       default: () => []
     },
 
     planPdf: {
-      type: String,
-      default: ''
+      type: Object,
+      default: () => ({})
     }
   },
 
@@ -102,7 +97,15 @@ export default {
   computed: {
     ...mapGetters('layers', {
       legends: 'elementListForLegendSidebar'
-    })
+    }),
+
+    planPdfTitle () {
+      let fileInfo = ''
+      if (this.planPdf.mimeType && this.planPdf.size) {
+        fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
+      }
+      return `${Translator.trans('legend.download')}${fileInfo}`
+    }
   },
 
   methods: {
