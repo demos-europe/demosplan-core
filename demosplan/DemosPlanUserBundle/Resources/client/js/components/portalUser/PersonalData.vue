@@ -14,7 +14,7 @@
         {{ Translator.trans('username') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.userName }}
+        {{ userData.userName }}
       </dd>
 
       <template v-if="hasPermission('area_mydata_organisation')">
@@ -22,13 +22,13 @@
           {{ Translator.trans('organisation') }}
         </dt>
         <dd class="u-mb color--grey">
-          {{ user.organisationName }}
+          {{ userData.organisationName }}
         </dd>
         <dt class="weight--bold">
           {{ Translator.trans('department') }}
         </dt>
         <dd class="u-mb color--grey">
-          {{ user.departmentName }}
+          {{ userData.departmentName }}
         </dd>
       </template>
 
@@ -36,19 +36,19 @@
         {{ Translator.trans('name') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.lastName }}
+        {{ userData.lastName }}
       </dd>
       <dt class="weight--bold">
         {{ Translator.trans('name.first') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.firstName }}
+        {{ userData.firstName }}
       </dd>
       <dt class="weight--bold">
         {{ Translator.trans('email') }}
       </dt>
       <dd class="u-mb color--grey">
-        {{ user.email }}
+        {{ userData.email }}
       </dd>
     </dl>
 
@@ -90,6 +90,15 @@
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 
+const userProperties = [
+  'organisationName',
+  'departmentName',
+  'lastName',
+  'firstName',
+  'userName',
+  'email'
+]
+
 export default {
   name: 'PersonalData',
 
@@ -109,19 +118,17 @@ export default {
 
     user: {
       type: Object,
-      required: true
-    },
-
-    // Set to true if username should be displayed
-    userName: {
-      type: Boolean,
-      default: false
+      required: true,
+      validator: (prop) => {
+        return Object.keys(prop).every(key => userProperties.includes(key))
+      }
     }
   },
 
   data () {
     return {
-      isDailyDigestChecked: this.isDailyDigestEnabled
+      isDailyDigestChecked: this.isDailyDigestEnabled,
+      userData: this.setUserData()
     }
   },
 
@@ -131,6 +138,24 @@ export default {
         ? 'statements.yours.list.description.short.gdpr_consent_may_revoke'
         : 'statements.yours.list.description.short'
       return Translator.trans(transkey, { href: Routing.generate('DemosPlan_user_statements') })
+    }
+  },
+
+  methods: {
+    setUserData () {
+      let userData = {...this.user}
+
+      return this.changeDefaultValues(userData)
+    },
+
+    changeDefaultValues (user) {
+      for (let key of userProperties) {
+        if (!user[key]) {
+          user[key] = '-'
+        }
+      }
+
+      return user
     }
   }
 }
