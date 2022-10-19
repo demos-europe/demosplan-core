@@ -78,8 +78,6 @@
 
                 </fieldset>
 
-                <p id="drop-save-msg" class="{{ 'flash-warning'|prefixClass }}"></p>
-
                 <dp-public-statement-list
                     class="layout__item"
                     :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"

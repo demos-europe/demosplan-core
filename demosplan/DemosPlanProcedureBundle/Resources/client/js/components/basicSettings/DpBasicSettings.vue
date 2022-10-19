@@ -18,7 +18,7 @@ import DpEmailList from './DpEmailList'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import ExportSettings from './ExportSettings'
-import sortAlphabetically from '@DpJs/lib/utils/sortAlphabetically'
+import { sortAlphabetically } from 'demosplan-utils'
 
 export default {
   name: 'DpBasicSettings',
