@@ -115,7 +115,9 @@
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
-          :label="Translator.trans('workflow.change.assignee.place')" />
+          :label="{
+            text: Translator.trans('workflow.change.assignee.place')
+          }" />
         <div
           v-if="showWorkflowActions"
           class="u-mv-0_5">

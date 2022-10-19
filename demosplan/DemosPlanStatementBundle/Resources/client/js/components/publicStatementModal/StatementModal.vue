@@ -144,22 +144,26 @@
           :class="prefixClass('u-mb')">
           <dp-checkbox
             id="confirmPrivacy"
-            name="r_privacy"
-            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})"
             :checked="formData.r_privacy === 'on'"
-            :label="Translator.trans('explanation.statement.privacy')"
             data-cy="privacyCheck"
-            required />
+            :label="{
+              text: Translator.trans('explanation.statement.privacy')
+            }"
+            name="r_privacy"
+            required
+            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})" />
         </div>
         <div
           :class="prefixClass('u-mb')">
           <dp-checkbox
             v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled && hasPermission('feature_statement_public_allowed_needs_verification')"
             id="r_makePublic"
-            name="r_makePublic"
-            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})"
             :checked="formData.r_makePublic === 'on'"
-            :label="makePublicLabel" />
+            :label="{
+              text: makePublicLabel
+            }"
+            name="r_makePublic"
+            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})" />
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
@@ -534,14 +538,16 @@
 
         <dp-checkbox
           v-if="hasPermission('feature_statement_gdpr_consent_submit')"
-          :class="prefixClass('u-mv-0_5')"
           id="gdpr_consent"
-          name="r_gdpr_consent"
-          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})"
           :checked="formData.r_gdpr_consent === 'on'"
-          :label="Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })"
+          :class="prefixClass('u-mv-0_5')"
           data-cy="gdprCheck"
-          required />
+          :label="{
+            text: Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })
+          }"
+          name="r_gdpr_consent"
+          required
+          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
         <div :class="prefixClass('text--right')">
           <dp-loading

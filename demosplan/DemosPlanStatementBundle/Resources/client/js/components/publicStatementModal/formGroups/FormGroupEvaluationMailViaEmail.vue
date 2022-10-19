@@ -11,11 +11,13 @@
   <div :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
     <dp-checkbox
       id="r_getFeedback"
-      name="r_getFeedback"
-      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})"
+      aria-labelledby="statement-detail-require-information-mail"
       :checked="statement.r_getFeedback === 'on'"
-      :label="Translator.trans('statement.detail.form.personal.require_information_mail')"
-      aria-labelledby="statement-detail-require-information-mail" />
+      :label="{
+        text: Translator.trans('statement.detail.form.personal.require_information_mail')
+      }"
+      name="r_getFeedback"
+      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})" />
 
     <div
       v-show="statement.r_getFeedback === 'on'"

@@ -61,23 +61,29 @@
             <div>
               <dp-checkbox
                 id="r_privacy"
-                required
                 v-model="checks.privacy"
-                :label="Translator.trans('explanation.statement.privacy')" />
+                :label="{
+                  text: Translator.trans('explanation.statement.privacy')
+                }"
+                required />
             </div>
             <div>
               <dp-checkbox
                 id="r_gdpr_consent"
-                required
                 v-model="checks.gdpr"
-                :label="Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })" />
+                :label="{
+                  text: Translator.trans('confirm.gdpr.consent', { link: Routing.generate('DemosPlan_misccontent_static_dataprotection'), orgaId: orgaId })
+                }"
+                required />
             </div>
             <div>
               <dp-checkbox
                 id="r_confirm_locality"
-                required
                 v-model="checks.localityAndTerms"
-                :label="Translator.trans('statement.confirm.terms', { path: Routing.generate('DemosPlan_misccontent_terms_of_use') })" />
+                :label="{
+                  text: Translator.trans('statement.confirm.terms', { path: Routing.generate('DemosPlan_misccontent_terms_of_use') })
+                }"
+                required />
             </div>
             <button
               @click.prevent="sendVote"

@@ -189,7 +189,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->renderTemplate(
             '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
             [
-                'title'        => 'user.password.recover',
+                'title' => 'user.password.recover',
                 'templateVars' => [],
             ]
         );
@@ -258,20 +258,22 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
         $users = [];
         $usersOsi = [];
+        $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
-            $users = $cache->get('login_testuser_list', function (ItemInterface $item) use ($parameterBag) {
-                $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
+            $users = $cache->get('login_testuser_list'.$customerKey,
+                function (ItemInterface $item) use ($parameterBag) {
+                    $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
 
-                $testPassword = $parameterBag->get('alternative_login_testuser_defaultpass');
+                    $testPassword = $parameterBag->get('alternative_login_testuser_defaultpass');
 
-                return $this->userService->getTestUsers($testPassword);
-            });
+                    return $this->userService->getTestUsers($testPassword);
+                });
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
-            $usersOsi = $cache->get('login_testuser_list_osi', function (ItemInterface $item) {
+            $usersOsi = $cache->get('login_testuser_list_osi'.$customerKey, function (ItemInterface $item) {
                 $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
 
                 return $this->userService->getTestUsersOsi($this->globalConfig->getProjectFolder());
@@ -288,11 +290,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->renderTemplate(
             '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
             [
-                'title'     => 'user.login',
-                'useSaml'   => $useSaml,
+                'title' => 'user.login',
+                'useSaml' => $useSaml,
                 'loginList' => [
-                    'enabled'  => 0 < count($users) || 0 < count($usersOsi),
-                    'users'    => $users,
+                    'enabled' => 0 < count($users) || 0 < count($usersOsi),
+                    'users' => $users,
                     'usersOsi' => $usersOsi,
                 ],
             ]
@@ -404,8 +406,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->renderTemplate(
             '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
             [
-                'token'    => $token,
-                'uId'      => $uId,
+                'token' => $token,
+                'uId' => $uId,
             ]
         );
     }
