@@ -114,7 +114,7 @@ class AiPipelineConfiguration
         return $this->pipelineDemosAuthorization;
     }
 
-    public function getAiPipelineLabels()
+    public function getAiPipelineLabels(): array
     {
         return $this->aiPipelineLabels;
     }
