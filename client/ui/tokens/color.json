@@ -3,10 +3,12 @@
     "palette": {
       "$description": "The raw hex values that other color tokens inherit from. Do not use directly.",
       "white": {
-        "value": "#fff"
+        "value": "#fff",
+        "themeable": true
       },
       "black": {
-        "value": "#000"
+        "value": "#000",
+        "themeable": true
       },
       "neutral": {
         "$description": "Greyscale palette.",
