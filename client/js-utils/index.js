@@ -8,7 +8,7 @@
  */
 
 import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
-import { hasPermisson, hasAllPermissions, hasAnyPermissions } from './hasPermission'
+import { hasPermission, hasAllPermissions, hasAnyPermissions } from './hasPermission'
 import changeUrlforPager from './changeUrlforPager'
 import debounce from './debounce'
 import deepMerge from './deepMerge'
@@ -19,7 +19,7 @@ import hasOwnProp from './hasOwnProp'
 import { makeFormPost } from './makeFormPost'
 import sortAlphabetically from './sortAlphabetically'
 import throttle from './throttle'
-import uniqueArrayByObjectKey from "./uniqueArrayByObjectKey";
+import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 
 export {
   bindFullScreenChange,
@@ -31,7 +31,7 @@ export {
   getAnimationEventName,
   getScrollTop,
   hasOwnProp,
-  hasPermisson,
+  hasPermission,
   hasAllPermissions,
   hasAnyPermissions,
   makeFormPost,
