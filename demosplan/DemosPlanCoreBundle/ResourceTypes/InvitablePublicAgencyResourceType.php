@@ -96,7 +96,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                     $procedure->getId(),
                     ...$this->procedureInvitations->id
                 ),
-                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations->orga)
+                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations)
             )
         );
     }
