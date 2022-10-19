@@ -24,13 +24,13 @@ class PiTextRecognitionRequester extends PiCommunication
      */
     public function getRequestData($annotatedStatementPdf): array
     {
-        $pipelineId = $this->globalConfig->getAiPipelineAnnotatedStatementPdfReviewedId();
+        $pipelineId = $this->aiPinelineConnection->getAiPipelineAnnotatedStatementPdfReviewedId();
         if (null === $pipelineId || '' === $pipelineId) {
             $errorMsg = 'Missing Doc Reviewed Pipeline Id for AI => DPLAN requests.';
             $this->logger->error($errorMsg);
             throw new InvalidConfigurationException($errorMsg);
         }
-        $pipelineDemosAuth = $this->globalConfig->getPipelineDemosAuthorization();
+        $pipelineDemosAuth = $this->aiPinelineConnection->getPipelineDemosAuthorization();
         if (null === $pipelineDemosAuth || '' === $pipelineDemosAuth) {
             $errorMsg = 'Missing Dplan Auth Configuration for AI => DPLAN requests.';
             $this->logger->error($errorMsg);

@@ -44,8 +44,8 @@ class PiTextRecognitionTest extends PiCommTestAbstract
         array $requestData,
         $annotatedStatementPdf
     ): void {
-        $demosAuthorization = $this->globalConfig->getPipelineDemosAuthorization();
-        $pipelineId = $this->globalConfig->getAiPipelineAnnotatedStatementPdfReviewedId();
+        $demosAuthorization = $this->aiPinelineConnection->getPipelineDemosAuthorization();
+        $pipelineId = $this->aiPinelineConnection->getAiPipelineAnnotatedStatementPdfReviewedId();
         $attributes = $requestData['data']['attributes'];
         $parameters = $attributes['parameters'];
         $errorUrl = $this->router->generate(

@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
 
 abstract class PiCommunication extends CoreService
 {
@@ -42,21 +42,23 @@ abstract class PiCommunication extends CoreService
      * @var JWTTokenManagerInterface
      */
     protected $jwtManager;
+
     /**
-     * @var GlobalConfigInterface
+     * @var AiPinelineConnection
      */
-    protected $globalConfig;
+    protected $aiPinelineConnection;
+
 
     public function __construct(
         ApiClientInterface $apiClient,
-        GlobalConfigInterface $globalConfig,
+        AiPinelineConnection $aiPinelineConnection,
         JWTTokenManagerInterface $jwtManager,
         RouterInterface $jwtRouter
     ) {
         $this->apiClient = $apiClient;
-        $this->globalConfig = $globalConfig;
         $this->jwtManager = $jwtManager;
         $this->router = $jwtRouter;
+        $this->aiPinelineConnection = $aiPinelineConnection;
     }
 
     public function request(object $object): void
@@ -86,12 +88,12 @@ abstract class PiCommunication extends CoreService
 
     public function getPiUrl(): string
     {
-        return $this->globalConfig->getAiPipelineUrl();
+        return $this->aiPinelineConnection->getAiPipelineUrl();
     }
 
     public function getAuthorization(): string
     {
-        return 'Bearer '.$this->globalConfig->getAiPipelineAuthorization();
+        return 'Bearer '.$this->aiPinelineConnection->getAiPipelineAuthorization();
     }
 
     /**

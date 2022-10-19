@@ -10,19 +10,18 @@
 
 namespace Tests\Core\PiCommunication\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\JwtRouter;
-use demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
-use demosplan\plugins\workflow\SegmentsManager\SegmentsManager;
 use DirectoryIterator;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\PluginTestTrait;
+use demosplan\DemosPlanCoreBundle\Logic\JwtRouter;
+use demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
+use demosplan\plugins\workflow\SegmentsManager\SegmentsManager;
 
 abstract class PiCommTestAbstract extends FunctionalTestCase
 {
@@ -44,9 +43,9 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
     protected $jsonValidator;
 
     /**
-     * @var GlobalConfigInterface
+     * @var AiPinelineConnection
      */
-    protected $globalConfig;
+    protected $aiPinelineConnection;
 
     /**
      * @var JwtRouter
@@ -64,8 +63,8 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
 
         $this->jsonSchemaPath = $this->getJsonSchemaPath();
         $this->jsonValidator = self::$container->get(JsonSchemaValidator::class);
-        $this->globalConfig = self::$container->get(GlobalConfig::class);
         $this->router = self::$container->get(JwtRouter::class);
+        $this->aiPinelineConnection = self::$container->get(AiPinelineConnection::class);
     }
 
     /**
@@ -74,7 +73,7 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
      */
     protected function assertGetPiUrl(): void
     {
-        $expectedPiUrl = $this->globalConfig->getAiPipelineUrl();
+        $expectedPiUrl = $this->aiPinelineConnection->getAiPipelineUrl();
         $this->assertEquals($expectedPiUrl, $this->sut->getPiUrl());
     }
 
@@ -84,7 +83,7 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
      */
     protected function assertGetPiAuthorization(): void
     {
-        $expectedAuthorization = 'Bearer '.$this->globalConfig->getAiPipelineAuthorization();
+        $expectedAuthorization = 'Bearer '.$this->aiPinelineConnection->getAiPipelineAuthorization();
         $this->assertEquals($expectedAuthorization, $this->sut->getAuthorization());
     }
 

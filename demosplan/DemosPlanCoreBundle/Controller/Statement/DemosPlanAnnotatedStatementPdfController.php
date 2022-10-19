@@ -10,12 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -24,10 +28,6 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionExceptio
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use Exception;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanAnnotatedStatementPdfController extends APIController
 {
@@ -47,7 +47,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function reviewAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPinelineConnection $aiPinelineConnection,
         string $procedureId,
         string $documentId
     ): Response {
@@ -70,7 +70,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
 
         $templateVars = [
             'documentId'       => $documentId,
-            'aiPipelineLabels' => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels' => $aiPinelineConnection->getAiPipelineLabels(),
         ];
 
         return $this->renderTemplate(
@@ -120,7 +120,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function convertToStatementAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPinelineConnection $aiPinelineConnection,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         CurrentProcedureService $currentProcedureService,
@@ -143,7 +143,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
             'documentId'            => $documentId,
             'newestInternalId'      => $statementService->getNewestInternId($procedureId),
             'usedInternIds'         => $statementService->getInternIdsFromProcedure($procedureId),
-            'aiPipelineLabels'      => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels'      => $aiPinelineConnection->getAiPipelineLabels(),
             'submitter'             => $annotatedStatementPdf->getSubmitterJson(),
             'currentProcedurePhase' => $currentProcedureService->getProcedureWithCertainty()->getPhase(),
         ];
