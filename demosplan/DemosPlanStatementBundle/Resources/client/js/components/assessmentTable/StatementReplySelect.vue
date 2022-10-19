@@ -15,11 +15,13 @@
 
     <dp-checkbox
       id="r_replied"
-      name="r_replied"
-      class="u-mb-0_5 u-1-of-2 display--inline-block u-valign--middle"
-      :label="Translator.trans('statement.in.compass.was.answered')"
       v-model="checked"
-      :disabled="readonly" /><!--
+      class="u-mb-0_5 u-1-of-2 display--inline-block u-valign--middle"
+      :disabled="readonly"
+      :label="{
+        text: Translator.trans('statement.in.compass.was.answered')
+      }"
+      name="r_replied" /><!--
  --><div class="u-1-of-2 display--inline-block">
       <dp-label
         for="r_bthg_kompass_answer"

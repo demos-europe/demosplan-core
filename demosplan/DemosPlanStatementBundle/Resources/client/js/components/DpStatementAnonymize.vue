@@ -21,11 +21,13 @@
     <!-- Step 1 - selection of actions -->
     <template v-if="currentStep === 1">
       <dp-checkbox
-        :class="{'u-mb-0_5': !actions.anonymizeStatementMeta}"
         id="r_anonymize_statement_meta"
         v-model="actions.anonymizeStatementMeta"
-        hint="statement.anonymize.meta.hint"
-        :label="Translator.trans('statement.anonymize.meta.label')" />
+        :class="{'u-mb-0_5': !actions.anonymizeStatementMeta}"
+        :label="{
+          hint: Translator.trans('statement.anonymize.meta.hint'),
+          text: Translator.trans('statement.anonymize.meta.label')
+        }" />
       <ul
         v-show="actions.anonymizeStatementMeta"
         class="o-list o-list--col-2 u-mb u-ml">
@@ -38,18 +40,22 @@
       </ul>
 
       <dp-checkbox
-        class="u-mb-0_5"
         id="r_delete_statement_text_history"
         v-model="actions.deleteStatementTextHistory"
-        hint="statement.anonymize.delete.history.hint"
-        :label="Translator.trans('statement.anonymize.delete.history.label')" />
+        class="u-mb-0_5"
+        :label="{
+          hint: Translator.trans('statement.anonymize.delete.history.hint'),
+          text: Translator.trans('statement.anonymize.delete.history.label')
+        }" />
 
       <dp-checkbox
-        :class="{'u-mb-0_5': !actions.anonymizeStatementText}"
         id="r_anonymize_statement_text"
         v-model="actions.anonymizeStatementText"
-        hint="statement.anonymize.text.hint"
-        :label="Translator.trans('statement.anonymize.text.label')" />
+        :class="{'u-mb-0_5': !actions.anonymizeStatementText}"
+        :label="{
+          hint: Translator.trans('statement.anonymize.text.hint'),
+          text: Translator.trans('statement.anonymize.text.label')
+        }" />
       <div
         v-show="actions.anonymizeStatementText"
         class="u-ml">
@@ -66,11 +72,13 @@
       </div>
 
       <dp-checkbox
-        class="u-mb-0_5"
         id="r_delete_statement_attachments"
         v-model="actions.deleteStatementAttachments"
-        hint="statement.anonymize.delete.attachments.hint"
-        :label="Translator.trans('statement.anonymize.delete.attachments.label')" />
+        class="u-mb-0_5"
+        :label="{
+          hint: Translator.trans('statement.anonymize.delete.attachments.hint'),
+          text: Translator.trans('statement.anonymize.delete.attachments.label')
+        }" />
 
       <div class="cf">
         <dp-button
