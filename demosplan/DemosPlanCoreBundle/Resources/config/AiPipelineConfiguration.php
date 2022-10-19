@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Resources\config;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 
-class AiPinelineConnection
+class AiPipelineConfiguration
 {
     /**
      * @var string

@@ -18,7 +18,7 @@ use Tests\Base\FunctionalTestCase;
 use Tests\Base\PluginTestTrait;
 use demosplan\DemosPlanCoreBundle\Logic\JwtRouter;
 use demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication;
-use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\plugins\workflow\SegmentsManager\SegmentsManager;
@@ -43,9 +43,9 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
     protected $jsonValidator;
 
     /**
-     * @var AiPinelineConnection
+     * @var AiPipelineConfiguration
      */
-    protected $aiPinelineConnection;
+    protected $aiPipelineConfiguration;
 
     /**
      * @var JwtRouter
@@ -64,7 +64,7 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
         $this->jsonSchemaPath = $this->getJsonSchemaPath();
         $this->jsonValidator = self::$container->get(JsonSchemaValidator::class);
         $this->router = self::$container->get(JwtRouter::class);
-        $this->aiPinelineConnection = self::$container->get(AiPinelineConnection::class);
+        $this->aiPipelineConfiguration = self::$container->get(AiPipelineConfiguration::class);
     }
 
     /**
@@ -73,7 +73,7 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
      */
     protected function assertGetPiUrl(): void
     {
-        $expectedPiUrl = $this->aiPinelineConnection->getAiPipelineUrl();
+        $expectedPiUrl = $this->aiPipelineConfiguration->getAiPipelineUrl();
         $this->assertEquals($expectedPiUrl, $this->sut->getPiUrl());
     }
 
@@ -83,7 +83,7 @@ abstract class PiCommTestAbstract extends FunctionalTestCase
      */
     protected function assertGetPiAuthorization(): void
     {
-        $expectedAuthorization = 'Bearer '.$this->aiPinelineConnection->getAiPipelineAuthorization();
+        $expectedAuthorization = 'Bearer '.$this->aiPipelineConfiguration->getAiPipelineAuthorization();
         $this->assertEquals($expectedAuthorization, $this->sut->getAuthorization());
     }
 

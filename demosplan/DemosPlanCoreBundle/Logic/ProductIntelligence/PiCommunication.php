@@ -16,7 +16,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 
 abstract class PiCommunication extends CoreService
 {
@@ -44,21 +44,21 @@ abstract class PiCommunication extends CoreService
     protected $jwtManager;
 
     /**
-     * @var AiPinelineConnection
+     * @var AiPipelineConfiguration
      */
-    protected $aiPinelineConnection;
+    protected $aiPipelineConfiguration;
 
 
     public function __construct(
-        ApiClientInterface $apiClient,
-        AiPinelineConnection $aiPinelineConnection,
+        ApiClientInterface       $apiClient,
+        AiPipelineConfiguration  $aiPipelineConfiguration,
         JWTTokenManagerInterface $jwtManager,
-        RouterInterface $jwtRouter
+        RouterInterface          $jwtRouter
     ) {
         $this->apiClient = $apiClient;
         $this->jwtManager = $jwtManager;
         $this->router = $jwtRouter;
-        $this->aiPinelineConnection = $aiPinelineConnection;
+        $this->aiPipelineConfiguration = $aiPipelineConfiguration;
     }
 
     public function request(object $object): void
@@ -88,12 +88,12 @@ abstract class PiCommunication extends CoreService
 
     public function getPiUrl(): string
     {
-        return $this->aiPinelineConnection->getAiPipelineUrl();
+        return $this->aiPipelineConfiguration->getAiPipelineUrl();
     }
 
     public function getAuthorization(): string
     {
-        return 'Bearer '.$this->aiPinelineConnection->getAiPipelineAuthorization();
+        return 'Bearer '.$this->aiPipelineConfiguration->getAiPipelineAuthorization();
     }
 
     /**

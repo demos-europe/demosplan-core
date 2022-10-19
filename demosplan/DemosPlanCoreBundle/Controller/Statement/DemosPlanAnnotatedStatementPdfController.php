@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\AiPinelineConnection;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -47,9 +47,9 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function reviewAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        AiPinelineConnection $aiPinelineConnection,
-        string $procedureId,
-        string $documentId
+        AiPipelineConfiguration      $aiPipelineConfiguration,
+        string                       $procedureId,
+        string                       $documentId
     ): Response {
         $annotatedStatementPdf = $annotatedStatementPdfHandler->findOneById($documentId);
         if (!$annotatedStatementPdfHandler->validateBoxReview($annotatedStatementPdf)) {
@@ -70,7 +70,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
 
         $templateVars = [
             'documentId'       => $documentId,
-            'aiPipelineLabels' => $aiPinelineConnection->getAiPipelineLabels(),
+            'aiPipelineLabels' => $aiPipelineConfiguration->getAiPipelineLabels(),
         ];
 
         return $this->renderTemplate(
@@ -120,13 +120,13 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function convertToStatementAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        AiPinelineConnection $aiPinelineConnection,
-        PermissionsInterface $permissions,
-        ProcedureService $procedureService,
-        CurrentProcedureService $currentProcedureService,
-        StatementService $statementService,
-        string $procedureId,
-        string $documentId): Response
+        AiPipelineConfiguration      $aiPipelineConfiguration,
+        PermissionsInterface         $permissions,
+        ProcedureService             $procedureService,
+        CurrentProcedureService      $currentProcedureService,
+        StatementService             $statementService,
+        string                       $procedureId,
+        string                       $documentId): Response
     {
         $annotatedStatementPdf = $annotatedStatementPdfHandler->findOneById($documentId);
         if (!$this->validateTextReview($annotatedStatementPdf)) {
@@ -143,7 +143,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
             'documentId'            => $documentId,
             'newestInternalId'      => $statementService->getNewestInternId($procedureId),
             'usedInternIds'         => $statementService->getInternIdsFromProcedure($procedureId),
-            'aiPipelineLabels'      => $aiPinelineConnection->getAiPipelineLabels(),
+            'aiPipelineLabels'      => $aiPipelineConfiguration->getAiPipelineLabels(),
             'submitter'             => $annotatedStatementPdf->getSubmitterJson(),
             'currentProcedurePhase' => $currentProcedureService->getProcedureWithCertainty()->getPhase(),
         ];
