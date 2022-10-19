@@ -68,19 +68,21 @@
 
                 {% if hasPermission('feature_procedure_templates') %}
                     {% block master %}
-                        <dp-form-row>
-                            <dp-select
-                                id="blueprint"
-                                :label="{
-                                    hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
-                                    text: Translator.trans('master')
-                                }"
-                                name="r_copymaster"
-                                :options="blueprintOptions"
-                                :selected="masterBlueprintId"
-                                @select="setBlueprintData">
-                            </dp-select>
-                        </dp-form-row>
+                        {% verbatim %}
+                            <dp-form-row>
+                                <dp-select
+                                    id="blueprint"
+                                    :label="{
+                                        hint: Translator.trans('procedure.template.fields', { fields: '{% endverbatim %}{{ procedureTemplateFields }}{% verbatim %}' }),
+                                        text: Translator.trans('master')
+                                    }"
+                                    name="r_copymaster"
+                                    :options="blueprintOptions"
+                                    :selected="masterBlueprintId"
+                                    @select="setBlueprintData">
+                                </dp-select>
+                            </dp-form-row>
+                        {% endverbatim %}
                     {% endblock %}
                 {% endif %}
 
