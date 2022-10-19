@@ -142,9 +142,8 @@ export default {
   methods: {
     setUserData () {
       let userData = {...this.user}
-      this.changeDefaultValues(userData)
 
-      return userData
+      return this.changeDefaultValues(userData)
     },
 
     changeDefaultValues (user) {
@@ -153,6 +152,7 @@ export default {
           user[key] = '-'
         }
       }
+
       return user
     }
   }
