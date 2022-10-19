@@ -8,8 +8,8 @@
  */
 
 import sortAlphabetically from './sortAlphabetically'
-import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 import throttle from './throttle'
+import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 
 export {
   sortAlphabetically,

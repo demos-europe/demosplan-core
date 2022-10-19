@@ -405,9 +405,6 @@ import {
 import { CleanHtml } from 'demosplan-ui/directives'
 import { createSuggestion } from './libs/editorBuildSuggestion'
 import { DpIcon } from 'demosplan-ui/components'
-import { handleWordPaste } from './libs/handleWordPaste'
-import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
 import EditorCustomDelete from './libs/editorCustomDelete'
 import EditorCustomImage from './libs/editorCustomImage'
 import EditorCustomInsert from './libs/editorCustomInsert'
@@ -415,6 +412,9 @@ import EditorCustomLink from './libs/editorCustomLink'
 import EditorCustomMark from './libs/editorCustomMark'
 import EditorInsertAtCursorPos from './libs/editorInsertAtCursorPos'
 import EditorObscure from './libs/editorObscure'
+import { handleWordPaste } from './libs/handleWordPaste'
+import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
+import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
   name: 'DpEditor',

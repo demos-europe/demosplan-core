@@ -44,7 +44,7 @@
         :segment-id="commentsList.segmentId"
         class="u-mt u-mb-0_5"
         :class="{'border--bottom' : idx < (comments.length -1) }"
-        data-cy="commentsListItem"/>
+        data-cy="commentsListItem" />
     </template>
     <dp-inline-notification
       v-else
