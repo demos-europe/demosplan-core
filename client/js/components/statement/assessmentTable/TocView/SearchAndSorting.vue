@@ -52,7 +52,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
-import DpEditSelectedItemsMenu from '@DemosPlanStatementBundle/components/assessmentTable/DpEditSelectedItemsMenu'
+import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
 
 export default {
   name: 'SearchAndSorting',
@@ -60,8 +60,8 @@ export default {
   components: {
     DpButton,
     DpEditSelectedItemsMenu,
-    DpFilterModal: () => import(/* webpackChunkName: "dp-filter-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpFilterModal'),
-    SearchModal: () => import(/* webpackChunkName: "dp-search-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal')
+    DpFilterModal: () => import(/* webpackChunkName: "dp-filter-modal" */ '@DpJs/components/statement/assessmentTable/DpFilterModal'),
+    SearchModal: () => import(/* webpackChunkName: "dp-search-modal" */ '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal')
   },
 
   computed: {
