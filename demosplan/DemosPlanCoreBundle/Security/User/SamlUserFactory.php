@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\User;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -109,7 +108,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         // when user with email exists, update login field to saml login
         // to allow Login via saml and dplan
 
-        $user = $this->userService->findDistinctUserByEmailOrLogin($attributes['mail'][0] ?? '');
+        $user = $this->userService->findDistinctUserByEmailOrLogin($attributes['email'][0] ?? '');
 
         if ($user instanceof User) {
             $this->logger->info('Tie existing user to SAML-Login');
@@ -124,14 +123,14 @@ class SamlUserFactory implements SamlUserFactoryInterface
 
         // user does not yet exist
         $user = $this->getNewUserWithDefaultValues();
-        $user->setEmail($attributes['mail'][0] ?? '');
+        $user->setEmail($attributes['email'][0] ?? '');
         $user->setFirstname($attributes['surname'][0] ?? '');
         $user->setLastname($attributes['givenName'][0] ?? '');
         $user->setLogin($login);
 
         $roleCodes = [Role::CITIZEN];
         $user = $this->addUserRoles($roleCodes, $user);
-        $anonymousUser = new AnonymousUser();
+        $anonymousUser = $this->userService->getValidUser(User::ANONYMOUS_USER_LOGIN);
 
         return $this->addUserToOrgaAndDepartment($anonymousUser->getOrga(), $user);
     }

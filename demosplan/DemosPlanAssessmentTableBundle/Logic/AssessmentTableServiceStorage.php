@@ -322,7 +322,7 @@ class AssessmentTableServiceStorage
                 $this->getMessageBag()->add('error', 'error.date.invalid');
             }
 
-            //Ensure hour, minute and second will be untouched, to avoid change order in ATable.
+            //On UPDATE: Ensure hour, minute and second will stay untouched, to avoid changing of order by submitDate.
             $currentlySavedDate = Carbon::instance($currentStatement->getSubmitObject());
             $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']["submitted_date"]);
             $incomingDate->setTime($currentlySavedDate->hour, $currentlySavedDate->minute, $currentlySavedDate->second);
@@ -627,6 +627,7 @@ class AssessmentTableServiceStorage
             $vars = [];
             $ident = '';
             $emailcc = [];
+            $successMessageTranslationParams = [];
 
             if (array_key_exists('send_body', $rParams['request'])) {
                 $vars['mailbody'] = $rParams['request']['send_body'];
@@ -680,6 +681,7 @@ class AssessmentTableServiceStorage
                 //Bürger Stellungnahmen
                 if (Statement::EXTERNAL === $statement->getPublicStatement()) {
                     if ('email' === $statement->getFeedback()) {
+                        $successMessageTranslationParams['sent_to'] = 'citizen_only';
                         $this->sendDmSchlussmitteilung(
                             $statement->getMeta()->getOrgaEmail(),
                             $from,
@@ -728,6 +730,7 @@ class AssessmentTableServiceStorage
                     // Mail an Beteiligungs-E-Mail-Adresse
                     // Die Rollen brauchen keine Mail an ihre Organisation
                     if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
+                        $successMessageTranslationParams['sent_to'] = 'institution_only';
                         $recipients = [];
                         if (0 < strlen($user->getOrga()->getEmail2())) {
                             $recipients[] = $user->getOrga()->getEmail2();
@@ -759,6 +762,7 @@ class AssessmentTableServiceStorage
                         $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
                         $submitUserEmail = $submitUser->getEmail();
                         if (false === stripos($user->getEmail(), $submitUserEmail)) {
+                            $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                             $this->sendDmSchlussmitteilung(
                                 $submitUserEmail,
                                 $from,
@@ -800,12 +804,11 @@ class AssessmentTableServiceStorage
                         }
                     }
 
-                    $numVoters = ['numVoters' => count($statement->getVotes())];
-
+                    $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
                     if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
-                        $this->getMessageBag()->add('confirm', 'confirm.statement.final.sent.voters', $numVoters);
+                        $successMessageTranslationParams['sent_to'] = 'citizen_and_voters';
                     } else {
-                        $this->getMessageBag()->add('confirm', 'confirm.statement.final.sent.only.voters', $numVoters);
+                        $successMessageTranslationParams['sent_to'] = 'voters_only';
                     }
                 }
             } else {
@@ -823,7 +826,8 @@ class AssessmentTableServiceStorage
             return;
         }
 
-        $this->getMessageBag()->add('confirm', 'confirm.statement.final.sent');
+        $this->getMessageBag()->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
+        $this->getMessageBag()->add('confirm', 'confirm.statement.final.sent.emailCC');
     }
 
     /**
