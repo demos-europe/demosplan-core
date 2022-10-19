@@ -307,7 +307,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $writableProperties[] = $this->similarStatementSubmitters;
         }
 
-        if ($this->currentUser->hasPermission('feature_statement_polygon_set')) {
+        // the isManual() returns true if a planner createed the statement
+        // It is not intended to overwrite a polygon given by a private-person/non planner
+        if ($this->currentUser->hasPermission('feature_statement_polygon_set')
+            && $object->isManual()
+        ) {
             $writableProperties[] = $this->polygon;
         }
 
