@@ -7,8 +7,6 @@
  * All rights reserved
  */
 
-
-
 /**
  * This is the entrypoint for statistics.html.twig
  */
