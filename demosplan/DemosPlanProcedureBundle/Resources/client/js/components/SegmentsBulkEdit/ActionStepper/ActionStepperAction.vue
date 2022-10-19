@@ -17,11 +17,13 @@
 <template>
   <div class="u-pv space-stack-s">
     <dp-checkbox
-      :label="label"
       :id="id"
       :checked="checked"
-      @change="isChecked => $emit('change', isChecked)"
-      :standalone="checked" />
+      :label="{
+        bold: checked,
+        text: label
+      }"
+      @change="isChecked => $emit('change', isChecked)" />
     <div
       v-if="checked"
       class="u-ml">

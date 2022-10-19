@@ -57,9 +57,11 @@
           </dp-form-row>
 
           <dp-checkbox
-            :class="prefixClass('u-mb-0_5')"
             id="gdpr_consent"
-            :label="Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })"
+            :class="prefixClass('u-mb-0_5')"
+            :label="{
+              text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
+            }"
             name="gdpr_consent"
             required
             value="on" />
