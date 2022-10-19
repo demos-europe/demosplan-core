@@ -193,6 +193,7 @@ class StatementSynchronizer
 
         $newOriginalStatement->setSubmitType($sourceStatement->getSubmitType());
         $newOriginalStatement->setSubmitTypeTranslated($sourceStatement->getSubmitTypeTranslated());
+        $newOriginalStatement->setPolygon($sourceStatement->getPolygon());
         $newOriginalStatement->setMapFile($sourceStatement->getMapFile());
         $newOriginalStatement->setSubmit($sourceStatement->getSubmitObject()->add(new DateInterval('PT1S')));
         $newOriginalStatement->setExternId($sourceStatement->getExternId());
