@@ -1967,14 +1967,18 @@ feature_statement_notify_counties:
     parent: feature_statement
 feature_statement_polygon_set:
     description: |-
-        Allow adding/modifying the statement-polygon property
+        Allow adding/modifying the statement-polygon property. Used on manualCreate
+        of statements (create without draftStatement) and on statement-updates via StatementResourceType
     label: 'used for statement editing & manual statement creation'
     loginRequired: true
+    parent: feature_statement
 feature_statement_polygon_read:
     description: |-
-        Allows read-access to the statement polygon property
-    label: 'allows read-access to the statement polygon property'
+        Allows read-access to the statement polygon property via StatementResourceType
+        (draft-statements are not affected by this permission)
+    label: 'allows read-access to the statement polygon property used in the StatementResourceType'
     loginRequired: true
+    parent: feature_statement
 feature_statement_public_allowed_needs_verification:
     description: 'Indicates, that publication of statements need to be verified by FP.'
     expose: true
