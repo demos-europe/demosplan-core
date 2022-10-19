@@ -64,12 +64,14 @@
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
         id="assignedTaskNotification"
-        name="assignedTaskNotification"
-        class="u-mb-0_25"
-        :label="Translator.trans('email.daily.subscribe')"
         v-model="isDailyDigestChecked"
-        value-to-send="on"
-        standalone />
+        class="u-mb-0_25"
+        :label="{
+          bold: true,
+          text: Translator.trans('email.daily.subscribe')
+        }"
+        name="assignedTaskNotification"
+        value-to-send="on" />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>

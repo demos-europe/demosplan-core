@@ -103,11 +103,13 @@
 
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
-          :label="Translator.trans('master.of.customer.set')"
-          name="r_customerMasterBlueprint"
-          :hint="Translator.trans('explanation.customer.masterblueprint')"
           id="r_customerMasterBlueprint"
-          :disabled="isCustomerMasterBlueprintExisting" />
+          :disabled="isCustomerMasterBlueprintExisting"
+          :label="{
+            hint: Translator.trans('explanation.customer.masterblueprint'),
+            text: Translator.trans('master.of.customer.set')
+          }"
+          name="r_customerMasterBlueprint" />
 
         <p
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
