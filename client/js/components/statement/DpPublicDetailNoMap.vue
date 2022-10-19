@@ -12,11 +12,11 @@ import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/FormActions
 import { mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
-import DpPublicStatementList from '@DemosPlanStatementBundle/components/publicStatementLists/DpPublicStatementList'
+import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DemosPlanProcedureBundle/components/survey/DpPublicSurvey'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import StatementModal from '@DemosPlanStatementBundle/components/publicStatementModal/StatementModal'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
   name: 'DpPublicDetailNoMap',
@@ -27,7 +27,7 @@ export default {
     DpModal,
     DpPublicSurvey,
     DpPublicStatementList,
-    DpMapModal: () => import('@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
+    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
     DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
     ElementsList: () => import('@DemosPlanDocumentBundle/components/ElementsList')

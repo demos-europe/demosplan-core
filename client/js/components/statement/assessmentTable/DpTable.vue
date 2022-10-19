@@ -233,11 +233,11 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AssessmentTableFilter from '@DemosPlanStatementBundle/components/assessmentTable/AssessmentTableFilter'
+import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from '@DpJs/lib/utils/changeUrlforPager'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpAssessmentTableCard from '@DemosPlanStatementBundle/components/assessmentTable/DpAssessmentTableCard'
-import DpExportModal from '@DemosPlanStatementBundle/components/assessmentTable/DpExportModal'
+import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
+import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { DpLoading } from 'demosplan-ui/components'
 import DpPager from '@DpJs/components/core/DpPager'
 import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
@@ -255,17 +255,17 @@ export default {
   components: {
     AssessmentTableGroupList: () => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList'),
     AssessmentTableFilter,
-    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/AssignEntityModal'),
-    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/ConsolidateModal'),
-    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/CopyStatementModal'),
+    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
+    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
+    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
     DpExportModal,
     DpLoading,
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'),
-    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DemosPlanStatementBundle/components/assessmentTable/DpMoveStatementModal'),
+    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
     DpSlidebar: () => import(/* webpackChunkName: "dp-slidebar" */ '@DpJs/components/core/DpSlidebar'),
     DpAssessmentTableCard,
-    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DemosPlanStatementBundle/components/statement/DpVersionHistory')
+    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
   },
 
   directives: {

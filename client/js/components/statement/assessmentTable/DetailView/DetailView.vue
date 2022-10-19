@@ -13,14 +13,14 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import DetailViewFinalEmailBody from '@DemosPlanStatementBundle/components/assessmentTable/DetailView/DetailViewFinalEmailBody'
+import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
-import DpMapModal from '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpStatementPublish from '@DemosPlanStatementBundle/components/statement/DpStatementPublish'
+import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
 
@@ -38,13 +38,13 @@ export default {
     DpUploadFiles,
 
     // Only needed in statement detail view
-    DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DemosPlanStatementBundle/components/statement/SelectStatementCluster'),
+    DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
 
     DpSlidebar: () => import(/* webpackChunkName: "slidebar" */ '@DpJs/components/core/DpSlidebar'),
     DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
-    DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DemosPlanStatementBundle/components/statement/DpVersionHistory'),
-    StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DemosPlanStatementBundle/components/assessmentTable/StatementReplySelect'),
-    StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DemosPlanStatementBundle/components/voter/StatementVoter')
+    DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),
+    StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect'),
+    StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')
   },
 
   directives: {

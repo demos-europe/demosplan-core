@@ -240,7 +240,7 @@ import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
-import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
 
 export default {

@@ -11,7 +11,7 @@
  * This is the entrypoint for statement_anonymize.html.twig
  */
 
-import DpStatementAnonymize from '@DemosPlanStatementBundle/components/DpStatementAnonymize'
+import DpStatementAnonymize from '@DpJs/components/statement/DpStatementAnonymize'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
