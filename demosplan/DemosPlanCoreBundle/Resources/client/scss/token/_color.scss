@@ -77,6 +77,10 @@ $dp-token-color-brand-nav-alt-bg:               $dp-color-main--light-1 !default
 // Should pass AA contrast check with $default-font-color and $dp-token-color-ui-interactive
 $dp-token-color-ui-bg-neutral-light:            $dp-color-neutral-light-4;
 
+// Medium background color for boxes etc.
+// Should pass AA contrast check with $default-font-color and $dp-token-color-ui-interactive
+$dp-token-color-ui-bg-neutral-medium:           $dp-color-neutral-light-3;
+
 // Text that should be readable but appear less dark
 $dp-token-color-ui-dimmed-text:                 $dp-color-neutral-base;
 
