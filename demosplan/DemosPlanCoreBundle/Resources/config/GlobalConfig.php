@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use function array_key_exists;
 use function array_map;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use function explode;
 use const FILTER_VALIDATE_BOOLEAN;

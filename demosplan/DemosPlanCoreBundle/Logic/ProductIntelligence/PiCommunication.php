@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence;
 
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 
 abstract class PiCommunication extends CoreService
 {
@@ -48,12 +48,11 @@ abstract class PiCommunication extends CoreService
      */
     protected $aiPipelineConfiguration;
 
-
     public function __construct(
-        ApiClientInterface       $apiClient,
-        AiPipelineConfiguration  $aiPipelineConfiguration,
+        ApiClientInterface $apiClient,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         JWTTokenManagerInterface $jwtManager,
-        RouterInterface          $jwtRouter
+        RouterInterface $jwtRouter
     ) {
         $this->apiClient = $apiClient;
         $this->jwtManager = $jwtManager;

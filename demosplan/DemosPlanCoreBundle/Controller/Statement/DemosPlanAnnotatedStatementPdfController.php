@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use Exception;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
@@ -28,6 +24,10 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionExceptio
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanAnnotatedStatementPdfController extends APIController
 {
@@ -47,9 +47,9 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function reviewAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        AiPipelineConfiguration      $aiPipelineConfiguration,
-        string                       $procedureId,
-        string                       $documentId
+        AiPipelineConfiguration $aiPipelineConfiguration,
+        string $procedureId,
+        string $documentId
     ): Response {
         $annotatedStatementPdf = $annotatedStatementPdfHandler->findOneById($documentId);
         if (!$annotatedStatementPdfHandler->validateBoxReview($annotatedStatementPdf)) {
@@ -120,13 +120,13 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function convertToStatementAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        AiPipelineConfiguration      $aiPipelineConfiguration,
-        PermissionsInterface         $permissions,
-        ProcedureService             $procedureService,
-        CurrentProcedureService      $currentProcedureService,
-        StatementService             $statementService,
-        string                       $procedureId,
-        string                       $documentId): Response
+        AiPipelineConfiguration $aiPipelineConfiguration,
+        PermissionsInterface $permissions,
+        ProcedureService $procedureService,
+        CurrentProcedureService $currentProcedureService,
+        StatementService $statementService,
+        string $procedureId,
+        string $documentId): Response
     {
         $annotatedStatementPdf = $annotatedStatementPdfHandler->findOneById($documentId);
         if (!$this->validateTextReview($annotatedStatementPdf)) {

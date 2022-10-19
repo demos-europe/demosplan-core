@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-
 class AiPipelineConfiguration
 {
     /**
@@ -108,7 +107,7 @@ class AiPipelineConfiguration
     public function getPipelineDemosAuthorization(): string
     {
         if (null !== $this->htaccessUser) {
-            return 'Basic ' . base64_encode($this->htaccessUser . ':' . $this->htaccessPass ?? '');
+            return 'Basic '.base64_encode($this->htaccessUser.':'.$this->htaccessPass ?? '');
         }
 
         return $this->pipelineDemosAuthorization;

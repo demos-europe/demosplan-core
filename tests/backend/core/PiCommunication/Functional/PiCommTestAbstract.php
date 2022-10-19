@@ -10,18 +10,18 @@
 
 namespace Tests\Core\PiCommunication\Functional;
 
-use DirectoryIterator;
-use JsonException;
-use JsonSchema\Exception\InvalidSchemaException;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Tests\Base\FunctionalTestCase;
-use Tests\Base\PluginTestTrait;
 use demosplan\DemosPlanCoreBundle\Logic\JwtRouter;
 use demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication;
 use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\plugins\workflow\SegmentsManager\SegmentsManager;
+use DirectoryIterator;
+use JsonException;
+use JsonSchema\Exception\InvalidSchemaException;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Tests\Base\FunctionalTestCase;
+use Tests\Base\PluginTestTrait;
 
 abstract class PiCommTestAbstract extends FunctionalTestCase
 {
