@@ -53,21 +53,27 @@
             </legend>
             <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group')">
               <dp-checkbox
-                :class="prefixClass('o-form__group-item')"
                 id="orgatype_invitable_institution"
-                :label="Translator.trans('invitable_institution')"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
                 name="r_orgatype[]"
                 value-to-send="OPSORG" />
               <dp-checkbox
-                :class="prefixClass('o-form__group-item')"
                 id="orgatype_municipality"
-                :label="Translator.trans('municipality')"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('municipality')
+                }"
                 name="r_orgatype[]"
                 value-to-send="OLAUTH" />
               <dp-checkbox
-                :class="prefixClass('o-form__group-item')"
                 id="orgatype_planningagency"
-                :label="Translator.trans('planningagency')"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('planningagency')
+                }"
                 name="r_orgatype[]"
                 value-to-send="OPAUTH" />
             </div>
@@ -112,9 +118,11 @@
           </fieldset>
 
           <dp-checkbox
-            :class="prefixClass('u-mb-0_5')"
             id="gdpr_consent"
-            :label="Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })"
+            :class="prefixClass('u-mb-0_5')"
+            :label="{
+              text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
+            }"
             name="gdpr_consent"
             required
             value-to-send="on" />

@@ -44,6 +44,6 @@
 }
 
 @keyframes background-default-brand {
-    0% { background-color: $box-bg-color; }
+    0% { background-color: $dp-color-white; }
     100% { background-color: color.adjust($dp-color-main, $lightness: 35%); }
 }

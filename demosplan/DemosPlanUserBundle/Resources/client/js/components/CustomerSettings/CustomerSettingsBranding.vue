@@ -44,10 +44,12 @@
           style="max-width: 300px;">
         <dp-checkbox
           id="r_logoDelete"
-          :label="Translator.trans('logo.delete')"
+          :label="{
+            bold: true,
+            text: Translator.trans('logo.delete')
+          }"
           name="r_logoDelete"
-          value-to-send="deleteLogo"
-          standalone />
+          value-to-send="deleteLogo" />
       </div>
     </template>
     <div

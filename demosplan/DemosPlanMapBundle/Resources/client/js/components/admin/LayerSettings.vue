@@ -50,13 +50,15 @@
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
-      style="display: none;"
-      value="1"
-      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
-      :label="Translator.trans('explanation.gislayer.xplan.default')"
       id="r_xplanDefaultlayers"
+      class="u-mb-0_5"
+      :label="{
+        text: Translator.trans('explanation.gislayer.xplan.default')
+      }"
       name="r_xplanDefaultlayers"
-      class="u-mb-0_5" />
+      style="display: none;"
+      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
+      value="1" />
 
     <dp-label
       :text="Translator.trans('layers')"

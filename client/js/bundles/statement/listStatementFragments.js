@@ -12,8 +12,8 @@
  */
 
 import assessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import DpFragmentList from '@DemosPlanStatementBundle/components/fragmentList/DpFragmentList'
-import DpFragmentListFilterModal from '@DemosPlanStatementBundle/components/fragmentList/DpFragmentListFilterModal'
+import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
+import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
 import fragmentStore from '@DemosPlanStatementBundle/store/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import ListStatementFragments from '@DemosPlanStatementBundle/lib/ListStatementFragments'
