@@ -24,13 +24,8 @@
 $default-link-color:                    $dp-color-main !default;
 $default-link-color-hover:              $dp-color-highlight !default;
 
-// Globals > backgrounds
-// These are brand tokens and should be migrated there.
-$dp-bg-color:                           $dp-color-white !default; // bg color for readable content
-$dp-bg-color-light:                     $dp-color-neutral-light-3 !default; // bg color for light boxes, minimal contrast
-$light-bg-color:                        $dp-color-neutral-light-3 !default; // these are the same. looks like
-$medium-bg-color:                       $dp-color-neutral-light-3 !default; // one of them is lying.
-$dark-bg-color:                         $dp-color-neutral-light-2 !default;
+// Globals > background
+$dp-bg-color:                           $dp-color-white !default;
 
 // Globals > Borders
 $default-border-color:                  $dp-color-neutral-light-2 !default;
@@ -75,13 +70,9 @@ $dp-chart-color-active:                 $dp-color-highlight !default;
 
 
 // @TODO sort into above or move to token
-$dt-bg-color:                           $dp-color-neutral-base !default;
-$box-bg-color:                          $dp-color-white !default;
-
 $h1-color:                              $default-font-color !default;
 $h2-color:                              $default-font-color !default;
 $h3-color:                              $default-font-color !default;
 
 $table-row-bg-color:                    $dp-color-neutral-light-3 !default;
 $table-row-alternate-bg-color:          $default-border-color !default;
-$table-headrow-bg-color:                $dark-bg-color !default;
