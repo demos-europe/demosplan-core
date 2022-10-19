@@ -14,7 +14,6 @@ import deepMerge from './deepMerge'
 import formatBytes from './formatBytes'
 import getAnimationEventName from './getAnimationEventName'
 import getScrollTop from './getScrollTop'
-import { makeFormPost } from './makeFormPost'
 import sortAlphabetically from './sortAlphabetically'
 import throttle from './throttle'
 import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
@@ -28,7 +27,6 @@ export {
   isActiveFullScreen,
   getAnimationEventName,
   getScrollTop,
-  makeFormPost,
   sortAlphabetically,
   throttle,
   toggleFullscreen,

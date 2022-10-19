@@ -74,11 +74,10 @@
 </template>
 
 <script>
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpNewsItemStatus from './DpNewsItemStatus'
-import { makeFormPost } from 'demosplan-utils'
 
 export default {
   name: 'DpNewsAdminList',
