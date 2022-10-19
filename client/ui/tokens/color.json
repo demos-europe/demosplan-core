@@ -31,11 +31,11 @@
           "themeable": true
         },
         "dark-1": {
-          "value": "#696969",
+          "value": "#595959",
           "themeable": true
         },
         "dark-2": {
-          "value": "#4d4d4d",
+          "value": "#333333",
           "themeable": true
         }
       },
