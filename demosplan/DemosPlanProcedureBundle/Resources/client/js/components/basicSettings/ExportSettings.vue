@@ -14,11 +14,13 @@
     </p>
     <dp-checkbox
       id="check_all"
-      :label="Translator.trans('select.all')"
-      @change="toggleAll"
       v-model="allChecked"
-      standalone
-      class="u-mb" />
+      class="u-mb"
+      :label="{
+        bold: true,
+        text: Translator.trans('select.all')
+      }"
+      @change="toggleAll" />
     <div class="display--inline-block u-pr u-valign--top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
       <p
         class="weight--bold u-mb-0_25"

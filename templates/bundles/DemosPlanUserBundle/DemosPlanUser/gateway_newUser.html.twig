@@ -191,10 +191,12 @@
 
                     <div class="text--right space-inline-s">
                         <input class="btn btn--primary" type="submit" value="{{ "continue"|trans }}">
-                        <button class="btn btn--secondary" type="submit" data-skip-validation>
+                        <a
+                            class="btn btn--secondary"
+                            href="{{ path('DemosPlan_user_logout') }}">
                             <i class="fa fa-sign-out" aria-hidden="true"></i>
                             {{ "logout"|trans }}
-                        </button>
+                        </a>
                     </div>
 
                 </form>

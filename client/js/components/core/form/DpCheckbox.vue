@@ -24,10 +24,15 @@
       true-value="1"
       false-value="0">
     <dp-label
-      v-if="label !== ''"
+      v-if="label.text !== ''"
       :class="prefixClass('o-form__label')"
-      :bold="standalone"
-      v-bind="labelProps" />
+      v-bind="{
+        bold: false,
+        text: '',
+        for: id,
+        required: required,
+        ...label,
+      }" />
   </div>
 </template>
 
@@ -62,21 +67,17 @@ export default {
       default: false
     },
 
-    hint: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     id: {
       type: String,
       required: true
     },
 
     label: {
-      type: String,
-      required: false,
-      default: ''
+      type: Object,
+      default: () => ({}),
+      validator: (prop) => {
+        return Object.keys(prop).every(key => ['bold', 'hint', 'text', 'tooltip'].includes(key))
+      }
     },
 
     name: {
@@ -97,34 +98,10 @@ export default {
       default: false
     },
 
-    standalone: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
-    tooltip: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     valueToSend: {
       type: String,
       required: false,
       default: '1'
-    }
-  },
-
-  computed: {
-    labelProps () {
-      return {
-        for: this.id,
-        hint: this.hint,
-        required: this.required,
-        text: this.label,
-        tooltip: this.tooltip
-      }
     }
   }
 }

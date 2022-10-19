@@ -337,16 +337,18 @@ class DemosPlanAssessmentTableController extends BaseController
             'defaultToggleView'               => $this->globalConfig->getAssessmentTableDefaultToggleView(),
         ];
 
+        $usedFilters = $statementFilterHandler->getRequestedFiltersInfo(
+            $assessmentTableQuery->getFilters(),
+            $table->getFilterSet()['filters']
+        );
+
         return $this->renderTemplate(
             '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'assessment.table',
                 'procedure'    => $procedureId,
-                'filters'      => $statementFilterHandler->getRequestedFiltersInfo(
-                    $assessmentTableQuery->getFilters(),
-                    $table->getFilterSet()['filters']
-                ),
+                'filters'      => $usedFilters,
             ]
         );
     }

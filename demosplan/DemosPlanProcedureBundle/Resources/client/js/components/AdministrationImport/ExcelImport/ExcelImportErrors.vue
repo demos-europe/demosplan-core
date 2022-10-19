@@ -36,10 +36,12 @@
           <div v-if="errors.length > 1">
             <dp-checkbox
               :id="`error:${error.id}`"
-              class="display--inline-block"
-              :label="lineTransKey(error.lineNumber)"
               :checked="checkedItems[error.id]"
-              standalone />
+              class="display--inline-block"
+              :label="{
+                bold: true,
+                text: lineTransKey(error.lineNumber)
+              }" />
             <span>
               {{ error.message }}
             </span>
