@@ -7,14 +7,14 @@
  *
  * All rights reserved
  */
+
 namespace DemosEurope\EventSubscriber;
 
-use Psr\Log\LoggerInterface;
-use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
-
+use Psr\Log\LoggerInterface;
 
 class DailyMaintenanceSubscriber extends BaseEventSubscriber
 {
@@ -31,8 +31,7 @@ class DailyMaintenanceSubscriber extends BaseEventSubscriber
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
         LoggerInterface $logger,
         Permissions $permissions
-    )
-    {
+    ) {
         $this->annotatedStatementPdfHandler = $annotatedStatementPdfHandler;
         $this->logger = $logger;
         $this->permissions = $permissions;
@@ -60,4 +59,3 @@ class DailyMaintenanceSubscriber extends BaseEventSubscriber
         $this->logger->info('Daily Maintenance Tasks completed');
     }
 }
-

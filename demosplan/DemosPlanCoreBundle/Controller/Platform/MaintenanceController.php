@@ -10,16 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use Exception;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Throwable;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
@@ -35,6 +25,16 @@ use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use Exception;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Throwable;
 
 class MaintenanceController extends BaseController
 {
@@ -309,7 +309,6 @@ class MaintenanceController extends BaseController
         }
     }
 
-
     private function purgeSentEmails(): void
     {
         try {
@@ -318,6 +317,5 @@ class MaintenanceController extends BaseController
         } catch (Exception $e) {
             $this->logger->error('Delete old emails failed', [$e]);
         }
-
     }
 }
