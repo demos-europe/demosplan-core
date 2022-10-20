@@ -114,11 +114,11 @@
 </template>
 
 <script>
-import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
-import DpOlMapDragZoom from '@DemosPlanMapBundle/components/map/DpOlMapDragZoom'
-import DpOlMapDrawFeature from '@DemosPlanMapBundle/components/map/DpOlMapDrawFeature'
-import DpOlMapEditFeature from '@DemosPlanMapBundle/components/map/DpOlMapEditFeature'
-import DpOlMapSetExtent from '@DemosPlanMapBundle/components/map/DpOlMapSetExtent'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
+import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
+import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
 
 export default {
   name: 'DpMapView',
