@@ -298,6 +298,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
+    demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration: ~
+
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
