@@ -28,7 +28,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 

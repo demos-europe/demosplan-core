@@ -26,7 +26,7 @@ use demosplan\DemosPlanStatementBundle\Repository\TagRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\PathException;
 
 class TagService extends CoreService
