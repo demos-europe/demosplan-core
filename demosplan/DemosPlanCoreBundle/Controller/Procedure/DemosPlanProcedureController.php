@@ -369,11 +369,6 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['surveys'] = $procedureObject->getSurveys();
             $templateVars['surveyStatistics'] = $surveyService->generateSurveyStatistics($procedureObject);
         }
-        if ($this->permissions->hasPermission('feature_import_statement_pdf')) {
-            $templateVars['nextAnnotatedStatementId'] = $procedureObject->getNextAnnotatedStatementPdfToReview();
-            $templateVars['statusPercentageDistribution'] = $annotatedStatementPdfService->getPercentageDistribution($procedureObject);
-            $templateVars['nextAnnotatedStatementToConvert'] = $procedureObject->getNextAnnotatedStatementPdfsReadyToConvert();
-        }
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_dashboard.html.twig',
