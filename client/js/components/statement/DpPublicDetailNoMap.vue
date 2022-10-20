@@ -30,7 +30,7 @@ export default {
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
     DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
-    ElementsList: () => import('@DemosPlanDocumentBundle/components/ElementsList')
+    ElementsList: () => import('@DpJs/components/document/ElementsList')
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
