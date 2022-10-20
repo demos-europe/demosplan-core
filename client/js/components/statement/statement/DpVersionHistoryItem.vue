@@ -20,8 +20,12 @@
       <table>
         <tr class="hide-visually">
           <th>{{ Translator.trans('time') }}</th>
-          <th v-if="time.userName !== null">{{ Translator.trans('user') }}</th>
-          <th v-else>-</th>
+          <th v-if="time.userName !== null">
+            {{ Translator.trans('user') }}
+          </th>
+          <th v-else>
+            -
+          </th>
           <th>{{ Translator.trans('fields') }}</th>
           <th>{{ Translator.trans('aria.toggle') }}</th>
         </tr>
@@ -80,8 +84,16 @@
           <td colspan="4">
             <table>
               <tr class="hide-visually">
-                <th colspan="4" v-if="isOpen && isLoading">{{ Translator.trans('loading') }}</th>
-                <th colspan="4" v-if="isOpen && !isLoading">{{ Translator.trans('dropdown.open') }}</th>
+                <th
+                  colspan="4"
+                  v-if="isOpen && isLoading">
+                  {{ Translator.trans('loading') }}
+                </th>
+                <th
+                  colspan="4"
+                  v-if="isOpen && !isLoading">
+                  {{ Translator.trans('dropdown.open') }}
+                </th>
               </tr>
               <tr>
                 <td

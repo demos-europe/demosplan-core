@@ -143,13 +143,13 @@ export default {
 
   methods: {
     setUserData () {
-      let userData = {...this.user}
+      const userData = { ...this.user }
 
       return this.changeDefaultValues(userData)
     },
 
     changeDefaultValues (user) {
-      for (let key of userProperties) {
+      for (const key of userProperties) {
         if (!user[key]) {
           user[key] = '-'
         }

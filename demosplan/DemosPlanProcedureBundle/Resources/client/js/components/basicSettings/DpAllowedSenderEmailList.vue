@@ -18,7 +18,7 @@ import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
 
 export default {
-  name: "DpAllowedSenderEmailList",
+  name: 'DpAllowedSenderEmailList',
 
   components: {
     DpEmailList
@@ -26,13 +26,13 @@ export default {
 
   props: {
     /*
-    * The procedureId is being passed from administration_edit.html.twig to enable a
-    * filtering to just receive the maillane connection of the current procedure.
-    */
+     * The procedureId is being passed from administration_edit.html.twig to enable a
+     * filtering to just receive the maillane connection of the current procedure.
+     */
     procedureId: {
       type: String,
       required: true,
-      default: '',
+      default: ''
     }
   },
 
