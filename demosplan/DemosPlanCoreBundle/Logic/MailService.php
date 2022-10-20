@@ -23,9 +23,9 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityNotFoundException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
@@ -311,7 +311,7 @@ class MailService extends CoreService
                         $fromInitial = [$this->emailSystem];
                     }
                     $isValidFromAddress = preg_match(
-                        '/'. $this->globalConfig
+                        '/'.$this->globalConfig
                             ->getEmailFromDomainValidRegex().'/',
                         $fromInitial[0]
                     );

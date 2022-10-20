@@ -22,8 +22,8 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 
 class StatementClusterService extends CoreService
 {
@@ -165,5 +165,4 @@ class StatementClusterService extends CoreService
 
         return $this->entityFetcher->listEntitiesUnrestricted(Statement::class, $conditions, $sortMethods);
     }
-
 }

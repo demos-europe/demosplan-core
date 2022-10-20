@@ -11,12 +11,9 @@
 namespace demosplan\DemosPlanForumBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
-use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
-use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -30,9 +27,9 @@ use demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository;
 use demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use ReflectionException;
@@ -695,5 +692,4 @@ class ForumService extends CoreService
 
         return $this->dateHelper->convertDatesToLegacy($entry);
     }
-
 }

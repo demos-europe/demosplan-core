@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
 

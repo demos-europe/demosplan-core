@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfResourceTyp
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Tests\Base\FunctionalTestCase;
 
 class ResourceServiceTest extends FunctionalTestCase

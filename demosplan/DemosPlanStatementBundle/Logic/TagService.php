@@ -19,14 +19,13 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanStatementBundle\Repository\TagRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use Doctrine\ORM\NonUniqueResultException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 
 class TagService extends CoreService
