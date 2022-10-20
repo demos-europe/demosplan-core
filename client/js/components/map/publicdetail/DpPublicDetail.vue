@@ -9,13 +9,13 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import CustomLayer from '@DemosPlanMapBundle/components/publicdetail/controls/CustomLayer'
-import DpLayerLegend from '@DemosPlanMapBundle/components/publicdetail/controls/legendList/DpLayerLegend'
-import DpPublicLayerListWrapper from '@DemosPlanMapBundle/components/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
+import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
+import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
+import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DemosPlanProcedureBundle/components/survey/DpPublicSurvey'
-import DpUnfoldToolbarControl from '@DemosPlanMapBundle/components/publicdetail/controls/DpUnfoldToolbarControl'
-import Map from '@DemosPlanMapBundle/components/publicdetail/Map'
-import MapTools from '@DemosPlanMapBundle/components/publicdetail/controls/MapTools'
+import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
+import Map from '@DpJs/components/map/publicdetail/Map'
+import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
