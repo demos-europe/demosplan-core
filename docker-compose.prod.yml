@@ -13,12 +13,11 @@ services:
             - MYSQL_PASSWORD=mypass
         volumes:
             - 'db_storage:/var/lib/mysql'
-            - '/home/vallejo/Projects/demosplan-core/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
     production:
         image: 'demosdeutschland/demosplan-production:latest'
         environment:
-            - CURRENT_HOST_USERNAME=rafael
-            - CURRENT_HOST_USERID=5054
+            - CURRENT_HOST_USERNAME=demosplanuser
+            - CURRENT_HOST_USERID=65534
             - PROJECT_NAME=diplanbau
             - PHP_UPLOAD_MAX=2G
             - PHP_EXECUTION_TIME_MAX=1200
