@@ -336,6 +336,29 @@
         :value="documentId"
         v-if="documentId !== ''">
 
+      <div class="flex flex-items-center space-inline-s u-mb-0_5 u-mt">
+        <p
+          class="weight--bold u-m-0"
+          v-text="Translator.trans('public.participation.relation')"/>
+        <dp-contextual-help
+          :text="Translator.trans('statement.location.help')" />
+      </div>
+      <dp-button
+        v-if="!showMap"
+        :text="Translator.trans('add')"
+        @click="toggleMap"/>
+      <dp-button
+        v-else
+        color="secondary"
+        :text="Translator.trans('statement.location.hide')"
+        @click="toggleMap"/>
+      <dp-ol-map
+        v-if="showMap"
+        :procedure-id="procedureId"
+        :options="{
+          autoSuggest: false,
+        }"/>
+
       <dp-button-row
         :busy="isSaving"
         class="u-mv"
@@ -348,11 +371,13 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from 'demosplan-ui/components'
+import { DpButton, DpInput, DpLabel } from 'demosplan-ui/components'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
@@ -376,11 +401,14 @@ export default {
 
   components: {
     DpAccordion,
+    DpButton,
     DpButtonRow,
+    DpContextualHelp,
     DpDatepicker,
     DpInput,
     DpLabel,
     DpMultiselect,
+    DpOlMap,
     DpRadio,
     DpSelect,
     DpTextArea,
@@ -461,6 +489,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    showMap: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     tags: {
@@ -550,6 +584,10 @@ export default {
         this.isSaving = true
         this.$refs.simplifiedNewStatementForm.submit()
       }, false)
+    },
+
+    toggleMap () {
+      this.showMap = !this.showMap
     }
   },
 

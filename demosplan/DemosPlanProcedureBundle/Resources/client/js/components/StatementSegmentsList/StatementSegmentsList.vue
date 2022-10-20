@@ -19,6 +19,9 @@
         ref="commentsList"
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
+      <dp-ol-map-slidebar
+        v-if="olMap.show"
+        :procedureId="procedureId"/>
     </dp-slidebar>
 
     <dp-sticky-element>
@@ -118,6 +121,12 @@
                 @toggle="toggleInfobox" />
             </dp-flyout>
           </li>
+          <li class="display--inline-block">
+            <button
+              class="btn--blank o-link--default u-ph-0_25 line-height--2 whitespace--nowrap o-flyout__trigger"
+              v-text="Translator.trans('public.participation.relation')"
+              @click="showOlMap"/>
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -156,6 +165,7 @@ import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
+import DpOlMapSlidebar from '@DemosPlanMapBundle/components/map/DpOlMapSlidebar'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
@@ -172,6 +182,7 @@ export default {
   components: {
     DpClaim,
     DpFlyout,
+    DpOlMapSlidebar,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
@@ -250,6 +261,7 @@ export default {
 
     ...mapGetters('segmentSlidebar', [
       'commentsList',
+      'olMap',
       'versionHistory'
     ]),
 
@@ -400,6 +412,10 @@ export default {
       listAssignableUser: 'list'
     }),
 
+    ...mapActions('segmentSlidebar', [
+      'toggleSlidebarContent'
+    ]),
+
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
         this.statementClaimChecked = true
@@ -513,6 +529,7 @@ export default {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
       this.setContent({ prop: 'versionHistory', val: { ...this.versionHistory, show: false } })
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, show: false } })
+      this.setContent({ prop: 'olMap', val: { show: false } })
     },
 
     saveStatement (statement) {
@@ -555,6 +572,11 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    showOlMap () {
+      this.toggleSlidebarContent({ prop: 'olMap', val: { show: true } })
+      this.$root.$emit('show-slidebar')
     },
 
     toggleClaimStatement () {

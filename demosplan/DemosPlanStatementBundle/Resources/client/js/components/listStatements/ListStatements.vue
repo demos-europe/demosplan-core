@@ -9,6 +9,11 @@
 
 <template>
   <div>
+    <dp-slidebar @close="hideOlMap">
+      <dp-ol-map-slidebar
+        v-if="isOlMapOpen"
+        :procedureId="procedureId"/>
+    </dp-slidebar>
     <!-- Header -->
     <dp-sticky-element
       border
@@ -189,6 +194,7 @@
                 initialOrganisationDepartmentName,
                 initialOrganisationName,
                 internId,
+                mapRef,
                 memo,
                 submitName,
                 submitType,
@@ -224,6 +230,9 @@
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
+                <dt>{{ Translator.trans('public.participation.relation') }}:</dt>
+                <dd v-if="mapRef"><a @click="showOlMap">{{ mapRef }}</a></dd>
+                <dd v-else>-</dd>
                 </dl>
               </div>
             </template>
@@ -280,7 +289,9 @@ import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import DpOlMapSlidebar from '@DemosPlanMapBundle/components/map/DpOlMapSlidebar'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
+import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { formatDate } from '@DpJs/lib/utils/date'
@@ -299,7 +310,9 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpOlMapSlidebar,
     DpSelect,
+    DpSlidebar,
     DpSlidingPagination,
     DpStickyElement,
     SearchModal,
@@ -366,6 +379,7 @@ export default {
       searchFieldsSelected: null,
       searchValue: '',
       selectedSort: '-submitDate',
+      isOlMapOpen: false,
       sortOptions: [
         { value: '-submitDate', label: Translator.trans('sort.date.descending') },
         { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
@@ -536,6 +550,15 @@ export default {
             this.claimLoadingIds.splice(this.claimLoadingIds.indexOf(statementId), 1)
           })
       }
+    },
+
+    hideOlMap () {
+      this.isOlMapOpen = false
+    },
+
+    showOlMap () {
+      this.isOlMapOpen = true
+      this.$root.$emit('show-slidebar')
     },
 
     toggleClaimStatement (assigneeId, statementId) {

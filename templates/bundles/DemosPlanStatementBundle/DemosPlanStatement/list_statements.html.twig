@@ -27,5 +27,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundle('statement-listStatements.js') }}
+    {{ webpackBundles(['ol.js', 'statement-listStatements.js']) }}
 {% endblock javascripts %}
