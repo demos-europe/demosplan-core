@@ -15,7 +15,7 @@ function bundleEntryPoints (clientBundleGlob) {
   glob.sync(clientBundleGlob).forEach(filename => {
     const parts = filename.split('/')
 
-    const bundle = parts[parts.length - 2];
+    const bundle = parts[parts.length - 2]
     const name = parts[parts.length - 1].replace('.js', '')
 
     entries[bundle + '-' + name] = filename

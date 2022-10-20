@@ -40,7 +40,7 @@
 <script>
 import dayjs from 'dayjs'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpMapModal from '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import dpSelectAllMixin from '@DpJs/lib/utils/dpSelectAllMixin'
 import draggable from 'vuedraggable'

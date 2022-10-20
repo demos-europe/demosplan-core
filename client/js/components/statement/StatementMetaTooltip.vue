@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import StatementMetaData from '@DemosPlanStatementBundle/components/StatementMetaData'
+import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 
 export default {
   name: 'StatementMetaTooltip',

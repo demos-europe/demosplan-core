@@ -744,7 +744,7 @@ import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
 import { formatDate } from '@DpJs/lib/utils/date'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
-import TableCardFlyoutMenu from '@DemosPlanStatementBundle/components/assessmentTable/TableCardFlyoutMenu'
+import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
 import { VPopover } from 'demosplan-ui/directives'
 

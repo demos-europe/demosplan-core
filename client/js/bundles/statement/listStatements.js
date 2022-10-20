@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ListStatements from '@DemosPlanStatementBundle/components/listStatements/ListStatements'
+import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {
   ListStatements

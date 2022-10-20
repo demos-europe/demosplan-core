@@ -361,7 +361,7 @@ const SplitStatementStore = {
         fields: {
           Statement: [
             'segmentDraftList'
-          ]
+          ].join()
         }
       }))
     },
