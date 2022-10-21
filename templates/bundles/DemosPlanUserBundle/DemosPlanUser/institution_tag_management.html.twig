@@ -2,13 +2,17 @@
 
 {% block component_part %}
     {% include '@DemosPlanProcedure/DemosPlanProcedure/includes/administration_list_pageheader.html.twig' with {
-        heading: 'procedures.administrate'|trans,
+        heading: 'institution.tag.administrate'|trans,
         highlighted: 'admin_procedures'
     } %}
+
+    <institution-tag-list>
+
+    </institution-tag-list>
 
 {% endblock component_part %}
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['procedure-administrationList.js']) }}
+    {{ webpackBundles(['procedure-institutionTagList.js']) }}
 {% endblock javascripts %}
