@@ -13,7 +13,7 @@
 
 import AssessmentStatement from '@DemosPlanStatementBundle/lib/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import DpNewStatement from '@DemosPlanAssessmentTableBundle/components/DpNewStatement'
+import DpNewStatement from '@DpJs/components/assessmenttable/DpNewStatement'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'
