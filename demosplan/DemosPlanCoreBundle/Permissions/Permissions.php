@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use Symfony\Component\HttpFoundation\Session\Session;
 use function array_key_exists;
 use function array_map;
@@ -295,13 +296,16 @@ class Permissions implements PermissionsInterface
 
         if ($this->user->hasRole(Role::ORGANISATION_ADMINISTRATION)) {         // Fachplaner-Masteruser GLAUTH Kommune
             $this->enablePermissions([
-                'area_institution_tag_manage',
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
                 'area_manage_users',  // User verwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
+                'feature_json_api_create',
+                'feature_json_api_delete',
+                'feature_json_api_list',
+                'feature_json_api_update',
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
@@ -312,6 +316,16 @@ class Permissions implements PermissionsInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
+
+            if ($this->isPlanningOrganisation($this->user->getOrga())) {
+                $this->enablePermissions([
+                    'area_institution_tag_manage',
+                    'feature_institution_tag_create',
+                    'feature_institution_tag_delete',
+                    'feature_institution_tag_read',
+                    'feature_institution_tag_update',
+                ]);
+            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
@@ -1262,5 +1276,32 @@ class Permissions implements PermissionsInterface
                 }
             }
         );
+    }
+
+    protected function isPlanningOrganisation(?Orga $orga): bool
+    {
+        if (null === $orga) {
+            return false;
+        }
+
+        if ($orga->isDeleted()) {
+            return false;
+        }
+
+        if ($orga->isShowlist()) {
+            return false;
+        }
+
+        $currentSubdomain = $this->globalConfig->getSubdomain();
+        $isAcceptedPlanningAgency = in_array(
+            OrgaType::PLANNING_AGENCY,
+            $orga->getTypes($currentSubdomain, true)
+        );
+        $isAcceptedHearingAuthorityAgency = in_array(
+            OrgaType::HEARING_AUTHORITY_AGENCY,
+            $orga->getTypes($currentSubdomain, true)
+        );
+
+        return $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
     }
 }
