@@ -112,6 +112,12 @@ class ReportMessageConverter
                     $statementFinalMailReportEntry = StatementFinalMailReportEntryData::createFromArray($reportEntryMessage);
                     $message = $this->getStatementFinalMailMessage($statementFinalMailReportEntry);
                 }
+                if (ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE === $category) {
+                    $message = $this->getStatementSynchronizedSourceProcedureMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET === $category) {
+                    $message = $this->getStatementSynchronizedTargeProcedureMessage($reportEntryMessage);
+                }
                 if (ReportEntry::CATEGORY_MOVE === $category) {
                     $message = $this->getStatementMoveMessage($reportEntryMessage);
                 }
@@ -137,6 +143,16 @@ class ReportMessageConverter
         }
 
         return $message ?? '';
+    }
+
+    protected function getStatementSynchronizedTargeProcedureMessage(array $message): string
+    {
+        return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.target');
+    }
+
+    protected function getStatementSynchronizedSourceProcedureMessage(array $message): string
+    {
+        return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.source');
     }
 
     protected function getStatementMessage(array $message, string $transKey): string

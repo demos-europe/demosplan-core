@@ -72,7 +72,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE);
         $entry->setUser($user);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_STATEMENT);
         $entry->setIdentifier($sourceStatement->getProcedure()->getId());
         $entry->setMessage(Json::encode($message, JSON_UNESCAPED_UNICODE));
 
@@ -88,7 +88,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET);
         $entry->setUser(null);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_STATEMENT);
         $entry->setIdentifier($targetStatement->getProcedure()->getId());
         $entry->setMessage(Json::encode($message, JSON_UNESCAPED_UNICODE));
 
