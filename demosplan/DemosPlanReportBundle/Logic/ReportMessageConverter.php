@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanReportBundle\ValueObject\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\RegisteredInvitationReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\StatementFinalMailReportEntryData;
@@ -393,13 +393,13 @@ class ReportMessageConverter
         }
         if (array_key_exists('targetProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.coupled.targetProcedure', [
-                'targetProcedure' => $message['targetProcedure'],
+                'targetProcedure'        => $message['targetProcedure'],
                 'relatedInstitutionName' => $message['relatedInstitutionName'],
             ]);
         }
         if (array_key_exists('sourceProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.coupled.sourceProcedure', [
-                'sourceProcedure' => $message['sourceProcedure'],
+                'sourceProcedure'        => $message['sourceProcedure'],
                 'relatedInstitutionName' => $message['relatedInstitutionName'],
             ]);
         }
