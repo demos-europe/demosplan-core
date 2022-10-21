@@ -78,6 +78,9 @@ const baseConfig = {
       stream: false,
       path: false
     }
+  },
+  watchOptions: {
+    ignored: '**/node_modules'
   }
 }
 
@@ -87,7 +90,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       css: config.stylesEntryPoint,
       publiccss: config.publicStylesEntryPoint,
-      ...bundleEntryPoints(config.clientBundleGlob),
+      ...bundleEntryPoints(config.clientBundleGlob)
     }
   },
   output: {
