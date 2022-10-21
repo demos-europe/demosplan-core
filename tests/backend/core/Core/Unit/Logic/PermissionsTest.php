@@ -3585,7 +3585,6 @@ class PermissionsTest extends FunctionalTestCase
                     return false;
                 }
             ),
-
         ];
 
         return $this->getMock(User::class, $userMockMethods);
