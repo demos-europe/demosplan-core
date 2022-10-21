@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use Symfony\Component\HttpFoundation\Session\Session;
 use function array_key_exists;
 use function array_map;
 use function collect;
@@ -38,6 +37,7 @@ use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use function stripos;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
