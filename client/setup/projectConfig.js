@@ -28,9 +28,9 @@ function projectConfig (mode, project) {
     beConfigOutput = spawnSync('php', frontendIntegratorCommand, {
       env: {
         ...process.env,
-        'ACTIVE_PROJECT': project,
+        ACTIVE_PROJECT: project
       },
-      windowsHide: true,
+      windowsHide: true
     })
 
     if (beConfigOutput.status !== 0) {

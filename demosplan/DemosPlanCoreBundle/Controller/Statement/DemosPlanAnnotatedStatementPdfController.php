@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -47,7 +47,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function reviewAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         string $procedureId,
         string $documentId
     ): Response {
@@ -70,7 +70,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
 
         $templateVars = [
             'documentId'       => $documentId,
-            'aiPipelineLabels' => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels' => $aiPipelineConfiguration->getAiPipelineLabels(),
         ];
 
         return $this->renderTemplate(
@@ -120,7 +120,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function convertToStatementAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         CurrentProcedureService $currentProcedureService,
@@ -143,7 +143,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
             'documentId'            => $documentId,
             'newestInternalId'      => $statementService->getNewestInternId($procedureId),
             'usedInternIds'         => $statementService->getInternIdsFromProcedure($procedureId),
-            'aiPipelineLabels'      => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels'      => $aiPipelineConfiguration->getAiPipelineLabels(),
             'submitter'             => $annotatedStatementPdf->getSubmitterJson(),
             'currentProcedurePhase' => $currentProcedureService->getProcedureWithCertainty()->getPhase(),
         ];

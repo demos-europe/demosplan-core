@@ -12,7 +12,7 @@
  * See map-publicdetail.js for the entrypoint loaded when there is a Map
  */
 
-import DpPublicDetailNoMap from '@DemosPlanStatementBundle/components/DpPublicDetailNoMap'
+import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

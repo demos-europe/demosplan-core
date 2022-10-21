@@ -11,8 +11,8 @@
  * This is the entrypoint for list_final_group_citizen.html.twig
  */
 
-import DpMapModal from '@DemosPlanStatementBundle/components/assessmentTable/DpMapModal'
-import DpPublicStatementList from '@DemosPlanStatementBundle/components/publicStatementLists/DpPublicStatementList'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
 

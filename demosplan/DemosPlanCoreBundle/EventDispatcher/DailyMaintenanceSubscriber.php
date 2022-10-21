@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace DemosEurope\EventSubscriber;
+namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
