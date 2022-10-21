@@ -22,10 +22,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
 use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
@@ -68,19 +70,33 @@ class StatementSynchronizer
      */
     private $validator;
 
+    /**
+     * @var StatementReportEntryFactory
+     */
+    private $statementReportEntryFactory;
+
+    /**
+     * @var CurrentUserInterface
+     */
+    private $currentUserProvider;
+
     public function __construct(
+        CurrentUserInterface $currentUserProvider,
         SearchIndexTaskService $searchIndexTaskService,
         StatementCopier $statementCopier,
+        StatementReportEntryFactory $statementReportEntryFactory,
         StatementRepository $statementRepository,
         StatementService $statementService,
         TransactionService $transactionService,
         ValidatorInterface $validator
     ) {
-        $this->transactionService = $transactionService;
-        $this->statementService = $statementService;
-        $this->statementRepository = $statementRepository;
-        $this->statementCopier = $statementCopier;
+        $this->currentUserProvider = $currentUserProvider;
         $this->searchIndexTaskService = $searchIndexTaskService;
+        $this->statementCopier = $statementCopier;
+        $this->statementReportEntryFactory = $statementReportEntryFactory;
+        $this->statementRepository = $statementRepository;
+        $this->statementService = $statementService;
+        $this->transactionService = $transactionService;
         $this->validator = $validator;
     }
 
@@ -151,6 +167,13 @@ class StatementSynchronizer
 
         $this->validateStatement($newStatement);
         $this->createAndPersistLink($sourceStatement, $newOriginalStatement);
+
+        $sourceStatementReportEntry = $this->statementReportEntryFactory->createStatementSynchronizationInSource(
+            $this->currentUserProvider->getUser(),
+            $sourceStatement
+        );
+        $targetStatementReportEntry = $this->statementReportEntryFactory->createStatementSynchronizationInTarget($newOriginalStatement);
+        $this->statementRepository->persistEntities([$sourceStatementReportEntry, $targetStatementReportEntry]);
 
         $statementIds = [$newOriginalStatement->getId(), $newStatement->getId()];
         if (in_array(null, $statementIds, true)) {

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanReportBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
@@ -58,6 +59,38 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
         $entry->setIdentifier($statement['procedure']['id']);
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setMessage(Json::encode($statement, JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
+    public function createStatementSynchronizationInSource(User $user, Statement $sourceStatement): ReportEntry
+    {
+        $message = [
+            'externId' => $sourceStatement->getExternId(),
+        ];
+
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE);
+        $entry->setUser($user);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setIdentifier($sourceStatement->getProcedure()->getId());
+        $entry->setMessage(Json::encode($message, JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
+    public function createStatementSynchronizationInTarget(Statement $targetStatement): ReportEntry
+    {
+        $message = [
+            'externId' => $targetStatement->getExternId(),
+        ];
+
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET);
+        $entry->setUser(null);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setIdentifier($targetStatement->getProcedure()->getId());
+        $entry->setMessage(Json::encode($message, JSON_UNESCAPED_UNICODE));
 
         return $entry;
     }

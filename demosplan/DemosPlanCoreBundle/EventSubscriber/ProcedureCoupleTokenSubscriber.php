@@ -253,7 +253,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         $path = new End();
         $path->setParent($this->statementResourceType);
         $path->setParentPropertyName('synchronized');
-        $property = new Property($path, false, false);
+        $property = new \EDT\JsonApi\ResourceTypes\PropertyBuilder($path, $this->statementResourceType->getEntityClass());
         $property->readable(false, function (Statement $statement): bool {
             return null !== $this->entitySyncLinkRepository->findOneBy([
                 'sourceId' => $statement->getId(),
