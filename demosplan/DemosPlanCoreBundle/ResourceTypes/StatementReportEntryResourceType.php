@@ -38,7 +38,7 @@ final class StatementReportEntryResourceType extends ReportEntryResourceType
             ReportEntry::CATEGORY_DELETE_TEXT_FIELD_HISTORY,
             ReportEntry::CATEGORY_DELETE_ATTACHMENTS,
             ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE,
-            ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET
+            ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET,
         ];
     }
 }

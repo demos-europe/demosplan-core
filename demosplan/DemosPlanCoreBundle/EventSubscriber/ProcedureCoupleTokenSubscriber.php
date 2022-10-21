@@ -28,9 +28,9 @@ use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
+use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
-use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\Property;
@@ -127,8 +127,6 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 
     /**
      * @param BeforeResourceUpdateEvent|BeforeResourceDeletionEvent $event
-     *
-     * @return void
      */
     public function preventUpdateAndDeletion(DPlanEvent $event): void
     {
