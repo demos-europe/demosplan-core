@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { normalize, setItem } from '@DemosPlanCoreBundle/store/utils/storeUtils'
+import { normalize, setItem } from '@DpJs/store/core/utils/storeUtils'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 
 const BoilerplatesStore = {
