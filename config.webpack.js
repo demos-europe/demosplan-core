@@ -78,9 +78,6 @@ const baseConfig = {
       stream: false,
       path: false
     }
-  },
-  watchOptions: {
-    ignored: '**/node_modules'
   }
 }
 
