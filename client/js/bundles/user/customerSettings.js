@@ -11,7 +11,7 @@
  * This is the entrypoint for customer_settings.html.twig
  */
 
-import CustomerSettings from '@DemosPlanUserBundle/components/CustomerSettings/CustomerSettings'
+import CustomerSettings from '@DpJs/components/user/CustomerSettings/CustomerSettings'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

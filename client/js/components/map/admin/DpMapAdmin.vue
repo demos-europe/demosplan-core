@@ -8,9 +8,9 @@
 </license>
 
 <script>
-import DpMapView from '@DemosPlanMapBundle/components/map/DpMapView'
+import DpMapView from '@DpJs/components/map/map/DpMapView'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 
 export default {
   name: 'DpMapAdmin',

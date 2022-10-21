@@ -43,12 +43,12 @@ class PiBoxRecognitionRequester extends PiCommunication
             RouterInterface::ABSOLUTE_URL
         );
 
-        $aiPipelineId = $this->globalConfig->getAiPipelineAnnotatedStatementPdfCreatedId();
+        $aiPipelineId = $this->aiPipelineConfiguration->getAiPipelineAnnotatedStatementPdfCreatedId();
         if (null === $aiPipelineId || '' === $aiPipelineId) {
             $this->logger->error('Missing Pipeline Id for new AnnotatedStatementPdf notification.');
             throw new InvalidConfigurationException('Generic error');
         }
-        $pipelineDemosAuthorization = $this->globalConfig->getPipelineDemosAuthorization();
+        $pipelineDemosAuthorization = $this->aiPipelineConfiguration->getPipelineDemosAuthorization();
         if (null === $pipelineDemosAuthorization || '' === $pipelineDemosAuthorization) {
             $this->logger->error('Missing Authorization for AI => DPLAN requests.');
             throw new InvalidConfigurationException('Generic error');

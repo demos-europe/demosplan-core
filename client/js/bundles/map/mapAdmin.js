@@ -11,7 +11,7 @@
  * This is the entrypoint for map_admin.html.twig
  */
 
-import DpMapAdmin from '@DemosPlanMapBundle/components/admin/DpMapAdmin'
+import DpMapAdmin from '@DpJs/components/map/admin/DpMapAdmin'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpMapAdmin }

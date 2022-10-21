@@ -11,11 +11,11 @@
  * This is the entrypoint for portal_user.html.twig
  */
 
-import ChangePassword from '@DemosPlanUserBundle/components/portalUser/ChangePassword'
+import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import PersonalData from '@DemosPlanUserBundle/components/portalUser/PersonalData'
+import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 
 const components = {
   ChangePassword,

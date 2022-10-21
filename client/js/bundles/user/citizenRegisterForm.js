@@ -11,7 +11,7 @@
  * This is the entrypoint for citizen_register_form.html.twig
  */
 
-import CitizenRegisterForm from '@DemosPlanUserBundle/components/citizenRegisterForm/CitizenRegisterForm'
+import CitizenRegisterForm from '@DpJs/components/user/citizenRegisterForm/CitizenRegisterForm'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'

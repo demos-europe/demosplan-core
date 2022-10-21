@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import MasterToebListMerge from '@DemosPlanUserBundle/components/MasterToebListMerge/MasterToebListMerge'
+import MasterToebListMerge from '@DpJs/components/user/MasterToebListMerge/MasterToebListMerge'
 
 const components = {
   MasterToebListMerge

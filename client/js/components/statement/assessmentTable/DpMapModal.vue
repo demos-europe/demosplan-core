@@ -45,8 +45,8 @@ export default {
 
   components: {
     DpModal,
-    DpOlMap: () => import('@DemosPlanMapBundle/components/map/DpOlMap'),
-    DpOlMapLayerVector: () => import('@DemosPlanMapBundle/components/map/DpOlMapLayerVector')
+    DpOlMap: () => import('@DpJs/components/map/map/DpOlMap'),
+    DpOlMapLayerVector: () => import('@DpJs/components/map/map/DpOlMapLayerVector')
   },
 
   mixins: [prefixClassMixin],

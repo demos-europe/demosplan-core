@@ -11,7 +11,7 @@
  * This is the entrypoint for elements_admin_bulk_edit.html.twig
  */
 
-import ElementsAdminBulkEdit from '@DemosPlanDocumentBundle/components/ElementsAdminBulkEdit/ElementsAdminBulkEdit'
+import ElementsAdminBulkEdit from '@DpJs/components/document/ElementsAdminBulkEdit/ElementsAdminBulkEdit'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

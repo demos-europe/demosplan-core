@@ -13,7 +13,7 @@
 
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import OrgaRegisterForm from '@DemosPlanUserBundle/components/orgaRegisterForm/OrgaRegisterForm'
+import OrgaRegisterForm from '@DpJs/components/user/orgaRegisterForm/OrgaRegisterForm'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const components = {

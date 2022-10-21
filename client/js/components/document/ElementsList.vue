@@ -75,7 +75,7 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: () => import('@DemosPlanDocumentBundle/components/ElementsList/FileInfo')
+    FileInfo: () => import('@DpJs/components/document/ElementsList/FileInfo')
   },
 
   directives: {

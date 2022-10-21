@@ -39,7 +39,7 @@
 <script>
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 import isMobile from 'ismobilejs'
-import LayerSettings from '@DemosPlanMapBundle/components/admin/LayerSettings'
+import LayerSettings from '@DpJs/components/map/admin/LayerSettings'
 import { prefixClass } from 'demosplan-ui/lib'
 
 export default {

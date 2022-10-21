@@ -102,9 +102,9 @@ export default {
     DpBulkEditHeader,
     DpLoading,
     DpTreeList,
-    FileInfo: () => import(/* webpackChunkName: "elements-list-file" */ '@DemosPlanDocumentBundle/components/ElementsList/FileInfo'),
-    IconPublished: () => import(/* webpackChunkName: "elements-list-icon-published" */ '@DemosPlanDocumentBundle/components/ElementsList/IconPublished'),
-    IconStatementEnabled: () => import(/* webpackChunkName: "elements-list-icon-statement-enabled" */ '@DemosPlanDocumentBundle/components/ElementsList/IconStatementEnabled')
+    FileInfo: () => import(/* webpackChunkName: "elements-list-file" */ '@DpJs/components/document/ElementsList/FileInfo'),
+    IconPublished: () => import(/* webpackChunkName: "elements-list-icon-published" */ '@DpJs/components/document/ElementsList/IconPublished'),
+    IconStatementEnabled: () => import(/* webpackChunkName: "elements-list-icon-statement-enabled" */ '@DpJs/components/document/ElementsList/IconStatementEnabled')
   },
 
   data () {

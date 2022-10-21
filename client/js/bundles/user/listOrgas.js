@@ -11,9 +11,9 @@
  * This is the entrypoint for list_orgas.html.twig
  */
 
-import DpCreateItem from '@DemosPlanUserBundle/components/DpCreateItem'
+import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpOrganisationList from '@DemosPlanUserBundle/components/DpOrganisationList'
+import DpOrganisationList from '@DpJs/components/user/DpOrganisationList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DemosPlanUserBundle/lib/UrlPreview'

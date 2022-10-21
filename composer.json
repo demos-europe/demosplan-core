@@ -5,7 +5,7 @@
     "license": "proprietary",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.3,<8",
+        "php": ">=7.4,<8",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -177,7 +177,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "process-timeout": 600,
         "sort-packages": true,

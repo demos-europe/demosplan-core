@@ -11,9 +11,9 @@
  * This is the entrypoint for list_user.html.twig
  */
 
-import DpCreateItem from '@DemosPlanUserBundle/components/DpCreateItem'
-import DpUserList from '@DemosPlanUserBundle/components/DpUserList'
-import DpUserListExtended from '@DemosPlanUserBundle/components/DpUserListExtended'
+import DpCreateItem from '@DpJs/components/user/DpCreateItem'
+import DpUserList from '@DpJs/components/user/DpUserList'
+import DpUserListExtended from '@DpJs/components/user/DpUserListExtended'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UserFormFields from '@DemosPlanUserBundle/store/UserFormFields'
 

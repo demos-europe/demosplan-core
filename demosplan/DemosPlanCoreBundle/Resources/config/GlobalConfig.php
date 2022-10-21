@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use function array_key_exists;
 use function array_map;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use function explode;
 use const FILTER_VALIDATE_BOOLEAN;
@@ -562,48 +562,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $sharedFolder;
 
     /**
-     * @var string
-     */
-    private $aiPipelineAuthorization;
-
-    /**
-     * @var string
-     */
-    private $aiPipelineUrl;
-
-    /**
-     * @var array<int,string>|string[]
-     */
-    private $aiPipelineLabels;
-
-    /**
-     * @var string
-     */
-    private $aiPipelineAnnotatedStatementPdfCreatedId;
-
-    /**
-     * @var string
-     */
-    private $aiPipelineAnnotatedStatementPdfReviewedId;
-
-    /**
-     * @var string
-     *
-     * @deprecated
-     */
-    private $pipelineDemosAuthorization;
-
-    /**
-     * @var string
-     */
-    private $piPipelineConfirmedSegmentsId;
-
-    /**
-     * @var string
-     */
-    private $piPipelineSegmentRecognitionId;
-
-    /**
      * @var bool
      */
     private $mapEnableWmtsExport;
@@ -884,20 +842,6 @@ class GlobalConfig implements GlobalConfigInterface
 
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
-
-        // AI pipeline connection
-        $this->aiPipelineAuthorization = $parameterBag->get('pipeline.ai.authorization');
-        $this->aiPipelineUrl = $parameterBag->get('pipeline.ai.url');
-        $this->aiPipelineAnnotatedStatementPdfCreatedId = $parameterBag->get('pipeline.ai.annotated.statement.pdf.created.id');
-        $this->aiPipelineAnnotatedStatementPdfReviewedId = $parameterBag->get('pipeline.ai.annotated.statement.pdf.reviewed.id');
-        if ($parameterBag->has('pipeline.ai.labels')) {
-            $this->aiPipelineLabels = $parameterBag->get('pipeline.ai.labels');
-        } else {
-            $this->aiPipelineLabels = [];
-        }
-        $this->pipelineDemosAuthorization = $parameterBag->get('pipeline.demos.authorization');
-        $this->piPipelineConfirmedSegmentsId = $parameterBag->get('pi.pipeline.confirmed.segments.id');
-        $this->piPipelineSegmentRecognitionId = $parameterBag->get('pi.pipeline.segment.recognition.id');
 
         $this->mapEnableWmtsExport = $parameterBag->get('map_enable_wmts_export');
 
@@ -1869,50 +1813,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function isSharedFolder(): bool
     {
         return $this->sharedFolder;
-    }
-
-    public function getAiPipelineAuthorization(): string
-    {
-        return $this->aiPipelineAuthorization;
-    }
-
-    public function getAiPipelineUrl(): string
-    {
-        return $this->aiPipelineUrl;
-    }
-
-    public function getAiPipelineLabels(): array
-    {
-        return $this->aiPipelineLabels;
-    }
-
-    public function getAiPipelineAnnotatedStatementPdfCreatedId(): string
-    {
-        return $this->aiPipelineAnnotatedStatementPdfCreatedId;
-    }
-
-    public function getPipelineDemosAuthorization(): string
-    {
-        if (null !== $this->htaccessUser) {
-            return 'Basic '.base64_encode($this->htaccessUser.':'.$this->htaccessPass ?? '');
-        }
-
-        return $this->pipelineDemosAuthorization;
-    }
-
-    public function getAiPipelineAnnotatedStatementPdfReviewedId(): string
-    {
-        return $this->aiPipelineAnnotatedStatementPdfReviewedId;
-    }
-
-    public function getPiPipelineConfirmedSegmentsId(): string
-    {
-        return $this->piPipelineConfirmedSegmentsId;
-    }
-
-    public function getPiPipelineSegmentRecognitionId(): string
-    {
-        return $this->piPipelineSegmentRecognitionId;
     }
 
     public function getMapEnableWmtsExport(): bool
