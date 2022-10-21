@@ -20,7 +20,7 @@ import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/D
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import layers from '@DemosPlanMapBundle/store/Layers'
+import layers from '@DpJs/store/map/Layers'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
