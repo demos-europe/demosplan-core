@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use Symfony\Component\HttpFoundation\Session\Session;
 use function array_key_exists;
 use function array_map;
 use function collect;
 use function debug_backtrace;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -39,6 +38,7 @@ use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use function stripos;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
