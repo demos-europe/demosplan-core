@@ -115,7 +115,9 @@
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
-          :label="Translator.trans('workflow.change.assignee.place')" />
+          :label="{
+            text: Translator.trans('workflow.change.assignee.place')
+          }" />
         <div
           v-if="showWorkflowActions"
           class="u-mv-0_5">
@@ -230,7 +232,7 @@ import { DpIcon, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
+import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {

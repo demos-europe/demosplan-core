@@ -17,7 +17,7 @@ function resolveAliases () {
     vue: 'vue/dist/vue.esm.js'
   }
 
-  glob.sync(config.bundlesPath + 'Demos*Bundle').forEach(dir => {
+  glob.sync(config.oldBundlesPath + 'Demos*Bundle').forEach(dir => {
     const jsDir = dir + '/Resources/client/js'
 
     if (fs.existsSync(jsDir)) {

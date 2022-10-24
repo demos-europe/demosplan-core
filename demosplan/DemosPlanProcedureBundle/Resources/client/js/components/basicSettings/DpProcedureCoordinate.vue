@@ -85,10 +85,10 @@
 </template>
 
 <script>
-import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
-import DpOlMapDragZoom from '@DemosPlanMapBundle/components/map/DpOlMapDragZoom'
-import DpOlMapDrawPoint from '@DemosPlanMapBundle/components/map/DpOlMapDrawPoint'
-import DpOlMapLayerVector from '@DemosPlanMapBundle/components/map/DpOlMapLayerVector'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
+import DpOlMapDrawPoint from '@DpJs/components/map/map/DpOlMapDrawPoint'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import DpProcedureCoordinateInput from './DpProcedureCoordinateInput'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import ProcedureCoordinateGeolocation from '@DemosPlanProcedureBundle/components/basicSettings/ProcedureCoordinateGeolocation'

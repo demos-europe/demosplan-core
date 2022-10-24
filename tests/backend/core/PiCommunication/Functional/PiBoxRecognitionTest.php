@@ -44,8 +44,8 @@ class PiBoxRecognitionTest extends PiCommTestAbstract
         array $requestData,
         $annotatedStatementPdf
     ): void {
-        $demosAuthorization = $this->globalConfig->getPipelineDemosAuthorization();
-        $pipelineId = $this->globalConfig->getAiPipelineAnnotatedStatementPdfCreatedId();
+        $demosAuthorization = $this->aiPipelineConfiguration->getPipelineDemosAuthorization();
+        $pipelineId = $this->aiPipelineConfiguration->getAiPipelineAnnotatedStatementPdfCreatedId();
         $attributes = $requestData['data']['attributes'];
         $parameters = $attributes['parameters'];
         $errorUrl = $this->router->generate(

@@ -25,7 +25,7 @@ const resolveDir = require('./resolveDir').resolveDir
 function buildUserFeedbackFunction (options) {
   return (err, stats) => {
     showErrorMessage(err, stats)
-    showWebpackStatisticsMessage(options)
+    showWebpackStatisticsMessage(options, stats)
   }
 }
 
@@ -61,7 +61,7 @@ function configureBundleAnalysis (options, project, webpackConfig) {
   webpackConfig[0].plugins.unshift(bundleAnalyzer)
 }
 
-function configureProgressBar (options, webpackRunner ) {
+function configureProgressBar (options, webpackRunner) {
   if (!options.parent.silent) {
     const progressBar = new CliProgress.SingleBar({
       format: `{message}[${chalk.green('{bar}')}] ${chalk.bold('{percentage}%')}`,
@@ -197,7 +197,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
   }
 }
 
-function showWebpackStatisticsMessage (options) {
+function showWebpackStatisticsMessage (options, stats) {
   if (options.stats) {
     const webpackStatisticsOptions = {
       chunks: false

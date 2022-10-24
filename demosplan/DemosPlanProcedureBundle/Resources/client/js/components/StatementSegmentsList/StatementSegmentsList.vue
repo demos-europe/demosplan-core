@@ -154,16 +154,16 @@
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
+import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
-import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
+import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentsRecommendations from './SegmentsRecommendations'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
-import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
 
 export default {
