@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import SegmentsBulkEdit from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/SegmentsBulkEdit'
+import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
 
 const components = { SegmentsBulkEdit }
 const stores = {}

@@ -12,7 +12,7 @@
  */
 
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import DpBulkEditFragment from '@DemosPlanStatementBundle/components/assessmentTable/DpBulkEditFragment'
+import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
 import FragmentStore from '@DemosPlanStatementBundle/store/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'

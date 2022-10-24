@@ -12,7 +12,7 @@
  */
 
 import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
-import DpMasterBasicSettings from '@DemosPlanProcedureBundle/components/basicSettings/DpMasterBasicSettings'
+import DpMasterBasicSettings from '@DpJs/components/procedure/basicSettings/DpMasterBasicSettings'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

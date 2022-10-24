@@ -12,10 +12,10 @@
  */
 
 import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
-import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import NewBlueprintForm from '@DemosPlanProcedureBundle/components/admin/NewBlueprintForm'
+import NewBlueprintForm from '@DpJs/components/procedure/admin/NewBlueprintForm'
 
 const components = { DpEmailList, NewBlueprintForm }
 

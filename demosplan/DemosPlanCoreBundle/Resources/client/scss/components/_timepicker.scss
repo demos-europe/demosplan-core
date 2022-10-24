@@ -14,7 +14,7 @@
     &__flyout {
         position: absolute;
         z-index: $z-content-above;
-        background-color: $dp-bg-color;
+        background-color: $dp-color-white;
         border: $dp-border-thickness solid $default-border-color;
 
         &-item {

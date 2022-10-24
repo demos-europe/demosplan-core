@@ -65,7 +65,7 @@
             form:not(.o-wizard-mode) & {
                 padding: $inuit-base-spacing-unit--small;
 
-                background: $dp-bg-color-light;
+                background-color: $dp-token-color-ui-bg-neutral-medium;
             }
         }
     }

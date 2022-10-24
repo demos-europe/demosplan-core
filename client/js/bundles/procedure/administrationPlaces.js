@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_places.html.twig
  */
-import AdministrationPlaces from '@DemosPlanProcedureBundle/components/admin/AdministrationPlaces'
+import AdministrationPlaces from '@DpJs/components/procedure/admin/AdministrationPlaces'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { AdministrationPlaces }

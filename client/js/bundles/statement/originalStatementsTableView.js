@@ -14,11 +14,11 @@
 import AssessmentTableOriginal from '@DemosPlanStatementBundle/lib/AssessmentTableOriginal'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import { DpButton } from 'demosplan-ui/components'
-import DpFilterModal from '@DemosPlanStatementBundle/components/assessmentTable/DpFilterModal'
+import DpFilterModal from '@DpJs/components/statement/assessmentTable/DpFilterModal'
 import FilterStore from '@DemosPlanStatementBundle/store/Filter'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import OriginalStatementsTable from '@DemosPlanStatementBundle/components/originalStatementsTable/OriginalStatementsTable'
-import SearchModal from '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal'
+import OriginalStatementsTable from '@DpJs/components/statement/originalStatementsTable/OriginalStatementsTable'
+import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'
 
 const stores = {

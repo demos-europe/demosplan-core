@@ -349,6 +349,8 @@ parameters:
         - 'fonts.google.com'
         - 'fonts.gstatic.com'
         - 'data:'
+    demosplan_csp_form_action:
+        - 'self'
     demosplan_csp_frame_src: []
     demosplan_csp_frame_ancestors:
         - 'none'
