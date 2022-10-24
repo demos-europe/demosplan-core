@@ -31,7 +31,7 @@ All rights reserved
       <div
         class="c-slidebar__content overflow-y-auto u-mr">
         <dp-ol-map
-          :procedureId="procedureId"
+          :procedure-id="procedureId"
           :options="{
           autoSuggest: false,
         }"/>
