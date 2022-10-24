@@ -54,9 +54,9 @@ class FrontendBuildinfoCommand extends CoreCommand
     private function getParameters(): array
     {
         return [
-            'cssPrefix' => $this->parameterBag->get('public_css_class_prefix'),
-            'urlPrefix' => $this->parameterBag->get('url_path_prefix'),
-            'projectDir' => $this->parameterBag->get('demosplan.project_dir'),
+            'cssPrefix'   => $this->parameterBag->get('public_css_class_prefix'),
+            'urlPrefix'   => $this->parameterBag->get('url_path_prefix'),
+            'projectDir'  => $this->parameterBag->get('demosplan.project_dir'),
             'projectName' => $this->parameterBag->get('demosplan.project_name'),
         ];
     }
@@ -77,6 +77,5 @@ class FrontendBuildinfoCommand extends CoreCommand
             )
             ->add('dplan:translations:dump -e prod')
             ->run();
-
     }
 }
