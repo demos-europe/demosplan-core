@@ -19,7 +19,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class AnnotatedStatementPdfPercentageDistributionApiController extends APIController
 {
     /**
