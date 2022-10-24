@@ -874,9 +874,7 @@ export default {
     insertTextAtCursorPos (text) {
       // Remove p tags so text is inserted without adding new paragraph
       if (this.startsWithTag(text, 'p')) {
-        text = text
-          .slice(3)
-          .slice(0, -4)
+        text = text.slice(3, -4)
       }
 
       this.editor.commands.insertHTML(text)
