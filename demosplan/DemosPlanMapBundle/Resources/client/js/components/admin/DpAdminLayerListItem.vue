@@ -631,7 +631,7 @@ export default {
       get () {
         return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
       },
-      set ({newOrder}) {
+      set ({ newOrder }) {
         this.setChildrenFromCategory({
           categoryId: this.element.id,
           data: newOrder,
