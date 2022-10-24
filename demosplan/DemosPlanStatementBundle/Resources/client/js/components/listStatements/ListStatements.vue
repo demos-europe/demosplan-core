@@ -295,13 +295,13 @@ import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import StatementLocationMap from '@DemosPlanMapBundle/components/map/StatementLocationMap'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { formatDate } from '@DpJs/lib/utils/date'
 import SearchModal from '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal'
+import StatementLocationMap from '@DemosPlanStatementBundle/components/statement/StatementLocationMap'
 import StatementMetaData from '@DemosPlanStatementBundle/components/StatementMetaData'
 import tableSelectAllItems from '@DpJs/lib/utils/tableSelectAllItems'
 
@@ -316,12 +316,12 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    StatementLocationMap,
     DpSelect,
     DpSlidebar,
     DpSlidingPagination,
     DpStickyElement,
     SearchModal,
+    StatementLocationMap,
     StatementMetaData
   },
 

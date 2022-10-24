@@ -166,12 +166,12 @@ import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import StatementLocationMap from '@DemosPlanMapBundle/components/map/StatementLocationMap'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementLocationMap from '@DemosPlanStatementBundle/components/statement/StatementLocationMap'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
@@ -183,12 +183,12 @@ export default {
   components: {
     DpClaim,
     DpFlyout,
-    StatementLocationMap,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
     SegmentCommentsList,
     SegmentsRecommendations,
+    StatementLocationMap,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
