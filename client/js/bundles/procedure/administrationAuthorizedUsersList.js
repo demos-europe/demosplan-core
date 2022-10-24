@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_authorized_users_list.html.twig
  */
 
-import AuthorizedUsersList from '@DemosPlanProcedureBundle/components/admin/AuthorizedUsersList'
+import AuthorizedUsersList from '@DpJs/components/procedure/admin/AuthorizedUsersList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { AuthorizedUsersList }

@@ -91,7 +91,7 @@ import DpOlMapDrawPoint from '@DpJs/components/map/map/DpOlMapDrawPoint'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import DpProcedureCoordinateInput from './DpProcedureCoordinateInput'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import ProcedureCoordinateGeolocation from '@DemosPlanProcedureBundle/components/basicSettings/ProcedureCoordinateGeolocation'
+import ProcedureCoordinateGeolocation from '@DpJs/components/procedure/basicSettings/ProcedureCoordinateGeolocation'
 
 export default {
   name: 'DpProcedureCoordinate',

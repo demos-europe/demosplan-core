@@ -79,8 +79,8 @@
 <script>
 import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
-import ActionStepper from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperResponse from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
