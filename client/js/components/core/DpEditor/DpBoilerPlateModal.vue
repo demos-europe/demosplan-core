@@ -50,7 +50,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
-import BoilerplatesStore from '@DemosPlanProcedureBundle/store/Boilerplates'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBoilerPlate from './DpBoilerPlate'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpModal from '@DpJs/components/core/DpModal'

@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import SplitStatementStore from '@DemosPlanProcedureBundle/store/SplitStatementStore'
+import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
 import SplitStatementView from '@DemosPlanProcedureBundle/components/splitStatement/SplitStatementView'
 
 const components = { SplitStatementView }
