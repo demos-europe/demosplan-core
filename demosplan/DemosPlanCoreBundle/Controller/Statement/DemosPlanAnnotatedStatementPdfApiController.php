@@ -10,6 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use JsonException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
@@ -26,15 +35,7 @@ use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStat
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Exception;
-use JsonException;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
 
 class DemosPlanAnnotatedStatementPdfApiController extends APIController
 {
@@ -267,13 +268,12 @@ class DemosPlanAnnotatedStatementPdfApiController extends APIController
      * @throws Exception
      */
     public function nextAnnotatedStatementPdfAction(
-        ProcedureHandler $procedureHandler,
+        AnnotatedStatementPdfRepository $annotatedStatementPdfRepository,
         string $procedureId
     ): Response {
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
 
         $result = [
-            'documentId' => $procedure->getNextAnnotatedStatementPdfToReview(),
+            'documentId' => $annotatedStatementPdfRepository->getNextAnnotatedStatementPdfToReview($procedureId),
         ];
 
         return APIResponse::create($result, 200);

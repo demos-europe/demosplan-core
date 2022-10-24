@@ -43,28 +43,23 @@ class AnnotatedStatementPdfService
 
     public function getPercentageDistribution(Procedure $procedure): PercentageDistribution
     {
-        $pendingCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::PENDING
-        );
-        $readyToReviewCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::READY_TO_REVIEW
-        );
-        $boxesReviewCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::BOX_REVIEW
-        );
-        $reviewedCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::REVIEWED
-        );
-        $readyToConvertCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::READY_TO_CONVERT
-        );
-        $textReviewCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::TEXT_REVIEW
-        );
-        $convertedCount = $procedure->getAnnotatedStatementPdfsByStatusCount(
-            AnnotatedStatementPdf::CONVERTED
-        );
-        $totalCount = $procedure->getAnnotatedStatementPdfsCount();
+        $procedureId = $procedure->getId();
+        $pendingCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::PENDING);
+
+        $readyToReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::READY_TO_REVIEW);
+
+        $boxesReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::BOX_REVIEW);
+
+        $reviewedCount =  $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::REVIEWED);
+
+        $readyToConvertCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::READY_TO_CONVERT);
+
+        $textReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::TEXT_REVIEW);
+
+        $convertedCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::CONVERTED);
+
+        $totalCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsCount();
+
 
         return new PercentageDistribution(
             $totalCount,
