@@ -197,15 +197,15 @@
 <script>
 import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapState } from 'vuex'
-import ActionStepper from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperAction from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
-import ActionStepperResponse from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
+import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import lscache from 'lscache'
-import SelectedTagsList from '@DemosPlanProcedureBundle/components/SegmentsBulkEdit/SelectedTagsList'
+import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
 export default {
   name: 'SegmentsBulkEdit',

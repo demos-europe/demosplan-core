@@ -67,7 +67,7 @@
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSendBeacon from './DpSendBeacon'
-import DpSimplifiedNewStatementForm from '@DemosPlanProcedureBundle/components/DpSimplifiedNewStatementForm'
+import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
 export default {
   name: 'DpConvertAnnotatedPdf',

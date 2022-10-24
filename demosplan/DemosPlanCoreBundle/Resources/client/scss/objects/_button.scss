@@ -213,7 +213,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
         box-shadow: 0 0 0 2px $dp-token-color-brand-link;
-        border-color: transparent;
+        border-color: transparent !important;
     }
 
     outline: 0 transparent !important;
@@ -327,7 +327,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
         box-shadow: 0 0 0 2px $dp-token-color-ui-interactive;
-        border-color: transparent;
+        border-color: transparent !important;
     }
 
     outline: 0 transparent !important;

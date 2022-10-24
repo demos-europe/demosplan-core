@@ -24,7 +24,7 @@ export default {
   name: 'DpBasicSettings',
 
   components: {
-    AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DemosPlanProcedureBundle/components/basicSettings/AutoSwitchProcedurePhaseForm'),
+    AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpAllowedSenderEmailList,
     DpButton,
     DpDateRangePicker,

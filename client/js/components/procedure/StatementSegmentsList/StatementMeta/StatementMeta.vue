@@ -227,7 +227,7 @@ import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
-import SimilarStatementSubmitters from '@DemosPlanProcedureBundle/components/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 
 const convert = (dateString) => {

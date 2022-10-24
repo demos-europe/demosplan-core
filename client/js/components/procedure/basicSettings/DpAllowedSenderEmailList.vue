@@ -15,7 +15,7 @@
 
 <script>
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
 export default {
   name: 'DpAllowedSenderEmailList',
