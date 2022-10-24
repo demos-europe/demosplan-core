@@ -21,7 +21,7 @@
         :current-user="currentUser" />
       <dp-ol-map-slidebar
         v-if="olMap.show"
-        :procedureId="procedureId"/>
+        :procedure-id="procedureId"/>
     </dp-slidebar>
 
     <dp-sticky-element>
