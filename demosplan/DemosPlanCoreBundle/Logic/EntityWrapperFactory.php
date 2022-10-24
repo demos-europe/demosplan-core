@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
@@ -21,19 +20,18 @@ use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use EDT\Wrapping\Utilities\TypeAccessor;
+use EDT\Wrapping\WrapperFactories\WrapperObject;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
 /**
  * Service to wrap entities into an object that prevents access to properties not allowed by the
  * corresponding {@link ResourceTypeInterface}.
- *
- * @template-implements WrapperFactoryInterface<EntityInterface, TwigableWrapperObject>
  */
-class EntityWrapperFactory implements WrapperFactoryInterface
+class EntityWrapperFactory extends WrapperObjectFactory
 {
     /**
      * @var TypeAccessor
@@ -63,9 +61,15 @@ class EntityWrapperFactory implements WrapperFactoryInterface
         $this->propertyReader = new CachingPropertyReader($this->propertyAccessor, $schemaPathProcessor);
         $this->typeAccessor = new CacheableTypeAccessor($typeProvider);
         $this->conditionEvaluator = new ConditionEvaluator($this->propertyAccessor);
+        parent::__construct(
+            $this->typeAccessor,
+            $this->propertyReader,
+            $this->propertyAccessor,
+            $this->conditionEvaluator
+        );
     }
 
-    public function createWrapper(object $object, ReadableTypeInterface $type): TwigableWrapperObject
+    public function createWrapper(object $object, ReadableTypeInterface $type): WrapperObject
     {
         return new TwigableWrapperObject(
             $object,

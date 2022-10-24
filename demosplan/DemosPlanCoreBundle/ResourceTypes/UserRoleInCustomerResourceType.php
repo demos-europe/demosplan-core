@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<UserRoleInCustomer>
@@ -39,7 +39,7 @@ final class UserRoleInCustomerResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_json_api_user');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->true();
     }

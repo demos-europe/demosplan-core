@@ -13,9 +13,13 @@
       class="hide-visually"
       v-text="Translator.trans('upload.files')" />
     <dp-label
-      v-if="label !== ''"
+      v-if="label.text !== ''"
       class="layout__item"
-      v-bind="labelProps" />
+      v-bind="{
+        for: id,
+        required: required,
+        ...label
+      }" />
     <dp-upload
       :allowed-file-types="allowedFileTypes"
       :chunk-size="chunkSize"
@@ -93,13 +97,6 @@ export default {
       default: false
     },
 
-    // Translated string
-    hint: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     id: {
       type: String,
       required: false,
@@ -107,9 +104,11 @@ export default {
     },
 
     label: {
-      type: String,
-      required: false,
-      default: ''
+      type: Object,
+      default: () => ({}),
+      validator: (prop) => {
+        return Object.keys(prop).every(key => ['hint', 'text', 'tooltip'].includes(key))
+      }
     },
 
     /**
@@ -160,12 +159,6 @@ export default {
       default: false
     },
 
-    tooltip: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     /**
      * Use to overwrite the default translations
      * you can find all available keys here
@@ -204,19 +197,6 @@ export default {
     return {
       fileHashes: [],
       uploadedFiles: []
-    }
-  },
-
-  computed: {
-    labelProps () {
-      const { id, hint, label, tooltip, required } = this
-      return {
-        for: id,
-        hint,
-        text: label,
-        tooltip,
-        required
-      }
     }
   },
 

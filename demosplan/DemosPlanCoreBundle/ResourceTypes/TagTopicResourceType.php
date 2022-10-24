@@ -15,12 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
@@ -61,7 +61,7 @@ final class TagTopicResourceType extends DplanResourceType implements CreatableD
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

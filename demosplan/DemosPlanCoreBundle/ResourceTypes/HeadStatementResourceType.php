@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\Collection;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @property-read StatementResourceType $statements
@@ -36,7 +36,7 @@ final class HeadStatementResourceType extends AbstractStatementResourceType
         return $this->currentUser->hasAllPermissions('area_admin_assessmenttable', 'feature_statement_cluster');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->true();
     }

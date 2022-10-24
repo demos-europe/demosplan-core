@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfResourceType;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionException;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester;
@@ -83,7 +84,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public function piBoxRecognitionRequest(AfterResourceCreationEvent $event): void
     {
         $targetResourceType = $event->getResourceChange()->getTargetResourceType();
-        if (!$targetResourceType instanceof AnnotatedStatementPdfPageResourceType) {
+        if (!$targetResourceType instanceof AnnotatedStatementPdfResourceType) {
             return;
         }
         /** @var AnnotatedStatementPdf $annotatedStatementPdf */

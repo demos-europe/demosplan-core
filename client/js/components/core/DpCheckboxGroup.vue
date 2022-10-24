@@ -16,13 +16,15 @@
       :class="inline ? 'float--left' : 'u-mb-0_25'" />
     <dp-checkbox
       v-for="(option, idx) in options"
-      :key="`option_${idx}`"
       :id="option.id"
-      :name="option.name || ''"
-      :class="inline ? 'display--inline-block u-ml' : ''"
+      :key="`option_${idx}`"
       v-model="selected[option.id]"
-      @change="$emit('update', selected)"
-      :label="option.label" />
+      :class="inline ? 'display--inline-block u-ml' : ''"
+      :label="{
+        text: option.label
+      }"
+      :name="option.name || ''"
+      @change="$emit('update', selected)" />
   </fieldset>
 </template>
 

@@ -237,26 +237,28 @@
                 {% endif %}
 
                 {% if not readonly %}
-                    <div class="text--right space-inline-s">
-                        <input
-                            class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                            name="submit_item_button"
-                            data-cy="saveStatement"
-                            type="submit"
-                            value="{{ 'save'|trans }}">
-                        <input
-                            class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                            name="submit_item_return_button"
-                            v-save-and-return
-                            data-cy="saveAndReturn"
-                            type="submit"
-                            value="{{ 'save.and.return.to.list'|trans }}">
-                        <a
-                            class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                            href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
-                            role="button">
-                            {{ 'abort'|trans }}
-                        </a>
+                    <div class="position--sticky u-bottom-0">
+                        <div class="text--right space-inline-s u-pv-0_5 bg-color--white">
+                            <input
+                                class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                name="submit_item_button"
+                                data-cy="saveStatement"
+                                type="submit"
+                                value="{{ 'save'|trans }}">
+                            <input
+                                class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                name="submit_item_return_button"
+                                v-save-and-return
+                                data-cy="saveAndReturn"
+                                type="submit"
+                                value="{{ 'save.and.return.to.list'|trans }}">
+                            <a
+                                class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
+                                role="button">
+                                {{ 'abort'|trans }}
+                            </a>
+                        </div>
                     </div>
                 {% endif %}
             </form>
@@ -276,11 +278,15 @@
 
             switch (task) {
                 case 'send':
+                {% set sentTo = '' %}
                 {% if templateVars.table.statement.isSubmittedByCitizen == false %}
-                    abfrage_box = confirm(decodeURI("{{ "check.mail.result"|trans }}"));
+                    {% set sentTo = 'check.mail.result.institutions'|trans %}
+                {% elseif (hasPermission('feature_statements_vote') and statement.votes|default([])|length > 0) %}
+                    {% set sentTo = 'check.mail.result.citizenAndVoters'|trans %}
                 {% else %}
-                    abfrage_box = confirm(decodeURI("{{ "check.mail.result.citizen"|trans }}"));
+                    {% set sentTo = 'check.mail.result.citizen'|trans %}
                 {% endif %}
+                    abfrage_box = confirm("{{ 'check.mail.result'|trans({sentTo: sentTo}) }}");
                     if (abfrage_box === true){
                         document.bpform.r_action.value = 'send';
                         document.bpform.submit();

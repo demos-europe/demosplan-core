@@ -746,7 +746,7 @@ class DemosPlanProcedureController extends BaseController
      *     options={"expose": true}
      * )
      *
-     * @DplanPermissions("area_admin_procedures")
+     * @DplanPermissions("feature_admin_new_procedure")
      *
      * @return RedirectResponse|Response
      *

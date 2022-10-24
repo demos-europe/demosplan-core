@@ -1,4 +1,5 @@
 <?php declare(strict_types = 1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -6,6 +7,7 @@
  *
  * All rights reserved
  */
+
 namespace Application\Migrations;
 
 use Doctrine\DBAL\Exception;

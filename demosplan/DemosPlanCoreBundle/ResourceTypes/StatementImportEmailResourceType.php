@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Parsedown;
 
 /**
@@ -62,7 +62,7 @@ class StatementImportEmailResourceType extends DplanResourceType
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -88,7 +88,7 @@ class StatementImportEmailResourceType extends DplanResourceType
             $this->createToOneRelationship($this->forwardingUser)->readable(),
             $this->createAttribute($this->subject)->readable(),
             $this->createAttribute($this->from)->readable(),
-            $this->createAttribute($this->plainTextContent)->readable(false, static function(StatementImportEmail $statementImportEmail): string {
+            $this->createAttribute($this->plainTextContent)->readable(false, static function (StatementImportEmail $statementImportEmail): string {
                 return (new Parsedown())->text($statementImportEmail->getPlainTextContent());
             }),
             $this->createAttribute($this->htmlTextContent)->readable(),

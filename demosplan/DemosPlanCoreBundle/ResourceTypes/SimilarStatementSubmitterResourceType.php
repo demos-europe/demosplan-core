@@ -16,13 +16,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<ProcedurePerson>
@@ -102,7 +102,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType impl
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

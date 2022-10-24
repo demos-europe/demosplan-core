@@ -33,8 +33,11 @@ class Config {
     this.mode = (mode === 'production') ? 'production' : mode
 
     this.absoluteRoot = path.resolve(__dirname, this.relativeRoot) + '/'
-    this.bundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
-    this.bundleEntryPointsGlob = this.bundlesPath + 'DemosPlan*/Resources/client/js/bundles/*.js'
+    this.oldBundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
+
+    // Yes, technically this is not needed but it's here to document the possible use in `resolveAliases`
+    const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
+    this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
     this.cssPurge = {
       /**
@@ -89,9 +92,7 @@ class Config {
         'tooltip' // V-tooltip
       ],
       defaultExcludePatterns: [
-        'has-tooltip',
-        // Ids (we can't use a simple regex here because of classes with the same scheme :-/ )
-        'drop-save-msg'
+        'has-tooltip'
       ]
     }
 

@@ -901,6 +901,38 @@ feature_institution_participation:
     expose: true
     label: Institutionsbeteiligung
     loginRequired: true
+feature_institution_tag_create:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to 
+        group them by a custom category/label.
+        When enabled this permission allows creating a tag
+        setting the owningOrganisation to the current organisation.
+    label: 'allows to create a new tag for an institution'
+    loginRequired: true
+feature_institution_tag_delete:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to 
+        group them by a custom category/label.
+        When enabled this permission allows deleting tags
+        given by the current organisation.
+    label: 'allows to delete an existing institution tag'
+    loginRequired: true
+feature_institution_tag_read:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to 
+        group them by a custom category/label.
+        When enabled this permission allows reading the tags
+        given by the current organisation.
+    label: 'allows to show the Tagged institutions'
+    loginRequired: true
+feature_institution_tag_update:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to 
+        group them by a custom category/label.
+        When enabled this permission allows to alter the tags
+        that belong to the current organisation.
+    label: 'allows to alter an existing institution tag'
+    loginRequired: true
 feature_json_api_create:
     descriptions: |-
         When enabled the access to the generic JSON:API create route is granted. In constrast
