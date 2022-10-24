@@ -98,7 +98,6 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
         AnnotatedStatementPdfRepository $annotatedStatementPdfRepository,
         string $procedureId
     ): Response {
-
         $result = [
             'documentId' => $annotatedStatementPdfRepository->getNextAnnotatedStatementPdfToReview($procedureId),
         ];

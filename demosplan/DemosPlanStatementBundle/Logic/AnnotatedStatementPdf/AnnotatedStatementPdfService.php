@@ -50,7 +50,7 @@ class AnnotatedStatementPdfService
 
         $boxesReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::BOX_REVIEW);
 
-        $reviewedCount =  $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::REVIEWED);
+        $reviewedCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::REVIEWED);
 
         $readyToConvertCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::READY_TO_CONVERT);
 
@@ -59,7 +59,6 @@ class AnnotatedStatementPdfService
         $convertedCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::CONVERTED);
 
         $totalCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsCount();
-
 
         return new PercentageDistribution(
             $totalCount,

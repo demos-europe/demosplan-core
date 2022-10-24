@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
+use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 
 class AnnotatedStatementPdfRepository extends CoreRepository
 {
@@ -104,7 +104,7 @@ class AnnotatedStatementPdfRepository extends CoreRepository
         return new ArrayCollection($query);
     }
 
-    public function getAnnotatedStatementPdfsByStatus(string $procedureId,string $status): Collection
+    public function getAnnotatedStatementPdfsByStatus(string $procedureId, string $status): Collection
     {
         return $this->getAnnotatedStatementsPdfWithProcedureId($procedureId)->filter(
             function (AnnotatedStatementPdf $annotatedStatementPdf) use ($status) {
@@ -115,7 +115,7 @@ class AnnotatedStatementPdfRepository extends CoreRepository
 
     public function getAnnotatedStatementPdfsByStatusCount(string $procedureId, string $status): int
     {
-        return $this->getAnnotatedStatementPdfsByStatus($procedureId,$status)->count();
+        return $this->getAnnotatedStatementPdfsByStatus($procedureId, $status)->count();
     }
 
     public function getAnnotatedStatementPdfsCount(string $procedureId): int
@@ -137,7 +137,6 @@ class AnnotatedStatementPdfRepository extends CoreRepository
                 ->getId()
             : null;
     }
-
 
     /**
      * Returns next AnnotatedStatementPdf ready to be converted to a Statement.

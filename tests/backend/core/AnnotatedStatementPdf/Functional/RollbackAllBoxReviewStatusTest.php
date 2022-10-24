@@ -10,12 +10,13 @@
 
 namespace Tests\Core\AnnotatedStatementPdf\Functional;
 
-use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
+use Tests\Base\FunctionalTestCase;
+
 /**
  * Tests the method that calculates the statutes distributions for AnnotatedStatementPdfs in
  * a Procedure.
