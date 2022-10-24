@@ -10,7 +10,7 @@
 <template>
   <div>
     <dp-slidebar @close="hideOlMap">
-      <dp-ol-map-slidebar
+      <statement-location-map
         v-if="isOlMapOpen"
         :procedure-id="procedureId"/>
     </dp-slidebar>
@@ -289,7 +289,7 @@ import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpOlMapSlidebar from '@DemosPlanMapBundle/components/map/DpOlMapSlidebar'
+import StatementLocationMap from '@DemosPlanMapBundle/components/map/StatementLocationMap'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
@@ -310,7 +310,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpOlMapSlidebar,
+    StatementLocationMap,
     DpSelect,
     DpSlidebar,
     DpSlidingPagination,

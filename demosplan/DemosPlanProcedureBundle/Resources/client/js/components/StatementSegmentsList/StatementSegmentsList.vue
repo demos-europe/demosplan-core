@@ -19,7 +19,7 @@
         ref="commentsList"
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
-      <dp-ol-map-slidebar
+      <statement-location-map
         v-if="olMap.show"
         :procedure-id="procedureId"/>
     </dp-slidebar>
@@ -165,7 +165,7 @@ import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpOlMapSlidebar from '@DemosPlanMapBundle/components/map/DpOlMapSlidebar'
+import StatementLocationMap from '@DemosPlanMapBundle/components/map/StatementLocationMap'
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
@@ -182,7 +182,7 @@ export default {
   components: {
     DpClaim,
     DpFlyout,
-    DpOlMapSlidebar,
+    StatementLocationMap,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
