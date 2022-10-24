@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import DpBadge from '@DemosPlanProcedureBundle/components/AdministrationImport/EmailImport/DpBadge'
+import DpBadge from '@DpJs/components/procedure/AdministrationImport/EmailImport/DpBadge'
 
 export default {
   name: 'EmailImportStatusBadge',

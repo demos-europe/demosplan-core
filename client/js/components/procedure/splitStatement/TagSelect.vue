@@ -33,7 +33,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
-import MultiSelect from '@DemosPlanProcedureBundle/components/splitStatement/MultiSelect'
+import MultiSelect from '@DpJs/components/procedure/splitStatement/MultiSelect'
 
 export default {
   name: 'TagSelect',

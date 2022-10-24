@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_list_submitters.html.twig
  */
 
-import DpSubmitterList from '@DemosPlanProcedureBundle/components/DpSubmitterList'
+import DpSubmitterList from '@DpJs/components/procedure/DpSubmitterList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpSubmitterList }

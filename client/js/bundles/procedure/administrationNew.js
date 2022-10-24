@@ -13,7 +13,7 @@
 
 import CreateProcedure from '@DemosPlanProcedureBundle/lib/CreateProcedure'
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpNewProcedure from '@DemosPlanProcedureBundle/components/admin/DpNewProcedure/DpNewProcedure'
+import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

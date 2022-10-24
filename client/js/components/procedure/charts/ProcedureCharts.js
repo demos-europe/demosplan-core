@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { initBarChart, initBarPieChart, initDonutChart } from '../../lib/charts/helpers/init'
-import { getColorFromCSS } from '../../lib/charts/helpers/getColorsFromCSS'
+import { initBarChart, initBarPieChart, initDonutChart } from '@DemosPlanProcedureBundle/lib/charts/helpers/init'
+import { getColorFromCSS } from '@DemosPlanProcedureBundle/lib/charts/helpers/getColorsFromCSS'
 import SankeyDiagram from '@DemosPlanProcedureBundle/lib/charts/SankeyDiagram'
 
 export default class ProcedureCharts {

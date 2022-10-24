@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_search_procedures.html.twig
  */
-import DpSearchProcedures from '@DemosPlanProcedureBundle/components/DpSearchProcedures'
+import DpSearchProcedures from '@DpJs/components/procedure/DpSearchProcedures'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpSearchProcedures }

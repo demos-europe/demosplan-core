@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import DpSimplifiedNewStatementForm from '@DemosPlanProcedureBundle/components/DpSimplifiedNewStatementForm'
+import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
 export default {
   name: 'StatementFormImport',

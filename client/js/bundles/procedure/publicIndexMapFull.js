@@ -13,7 +13,7 @@
  */
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import locationStore from '@DemosPlanProcedureBundle/store/Location'
-import Procedures from '@DemosPlanProcedureBundle/components/publicindex/Procedures'
+import Procedures from '@DpJs/components/procedure/publicindex/Procedures'
 import procedureStore from '@DemosPlanProcedureBundle/store/Procedure'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 

@@ -50,7 +50,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpCard from '@DpJs/components/core/DpCard'
 import { DpLoading } from 'demosplan-ui/components'
-import ProcedureCharts from '@DemosPlanProcedureBundle/components/charts/ProcedureCharts'
+import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 export default {
   name: 'DpStatementSegmentsStatusCharts',

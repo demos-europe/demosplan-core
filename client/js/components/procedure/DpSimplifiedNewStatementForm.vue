@@ -358,7 +358,7 @@ import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
-import SimilarStatementSubmitters from '@DemosPlanProcedureBundle/components/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {

@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_edit_boilerplate.html.twig
  */
 
-import DpEditBoilerplate from '@DemosPlanProcedureBundle/components/admin/DpEditBoilerplate'
+import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplate'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
