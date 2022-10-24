@@ -1,38 +1,40 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+(c) 2010-present DEMOS E-Partizipation GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
-  <dp-tabs
-    :active-id="activeTabId"
-    use-url-fragment
-    @change="setActiveTabId">
-    <dp-tab
-      v-for="(option, index) in availableImportOptions"
-      :key="index"
-      :id="option.name"
-      :label="Translator.trans(option.title)">
-      <slot>
-        <keep-alive>
-          <component
-            class="u-mt"
-            :is="option.name" />
-        </keep-alive>
-      </slot>
-    </dp-tab>
-  </dp-tabs>
+  <div>
+    <dp-tabs
+      :active-id="activeTabId"
+      use-url-fragment
+      @change="setActiveTabId">
+      <dp-tab
+        v-for="(option, index) in availableImportOptions"
+        :key="index"
+        :id="option.name"
+        :label="Translator.trans(option.title)">
+        <slot>
+          <keep-alive>
+            <component
+              class="u-mt"
+              :is="option.name" />
+          </keep-alive>
+        </slot>
+      </dp-tab>
+    </dp-tabs>
+  </div>
 </template>
 
 <script>
+/* eslint-disable */
 import AdministrationImportNone from './AdministrationImportNone'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import EmailImport from './EmailImport/EmailImport'
 import ExcelImport from './ExcelImport/ExcelImport'
 import { hasAnyPermissions } from '@DpJs/lib/utils/hasPermission'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -45,7 +47,6 @@ export default {
     AdministrationImportNone,
     DpTab,
     DpTabs,
-    EmailImport,
     ExcelImport,
     StatementFormImport,
     StatementPdfImport
@@ -100,18 +101,23 @@ export default {
 
   data () {
     return {
-      activeTabId: ''
+      addons: [
+        {
+          name: 'EmailImport',
+          permissions: ['feature_import_statement_via_email'],
+          title: 'statement.import_email.title',
+          url: '/js/addons/EmailImport/EmailImport.umd.js'
+        }
+      ],
+      activeTabId: '',
+      asyncComponents: []
     }
   },
 
   computed: {
     availableImportOptions () {
       return [
-        {
-          name: EmailImport.name,
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title'
-        },
+        ...this.asyncComponents,
         {
           name: StatementPdfImport.name,
           permissions: ['feature_import_statement_pdf'],
@@ -142,11 +148,42 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
+    },
+
+    async loadExternalComponentScripts (addon) {
+      const name = addon.url.split('/').reverse()[0].match(/^(.*?)\.umd/)[1]
+
+      if (window[name]) return window[name]
+
+      window[name] = new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.async = true
+        script.addEventListener('load', () => {
+          resolve(window[name])
+          this.$options.components[name] = window[name]
+          console.log(this.$options.components)
+
+          this.asyncComponents.push({
+            name: name,
+            permissions: addon.permissions,
+            title: addon.title
+          })
+        })
+        script.addEventListener('error', () => {
+          reject(new Error(`Error loading ${url}`))
+        })
+        script.src = addon.url
+        document.head.appendChild(script)
+      });
+
+      return window[name]
     }
   },
 
-  created () {
-    this.setActiveTabId()
+  mounted () {
+    this.addons.forEach(addon => {
+      this.loadExternalComponentScripts(addon).then(this.setActiveTabId())
+    })
   }
 }
 </script>
