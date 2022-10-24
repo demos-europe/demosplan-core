@@ -231,7 +231,13 @@
                   </dt>
                   <dd>{{ submitType }}</dd>
                 <dt>{{ Translator.trans('public.participation.relation') }}:</dt>
-                <dd v-if="mapRef"><a @click="showOlMap">{{ mapRef }}</a></dd>
+                <dd v-if="mapRef">
+                  <button
+                    class="btn--blank o-link--default"
+                    @click="showOlMap">
+                    {{ mapRef }}
+                  </button>
+                </dd>
                 <dd v-else>-</dd>
                 </dl>
               </div>
