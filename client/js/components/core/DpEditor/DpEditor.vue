@@ -861,6 +861,14 @@ export default {
     },
 
     handleInsertText (text) {
+      text = text.replace(/\n/g, '<br>')
+
+      // Remove p tags so text is inserted without adding new paragraph
+      if (this.startsWithTag(text, 'p')) {
+        text = text.substr(3)
+        text = text.slice(0, -4)
+      }
+
       this.editor.commands.insertHTML(text)
       this.currentValue = this.editor.getHTML()
     },
