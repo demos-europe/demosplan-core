@@ -233,7 +233,7 @@
                 <dt>{{ Translator.trans('public.participation.relation') }}:</dt>
                 <dd v-if="mapRef">
                   <button
-                    class="btn--blank o-link--default"
+                    class="btn--blank o-link--default line-height--1 whitespace--nowrap"
                     @click="showOlMap">
                     {{ mapRef }}
                   </button>
