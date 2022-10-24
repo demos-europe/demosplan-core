@@ -2993,6 +2993,7 @@ statement.detail.form.personal.post_publicly: "Ich möchte namentlich Stellung n
 statement.detail.form.personal.publish: "Ich möchte, dass meine Stellungnahme (nach Freigabe durch die Verwaltung) <em>bei {projectName} einsehbar</em> ist."
 statement.detail.form.personal.require_information_mail: "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist."
 statement.detail.form.statement_text: "Bitte verfassen Sie Ihre Stellungnahme"
+statement.detail.location.heading: "Stellungnahme #{externId} - Ortsbezug"
 statement.dialog.close: "Stellungnahme-Formular minimieren"
 statement.do.fragment: "Stellungnahme aufteilen"
 statement.do.segment: "Stellungnahme #{id} aufteilen"

@@ -20,7 +20,7 @@ All rights reserved
   <div>
     <h2
       class="u-mb-0_75"
-      v-text="Translator.trans('map.relation.set')">
+      v-text="heading">
     </h2>
 
     <div class="c-slidebar__content overflow-y-auto u-mr">
@@ -44,9 +44,25 @@ export default {
   },
 
   props: {
+    statementExternId: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
     procedureId: {
       type: String,
       required: true
+    }
+  },
+
+  computed: {
+    heading () {
+      if (this.statementExternId) {
+        return Translator.trans('statement.detail.location.heading', { externId: this.statementExternId })
+      }
+
+      return Translator.trans('public.participation.relation')
     }
   }
 }

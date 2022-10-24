@@ -21,6 +21,7 @@
         :current-user="currentUser" />
       <statement-location-map
         v-if="olMap.show"
+        :statement-extern-id="statementExternId"
         :procedure-id="procedureId"/>
     </dp-slidebar>
 
