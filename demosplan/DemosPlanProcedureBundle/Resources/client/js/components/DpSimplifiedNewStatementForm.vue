@@ -347,17 +347,17 @@
         v-if="!showMap"
         :text="Translator.trans('add')"
         @click="toggleMap"/>
-      <dp-button
-        v-else
-        color="secondary"
-        :text="Translator.trans('statement.location.hide')"
-        @click="toggleMap"/>
-      <dp-ol-map
-        v-if="showMap"
-        :procedure-id="procedureId"
-        :options="{
-          autoSuggest: false,
-        }"/>
+      <template v-else>
+        <dp-button
+          color="secondary"
+          :text="Translator.trans('statement.location.hide')"
+          @click="toggleMap"/>
+        <dp-ol-map
+          :procedure-id="procedureId"
+          :options="{
+            autoSuggest: false,
+          }"/>
+      </template>
 
       <dp-button-row
         :busy="isSaving"
