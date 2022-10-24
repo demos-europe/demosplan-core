@@ -12,7 +12,7 @@
     <dp-slidebar @close="hideOlMap">
       <dp-ol-map-slidebar
         v-if="isOlMapOpen"
-        :procedureId="procedureId"/>
+        :procedure-id="procedureId"/>
     </dp-slidebar>
     <!-- Header -->
     <dp-sticky-element
