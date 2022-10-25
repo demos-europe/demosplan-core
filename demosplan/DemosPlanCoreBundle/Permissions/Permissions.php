@@ -317,7 +317,7 @@ class Permissions implements PermissionsInterface
                 'field_statement_recommendation',
             ]);
 
-            if ($this->isPlanningOrganisation($this->user->getOrga())) {
+            if ($this->isMemberOfPlanningOrganisation()) {
                 $this->enablePermissions([
                     'area_institution_tag_manage',
                     'feature_institution_tag_create',
@@ -761,6 +761,18 @@ class Permissions implements PermissionsInterface
         $subdomain = $this->globalConfig->getSubdomain();
 
         return in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+    }
+
+    /**
+     * Checks if the user is Member of a planning organisation.
+     */
+    protected function isMemberOfPlanningOrganisation(): bool
+    {
+        $isAcceptedMunicipality = $this->isMemberOfMunicipality();
+        $isAcceptedPlanningAgency = $this->isMemberOfPlanningoffice();
+        $isAcceptedHearingAuthorityAgency = $this->isMemberOfHearingAuthority();
+
+        return $isAcceptedMunicipality || $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
     }
 
     /**
@@ -1276,32 +1288,5 @@ class Permissions implements PermissionsInterface
                 }
             }
         );
-    }
-
-    protected function isPlanningOrganisation(?Orga $orga): bool
-    {
-        if (null === $orga) {
-            return false;
-        }
-
-        if ($orga->isDeleted()) {
-            return false;
-        }
-
-        if ($orga->isShowlist()) {
-            return false;
-        }
-
-        $currentSubdomain = $this->globalConfig->getSubdomain();
-        $isAcceptedPlanningAgency = in_array(
-            OrgaType::PLANNING_AGENCY,
-            $orga->getTypes($currentSubdomain, true)
-        );
-        $isAcceptedHearingAuthorityAgency = in_array(
-            OrgaType::HEARING_AUTHORITY_AGENCY,
-            $orga->getTypes($currentSubdomain, true)
-        );
-
-        return $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
     }
 }
