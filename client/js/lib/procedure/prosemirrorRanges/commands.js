@@ -8,7 +8,7 @@
  */
 
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { flattenNode, getMarks, splitsExistingRange } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/utilities'
+import { flattenNode, getMarks, splitsExistingRange } from '@DpJs/lib/procedure/prosemirrorRanges/utilities'
 import { TextSelection } from 'prosemirror-state'
 import { v4 as uuidv4 } from 'uuid'
 
