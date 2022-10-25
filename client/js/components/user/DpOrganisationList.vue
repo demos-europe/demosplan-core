@@ -159,7 +159,7 @@ import DpSearchField from '@DpJs/components/core/form/DpSearchField'
 import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
 import DpSkeletonBox from '@DpJs/components/core/DpSkeletonBox'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpOrganisationList',

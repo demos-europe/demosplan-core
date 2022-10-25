@@ -15,7 +15,7 @@
 import { de } from './utils/UppyTranslations'
 import DragDrop from '@uppy/drag-drop'
 import { getFileTypes } from '@DpJs/lib/FileInfo'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import ProgressBar from '@uppy/progress-bar'
 import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
