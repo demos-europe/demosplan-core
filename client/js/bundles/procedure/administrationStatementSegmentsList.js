@@ -12,9 +12,9 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import SegmentSlidebar from '@DemosPlanProcedureBundle/store/SegmentSlidebar'
-import SplitStatementStore from '@DemosPlanProcedureBundle/store/SplitStatementStore'
-import StatementSegmentsList from '@DemosPlanProcedureBundle/components/StatementSegmentsList/StatementSegmentsList'
+import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
+import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
+import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'
 
 const components = {
   StatementSegmentsList

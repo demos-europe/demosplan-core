@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ListSubscriptions from '@DemosPlanProcedureBundle/components/listSubscriptions/ListSubscriptions'
+import ListSubscriptions from '@DpJs/components/procedure/listSubscriptions/ListSubscriptions'
 
 const components = { ListSubscriptions }
 

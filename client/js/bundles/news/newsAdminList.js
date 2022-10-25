@@ -11,7 +11,7 @@
  * This is the entrypoint for news_admin_list.html.twig
  */
 
-import DpNewsAdminList from '@DemosPlanNewsBundle/components/DpNewsAdminList'
+import DpNewsAdminList from '@DpJs/components/news/DpNewsAdminList'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

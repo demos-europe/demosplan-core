@@ -8,8 +8,8 @@
  */
 
 import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
-import { hasPermisson, hasAllPermissions, hasAnyPermissions } from './hasPermission'
-import { formatDate, toDate } from "./date";
+import { hasPermission, hasAllPermissions, hasAnyPermissions } from './hasPermission'
+import { formatDate, toDate } from './date'
 import changeUrlforPager from './changeUrlforPager'
 import debounce from './debounce'
 import deepMerge from './deepMerge'
@@ -17,10 +17,9 @@ import formatBytes from './formatBytes'
 import getAnimationEventName from './getAnimationEventName'
 import getScrollTop from './getScrollTop'
 import hasOwnProp from './hasOwnProp'
-import { makeFormPost } from './makeFormPost'
 import sortAlphabetically from './sortAlphabetically'
 import throttle from './throttle'
-import uniqueArrayByObjectKey from "./uniqueArrayByObjectKey";
+import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
 
 export {
   bindFullScreenChange,
@@ -32,11 +31,10 @@ export {
   isActiveFullScreen,
   getAnimationEventName,
   getScrollTop,
-  hasOwnProp,
-  hasPermisson,
   hasAllPermissions,
   hasAnyPermissions,
-  makeFormPost,
+  hasOwnProp,
+  hasPermission,
   sortAlphabetically,
   throttle,
   toDate,

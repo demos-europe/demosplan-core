@@ -37,8 +37,10 @@
           type="url" />
         <dp-checkbox
           id="newTab"
-          :label="Translator.trans('open.in.new.tab')"
-          v-model="newTab" />
+          v-model="newTab"
+          :label="{
+            text: Translator.trans('open.in.new.tab')
+          }" />
         <dp-button-row
           class="u-mt"
           primary

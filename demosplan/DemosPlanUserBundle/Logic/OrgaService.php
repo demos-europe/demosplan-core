@@ -427,6 +427,29 @@ class OrgaService extends CoreService
     }
 
     /**
+     * Determines the count of organisation instances accepted in the given customer and returns
+     * them sorted by the count value.
+     *
+     * The keys used are the translation keys corresponding to the logical meaning of each
+     * organisation type:
+     *
+     * * `invitable_institution`: Institutionen
+     * * `planningagency`: Planungsbüros
+     * * `procedure.agency`: Verfahrensträger
+     *
+     * @return array<string, int<0, max>>
+     */
+    public function getOrgaCountByTypeTranslated(Customer $customerContext): array
+    {
+        return collect($this->getAcceptedOrgaCountByType($customerContext))
+            ->mapWithKeys(function (int $count, string $translationKey): array {
+                return [$this->translator->trans($translationKey) => $count];
+            })
+            ->sort()
+            ->all();
+    }
+
+    /**
      * Fetch **undeleted** {@link Orga} entities connected to the **current customer** sorted by their {@link Orga::$name}.
      *
      * The special {@link Orga} instance for citizens will **not** be included in the output.
@@ -456,6 +479,57 @@ class OrgaService extends CoreService
             $this->logger->error('Fehler bei getList Orga:', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Get Count of accepted orga types for given customer.
+     *
+     * The keys correspond to the following german meanings:
+     *
+     * * `invitable_institution`: Institutionen
+     * * `planningagency`: Planungsbüros
+     * * `procedure.agency`: Verfahrensträger
+     *
+     * @return array{'procedure.agency': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
+     */
+    protected function getAcceptedOrgaCountByType(Customer $customerContext): array
+    {
+        $municipalityCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::MUNICIPALITY);
+        $planningAgencyCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::PLANNING_AGENCY);
+        $institutionCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::PUBLIC_AGENCY);
+
+        return [
+            'invitable_institution' => $institutionCount,
+            'planningagency' => $planningAgencyCount,
+            'procedure.agency' => $municipalityCount,
+        ];
+    }
+
+    /**
+     * @param key-of<OrgaType::ORGATYPE_ROLE> $orgaTypeName
+     *
+     * @return int<0, max>
+     */
+    protected function getAcceptedOrgaCount(Customer $customerContext, string $orgaTypeName): int
+    {
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->orgaResourceType->statusInCustomers->status
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $orgaTypeName,
+                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+            ),
+            // The resource type will already contain this restriction,
+            // but we add it here too for clarity.
+            $this->conditionFactory->propertyHasValue(
+                $customerContext->getId(),
+                ...$this->orgaResourceType->statusInCustomers->customer->id
+            ),
+        ];
+
+        return $this->entityFetcher->getEntityCount($this->orgaResourceType, $conditions);
     }
 
     /**

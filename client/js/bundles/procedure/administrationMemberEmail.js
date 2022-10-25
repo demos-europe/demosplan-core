@@ -12,7 +12,7 @@
  */
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpEmailList from '@DemosPlanProcedureBundle/components/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpLabel } from 'demosplan-ui/components'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
