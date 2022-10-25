@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_new_master.html.twig
  */
 
-import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
+import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
