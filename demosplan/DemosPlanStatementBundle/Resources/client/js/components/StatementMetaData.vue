@@ -15,6 +15,7 @@
       :initial-organisation-department-name="statement.attributes.initialOrganisationDepartmentName || '-'"
       :initial-organisation-name="statement.attributes.initialOrganisationName || '-'"
       :intern-id="statement.attributes.internId || '-'"
+      :map-ref="mapRef"
       :memo="statement.attributes.memo || '-'"
       :submit-name="submitName"
       :submit-type="submitType"
@@ -72,6 +73,10 @@ export default {
         locationString += this.statement.attributes.initialOrganisationCity
       }
       return locationString !== '' ? locationString : '-'
+    },
+
+    mapRef () {
+      return this.statement.attributes.mapRef
     },
 
     submitName () {
