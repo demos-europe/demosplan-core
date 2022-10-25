@@ -35,7 +35,7 @@ jobs:
             -   name: Setup PHP with composer v2
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '7.4'
+                    php-version: '7.3'
                     extensions: gd soap sockets zip
                     tools: composer:v2
 
@@ -47,12 +47,21 @@ jobs:
                 uses: jitterbit/get-changed-files@v1
                 id: files
 
+            -   name: download configs
+                run: |
+                    wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/php-cs-fixer/.php-cs-fixer-header.php -O .php-cs-fixer-header.php
+                    wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/php-cs-fixer/.php-cs-fixer.php -O .php-cs-fixer.php
+
             -   name: Run php-cs-fixer
                 run: "vendor/bin/php-cs-fixer fix --config .php-cs-fixer.php ${{ steps.files.outputs.added_modified }}"
 
             -   name: Run php-cs-fixer-header
                 run: "vendor/bin/php-cs-fixer fix --config .php-cs-fixer-header.php ${{ steps.files.outputs.added_modified }}"
-#
+
+            -   name: delete headerWriter
+                run: rm .php-cs-fixer-header.php .php-cs-fixer.php
+                shell: bash
+
             -   name: Configure git
                 run: |
                     git config  user.email ${{ secrets.DEVOPS_GPG_EMAIL }}

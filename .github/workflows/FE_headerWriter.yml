@@ -26,9 +26,17 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
+      - name: download headerWriter
+        run: |
+         wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/header_writer/headerWriter.py -O .github/headerWriter.py
+
       - name: Run headerWriter
         run: |
-          python3 .github/FE_header_writer/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i  **/node_modules/**/* client/js/legacy/**/* client/js/legacy/*  client/js/legacy/**/**/*  demosplan/DemosPlanCoreBundle/Resources/client/js/ResourceTypes.js demosplan/DemosPlanCoreBundle/Resources/client/js/lib/* client/js/lib/* -a -v
+          python3 .github/headerWriter.py -p /home/runner/work/demosplan-project-diplanbau/demosplan-project-diplanbau -i  **/node_modules/**/*  -a -v
+        shell: bash
+
+      - name: delete headerWriter
+        run: rm .github/headerWriter.py
         shell: bash
 
       - name: Configure git
