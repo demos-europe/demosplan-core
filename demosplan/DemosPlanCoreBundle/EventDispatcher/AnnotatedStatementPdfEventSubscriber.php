@@ -11,12 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
 use DateTime;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\Persistence\ManagerRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage;
+use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
-use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfResourceType;
@@ -26,10 +30,6 @@ use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognit
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Doctrine\Persistence\ManagerRegistry;
 
 class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
 {
@@ -137,7 +137,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     {
         $class = AnnotatedStatementPdf::class;
         $field = 'file';
-        $fileId = $event->fileId;
+        $fileId = $event->getFileId();
         /** @var EntityRepository $repos */
         $repos = $this->managerRegistry->getRepository($class);
         $result = $repos->createQueryBuilder('e')
@@ -146,5 +146,8 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             ->setParameter(':fileId', $fileId)
             ->getQuery()
             ->getResult();
+        if (0 < count($result)) {
+            $event->setIsUsed(true);
+        }
     }
 }

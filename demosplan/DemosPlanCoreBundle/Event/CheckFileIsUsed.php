@@ -13,8 +13,14 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 class CheckFileIsUsed extends DPlanEvent
 {
     /**
-     * @param bool $used
+     * @param bool
      */
+    private $isused;
+
+    /**
+     * @param string
+     */
+    private $fileId;
 
     /**
      * @param string $fileId
@@ -24,19 +30,18 @@ class CheckFileIsUsed extends DPlanEvent
         $this->fileId = $fileId;
     }
 
-    /**
-     * @return fileId
-     */
     public function getFileId(): string
     {
         return $this->fileId;
     }
 
-    public function setUsed(bool $used)
+    public function setIsUsed(bool $isused = false)
     {
+        $this->isused = $isused;
+    }
 
-        $this->used = $used;
-
-        return $this;
+    public function getIsUsed()
+    {
+        return $this->isused;
     }
 }
