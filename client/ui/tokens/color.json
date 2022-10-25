@@ -1,6 +1,6 @@
 {
   "color": {
-    "scale": {
+    "palette": {
       "$description": "The raw hex values that other color tokens inherit from. Do not use directly.",
       "white": {
         "value": "#fff"
@@ -31,11 +31,11 @@
           "themeable": true
         },
         "dark-1": {
-          "value": "#696969",
+          "value": "#595959",
           "themeable": true
         },
         "dark-2": {
-          "value": "#4d4d4d",
+          "value": "#333333",
           "themeable": true
         }
       },
@@ -221,36 +221,36 @@
       "$todo": "Add all other system colors here.",
       "info": {
         "text": {
-          "value": "{color.scale.blue.dark-2}"
+          "value": "{color.palette.blue.dark-2}"
         }
       }
     },
     "brand": {
       "$description": "Color tokens that are used to express brand.",
-      "$todo": "Add other brand colors here. How to deal with small brand scales? How to deal with css variables inside tokens?",
+      "$todo": "Add other brand colors here. How to deal with small brand palettes? How to deal with css variables inside tokens?",
       "main": {
         "light-3": {
-          "value": "{color.scale.blue.light-3}",
+          "value": "{color.palette.blue.light-3}",
           "themeable": true
         },
         "light-2": {
-          "value": "{color.scale.blue.light-2}",
+          "value": "{color.palette.blue.light-2}",
           "themeable":  true
         },
         "light-1": {
-          "value": "{color.scale.blue.light-1}",
+          "value": "{color.palette.blue.light-1}",
           "themeable":  true
         },
         "base": {
-          "value": "{color.scale.blue.base}",
+          "value": "{color.palette.blue.base}",
           "themeable":  true
         },
         "dark-1": {
-          "value": "{color.scale.blue.dark-1}",
+          "value": "{color.palette.blue.dark-1}",
           "themeable":  true
         },
         "dark-2": {
-          "value": "{color.scale.blue.dark-2}",
+          "value": "{color.palette.blue.dark-2}",
           "themeable":  true
         }
       }

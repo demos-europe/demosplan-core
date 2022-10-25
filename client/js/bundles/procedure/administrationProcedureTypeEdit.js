@@ -17,7 +17,7 @@
  */
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ProcedureTypeSelect from '@DemosPlanProcedureBundle/components/admin/ProcedureTypeSelect'
+import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
 const components = { DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'), ProcedureTypeSelect }
 // Const components = { DpAccordion, DpEditor }

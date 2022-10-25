@@ -1,0 +1,190 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <p
+      :class="hasPermission('feature_identity_broker_login') ? prefixClass('u-3-of-4-desk-up u-mb-2') : prefixClass('c-login-register__col c-login-register__col-full')"
+      v-html="Translator.trans('register.orga.description', { customer: customer })" />
+
+    <div :class="prefixClass(`${hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
+      <div :class="prefixClass(`${hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
+        <form
+          :action="Routing.generate('DemosPlan_orga_register')"
+          data-dp-validate
+          method="post"
+          name="login">
+          <slot />
+          <h2
+            :class="prefixClass('font-size-large u-mb')"
+            v-text="Translator.trans('register.email')" />
+          <fieldset>
+            <dp-form-row :class="prefixClass('space-stack-s')">
+              <dp-input
+                id="r_organame"
+                data-cy="orga"
+                :label="{
+                  bold: false,
+                  text: Translator.trans('organisation.name')
+                }"
+                name="r_organame"
+                required />
+              <dp-input
+                id="r_orgaphone"
+                :label="{
+                  bold: false,
+                  text: Translator.trans('phone.call.back')
+                }"
+                name="r_orgaphone"
+                required
+                type="tel" />
+            </dp-form-row>
+          </fieldset>
+
+          <fieldset>
+            <legend :class="prefixClass('font-size-medium is-label u-mb-0_25')">
+              {{ Translator.trans('organisation.type') }}
+            </legend>
+            <div :class="hasPermission('feature_identity_broker_login') ? prefixClass('space-stack-xs') : prefixClass('o-form__group')">
+              <dp-checkbox
+                id="orgatype_invitable_institution"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OPSORG" />
+              <dp-checkbox
+                id="orgatype_municipality"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('municipality')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OLAUTH" />
+              <dp-checkbox
+                id="orgatype_planningagency"
+                :class="prefixClass('o-form__group-item')"
+                :label="{
+                  text: Translator.trans('planningagency')
+                }"
+                name="r_orgatype[]"
+                value-to-send="OPAUTH" />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <dp-form-row :class="prefixClass('u-mb-0_25 u-mt-0_25 space-stack-s')">
+              <legend class="font-size-medium is-label u-mb-0_25 u-mt">
+                {{ Translator.trans('organisation.administration') }}
+              </legend>
+              <div>
+                <dp-input
+                  id="r_useremail"
+                  data-cy="username"
+                  :label="{
+                    bold: false,
+                    text: Translator.trans('email.address')
+                  }"
+                  name="r_useremail"
+                  required
+                  type="email" />
+              </div>
+              <div class="flex">
+                <dp-input
+                  id="r_firstname"
+                  :label="{
+                    bold: false,
+                    text: Translator.trans('name.first')
+                  }"
+                  name="r_firstname"
+                  required />
+                <dp-input
+                  id="r_lastname"
+                  :label="{
+                    bold: false,
+                    text: Translator.trans('name.last')
+                  }"
+                  name="r_lastname"
+                  required />
+              </div>
+            </dp-form-row>
+          </fieldset>
+
+          <dp-checkbox
+            id="gdpr_consent"
+            :class="prefixClass('u-mb-0_5')"
+            :label="{
+              text: Translator.trans('confirm.gdpr.consent.registration.new', { terms: Routing.generate('DemosPlan_misccontent_static_terms'), dataprotectionUrl: Routing.generate('DemosPlan_misccontent_static_dataprotection') })
+            }"
+            name="gdpr_consent"
+            required
+            value-to-send="on" />
+          <dp-button
+            :class="prefixClass('u-mt-0_5 u-mb-0_25')"
+            data-cy="submit"
+            :text="Translator.trans('register.orga')"
+            type="submit" />
+        </form>
+      </div>
+
+      <div
+        :class="prefixClass('c-login-register__col c-login-register__col-right')"
+        v-if="hasPermission('feature_identity_broker_login')">
+        <h2
+          :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
+          v-text="Translator.trans('login.other_account')" />
+        <p
+          :class="prefixClass('u-mb-0_125')"
+          v-html="Translator.trans('login.bund.description')" />
+
+        <!-- Insert identity broker Url when activated -->
+        <dp-button
+          href="#"
+          :text="Translator.trans('login.bund.action')"
+          variant="outline" />
+        <div
+          :class="prefixClass('u-mt u-mb-0_125')">
+          <p v-html="Translator.trans('faq.section', { url: Routing.generate('DemosPlan_faq') })" />
+        </div>
+      </div>
+    </div>
+    <p
+      :class="hasPermission('feature_identity_broker_login') ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
+      v-html="Translator.trans('register.navigation.alternative_text', { login: Routing.generate('DemosPlan_user_login_alternative'), registrationType: Translator.trans('citizen.alternative'), registrationLink: Routing.generate('DemosPlan_citizen_registration_form') })" />
+  </div>
+</template>
+
+<script>
+import { DpButton, DpInput } from 'demosplan-ui/components'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpFormRow from '@DpJs/components/core/form/DpFormRow'
+import { prefixClassMixin } from 'demosplan-ui/mixins'
+
+export default {
+  name: 'OrgaRegisterForm',
+
+  components: {
+    DpButton,
+    DpCheckbox,
+    DpFormRow,
+    DpInput
+  },
+
+  mixins: [prefixClassMixin],
+
+  props: {
+    customer: {
+      type: String,
+      required: true
+    }
+  }
+
+}
+</script>

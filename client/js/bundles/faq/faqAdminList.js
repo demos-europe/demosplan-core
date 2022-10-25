@@ -11,7 +11,7 @@
  * This is the entrypoint for faq_admin_list.html.twig
  */
 
-import DpFaqList from '@DemosPlanFaqBundle/components/DpFaqList'
+import DpFaqList from '@DpJs/components/faq/DpFaqList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

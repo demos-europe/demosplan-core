@@ -12,7 +12,7 @@
  * where the Map is on the left hand side and the Procedurelist on the right.
  */
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpSearchProcedureMap from '@DemosPlanProcedureBundle/components/publicindex/DpSearchProcedureMap'
+import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 

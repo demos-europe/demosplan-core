@@ -16,7 +16,6 @@ import formatBytes from './formatBytes'
 import getAnimationEventName from './getAnimationEventName'
 import getScrollTop from './getScrollTop'
 import hasOwnProp from './hasOwnProp'
-import { makeFormPost } from './makeFormPost'
 import sortAlphabetically from './sortAlphabetically'
 import throttle from './throttle'
 import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
@@ -34,7 +33,6 @@ export {
   hasAnyPermissions,
   hasOwnProp,
   hasPermission,
-  makeFormPost,
   sortAlphabetically,
   throttle,
   toggleFullscreen,

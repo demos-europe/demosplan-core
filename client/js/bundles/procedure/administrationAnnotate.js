@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_annotate.html.twig
  */
 
-import DpImageAnnotator from '@DemosPlanProcedureBundle/components/imageAnnotator/DpImageAnnotator'
+import DpImageAnnotator from '@DpJs/components/procedure/imageAnnotator/DpImageAnnotator'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpImageAnnotator }

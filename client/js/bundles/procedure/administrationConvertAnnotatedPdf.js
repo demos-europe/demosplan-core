@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_convert_annotated_pdf.html.twig
  */
 
-import DpConvertAnnotatedPdf from '@DemosPlanProcedureBundle/components/imageAnnotator/DpConvertAnnotatedPdf'
+import DpConvertAnnotatedPdf from '@DpJs/components/procedure/imageAnnotator/DpConvertAnnotatedPdf'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpConvertAnnotatedPdf }
