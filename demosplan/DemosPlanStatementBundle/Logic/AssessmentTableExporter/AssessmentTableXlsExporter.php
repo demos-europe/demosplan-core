@@ -262,43 +262,124 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
     {
         $columnsDefinition = [];
-        $columnsDefinition[] = $this->createColumnDefinition('externId', 'id');
+        if ($isStatement && $this->permissions->hasPermission('field_statement_extern_id')) {
+            $columnsDefinition[] = $this->createColumnDefinition('externId', 'id');
+        }
+
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('text', 'text');
-        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation');
-        if ($isStatement) {
+
+        if ($this->permissions->hasPermission('field_statement_text')) {
+            $columnsDefinition[] = $this->createColumnDefinition('text', 'text');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_recommendation')) {
+            $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation');
+        }
+
+        if ($isStatement && $this->permissions->hasPermission('field_statement_county')) {
             $columnsDefinition[] = $this->createColumnDefinition('countyNames', 'county');
         }
+
         $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'tag');
         $columnsDefinition[] = $this->createColumnDefinition('topicNames', 'tag.category');
+
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
             $columnsDefinition[] = $this->createColumnDefinition('documentTitle', 'document');
             $columnsDefinition[] = $this->createColumnDefinition('paragraphTitle', 'paragraph.title');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('status', 'status');
-        if ($isStatement) {
-            $columnsDefinition[] = $this->createColumnDefinition('priority', 'priority');
-            $columnsDefinition[] = $this->createColumnDefinition('votePla', 'fragment.vote.short');
+
+        if ($this->permissions->hasPermission('field_statement_status')) {
+            $columnsDefinition[] = $this->createColumnDefinition('status', 'status');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('oName', 'organisation');
-        $columnsDefinition[] = $this->createColumnDefinition('dName', 'department');
+
+        if ($isStatement) {
+
+            if ($this->permissions->hasPermission('field_statement_priority')) {
+                $columnsDefinition[] = $this->createColumnDefinition('priority', 'priority');
+            }
+
+            if ($this->permissions->hasPermission('field_statement_vote_pla')) {
+                $columnsDefinition[] = $this->createColumnDefinition('votePla', 'fragment.vote.short');
+            }
+        }
+
+        if ($this->permissions->hasPermission('field_statement_meta_orga_name')) {
+            $columnsDefinition[] = $this->createColumnDefinition('oName', 'organisation');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_meta_orga_department_name')) {
+            $columnsDefinition[] = $this->createColumnDefinition('dName', 'department');
+        }
+
         $columnsDefinition[] = $this->createColumnDefinition('meta.authorName', 'author');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.submitName', 'submitter');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaEmail', 'email');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaStreet', 'street');
-        if ($this->permissions->hasPermission('feature_statement_meta_house_number_export')){
+
+        if ($this->permissions->hasPermission('field_statement_meta_submit_name')) {
+            $columnsDefinition[] = $this->createColumnDefinition('meta.submitName', 'submitter');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_meta_email')) {
+            $columnsDefinition[] = $this->createColumnDefinition('meta.orgaEmail', 'email');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_meta_street')) {
+            $columnsDefinition[] = $this->createColumnDefinition('meta.orgaStreet', 'street');
+        }
+
+        if ($this->permissions->hasPermission('feature_statement_meta_house_number_export')) {
             $columnsDefinition[] = $this->createColumnDefinition('meta.houseNumber', 'street.number');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaPostalCode', 'postalcode');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaCity', 'city');
-        $columnsDefinition[] = $this->createColumnDefinition('fileNames', 'file.names');
+
+        if ($this->permissions->hasPermission('field_statement_meta_postal_code')) {
+            $columnsDefinition[] = $this->createColumnDefinition('meta.orgaPostalCode', 'postalcode');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_meta_city')) {
+            $columnsDefinition[] = $this->createColumnDefinition('meta.orgaCity', 'city');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_file')) {
+            $columnsDefinition[] = $this->createColumnDefinition('fileNames', 'file.names');
+        }
+
         $columnsDefinition[] = $this->createColumnDefinition('submitDateString', 'statement.date.submitted');
         $columnsDefinition[] = $this->createColumnDefinition('meta.authoredDate', 'statement.date.authored');
-        $columnsDefinition[] = $this->createColumnDefinition('internId', 'internId');
-        $columnsDefinition[] = $this->createColumnDefinition('memo', 'memo');
+
+        if ($this->permissions->hasPermission('field_statement_intern_id')) {
+            $columnsDefinition[] = $this->createColumnDefinition('internId', 'internId');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_memo')) {
+            $columnsDefinition[] = $this->createColumnDefinition('memo', 'memo');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_feedback')) {
+            $columnsDefinition[] = $this->createColumnDefinition('feedback', 'feedback');
+        }
+
+        if ($this->permissions->hasPermission('feature_statements_vote')) {
+            $columnsDefinition[] = $this->createColumnDefinition('votesNum', 'voters');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_phase')) {
+            $columnsDefinition[] = $this->createColumnDefinition('phase', 'procedure.public.phase');
+        }
+
+        if ($this->permissions->hasPermission('field_statement_submit_type')) {
+            $columnsDefinition[] = $this->createColumnDefinition('submitType', 'submit.type');
+        }
+
+        if ($this->permissions->hasPermission('field_send_final_email')) {
+            $columnsDefinition[] = $this->createColumnDefinition('sentAssessment', 'statement.final.sent', 30);
+        }
+
+        //feature_original_statements_export??
+        //Stellungnahme als Anhang // todo logik aufwendig und keine permission vorhanden!
+//        if ($this->permissions->hasPermission('attachment.original')) {
+            $columnsDefinition[] = $this->createColumnDefinition('attachments', 'attachment.original');
+//        }
 
         return $columnsDefinition;
     }
@@ -323,8 +404,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport): array
-    {
+        array $keysOfAttributesToExport
+    ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames',]);
         $formattedStatements = collect([]);
 
@@ -388,8 +469,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $htmlConverter = new HtmlConverter(['strip_tags' => true]);
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] =
-                $statementArray[$attributeKey] ?? null;
+            $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
 
             // allow dot notation in export definition
             $explodedParts = explode('.', $attributeKey);
@@ -423,6 +503,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
             if ('votePla' === $attributeKey) {
                 $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES, $formattedStatement[$attributeKey] ?? '');
+            }
+
+            if (true === $formattedStatement[$attributeKey]) {
+                $formattedStatement[$attributeKey] = 'x';
             }
         }
 
