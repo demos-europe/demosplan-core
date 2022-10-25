@@ -112,6 +112,12 @@ export default {
     return {
       addons: [
         {
+          name: 'StatementPdfImport',
+          permissions: ['feature_import_statement_pdf'],
+          title: 'import.options.pdf',
+          url: '/js/addons/StatementPdfImport/StatementPdfImport.umd.js'
+        },
+        {
           name: 'EmailImport',
           permissions: ['feature_import_statement_via_email'],
           title: 'statement.import_email.title',
@@ -127,11 +133,6 @@ export default {
     availableImportOptions () {
       return [
         ...this.asyncComponents,
-        {
-          name: StatementPdfImport.name,
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf'
-        },
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
