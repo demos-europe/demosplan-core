@@ -301,7 +301,7 @@ import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { formatDate } from '@DpJs/lib/utils/date'
 import SearchModal from '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal'
-import StatementLocationMap from '@DemosPlanStatementBundle/components/statement/StatementLocationMap'
+import StatementLocationMap from '@DpJs/components/statement/StatementLocationMap'
 import StatementMetaData from '@DemosPlanStatementBundle/components/StatementMetaData'
 import tableSelectAllItems from '@DpJs/lib/utils/tableSelectAllItems'
 
