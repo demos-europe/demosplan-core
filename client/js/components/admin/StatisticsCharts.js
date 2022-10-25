@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { initBarChart } from '@DemosPlanProcedureBundle/lib/charts/helpers/init'
+import { initBarChart } from '@DpJs/lib/procedure/charts/helpers/init'
 
 export default class StatisticsCharts {
   constructor () {
