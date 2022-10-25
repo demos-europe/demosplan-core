@@ -15,4 +15,8 @@ import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { InstitutionTagList }
 
-initialize(components)
+const apiStores = [
+  'institutionTag'
+]
+
+initialize(components, {}, apiStores)

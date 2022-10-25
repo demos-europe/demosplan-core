@@ -54,12 +54,10 @@ All rights reserved
     </div>
     <dp-data-table
       data-dp-validate="tagsTable"
-      v-if=""
       has-flyout
       :header-fields="headerFields"
-      is-draggable
-      track-by=""
-      :items="tags"
+      track-by="id"
+      :items="mapTags"
     >
       <template v-slot:label="rowData">
         <div
@@ -104,7 +102,7 @@ All rights reserved
             <button
               class="btn--blank o-link--default"
               :aria-label="Translator.trans('abort')"
-              @click="rowData.edit=false">
+              @click="isEditing = ''">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -117,11 +115,12 @@ All rights reserved
 </template>
 
 <script>
+import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import {DpButton, DpIcon, DpInput, DpLoading} from 'demosplan-ui/components'
-import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin';
+import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {
   name: 'InstitutionTagList',
@@ -140,53 +139,66 @@ export default {
   data () {
     return {
       addNewTag: false,
+      edit: false,
       headerFields: [
         { field: 'label', label: 'Schlagworte', colClass: 'u-5-of-12' }
       ],
       initialRowData: {},
+      isEditing: '',
       isLoading: false,
       newTag: {},
       tags: []
     }
   },
-  methods: {
-    deleteTag (rowData) {
-      dpApi.delete(Routing.generate('api_resource_delete', { resourceType: 'InstitutionTag', resourceId: rowData.id }))
-        .catch((err) => console.error(err))
-        .finally(() => {
-          rowData.edit = false
-        })
-    },
-    editTag (rowData) {
-      // Reset row which was in editing state before
-      const editingTag = this.tags.find(tag => tag.edit === true)
-      if (editingTag) {
-        editingTag.name = this.initialRowData.label
-        editingTag.edit = false
-      }
 
-      // Save initial state of currently edited row
-      this.initialRowData.label = rowData.label
-      rowData.edit = true
+  computed: {
+    ...mapState('institutionTag', {
+      tags1: 'items'
+    }),
+
+    mapTags () {
+      const arr = []
+      Object.keys(this.tags1).forEach(tag => {
+        arr.push({
+          edit: this.isEditing === tag,
+          id: this.tags1[tag].id,
+          label: this.tags1[tag].attributes.label
+        })
+      })
+      return arr
+    }
+  },
+
+  methods: {
+    ...mapActions('institutionTag', {
+      listInstitutionTags: 'list',
+      createInstitutionTag: 'create',
+      deleteInstitutionTag: 'delete',
+      saveInstitutionTag: 'save'
+    }),
+
+    ...mapMutations('institutionTag', {
+      updateInstitutionTag: 'setItem'
+    }),
+
+    deleteTag (rowData) {
+      console.log(rowData.id)
+      this.deleteInstitutionTag(rowData.id)
+        .catch((err) => console.error(err))
     },
-    fetchInstitutionTags () {
-      dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'InstitutionTag',
+
+    editTag (rowData) {
+      this.isEditing = rowData.id
+    },
+
+    getInstitutionTags() {
+      this.listInstitutionTags({
         fields: {
           InstitutionTag: ['label', 'id'].join()
         }
-      }))
-        .then(response => {
-          const tags = response.data.data
-          tags.forEach((tag) => {
-            this.tags.push({
-              edit: false,
-              id: tag.id,
-              label: tag.attributes.label
-            })
-          })
-        })
+      })
     },
+
     saveNewTag () {
       this.isLoading = true
       /**
@@ -198,16 +210,11 @@ export default {
           label: this.newTag.label,
         }
       }
-      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'InstitutionTag' }), {}, { data: payload })
-        .then(() => {
-          /**
-           * Update local data so no additional api request is needed to fetch the updated data
-           */
-          const localDataToUpdate = {
-            label: this.newTag.label
-          }
-          this.tags.push(localDataToUpdate)
+      this.createInstitutionTag(payload)
+        .then(response => {
+          this.getInstitutionTags()
           dplan.notify.confirm(Translator.trans('confirm.saved'))
+          console.log(response)
         })
         .catch(err => console.error(err))
         .finally(() => {
@@ -216,28 +223,18 @@ export default {
     },
 
     updateTag (rowData) {
-      console.log(rowData.id)
-      const payload = {
-        data: {
-          type: 'InstitutionTag',
-          id: rowData.id,
-          attributes: {
-            label: rowData.label,
-          }
-        }
-      }
-
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'InstitutionTag', resourceId: rowData.id }), {}, payload)
+      this.updateInstitutionTag({ id: rowData.id, type: this.tags1[rowData.id].type, attributes:{ ...this.tags1[rowData.id].attributes, label: rowData.label}})
+      this.saveInstitutionTag(rowData.id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
-          rowData.edit = false
+          this.isEditing = false
         })
     },
   },
 
   mounted() {
-    this.fetchInstitutionTags()
+    this.getInstitutionTags()
   }
 }
 </script>
