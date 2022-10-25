@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import formatBytes from '@DpJs/lib/utils/formatBytes'
+import { formatBytes } from 'demosplan-utils'
 
 export default {
   name: 'FileInfo',

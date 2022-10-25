@@ -11,7 +11,7 @@
  * Applies an animation of the background color of an element to draw attention to it.
  * The element is selected via the id found in the url fragment  (which has to match an element id).
  */
-import getAnimationEventName from '@DpJs/lib/utils/getAnimationEventName'
+import { getAnimationEventName } from 'demosplan-utils'
 
 const Animate = () => {
   if (window.location.hash) {

@@ -74,7 +74,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import debounce from '@DpJs/lib/utils/debounce'
+import { debounce } from 'demosplan-utils'
 import { DpLoading } from 'demosplan-ui/components'
 
 export default {

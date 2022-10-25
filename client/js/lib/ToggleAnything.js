@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import getAnimationEventName from '@DpJs/lib/utils/getAnimationEventName'
+import { getAnimationEventName } from 'demosplan-utils'
 import { prefixClass } from 'demosplan-ui/lib'
 /**
  *  ToggleAnything

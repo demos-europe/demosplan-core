@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import deepMerge from '@DpJs/lib/utils/deepMerge'
+import { deepMerge } from 'demosplan-utils'
 import DpTreeListCheckbox from './DpTreeListCheckbox'
 import DpTreeListNode from './DpTreeListNode'
 import DpTreeListToggle from './DpTreeListToggle'
