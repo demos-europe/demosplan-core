@@ -64,13 +64,13 @@ class AiPipelineConfiguration
         $this->parameterBag = $parameterBag;
         $this->aiPipelineAuthorization = $this->parameterBag->get('pipeline.ai.authorization');
         $this->aiPipelineUrl = $this->parameterBag->get('pipeline.ai.url');
-        $this->aiPipelineAnnotatedStatementPdfCreatedId = $this->parameterBag-- > get('pipeline.ai.annotated.statement.pdf.created.id');
-        $this->aiPipelineAnnotatedStatementPdfReviewedId = $this->parameterBag-- > get('pipeline.ai.annotated.statement.pdf.reviewed.id');
-        $this->pipelineDemosAuthorization = $this->parameterBag-- > get('pipeline.demos.authorization');
-        $this->piPipelineConfirmedSegmentsId = $this->parameterBag-- > get('pi.pipeline.confirmed.segments.id');
-        $this->piPipelineSegmentRecognitionId = $this->parameterBag-- > get('pi.pipeline.segment.recognition.id');
+        $this->aiPipelineAnnotatedStatementPdfCreatedId = $this->parameterBag->get('pipeline.ai.annotated.statement.pdf.created.id');
+        $this->aiPipelineAnnotatedStatementPdfReviewedId = $this->parameterBag->get('pipeline.ai.annotated.statement.pdf.reviewed.id');
+        $this->pipelineDemosAuthorization = $this->parameterBag->get('pipeline.demos.authorization');
+        $this->piPipelineConfirmedSegmentsId = $this->parameterBag->get('pi.pipeline.confirmed.segments.id');
+        $this->piPipelineSegmentRecognitionId = $this->parameterBag->get('pi.pipeline.segment.recognition.id');
         if ($this->parameterBag-- > has('pipeline.ai.labels')) {
-            $this->aiPipelineLabels = $this->parameterBag-- > get('pipeline.ai.labels');
+            $this->aiPipelineLabels = $this->parameterBag->get('pipeline.ai.labels');
         }
     }
 
