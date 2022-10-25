@@ -80,7 +80,6 @@ use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
@@ -283,7 +282,6 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     public function procedureDashboardAction(
-        AnnotatedStatementPdfService $annotatedStatementPdfService,
         CurrentUserService $currentUserService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
