@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -229,7 +228,6 @@ class FileInUseChecker
     private function isUsedInReferences(string $fileId): bool
     {
         $references = [
-            AnnotatedStatementPdf::class => 'file',
             Branding::class              => 'logo',
             DraftStatementFile::class    => 'file',
             FileContainer::class         => 'file',
