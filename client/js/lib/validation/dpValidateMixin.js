@@ -15,7 +15,7 @@
  */
 import { errorClass, scrollToVisibleElement } from './utils/helpers'
 import { assignHandlersForInputs } from './utils/assignHandlersForInputs'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import validateForm from './utils/validateForm'
 
 export default {

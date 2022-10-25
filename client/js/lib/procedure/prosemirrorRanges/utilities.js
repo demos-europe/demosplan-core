@@ -8,7 +8,7 @@
  */
 
 import { DOMSerializer } from 'prosemirror-model'
-import { setRange } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/commands'
+import { setRange } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
 import { TextSelection } from 'prosemirror-state'
 import tippy from 'tippy.js'
 

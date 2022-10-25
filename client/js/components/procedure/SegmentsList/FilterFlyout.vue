@@ -163,7 +163,7 @@ import dataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpResettableInput from '@DpJs/components/core/DpResettableInput'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'FilterFlyout',
