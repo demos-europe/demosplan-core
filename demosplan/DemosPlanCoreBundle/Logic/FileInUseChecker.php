@@ -12,12 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Composer\EventDispatcher\EventDispatcher;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -30,15 +24,20 @@ use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use Psr\Log\LoggerInterface;
 
 class FileInUseChecker
 {
@@ -245,7 +244,7 @@ class FileInUseChecker
             Video::class                 => 'file',
         ];
 
-        /**@var CheckFileIsUsed $event **/
+        /** @var CheckFileIsUsed $event * */
         $event = $this->eventDispatcher->dispatch(new CheckFileIsUsed($fileId));
         if ($event->getIsUsed()) {
             return true;

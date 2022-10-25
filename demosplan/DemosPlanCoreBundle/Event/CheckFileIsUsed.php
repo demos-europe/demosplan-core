@@ -22,9 +22,6 @@ class CheckFileIsUsed extends DPlanEvent
      */
     private $fileId;
 
-    /**
-     * @param string $fileId
-     */
     public function __construct(string $fileId)
     {
         $this->fileId = $fileId;
