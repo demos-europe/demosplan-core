@@ -623,7 +623,7 @@
 <script>
 import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, makeFormPost, toggleFullscreen } from 'demosplan-utils'
+import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
 import { mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
