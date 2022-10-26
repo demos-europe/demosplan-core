@@ -200,9 +200,8 @@ export default {
 
     saveNewTag () {
       this.isLoading = true
-      /**
-       * Persist changes in database
-       */
+
+      // Persist changes in database
       const payload = {
         type: 'InstitutionTag',
         attributes: {
