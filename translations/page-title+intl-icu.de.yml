@@ -71,7 +71,6 @@ help.contextualHelp.list: Kontexthilfe - Übersicht
 help.contextualHelp.edit: Bearbeiten
 history: Versionsverlauf
 import: "Import"
-institution.tags.management: Instituionen verschlagworten
 invitable_institution.unregistered.administer: Unregistrierte Institutionen verwalten
 invitable_institution.unregistered.invite: Unregistrierte Institutionen einladen
 language.simple: Leichte Sprache
