@@ -11,10 +11,12 @@
   <div class="cf">
     <dp-checkbox
       :id="checkboxId"
+      v-model="autoSwitchPhase"
       :disabled="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-      :label="Translator.trans('procedure.public.phase.autoswitch')"
-      :name="checkboxId"
-      v-model="autoSwitchPhase" />
+      :label="{
+        text: Translator.trans('procedure.public.phase.autoswitch')
+      }"
+      :name="checkboxId" />
 
     <transition
       name="slide-fade"

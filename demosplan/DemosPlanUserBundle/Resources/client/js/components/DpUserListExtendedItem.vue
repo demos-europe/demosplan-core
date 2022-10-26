@@ -103,7 +103,7 @@ export default {
   name: 'DpUserListExtendedItem',
 
   components: {
-    DpEditFieldSingleSelect: () => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DemosPlanStatementBundle/components/assessmentTable/DpEditFieldSingleSelect'),
+    DpEditFieldSingleSelect: () => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DpJs/components/statement/assessmentTable/DpEditFieldSingleSelect'),
     DpTableCard
   },
 

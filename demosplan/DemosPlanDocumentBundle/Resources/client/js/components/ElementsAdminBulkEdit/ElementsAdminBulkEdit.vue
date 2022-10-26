@@ -25,12 +25,14 @@
         v-if="hasPermission('feature_auto_switch_element_state')"
         class="border--bottom u-pt u-pb-0_5">
         <dp-checkbox
-          class="display--inline-block"
           id="autoSwitchAction"
-          :label="Translator.trans('change.state.at.date')"
-          disabled
           v-model="actions.setEnabled.checked"
-          :standalone="actions.setEnabled.checked" />
+          class="display--inline-block"
+          disabled
+          :label="{
+            bold: actions.setEnabled.checked,
+            text: Translator.trans('change.state.at.date')
+          }" />
         <div
           v-if="actions.setEnabled.checked"
           class="u-mv-0_5 flex space-inline-m">

@@ -29,8 +29,7 @@ nelmio_security:
             object-src:
                 - 'self'
             base-uri: '%demosplan_csp_base_uri%'
-            form-action:
-                - 'self'
+            form-action: '%demosplan_csp_form_action%'
             worker-src:
                 - 'none'
             upgrade-insecure-requests: '%https_only%' # upgrades HTTP requests to HTTPS transport

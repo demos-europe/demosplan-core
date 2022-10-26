@@ -20,10 +20,10 @@
     <!-- header with checkbox and labels-->
     <div class="layout__item u-pv-0_5 border--bottom">
       <dp-checkbox
+        v-if="selectable"
         id="selectAll"
         class="display--inline-block"
-        @change="val => $emit('select-all', val)"
-        v-if="selectable" /><!--
+        @change="val => $emit('select-all', val)" /><!--
     --><div
         class="layout__item weight--bold"
         :class="[item.classes ? item.classes : '', item.width ? item.width : '']"

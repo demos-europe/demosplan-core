@@ -17,7 +17,7 @@ import DpUnfoldToolbarControl from '@DemosPlanMapBundle/components/publicdetail/
 import Map from '@DemosPlanMapBundle/components/publicdetail/Map'
 import MapTools from '@DemosPlanMapBundle/components/publicdetail/controls/MapTools'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
-import StatementModal from '@DemosPlanStatementBundle/components/publicStatementModal/StatementModal'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
   name: 'DpPublicDetail',

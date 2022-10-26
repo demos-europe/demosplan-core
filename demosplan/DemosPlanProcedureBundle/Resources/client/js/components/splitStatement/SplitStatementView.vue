@@ -165,7 +165,7 @@ import ProcessingPage from '@DemosPlanProcedureBundle/components/splitStatement/
 import SegmentationEditor from '@DemosPlanProcedureBundle/components/splitStatement/SegmentationEditor'
 import SideBar from '@DemosPlanProcedureBundle/components/splitStatement/SideBar'
 import StatementMeta from '@DemosPlanProcedureBundle/components/StatementSegmentsList/StatementMeta/StatementMeta'
-import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
 
 /**

@@ -196,7 +196,7 @@ class ExportService
         // Dictonary with keys to obtain
         $dictionary = [
             'statements'         => 'statements',
-            'considerationtable' => 'considerationtable',
+            'considerationtable' => 'considerationtable_ascii',
             'originals'          => 'statements.original',
             'attachment'         => 'attachment',
             'elements'           => 'elements',
