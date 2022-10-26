@@ -157,6 +157,7 @@ export default {
 
       window[name] = new Promise((resolve, reject) => {
         const script = document.createElement('script')
+
         script.async = true
         script.addEventListener('load', () => {
           resolve(window[name])
@@ -168,9 +169,11 @@ export default {
             title: addon.title
           })
         })
+
         script.addEventListener('error', () => {
           reject(new Error(`Error loading ${url}`))
         })
+
         script.src = addon.url
         document.head.appendChild(script)
       });
