@@ -7,9 +7,9 @@
  * All rights reserved
  */
 
-import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
-import { hasPermission, hasAllPermissions, hasAnyPermissions } from './hasPermission'
+import { bindFullScreenChange, isActiveFullScreen, toggleFullscreen, unbindFullScreenChange } from './fullscreen'
 import { formatDate, toDate } from './date'
+import { hasAllPermissions, hasAnyPermissions, hasPermission } from './hasPermission'
 import changeUrlforPager from './changeUrlforPager'
 import debounce from './debounce'
 import deepMerge from './deepMerge'
