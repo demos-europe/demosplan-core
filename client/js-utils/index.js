@@ -9,6 +9,7 @@
 
 import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
 import { hasPermission, hasAllPermissions, hasAnyPermissions } from './hasPermission'
+import { formatDate, toDate } from './date'
 import changeUrlforPager from './changeUrlforPager'
 import debounce from './debounce'
 import deepMerge from './deepMerge'
@@ -26,6 +27,7 @@ export {
   debounce,
   deepMerge,
   formatBytes,
+  formatDate,
   isActiveFullScreen,
   getAnimationEventName,
   getScrollTop,
@@ -35,6 +37,7 @@ export {
   hasPermission,
   sortAlphabetically,
   throttle,
+  toDate,
   toggleFullscreen,
   unbindFullScreenChange,
   uniqueArrayByObjectKey

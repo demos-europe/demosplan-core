@@ -35,10 +35,10 @@
 </template>
 
 <script>
-import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpToggle from '@DpJs/components/core/form/DpToggle'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'ElementsAdminItem',
@@ -61,7 +61,7 @@ export default {
     }),
 
     designatedSwitchDate () {
-      return `${Translator.trans('phase.autoswitch.datetime')}: ${formatDate(this.element.attributes.designatedSwitchDate, DATE_FORMAT_LONG)}`
+      return `${Translator.trans('phase.autoswitch.datetime')}: ${formatDate(this.element.attributes.designatedSwitchDate, 'long')}`
     },
 
     element () {
