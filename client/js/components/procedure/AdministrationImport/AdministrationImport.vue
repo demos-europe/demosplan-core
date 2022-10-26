@@ -7,15 +7,6 @@
   All rights reserved
 </license>
 
-<license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
-
-This file is part of the package demosplan,
-for more information see the license file.
-
-All rights reserved
-</license>
-
 <template>
   <div>
     <dp-tabs
@@ -40,7 +31,6 @@ All rights reserved
 </template>
 
 <script>
-/* eslint-disable */
 import AdministrationImportNone from './AdministrationImportNone'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
