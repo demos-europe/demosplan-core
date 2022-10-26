@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\Annotat
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
+use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
@@ -25,6 +26,7 @@ use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognit
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -75,6 +77,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         return [
             AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
             AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
+            CheckFileIsUsed::class            => 'checkAnnotatedStatementPdfUsed',
         ];
     }
 
@@ -127,6 +130,24 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             $this->managerRegistry->getManager()->flush();
 
             $this->piTextRecognitionRequester->request($annotatedStatementPdf);
+        }
+    }
+
+    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsed $event)
+    {
+        $class = AnnotatedStatementPdf::class;
+        $field = 'file';
+        $fileId = $event->getFileId();
+        /** @var EntityRepository $repos */
+        $repos = $this->managerRegistry->getRepository($class);
+        $result = $repos->createQueryBuilder('e')
+            ->select('IDENTITY(e.'.$field.')')
+            ->where('IDENTITY(e.'.$field.') = :fileId')
+            ->setParameter(':fileId', $fileId)
+            ->getQuery()
+            ->getResult();
+        if (0 < count($result)) {
+            $event->setIsUsed(true);
         }
     }
 }
