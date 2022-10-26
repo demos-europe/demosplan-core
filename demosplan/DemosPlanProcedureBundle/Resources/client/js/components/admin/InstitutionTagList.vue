@@ -135,6 +135,7 @@ export default {
     return {
       addNewTag: false,
       alignLeft: 'left',
+      tagsArray: [],
       edit: false,
       headerFields: [
         {
@@ -161,15 +162,8 @@ export default {
     }),
 
     mapTags () {
-      const arr = []
-      Object.keys(this.institutionTags).forEach(tag => {
-        arr.push({
-          edit: this.isEditing === tag,
-          id: this.institutionTags[tag].id,
-          label: this.institutionTags[tag].attributes.label
-        })
-      })
-      return arr
+      this.tagsArray= this.institutionTagsArray()
+      return this.tagsArray
     }
   },
 
@@ -184,6 +178,18 @@ export default {
     ...mapMutations('institutionTag', {
       updateInstitutionTag: 'setItem'
     }),
+
+    institutionTagsArray () {
+      let array = []
+      Object.keys(this.institutionTags).forEach(tag => {
+        array.push({
+          edit: this.isEditing === tag,
+          id: this.institutionTags[tag].id,
+          label: this.institutionTags[tag].attributes.label
+        })
+      })
+      return array
+    },
 
     deleteTag ( { id }) {
       this.deleteInstitutionTag(id)
@@ -205,12 +211,28 @@ export default {
       })
     },
 
+     // When saving a new tag the comparison of `foundSimilarLabel.length === 0` needs to be executed
+     // When updating a new tag the comparison of `foundSimilarLabel.length === 1` needs to be executed instead
+     // should always be possible.
+     //
+     // @param tagLabel { string }
+     // @param isNewTagLabel { boolean }
+     // @returns { boolean }
+
+    isUniqueTagName (tagLabel, isNewTagLabel = false) {
+      const foundSimilarLabel = this.tagsArray.filter(el => el.label === tagLabel)
+      return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
+    },
+
     resetNewTagForm () {
       this.newTag = {}
       this.addNewTag = false
     },
 
     saveNewTag () {
+      if (!this.isUniqueTagName(this.newTag.label, true)) {
+        return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
+      }
       this.isLoading = true
 
       // Persist changes in database
@@ -235,6 +257,9 @@ export default {
     },
 
     updateTag ({ id, label }) {
+      if (!this.isUniqueTagName(label)) {
+        return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
+      }
       this.updateInstitutionTag({
         id: id,
         type: this.institutionTags[id].type,
