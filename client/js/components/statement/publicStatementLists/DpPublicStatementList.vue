@@ -45,7 +45,7 @@ import DpPublicStatement from './DpPublicStatement'
 import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
 import draggable from 'vuedraggable'
 import { generateMenuItems } from './menuItems'
-import { getFileInfo } from '@DpJs/lib/FileInfo'
+import { getFileInfo } from '@DpJs/lib/core/FileInfo'
 
 const editPermissions = {
   draft: 'feature_statements_draft_edit',

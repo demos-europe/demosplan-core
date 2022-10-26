@@ -16,7 +16,7 @@ import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
-import TableWrapper from '@DpJs/lib/TableWrapper'
+import TableWrapper from '@DpJs/lib/core/TableWrapper'
 import TocStateMemorizer from '@DemosPlanCoreBundle/lib/TocStateMemorizer'
 
 const components = {

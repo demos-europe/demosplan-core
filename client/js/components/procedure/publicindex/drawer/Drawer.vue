@@ -52,7 +52,7 @@ import DpHandle from './Handle'
 import DpList from './List'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSearch from './Search'
-import MatchMedia from '@DpJs/lib/MatchMedia'
+import MatchMedia from '@DpJs/lib/core/MatchMedia'
 
 export default {
   name: 'DpDrawer',

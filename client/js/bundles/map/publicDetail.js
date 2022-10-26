@@ -26,7 +26,7 @@ import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import TableWrapper from '@DpJs/lib/TableWrapper'
+import TableWrapper from '@DpJs/lib/core/TableWrapper'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {

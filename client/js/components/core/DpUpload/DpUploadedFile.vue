@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { getFileInfo } from '@DpJs/lib/FileInfo'
+import { getFileInfo } from '@DpJs/lib/core/FileInfo'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
