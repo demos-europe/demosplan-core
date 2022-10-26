@@ -7,15 +7,6 @@
   All rights reserved
 </license>
 
-<license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
-
-This file is part of the package demosplan,
-for more information see the license file.
-
-All rights reserved
-</license>
-
 <template>
   <div>
     <div
@@ -61,6 +52,7 @@ All rights reserved
       :header-fields="headerFields"
       track-by="id"
       :items="mapTags"
+      class="u-mt-2"
     >
       <template v-slot:label="rowData">
         <div
@@ -219,10 +211,9 @@ export default {
         }
       }
       this.createInstitutionTag(payload)
-        .then(response => {
+        .then(() => {
           this.getInstitutionTags()
           dplan.notify.confirm(Translator.trans('confirm.saved'))
-          console.log(response)
         })
         .catch(err => console.error(err))
         .finally(() => {
