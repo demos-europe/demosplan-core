@@ -98,7 +98,7 @@
 import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
 import { DpButton } from 'demosplan-ui/components'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'ListSubscriptions',

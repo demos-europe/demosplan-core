@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { mapGetters } from 'vuex'
 
 export default {

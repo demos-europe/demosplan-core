@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { formatDate } from '@DpJs/lib/utils/date'
+import { formatDate } from 'demosplan-utils'
 
 const Methods = {
   period () {

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import CharCount from '@DpJs/lib/CharCount'
+import CharCount from '@DpJs/lib/core/CharCount'
 
 /**
  * Toggle input fields for captions.

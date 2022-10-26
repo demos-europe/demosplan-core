@@ -84,14 +84,13 @@
 </template>
 
 <script>
+import { hasAnyPermissions, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
 import { DpLoading } from 'demosplan-ui/components'
 import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 import ElementsAdminItem from './ElementsAdminItem'
-import { hasAnyPermissions } from '@DpJs/lib/utils/hasPermission'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 import lscache from 'lscache'
 
 export default {
