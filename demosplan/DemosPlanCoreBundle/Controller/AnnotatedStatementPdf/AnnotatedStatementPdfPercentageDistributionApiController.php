@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\AnnotatedStatementPdf;
 
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -18,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AnnotatedStatementPdfPercentageDistributionApiController extends APIController
 {
