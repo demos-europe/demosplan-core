@@ -13,7 +13,7 @@
       <dp-button
         v-if="!addNewTag"
         @click="addNewTag = true"
-        :text="Translator.trans('institution.tag.addTag')" />
+        :text="Translator.trans('tag.new')" />
     </div>
     <div
       v-if="addNewTag"
@@ -24,7 +24,7 @@
         overlay />
       <div class="border border-radius-small space-stack-m space-inset-m">
         <div class="position--relative u-pb-0_5 font-size-large">
-          {{ Translator.trans('institution.tag.create') }}
+          {{ Translator.trans('tags.create') }}
           <button
             class="btn--blank o-link--default float--right"
             @click="addNewTag = false">
@@ -35,10 +35,11 @@
           id="createTag"
           v-model="newTag.label"
           :label="{
-            text: Translator.trans('institution.tag.name')
+            text: Translator.trans('name')
           }"/>
         <dp-button-row
           :busy="isLoading"
+          :align="alignLeft"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
@@ -133,9 +134,10 @@ export default {
   data () {
     return {
       addNewTag: false,
+      alignLeft: 'left',
       edit: false,
       headerFields: [
-        { field: 'label', label: Translator.trans('institution.tag'), colClass: 'u-11-of-12' },
+        { field: 'label', label: Translator.trans('tags'), colClass: 'u-11-of-12' },
         { field: 'action', label: Translator.trans('action'), colClass: 'u-1-of-10' }
       ],
       initialRowData: {},
@@ -190,7 +192,7 @@ export default {
     getInstitutionTags () {
       this.listInstitutionTags({
         fields: {
-          InstitutionTag: ['label'].join()
+          InstitutionTag: ['label', 'id'].join()
         }
       })
     },
