@@ -11,7 +11,7 @@
  * This is the entrypoint for assessment_table_new_statement.html.twig
  */
 
-import AssessmentStatement from '@DemosPlanStatementBundle/lib/AssessmentStatement'
+import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import DpNewStatement from '@DpJs/components/assessmenttable/DpNewStatement'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'

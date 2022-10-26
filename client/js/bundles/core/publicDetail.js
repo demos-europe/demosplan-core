@@ -18,7 +18,7 @@ import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
-import StatementForm from '@DemosPlanStatementBundle/lib/StatementForm'
+import StatementForm from '@DpJs/lib/statement/StatementForm'
 import TableWrapper from '@DpJs/lib/TableWrapper'
 
 const components = {

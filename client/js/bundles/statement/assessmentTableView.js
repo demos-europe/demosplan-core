@@ -11,7 +11,7 @@
  * This is the entry point for assessment_table_view.html.twig
  */
 
-import AssessmentTable from '@DemosPlanStatementBundle/lib/AssessmentTable'
+import AssessmentTable from '@DpJs/lib/statement/AssessmentTable'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import AssessmentTableToc from '@DpJs/components/statement/assessmentTable/TocView/AssessmentTableToc'
 import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'

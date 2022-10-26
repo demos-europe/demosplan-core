@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
 import { CleanHtml } from 'demosplan-ui/directives'
+import { formatDate } from 'demosplan-utils'
 import { mapState } from 'vuex'
 
 export default {
@@ -99,7 +99,7 @@ export default {
     },
 
     createdDateTimeItem (date) {
-      return `${formatDate(date, DATE_FORMAT_LONG)}`
+      return `${formatDate(date, 'long')}`
     }
   }
 }
