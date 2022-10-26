@@ -175,14 +175,14 @@ export default {
       updateInstitutionTag: 'setItem'
     }),
 
-    deleteTag (rowData) {
-      this.deleteInstitutionTag(rowData.id)
+    deleteTag ( { id }) {
+      this.deleteInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
         .catch((err) => console.error(err))
     },
 
-    editTag (rowData) {
-      this.isEditing = rowData.id
+    editTag ( { id }) {
+      this.isEditing = id
     },
 
     getInstitutionTags () {
@@ -221,16 +221,16 @@ export default {
         })
     },
 
-    updateTag (rowData) {
+    updateTag ({ id, label }) {
       this.updateInstitutionTag({
-        id: rowData.id,
-        type: this.institutionTags[rowData.id].type,
+        id: id,
+        type: this.institutionTags[id].type,
         attributes: {
-          ...this.institutionTags[rowData.id].attributes,
-          label: rowData.label
+          ...this.institutionTags[id].attributes,
+          label: label
         }
       })
-      this.saveInstitutionTag(rowData.id)
+      this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
