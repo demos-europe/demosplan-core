@@ -15,6 +15,10 @@ const DATE_FORMAT_LONG = 'DD.MM.YYYY, HH:mm [Uhr]'
 const formatDate = function (date, format = DATE_FORMAT_SHORT) {
   let d
 
+  if (format === 'long') {
+    format = DATE_FORMAT_LONG
+  }
+
   /*
    * This assumes that values of type number are always unix seconds or milliseconds.
    * Stack overflow says unix timestamp in seconds will have 10 digits until 20.11.2286

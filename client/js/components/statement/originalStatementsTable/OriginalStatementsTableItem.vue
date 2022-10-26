@@ -185,13 +185,12 @@
 </template>
 
 <script>
+import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { mapGetters, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
 import DpHeightLimit from '@DpJs/components/core/HeightLimit'
-import { formatDate } from '@DpJs/lib/utils/date'
-import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'OriginalStatementsTableItem',
