@@ -133,7 +133,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsedEvent $event)
+    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsedEvent $event): void
     {
         $class = AnnotatedStatementPdf::class;
         $field = 'file';
