@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class CheckFileIsUsed extends DPlanEvent
+class CheckFileIsUsedEvent extends DPlanEvent
 {
     /**
      * @param bool

@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\Annotat
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
-use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
+use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsedEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
@@ -77,7 +77,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         return [
             AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
             AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
-            CheckFileIsUsed::class            => 'checkAnnotatedStatementPdfUsed',
+            CheckFileIsUsedEvent::class            => 'checkAnnotatedStatementPdfUsed',
         ];
     }
 
@@ -133,7 +133,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsed $event)
+    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsedEvent $event)
     {
         $class = AnnotatedStatementPdf::class;
         $field = 'file';

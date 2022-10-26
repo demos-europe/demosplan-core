@@ -31,7 +31,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
-use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
+use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
@@ -244,8 +244,8 @@ class FileInUseChecker
             Video::class                 => 'file',
         ];
 
-        /** @var CheckFileIsUsed $event * */
-        $event = $this->eventDispatcher->dispatch(new CheckFileIsUsed($fileId));
+        /** @var CheckFileIsUsedEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new CheckFileIsUsedEvent($fileId));
         if ($event->getIsUsed()) {
             return true;
         }
