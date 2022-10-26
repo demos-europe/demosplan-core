@@ -137,8 +137,16 @@ export default {
       alignLeft: 'left',
       edit: false,
       headerFields: [
-        { field: 'label', label: Translator.trans('tags'), colClass: 'u-11-of-12' },
-        { field: 'action', label: Translator.trans('action'), colClass: 'u-1-of-10' }
+        {
+          field: 'label',
+          label: Translator.trans('tags'),
+          colClass: 'u-11-of-12'
+        },
+        {
+          field: 'action',
+          label: Translator.trans('action'),
+          colClass: 'u-1-of-10'
+        }
       ],
       initialRowData: {},
       isEditing: '',
