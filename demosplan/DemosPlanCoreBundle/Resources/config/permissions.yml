@@ -1698,6 +1698,17 @@ feature_segment_content_changes_view:
     expose: true
     label: 'Allows access to Segment`s change history.'
     loginRequired: true
+feature_segment_polygon_read:
+    description: |-
+        Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
+    label: 'allows read-access to the statementSegment polygon property used in the StatementSegmentResourceType'
+    loginRequired: true
+feature_segment_polygon_set:
+    description: |-
+        Allow adding/modifying the statementSegment-polygon property. Used on statementSegment
+        updates via the StatementSegmentResourceType
+    label: 'used for editing statementSegment polygons'
+    loginRequired: true
 feature_segment_recommendation_edit:
     description: |
         Allows to create, update and delete recommendations of segments. Do not mistaken with field_statement_recommendation.
@@ -1963,20 +1974,6 @@ feature_statement_notify_counties:
     description: 'Notify counties (by email) if there are new statements with them as reference.'
     expose: true
     label: 'Notify counties about new statements'
-    loginRequired: true
-    parent: feature_statement
-feature_statement_polygon_set:
-    description: |-
-        Allow adding/modifying the statement-polygon property. Used on manualCreate
-        of statements (create without draftStatement) and on statement-updates via StatementResourceType
-    label: 'used for statement editing & manual statement creation'
-    loginRequired: true
-    parent: feature_statement
-feature_statement_polygon_read:
-    description: |-
-        Allows read-access to the statement polygon property via StatementResourceType
-        (draft-statements are not affected by this permission)
-    label: 'allows read-access to the statement polygon property used in the StatementResourceType'
     loginRequired: true
     parent: feature_statement
 feature_statement_public_allowed_needs_verification:
