@@ -161,7 +161,6 @@ export default {
         script.addEventListener('load', () => {
           resolve(window[name])
           this.$options.components[name] = window[name]
-          console.log(this.$options.components)
 
           this.asyncComponents.push({
             name: name,
