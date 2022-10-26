@@ -38,6 +38,7 @@ use Elastica\Type;
  * @template-extends DplanResourceType<Segment>
  *
  * @property-read End $recommendation
+ * @property-read End $polygon
  * @property-read End $text
  * @property-read End $externId
  * @property-read End $internId
@@ -143,6 +144,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $updatableProperties[] = $this->recommendation;
         }
 
+        if ($this->currentUser->hasPermission('feature_statement_polygon_set')) {
+            $updatableProperties[] = $this->polygon;
+        }
+
         return $this->toProperties(...$updatableProperties);
     }
 
@@ -231,9 +236,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
     protected function getProperties(): array
     {
-        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
-            return $property->filterable()->sortable();
-        }, [
+        $properties = [
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->recommendation)->readable(true),
             $this->createAttribute($this->text)->readable(true),
@@ -246,6 +249,13 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             // for now all segments have a place, this may change however
             $this->createToOneRelationship($this->place)->readable(),
             $this->createToManyRelationship($this->comments)->readable(),
-        ]);
+        ];
+        if ($this->currentUser->hasPermission('feature_statement_polygon_read')) {
+            $properties[] = $this->createAttribute($this->polygon)->readable(true);
+        }
+
+        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
+            return $property->filterable()->sortable();
+        }, $properties);
     }
 }
