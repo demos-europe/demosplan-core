@@ -24,7 +24,7 @@ use Doctrine\ORM\NoResultException;
 class MaillaneConnectionRepository extends FluentRepository
 {
     /**
-     * Fetch procedure by Maillane account ID
+     * Fetch procedure by Maillane account ID.
      *
      * @throws NoResultException
      */
@@ -50,7 +50,7 @@ class MaillaneConnectionRepository extends FluentRepository
 
     /**
      * Create a MaillaneConnection with necessary properties
-     * and validate it
+     * and validate it.
      *
      * @throws ViolationsException
      */
