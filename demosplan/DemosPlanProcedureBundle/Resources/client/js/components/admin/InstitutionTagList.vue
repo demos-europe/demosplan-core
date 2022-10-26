@@ -29,6 +29,9 @@ All rights reserved
       v-if="addNewTag"
       class="position--relative"
       data-dp-validate="addNewTagForm">
+      <dp-loading
+        v-if="isLoading"
+        overlay />
       <div class="border border-radius-small space-stack-m space-inset-m">
         <div class="position--relative u-pb-0_5 font-size-large">
           {{ Translator.trans('institution.tag.create') }}
@@ -70,7 +73,8 @@ All rights reserved
           required
           v-model="rowData.label" />
       </template>
-      <template v-slot:flyout="rowData">
+      <template v-slot:action="rowData"
+      class="float--right">
         <div class="float--right">
           <template v-if="!rowData.edit">
             <button
@@ -117,7 +121,6 @@ All rights reserved
 <script>
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
@@ -141,28 +144,28 @@ export default {
       addNewTag: false,
       edit: false,
       headerFields: [
-        { field: 'label', label: 'Schlagworte', colClass: 'u-5-of-12' }
+        { field: 'label', label: Translator.trans('institution.tag'), colClass: 'u-11-of-12' },
+        { field: 'action', label: Translator.trans('action'), colClass: 'u-1-of-10' }
       ],
       initialRowData: {},
       isEditing: '',
       isLoading: false,
-      newTag: {},
-      tags: []
+      newTag: {}
     }
   },
 
   computed: {
     ...mapState('institutionTag', {
-      tags1: 'items'
+      institutionTags: 'items'
     }),
 
     mapTags () {
       const arr = []
-      Object.keys(this.tags1).forEach(tag => {
+      Object.keys(this.institutionTags).forEach(tag => {
         arr.push({
           edit: this.isEditing === tag,
-          id: this.tags1[tag].id,
-          label: this.tags1[tag].attributes.label
+          id: this.institutionTags[tag].id,
+          label: this.institutionTags[tag].attributes.label
         })
       })
       return arr
@@ -182,8 +185,8 @@ export default {
     }),
 
     deleteTag (rowData) {
-      console.log(rowData.id)
       this.deleteInstitutionTag(rowData.id)
+        .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
         .catch((err) => console.error(err))
     },
 
@@ -191,12 +194,17 @@ export default {
       this.isEditing = rowData.id
     },
 
-    getInstitutionTags() {
+    getInstitutionTags () {
       this.listInstitutionTags({
         fields: {
           InstitutionTag: ['label', 'id'].join()
         }
       })
+    },
+
+    resetNewTagForm () {
+      this.newTag = {}
+      this.addNewTag = false
     },
 
     saveNewTag () {
@@ -207,7 +215,7 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          label: this.newTag.label,
+          label: this.newTag.label
         }
       }
       this.createInstitutionTag(payload)
@@ -219,21 +227,29 @@ export default {
         .catch(err => console.error(err))
         .finally(() => {
           this.isLoading = false
+          this.resetNewTagForm()
         })
     },
 
     updateTag (rowData) {
-      this.updateInstitutionTag({ id: rowData.id, type: this.tags1[rowData.id].type, attributes:{ ...this.tags1[rowData.id].attributes, label: rowData.label}})
+      this.updateInstitutionTag({
+        id: rowData.id,
+        type: this.institutionTags[rowData.id].type,
+        attributes: {
+          ...this.institutionTags[rowData.id].attributes,
+          label: rowData.label
+        }
+      })
       this.saveInstitutionTag(rowData.id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch((err) => console.error(err))
         .finally(() => {
           this.isEditing = false
         })
-    },
+    }
   },
 
-  mounted() {
+  mounted () {
     this.getInstitutionTags()
   }
 }
