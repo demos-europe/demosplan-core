@@ -224,7 +224,6 @@
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
-                <dt>{{ Translator.trans('public.participation.relation') }}:</dt>
                 </dl>
               </div>
             </template>
