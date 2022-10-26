@@ -15,7 +15,7 @@ class CheckFileIsUsed extends DPlanEvent
     /**
      * @param bool
      */
-    private $isused;
+    private $isUsed = false;
 
     /**
      * @param string
@@ -32,13 +32,13 @@ class CheckFileIsUsed extends DPlanEvent
         return $this->fileId;
     }
 
-    public function setIsUsed(bool $isused = false)
+    public function setIsUsed(bool $isUsed)
     {
-        $this->isused = $isused;
+        $this->isUsed = $isUsed;
     }
 
     public function getIsUsed()
     {
-        return $this->isused;
+        return $this->isUsed;
     }
 }
