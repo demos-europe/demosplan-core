@@ -10,7 +10,26 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function array_key_exists;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\Query\QueryException;
+use Exception;
+use Goodby\CSV\Import\Standard\Interpreter;
+use Goodby\CSV\Import\Standard\Lexer;
+use ReflectionException;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tightenco\Collect\Support\Collection;
+use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -32,6 +51,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatement;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -52,8 +72,8 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -85,7 +105,6 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagTopicNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\CountyNotificationData;
@@ -94,36 +113,12 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\QueryException;
-use Exception;
-use Goodby\CSV\Import\Standard\Interpreter;
-use Goodby\CSV\Import\Standard\Lexer;
+use function array_key_exists;
 use function is_string;
-use ReflectionException;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Tightenco\Collect\Support\Collection;
-use Twig\Environment;
 
 class StatementHandler extends CoreHandler
 {
     use RefreshElasticsearchIndexTrait;
-
-    /**
-     * @var AnnotatedStatementPdfHandler
-     */
-    protected $annotatedStatementHandler;
 
     /** @var DraftStatementService */
     protected $draftStatementService;
@@ -283,7 +278,6 @@ class StatementHandler extends CoreHandler
     private $globalConfig;
 
     public function __construct(
-        AnnotatedStatementPdfHandler $annotatedStatementHandler,
         ArrayHelper $arrayHelper,
         AssignService $assignService,
         CountyService $countyService,
@@ -328,7 +322,6 @@ class StatementHandler extends CoreHandler
     ) {
         parent::__construct($messageBag);
 
-        $this->annotatedStatementHandler = $annotatedStatementHandler;
         $this->arrayHelper = $arrayHelper;
         $this->assignService = $assignService;
         $this->countyService = $countyService;
@@ -4763,12 +4756,10 @@ class StatementHandler extends CoreHandler
      */
     public function getOriginalFile(Statement $statement): ?File
     {
-        $originalDocument = $this
-            ->annotatedStatementHandler
-            ->findByStatement($statement);
-
-        if (null !== $originalDocument) {
-            return $originalDocument->getFile();
+        /** @var GetOriginalFileFromAnnotatedStatement $event **/
+        $event = $this->eventDispatcher->dispatch(new GetOriginalFileFromAnnotatedStatement($statement));
+        if (null !== $event->getFile()) {
+            return $event->getFile();
         }
 
         return $statement->getOriginalFile();
