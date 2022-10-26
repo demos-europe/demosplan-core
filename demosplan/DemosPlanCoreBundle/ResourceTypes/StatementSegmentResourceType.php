@@ -144,7 +144,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $updatableProperties[] = $this->recommendation;
         }
 
-        if ($this->currentUser->hasPermission('feature_statement_polygon_set')) {
+        if ($this->currentUser->hasPermission('feature_segment_polygon_set')) {
             $updatableProperties[] = $this->polygon;
         }
 
@@ -250,7 +250,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             $this->createToOneRelationship($this->place)->readable(),
             $this->createToManyRelationship($this->comments)->readable(),
         ];
-        if ($this->currentUser->hasPermission('feature_statement_polygon_read')) {
+        if ($this->currentUser->hasPermission('feature_segment_polygon_read')) {
             $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
