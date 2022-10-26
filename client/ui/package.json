@@ -13,7 +13,7 @@
     "@storybook/addon-actions": "6.5.13",
     "@storybook/addon-docs": "6.5.13",
     "@storybook/addon-essentials": "6.5.12",
-    "@storybook/addon-links": "6.5.12",
+    "@storybook/addon-links": "6.5.13",
     "@storybook/vue": "6.5.12",
     "babel-loader": "^8.2.5",
     "js-beautify": "^1.14.7",
