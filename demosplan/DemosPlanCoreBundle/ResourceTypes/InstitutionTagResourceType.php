@@ -300,4 +300,9 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $violations;
     }
+
+    public function addCreationErrorMessage(array $parameters): void
+    {
+        $this->messageBag->add('error', 'error.unique.tag.label');
+    }
 }
