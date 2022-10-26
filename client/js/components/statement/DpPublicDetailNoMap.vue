@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/FormActions'
+import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/core/FormActions'
 import { mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'

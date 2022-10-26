@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { addFormHiddenField } from '@DpJs/lib/FormActions'
+import { addFormHiddenField } from '@DpJs/lib/core/FormActions'
 import { scrollToVisibleElement } from './helpers'
 import validateForm from './validateForm'
 
