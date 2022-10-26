@@ -16,35 +16,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use InvalidArgumentException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends FluentRepository<MaillaneConnection>
  */
 class MaillaneConnectionRepository extends FluentRepository
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(
-        DqlConditionFactory $dqlConditionFactory,
-        ManagerRegistry $registry,
-        SortMethodFactory $sortMethodFactory,
-        string $entityClass,
-        ValidatorInterface $validator)
-    {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
-        $this->validator = $validator;
-    }
-
     /**
      * Fetch procedure by Maillane account ID
      *
@@ -82,11 +60,7 @@ class MaillaneConnectionRepository extends FluentRepository
         $maillaneConnection->setMaillaneAccountId($maillaneAccountId);
         $maillaneConnection->setRecipientEmailAddress($recipientMailAddress);
 
-        // validation
-        $violations = $this->validator->validate($maillaneConnection);
-        if (0 < count($violations)) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
+        $this->validate($maillaneConnection);
 
         return $maillaneConnection;
     }

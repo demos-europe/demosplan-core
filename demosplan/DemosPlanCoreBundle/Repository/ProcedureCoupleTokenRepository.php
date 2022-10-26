@@ -20,28 +20,9 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProcedureCoupleTokenRepository extends FluentRepository
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    public function __construct(
-        DqlConditionFactory $dqlConditionFactory,
-        ManagerRegistry $registry,
-        SortMethodFactory $sortMethodFactory,
-        string $entityClass,
-        ValidatorInterface $validator
-    ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
-        $this->validator = $validator;
-    }
 
     /**
      * @throws ViolationsException
@@ -50,11 +31,8 @@ class ProcedureCoupleTokenRepository extends FluentRepository
     {
         $entity = new ProcedureCoupleToken($sourceProcedure, $token);
         $em = $this->getEntityManager();
+        $this->validate($entity);
         $em->persist($entity);
-        $violations = $this->validator->validate($entity);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
         $em->flush();
 
         return $entity;
@@ -112,10 +90,7 @@ class ProcedureCoupleTokenRepository extends FluentRepository
             throw new InvalidDataException('Given procedure is deleted.');
         }
 
-        $violations = $this->validator->validate($token);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
+        $this->validate($token);
 
         $token->setTargetProcedure($targetProcedure);
         $this->getEntityManager()->flush();
