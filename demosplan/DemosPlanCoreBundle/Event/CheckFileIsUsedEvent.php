@@ -37,7 +37,7 @@ class CheckFileIsUsedEvent extends DPlanEvent
         $this->isUsed = $isUsed;
     }
 
-    public function getIsUsed()
+    public function getIsUsed(): bool
     {
         return $this->isUsed;
     }
