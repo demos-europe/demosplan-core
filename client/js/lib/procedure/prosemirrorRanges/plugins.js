@@ -17,10 +17,10 @@ import {
   range,
   rangesEqual,
   serializeRange
-} from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/utilities'
-import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/commands'
+} from '@DpJs/lib/procedure/prosemirrorRanges/utilities'
+import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeMark, rangeSelectionMark } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/marks'
+import { rangeMark, rangeSelectionMark } from '@DpJs/lib/procedure/prosemirrorRanges/marks'
 import { Schema } from 'prosemirror-model'
 
 /**

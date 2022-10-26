@@ -9,7 +9,7 @@
 
 import { checkResponse, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'

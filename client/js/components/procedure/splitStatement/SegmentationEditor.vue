@@ -18,9 +18,9 @@ import { DOMParser, DOMSerializer, Schema } from 'prosemirror-model'
 import { addListNodes } from 'prosemirror-schema-list'
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
-import { initRangePlugin } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/plugins'
+import { initRangePlugin } from '@DpJs/lib/procedure/prosemirrorRanges/plugins'
 import { schema } from 'prosemirror-schema-basic'
-import { setRange } from '@DemosPlanProcedureBundle/lib/prosemirrorRanges/commands'
+import { setRange } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
 import { v4 as uuid } from 'uuid'
 
 export default {

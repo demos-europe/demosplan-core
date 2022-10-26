@@ -30,7 +30,7 @@
 
 <script>
 import DpNewOrgaModal from './DpNewOrgaModal'
-import { makeFormPost } from '@DpJs/lib/utils/makeFormPost'
+import { makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
 
 export default {
   name: 'DpNewMasterToeb',

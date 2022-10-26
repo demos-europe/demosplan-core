@@ -8,7 +8,7 @@
  */
 
 import { dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 /**
  * Adds empty title attribute for element/paragraph/document

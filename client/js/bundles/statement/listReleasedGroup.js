@@ -17,7 +17,7 @@ import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
-import StatementForm from '@DemosPlanStatementBundle/lib/StatementForm'
+import StatementForm from '@DpJs/lib/statement/StatementForm'
 
 const components = {
   DpMapModal,

@@ -20,7 +20,7 @@ import DpSelectStatementCluster from '@DpJs/components/statement/statement/Selec
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {

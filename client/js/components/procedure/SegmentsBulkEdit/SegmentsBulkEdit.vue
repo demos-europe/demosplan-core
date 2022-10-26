@@ -203,7 +203,7 @@ import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/A
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 

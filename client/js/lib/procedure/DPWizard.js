@@ -13,7 +13,7 @@
  *
  *  @deprecated swap with more appropriate onboarding pattern? "tour", "whats new"...?
  */
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default function DpWizard () {
   // Gets jquery from window
