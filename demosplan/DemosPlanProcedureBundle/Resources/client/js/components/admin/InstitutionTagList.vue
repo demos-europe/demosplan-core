@@ -178,7 +178,9 @@ export default {
     deleteTag ( { id }) {
       this.deleteInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
-        .catch((err) => console.error(err))
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     editTag ( { id }) {
@@ -213,7 +215,9 @@ export default {
           this.getInstitutionTags()
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+          console.error(err)
+        })
         .finally(() => {
           this.isLoading = false
           this.resetNewTagForm()
@@ -231,7 +235,9 @@ export default {
       })
       this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
-        .catch((err) => console.error(err))
+        .catch(err => {
+          console.error(err)
+        })
         .finally(() => {
           this.isEditing = false
         })
