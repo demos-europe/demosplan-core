@@ -16,7 +16,7 @@
     "@storybook/addon-links": "6.5.12",
     "@storybook/vue": "6.5.12",
     "babel-loader": "^8.2.5",
-    "js-beautify": "^1.14.6",
+    "js-beautify": "^1.14.7",
     "vue-loader": "^15.9.8"
   },
   "scripts": {
