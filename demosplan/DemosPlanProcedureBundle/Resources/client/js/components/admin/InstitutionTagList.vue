@@ -9,8 +9,7 @@
 
 <template>
   <div>
-    <div
-      class="text--right">
+    <div class="text--right">
       <dp-button
         v-if="!addNewTag"
         @click="addNewTag = true"
