@@ -188,7 +188,7 @@ export default {
     getInstitutionTags () {
       this.listInstitutionTags({
         fields: {
-          InstitutionTag: ['label', 'id'].join()
+          InstitutionTag: ['label'].join()
         }
       })
     },
