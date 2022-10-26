@@ -74,9 +74,9 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
-            AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
-            GetOriginalFileFromAnnotatedStatement::class => 'getOriginalFileFromAnnotatedStatement'
+            AfterResourceCreationEvent::class            => 'piBoxRecognitionRequest',
+            AfterResourceUpdateEvent::class              => 'checkAnnotatedStatementPdfReviewed',
+            GetOriginalFileFromAnnotatedStatement::class => 'getOriginalFileFromAnnotatedStatement',
         ];
     }
 
@@ -137,7 +137,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         $originalDocument = $this->annotatedStatementPdfHandler->findByStatement($event->getStatement());
 
         if (null !== $originalDocument) {
-             $event->setFile($originalDocument->getFile());
+            $event->setFile($originalDocument->getFile());
         }
     }
 }

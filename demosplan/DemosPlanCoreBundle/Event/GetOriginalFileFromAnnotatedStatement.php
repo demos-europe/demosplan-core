@@ -20,7 +20,7 @@ class GetOriginalFileFromAnnotatedStatement
     /**
      * @param File
      */
-    private $file = null ;
+    private $file = null;
 
     /**
      * @param Statement
