@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_new.html.twig
  */
 
-import CreateProcedure from '@DemosPlanProcedureBundle/lib/CreateProcedure'
+import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
 import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
 import dpValidate from '@DpJs/lib/validation/dpValidate'

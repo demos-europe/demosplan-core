@@ -47,7 +47,7 @@
 import DpCard from '@DpJs/components/core/DpCard'
 import { DpLoading } from 'demosplan-ui/components'
 import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { initLineChart } from '@DemosPlanProcedureBundle/lib/charts/helpers/init'
+import { initLineChart } from '@DpJs/lib/procedure/charts/helpers/init'
 
 export default {
   name: 'ProcedureAnalyticsChart',

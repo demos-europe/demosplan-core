@@ -104,7 +104,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCreateTag from './DpCreateTag'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 

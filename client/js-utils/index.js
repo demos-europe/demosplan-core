@@ -7,13 +7,16 @@
  * All rights reserved
  */
 
-import { toggleFullscreen, bindFullScreenChange, unbindFullScreenChange, isActiveFullScreen } from './fullscreen'
+import { bindFullScreenChange, isActiveFullScreen, toggleFullscreen, unbindFullScreenChange } from './fullscreen'
+import { formatDate, toDate } from './date'
+import { hasAllPermissions, hasAnyPermissions, hasPermission } from './hasPermission'
 import changeUrlforPager from './changeUrlforPager'
 import debounce from './debounce'
 import deepMerge from './deepMerge'
 import formatBytes from './formatBytes'
 import getAnimationEventName from './getAnimationEventName'
 import getScrollTop from './getScrollTop'
+import hasOwnProp from './hasOwnProp'
 import sortAlphabetically from './sortAlphabetically'
 import throttle from './throttle'
 import uniqueArrayByObjectKey from './uniqueArrayByObjectKey'
@@ -24,12 +27,18 @@ export {
   debounce,
   deepMerge,
   formatBytes,
+  formatDate,
   isActiveFullScreen,
   getAnimationEventName,
   getScrollTop,
+  hasAllPermissions,
+  hasAnyPermissions,
+  hasOwnProp,
+  hasPermission,
   sortAlphabetically,
   throttle,
+  toDate,
   toggleFullscreen,
   unbindFullScreenChange,
-  uniqueArrayByObjectKey,
+  uniqueArrayByObjectKey
 }

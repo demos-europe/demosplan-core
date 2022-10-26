@@ -35,7 +35,7 @@ import AdministrationImportNone from './AdministrationImportNone'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from '@DpJs/lib/utils/hasPermission'
+import { hasAnyPermissions } from 'demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 

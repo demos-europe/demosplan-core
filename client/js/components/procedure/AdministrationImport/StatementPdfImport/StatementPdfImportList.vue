@@ -84,11 +84,10 @@
 </template>
 
 <script>
+import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpLoading } from 'demosplan-ui/components'
-import { formatDate } from '@DpJs/lib/utils/date'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
 
 export default {
   name: 'StatementPdfImportList',

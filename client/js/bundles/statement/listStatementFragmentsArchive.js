@@ -16,7 +16,7 @@ import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentLi
 import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
 import fragmentStore from '@DemosPlanStatementBundle/store/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ListStatementFragments from '@DemosPlanStatementBundle/lib/ListStatementFragments'
+import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 
 const components = {
   DpFragmentList,

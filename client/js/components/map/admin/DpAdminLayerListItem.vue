@@ -193,7 +193,7 @@
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
 import draggable from 'vuedraggable'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { v4 as uuid } from 'uuid'
 
 export default {
