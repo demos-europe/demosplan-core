@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatement;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -85,7 +86,6 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagTopicNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\CountyNotificationData;
@@ -119,11 +119,6 @@ use Twig\Environment;
 class StatementHandler extends CoreHandler
 {
     use RefreshElasticsearchIndexTrait;
-
-    /**
-     * @var AnnotatedStatementPdfHandler
-     */
-    protected $annotatedStatementHandler;
 
     /** @var DraftStatementService */
     protected $draftStatementService;
@@ -283,7 +278,6 @@ class StatementHandler extends CoreHandler
     private $globalConfig;
 
     public function __construct(
-        AnnotatedStatementPdfHandler $annotatedStatementHandler,
         ArrayHelper $arrayHelper,
         AssignService $assignService,
         CountyService $countyService,
@@ -328,7 +322,6 @@ class StatementHandler extends CoreHandler
     ) {
         parent::__construct($messageBag);
 
-        $this->annotatedStatementHandler = $annotatedStatementHandler;
         $this->arrayHelper = $arrayHelper;
         $this->assignService = $assignService;
         $this->countyService = $countyService;
@@ -4763,12 +4756,10 @@ class StatementHandler extends CoreHandler
      */
     public function getOriginalFile(Statement $statement): ?File
     {
-        $originalDocument = $this
-            ->annotatedStatementHandler
-            ->findByStatement($statement);
-
-        if (null !== $originalDocument) {
-            return $originalDocument->getFile();
+        /** @var GetOriginalFileFromAnnotatedStatement $event * */
+        $event = $this->eventDispatcher->dispatch(new GetOriginalFileFromAnnotatedStatement($statement));
+        if (null !== $event->getFile()) {
+            return $event->getFile();
         }
 
         return $statement->getOriginalFile();

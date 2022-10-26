@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\Annotat
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsed;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatement;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognit
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -78,6 +78,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
             AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
             CheckFileIsUsed::class            => 'checkAnnotatedStatementPdfUsed',
+            GetOriginalFileFromAnnotatedStatement::class => 'getOriginalFileFromAnnotatedStatement',
         ];
     }
 
@@ -130,6 +131,15 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             $this->managerRegistry->getManager()->flush();
 
             $this->piTextRecognitionRequester->request($annotatedStatementPdf);
+        }
+    }
+
+    public function getOriginalFileFromAnnotatedStatement(GetOriginalFileFromAnnotatedStatement $event)
+    {
+        $originalDocument = $this->annotatedStatementPdfHandler->findByStatement($event->getStatement());
+
+        if (null !== $originalDocument) {
+            $event->setFile($originalDocument->getFile());
         }
     }
 
