@@ -221,6 +221,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
 
                     return $phase;
                 }),
+            $this->createAttribute($this->polygon)->readable(true),
             $this->createAttribute($this->priority)->readable(true),
             $this->createAttribute($this->procedureId)->readable(true)->aliasedPath($this->procedure->id),
             $this->createAttribute($this->publicAllowed)
@@ -355,10 +356,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $properties[] = $this->createAttribute($this->memo)->readable(true)->filterable();
-        }
-
-        if ($this->currentUser->hasPermission('feature_statement_polygon_read')) {
-            $properties[] = $this->createAttribute($this->polygon)->readable(true);
         }
 
         return $properties;
