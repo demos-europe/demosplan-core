@@ -75,8 +75,8 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
-            AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
+            AfterResourceCreationEvent::class      => 'piBoxRecognitionRequest',
+            AfterResourceUpdateEvent::class        => 'checkAnnotatedStatementPdfReviewed',
             CheckFileIsUsedEvent::class            => 'checkAnnotatedStatementPdfUsed',
         ];
     }
