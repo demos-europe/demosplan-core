@@ -135,7 +135,6 @@ export default {
     return {
       addNewTag: false,
       alignLeft: 'left',
-      tagsArray: [],
       edit: false,
       headerFields: [
         {
@@ -152,7 +151,8 @@ export default {
       initialRowData: {},
       isEditing: '',
       isLoading: false,
-      newTag: {}
+      newTag: {},
+      tagsArray: [],
     }
   },
 
