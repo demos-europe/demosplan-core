@@ -22,7 +22,7 @@ use EDT\Wrapping\Contracts\Types\TypeInterface;
 class GetPropertiesEvent extends DPlanEvent
 {
     /**
-     * @var array<int, Property<O, mixed>>
+     * @var array<int, Property>
      */
     private $properties;
 
