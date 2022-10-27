@@ -42,7 +42,7 @@ class GetOriginalFileFromAnnotatedStatementEvent
         $this->file = $file;
     }
 
-    public function getFile()
+    public function getFile(): File
     {
         return $this->file;
     }
