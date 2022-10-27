@@ -349,12 +349,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             30
         );
 
-        //Stellungnahme als Anhang // todo logik aufwendig und keine permission vorhanden!
-        //feature_original_statements_export??
-//        if ($this->permissions->hasPermission('attachment.original')) {
-        $columnsDefinition[] = $this->createColumnDefinition('attachments', 'attachment.original');
-//        }
-
         return $columnsDefinition;
     }
 
