@@ -58,7 +58,7 @@ class AnnotatedStatementPdfService
 
         $convertedCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::CONVERTED);
 
-        $totalCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsCount();
+        $totalCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsCount($procedureId);
 
         return new PercentageDistribution(
             $totalCount,
