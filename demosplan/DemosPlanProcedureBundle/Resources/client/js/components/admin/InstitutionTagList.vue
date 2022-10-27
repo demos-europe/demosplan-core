@@ -9,14 +9,15 @@
 
 <template>
   <div>
-    <div class="text--right">
+    <div
+      v-if="!addNewTag"
+      class="text--right">
       <dp-button
-        v-if="!addNewTag"
         :text="Translator.trans('tag.new')"
         @click="openAddNewTagField()" />
     </div>
     <div
-      v-if="addNewTag"
+      v-else
       class="position--relative"
       data-dp-validate="addNewTagForm">
       <dp-loading
@@ -86,7 +87,7 @@
                 aria-hidden="true"/>
             </button>
           </template>
-          <template v-if="rowData.edit">
+          <template v-else>
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
