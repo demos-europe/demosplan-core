@@ -69,7 +69,7 @@ class AiPipelineConfiguration
         $this->pipelineDemosAuthorization = $this->parameterBag->get('pipeline.demos.authorization');
         $this->piPipelineConfirmedSegmentsId = $this->parameterBag->get('pi.pipeline.confirmed.segments.id');
         $this->piPipelineSegmentRecognitionId = $this->parameterBag->get('pi.pipeline.segment.recognition.id');
-        if ($this->parameterBag-- > has('pipeline.ai.labels')) {
+        if ($this->parameterBag->has('pipeline.ai.labels')) {
             $this->aiPipelineLabels = $this->parameterBag->get('pipeline.ai.labels');
         }
     }
