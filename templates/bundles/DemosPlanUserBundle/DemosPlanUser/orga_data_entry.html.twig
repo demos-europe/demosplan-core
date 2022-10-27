@@ -58,15 +58,6 @@
             }
         ] }) }}
 
-        {{ uiComponent('form.row', { elements: [{
-            label: { text: 'url'|trans },
-            control: { name: organisation.ident|default ~ ':url' },
-            id: 'orga_url',
-            type: 'text',
-            value: organisation.url|default,
-            disabled: not may_edit_orga_data
-        }] }) }}
-
         {% if hasPermission('field_organisation_phone') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'phone'|trans },

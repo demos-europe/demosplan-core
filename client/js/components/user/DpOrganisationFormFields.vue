@@ -149,34 +149,6 @@
         </div>
       </div>
       <div
-        class="layout__item u-1-of-2"
-        :class="hasPermission('field_organisation_phone') ? 'u-1-of-2' : 'u-1-of-2'">
-        <label
-          :for="organisation.id + ':externURL'"
-          class="u-mb-0_25">
-          {{ Translator.trans('url') }}
-        </label>
-        <input
-          v-if="canEdit('url')"
-          type="text"
-          :id="organisation.id + ':externURL'"
-          class="width-100p u-mb-0_5"
-          style="height: 27px;"
-          data-cy="externURL"
-          @input="emitOrganisationUpdate"
-          v-model="localOrganisation.attributes.url">
-        <p
-          v-else-if="false === canEdit('url') && organisation.attributes.url !== null"
-          class="color--grey u-mb-0_5">
-          {{ organisation.attributes.url }}
-        </p>
-        <p
-          v-else-if="false === canEdit('url') && organisation.attributes.url === null"
-          class="color--grey u-mb-0_5">
-          -
-        </p>
-      </div><!--
-   --><div
         v-if="hasPermission('field_organisation_phone')"
         class="layout__item u-2-of-6">
         <label
