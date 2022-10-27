@@ -12,10 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
-use EDT\PathBuilding\End;
-use Exception;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
@@ -37,6 +33,10 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
+use EDT\PathBuilding\End;
+use Exception;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 {
