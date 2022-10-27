@@ -12,8 +12,8 @@
     <div class="text--right">
       <dp-button
         v-if="!addNewTag"
-        @click="openAddNewTagField()"
-        :text="Translator.trans('tag.new')" />
+        :text="Translator.trans('tag.new')"
+        @click="openAddNewTagField()" />
     </div>
     <div
       v-if="addNewTag"
