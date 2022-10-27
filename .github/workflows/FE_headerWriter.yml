@@ -46,6 +46,8 @@ jobs:
       - name: Commit
         run: |
               git pull
+              if ! git diff --exit-code; then
               git add .
               git commit -m "style: Update license header"
               git push
+              fi
