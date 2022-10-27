@@ -132,7 +132,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function getOriginalFileFromAnnotatedStatement(GetOriginalFileFromAnnotatedStatementEvent $event)
+    public function getOriginalFileFromAnnotatedStatement(GetOriginalFileFromAnnotatedStatementEvent $event): void
     {
         $originalDocument = $this->annotatedStatementPdfHandler->findByStatement($event->getStatement());
 
