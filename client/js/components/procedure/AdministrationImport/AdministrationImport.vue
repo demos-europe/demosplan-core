@@ -100,20 +100,7 @@ export default {
 
   data () {
     return {
-      addons: [
-        {
-          name: 'StatementPdfImport',
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf',
-          url: '/js/addons/StatementPdfImport/StatementPdfImport.umd.js'
-        },
-        {
-          name: 'EmailImport',
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title',
-          url: '/js/addons/EmailImport/EmailImport.umd.js'
-        }
-      ],
+      addons: [],
       activeTabId: '',
       asyncComponents: []
     }
