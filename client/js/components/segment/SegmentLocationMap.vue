@@ -46,7 +46,7 @@
             data-cy="setMapTerritory"
             ref="drawPolygon"
             icon
-            icon-class="fa-pencil-square-o u-mb-0_25 font-size-h2"
+            icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
             :title="Translator.trans('statement.map.draw.mark_polygon')"
@@ -79,7 +79,7 @@ import DpOlMapDrawFeature from '@DemosPlanMapBundle/components/map/DpOlMapDrawFe
 import DpOlMapEditFeature from '@DemosPlanMapBundle/components/map/DpOlMapEditFeature'
 
 export default {
-  name: 'StatementLocationMap',
+  name: 'SegmentLocationMap',
 
   components: {
     DpButtonRow,

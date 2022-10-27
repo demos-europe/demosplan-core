@@ -19,7 +19,7 @@
         ref="commentsList"
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
-      <statement-location-map
+      <segment-location-map
         v-if="map.show"
         ref="locationMap"
         :statement-extern-id="statementExternId"
@@ -166,7 +166,7 @@ import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DemosPlanStatementBundle/components/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentsRecommendations from './SegmentsRecommendations'
-import StatementLocationMap from '@DemosPlanStatementBundle/components/statement/StatementLocationMap'
+import SegmentLocationMap from '@DpJs/components/segment/SegmentLocationMap'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DemosPlanStatementBundle/components/StatementMetaTooltip'
@@ -183,7 +183,7 @@ export default {
     DpVersionHistory,
     SegmentCommentsList,
     SegmentsRecommendations,
-    StatementLocationMap,
+    SegmentLocationMap,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
