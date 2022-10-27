@@ -12,11 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
@@ -26,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
@@ -37,6 +31,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ProcedureTypeConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure")
@@ -562,16 +560,6 @@ class Procedure extends SluggedEntity
     protected $surveys;
 
     /**
-     * @var Collection<int, AnnotatedStatementPdf>
-     * @ORM\OneToMany(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf",
-     *     mappedBy="procedure",
-     *     cascade={"persist", "remove"}
-     *     )
-     */
-    protected $annotatedStatementPdfs;
-
-    /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureType.
      *
      * @var ProcedureType|null
@@ -671,7 +659,6 @@ class Procedure extends SluggedEntity
         $this->surveys = new ArrayCollection();
         $this->files = new ArrayCollection();
         $this->notificationReceivers = new ArrayCollection();
-        $this->annotatedStatementPdfs = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
     }
@@ -2191,75 +2178,6 @@ class Procedure extends SluggedEntity
         }
 
         return null;
-    }
-
-    public function setAnnotatedStatementPdfs(Collection $annotatedStatementPdfs): void
-    {
-        $this->annotatedStatementPdfs = $annotatedStatementPdfs;
-    }
-
-    public function addAnnotatedStatementPdf(AnnotatedStatementPdf $annotatedStatementPdf): void
-    {
-        $this->getAnnotatedStatementPdfs()->add($annotatedStatementPdf);
-    }
-
-    /**
-     * @return Collection<int, AnnotatedStatementPdf>
-     */
-    public function getAnnotatedStatementPdfs(): Collection
-    {
-        return null != $this->annotatedStatementPdfs
-            ? $this->annotatedStatementPdfs
-            : new ArrayCollection();
-    }
-
-    public function getAnnotatedStatementPdfsCount(): int
-    {
-        return $this->getAnnotatedStatementPdfs()->count();
-    }
-
-    public function getAnnotatedStatementPdfsByStatus(string $status): Collection
-    {
-        return $this->getAnnotatedStatementPdfs()->filter(
-            function (AnnotatedStatementPdf $annotatedStatementPdf) use ($status) {
-                return $status === $annotatedStatementPdf->getStatus();
-            }
-        );
-    }
-
-    public function getAnnotatedStatementPdfsByStatusCount(string $status): int
-    {
-        return $this->getAnnotatedStatementPdfsByStatus($status)->count();
-    }
-
-    /**
-     * Returns next AnnotatedStatementPdf to be reviewed.
-     *
-     * @return string
-     */
-    public function getNextAnnotatedStatementPdfToReview(): ?string
-    {
-        return 0 < $this->getAnnotatedStatementPdfsByStatusCount(AnnotatedStatementPdf::READY_TO_REVIEW)
-            ? $this
-                ->getAnnotatedStatementPdfsByStatus(AnnotatedStatementPdf::READY_TO_REVIEW)
-                ->current()
-                ->getId()
-            : null;
-    }
-
-    /**
-     * Returns next AnnotatedStatementPdf ready to be converted to a Statement.
-     *
-     * @return string
-     */
-    public function getNextAnnotatedStatementPdfsReadyToConvert(): ?string
-    {
-        return 0 < $this->getAnnotatedStatementPdfsByStatusCount(AnnotatedStatementPdf::READY_TO_CONVERT)
-            ? $this
-                ->getAnnotatedStatementPdfsByStatus(AnnotatedStatementPdf::READY_TO_CONVERT)
-                ->current()
-                ->getId()
-            : null;
     }
 
     public function getProcedureBehaviorDefinition(): ?ProcedureBehaviorDefinition
