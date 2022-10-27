@@ -20,44 +20,46 @@
         :options="{
           autoSuggest: false
       }">
-        <dp-ol-map-draw-feature
-          data-cy="setMapRelation"
-          ref="drawPoint"
-          :features="segmentPointFeature"
-          icon
-          icon-class="fa-map-marker u-mb-0_25 font-size-h2"
-          name="Point"
-          render-control
-          :title="Translator.trans('map.relation.set')"
-          type="Point"
-          @layerFeaturesChanged="updatePoint" />
-        <dp-ol-map-draw-feature
-          data-cy="setMapLine"
-          ref="drawLine"
-          icon
-          icon-class="fa-minus u-mb-0_25 font-size-h2"
-          name="Line"
-          render-control
-          :title="Translator.trans('statement.map.draw.mark_line')"
-          type="LineString"
-          @layerFeaturesChanged="updateLine" />
-        <dp-ol-map-draw-feature
-          data-cy="setMapTerritory"
-          ref="drawPolygon"
-          icon
-          icon-class="fa-pencil-square-o u-mb-0_25 font-size-h2"
-          name="Polygon"
-          render-control
-          :title="Translator.trans('statement.map.draw.mark_polygon')"
-          type="Polygon"
-          @layerFeaturesChanged="updatePolygon" />
-        <button
-          :title="Translator.trans('statement.map.draw.drop_all')"
-          class="btn--blank u-ml-0_5 o-link--default weight--bold"
-          type="button"
-          @click="resetMapConfirm">
-          <i class="fa fa-eraser u-mb-0_25 font-size-h2"></i>
-        </button>
+        <template v-if="hasPermission('feature_segment_polygon_set')">
+          <dp-ol-map-draw-feature
+            data-cy="setMapRelation"
+            ref="drawPoint"
+            :features="segmentPointFeature"
+            icon
+            icon-class="fa-map-marker u-mb-0_25 font-size-h2"
+            name="Point"
+            render-control
+            :title="Translator.trans('map.relation.set')"
+            type="Point"
+            @layerFeaturesChanged="updatePoint" />
+          <dp-ol-map-draw-feature
+            data-cy="setMapLine"
+            ref="drawLine"
+            icon
+            icon-class="fa-minus u-mb-0_25 font-size-h2"
+            name="Line"
+            render-control
+            :title="Translator.trans('statement.map.draw.mark_line')"
+            type="LineString"
+            @layerFeaturesChanged="updateLine" />
+          <dp-ol-map-draw-feature
+            data-cy="setMapTerritory"
+            ref="drawPolygon"
+            icon
+            icon-class="fa-pencil-square-o u-mb-0_25 font-size-h2"
+            name="Polygon"
+            render-control
+            :title="Translator.trans('statement.map.draw.mark_polygon')"
+            type="Polygon"
+            @layerFeaturesChanged="updatePolygon" />
+          <button
+            :title="Translator.trans('statement.map.draw.drop_all')"
+            class="btn--blank u-ml-0_5 o-link--default weight--bold"
+            type="button"
+            @click="resetMapConfirm">
+            <i class="fa fa-eraser u-mb-0_25 font-size-h2"></i>
+          </button>
+        </template>
       </dp-ol-map>
       <dp-button-row
         class="u-mt"

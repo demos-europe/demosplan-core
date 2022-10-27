@@ -219,6 +219,7 @@
           </span>
         </button>
         <button
+          v-if="hasPermission('feature_segment_polygon_read')"
           class="segment-list-toolbar__button btn--blank"
           :class="{ 'is-active' : map.show && map.segmentId === segment.id }"
           type="button"
