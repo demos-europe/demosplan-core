@@ -858,12 +858,6 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
-        arguments:
-            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
-        lazy: true
-
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
 
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
@@ -878,9 +872,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
-        tags: [kernel.event_subscriber]
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
@@ -890,16 +881,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
