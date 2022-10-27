@@ -25,7 +25,7 @@
         overlay />
       <div class="border border-radius-small space-stack-m space-inset-m">
         <div class="position--relative u-pb-0_5 font-size-large">
-          {{ Translator.trans('tags.create') }}
+          {{ Translator.trans('tag.new') }}
           <button
             class="btn--blank o-link--default float--right"
             @click="closeAddNewTagField()">
@@ -145,7 +145,7 @@ export default {
         },
         {
           field: 'action',
-          label: Translator.trans('action'),
+          label: Translator.trans('actions'),
           colClass: 'u-1-of-10'
         }
       ],
