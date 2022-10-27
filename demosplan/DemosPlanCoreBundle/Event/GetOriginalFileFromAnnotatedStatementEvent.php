@@ -37,7 +37,7 @@ class GetOriginalFileFromAnnotatedStatementEvent
         return $this->statement;
     }
 
-    public function setFile(File $file)
+    public function setFile(File $file): void
     {
         $this->file = $file;
     }
