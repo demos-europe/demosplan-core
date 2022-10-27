@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use EDT\JsonApi\ResourceTypes\Property;
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 
 /**
@@ -23,7 +22,7 @@ use EDT\Wrapping\Contracts\Types\TypeInterface;
 class GetPropertiesEvent extends DPlanEvent
 {
     /**
-     * @var array<int, PropertyBuilder<O, mixed>>
+     * @var array<int, Property<O, mixed>>
      */
     private $properties;
 
@@ -50,7 +49,7 @@ class GetPropertiesEvent extends DPlanEvent
         return $this->properties;
     }
 
-    public function addProperty(PropertyBuilder $property): void
+    public function addProperty(Property $property): void
     {
         $this->properties[] = $property;
     }
