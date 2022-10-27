@@ -73,7 +73,7 @@
             <button
               :aria-label="Translator.trans('item.edit')"
               class="btn--blank o-link--default"
-              @click="editTag(rowData)">
+              @click="editTag(rowData.id)">
               <i
                 class="fa fa-pencil"
                 aria-hidden="true"/>
@@ -81,7 +81,7 @@
             <button
               :aria-label="Translator.trans('item.delete')"
               class="btn--blank o-link--default"
-              @click="deleteTag(rowData)">
+              @click="deleteTag(rowData.id)">
               <i
                 class="fa fa-trash"
                 aria-hidden="true"/>
@@ -91,7 +91,7 @@
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
-              @click="dpValidateAction('tagsTable', () => updateTag(rowData), false)">
+              @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.label), false)">
               <dp-icon
                 icon="check"
                 aria-hidden="true" />
@@ -188,7 +188,7 @@ export default {
       this.addNewTag = false
     },
 
-    deleteTag ( { id }) {
+    deleteTag (id) {
       this.deleteInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
         .catch(err => {
@@ -196,7 +196,7 @@ export default {
         })
     },
 
-    editTag ( { id }) {
+    editTag (id) {
       this.isEditing = id
     },
 
@@ -271,7 +271,7 @@ export default {
         })
     },
 
-    updateTag ({ id, label }) {
+    updateTag (id, label) {
       if (!this.isUniqueTagName(label)) {
         return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
       }
