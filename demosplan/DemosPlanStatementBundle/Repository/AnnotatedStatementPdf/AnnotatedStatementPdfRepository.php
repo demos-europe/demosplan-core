@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Exception;
 
 class AnnotatedStatementPdfRepository extends CoreRepository
@@ -89,5 +91,65 @@ class AnnotatedStatementPdfRepository extends CoreRepository
             ->setParameter('status', $status)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getAnnotatedStatementsPdfWithProcedureId(string $procedureId): Collection
+    {
+        $query = $this->createQueryBuilder('pdf')
+            ->where('pdf.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
+
+        return new ArrayCollection($query);
+    }
+
+    public function getAnnotatedStatementPdfsByStatus(string $procedureId, string $status): Collection
+    {
+        return $this->getAnnotatedStatementsPdfWithProcedureId($procedureId)->filter(
+            function (AnnotatedStatementPdf $annotatedStatementPdf) use ($status) {
+                return $status === $annotatedStatementPdf->getStatus();
+            }
+        );
+    }
+
+    public function getAnnotatedStatementPdfsByStatusCount(string $procedureId, string $status): int
+    {
+        return $this->getAnnotatedStatementPdfsByStatus($procedureId, $status)->count();
+    }
+
+    public function getAnnotatedStatementPdfsCount(string $procedureId): int
+    {
+        return $this->getAnnotatedStatementsPdfWithProcedureId($procedureId)->count();
+    }
+
+    /**
+     * Returns next AnnotatedStatementPdf to be reviewed.
+     *
+     * @return string
+     */
+    public function getNextAnnotatedStatementPdfToReview(string $procedureId): ?string
+    {
+        return 0 < $this->getAnnotatedStatementPdfsByStatusCount($procedureId, AnnotatedStatementPdf::READY_TO_REVIEW)
+            ? $this
+                ->getAnnotatedStatementPdfsByStatus($procedureId, AnnotatedStatementPdf::READY_TO_REVIEW)
+                ->current()
+                ->getId()
+            : null;
+    }
+
+    /**
+     * Returns next AnnotatedStatementPdf ready to be converted to a Statement.
+     *
+     * @return string
+     */
+    public function getNextAnnotatedStatementPdfsReadyToConvert(): ?string
+    {
+        return 0 < $this->getAnnotatedStatementPdfsByStatusCount(AnnotatedStatementPdf::READY_TO_CONVERT)
+            ? $this
+                ->getAnnotatedStatementPdfsByStatus(AnnotatedStatementPdf::READY_TO_CONVERT)
+                ->current()
+                ->getId()
+            : null;
     }
 }
