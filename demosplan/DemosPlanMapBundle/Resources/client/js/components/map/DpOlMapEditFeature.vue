@@ -100,7 +100,7 @@ export default {
     // Required to target a Layer with Vector-Featurs
     target: {
       required: true,
-      type: String
+      type: [String, Array]
     },
 
     initActive: {
@@ -123,7 +123,8 @@ export default {
       currentlyActive: this.initActive,
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
-      disabled: true
+      disabled: true,
+      targets: Array.isArray(this.target) ? this.target : [this.target]
     }
   },
 
@@ -184,7 +185,7 @@ export default {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
-              if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+              if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
                 layer.getSource().removeFeature(feature)
               }
             })
@@ -199,7 +200,7 @@ export default {
     clearAll () {
       if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
         this.map.getLayers().forEach(layer => {
-          if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+          if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
             this.selectInteraction.getFeatures().clear()
             layer.getSource().clear()
             this.selectedFeatureId = []

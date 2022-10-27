@@ -59,6 +59,7 @@
             @click="resetMapConfirm">
             <i class="fa fa-eraser u-mb-0_25 font-size-h2"></i>
           </button>
+          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']"></dp-ol-map-edit-feature>
         </template>
       </dp-ol-map>
       <dp-button-row
