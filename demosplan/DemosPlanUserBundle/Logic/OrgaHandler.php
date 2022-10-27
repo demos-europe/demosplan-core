@@ -210,7 +210,6 @@ class OrgaHandler extends CoreHandler
                     'street',
                     'submissionType',
                     'types',
-                    'url',
                 ]
             );
         }

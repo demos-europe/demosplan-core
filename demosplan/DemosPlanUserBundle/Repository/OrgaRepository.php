@@ -335,7 +335,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 'paperCopy',
                 'paperCopySpec',
                 'showname',
-                'url',
                 'name',
                 'street',
                 'houseNumber',
@@ -577,7 +576,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation->setCode(null);
             $organisation->setEmail2(null);
             $organisation->setCcEmail2(null);
-            $organisation->setUrl(null);
             $organisation->setGwId(null);
             $organisation->setCompetence(null);
             $organisation->setContactPerson(null);
