@@ -128,7 +128,7 @@ import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
 
 export default {
-  name: 'InstitutionTagList',
+  name: 'InstitutionTagManagement',
 
   components: {
     DpButton,
