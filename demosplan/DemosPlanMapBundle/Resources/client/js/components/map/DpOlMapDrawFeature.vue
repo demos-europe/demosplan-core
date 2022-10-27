@@ -54,13 +54,19 @@
     type="button"
     @click="toggle"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
-    :class="{'color--highlight':currentlyActive}">
+    :class="{'color--highlight':currentlyActive}"
+    :title="title">
     {{ label }}
+    <i
+      v-if="icon"
+      class="fa"
+      :class="iconClass"
+      aria-hidden="true" />
   </button>
 </template>
 
 <script>
-import { Draw, Snap } from 'ol/interaction'
+import {Draw, Snap} from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
 import { GeoJSON } from 'ol/format'
 import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
@@ -74,34 +80,16 @@ export default {
   inject: ['olMapState'],
 
   props: {
-    name: {
-      required: false,
-      type: String,
-      default: uuid()
-    },
-
-    label: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    iconClass: {
-      required: false,
-      type: String,
-      default: 'fa fa-map'
-    },
-
-    type: {
-      required: false,
-      type: String,
-      default: 'Point'
-    },
-
-    initActive: {
+    defaultControl: {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    drawStyle: {
+      required: false,
+      type: [Object, null],
+      default: null
     },
 
     features: {
@@ -116,33 +104,63 @@ export default {
       default: false
     },
 
+    icon: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    iconClass: {
+      required: false,
+      type: String,
+      default: 'fa-map'
+    },
+
+    initActive: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    label: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    name: {
+      required: false,
+      type: String,
+      default: uuid()
+    },
+
     renderControl: {
       required: false,
       type: Boolean,
       default: false
     },
 
-    defaultControl: {
+    title: {
       required: false,
-      type: Boolean,
-      default: false
+      type: String,
+      default: ''
     },
 
-    drawStyle: {
+    type: {
       required: false,
-      type: [Object, null],
-      default: null
+      type: String,
+      default: 'Point'
     }
   },
 
   data () {
     return {
-      drawInteraction: null,
+      currentlyActive: this.initActive,
       drawingExtent: '',
+      drawInteraction: null,
       layerToDrawInto: null,
       snap: null,
-      vectorSourceOptions: {},
-      currentlyActive: this.initActive
+      vectorSourceOptions: {}
     }
   },
 
@@ -186,6 +204,11 @@ export default {
         this.map.removeInteraction(this.snap)
         this.currentlyActive = false
       }
+    },
+
+    clearAll () {
+      this.layerToDrawInto.getSource().clear()
+      this.$root.$emit('setDrawingActive', '')
     },
 
     init () {

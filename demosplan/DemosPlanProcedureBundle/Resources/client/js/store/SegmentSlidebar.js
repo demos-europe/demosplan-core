@@ -22,7 +22,8 @@ const SegmentSlidebarStore = {
         showForm: false,
         statementId: ''
       },
-      olMap: {
+      map: {
+        segmentId: '',
         show: false
       },
       versionHistory: {
@@ -60,7 +61,7 @@ const SegmentSlidebarStore = {
 
     currentCommentText: (state) => state.content.commentsList.currentCommentText,
 
-    olMap: (state) => state.content.olMap,
+    map: (state) => state.content.map,
 
     procedureId: (state) => state.content.commentsList.procedureId,
 

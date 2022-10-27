@@ -20,7 +20,8 @@
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
       <statement-location-map
-        v-if="olMap.show"
+        v-if="map.show"
+        ref="locationMap"
         :statement-extern-id="statementExternId"
         :procedure-id="procedureId"/>
     </dp-slidebar>
@@ -121,12 +122,6 @@
                 toggle-button
                 @toggle="toggleInfobox" />
             </dp-flyout>
-          </li>
-          <li class="display--inline-block">
-            <button
-              class="btn--blank o-link--default u-ph-0_25 line-height--2 whitespace--nowrap o-flyout__trigger"
-              v-text="Translator.trans('public.participation.relation')"
-              @click="showOlMap"/>
           </li>
         </ul>
       </header>
@@ -262,7 +257,7 @@ export default {
 
     ...mapGetters('segmentSlidebar', [
       'commentsList',
-      'olMap',
+      'map',
       'versionHistory'
     ]),
 
@@ -528,9 +523,12 @@ export default {
 
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
+      if (this.$refs.locationMap) {
+        this.$refs.locationMap.resetCurrentMap()
+      }
       this.setContent({ prop: 'versionHistory', val: { ...this.versionHistory, show: false } })
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, show: false } })
-      this.setContent({ prop: 'olMap', val: { show: false } })
+      this.setContent({ prop: 'map', val: { show: false } })
     },
 
     saveStatement (statement) {
@@ -573,11 +571,6 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
-    },
-
-    showOlMap () {
-      this.toggleSlidebarContent({ prop: 'olMap', val: { show: true } })
-      this.$root.$emit('show-slidebar')
     },
 
     toggleClaimStatement () {

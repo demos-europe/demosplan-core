@@ -218,6 +218,18 @@
             {{ commentCount }}
           </span>
         </button>
+        <button
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : map.show && map.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('public.participation.relation')"
+          v-tooltip="Translator.trans('public.participation.relation')"
+          data-cy="segmentMap"
+          @click.prevent="showMap">
+          <i
+            class="fa fa-map-marker"
+            aria-hidden="true" />
+        </button>
       </div>
     </div>
   </div>
@@ -305,6 +317,7 @@ export default {
   computed: {
     ...mapGetters('segmentSlidebar', [
       'commentsList',
+      'map',
       'versionHistory'
     ]),
 
@@ -522,6 +535,12 @@ export default {
     showComments () {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', externId: this.segment.attributes.externId, segmentId: this.segment.id, show: true } })
+      this.$root.$emit('show-slidebar')
+    },
+
+    showMap () {
+      this.$parent.$parent.resetSlidebar()
+      this.toggleSlidebarContent({ prop: 'map', val: { segmentId: this.segment.id, show: true, showMap: true } })
       this.$root.$emit('show-slidebar')
     },
 
