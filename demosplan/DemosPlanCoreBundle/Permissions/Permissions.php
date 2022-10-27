@@ -749,6 +749,18 @@ class Permissions implements PermissionsInterface
     }
 
     /**
+     * Checks if the user is Member of a planning organisation.
+     */
+    protected function isMemberOfPlanningOrganisation(): bool
+    {
+        $isAcceptedMunicipality = $this->isMemberOfMunicipality();
+        $isAcceptedPlanningAgency = $this->isMemberOfPlanningoffice();
+        $isAcceptedHearingAuthorityAgency = $this->isMemberOfHearingAuthority();
+
+        return $isAcceptedMunicipality || $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
+    }
+
+    /**
      * isMemberOfPublicAgency.
      */
     protected function isMemberOfPublicAgency(): bool
