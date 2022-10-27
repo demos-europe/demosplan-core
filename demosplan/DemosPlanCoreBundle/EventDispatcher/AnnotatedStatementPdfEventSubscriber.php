@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\Annotat
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
@@ -73,8 +74,9 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
-            AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
+            AfterResourceCreationEvent::class                 => 'piBoxRecognitionRequest',
+            AfterResourceUpdateEvent::class                   => 'checkAnnotatedStatementPdfReviewed',
+            GetOriginalFileFromAnnotatedStatementEvent::class => 'getOriginalFileFromAnnotatedStatement',
         ];
     }
 
@@ -127,6 +129,15 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             $this->managerRegistry->getManager()->flush();
 
             $this->piTextRecognitionRequester->request($annotatedStatementPdf);
+        }
+    }
+
+    public function getOriginalFileFromAnnotatedStatement(GetOriginalFileFromAnnotatedStatementEvent $event): void
+    {
+        $originalDocument = $this->annotatedStatementPdfHandler->findByStatement($event->getStatement());
+
+        if (null !== $originalDocument) {
+            $event->setFile($originalDocument->getFile());
         }
     }
 }
