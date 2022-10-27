@@ -72,7 +72,7 @@
                             <dp-select
                                 id="blueprint"
                                 :label="{
-                                    hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
+                                    hint: Translator.trans('procedure.template.fields', { fields: JSON.parse('{{ procedureTemplateFields|json_encode|e('js', 'utf-8') }}') }),
                                     text: Translator.trans('master')
                                 }"
                                 name="r_copymaster"
