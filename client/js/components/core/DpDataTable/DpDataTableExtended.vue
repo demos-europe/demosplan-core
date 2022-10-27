@@ -146,7 +146,7 @@ import DomPurify from 'dompurify'
 import DpDataTable from './DpDataTable'
 import DpSelectPageItemCount from './DpSelectPageItemCount'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import SlidingPagination from 'vue-sliding-pagination'
 import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
 

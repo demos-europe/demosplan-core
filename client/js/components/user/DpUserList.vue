@@ -106,10 +106,9 @@
 
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { debounce, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapState } from 'vuex'
-import debounce from '@DpJs/lib/utils/debounce'
-import dpSelectAllMixin from '@DpJs/lib/utils/dpSelectAllMixin'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
 
 export default {
   name: 'DpUserList',

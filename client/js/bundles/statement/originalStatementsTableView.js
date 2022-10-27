@@ -11,7 +11,7 @@
  * This is the entrypoint for assessment_table_original_view.html.twig
  */
 
-import AssessmentTableOriginal from '@DemosPlanStatementBundle/lib/AssessmentTableOriginal'
+import AssessmentTableOriginal from '@DpJs/lib/statement/AssessmentTableOriginal'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import { DpButton } from 'demosplan-ui/components'
 import DpFilterModal from '@DpJs/components/statement/assessmentTable/DpFilterModal'

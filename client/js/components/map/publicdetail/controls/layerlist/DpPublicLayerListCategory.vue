@@ -65,7 +65,7 @@
 
 <script>
 import DpPublicLayerList from './DpPublicLayerList'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { mapGetters } from 'vuex'
 import { prefixClass } from 'demosplan-ui/lib'
 

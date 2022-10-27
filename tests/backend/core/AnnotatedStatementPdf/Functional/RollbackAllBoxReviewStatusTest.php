@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
+use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -28,6 +29,11 @@ class RollbackAllBoxReviewStatusTest extends FunctionalTestCase
     protected $sut;
 
     /**
+     * @var AnnotatedStatementPdfRepository
+     */
+    protected $annotatedStatementPdfRepository;
+
+    /**
      * @var Procedure
      */
     private $procedure;
@@ -38,6 +44,7 @@ class RollbackAllBoxReviewStatusTest extends FunctionalTestCase
 
         $this->sut = self::$container->get(AnnotatedStatementPdfHandler::class);
         $this->procedure = $this->getReference('testProcedure');
+        $this->annotatedStatementPdfRepository = self::$container->get(AnnotatedStatementPdfRepository::class);
     }
 
     public function testRollbackAllBoxReviewStatus(): void
@@ -89,11 +96,13 @@ class RollbackAllBoxReviewStatusTest extends FunctionalTestCase
         int $expectedReadyToReviewCount,
         int $expectedBoxReviewCount
     ): void {
-        $readyToReviewCount = $this->procedure->getAnnotatedStatementPdfsByStatusCount(
+        $readyToReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount(
+            $this->procedure->getId(),
             AnnotatedStatementPdf::READY_TO_REVIEW
         );
 
-        $boxReviewCount = $this->procedure->getAnnotatedStatementPdfsByStatusCount(
+        $boxReviewCount = $this->annotatedStatementPdfRepository->getAnnotatedStatementPdfsByStatusCount(
+            $this->procedure->getId(),
             AnnotatedStatementPdf::BOX_REVIEW
         );
         $this->assertEquals($expectedReadyToReviewCount, $readyToReviewCount);

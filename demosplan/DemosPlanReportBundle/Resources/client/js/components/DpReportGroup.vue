@@ -55,11 +55,11 @@
 </template>
 
 <script>
-import { DATE_FORMAT_LONG, formatDate } from '@DpJs/lib/utils/date'
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
+import { formatDate } from 'demosplan-utils'
 
 export default {
   name: 'DpReportGroup',
@@ -149,7 +149,7 @@ export default {
     },
 
     createdDateTimeItem (item) {
-      return `${formatDate(item.attributes.created, DATE_FORMAT_LONG)}`
+      return `${formatDate(item.attributes.created, 'long')}`
     },
 
     handlePageChange (requestedPage) {

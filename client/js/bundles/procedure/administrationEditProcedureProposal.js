@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_procedure_proposal_edit.html.twig
  */
 
-import DpProcedureCoordinate from '@DemosPlanProcedureBundle/components/basicSettings/DpProcedureCoordinate'
+import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 initialize({ DpProcedureCoordinate })

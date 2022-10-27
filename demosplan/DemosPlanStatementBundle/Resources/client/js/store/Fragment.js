@@ -8,7 +8,7 @@
  */
 
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   namespaced: true,

@@ -360,7 +360,7 @@
 
 <script>
 import DpModal from '@DpJs/components/core/DpModal'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpExportModal',
