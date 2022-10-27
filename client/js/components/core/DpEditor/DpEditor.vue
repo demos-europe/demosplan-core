@@ -864,20 +864,17 @@ export default {
       text = text.replace(/\n/g, '<br>')
 
       // If user hasn't clicked into tiptap editor yet
-      if (this.editor.view.lastClick.x === 0 && this.editor.view.lastClick.y === 0) {
+      if (this.editor.view.input.lastClick.x === 0 && this.editor.view.input.lastClick.y === 0) {
         this.appendText(text)
       } else { // If user has clicked into tiptap editor at some point, but editor may currently not have focus
         this.insertTextAtCursorPos(text)
       }
-
-      this.editor.setContent(text)
     },
 
     insertTextAtCursorPos (text) {
       // Remove p tags so text is inserted without adding new paragraph
       if (this.startsWithTag(text, 'p')) {
-        text = text.substr(3)
-        text = text.slice(0, -4)
+        text = text.slice(3, -4)
       }
 
       this.editor.commands.insertHTML(text)
