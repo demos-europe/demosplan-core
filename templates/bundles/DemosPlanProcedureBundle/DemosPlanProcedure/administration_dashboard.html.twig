@@ -112,8 +112,6 @@
                     {% endif %}
                 {% endif %}
 
-                {# TODO: add addonized overview component for imported pdf statements here #}
-
                 {# statement charts - segmentation status, number of segments with recommendations #}
                 {% if hasPermission('area_statement_segmentation') %}
                     <dp-statement-segments-status-charts procedure-id="{{ procedure }}">
