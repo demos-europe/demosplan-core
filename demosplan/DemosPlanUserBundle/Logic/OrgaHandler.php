@@ -185,7 +185,7 @@ class OrgaHandler extends CoreHandler
             'showname',
         ];
 
-        if($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
+        if ($this->currentUser->hasPermission('field_organisation_management_paper_copy')) {
             $writableAttributes[] = 'copy';
         }
 
