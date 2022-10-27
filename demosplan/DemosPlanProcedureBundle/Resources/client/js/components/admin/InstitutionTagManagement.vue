@@ -1,10 +1,10 @@
 <license>
-  (c) 2010-present DEMOS E-Partizipation GmbH.
+(c) 2010-present DEMOS E-Partizipation GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
@@ -28,7 +28,7 @@
           {{ Translator.trans('tag.new') }}
           <button
             class="btn--blank o-link--default float--right"
-            @click="closeAddNewTagField()">
+            @click="closeNewTagForm()">
             <dp-icon icon="close" />
           </button>
         </div>
@@ -44,7 +44,7 @@
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
-          @secondary-action="closeAddNewTagField()" />
+          @secondary-action="closeNewTagForm()" />
       </div>
     </div>
     <dp-data-table
@@ -67,7 +67,7 @@
           v-model="rowData.label" />
       </template>
       <template v-slot:action="rowData"
-      class="float--right">
+                class="float--right">
         <div class="float--right">
           <template v-if="!rowData.edit">
             <button
@@ -99,7 +99,7 @@
             <button
               class="btn--blank o-link--default"
               :aria-label="Translator.trans('abort')"
-              @click="abortEditTag()">
+              @click="abortEditingTag()">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -170,21 +170,22 @@ export default {
 
   methods: {
     ...mapActions('institutionTag', {
-      listInstitutionTags: 'list',
       createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
-      saveInstitutionTag: 'save'
+      listInstitutionTags: 'list',
+      restoreInitialInstitutionTagStore: 'restoreFromInitial',
+      saveInstitutionTag: 'save',
     }),
 
     ...mapMutations('institutionTag', {
       updateInstitutionTag: 'setItem'
     }),
 
-    abortEditTag () {
+    abortEditingTag () {
       this.isEditing = ''
     },
 
-    closeAddNewTagField () {
+    closeNewTagForm () {
       this.addNewTag = false
     },
 
@@ -226,13 +227,15 @@ export default {
       return array
     },
 
-     // When saving a new tag the comparison of `foundSimilarLabel.length === 0` needs to be executed
-     // When updating a new tag the comparison of `foundSimilarLabel.length === 1` needs to be executed instead
-     // should always be possible.
-     //
-     // @param tagLabel { string }
-     // @param isNewTagLabel { boolean }
-     // @returns { boolean }
+    /**
+     * When saving a new tag the comparison of `foundSimilarLabel.length === 0` needs to be executed
+     * When updating a new tag the comparison of `foundSimilarLabel.length === 1` needs to be executed instead
+     * should always be possible.
+     *
+     * @param tagLabel { string }
+     * @param isNewTagLabel { boolean }
+     * @returns { boolean }
+     */
 
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
       const foundSimilarLabel = this.tagsArray.filter(el => el.label === tagLabel)
@@ -286,6 +289,7 @@ export default {
       this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
+          this.restoreInitialInstitutionTagStore()
           console.error(err)
         })
         .finally(() => {

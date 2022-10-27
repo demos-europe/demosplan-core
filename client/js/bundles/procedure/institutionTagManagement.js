@@ -10,10 +10,10 @@
 /**
  * This is the entrypoint for institution_tag_management.html.twig
  */
-import InstitutionTagList from '@DemosPlanProcedureBundle/components/admin/InstitutionTagList'
+import InstitutionTagManagement from '@DemosPlanProcedureBundle/components/admin/InstitutionTagManagement'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
-const components = { InstitutionTagList }
+const components = { InstitutionTagManagement }
 
 const apiStores = [
   'institutionTag'
