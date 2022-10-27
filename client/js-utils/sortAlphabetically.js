@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import hasOwnProp from './hasOwnProp'
 
 /**
  * Sort array of strings or objects alphabetically with german locale.

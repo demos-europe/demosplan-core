@@ -18,11 +18,11 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionException;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -95,13 +95,11 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      * @throws Exception
      */
     public function nextAnnotatedStatementPdfToReviewAction(
-        ProcedureHandler $procedureHandler,
+        AnnotatedStatementPdfRepository $annotatedStatementPdfRepository,
         string $procedureId
     ): Response {
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-
         $result = [
-            'documentId' => $procedure->getNextAnnotatedStatementPdfToReview(),
+            'documentId' => $annotatedStatementPdfRepository->getNextAnnotatedStatementPdfToReview($procedureId),
         ];
 
         return APIResponse::create($result, 200);

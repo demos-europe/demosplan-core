@@ -15,7 +15,7 @@
  * is returned here, because Vue.emit is available only after new Vue().
  */
 import DPVueBusPlugin from './plugins/DPVueBus'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import Vue from 'vue'
 
 Vue.config.productionTip = false

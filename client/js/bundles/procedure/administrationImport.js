@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_import.html.twig
  */
 
-import AdministrationImport from '@DemosPlanProcedureBundle/components/AdministrationImport/AdministrationImport'
+import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { AdministrationImport }

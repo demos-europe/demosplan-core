@@ -234,7 +234,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
-import changeUrlforPager from '@DpJs/lib/utils/changeUrlforPager'
+import { changeUrlforPager } from 'demosplan-utils'
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'

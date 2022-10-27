@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import getScrollTop from '@DpJs/lib/utils/getScrollTop'
+import { getScrollTop } from 'demosplan-utils'
 import { prefixClass } from 'demosplan-ui/lib'
 
 function getAllInputsArray (form) {

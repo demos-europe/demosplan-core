@@ -12,7 +12,7 @@
  */
 
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
-import DeleteFragmentButton from '@DemosPlanStatementBundle/lib/DeleteFragmentButton'
+import DeleteFragmentButton from '@DpJs/lib/statement/DeleteFragmentButton'
 import DpCreateStatementFragment from '@DpJs/components/statement/statement/DpCreateStatementFragment'
 import dpValidate from '@DpJs/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
