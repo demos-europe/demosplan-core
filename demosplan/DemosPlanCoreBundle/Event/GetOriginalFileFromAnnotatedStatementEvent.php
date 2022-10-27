@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 
-class GetOriginalFileFromAnnotatedStatement
+class GetOriginalFileFromAnnotatedStatementEvent
 {
     /**
      * @param File

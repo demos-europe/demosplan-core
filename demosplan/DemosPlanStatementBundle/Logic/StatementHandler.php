@@ -32,7 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatement;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -4756,8 +4756,8 @@ class StatementHandler extends CoreHandler
      */
     public function getOriginalFile(Statement $statement): ?File
     {
-        /** @var GetOriginalFileFromAnnotatedStatement $event * */
-        $event = $this->eventDispatcher->dispatch(new GetOriginalFileFromAnnotatedStatement($statement));
+        /** @var GetOriginalFileFromAnnotatedStatementEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new GetOriginalFileFromAnnotatedStatementEvent($statement));
         if (null !== $event->getFile()) {
             return $event->getFile();
         }
