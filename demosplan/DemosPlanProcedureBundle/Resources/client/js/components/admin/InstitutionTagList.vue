@@ -14,7 +14,7 @@
       class="text--right">
       <dp-button
         :text="Translator.trans('tag.new')"
-        @click="openAddNewTagField()" />
+        @click="handleAddNewTagField()" />
     </div>
     <div
       v-else
@@ -28,7 +28,7 @@
           {{ Translator.trans('tags.create') }}
           <button
             class="btn--blank o-link--default float--right"
-            @click="addNewTag = false">
+            @click="closeAddNewTagField()">
             <dp-icon icon="close" />
           </button>
         </div>
@@ -44,7 +44,7 @@
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
-          @secondary-action="addNewTag = false" />
+          @secondary-action="closeAddNewTagField()" />
       </div>
     </div>
     <dp-data-table
@@ -99,7 +99,7 @@
             <button
               class="btn--blank o-link--default"
               :aria-label="Translator.trans('abort')"
-              @click="isEditing = ''">
+              @click="abortEditTag()">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -180,6 +180,14 @@ export default {
       updateInstitutionTag: 'setItem'
     }),
 
+    abortEditTag () {
+      this.isEditing = ''
+    },
+
+    closeAddNewTagField () {
+      this.addNewTag = false
+    },
+
     deleteTag ( { id }) {
       this.deleteInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
@@ -198,6 +206,12 @@ export default {
           InstitutionTag: ['label', 'id'].join()
         }
       })
+    },
+
+    handleAddNewTagField () {
+      this.addNewTag = true
+      this.isEditing = ''
+
     },
 
     institutionTagsArray () {
@@ -223,12 +237,6 @@ export default {
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
       const foundSimilarLabel = this.tagsArray.filter(el => el.label === tagLabel)
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
-    },
-
-    openAddNewTagField () {
-      this.addNewTag = true
-      this.isEditing = ''
-
     },
 
     resetNewTagForm () {
