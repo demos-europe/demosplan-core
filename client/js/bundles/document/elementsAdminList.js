@@ -13,7 +13,7 @@
 
 import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
