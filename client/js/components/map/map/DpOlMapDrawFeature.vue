@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import {Draw, Snap} from 'ol/interaction'
+import { Draw, Snap } from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
 import { GeoJSON } from 'ol/format'
 import { hasOwnProp } from 'demosplan-utils'

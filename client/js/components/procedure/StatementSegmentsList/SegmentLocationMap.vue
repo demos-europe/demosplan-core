@@ -158,23 +158,6 @@ export default {
       return `${Translator.trans('segment')} ${this.segment?.attributes.externId} - ${Translator.trans('public.participation.relation')}`
     },
 
-    segmentPointFeature () {
-      if (this.segmentPoint !== '') {
-        return {
-          type: 'FeatureCollection',
-          features: [{
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: this.center
-            }
-          }]
-        }
-      } else {
-        return {}
-      }
-    },
-
     segment () {
       return this.segments[this.segmentId] || null
     }
