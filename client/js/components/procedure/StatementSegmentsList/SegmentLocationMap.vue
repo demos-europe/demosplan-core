@@ -54,14 +54,26 @@
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
             @layerFeaturesChanged="data => updatePolygons('polygon', data)" />
-          <button
-            :title="Translator.trans('statement.map.draw.drop_all')"
-            class="btn--blank u-ml-0_5 o-link--default weight--bold"
-            type="button"
-            @click="resetMapConfirm">
-            <i class="fa fa-eraser u-mb-0_25 font-size-h2"></i>
-          </button>
-          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']"></dp-ol-map-edit-feature>
+          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
+            <template v-slot:edit>
+              <i
+                :title="Translator.trans('map.territory.tools.edit')"
+                class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+            <template v-slot:remove>
+              <i
+                :title="Translator.trans('map.territory.tools.removeSelected')"
+                class="fa fa-eraser u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+            <template v-slot:removeAll>
+              <i
+                :title="Translator.trans('map.territory.tools.removeAll')"
+                class="fa fa-trash u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+          </dp-ol-map-edit-feature>
         </template>
       </dp-ol-map>
       <dp-button-row
@@ -201,12 +213,6 @@ export default {
       this.$refs.drawPoint.clearAll()
       this.$refs.drawLine.clearAll()
       this.$refs.drawPolygon.clearAll()
-    },
-
-    resetMapConfirm () {
-      if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
-        this.resetCurrentMap()
-      }
     },
 
     // TO DO Implement API Call

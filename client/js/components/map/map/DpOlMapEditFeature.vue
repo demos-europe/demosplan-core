@@ -55,25 +55,34 @@
     <button
       type="button"
       @click="toggle"
-      v-tooltip="Translator.trans('explanation.territory.help.edit',{editTool: Translator.trans('map.territory.tools.edit')})"
+      v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{'color--highlight':currentlyActive}">
-      {{ Translator.trans('map.territory.tools.edit') }}
+      :class="{ 'color--highlight' : currentlyActive }">
+      <slot name="edit">
+        {{ Translator.trans('map.territory.tools.edit') }}
+      </slot>
     </button>
     <button
       type="button"
       @click="removeFeature"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'), editTool: Translator.trans('map.territory.tools.edit')})"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {
+        deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
+        editTool: Translator.trans('map.territory.tools.edit')
+      })"
       class="btn--blank u-ml-0_5 weight--bold"
       :class="{'o-link--default': (false === disabled)}">
-      {{ Translator.trans('map.territory.tools.removeSelected') }}
+      <slot name="remove">
+        {{ Translator.trans('map.territory.tools.removeSelected') }}
+      </slot>
     </button>
     <button
       type="button"
       @click="clearAll"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.all', {deleteAllTool: Translator.trans('map.territory.tools.removeAll')})"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
-      {{ Translator.trans('map.territory.tools.removeAll') }}
+      <slot name="removeAll">
+        {{ Translator.trans('map.territory.tools.removeAll') }}
+      </slot>
     </button>
   </span>
 </template>
@@ -139,6 +148,7 @@ export default {
       if (this.map === null || this.renderControl === false) {
         return
       }
+
       if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
         this.selectInteraction.getFeatures().on('add', event => {
           const id = 'selected' + uuid()
@@ -150,6 +160,7 @@ export default {
             }
           }
         })
+
         this.selectInteraction.getFeatures().on('remove', event => {
           if (hasOwnProp(event, 'element')) {
             event.element.get('id')
@@ -160,6 +171,7 @@ export default {
             }
           }
         })
+
         this.map.addInteraction(this.selectInteraction)
         this.map.addInteraction(this.modifyInteraction)
         this.currentlyActive = true
