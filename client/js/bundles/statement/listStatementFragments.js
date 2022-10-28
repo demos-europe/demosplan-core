@@ -11,10 +11,10 @@
  * This is the entrypoint for list_statement_fragments.html.twig
  */
 
-import assessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import assessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
 import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
-import fragmentStore from '@DemosPlanStatementBundle/store/Fragment'
+import fragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 

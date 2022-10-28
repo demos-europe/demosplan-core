@@ -13,7 +13,7 @@
 
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpSurveyStatus from '@DpJs/components/procedure/DpSurveyStatus'
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

@@ -18,7 +18,7 @@ import DpPublicStatementList from '@DpJs/components/statement/publicStatementLis
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
-import publicStatement from '@DemosPlanStatementBundle/store/PublicStatement'
+import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 
 const components = {

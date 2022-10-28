@@ -11,7 +11,7 @@
  * This is the entrypoint for contact.html.twig
  */
 
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 initialize().then(() => {

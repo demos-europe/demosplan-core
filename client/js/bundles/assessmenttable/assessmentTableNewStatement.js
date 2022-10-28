@@ -12,12 +12,12 @@
  */
 
 import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
-import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpNewStatement from '@DpJs/components/assessmenttable/DpNewStatement'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import StatementStore from '@DemosPlanStatementBundle/store/Statement'
-import VoterStore from '@DemosPlanStatementBundle/store/Voter'
+import StatementStore from '@DpJs/store/statement/Statement'
+import VoterStore from '@DpJs/store/statement/Voter'
 
 const stores = {
   assessmentTable: AssessmentTableStore,
