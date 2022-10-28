@@ -149,7 +149,7 @@ class ReportMessageConverter
      * This translation key can be modified by getStatementMessage()
      * possible variations are:
      * 'confirm.statement.id.synchronized.target'
-     * 'confirm.statement.id.synchronized.target.nolink'
+     * 'confirm.statement.id.synchronized.target.nolink'.
      */
     protected function getStatementSynchronizedTargeProcedureMessage(array $message): string
     {
@@ -160,7 +160,7 @@ class ReportMessageConverter
      * This translation key can be modified by getStatementMessage()
      * possible variations are:
      * 'confirm.statement.id.synchronized.source'
-     * 'confirm.statement.id.synchronized.source.nolink'
+     * 'confirm.statement.id.synchronized.source.nolink'.
      */
     protected function getStatementSynchronizedSourceProcedureMessage(array $message): string
     {
@@ -222,7 +222,7 @@ class ReportMessageConverter
      * This translation key can be modified by getStatementMessage()
      * possible variations are:
      * 'confirm.statement.submitted'
-     * 'confirm.statement.submitted.nolink'
+     * 'confirm.statement.submitted.nolink'.
      */
     protected function getStatementAddMessage(array $message): string
     {
@@ -233,7 +233,7 @@ class ReportMessageConverter
      * This translation key can be modified by getStatementMessage()
      * possible variations are:
      * 'confirm.statement.id.copied'
-     * 'confirm.statement.id.copied.nolink'
+     * 'confirm.statement.id.copied.nolink'.
      */
     protected function getStatementCopyMessage(array $message): string
     {
@@ -244,7 +244,7 @@ class ReportMessageConverter
      * This translation key can be modified by getStatementMessage()
      * possible variations are:
      * 'confirm.statement.id.updated'
-     * 'confirm.statement.id.updated.nolink'
+     * 'confirm.statement.id.updated.nolink'.
      */
     protected function getStatementUpdateMessage(array $message): string
     {
