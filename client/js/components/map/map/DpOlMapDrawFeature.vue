@@ -164,6 +164,12 @@ export default {
     }
   },
 
+  watch: {
+    features () {
+      this.init()
+    }
+  },
+
   computed: {
     map () {
       return this.olMapState.map

@@ -24,16 +24,17 @@
           <dp-ol-map-draw-feature
             data-cy="setMapRelation"
             ref="drawPoint"
-            :features="segmentPointFeature"
+            :features="drawingsData.point"
             icon
             icon-class="fa-map-marker u-mb-0_25 font-size-h2"
             name="Point"
             render-control
             :title="Translator.trans('map.relation.set')"
             type="Point"
-            @layerFeaturesChanged="updatePoint" />
+            @layerFeaturesChanged="data => updatePolygons('point', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapLine"
+            :features="drawingsData.line"
             ref="drawLine"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
@@ -41,9 +42,10 @@
             render-control
             :title="Translator.trans('statement.map.draw.mark_line')"
             type="LineString"
-            @layerFeaturesChanged="updateLine" />
+            @layerFeaturesChanged="data => updatePolygons('line', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapTerritory"
+            :features="drawingsData.polygon"
             ref="drawPolygon"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
@@ -51,7 +53,7 @@
             render-control
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
-            @layerFeaturesChanged="updatePolygon" />
+            @layerFeaturesChanged="data => updatePolygons('polygon', data)" />
           <button
             :title="Translator.trans('statement.map.draw.drop_all')"
             class="btn--blank u-ml-0_5 o-link--default weight--bold"
@@ -73,11 +75,12 @@
 </template>
 
 <script>
-import {mapActions, mapGetters, mapMutations, mapState} from "vuex"
+import { mapActions, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpOlMap from '@DemosPlanMapBundle/components/map/DpOlMap'
-import DpOlMapDrawFeature from '@DemosPlanMapBundle/components/map/DpOlMapDrawFeature'
-import DpOlMapEditFeature from '@DemosPlanMapBundle/components/map/DpOlMapEditFeature'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
+import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
 
 export default {
   name: 'SegmentLocationMap',
@@ -89,13 +92,36 @@ export default {
     DpOlMapEditFeature
   },
 
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    },
+
+    segmentId: {
+      type: String,
+      required: true
+    },
+
+    statementId: {
+      type: String,
+      required: true
+    },
+  },
+
   data () {
     return {
-      lineData: null,
+      drawingsData: {},
       mapData: null,
-      pointData: null,
-      polygonData: null,
       segmentPoint: '',
+    }
+  },
+
+  watch: {
+    segmentId (newVal) {
+      if(newVal) {
+        this.setInitPoygon()
+      }
     }
   },
 
@@ -103,12 +129,6 @@ export default {
     ...mapState('statementSegment', {
       segments: 'items'
     }),
-
-    ...mapGetters('segmentSlidebar', [
-      'map',
-      'procedureId',
-      'statementId'
-    ]),
 
     center () {
       if (this.segmentPoint) {
@@ -123,7 +143,7 @@ export default {
     },
 
     heading () {
-      return Translator.trans('segment') + ' ' + this.segment?.attributes.externId + ' - ' + Translator.trans('public.participation.relation')
+      return `${Translator.trans('segment')} ${this.segment?.attributes.externId} - ${Translator.trans('public.participation.relation')}`
     },
 
     segmentPointFeature () {
@@ -144,17 +164,15 @@ export default {
     },
 
     segment () {
-      return this.segments[this.map.segmentId] || null
+      return this.segments[this.segmentId] || null
     }
   },
 
   methods: {
-    ...mapMutations('segmentSlidebar', [
-      'setContent'
-    ]),
+    ...mapMutations('statementSegment', ['setItem']),
 
     ...mapActions('statementSegment', {
-      updateSegment: 'update'
+      saveSegmentAction: 'save'
     }),
 
     closeSlidebar () {
@@ -168,8 +186,7 @@ export default {
         "features":[]
       }
 
-      const mapDataCollection = [this.lineData, this.pointData, this.polygonData]
-      mapDataCollection.forEach((data) => {
+      Object.values(this.drawingsData).forEach((data) => {
         if (data) {
           data['features'].forEach((feature) => {
             mapData['features'].push(feature)
@@ -195,21 +212,34 @@ export default {
     // TO DO Implement API Call
     save () {
       const mapData = this.getMapData()
+
+      this.setItem({
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          polygon: mapData
+        }
+      })
+      return this.saveSegmentAction(this.segmentId)
+        .then(checkResponse)
     },
 
-    updateLine (data) {
-      this.lineData = JSON.parse(data)
+    setInitPoygon () {
+      const initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
+
+      if (initData.features) {
+        ['Polygon', 'Line', 'Point'].forEach(type => {
+          this.drawingsData[type.toLowerCase()] = {
+            type: 'FeatureCollection',
+            features: initData.features.filter(f => f.geometry.type === type)
+          }
+        })
+      }
     },
 
-    updatePoint (data) {
-      this.pointData = JSON.parse(data)
-    },
-
-    updatePolygon (data) {
-      this.polygonData = JSON.parse(data)
-    },
-
-
+    updatePolygons (type, data) {
+      this.drawingsData[type] = JSON.parse(data)
+    }
   }
 }
 </script>
