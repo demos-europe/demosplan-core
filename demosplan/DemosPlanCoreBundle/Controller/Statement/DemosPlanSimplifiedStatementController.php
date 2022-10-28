@@ -12,18 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementImportEmailResourceType;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
