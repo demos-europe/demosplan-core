@@ -145,11 +145,23 @@ class ReportMessageConverter
         return $message ?? '';
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.synchronized.target'
+     * 'confirm.statement.id.synchronized.target.nolink'
+     */
     protected function getStatementSynchronizedTargeProcedureMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.target');
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.synchronized.source'
+     * 'confirm.statement.id.synchronized.source.nolink'
+     */
     protected function getStatementSynchronizedSourceProcedureMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.source');
@@ -206,16 +218,34 @@ class ReportMessageConverter
         ]);
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.submitted'
+     * 'confirm.statement.submitted.nolink'
+     */
     protected function getStatementAddMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.submitted');
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.copied'
+     * 'confirm.statement.id.copied.nolink'
+     */
     protected function getStatementCopyMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.copied');
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.updated'
+     * 'confirm.statement.id.updated.nolink'
+     */
     protected function getStatementUpdateMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.updated');
