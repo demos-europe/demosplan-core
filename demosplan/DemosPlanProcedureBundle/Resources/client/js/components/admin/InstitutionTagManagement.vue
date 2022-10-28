@@ -298,7 +298,7 @@ export default {
       this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
-          this.restoreInitialInstitutionTagStore()
+          this.restoreInitialInstitutionTagStore(id)
           console.error(err)
         })
         .finally(() => {
