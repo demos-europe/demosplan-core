@@ -405,9 +405,6 @@ import {
 import { CleanHtml } from 'demosplan-ui/directives'
 import { createSuggestion } from './libs/editorBuildSuggestion'
 import { DpIcon } from 'demosplan-ui/components'
-import { handleWordPaste } from './libs/handleWordPaste'
-import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
 import EditorCustomDelete from './libs/editorCustomDelete'
 import EditorCustomImage from './libs/editorCustomImage'
 import EditorCustomInsert from './libs/editorCustomInsert'
@@ -415,6 +412,9 @@ import EditorCustomLink from './libs/editorCustomLink'
 import EditorCustomMark from './libs/editorCustomMark'
 import EditorInsertAtCursorPos from './libs/editorInsertAtCursorPos'
 import EditorObscure from './libs/editorObscure'
+import { handleWordPaste } from './libs/handleWordPaste'
+import { maxlengthHint } from 'demosplan-ui/utils/lengthHint'
+import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
   name: 'DpEditor',
@@ -864,20 +864,17 @@ export default {
       text = text.replace(/\n/g, '<br>')
 
       // If user hasn't clicked into tiptap editor yet
-      if (this.editor.view.lastClick.x === 0 && this.editor.view.lastClick.y === 0) {
+      if (this.editor.view.input.lastClick.x === 0 && this.editor.view.input.lastClick.y === 0) {
         this.appendText(text)
       } else { // If user has clicked into tiptap editor at some point, but editor may currently not have focus
         this.insertTextAtCursorPos(text)
       }
-
-      this.editor.setContent(text)
     },
 
     insertTextAtCursorPos (text) {
       // Remove p tags so text is inserted without adding new paragraph
       if (this.startsWithTag(text, 'p')) {
-        text = text.substr(3)
-        text = text.slice(0, -4)
+        text = text.slice(3, -4)
       }
 
       this.editor.commands.insertHTML(text)

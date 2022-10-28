@@ -39,6 +39,7 @@ use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
 
@@ -277,7 +278,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @return APIResponse
      */
-    public function wipeOrgaAction(UserHandler $userHandler, string $id)
+    public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
     {
         $orgaId = $id;
         try {
@@ -288,11 +289,13 @@ class DemosPlanOrganisationAPIController extends APIController
                     'confirm.orga.deleted',
                     ['count' => 1]
                 );
-            } else {
-                $this->getMessageBag()->add('error', 'error.organisation.not.deleted');
+
+                return $this->renderEmpty();
             }
 
-            return $this->renderEmpty();
+            $this->getMessageBag()->add('error', 'error.organisation.not.deleted');
+
+            return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
         } catch (Exception $e) {
             return $this->handleApiError($e);
         }

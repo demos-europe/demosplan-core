@@ -3475,6 +3475,10 @@ class StatementService extends CoreService
             }
 
             $aggregations = $resultSet->getAggregations();
+            if (0 === $result['hits']['total']) {
+                $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+            }
+
             $aggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = collect($elementsAdminList)
@@ -4970,5 +4974,22 @@ class StatementService extends CoreService
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
+    {
+        foreach ($userfilters as $label => $value) {
+                if (array_key_exists($label, $aggregations)
+                    && is_array($aggregations[$label])
+                    && array_key_exists('buckets', $aggregations[$label])
+                    && empty($aggregations[$label]['buckets'])
+                ) {
+                    // A filter was set by the user that caused an empty search result - therefore the filter ist not
+                    // set within the aggregations by default - add those filters manually to let the FE know we used a filter
+                    $aggregations[$label]['buckets'] = [['key' => $value[0], 'doc_count' => 0]];
+                }
+        }
+
+        return $aggregations;
     }
 }

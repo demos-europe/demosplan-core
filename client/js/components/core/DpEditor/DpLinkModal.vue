@@ -37,8 +37,10 @@
           type="url" />
         <dp-checkbox
           id="newTab"
-          :label="Translator.trans('open.in.new.tab')"
-          v-model="newTab" />
+          v-model="newTab"
+          :label="{
+            text: Translator.trans('open.in.new.tab')
+          }" />
         <dp-button-row
           class="u-mt"
           primary
@@ -57,7 +59,7 @@ import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { DpInput } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
-import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 
 export default {
   name: 'DpLinkModal',
