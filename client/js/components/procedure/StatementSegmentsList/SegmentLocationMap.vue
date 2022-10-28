@@ -211,6 +211,12 @@ export default {
       })
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     setInitPoygon () {
