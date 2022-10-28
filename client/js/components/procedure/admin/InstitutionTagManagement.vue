@@ -184,7 +184,7 @@ export default {
 
     closeNewTagForm () {
       this.addNewTag = false
-      this.newTag.label = ''
+      this.newTag.label = null
     },
 
     deleteTag (id) {
@@ -198,7 +198,7 @@ export default {
     editTag (id) {
       this.addNewTag = false
       this.editingTagId = id
-      this.newTag.label = ''
+      this.newTag.label = null
     },
 
     getInstitutionTags () {
