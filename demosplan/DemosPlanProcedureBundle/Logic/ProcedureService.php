@@ -1261,6 +1261,12 @@ class ProcedureService extends CoreService
                 'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
             ];
 
+            // Necessary data for the PostProcedureDeletedEvent
+            $procedureData = [
+                'id'                => $procedureId,
+                'maillaneAccountId' => $procedure->getMaillaneConnection()->getMaillaneAccountId(),
+            ];
+
             // delete Procedure
             $repository->delete($procedureId);
 

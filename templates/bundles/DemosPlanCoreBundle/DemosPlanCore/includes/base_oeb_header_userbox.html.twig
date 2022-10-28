@@ -198,17 +198,14 @@
 
                 {# logout button #}
                 {% block logoutbtn %}
-                    <form action="{{ path("DemosPlan_user_logout") }}" method="POST">
-                        <button
-                            class="{{ 'c-flyout__item c-flyout__item--btn cf'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
-                            type="submit"
-                            data-actionmenu-menuitem>
-                            <i class="{{ 'fa fa-sign-out float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
-                            <span class="{{ 'display--block u-ml'|prefixClass }}" data-extern-dataport="logout">
-                                {{ "logout"|trans }}
-                            </span>
-                        </button>
-                    </form>
+                    <a
+                        class="{{ 'c-flyout__item c-flyout__item--btn cf'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
+                        data-actionmenu-menuitem
+                        data-extern-dataport="logout"
+                        href="{{ path("DemosPlan_user_logout") }}">
+                        <i class="{{ 'fa fa-sign-out float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        {{ "logout"|trans }}
+                    </a>
                 {% endblock %}
 
             </span>

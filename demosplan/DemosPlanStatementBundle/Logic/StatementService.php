@@ -10,8 +10,14 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use function array_key_exists;
+use function array_map;
+use function array_merge;
+use function array_unique;
+use function array_values;
 use Carbon\Carbon;
 use Closure;
+use function collect;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ClusterCitizenInstitutionSorter;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
@@ -133,26 +139,20 @@ use Elastica\Query\BoolQuery;
 use Elastica\Type;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
+use function in_array;
+use function is_array;
+use function is_string;
 use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+use const PHP_INT_MAX;
 use RuntimeException;
+use function strcmp;
+use function strlen;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
-use function array_key_exists;
-use function array_map;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function collect;
-use function in_array;
-use function is_array;
-use function is_string;
-use function strcmp;
-use function strlen;
-use const PHP_INT_MAX;
 
 class StatementService extends CoreService
 {
@@ -3475,6 +3475,10 @@ class StatementService extends CoreService
             }
 
             $aggregations = $resultSet->getAggregations();
+            if (0 === $result['hits']['total']) {
+                $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+            }
+
             $aggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = collect($elementsAdminList)
@@ -4970,5 +4974,22 @@ class StatementService extends CoreService
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
+    {
+        foreach ($userfilters as $label => $value) {
+                if (array_key_exists($label, $aggregations)
+                    && is_array($aggregations[$label])
+                    && array_key_exists('buckets', $aggregations[$label])
+                    && empty($aggregations[$label]['buckets'])
+                ) {
+                    // A filter was set by the user that caused an empty search result - therefore the filter ist not
+                    // set within the aggregations by default - add those filters manually to let the FE know we used a filter
+                    $aggregations[$label]['buckets'] = [['key' => $value[0], 'doc_count' => 0]];
+                }
+        }
+
+        return $aggregations;
     }
 }

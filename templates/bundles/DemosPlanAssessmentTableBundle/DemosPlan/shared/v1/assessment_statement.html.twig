@@ -278,11 +278,15 @@
 
             switch (task) {
                 case 'send':
+                {% set sentTo = '' %}
                 {% if templateVars.table.statement.isSubmittedByCitizen == false %}
-                    abfrage_box = confirm(decodeURI("{{ "check.mail.result"|trans }}"));
+                    {% set sentTo = 'check.mail.result.institutions'|trans %}
+                {% elseif (hasPermission('feature_statements_vote') and statement.votes|default([])|length > 0) %}
+                    {% set sentTo = 'check.mail.result.citizenAndVoters'|trans %}
                 {% else %}
-                    abfrage_box = confirm(decodeURI("{{ "check.mail.result.citizen"|trans }}"));
+                    {% set sentTo = 'check.mail.result.citizen'|trans %}
                 {% endif %}
+                    abfrage_box = confirm("{{ 'check.mail.result'|trans({sentTo: sentTo}) }}");
                     if (abfrage_box === true){
                         document.bpform.r_action.value = 'send';
                         document.bpform.submit();

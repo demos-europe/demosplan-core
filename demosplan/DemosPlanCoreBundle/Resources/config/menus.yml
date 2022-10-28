@@ -346,6 +346,7 @@ submenu_procedures:
         path_params: ['procedureId', 'filterHash']
         permission: 'area_admin_assessmenttable'
         link_attributes:
+            data-cy: 'assessmenttable'
             data-extern-dataport: 'assessmenttable'
     statements:
         label: 'statements'

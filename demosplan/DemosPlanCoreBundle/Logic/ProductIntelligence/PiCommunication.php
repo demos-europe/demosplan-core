@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -42,21 +42,22 @@ abstract class PiCommunication extends CoreService
      * @var JWTTokenManagerInterface
      */
     protected $jwtManager;
+
     /**
-     * @var GlobalConfigInterface
+     * @var AiPipelineConfiguration
      */
-    protected $globalConfig;
+    protected $aiPipelineConfiguration;
 
     public function __construct(
         ApiClientInterface $apiClient,
-        GlobalConfigInterface $globalConfig,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         JWTTokenManagerInterface $jwtManager,
         RouterInterface $jwtRouter
     ) {
         $this->apiClient = $apiClient;
-        $this->globalConfig = $globalConfig;
         $this->jwtManager = $jwtManager;
         $this->router = $jwtRouter;
+        $this->aiPipelineConfiguration = $aiPipelineConfiguration;
     }
 
     public function request(object $object): void
@@ -86,12 +87,12 @@ abstract class PiCommunication extends CoreService
 
     public function getPiUrl(): string
     {
-        return $this->globalConfig->getAiPipelineUrl();
+        return $this->aiPipelineConfiguration->getAiPipelineUrl();
     }
 
     public function getAuthorization(): string
     {
-        return 'Bearer '.$this->globalConfig->getAiPipelineAuthorization();
+        return 'Bearer '.$this->aiPipelineConfiguration->getAiPipelineAuthorization();
     }
 
     /**
