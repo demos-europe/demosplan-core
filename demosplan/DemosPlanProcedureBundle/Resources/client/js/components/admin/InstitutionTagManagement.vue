@@ -7,15 +7,6 @@
   All rights reserved
 </license>
 
-<license>
-(c) 2010-present DEMOS E-Partizipation GmbH.
-
-This file is part of the package demosplan,
-for more information see the license file.
-
-All rights reserved
-</license>
-
 <template>
   <div>
     <div
@@ -23,11 +14,10 @@ All rights reserved
       class="text--right">
       <dp-button
         :text="Translator.trans('tag.new')"
-        @click="handleAddNewTagField()" />
+        @click="handleAddNewTagForm()" />
     </div>
     <div
       v-else
-      class="position--relative"
       data-dp-validate="addNewTagForm">
       <dp-loading
         v-if="isLoading"
@@ -62,8 +52,7 @@ All rights reserved
       :header-fields="headerFields"
       track-by="id"
       :items="mapTags"
-      class="u-mt-2"
-    >
+      class="u-mt-2">
       <template v-slot:label="rowData">
         <div
           v-if="!rowData.edit"
@@ -75,8 +64,7 @@ All rights reserved
           required
           v-model="rowData.label" />
       </template>
-      <template v-slot:action="rowData"
-                class="float--right">
+      <template v-slot:action="rowData">
         <div class="float--right">
           <template v-if="!rowData.edit">
             <button
@@ -85,7 +73,7 @@ All rights reserved
               @click="editTag(rowData.id)">
               <i
                 class="fa fa-pencil"
-                aria-hidden="true"/>
+                aria-hidden="true" />
             </button>
             <button
               :aria-label="Translator.trans('item.delete')"
@@ -93,7 +81,7 @@ All rights reserved
               @click="deleteTag(rowData.id)">
               <i
                 class="fa fa-trash"
-                aria-hidden="true"/>
+                aria-hidden="true" />
             </button>
           </template>
           <template v-else>
@@ -162,7 +150,7 @@ export default {
       initialRowData: {},
       isLoading: false,
       newTag: {},
-      tagsArray: [],
+      tagsArray: []
     }
   },
 
@@ -172,7 +160,7 @@ export default {
     }),
 
     mapTags () {
-      this.tagsArray= this.transformArray()
+      this.tagsArray = this.transformArray()
       return this.tagsArray
     }
   },
@@ -182,8 +170,8 @@ export default {
       createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
       listInstitutionTags: 'list',
-      restoreInitialInstitutionTagStore: 'restoreFromInitial',
-      saveInstitutionTag: 'save',
+      restoreTagFromInitial: 'restoreFromInitial',
+      saveInstitutionTag: 'save'
     }),
 
     ...mapMutations('institutionTag', {
@@ -218,10 +206,9 @@ export default {
       })
     },
 
-    handleAddNewTagField () {
+    handleAddNewTagForm () {
       this.addNewTag = true
       this.editingTagId = null
-
     },
 
     transformArray () {
@@ -299,7 +286,7 @@ export default {
       this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
-          this.restoreInitialInstitutionTagStore(id)
+          this.restoreTagFromInitial(id)
           console.error(err)
         })
         .finally(() => {
