@@ -34,7 +34,7 @@
             @layerFeaturesChanged="data => updatePolygons('point', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapLine"
-            :features="drawingsData.line"
+            :features="drawingsData.linestring"
             ref="drawLine"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
@@ -42,7 +42,7 @@
             render-control
             :title="Translator.trans('statement.map.draw.mark_line')"
             type="LineString"
-            @layerFeaturesChanged="data => updatePolygons('line', data)" />
+            @layerFeaturesChanged="data => updatePolygons('linestring', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapTerritory"
             :features="drawingsData.polygon"
@@ -217,7 +217,7 @@ export default {
       const initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
 
       if (initData.features) {
-        ['Polygon', 'Line', 'Point'].forEach(type => {
+        ['Polygon', 'LineString', 'Point'].forEach(type => {
           this.drawingsData[type.toLowerCase()] = {
             type: 'FeatureCollection',
             features: initData.features.filter(f => f.geometry.type === type)

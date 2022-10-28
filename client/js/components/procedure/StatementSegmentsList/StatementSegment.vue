@@ -533,7 +533,17 @@ export default {
 
     showComments () {
       this.$parent.$parent.resetSlidebar()
-      this.toggleSlidebarContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', externId: this.segment.attributes.externId, segmentId: this.segment.id, show: true } })
+
+      this.toggleSlidebarContent({
+        prop: 'commentsList',
+        val: {
+          ...this.commentsList,
+          currentCommentText: '',
+          externId: this.segment.attributes.externId,
+          segmentId: this.segment.id,
+          show: true
+        }
+      })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('show-slidebar')
     },
