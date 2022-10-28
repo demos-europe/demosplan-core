@@ -11,7 +11,7 @@
  * This is the entrypoint for fragment_statement.html.twig
  */
 
-import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DeleteFragmentButton from '@DpJs/lib/statement/DeleteFragmentButton'
 import DpCreateStatementFragment from '@DpJs/components/statement/statement/DpCreateStatementFragment'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'

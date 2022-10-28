@@ -12,15 +12,15 @@
  */
 
 import AssessmentTable from '@DpJs/lib/statement/AssessmentTable'
-import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import AssessmentTableToc from '@DpJs/components/statement/assessmentTable/TocView/AssessmentTableToc'
 import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 import DpTable from '@DpJs/components/statement/assessmentTable/DpTable'
-import FilterStore from '@DemosPlanStatementBundle/store/Filter'
-import FragmentStore from '@DemosPlanStatementBundle/store/Fragment'
+import FilterStore from '@DpJs/store/statement/Filter'
+import FragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import StatementStore from '@DemosPlanStatementBundle/store/Statement'
+import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   AssessmentTableStore,
