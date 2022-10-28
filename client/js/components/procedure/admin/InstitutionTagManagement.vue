@@ -195,6 +195,7 @@ export default {
     },
 
     editTag (id) {
+      this.addNewTag = false
       this.editingTagId = id
     },
 
