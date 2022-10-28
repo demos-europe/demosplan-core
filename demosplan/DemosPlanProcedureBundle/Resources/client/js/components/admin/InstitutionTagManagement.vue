@@ -286,6 +286,7 @@ export default {
       if (!this.isUniqueTagName(label)) {
         return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
       }
+
       this.updateInstitutionTag({
         id: id,
         type: this.institutionTags[id].type,
@@ -294,6 +295,7 @@ export default {
           label: label
         }
       })
+
       this.saveInstitutionTag(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
