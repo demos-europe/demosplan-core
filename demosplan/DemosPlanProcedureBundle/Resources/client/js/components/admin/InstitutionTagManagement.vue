@@ -146,6 +146,7 @@ export default {
       addNewTag: false,
       alignLeft: 'left',
       edit: false,
+      editingTagId: null,
       headerFields: [
         {
           field: 'label',
@@ -159,7 +160,6 @@ export default {
         }
       ],
       initialRowData: {},
-      isEditing: '',
       isLoading: false,
       newTag: {},
       tagsArray: [],
@@ -172,7 +172,7 @@ export default {
     }),
 
     mapTags () {
-      this.tagsArray= this.institutionTagsArray()
+      this.tagsArray= this.transformArray()
       return this.tagsArray
     }
   },
@@ -191,7 +191,7 @@ export default {
     }),
 
     abortEditingTag () {
-      this.isEditing = ''
+      this.editingTagId = null
     },
 
     closeNewTagForm () {
@@ -207,7 +207,7 @@ export default {
     },
 
     editTag (id) {
-      this.isEditing = id
+      this.editingTagId = id
     },
 
     getInstitutionTags () {
@@ -220,20 +220,19 @@ export default {
 
     handleAddNewTagField () {
       this.addNewTag = true
-      this.isEditing = ''
+      this.editingTagId = null
 
     },
 
-    institutionTagsArray () {
-      let array = []
-      Object.keys(this.institutionTags).forEach(tag => {
-        array.push({
-          edit: this.isEditing === tag,
-          id: this.institutionTags[tag].id,
-          label: this.institutionTags[tag].attributes.label
-        })
+    transformArray () {
+      return Object.values(this.institutionTags).map(tag => {
+        const { id, attributes } = tag
+        return {
+          id,
+          edit: this.editingTagId === id,
+          label: attributes.label
+        }
       })
-      return array
     },
 
     /**
@@ -302,7 +301,7 @@ export default {
           console.error(err)
         })
         .finally(() => {
-          this.isEditing = false
+          this.editingTagId = null
         })
     }
   },
