@@ -11,9 +11,9 @@
  * This is the entrypoint for administration_edit_master.html.twig
  */
 
-import AdministrationMaster from '@DemosPlanProcedureBundle/lib/AdministrationMaster'
-import DpMasterBasicSettings from '@DemosPlanProcedureBundle/components/basicSettings/DpMasterBasicSettings'
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
+import DpMasterBasicSettings from '@DpJs/components/procedure/basicSettings/DpMasterBasicSettings'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpMasterBasicSettings }

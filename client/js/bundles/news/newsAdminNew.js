@@ -14,9 +14,9 @@
 import DpChangeStateAtDate from '@DpJs/components/core/DpChangeStateAtDate'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import newsAdminInit from '@DemosPlanNewsBundle/lib/newsAdmin'
+import newsAdminInit from '@DpJs/lib/news/newsAdmin'
 
 const components = {
   DpChangeStateAtDate,

@@ -13,11 +13,11 @@
 
 import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import DpDashboardTaskCard from '@DpJs/components/core/DpDashboardTaskCard'
-import DpStatementSegmentsStatusCharts from '@DemosPlanProcedureBundle/components/charts/DpStatementSegmentsStatusCharts'
-import DpSurveyChart from '@DemosPlanProcedureBundle/components/survey/DpSurveyChart'
+import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts'
+import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import ProcedureAnalyticsChart from '@DemosPlanProcedureBundle/components/charts/ProcedureAnalyticsChart'
-import ProcedureCharts from '@DemosPlanProcedureBundle/components/charts/ProcedureCharts'
+import ProcedureAnalyticsChart from '@DpJs/components/procedure/charts/ProcedureAnalyticsChart'
+import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 const components = {
   DpContextualHelp,

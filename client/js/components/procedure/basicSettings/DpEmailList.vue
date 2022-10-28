@@ -1,0 +1,139 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <dp-editable-list
+      :entries="emails"
+      @reset="resetForm"
+      @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      :translation-keys="translationKeys"
+      ref="listComponent">
+      <template v-slot:list="entry">
+        <span>{{ entry.mail }}
+          <input
+            type="email"
+            :value="entry.mail"
+            :name="formFieldName"
+            class="hide-visually">
+        </span>
+      </template>
+
+      <template v-slot:form>
+        <dp-input
+          id="emailAddress"
+          data-cy="emailAddressList"
+          :placeholder="Translator.trans('email.address')"
+          type="email"
+          v-model="formFields.mail"
+          width="u-1-of-2"
+          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
+      </template>
+    </dp-editable-list>
+  </div>
+</template>
+
+<script>
+import DpEditableList from '@DpJs/components/core/DpEditableList'
+import { DpInput } from 'demosplan-ui/components'
+import validateEmail from '@DpJs/lib/core/validation/utils/validateEmail'
+
+export default {
+  name: 'DpEmailList',
+
+  components: {
+    DpEditableList,
+    DpInput
+  },
+
+  props: {
+    initEmails: {
+      required: true,
+      type: Array
+    },
+
+    formFieldName: {
+      type: String,
+      required: false,
+      default: 'agencyExtraEmailAddresses[][fullAddress]'
+    }
+  },
+
+  data () {
+    return {
+      formFields: {
+        mail: ''
+      },
+      itemIndex: null,
+      emails: this.initEmails,
+      translationKeys: {
+        new: Translator.trans('email.address.new'),
+        add: Translator.trans('email.address.add'),
+        abort: Translator.trans('abort'),
+        update: Translator.trans('email.address.update'),
+        noEntries: Translator.trans('email.address.no'),
+        delete: Translator.trans('email.address.delete')
+      }
+    }
+  },
+
+  watch: {
+    initEmails (newVal) {
+      this.emails = newVal
+    }
+  },
+
+  methods: {
+    delete (index) {
+      this.emails.splice(index, 1)
+    },
+
+    addElement () {
+      this.emails.push({
+        mail: this.formFields.mail
+      })
+    },
+
+    handleSubmit (index) {
+      if (validateEmail(this.formFields.mail)) {
+        if (index === 'new') {
+          this.addElement()
+        } else {
+          this.updateEmailAddress(index)
+        }
+
+        this.resetForm()
+        this.$refs.listComponent.toggleFormVisibility(false)
+        this.$refs.listComponent.currentlyUpdating = ''
+      }
+    },
+
+    resetForm () {
+      this.formFields.mail = ''
+      this.itemIndex = null
+    },
+
+    updateEmailAddress (index) {
+      this.emails[index].mail = this.formFields.mail
+    }
+  },
+
+  mounted () {
+    this.$on('delete', (index) => {
+      this.delete(index)
+      this.resetForm()
+    })
+
+    this.$on('showUpdateForm', (index) => {
+      this.formFields.mail = this.emails[index].mail
+      this.itemIndex = index
+    })
+  }
+}
+</script>

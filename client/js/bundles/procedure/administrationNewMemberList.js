@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_new_member_list.html.twig
  */
-import DpAddOrganisationList from '@DemosPlanProcedureBundle/components/admin/DpAddOrganisationList'
+import DpAddOrganisationList from '@DpJs/components/procedure/admin/DpAddOrganisationList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

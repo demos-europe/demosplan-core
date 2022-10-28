@@ -63,7 +63,7 @@
 import { Draw, Snap } from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
 import { GeoJSON } from 'ol/format'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { v4 as uuid } from 'uuid'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'

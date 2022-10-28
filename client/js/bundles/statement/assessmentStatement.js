@@ -11,11 +11,11 @@
  * This is the entrypoint for assessment_statement.html.twig and cluster_detail.html.twig
  */
 
-import AssessmentStatement from '@DemosPlanStatementBundle/lib/AssessmentStatement'
+import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
 import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/validation/dpValidate'
+import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DemosPlanStatementBundle/store/Statement'
 import VoterStore from '@DemosPlanStatementBundle/store/Voter'

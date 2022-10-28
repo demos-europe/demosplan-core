@@ -16,7 +16,7 @@ const log = require('./webpack/log').log
 function projectConfig (mode, project) {
   const frontendIntegratorCommand = [
     'bin/console',
-    'dplan:frontend:integrator'
+    'dplan:frontend:buildinfo'
   ]
 
   if (mode === 'production') {
