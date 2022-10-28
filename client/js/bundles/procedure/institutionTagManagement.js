@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for institution_tag_management.html.twig
  */
-import InstitutionTagManagement from '@DemosPlanProcedureBundle/components/admin/InstitutionTagManagement'
+import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { InstitutionTagManagement }
