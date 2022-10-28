@@ -85,7 +85,7 @@ import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 import lscache from 'lscache'
 
 export default {
