@@ -205,7 +205,7 @@
         <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
           class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'comment' && slidebar.segmentId === segment.id }"
+          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('comments')"
           v-tooltip="Translator.trans('comments')"
