@@ -213,8 +213,11 @@ export default {
     },
 
     clearAll () {
-      this.layerToDrawInto.getSource().clear()
-      this.$root.$emit('setDrawingActive', '')
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.name === layer.get('name')) {
+          layer.getSource().clear()
+        }
+      })
     },
 
     init () {

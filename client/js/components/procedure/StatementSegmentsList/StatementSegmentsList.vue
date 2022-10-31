@@ -527,10 +527,7 @@ export default {
 
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
-
-      if (this.$refs.locationMap) {
-        this.$refs.locationMap.resetCurrentMap()
-      }
+      this.$refs.locationMap.resetCurrentMap()
 
       this.setContent({ prop: 'slidebar', val: { showTab: '', segmentId: '' } })
     },

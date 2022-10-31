@@ -140,7 +140,7 @@ export default {
           Number(array[0]),
           Number(array[1])
         ]
-      } 
+      }
 
       return false
     },
@@ -197,7 +197,6 @@ export default {
       this.$refs.drawPolygon.clearAll()
     },
 
-    // TO DO Implement API Call
     save () {
       const mapData = this.getMapData()
 
