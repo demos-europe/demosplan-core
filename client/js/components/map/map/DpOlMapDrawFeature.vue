@@ -51,11 +51,11 @@
 <template>
   <button
     v-if="renderControl"
-    type="button"
-    @click="toggle"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
     :class="{'color--highlight':currentlyActive}"
-    :title="title">
+    type="button"
+    :title="title"
+    @click="toggle">
     {{ label }}
     <i
       v-if="icon"

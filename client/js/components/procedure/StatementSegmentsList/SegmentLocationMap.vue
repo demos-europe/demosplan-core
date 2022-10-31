@@ -21,8 +21,8 @@
         }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
-            data-cy="setMapRelation"
             ref="drawPoint"
+            data-cy="setMapRelation"
             :features="drawingsData.point"
             icon
             icon-class="fa-map-marker u-mb-0_25 font-size-h2"
@@ -30,29 +30,29 @@
             render-control
             :title="Translator.trans('map.relation.set')"
             type="Point"
-            @layerFeaturesChanged="data => updatePolygons('point', data)" />
+            @layerFeaturesChanged="data => updateDrawings('point', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapLine"
-            :features="drawingsData.linestring"
             ref="drawLine"
+            :features="drawingsData.linestring"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
             :title="Translator.trans('statement.map.draw.mark_line')"
             type="LineString"
-            @layerFeaturesChanged="data => updatePolygons('linestring', data)" />
+            @layerFeaturesChanged="data => updateDrawings('linestring', data)" />
           <dp-ol-map-draw-feature
+            ref="drawPolygon"
             data-cy="setMapTerritory"
             :features="drawingsData.polygon"
-            ref="drawPolygon"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
-            @layerFeaturesChanged="data => updatePolygons('polygon', data)" />
+            @layerFeaturesChanged="data => updateDrawings('polygon', data)" />
           <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
             <template v-slot:edit>
               <i
@@ -157,7 +157,7 @@ export default {
   watch: {
     segmentId (newVal) {
       if (newVal) {
-        this.setInitPoygon()
+        this.setInitDrawings()
       }
     }
   },
@@ -217,7 +217,7 @@ export default {
         })
     },
 
-    setInitPoygon () {
+    setInitDrawings () {
       const initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
 
       if (initData.features) {
@@ -230,7 +230,7 @@ export default {
       }
     },
 
-    updatePolygons (type, data) {
+    updateDrawings (type, data) {
       this.drawingsData[type] = JSON.parse(data)
     }
   }
