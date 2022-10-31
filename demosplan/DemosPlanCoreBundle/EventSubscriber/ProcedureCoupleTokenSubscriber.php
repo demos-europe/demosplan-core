@@ -33,7 +33,7 @@ use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use EDT\JsonApi\ResourceTypes\Property;
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -253,7 +253,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         $path = new End();
         $path->setParent($this->statementResourceType);
         $path->setParentPropertyName('synchronized');
-        $property = new Property($path, false, false);
+        $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
         $property->readable(false, function (Statement $statement): bool {
             return null !== $this->entitySyncLinkRepository->findOneBy([
                 'sourceId' => $statement->getId(),
