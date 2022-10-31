@@ -632,10 +632,6 @@ feature_alternative_newsletter:
     expose: false
     label: 'Usage of an external service to provide newsletters instead of the internal one.'
     loginRequired: false
-feature_annotated_statement_pdf_rollback_review_status:
-    description: 'Allows running the task to bring all AnnotatedStatements which are in BOX_REVIEW status back to READY_TO_REVIEW and those in TEXT_REVIEW back to READY_TO_CONVERT'
-    label: 'Access to bring AnnotatedStatementPDfs from box- and text-review back to their previous statuses'
-    loginRequired: false
 feature_assessmenttable_special_sorting:
     description: 'Introduces a special (nested) sort type of assessment table for HH to be used for presentations/discussions with authorities (politicians).'
     label: 'Special sort type for HH'
