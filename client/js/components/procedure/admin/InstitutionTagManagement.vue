@@ -39,6 +39,7 @@
           }"/>
         <dp-button-row
           :busy="isLoading"
+          align="left"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
@@ -50,7 +51,7 @@
       has-flyout
       :header-fields="headerFields"
       track-by="id"
-      :items="mapTags"
+      :items="tags"
       class="u-mt-2">
       <template v-slot:label="rowData">
         <div
@@ -148,19 +149,14 @@ export default {
       initialRowData: {},
       isLoading: false,
       newTag: {},
-      tagsArray: []
+      tags: []
     }
   },
 
   computed: {
     ...mapState('institutionTag', {
       institutionTags: 'items'
-    }),
-
-    mapTags () {
-      this.tagsArray = this.transformArray()
-      return this.tagsArray
-    }
+    })
   },
 
   methods: {
@@ -298,6 +294,7 @@ export default {
 
   mounted () {
     this.getInstitutionTags()
+    this.tags = this.transformArray()
   }
 }
 </script>
