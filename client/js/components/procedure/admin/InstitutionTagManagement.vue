@@ -96,7 +96,7 @@
             <button
               class="btn--blank o-link--default"
               :aria-label="Translator.trans('abort')"
-              @click="abortEditingTag()">
+              @click="abortEdit()">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -133,7 +133,6 @@ export default {
     return {
       addNewTag: false,
       edit: false,
-      editingTagId: null,
       headerFields: [
         {
           field: 'label',
@@ -172,8 +171,8 @@ export default {
       updateInstitutionTag: 'setItem'
     }),
 
-    abortEditingTag () {
-      this.editingTagId = null
+    abortEdit () {
+      this.edit = false
     },
 
     closeNewTagForm () {
@@ -191,7 +190,7 @@ export default {
 
     editTag (id) {
       this.addNewTag = false
-      this.editingTagId = id
+      this.edit = true
       this.newTag.label = null
     },
 
@@ -205,7 +204,7 @@ export default {
 
     handleAddNewTagForm () {
       this.addNewTag = true
-      this.editingTagId = null
+      this.edit = false
     },
 
     transformArray () {
@@ -213,7 +212,7 @@ export default {
         const { id, attributes } = tag
         return {
           id,
-          edit: this.editingTagId === id,
+          edit: true,
           label: attributes.label
         }
       })
@@ -230,7 +229,7 @@ export default {
      */
 
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
-      const foundSimilarLabel = this.tagsArray.filter(el => el.label === tagLabel)
+      const foundSimilarLabel = this.tags.filter(el => el.label === tagLabel)
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
     },
 
@@ -287,7 +286,7 @@ export default {
           console.error(err)
         })
         .finally(() => {
-          this.editingTagId = null
+          this.edit = false
         })
     }
   },
