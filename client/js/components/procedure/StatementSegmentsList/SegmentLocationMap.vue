@@ -15,6 +15,7 @@
 
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
+        ref="map"
         :procedure-id="procedureId"
         :options="{
           autoSuggest: false
@@ -123,6 +124,7 @@ export default {
   data () {
     return {
       drawingsData: {},
+      initData: {},
       mapData: null,
       segmentPoint: ''
     }
@@ -188,7 +190,7 @@ export default {
         }
       })
 
-      return JSON.stringify(mapData)
+      return mapData
     },
 
     resetCurrentMap () {
@@ -200,31 +202,33 @@ export default {
     save () {
       const mapData = this.getMapData()
 
-      this.setItem({
-        ...this.segment,
-        attributes: {
-          ...this.segment.attributes,
-          polygon: mapData
-        }
-      })
-      return this.saveSegmentAction(this.segmentId)
-        .then(checkResponse)
-        .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
+      // TO DO: How to load lodash
+      //if (!lodash.isEqual(this.getMapData(), this.initData)) {
+        this.setItem({
+          ...this.segment,
+          attributes: {
+            ...this.segment.attributes,
+            polygon: JSON.stringify(mapData)
+          }
         })
-        .catch(() => {
-          dplan.notify.error(Translator.trans('error.changes.not.saved'))
-        })
+        return this.saveSegmentAction(this.segmentId)
+          .then(checkResponse)
+          .then(() => {
+            dplan.notify.confirm(Translator.trans('confirm.saved'))
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          })
+      //}
     },
 
     setInitDrawings () {
-      const initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
-
-      if (initData.features) {
+      this.initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
+      if (this.initData.features) {
         ['Polygon', 'LineString', 'Point'].forEach(type => {
           this.drawingsData[type.toLowerCase()] = {
             type: 'FeatureCollection',
-            features: initData.features.filter(f => f.geometry.type === type)
+            features: this.initData.features.filter(f => f.geometry.type === type)
           }
         })
       }

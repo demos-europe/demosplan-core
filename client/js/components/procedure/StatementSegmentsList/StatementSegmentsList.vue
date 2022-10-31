@@ -21,7 +21,7 @@
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
       <segment-location-map
-        v-show="slidebar.showTab === 'map'"
+        v-if="slidebar.showTab === 'map'"
         ref="locationMap"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
@@ -527,7 +527,9 @@ export default {
 
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
-      this.$refs.locationMap.resetCurrentMap()
+      if (this.$refs.locationMap) {
+        this.$refs.locationMap.resetCurrentMap()
+      }
 
       this.setContent({ prop: 'slidebar', val: { showTab: '', segmentId: '' } })
     },
