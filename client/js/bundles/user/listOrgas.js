@@ -16,7 +16,7 @@ import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import UrlPreview from '@DemosPlanUserBundle/lib/UrlPreview'
+import UrlPreview from '@DpJs/lib/user/UrlPreview'
 
 const stores = {}
 const components = {
