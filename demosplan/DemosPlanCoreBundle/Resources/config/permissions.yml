@@ -865,19 +865,6 @@ feature_identity_broker_login:
     label: 'Enables/disables account login and registration by identity broker'
     expose: true
     loginRequired: false
-feature_import_statement_via_email:
-    description: |
-        Planners may receive e-mails containing statements and want to forward them into the application into a
-        specific procedure. This permission will enable the general functionality and adds a section to the
-        procedure settings where allowed email addresses can be configured as well as enabling a tab in the
-        import center to view and further process incoming emails. A list of these forwarded
-        e-mails will be shown in the import area in the target procedure. From there statements can be
-        created from the e-mail. Both the list as well as the creation from e-mail items are only
-        possible if this permission is enabled.
-    expose: true
-    label: 'Allow the statement import via e-mails.'
-    parent: area_admin_import
-    loginRequired: true
 feature_imprint_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
