@@ -58,7 +58,7 @@
       v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
       :class="{ 'color--highlight' : currentlyActive }">
-      <slot name="edit">
+      <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>
     </button>
@@ -71,7 +71,7 @@
       })"
       class="btn--blank u-ml-0_5 weight--bold"
       :class="{ 'o-link--default': (false === disabled) }">
-      <slot name="remove">
+      <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
     </button>
@@ -80,7 +80,7 @@
       @click="clearAll"
       v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
-      <slot name="removeAll">
+      <slot name="removeAllButtonDesc">
         {{ Translator.trans('map.territory.tools.removeAll') }}
       </slot>
     </button>

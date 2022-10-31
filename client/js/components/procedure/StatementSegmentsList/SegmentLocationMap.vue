@@ -54,19 +54,19 @@
             type="Polygon"
             @layerFeaturesChanged="data => updateDrawings('polygon', data)" />
           <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
-            <template v-slot:edit>
+            <template v-slot:editButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.edit')"
                 class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
                 aria-hidden="true" />
             </template>
-            <template v-slot:remove>
+            <template v-slot:removeButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.removeSelected')"
                 class="fa fa-eraser u-mb-0_25 font-size-h2"
                 aria-hidden="true" />
             </template>
-            <template v-slot:removeAll>
+            <template v-slot:removeAllButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.removeAll')"
                 class="fa fa-trash u-mb-0_25 font-size-h2"
