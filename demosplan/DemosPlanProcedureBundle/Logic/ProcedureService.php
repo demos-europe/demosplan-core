@@ -10,7 +10,11 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use function array_key_exists;
+use function array_merge;
+use function array_unique;
 use Carbon\Carbon;
+use function collect;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -93,16 +97,22 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use function in_array;
+use function is_array;
+use function is_dir;
+use function is_string;
 use ReflectionException;
+use function stripos;
+use function strlen;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -113,16 +123,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
-use function array_key_exists;
-use function array_merge;
-use function array_unique;
-use function collect;
-use function in_array;
-use function is_array;
-use function is_dir;
-use function is_string;
-use function stripos;
-use function strlen;
 use function var_export;
 
 class ProcedureService extends CoreService

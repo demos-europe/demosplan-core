@@ -11,11 +11,11 @@
  * This is the entrypoint for bulk_edit_statement_fragment.html.twig
  */
 
-import AssessmentTableStore from '@DemosPlanStatementBundle/store/AssessmentTable'
+import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
-import FragmentStore from '@DemosPlanStatementBundle/store/Fragment'
+import FragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import StatementStore from '@DemosPlanStatementBundle/store/Statement'
+import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   statement: StatementStore,

@@ -38,22 +38,24 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
     public const GROUP_ORGA = 'orga';
 
-    public const CATEGORY_CHANGE_PHASES = 'changePhases';
-    public const CATEGORY_UPDATE = 'update';
-    public const CATEGORY_FINAL_MAIL = 'finalMail';
-    public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
     public const CATEGORY_ADD = 'add';
-    public const CATEGORY_COPY = 'copy';
-    public const CATEGORY_DELETE = 'delete';
-    public const CATEGORY_MOVE = 'move';
     public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
     public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
-    public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
+    public const CATEGORY_CHANGE_PHASES = 'changePhases';
+    public const CATEGORY_COPY = 'copy';
+    public const CATEGORY_DELETE = 'delete';
     public const CATEGORY_DELETE_ATTACHMENTS = 'deleteAttachments';
+    public const CATEGORY_DELETE_TEXT_FIELD_HISTORY = 'deleteTextFieldHistory';
+    public const CATEGORY_FINAL_MAIL = 'finalMail';
     public const CATEGORY_INVITATION = 'invitation';
-    public const CATEGORY_VIEW = 'view';
     public const CATEGORY_MERGE = 'merge';
+    public const CATEGORY_MOVE = 'move';
     public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
+    public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
+    public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
+    public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
+    public const CATEGORY_UPDATE = 'update';
+    public const CATEGORY_VIEW = 'view';
 
     public const LEVEL_INFO = 'INFO';
 

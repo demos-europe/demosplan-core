@@ -26,7 +26,7 @@
 
 <script>
 import DpAccordion from './DpAccordion'
-import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 
 export default {
   name: 'DpToggleForm',

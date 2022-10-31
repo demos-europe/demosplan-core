@@ -121,7 +121,7 @@ import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import { DpIcon } from 'demosplan-ui/components'
 import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
-import dpValidateMixin from '@DpJs/lib/validation/dpValidateMixin'
+import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 
 export default {
   name: 'DpUserListItem',
