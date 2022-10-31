@@ -133,6 +133,7 @@ export default {
     return {
       addNewTag: false,
       edit: false,
+      editingTagId: null,
       headerFields: [
         {
           field: 'label',
@@ -147,15 +148,25 @@ export default {
       ],
       initialRowData: {},
       isLoading: false,
-      newTag: {},
-      tags: []
+      newTag: {}
     }
   },
 
   computed: {
     ...mapState('institutionTag', {
       institutionTags: 'items'
-    })
+    }),
+
+    tags () {
+      return Object.values(this.institutionTags).map(tag => {
+        const { id, attributes } = tag
+        return {
+          id,
+          edit: this.editingTagId === id,
+          label: attributes.label
+        }
+      })
+    }
   },
 
   methods: {
@@ -172,7 +183,7 @@ export default {
     }),
 
     abortEdit () {
-      this.edit = false
+      this.editingTagId = null
     },
 
     closeNewTagForm () {
@@ -190,7 +201,7 @@ export default {
 
     editTag (id) {
       this.addNewTag = false
-      this.edit = true
+      this.editingTagId = id
       this.newTag.label = null
     },
 
@@ -204,18 +215,7 @@ export default {
 
     handleAddNewTagForm () {
       this.addNewTag = true
-      this.edit = false
-    },
-
-    transformArray () {
-      return Object.values(this.institutionTags).map(tag => {
-        const { id, attributes } = tag
-        return {
-          id,
-          edit: true,
-          label: attributes.label
-        }
-      })
+      this.editingTagId = null
     },
 
     /**
@@ -286,14 +286,13 @@ export default {
           console.error(err)
         })
         .finally(() => {
-          this.edit = false
+          this.editingTagId = null
         })
     }
   },
 
   mounted () {
     this.getInstitutionTags()
-    this.tags = this.transformArray()
   }
 }
 </script>
