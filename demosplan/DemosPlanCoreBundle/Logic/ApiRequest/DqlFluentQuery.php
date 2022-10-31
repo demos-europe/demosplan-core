@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\QueryBuilder;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
+use EDT\Querying\Contracts\ObjectProviderInterface;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\FluentQuery;
@@ -31,7 +32,7 @@ class DqlFluentQuery extends FluentQuery
     /**
      * @var DoctrineOrmEntityProvider<T>
      */
-    protected $objectProvider;
+    protected ObjectProviderInterface $objectProvider;
 
     /**
      * @param DoctrineOrmEntityProvider<T> $objectProvider
