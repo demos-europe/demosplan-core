@@ -11,15 +11,14 @@
   <div>
     <h2
       class="u-mb-0_75"
-      v-text="heading">
-    </h2>
+      v-text="heading" />
 
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         :procedure-id="procedureId"
         :options="{
           autoSuggest: false
-      }">
+        }">
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
             data-cy="setMapRelation"
@@ -88,11 +87,11 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
-import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
 
 export default {
   name: 'SegmentLocationMap',
@@ -118,22 +117,14 @@ export default {
     statementId: {
       type: String,
       required: true
-    },
+    }
   },
 
   data () {
     return {
       drawingsData: {},
       mapData: null,
-      segmentPoint: '',
-    }
-  },
-
-  watch: {
-    segmentId (newVal) {
-      if(newVal) {
-        this.setInitPoygon()
-      }
+      segmentPoint: ''
     }
   },
 
@@ -163,6 +154,14 @@ export default {
     }
   },
 
+  watch: {
+    segmentId (newVal) {
+      if (newVal) {
+        this.setInitPoygon()
+      }
+    }
+  },
+
   methods: {
     ...mapMutations('statementSegment', ['setItem']),
 
@@ -171,20 +170,20 @@ export default {
     }),
 
     closeSlidebar () {
-      // trigger click event for SideNav.js
+      // Trigger click event for SideNav.js
       document.querySelector('[data-slidebar-hide]').click()
     },
 
     getMapData () {
-      let mapData = {
-        "type":"FeatureCollection",
-        "features":[]
+      const mapData = {
+        type: 'FeatureCollection',
+        features: []
       }
 
       Object.values(this.drawingsData).forEach((data) => {
         if (data) {
-          data['features'].forEach((feature) => {
-            mapData['features'].push(feature)
+          data.features.forEach((feature) => {
+            mapData.features.push(feature)
           })
         }
       })
