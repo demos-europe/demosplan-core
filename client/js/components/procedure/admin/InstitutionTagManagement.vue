@@ -39,7 +39,6 @@
           }"/>
         <dp-button-row
           :busy="isLoading"
-          :align="alignLeft"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
@@ -132,7 +131,6 @@ export default {
   data () {
     return {
       addNewTag: false,
-      alignLeft: 'left',
       edit: false,
       editingTagId: null,
       headerFields: [
