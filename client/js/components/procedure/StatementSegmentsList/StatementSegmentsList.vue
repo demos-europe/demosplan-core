@@ -21,7 +21,7 @@
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
       <segment-location-map
-        v-if="slidebar.showTab === 'map'"
+        v-show="slidebar.showTab === 'map'"
         ref="locationMap"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
