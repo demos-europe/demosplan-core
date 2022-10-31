@@ -11,10 +11,5 @@ parameters:
         - 'sh'
         - 'hindsight'
         - 'brandenburg'
-    pipeline.ai.annotated.statement.pdf.created.id: "pipeline.ai.annotated.statement.pdf.created.id"
-    pipeline.ai.annotated.statement.pdf.reviewed.id: "pipeline.ai.annotated.statement.pdf.reviewed.id"
-    pipeline.demos.authorization: "pipeline.demos.authorization"
-    pi.pipeline.segment.recognition.id: "pi.pipeline.segment.recognition.id"
-    pi.pipeline.confirmed.segments.id: "pi.pipeline.confirmed.segments.id"
     project_prefix: 'dplan_test'
     honeypot_disabled: true
