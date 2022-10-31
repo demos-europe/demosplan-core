@@ -861,16 +861,6 @@ feature_identity_broker_login:
     label: 'Enables/disables account login and registration by identity broker'
     expose: true
     loginRequired: false
-feature_import_statement_pdf:
-    description: |-
-        When enabled users are able to upload PDF files which are then automatically
-        processed to annotate relevant information in the pages. After the processing
-        is done the user can review and adjust the annotations. When the review is done
-        a statement can be created from the data annotated in the PDF file with the PDF
-        file attached to the statement.
-    expose: true
-    label: 'Upload and annotate PDF files to create statements from it.'
-    loginRequired: true
 feature_import_statement_via_email:
     description: |
         Planners may receive e-mails containing statements and want to forward them into the application into a
@@ -903,7 +893,7 @@ feature_institution_participation:
     loginRequired: true
 feature_institution_tag_create:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows creating a tag
         setting the owningOrganisation to the current organisation.
@@ -911,7 +901,7 @@ feature_institution_tag_create:
     loginRequired: true
 feature_institution_tag_delete:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows deleting tags
         given by the current organisation.
@@ -919,7 +909,7 @@ feature_institution_tag_delete:
     loginRequired: true
 feature_institution_tag_read:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows reading the tags
         given by the current organisation.
@@ -927,7 +917,7 @@ feature_institution_tag_read:
     loginRequired: true
 feature_institution_tag_update:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows to alter the tags
         that belong to the current organisation.
