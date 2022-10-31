@@ -140,9 +140,9 @@ export default {
           Number(array[0]),
           Number(array[1])
         ]
-      } else {
-        return false
-      }
+      } 
+
+      return false
     },
 
     heading () {
