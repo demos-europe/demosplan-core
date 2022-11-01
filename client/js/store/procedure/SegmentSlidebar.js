@@ -12,27 +12,25 @@ const SegmentSlidebarStore = {
   name: 'segmentSlidebar',
 
   state: {
-    content: {
-      commentsList: {
-        currentCommentText: '',
-        externId: '',
-        procedureId: '',
-        segmentId: '',
-        show: false,
-        showForm: false,
-        statementId: ''
-      },
-      versionHistory: {
-        segmentId: '',
-        show: false
-      }
+    slidebar: {
+      segmentId: '',
+      showTab: ''
+    },
+    commentsList: {
+      currentCommentText: '',
+      externId: '',
+      procedureId: '',
+      segmentId: '',
+      show: false,
+      showForm: false,
+      statementId: ''
     },
     isLoading: false
   },
 
   mutations: {
     setContent (state, data) {
-      Vue.set(state.content, data.prop, data.val)
+      Vue.set(state, data.prop, data.val)
     },
 
     setProperty (state, data) {
@@ -41,29 +39,21 @@ const SegmentSlidebarStore = {
   },
 
   actions: {
-    toggleSlidebarContent ({ commit, state }, data) {
+    toggleSlidebarContent ({ commit }, data) {
       commit('setContent', data)
-
-      Object.keys(state.content).forEach(key => {
-        if (key !== data.prop) {
-          commit('setContent', { prop: key, val: { ...state.content[key], show: false } })
-        }
-      })
     }
   },
 
   getters: {
-    commentsList: (state) => state.content.commentsList,
+    commentsList: (state) => state.commentsList,
 
-    currentCommentText: (state) => state.content.commentsList.currentCommentText,
+    currentCommentText: (state) => state.commentsList.currentCommentText,
 
-    procedureId: (state) => state.content.commentsList.procedureId,
+    procedureId: (state) => state.commentsList.procedureId,
 
-    showForm: (state) => state.content.commentsList.showForm,
+    showForm: (state) => state.commentsList.showForm,
 
-    statementId: (state) => state.content.commentsList.statementId,
-
-    versionHistory: (state) => state.content.versionHistory
+    statementId: (state) => state.commentsList.statementId,
   }
 }
 

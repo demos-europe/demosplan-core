@@ -193,7 +193,7 @@
 
         <button
           class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : versionHistory.show && versionHistory.segmentId === segment.id }"
+          :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('history')"
           v-tooltip="Translator.trans('history')"
@@ -205,7 +205,7 @@
         <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
           class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : commentsList.show && commentsList.segmentId === segment.id }"
+          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
           type="button"
           :aria-label="Translator.trans('comments')"
           v-tooltip="Translator.trans('comments')"
@@ -219,6 +219,19 @@
             class="segment-list-toolbar__badge o-badge--darker display--block position--absolute u-ml u-n-mt">
             {{ commentCount }}
           </span>
+        </button>
+        <button
+          v-if="hasPermission('feature_segment_polygon_read')"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('public.participation.relation')"
+          v-tooltip="Translator.trans('public.participation.relation')"
+          data-cy="segmentMap"
+          @click.prevent="showMap">
+          <i
+            class="fa fa-map-marker"
+            aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -305,10 +318,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('segmentSlidebar', [
-      'commentsList',
-      'versionHistory'
-    ]),
+    ...mapState('segmentSlidebar', ['slidebar']),
 
     ...mapState('assignableUser', {
       assignableUserItems: 'items'
@@ -422,8 +432,7 @@ export default {
       const dataToUpdate = {
         ...this.segment,
         ...{
-          relationships:
-          {
+          relationships: {
             ...this.segment.relationships,
             ...{
               assignee: {
@@ -523,14 +532,31 @@ export default {
 
     showComments () {
       this.$parent.$parent.resetSlidebar()
-      this.toggleSlidebarContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', externId: this.segment.attributes.externId, segmentId: this.segment.id, show: true } })
+
+      this.toggleSlidebarContent({
+        prop: 'commentsList',
+        val: {
+          ...this.commentsList,
+          currentCommentText: '',
+          externId: this.segment.attributes.externId,
+          segmentId: this.segment.id,
+          show: true
+        }
+      })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'comments' } })
+      this.$root.$emit('show-slidebar')
+    },
+
+    showMap () {
+      this.$parent.$parent.resetSlidebar()
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
     },
 
     showSegmentVersionHistory () {
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'versionHistory', val: { segmentId: this.segment.id, show: true } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'history' } })
     },
 
     startEditing () {

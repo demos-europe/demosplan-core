@@ -11,14 +11,21 @@
   <div v-if="statement">
     <dp-slidebar @close="resetSlidebar">
       <dp-version-history
-        v-show="versionHistory.show"
+        v-show="slidebar.showTab === 'history'"
         class="u-pr"
         :procedure-id="procedureId" />
       <segment-comments-list
-        v-show="hasPermission('feature_segment_comment_list_on_segment') && commentsList.show"
+        v-if="hasPermission('feature_segment_comment_list_on_segment')"
+        v-show="slidebar.showTab === 'comments'"
         ref="commentsList"
         class="u-mb-2 u-pr"
         :current-user="currentUser" />
+      <segment-location-map
+        v-show="slidebar.showTab === 'map'"
+        ref="locationMap"
+        :procedure-id="procedureId"
+        :segment-id="slidebar.segmentId"
+        :statement-id="statementId" />
     </dp-slidebar>
 
     <dp-sticky-element>
@@ -160,6 +167,7 @@ import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
+import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
@@ -176,6 +184,7 @@ export default {
     DpStickyElement,
     DpVersionHistory,
     SegmentCommentsList,
+    SegmentLocationMap,
     SegmentsRecommendations,
     StatementMeta,
     StatementMetaAttachmentsLink,
@@ -248,10 +257,9 @@ export default {
       statements: 'items'
     }),
 
-    ...mapGetters('segmentSlidebar', [
-      'commentsList',
-      'versionHistory'
-    ]),
+    ...mapState('segmentSlidebar', ['slidebar']),
+
+    ...mapGetters('segmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
       /**
@@ -313,23 +321,26 @@ export default {
 
     currentAssignee () {
       let currentAssigneeId = null
+
       if (this.statement?.relationships?.assignee.data && this.statement.relationships.assignee.data.id !== null) {
         currentAssigneeId = this.statement.relationships.assignee.data.id
       }
+
       if (currentAssigneeId) {
-        const assignee = this.assignableUsersObject[currentAssigneeId]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
+        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+
         return {
           id: currentAssigneeId,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
         }
-      } else {
-        return {
-          id: '',
-          name: '',
-          orgaName: ''
-        }
+      }
+
+      return {
+        id: '',
+        name: '',
+        orgaName: ''
       }
     },
 
@@ -352,6 +363,7 @@ export default {
       if (this.statement.relationships && this.statement?.relationships?.assignee?.data !== null) {
         return this.currentUser.id === this.statement.relationships.assignee.data.id
       }
+
       return false
     },
 
@@ -359,9 +371,9 @@ export default {
       // If the statement has not loaded yet, attachments can not be determined, the control is disabled in that case.
       if (!this.statement) {
         return true
-      } else {
-        return !this.originalAttachment.hash && this.additionalAttachments.length === 0
       }
+
+      return !this.originalAttachment.hash && this.additionalAttachments.length === 0
     },
 
     originalAttachment () {
@@ -399,6 +411,10 @@ export default {
     ...mapActions('assignableUser', {
       listAssignableUser: 'list'
     }),
+
+    ...mapActions('segmentSlidebar', [
+      'toggleSlidebarContent'
+    ]),
 
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
@@ -511,8 +527,11 @@ export default {
 
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
-      this.setContent({ prop: 'versionHistory', val: { ...this.versionHistory, show: false } })
-      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, show: false } })
+      if (this.$refs.locationMap) {
+        this.$refs.locationMap.resetCurrentMap()
+      }
+
+      this.setContent({ prop: 'slidebar', val: { showTab: '', segmentId: '' } })
     },
 
     saveStatement (statement) {
