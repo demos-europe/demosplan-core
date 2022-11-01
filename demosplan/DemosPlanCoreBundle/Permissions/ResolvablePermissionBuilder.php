@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 use InvalidArgumentException;
 use function array_key_exists;
 
-class PermissionDecision
+class ResolvablePermissionBuilder
 {
     public const PARAMETER = 'parameter';
 
@@ -196,32 +196,18 @@ class PermissionDecision
         return $this;
     }
 
-    public function getPermission(): Permission
+    public function buildResolvablePermission(): ResolvablePermission
     {
-        return $this->permission;
-    }
+        $resolvablePermission = new ResolvablePermission(
+            $this->permission->getName(),
+            $this->permission->getLabel(),
+            $this->permission->getDescription()
+        );
 
-    /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
-     */
-    public function getCustomerFilters(): array
-    {
-        return $this->customerCondition;
-    }
+        $resolvablePermission->setCustomerFilters($this->customerCondition);
+        $resolvablePermission->setUserFilters($this->userCondition);
+        $resolvablePermission->setProcedureFilters($this->procedureCondition);
 
-    /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
-     */
-    public function getProcedureFilters(): array
-    {
-        return $this->procedureCondition;
-    }
-
-    /**
-     * @return array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}>
-     */
-    public function getUserFilters(): array
-    {
-        return $this->userCondition;
+        return $resolvablePermission;
     }
 }

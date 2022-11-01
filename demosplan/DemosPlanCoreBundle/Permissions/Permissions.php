@@ -116,11 +116,14 @@ class Permissions implements PermissionsInterface
      */
     private $addonRegistry;
 
+    private PermissionResolver $permissionResolver;
+
     public function __construct(
         AddonRegistry $addonRegistry,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         PermissionCollectionInterface $permissionCollection,
+        PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureRepository $procedureRepository
     ) {
@@ -130,6 +133,7 @@ class Permissions implements PermissionsInterface
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
         $this->addonRegistry = $addonRegistry;
+        $this->permissionResolver = $permissionResolver;
     }
 
     /**
@@ -1190,7 +1194,12 @@ class Permissions implements PermissionsInterface
             $allAddonPermissions = $this->addonRegistry->getAllAddonPermissions();
             $evaluatablePermission = $allAddonPermissions[$addonIdentifier][$permission];
 
-            if ($evaluatablePermission->isPermissionEnabled($this->user, $this->procedure, $this->user->getCurrentCustomer())) {
+            if ($this->permissionResolver->isPermissionEnabled(
+                $evaluatablePermission,
+                $this->user,
+                $this->procedure,
+                $this->user->getCurrentCustomer()
+            )) {
                 return;
             }
 

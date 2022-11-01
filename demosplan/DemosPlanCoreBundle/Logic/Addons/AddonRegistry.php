@@ -13,43 +13,21 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Addons;
 
 use demosplan\DemosPlanCoreBundle\Entity\DplanAddon;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
-use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Repository\DplanAddonRepository;
-use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Utilities\ConditionEvaluator;
+use InvalidArgumentException;
 
 class AddonRegistry
 {
-    /**
-     * @var DplanAddonRepository
-     */
-    private $addonRepository;
+    private DplanAddonRepository $addonRepository;
 
-    /**
-     * @var ConditionEvaluator
-     */
-    private $conditionEvaluator;
-
-    /**
-     * @var DrupalFilterParser<FunctionInterface<bool>>
-     */
-    private $filterParser;
-
-    public function __construct(DplanAddonRepository $addonRepository, Permissions $permissions, DrupalFilterParser $filterParser)
+    public function __construct(DplanAddonRepository $addonRepository)
     {
         $this->addonRepository = $addonRepository;
-        $this->permissions = $permissions;
-        $propertyAccessor = new ProxyPropertyAccessor($managerRegistry->getManager());
-        $this->conditionEvaluator = new ConditionEvaluator($propertyAccessor);
-        $this->filterParser = $filterParser;
     }
 
     /**
-     * @return array<non-empty-string, array<non-empty-string, EvaluatablePermission>>
+     * @return array<non-empty-string, array<non-empty-string, ResolvablePermission>>
      */
     public function getAllAddonPermissions(): array
     {
@@ -72,25 +50,23 @@ class AddonRegistry
     /**
      * @param non-empty-string $packageName
      *
-     * @return array<non-empty-string, EvaluatablePermission>
+     * @return array<non-empty-string, ResolvablePermission>
      */
     protected function getAddonPermissions(string $packageName): array
     {
         $activator = $this->getAddonActivator($packageName);
         $permissions = $activator->getAddonPermissionsWithDefaults();
 
-        return collect($permissions)
-            ->mapWithKeys(function (PermissionDecision $conditionalPermission): array {
-                $permissionMetadata = $conditionalPermission->getPermission();
-                $evaluatablePermission = new EvaluatablePermission(
-                    $conditionalPermission,
-                    $this->conditionEvaluator,
-                    $this->filterParser
-                );
-
-                return [$permissionMetadata->getName() => $evaluatablePermission];
-            })
+        $keyedPermissions = collect($permissions)
+            ->mapWithKeys(fn (ResolvablePermission $conditionalPermission): array
+                => [$conditionalPermission->getName() => $conditionalPermission])
             ->all();
+
+        if (count($keyedPermissions) !== count($permissions)) {
+            throw new InvalidArgumentException('Addon returned at least one permission multiple times.');
+        }
+
+        return $keyedPermissions;
     }
 
     protected function getAddonActivator(string $packageName): AddonActivatorInterface

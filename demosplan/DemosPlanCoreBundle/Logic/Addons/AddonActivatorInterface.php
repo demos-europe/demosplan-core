@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Addons;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 
 interface AddonActivatorInterface
 {
     /**
      * Get the new permissions introduced by this addon into the application.
      *
-     * @return array<non-empty-string, PermissionDecision> mapping from the permission name to its default enabled state
+     * @return array<non-empty-string, ResolvablePermission> mapping from the permission name to its default enabled state
      */
     public function getAddonPermissionsWithDefaults(): array;
 

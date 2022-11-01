@@ -36,13 +36,14 @@ class MaillaneAddonActivator implements AddonActivatorInterface
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
                 ->addUserGroup('OR_GROUP', 'OR')
-                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true)
+                ->addUserCondition('roleInCustomers.customer.id', '=', ResolvablePermission::CURRENT_CUSTOMER_ID, null, true)
+                ->buildResolvablePermission(),
         ];
     }
 
-    protected function createPermission(string $name): PermissionDecision
+    protected function createPermission(string $name): ResolvablePermissionBuilder
     {
-        return new PermissionDecision($this->permissions->getPermission($name));
+        return new ResolvablePermissionBuilder($this->permissions->getPermission($name));
     }
 
     public function getPackageName(): string

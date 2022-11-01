@@ -76,18 +76,21 @@ class Permission implements ArrayAccess
      */
     protected $loginRequired = true;
 
+    private string $description;
+
     /**
      * @param string $name
      * @param string $label
      * @param bool   $expose
      * @param bool   $loginRequired
      */
-    protected function __construct($name, $label, $expose, $loginRequired)
+    protected function __construct($name, $label, $expose, $loginRequired, string $description)
     {
         $this->name = $name;
         $this->label = $label;
         $this->expose = $expose;
         $this->loginRequired = $loginRequired;
+        $this->description = $description;
     }
 
     /**
@@ -100,6 +103,7 @@ class Permission implements ArrayAccess
         $label = '';
         $expose = false;
         $loginRequired = true;
+        $description = '';
 
         if (array_key_exists('label', $permission)) {
             $label = $permission['label'];
@@ -113,6 +117,10 @@ class Permission implements ArrayAccess
             $loginRequired = $permission['loginRequired'];
         }
 
+        if (array_key_exists('description', $permission)) {
+            $description = $permission['description'];
+        }
+
         if (array_key_exists('deprecated', $permission)) {
             trigger_error(
                 "Permission {$name} is deprecated. Deprecation note: {$permission['deprecated']}",
@@ -120,7 +128,7 @@ class Permission implements ArrayAccess
             );
         }
 
-        return new self($name, $label, $expose, $loginRequired);
+        return new self($name, $label, $expose, $loginRequired, $description);
     }
 
     public function getName(): string
@@ -131,6 +139,11 @@ class Permission implements ArrayAccess
     public function getLabel(): string
     {
         return $this->label;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     public function isEnabled(): bool

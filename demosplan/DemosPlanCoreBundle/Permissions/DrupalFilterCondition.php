@@ -54,9 +54,9 @@ class DrupalFilterCondition
         $this->parameter = $parameter;
         if ($parameter) {
             switch ($value) {
-                case EvaluatablePermission::CURRENT_USER_ID:
-                case EvaluatablePermission::CURRENT_PROCEDURE_ID:
-                case EvaluatablePermission::CURRENT_CUSTOMER_ID:
+                case ResolvablePermission::CURRENT_USER_ID:
+                case ResolvablePermission::CURRENT_PROCEDURE_ID:
+                case ResolvablePermission::CURRENT_CUSTOMER_ID:
                     break;
                 default:
                     throw new InvalidArgumentException("Invalid parameter.");
@@ -70,10 +70,10 @@ class DrupalFilterCondition
     public function toArray(): array
     {
         $filterConditionArray = [
-            DrupalFilterParser::PATH      => $this->path,
-            DrupalFilterParser::OPERATOR  => $this->operator,
-            DrupalFilterParser::VALUE     => $this->value,
-            PermissionDecision::PARAMETER => $this->parameter,
+            DrupalFilterParser::PATH               => $this->path,
+            DrupalFilterParser::OPERATOR           => $this->operator,
+            DrupalFilterParser::VALUE              => $this->value,
+            ResolvablePermissionBuilder::PARAMETER => $this->parameter,
         ];
 
         if (null !== $this->memberOf) {

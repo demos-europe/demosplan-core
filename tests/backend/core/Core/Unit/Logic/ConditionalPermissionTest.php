@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use PHPUnit\Framework\TestCase;
 
@@ -59,7 +59,9 @@ class ConditionalPermissionTest extends TestCase
             ->addUserCondition('roleInCustomer.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
             ->addUserCondition('roleInCustomer.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
             ->addUserGroup('OR_GROUP', 'OR')
-            ->addUserCondition('roleInCustomer.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true);
+            ->addUserCondition('roleInCustomer.customer.id', '=',
+                ResolvablePermission::CURRENT_CUSTOMER_ID, null, true)
+            ->buildResolvablePermission();
 
         $userCondition = $myPermission->getUserFilters();
         $procedureCondition = $myPermission->getProcedureFilters();
@@ -70,10 +72,10 @@ class ConditionalPermissionTest extends TestCase
         self::assertEquals(self::TEST_ONLY_USER_CONDITION, $userCondition);
     }
 
-    protected function createPermission(string $name): PermissionDecision
+    protected function createPermission(string $name): ResolvablePermissionBuilder
     {
         $newPermission = Permission::instanceFromArray($name, []);
 
-        return new PermissionDecision($newPermission);
+        return new ResolvablePermissionBuilder($newPermission);
     }
 }
