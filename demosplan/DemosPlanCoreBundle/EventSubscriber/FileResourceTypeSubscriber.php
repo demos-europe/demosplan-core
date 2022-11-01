@@ -54,7 +54,7 @@ class FileResourceTypeSubscriber implements EventSubscriberInterface
     public function isFileAvailable(IsFileAvailableEvent $event): void
     {
         if ($this->currentUser->hasPermission('feature_import_statement_pdf')) {
-            $event->setIsAvailable(true);
+            $event->setIsFileAvailable(true);
         }
     }
 

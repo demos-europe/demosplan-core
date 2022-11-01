@@ -17,15 +17,15 @@ class IsFileAvailableEvent extends DPlanEvent
     /**
      * @param bool
      */
-    private $isAvailable = false;
+    private $isFileAvailable = false;
 
-    public function setIsAvailable(bool $isAvailable): void
+    public function setIsFileAvailable(bool $isFileAvailable): void
     {
-        $this->isAvailable = $isAvailable;
+        $this->isFileAvailable = $isFileAvailable;
     }
 
     public function isFileAvailable(): bool
     {
-        return $this->isAvailable;
+        return $this->isFileAvailable;
     }
 }
