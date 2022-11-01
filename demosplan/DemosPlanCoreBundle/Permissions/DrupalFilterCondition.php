@@ -59,7 +59,7 @@ class DrupalFilterCondition
                 case ResolvablePermission::CURRENT_CUSTOMER_ID:
                     break;
                 default:
-                    throw new InvalidArgumentException("Invalid parameter.");
+                    throw new InvalidArgumentException('Invalid parameter.');
             }
         }
     }

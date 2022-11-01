@@ -22,7 +22,7 @@ class DrupalFilterGroup
     private $conjunction;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     private $memberOf;
 
