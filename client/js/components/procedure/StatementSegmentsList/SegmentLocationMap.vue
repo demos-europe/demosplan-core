@@ -31,7 +31,7 @@
             render-control
             :title="Translator.trans('map.relation.set')"
             type="Point"
-            @layerFeaturesChanged="data => updateDrawings('point', data)" />
+            @layerFeatures:changed="data => updateDrawings('Point', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapLine"
             ref="drawLine"
@@ -42,7 +42,7 @@
             render-control
             :title="Translator.trans('statement.map.draw.mark_line')"
             type="LineString"
-            @layerFeaturesChanged="data => updateDrawings('linestring', data)" />
+            @layerFeatures:changed="data => updateDrawings('LineString', data)" />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
             data-cy="setMapTerritory"
@@ -53,7 +53,7 @@
             render-control
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
-            @layerFeaturesChanged="data => updateDrawings('polygon', data)" />
+            @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
           <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
             <template v-slot:editButtonDesc>
               <i

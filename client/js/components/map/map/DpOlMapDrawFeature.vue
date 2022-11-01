@@ -15,7 +15,7 @@
       #
       #
       # Emits:
-      # > 'layerFeaturesChanged'
+      # > 'layerFeatures:changed'
       # >>> fired after feature-data changed
       # >>> Payload: features
       # > 'setDrawingActive'
@@ -263,7 +263,7 @@ export default {
 
       //  Whenever drawing changes, emit current features
       layerSource.on('change', () => {
-        this.$emit('layerFeaturesChanged', new GeoJSON().writeFeatures(layerSource.getFeatures()))
+        this.$emit('layerFeatures:changed', new GeoJSON().writeFeatures(layerSource.getFeatures()))
       })
 
       if (this.fitDrawing) {
