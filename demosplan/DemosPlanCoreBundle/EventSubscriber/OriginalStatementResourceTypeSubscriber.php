@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-
 use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
