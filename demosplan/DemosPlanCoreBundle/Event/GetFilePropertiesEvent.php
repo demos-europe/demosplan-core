@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 
 class GetFilePropertiesEvent extends DPlanEvent
@@ -31,11 +30,6 @@ class GetFilePropertiesEvent extends DPlanEvent
     public function getProperties(): array
     {
         return $this->properties;
-    }
-
-    public function addProperty(PropertyBuilder $property): void
-    {
-        $this->properties[] = $property;
     }
 
     public function getType(): TypeInterface
