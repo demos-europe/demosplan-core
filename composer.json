@@ -5,7 +5,7 @@
     "license": "proprietary",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.3,<8",
+        "php": ">=7.4,<8",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -41,7 +41,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.0",
         "doctrine/persistence": "^2.0",
-        "dompdf/dompdf": "^2.0.0",
+        "dompdf/dompdf": "^2.0.1",
         "efrane/console-additions": "^0.6.1",
         "efrane/tus-bundle": "^0.5",
         "egulias/email-validator": "^3.1",
@@ -177,7 +177,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "process-timeout": 600,
         "sort-packages": true,

@@ -1,0 +1,2 @@
+core:
+    resource: "@DemosPlanCoreBundle/Resources/config/routing_core.yml"

@@ -1,0 +1,558 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            533216.0431040261,
+            6029561.881326092
+          ],
+          [
+            520700.0180719761,
+            6018137.858478046
+          ],
+          [
+            532880.0424320248,
+            6016877.855958042
+          ],
+          [
+            539180.05503205,
+            6027209.876622083
+          ],
+          [
+            533216.0431040261,
+            6029729.881662093
+          ]
+        ]
+      },
+      "properties": {
+        "metadata": {
+          "featureLayerExtent": [
+            520700.0180719761,
+            6002345.826893983,
+            574712.1260961922,
+            6029729.881662093
+          ],
+          "printLayers": [
+            {
+              "layerName": "560f4846f11811eabe14782bcb0d78b1",
+              "layerTitle": "Web-Atlas",
+              "layerMapOrder": 104,
+              "isBaseLayer": true,
+              "tiles": [
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 3,
+                    "y": 2
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=506509.53902425803%2C6025230.410975742%2C528013.5820323441%2C6046734.453983828",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    506509.53902425803,
+                    6025230.410975742,
+                    528013.5820323441,
+                    6046734.453983828
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 3,
+                    "y": 3
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=506509.53902425803%2C6003726.367967656%2C528013.5820323441%2C6025230.410975742",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    506509.53902425803,
+                    6003726.367967656,
+                    528013.5820323441,
+                    6025230.410975742
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 3,
+                    "y": 4
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=506509.53902425803%2C5982222.32495957%2C528013.5820323441%2C6003726.367967656",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    506509.53902425803,
+                    5982222.32495957,
+                    528013.5820323441,
+                    6003726.367967656
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 4,
+                    "y": 2
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=528013.5820323441%2C6025230.410975742%2C549517.6250404301%2C6046734.453983828",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    528013.5820323441,
+                    6025230.410975742,
+                    549517.6250404301,
+                    6046734.453983828
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 4,
+                    "y": 3
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=528013.5820323441%2C6003726.367967656%2C549517.6250404301%2C6025230.410975742",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    528013.5820323441,
+                    6003726.367967656,
+                    549517.6250404301,
+                    6025230.410975742
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 4,
+                    "y": 4
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=528013.5820323441%2C5982222.32495957%2C549517.6250404301%2C6003726.367967656",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    528013.5820323441,
+                    5982222.32495957,
+                    549517.6250404301,
+                    6003726.367967656
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 5,
+                    "y": 2
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=549517.6250404301%2C6025230.410975742%2C571021.6680485161%2C6046734.453983828",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    549517.6250404301,
+                    6025230.410975742,
+                    571021.6680485161,
+                    6046734.453983828
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 5,
+                    "y": 3
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=549517.6250404301%2C6003726.367967656%2C571021.6680485161%2C6025230.410975742",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    549517.6250404301,
+                    6003726.367967656,
+                    571021.6680485161,
+                    6025230.410975742
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 5,
+                    "y": 4
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=549517.6250404301%2C5982222.32495957%2C571021.6680485161%2C6003726.367967656",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    549517.6250404301,
+                    5982222.32495957,
+                    571021.6680485161,
+                    6003726.367967656
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 6,
+                    "y": 2
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=571021.6680485161%2C6025230.410975742%2C592525.7110566022%2C6046734.453983828",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    571021.6680485161,
+                    6025230.410975742,
+                    592525.7110566022,
+                    6046734.453983828
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 6,
+                    "y": 3
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=571021.6680485161%2C6003726.367967656%2C592525.7110566022%2C6025230.410975742",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    571021.6680485161,
+                    6003726.367967656,
+                    592525.7110566022,
+                    6025230.410975742
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 2,
+                    "x": 6,
+                    "y": 4
+                  },
+                  "url": "https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=webatlasde&WIDTH=256&HEIGHT=256&CRS=EPSG%3A25832&STYLES=&BBOX=571021.6680485161%2C5982222.32495957%2C592525.7110566022%2C6003726.367967656",
+                  "tileSize": 256,
+                  "tileExtent": [
+                    571021.6680485161,
+                    5982222.32495957,
+                    592525.7110566022,
+                    6003726.367967656
+                  ]
+                }
+              ]
+            },
+            {
+              "layerName": "4be36b6df11911eabe14782bcb0d78b1",
+              "layerTitle": "Harte Tabuzonen",
+              "layerMapOrder": 101,
+              "isBaseLayer": false,
+              "tiles": [
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 28,
+                    "y": 13
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=28&TileRow=13",
+                  "tileExtent": [
+                    501767.44874860026,
+                    6027269.2306257,
+                    521335.32798962167,
+                    6046837.109866722
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 28,
+                    "y": 14
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=28&TileRow=14",
+                  "tileExtent": [
+                    501767.44874860026,
+                    6007701.351384679,
+                    521335.32798962167,
+                    6027269.2306257
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 28,
+                    "y": 15
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=28&TileRow=15",
+                  "tileExtent": [
+                    501767.44874860026,
+                    5988133.4721436575,
+                    521335.32798962167,
+                    6007701.351384679
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 29,
+                    "y": 13
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=29&TileRow=13",
+                  "tileExtent": [
+                    521335.3279896217,
+                    6027269.2306257,
+                    540903.2072306431,
+                    6046837.109866722
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 29,
+                    "y": 14
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=29&TileRow=14",
+                  "tileExtent": [
+                    521335.3279896217,
+                    6007701.351384679,
+                    540903.2072306431,
+                    6027269.2306257
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 29,
+                    "y": 15
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=29&TileRow=15",
+                  "tileExtent": [
+                    521335.3279896217,
+                    5988133.4721436575,
+                    540903.2072306431,
+                    6007701.351384679
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 30,
+                    "y": 13
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=30&TileRow=13",
+                  "tileExtent": [
+                    540903.207230643,
+                    6027269.2306257,
+                    560471.0864716645,
+                    6046837.109866722
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 30,
+                    "y": 14
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=30&TileRow=14",
+                  "tileExtent": [
+                    540903.207230643,
+                    6007701.351384679,
+                    560471.0864716645,
+                    6027269.2306257
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 30,
+                    "y": 15
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=30&TileRow=15",
+                  "tileExtent": [
+                    540903.207230643,
+                    5988133.4721436575,
+                    560471.0864716645,
+                    6007701.351384679
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 31,
+                    "y": 13
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=31&TileRow=13",
+                  "tileExtent": [
+                    560471.0864716645,
+                    6027269.2306257,
+                    580038.965712686,
+                    6046837.109866722
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 31,
+                    "y": 14
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=31&TileRow=14",
+                  "tileExtent": [
+                    560471.0864716645,
+                    6007701.351384679,
+                    580038.965712686,
+                    6027269.2306257
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 6,
+                    "x": 31,
+                    "y": 15
+                  },
+                  "url": "http://geodienstelandesplanungstage.bob-sh.de/mapproxy/robobwind/service?layer=Harte_Tabuzonen&style=default&tilematrixset=DE_EPSG_25832_ADV&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=06&TileCol=31&TileRow=15",
+                  "tileExtent": [
+                    560471.0864716645,
+                    5988133.4721436575,
+                    580038.965712686,
+                    6007701.351384679
+                  ]
+                }
+              ]
+            },
+            {
+              "layerName": "47f87e14f41911eaac10782bcb0d78b1",
+              "layerTitle": "LEP_WMTS_Testlayer",
+              "layerMapOrder": 101,
+              "isBaseLayer": false,
+              "tiles": [
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 27,
+                    "y": 13
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=27&TileRow=13",
+                  "tileExtent": [
+                    502506.82999972353,
+                    6016739.540000143,
+                    522826.8299997133,
+                    6037059.540000133
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 27,
+                    "y": 14
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=27&TileRow=14",
+                  "tileExtent": [
+                    502506.82999972353,
+                    5996419.540000154,
+                    522826.8299997133,
+                    6016739.540000143
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 28,
+                    "y": 13
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=28&TileRow=13",
+                  "tileExtent": [
+                    522826.8299997133,
+                    6016739.540000143,
+                    543146.8299997031,
+                    6037059.540000133
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 28,
+                    "y": 14
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=28&TileRow=14",
+                  "tileExtent": [
+                    522826.8299997133,
+                    5996419.540000154,
+                    543146.8299997031,
+                    6016739.540000143
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 29,
+                    "y": 13
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=29&TileRow=13",
+                  "tileExtent": [
+                    543146.829999703,
+                    6016739.540000143,
+                    563466.8299996927,
+                    6037059.540000133
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 29,
+                    "y": 14
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=29&TileRow=14",
+                  "tileExtent": [
+                    543146.829999703,
+                    5996419.540000154,
+                    563466.8299996927,
+                    6016739.540000143
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 30,
+                    "y": 13
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=30&TileRow=13",
+                  "tileExtent": [
+                    563466.8299996927,
+                    6016739.540000143,
+                    583786.8299996825,
+                    6037059.540000133
+                  ]
+                },
+                {
+                  "position": {
+                    "z": 3,
+                    "x": 30,
+                    "y": 14
+                  },
+                  "url": "https://geodienstelandesplanungstage.bob-sh.de/mapproxy/lep/service?layer=lep_zo_c&style=default&tilematrixset=DE_EPSG_25832_LEP&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=03&TileCol=30&TileRow=14",
+                  "tileExtent": [
+                    563466.8299996927,
+                    5996419.540000154,
+                    583786.8299996825,
+                    6016739.540000143
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            543884.0644400688,
+            6016793.855790041
+          ],
+          [
+            563624.1039201478,
+            6029057.88031809
+          ],
+          [
+            574712.1260961922,
+            6021497.86519806
+          ],
+          [
+            555980.0886321173,
+            6002345.826893983
+          ],
+          [
+            544136.0649440698,
+            6016877.855958042
+          ]
+        ]
+      },
+      "properties": null
+    }
+  ]
+}

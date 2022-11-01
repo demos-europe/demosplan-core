@@ -50,7 +50,7 @@
                         procedureId: templateVars.procedureId
                     },
                     id: 'r_email_body',
-                    type: 'tiptap',
+                    type: 'editor',
                     required: true,
                     value: templateVars.preparationMail.mailBody
                 }
@@ -59,12 +59,14 @@
 
         <dp-checkbox
             id="r_email_address"
-            name="r_email_address"
-            valueToSend="{{ templateVars.preparationMail.sendMail }}"
-            label="{{ 'procedure.testmail.submitters.send'|trans ({ email: templateVars.userMail }) }}"
-            tooltip="{{ 'explanation.organisation.email.procedure.agency'|trans }}"
             checked
-            required>
+            :label="{
+                text: Translator.trans('procedure.testmail.submitters.send', { email: templateVars.userMail }),
+                tooltip: Translator.trans('explanation.organisation.email.procedure.agency')
+            }"
+            name="r_email_address"
+            required
+            valueToSend="{{ templateVars.preparationMail.sendMail }}">
         </dp-checkbox>
 
         <div class="text--right">

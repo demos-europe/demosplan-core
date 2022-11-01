@@ -119,6 +119,10 @@ parameters:
     # define whether local container setup is used
     is_shared_folder: false
 
+    # Is current project deployed in production environment? May be used to
+    # block specific test or development features
+    prod_deployment: false
+
     # #refactor: This could perhaps be defined as params for ModifyUserCommand
     organisationIds_user_to_modify: []
 
@@ -345,6 +349,8 @@ parameters:
         - 'fonts.google.com'
         - 'fonts.gstatic.com'
         - 'data:'
+    demosplan_csp_form_action:
+        - 'self'
     demosplan_csp_frame_src: []
     demosplan_csp_frame_ancestors:
         - 'none'

@@ -1,0 +1,66 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <dp-toggle
+      :value="newsStatus"
+      @input="e => $emit('status-changed', e)" />
+    <dp-tooltip-icon
+      v-if="determinedToSwitch"
+      icon="fa-clock-o"
+      :text="tooltipText"
+      large
+      class="u-ml-0_25" />
+  </div>
+</template>
+
+<script>
+import DpToggle from '@DpJs/components/core/form/DpToggle'
+import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
+
+export default {
+  name: 'DpNewsItemStatus',
+
+  components: {
+    DpToggle,
+    DpTooltipIcon
+  },
+
+  props: {
+    determinedToSwitch: {
+      type: Boolean,
+      required: true
+    },
+
+    newsStatus: {
+      type: Boolean,
+      required: true
+    },
+
+    switchDate: {
+      type: [Number, String],
+      required: true
+    },
+
+    switchState: {
+      type: String,
+      required: true
+    }
+  },
+
+  computed: {
+    tooltipText () {
+      return this.switchDate !== ''
+        ? `${Translator.trans('phase.autoswitch.date')} ${(new Date(this.switchDate)).toLocaleDateString('de-DE')}<br>${Translator.trans('phase.autoswitch.value')} ${Translator.trans(this.switchState)}`
+        : ''
+    }
+  }
+}
+</script>

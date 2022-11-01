@@ -58,7 +58,7 @@
 	    <label class="u-mb-0" for="r_text">
             {{ "paragraph.text"|trans }}*
         </label>
-        <dp-tiptap
+        <dp-editor
             value=""
             class="u-mb"
             hidden-input="r_text"
@@ -71,7 +71,7 @@
             }"
             procedure-id="{{ procedure }}"
             :required="true">
-        </dp-tiptap>
+        </dp-editor>
 
         <div class="text--right space-inline-s">
             <input

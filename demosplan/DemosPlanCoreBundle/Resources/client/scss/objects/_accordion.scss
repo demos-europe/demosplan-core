@@ -24,23 +24,14 @@
         opacity: 0;
     }
 
-    &--button {
-        width: 2.5%;
-
-        & i {
-            font-size: 1.8rem;
-            line-height: 1.2rem;
-        }
+    &--button i {
+        font-size: 1.8rem;
+        line-height: 1.2rem;
     }
 
     &--checkbox {
         cursor: pointer;
         width: 2.5%;
-    }
-
-    &--header-content {
-        cursor: pointer;
-        width: 96%;
     }
 
     &--title {

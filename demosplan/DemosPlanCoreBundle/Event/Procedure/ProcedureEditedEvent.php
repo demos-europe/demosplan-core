@@ -23,7 +23,7 @@ class ProcedureEditedEvent extends DPlanEvent
     /**
      * @var array Current state of the procedure
      */
-    protected $currentProcedureArray;
+    protected $originalProcedureArray;
 
     /**
      * @var array Data to save
@@ -38,10 +38,10 @@ class ProcedureEditedEvent extends DPlanEvent
     /**
      * @param string $procedureId
      */
-    public function __construct($procedureId, array $currentProcedureArray, array $inData, User $user)
+    public function __construct($procedureId, array $originalProcedureArray, array $inData, User $user)
     {
         $this->procedureId = $procedureId;
-        $this->currentProcedureArray = $currentProcedureArray;
+        $this->originalProcedureArray = $originalProcedureArray;
         $this->inData = $inData;
         $this->user = $user;
     }
@@ -51,9 +51,9 @@ class ProcedureEditedEvent extends DPlanEvent
         return $this->procedureId;
     }
 
-    public function getCurrentProcedureArray(): array
+    public function getOriginalProcedureArray(): array
     {
-        return $this->currentProcedureArray;
+        return $this->originalProcedureArray;
     }
 
     public function getInData(): array

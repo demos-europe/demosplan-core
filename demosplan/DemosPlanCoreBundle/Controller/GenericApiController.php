@@ -52,7 +52,7 @@ class GenericApiController extends APIController
         string $resourceId
     ): Response {
         $requestJson = $this->getRequestJson();
-        $item = $resourceService->updateFromRequest($resourceType, $resourceId, $requestJson);
+        $item = $resourceService->updateFromRequest($resourceType, $resourceId, $requestJson, $this->request->query);
 
         if (null !== $item) {
             return $this->renderResource($item);
@@ -73,7 +73,7 @@ class GenericApiController extends APIController
     public function createAction(string $resourceType, JsonApiActionService $resourceService): Response
     {
         $requestJson = $this->getRequestJson();
-        $item = $resourceService->createFromRequest($resourceType, $requestJson);
+        $item = $resourceService->createFromRequest($resourceType, $requestJson, $this->request->query);
 
         if (null === $item) {
             return $this->renderEmpty(Response::HTTP_NO_CONTENT);
@@ -118,7 +118,7 @@ class GenericApiController extends APIController
         string $resourceType,
         string $resourceId
     ): Response {
-        $item = $resourceService->getFromRequest($resourceType, $resourceId);
+        $item = $resourceService->getFromRequest($resourceType, $resourceId, $this->request->query);
 
         return $this->renderResource($item);
     }

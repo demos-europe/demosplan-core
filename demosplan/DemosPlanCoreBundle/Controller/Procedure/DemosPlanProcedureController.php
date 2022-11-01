@@ -80,7 +80,6 @@ use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
@@ -283,7 +282,6 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     public function procedureDashboardAction(
-        AnnotatedStatementPdfService $annotatedStatementPdfService,
         CurrentUserService $currentUserService,
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
@@ -368,11 +366,6 @@ class DemosPlanProcedureController extends BaseController
         if ($this->permissions->hasPermission('area_survey')) {
             $templateVars['surveys'] = $procedureObject->getSurveys();
             $templateVars['surveyStatistics'] = $surveyService->generateSurveyStatistics($procedureObject);
-        }
-        if ($this->permissions->hasPermission('feature_import_statement_pdf')) {
-            $templateVars['nextAnnotatedStatementId'] = $procedureObject->getNextAnnotatedStatementPdfToReview();
-            $templateVars['statusPercentageDistribution'] = $annotatedStatementPdfService->getPercentageDistribution($procedureObject);
-            $templateVars['nextAnnotatedStatementToConvert'] = $procedureObject->getNextAnnotatedStatementPdfsReadyToConvert();
         }
 
         return $this->renderTemplate(
@@ -746,7 +739,7 @@ class DemosPlanProcedureController extends BaseController
      *     options={"expose": true}
      * )
      *
-     * @DplanPermissions("area_admin_procedures")
+     * @DplanPermissions("feature_admin_new_procedure")
      *
      * @return RedirectResponse|Response
      *
@@ -1352,7 +1345,6 @@ class DemosPlanProcedureController extends BaseController
                     $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
                     $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
                     $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
-                    $inData[AbstractProcedureFormType::ALLOWED_SENDER_EMAIL_ADDRESSES] = $procedureFormData->getAllowedSenderEmailAddressesFullStrings();
                 }
 
                 $this->validateAdministrationEditInput($inData);

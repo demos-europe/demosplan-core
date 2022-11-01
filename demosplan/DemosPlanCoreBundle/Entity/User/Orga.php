@@ -127,15 +127,6 @@ class Orga extends SluggedEntity
     protected $emailReviewerAdmin;
 
     /**
-     * @var string|null
-     *
-     * @ORM\Column(name="_o_url", type="string", length=364, nullable=true)
-     *
-     * @Assert\Url
-     */
-    protected $url;
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="_o_deleted", type="boolean", nullable=false, options={"default":false})
@@ -375,6 +366,26 @@ class Orga extends SluggedEntity
      */
     protected $administratableProcedures;
 
+    /**
+     * @var Collection<int,InstitutionTag>
+     *
+     * @ORM\ManyToMany(targetEntity="InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
+     * @ORM\JoinTable(
+     *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
+     * )
+     */
+    protected $assignedTags;
+
+    /**
+     * @var Collection<int,InstitutionTag>
+     *
+     * @ORM\OneToMany(targetEntity="InstitutionTag", mappedBy="owningOrganisation")
+     * @ORM\JoinColumn(referencedColumnName="id")
+     * @ORM\OrderBy({"label" = "ASC"})
+     */
+    protected $ownInstitutionTags;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -387,6 +398,8 @@ class Orga extends SluggedEntity
         $this->statusInCustomers = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
+        $this->assignedTags = new ArrayCollection();
+        $this->ownInstitutionTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -511,18 +524,6 @@ class Orga extends SluggedEntity
         $this->emailReviewerAdmin = $emailReviewerAdmin;
 
         return $this;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
     }
 
     public function setDeleted(bool $deleted): self
@@ -1448,5 +1449,48 @@ class Orga extends SluggedEntity
         $this->branding = $branding;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, InstitutionTag>
+     */
+    public function getAssignedTags(): Collection
+    {
+        return $this->assignedTags;
+    }
+
+    public function addAssignedTag(InstitutionTag $tag): void
+    {
+        if (!$this->assignedTags->contains($tag)) {
+            $this->assignedTags->add($tag);
+            $tag->addTaggedInstitution($this);
+        }
+    }
+
+    public function removeAssignedTag(InstitutionTag $tag): void
+    {
+        if ($this->assignedTags->contains($tag)) {
+            $this->assignedTags->removeElement($tag);
+        }
+    }
+
+    public function addOwnInstitutionTag(InstitutionTag $tag): void
+    {
+        $this->ownInstitutionTags->add($tag);
+    }
+
+    /**
+     * @return Collection<int, InstitutionTag>
+     */
+    public function getOwnInstitutionTags(): Collection
+    {
+        return $this->ownInstitutionTags;
+    }
+
+    public function removeOwnInstitutionTag(InstitutionTag $tag): void
+    {
+        if ($this->ownInstitutionTags->contains($tag)) {
+            $this->ownInstitutionTags->removeElement($tag);
+        }
     }
 }

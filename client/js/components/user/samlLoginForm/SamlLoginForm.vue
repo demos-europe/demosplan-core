@@ -1,0 +1,133 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <!-- To test the functionality of this component you need to set the variable $useSaml in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserAuthenticationController.php:258 to true-->
+    <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
+      <div :class="prefixClass(`${isSaml || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
+        <form
+          :action="Routing.generate('DemosPlan_user_login')"
+          data-dp-validate
+          method="post"
+          name="login">
+          <h2
+            :class="prefixClass('font-size-large u-mb')"
+            v-text="Translator.trans('login.email')" />
+
+          <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
+          <slot />
+
+          <dp-form-row :class="prefixClass('space-stack-s')">
+            <dp-input
+              id="r_useremail"
+              data-cy="username"
+              :label="{
+                bold: false,
+                text: Translator.trans('username')+ '/' + Translator.trans('email.address'),
+              }"
+              name="r_useremail"
+              :prevent-default-on-enter="false"
+              required />
+            <dp-input
+              id="password"
+              data-cy="password"
+              :label="{
+                bold: false,
+                text: Translator.trans('password'),
+              }"
+              name="password"
+              :prevent-default-on-enter="false"
+              required
+              type="password" />
+
+            <dp-button
+              :class="prefixClass('u-mt')"
+              data-cy="submit"
+              :text="Translator.trans('login')"
+              type="submit" />
+          </dp-form-row>
+          <a
+            :class="prefixClass('o-link--default')"
+            :href="Routing.generate('DemosPlan_user_password_recover')"
+            v-text="Translator.trans('password.forgot')" />
+        </form>
+      </div>
+
+      <div
+        v-if="isSaml || hasPermission('feature_identity_broker_login')"
+        :class="prefixClass('c-login-register__col c-login-register__col-right')">
+        <h2
+          :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
+          v-text="Translator.trans('login.other_account')" />
+        <div v-if="isSaml">
+          <p
+            :class="prefixClass('u-mb-0_125')"
+            v-html="Translator.trans('login.saml.description')" />
+          <dp-button
+            :href="samlLoginPath"
+            :text="Translator.trans('login.saml.action')"
+            variant="outline" />
+        </div>
+        <div v-if="hasPermission('feature_identity_broker_login')">
+          <p
+            :class="prefixClass('u-mt u-mb-0_125')"
+            v-html="Translator.trans('login.bund.description')" />
+
+          <!-- Insert identity broker Url when activated -->
+          <dp-button
+            href="#"
+            :text="Translator.trans('login.bund.action')"
+            variant="outline" />
+          <div
+            :class="prefixClass('u-mt-2 u-mb-0_125')">
+            <p v-html="Translator.trans('faq.section', { url: Routing.generate('DemosPlan_faq') })" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p
+      v-if="hasPermission('feature_citizen_registration') && hasPermission('feature_orga_registration')"
+      :class="isSaml ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
+      v-html="Translator.trans('register.navigation.text', { organisation: Routing.generate('DemosPlan_citizen_registration_form'), user: Routing.generate('DemosPlan_orga_register_form') })" />
+  </div>
+</template>
+
+<script>
+import { DpButton, DpInput } from 'demosplan-ui/components'
+import DpFormRow from '@DpJs/components/core/form/DpFormRow'
+import { prefixClassMixin } from 'demosplan-ui/mixins'
+
+export default {
+  name: 'SamlLoginForm',
+
+  components: {
+    DpButton,
+    DpFormRow,
+    DpInput
+  },
+
+  mixins: [prefixClassMixin],
+
+  props: {
+    isSaml: {
+      type: Boolean,
+      required: true,
+      default: false
+    },
+
+    samlLoginPath: {
+      type: String,
+      required: true,
+      default: ''
+    }
+  }
+}
+</script>

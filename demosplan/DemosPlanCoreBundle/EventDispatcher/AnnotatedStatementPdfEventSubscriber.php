@@ -15,9 +15,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\Annotat
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
+use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsedEvent;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\ConcurrentEditionException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfPageResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfResourceType;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionException;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester;
@@ -72,8 +75,10 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterResourceCreationEvent::class => 'piBoxRecognitionRequest',
-            AfterResourceUpdateEvent::class   => 'checkAnnotatedStatementPdfReviewed',
+            AfterResourceCreationEvent::class      => 'piBoxRecognitionRequest',
+            AfterResourceUpdateEvent::class        => 'checkAnnotatedStatementPdfReviewed',
+            CheckFileIsUsedEvent::class            => 'checkAnnotatedStatementPdfUsed',
+            GetOriginalFileFromAnnotatedStatementEvent::class => 'getOriginalFileFromAnnotatedStatement',
         ];
     }
 
@@ -83,7 +88,7 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
     public function piBoxRecognitionRequest(AfterResourceCreationEvent $event): void
     {
         $targetResourceType = $event->getResourceChange()->getTargetResourceType();
-        if (!$targetResourceType instanceof AnnotatedStatementPdfPageResourceType) {
+        if (!$targetResourceType instanceof AnnotatedStatementPdfResourceType) {
             return;
         }
         /** @var AnnotatedStatementPdf $annotatedStatementPdf */
@@ -126,6 +131,33 @@ class AnnotatedStatementPdfEventSubscriber extends BaseEventSubscriber
             $this->managerRegistry->getManager()->flush();
 
             $this->piTextRecognitionRequester->request($annotatedStatementPdf);
+        }
+    }
+
+    public function checkAnnotatedStatementPdfUsed(CheckFileIsUsedEvent $event): void
+    {
+        $class = AnnotatedStatementPdf::class;
+        $field = 'file';
+        $fileId = $event->getFileId();
+        /** @var EntityRepository $repos */
+        $repos = $this->managerRegistry->getRepository($class);
+        $result = $repos->createQueryBuilder('e')
+            ->select('IDENTITY(e.'.$field.')')
+            ->where('IDENTITY(e.'.$field.') = :fileId')
+            ->setParameter(':fileId', $fileId)
+            ->getQuery()
+            ->getResult();
+        if (0 < count($result)) {
+            $event->setIsUsed(true);
+        }
+    }
+
+    public function getOriginalFileFromAnnotatedStatement(GetOriginalFileFromAnnotatedStatementEvent $event): void
+    {
+        $originalDocument = $this->annotatedStatementPdfHandler->findByStatement($event->getStatement());
+
+        if (null !== $originalDocument) {
+            $event->setFile($originalDocument->getFile());
         }
     }
 }

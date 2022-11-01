@@ -1,0 +1,45 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <dp-inline-notification
+    :message="success ? descriptionSuccess : descriptionError"
+    :type="success ? 'confirm' : 'error'">
+    <slot />
+  </dp-inline-notification>
+</template>
+
+<script>
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+
+export default {
+  name: 'ActionStepperResponse',
+
+  components: {
+    DpInlineNotification
+  },
+
+  props: {
+    descriptionSuccess: {
+      required: true,
+      type: String
+    },
+
+    descriptionError: {
+      required: true,
+      type: String
+    },
+
+    success: {
+      type: Boolean,
+      required: true
+    }
+  }
+}
+</script>

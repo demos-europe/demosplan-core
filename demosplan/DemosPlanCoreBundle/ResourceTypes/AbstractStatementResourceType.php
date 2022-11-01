@@ -94,6 +94,7 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
+ * @property-read End $synchronized
  * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements @deprecated Rename to 'element'
@@ -137,6 +138,10 @@ abstract class AbstractStatementResourceType extends DplanResourceType
      */
     protected function getProperties(): array
     {
+        $submitterEmailAddress = $this->createAttribute($this->submitterEmailAddress)
+            ->readable(true, static function (Statement $statement): ?string {
+                return $statement->getSubmitterEmailAddress();
+            });
         $properties = [
             $this->createAttribute($this->authoredDate)
                 ->aliasedPath($this->meta->authoredDate)->readable(true, function (Statement $statement): ?string {
@@ -242,10 +247,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
                 ->sortable()->aliasedPath($this->submit)->readable(true, function (Statement $statement): ?string {
                     return $this->formatDate($statement->getSubmitObject());
                 }, true),
-            $this->createAttribute($this->submitterEmailAddress)
-                ->readable(true, static function (Statement $statement): ?string {
-                    return $statement->getSubmitterEmailAddress();
-                }),
+            $submitterEmailAddress,
             $this->createAttribute($this->submitType)->readable(true),
             $this->createAttribute($this->text)
                 ->readable(true, function (Statement $statement): ?string {
@@ -335,7 +337,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
                 ->readable(true)->aliasedPath($this->meta->orgaStreet);
             $properties[] = $this->createAttribute($this->submitterHouseNumber)
                 ->readable(true)->aliasedPath($this->meta->houseNumber);
-            $properties[] = $this->createAttribute($this->submitterEmailAddress)
+            $submitterEmailAddress
                 // if the statement was given anonymously, do not display the email-address
                 ->readable(true, static function (Statement $statement): ?string {
                     return $statement->isAnonymous() ? null : $statement->getSubmitterEmailAddress();

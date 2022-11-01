@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlReso
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Faq>
@@ -69,7 +69,7 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
         return $this->currentUser->hasPermission('area_admin_faq');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
 

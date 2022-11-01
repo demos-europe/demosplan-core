@@ -17,8 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
 
@@ -44,8 +45,14 @@ class ProcedureAccessEvaluator
      */
     private $conditionFactory;
 
+    /**
+     * @var CustomerService
+     */
+    private $currentCustomerProvider;
+
     public function __construct(
         DqlConditionFactory $conditionFactory,
+        CustomerService $currentCustomerProvider,
         EntityFetcher $entityFetcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger
@@ -54,6 +61,7 @@ class ProcedureAccessEvaluator
         $this->logger = $logger;
         $this->entityFetcher = $entityFetcher;
         $this->conditionFactory = $conditionFactory;
+        $this->currentCustomerProvider = $currentCustomerProvider;
     }
 
     /**
@@ -64,7 +72,7 @@ class ProcedureAccessEvaluator
      * Planungsbüros dem Verfahren zugewiesen, ownen sie das Verfahren auch.
      * ```.
      *
-     * **Keep in sync with {@link ProcedureAccessEvaluator::getOwnedProcedureConditionForResources}**
+     * **Keep in sync with {@link ProcedureAccessEvaluator::getOwnsProcedureCondition}.**
      */
     public function isOwningProcedure(User $user, Procedure $procedure): bool
     {
@@ -73,59 +81,33 @@ class ProcedureAccessEvaluator
             return false;
         }
 
-        $orgaIdOfProcedure = $procedure->getOrgaId();
-        $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
-        $planningAgencyIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
-            $procedurePlanningOffices,
-            'orga', 'id'
+        $ownsProcedureConditionFactory = new OwnsProcedureConditionFactory(
+            $this->conditionFactory,
+            $this->globalConfig,
+            $this->logger,
+            $procedure
         );
 
-        // Organisation ist Inhaberin
+        $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
+        $inCurrentCustomer = $ownsProcedureConditionFactory->isInCustomer($currentCustomer);
+
+        // user owns via their organisation or was manually set
         $orgaOwnsProcedure = $this->conditionFactory->false();
-        if (null !== $orgaIdOfProcedure) {
-            $this->logger->debug('Permissions: Check whether orga owns procedure');
-            // Fachplaner-Admin GLAUTH Kommune oder Fachlplaner SB
-
-            //Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
-            $orgaOwnsRoleCondition = $this->getOwnsOrgaRoleCondition();
-            if ($this->entityFetcher->objectMatches($user, $orgaOwnsRoleCondition)) {
-                $this->logger->debug('User is FP*');
-                $orgaOwnsProcedure = $this->conditionFactory->propertyHasValue(
-                    $orgaIdOfProcedure,
-                    'orga', 'id'
-                );
-
-                //T8427:
-                if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                    $userIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
-                        $procedure->getAuthorizedUserIds(),
-                        'id'
-                    );
-
-                    $orgaOwnsProcedure = $this->conditionFactory->anyConditionApplies(
-                        $userIsAuthorized,
-                        $planningAgencyIsAuthorized
-                    );
-                }
-            }
+        $procedureAccessingRole = $ownsProcedureConditionFactory->hasProcedureAccessingRole();
+        if ($this->entityFetcher->objectMatchesAll($user, [$procedureAccessingRole, $inCurrentCustomer])) {
+            $this->logger->debug('User is FP*');
+            $orgaOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually();
         }
 
-        // Wurde dem Verfahren ein Planungsbüro zugeordnet?
+        // user has planning agency role in current customer and owns via owning planning agency organisation
         $planningAgencyOwnsProcedure = $this->conditionFactory->false();
-        if (0 < count($procedurePlanningOffices)) {
-            $this->logger->debug('Procedure has PlanningOffices');
-            // ist es ein PLanungsbüro?
-            $privatePlanningAgency = $this->conditionFactory->propertyHasValue(
-                Role::PRIVATE_PLANNING_AGENCY,
-                'roleInCustomers', 'role', 'code'
-            );
-            if ($this->entityFetcher->objectMatches($user, $privatePlanningAgency)) {
-                $this->logger->debug('Permissions → User has role RMOPPO');
-
-                $planningAgencyOwnsProcedure = $planningAgencyIsAuthorized;
-            }
+        $privatePlanningAgency = $ownsProcedureConditionFactory->hasPlanningAgencyRole();
+        if ($this->entityFetcher->objectMatchesAll($user, [$privatePlanningAgency, $inCurrentCustomer])) {
+            $this->logger->debug('Permissions → User has role RMOPPO');
+            $planningAgencyOwnsProcedure = $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency();
         }
 
+        // user owns via owning organisation or planning agency
         if ($this->entityFetcher->objectMatchesAny($user, [
             $orgaOwnsProcedure,
             $planningAgencyOwnsProcedure,
@@ -138,6 +120,54 @@ class ProcedureAccessEvaluator
         $this->logger->debug('Permissions → Orga does not own procedure');
 
         return false;
+    }
+
+    /**
+     * Applies the same logic as {@link ProcedureAccessEvaluator::isOwningProcedure()}
+     * but bundles it into a single condition that can be executed against {@link User} entities.
+     * Because of this bundling this method is missing most of the logging
+     * during the evaluation of a user.
+     *
+     * **Keep in sync with {@link ProcedureAccessEvaluator::isOwningProcedure()}.**
+     *
+     * @return FunctionInterface<bool>
+     */
+    public function getOwnsProcedureCondition(Procedure $procedure): FunctionInterface
+    {
+        // procedure is deleted
+        if ($procedure->isDeleted()) {
+            return $this->conditionFactory->false();
+        }
+
+        $ownsProcedureConditionFactory = new OwnsProcedureConditionFactory(
+            $this->conditionFactory,
+            $this->globalConfig,
+            $this->logger,
+            $procedure
+        );
+
+        $currentCustomer = $this->currentCustomerProvider->getCurrentCustomer();
+        $inCurrentCustomer = $ownsProcedureConditionFactory->isInCustomer($currentCustomer);
+
+        // user owns via their organisation or was manually set
+        $orgaOwnsProcedure = $this->conditionFactory->allConditionsApply(
+            $inCurrentCustomer,
+            $ownsProcedureConditionFactory->hasProcedureAccessingRole(),
+            $ownsProcedureConditionFactory->isAuthorizedViaOrgaOrManually()
+        );
+
+        // user has planning agency role in current customer and owns via owning planning agency organisation
+        $planningAgencyOwnsProcedure = $this->conditionFactory->allConditionsApply(
+            $inCurrentCustomer,
+            $ownsProcedureConditionFactory->hasPlanningAgencyRole(),
+            $ownsProcedureConditionFactory->isAuthorizedViaPlanningAgency()
+        );
+
+        // user owns via owning organisation or planning agency
+        return $this->conditionFactory->anyConditionApplies(
+            $orgaOwnsProcedure,
+            $planningAgencyOwnsProcedure
+        );
     }
 
     /**
@@ -168,24 +198,5 @@ class ProcedureAccessEvaluator
                 $procedure->getDataInputOrgaIds(),
                 true
             );
-    }
-
-    /**
-     * Returns a condition to match users having the roles to theoretically own a procedure.
-     *
-     * @return FunctionInterface<bool>
-     */
-    private function getOwnsOrgaRoleCondition(): FunctionInterface
-    {
-        return $this->conditionFactory->propertyHasAnyOfValues(
-            [
-                Role::CUSTOMER_MASTER_USER,
-                Role::PLANNING_AGENCY_ADMIN,
-                Role::PLANNING_AGENCY_WORKER,
-                Role::HEARING_AUTHORITY_ADMIN,
-                Role::HEARING_AUTHORITY_WORKER,
-            ],
-            'roleInCustomers', 'role', 'code'
-        );
     }
 }

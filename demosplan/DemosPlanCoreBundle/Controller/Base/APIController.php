@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use function array_key_exists;
-use function array_slice;
 use function data_get;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -21,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Normalizer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
@@ -33,9 +33,14 @@ use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicateInternIdException;
 use EDT\JsonApi\OutputTransformation\ExcludeException;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
+use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\Contracts\PropertyAccessException;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
+use EDT\Wrapping\Utilities\TypeAccessor;
 use InvalidArgumentException;
 use function is_array;
 use function is_string;
@@ -48,6 +53,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
@@ -93,6 +99,21 @@ abstract class APIController extends BaseController
      */
     private $apiLogger;
 
+    /**
+     * @var SchemaPathProcessor
+     */
+    private $schemaPathProcessor;
+
+    /**
+     * @var FieldsValidator
+     */
+    private $fieldsValidator;
+
+    /**
+     * @var MessageFormatter
+     */
+    private $messageFormatter;
+
     public function __construct(
         ApiLogger $apiLogger,
         PrefilledResourceTypeProvider $resourceTypeProvider,
@@ -101,10 +122,19 @@ abstract class APIController extends BaseController
         $this->translator = $translator;
         $this->resourceTypeProvider = $resourceTypeProvider;
         $this->apiLogger = $apiLogger;
+        $this->schemaPathProcessor = new SchemaPathProcessor(
+            new DplanPropertyPathProcessorFactory($apiLogger),
+            $resourceTypeProvider
+        );
+        $this->fieldsValidator = new FieldsValidator(
+            new TypeAccessor($resourceTypeProvider),
+            Validation::createValidator()
+        );
+        $this->messageFormatter = new MessageFormatter();
     }
 
     /**
-     * This method is called during the kernel.controller event for
+     * This method is called during the `kernel.controller` event for
      * Api controller specific initialization tasks. It is named
      * how it is named to avoid any conflicts and confusion with the
      * core `initialize` method.
@@ -141,7 +171,7 @@ abstract class APIController extends BaseController
         $this->fractal = $resourceService->getFractal();
 
         // include those entities if they are in the availableIncludes of the transformer
-        $rawIncludes = $this->request->get('include');
+        $rawIncludes = $this->request->get(UrlParameter::INCLUDE);
         $resourceType = $this->request->attributes->get('resourceType');
         $this->validateIncludes($rawIncludes, $resourceType);
         if (null === $rawIncludes) {
@@ -154,8 +184,9 @@ abstract class APIController extends BaseController
 
         // check if only specific fields were requested and (if so) parse them to access
         // them later
-        $fields = $this->request->get('fields');
+        $fields = $this->request->get(UrlParameter::FIELDS);
         if (null !== $fields) {
+            $fields = $this->fieldsValidator->validateFormat($fields);
             $this->validateFieldsets($fields);
             $this->fractal->parseFieldsets($fields);
         }
@@ -397,62 +428,31 @@ abstract class APIController extends BaseController
     }
 
     /**
-     * Logs if the given fieldset array does not have the expected format.
-     *
-     * Its keys string must be strings that correspond to a known resource type.
-     *
-     * Its values must be a comma-separated list of properties that exist in that type.
-     *
      * Its values must not be an array of properties even though Fractal supports it. This is
      * because this does not conform to the JSON:API and thus may not be supported by other
      * libraries, which may limit the options if Fractal is to be replaced by a different
      * library.
      *
+     * @param array<non-empty-string, string> $fieldset
+     *
      * @see https://jsonapi.org/format/#fetching-sparse-fieldsets
      */
     private function validateFieldsets(array $fieldset): void
     {
-        foreach ($fieldset as $key => $value) {
-            if (!is_string($key)) {
-                $this->apiLogger->warning('The key of the fields parameter MUST be a string.');
-
-                continue;
-            }
+        foreach ($fieldset as $typeIdentifier => $propertiesString) {
             try {
-                // Checking if the type exists.
-                // Ideally we would check if the type is available and readable as well, however
-                // this can only be done later as the permissions are not set up at this point.
-                $type = $this->resourceTypeProvider->getReadableAvailableType($key);
-            } catch (TypeRetrievalAccessException $exception) {
-                $this->apiLogger->warning("The key of the fields parameter MUST be an available resource type. Type '$key' not available for reading.");
-
-                continue;
-            }
-
-            if (!is_string($value)) {
-                $this->apiLogger->warning('The value of the fields parameter MUST be a comma-separated (U+002C COMMA, “,”) list as string, got type '.gettype($value).'.');
-
-                continue;
-            }
-
-            $requestedProperties = explode(',', $value);
-            // Checking if the property exists.
-            // Ideally we would check if the property is available and readable as well,
-            // however this can only be done later as the permissions are not set up at
-            // this point.
-            $allowedProperties = array_keys($type->getReadableProperties());
-            $disallowedProperties = array_diff($requestedProperties, $allowedProperties);
-            if ([] !== $disallowedProperties) {
-                $unknownPropertiesString = $this->propertiesToString($disallowedProperties);
-                $maxExistingPropertiesDisplayCount = 10;
-                if ($maxExistingPropertiesDisplayCount < count($allowedProperties)) {
-                    $hiddenExistingPropertiesCount = count($allowedProperties) - $maxExistingPropertiesDisplayCount;
-                    $slicedExistingProperties = array_slice($allowedProperties, 0, $maxExistingPropertiesDisplayCount);
-                    $existingPropertiesString = $this->propertiesToString($slicedExistingProperties)." and $hiddenExistingPropertiesCount more";
-                } else {
-                    $existingPropertiesString = $this->propertiesToString($allowedProperties);
+                // Checking if the type exists and is a resource type implementation.
+                $type = $this->resourceTypeProvider->requestType($typeIdentifier)
+                    ->instanceOf(ResourceTypeInterface::class)
+                    ->available(true)
+                    ->getTypeInstance();
+                $nonReadableProperties = $this->fieldsValidator->getNonReadableProperties($propertiesString, $type);
+                if ([] !== $nonReadableProperties) {
+                    $unknownPropertiesString = $this->messageFormatter->propertiesToString($nonReadableProperties);
+                    $this->apiLogger->warning("The following requested fieldset properties are not readable in the resource type '$typeIdentifier': $unknownPropertiesString.");
                 }
-                $this->apiLogger->warning("The following requested fieldset properties are not available in the resource type '$key': $unknownPropertiesString. Possibly available properties are: $existingPropertiesString.");
+            } catch (TypeRetrievalAccessException $exception) {
+                $this->apiLogger->warning("The key of the fields parameter MUST be an available resource type. Type '$typeIdentifier' not available for reading.", ['exception' => $exception]);
             }
         }
     }
@@ -498,58 +498,36 @@ abstract class APIController extends BaseController
         // retrieve the accessed resource type from the request
         if (is_string($resourceTypeName)) {
             try {
-                $type = $this->resourceTypeProvider->getType($resourceTypeName);
+                $this->resourceTypeProvider->requestType($resourceTypeName)
+                    ->getTypeInstance();
             } catch (TypeRetrievalAccessException $exception) {
                 // The accessed resource type is probably not a generic one, thus we can not
                 // continue to validate the 'include' properties.
                 return;
             }
 
-            if (!$type instanceof ReadableTypeInterface) {
-                throw new \demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException("The resource type '$resourceTypeName' is not available.");
-            }
-
-            if (!$type->isAvailable()) {
-                $this->apiLogger->warning("The resource type '$resourceTypeName' is not available");
-            }
-
+            // if the type exists at all (see `getType` above) then it must be an
+            // available, directly accessible resource type
+            $type = $this->resourceTypeProvider->requestType($resourceTypeName)
+                ->instanceOf(ResourceTypeInterface::class)
+                ->available(true)
+                ->getTypeInstance();
             if (!$type->isDirectlyAccessible()) {
-                $this->apiLogger->warning("The resource type '$resourceTypeName' is not directly accessible");
+                throw new InvalidArgumentException("The resource type '$resourceTypeName' is not directly accessible");
             }
 
             $includes = explode(',', $rawIncludes);
-            // currently we check the first include path segment only
-            $includes = array_map(static function (string $include): string {
-                $includePath = explode('.', $include);
-
-                return array_shift($includePath);
+            array_map(function (string $include) use ($type): void {
+                try {
+                    $includePath = explode('.', $include);
+                    $this->schemaPathProcessor->mapExternReadablePath($type, $includePath, false);
+                } catch (PropertyAccessException $exception) {
+                    $this->apiLogger->warning(
+                        "The following include property path is not available in the resource type '{$type::getName()}': $include",
+                        ['exception' => $exception]
+                    );
+                }
             }, $includes);
-
-            $readableRelationships = array_filter(
-                $type->getReadableProperties(),
-                static function (?string $property): bool {
-                    return null !== $property;
-                });
-            $readableRelationships = array_keys($readableRelationships);
-            $unknownProperties = array_diff($includes, $readableRelationships);
-            if ([] !== $unknownProperties) {
-                $unknownPropertiesString = $this->propertiesToString($unknownProperties);
-                $this->apiLogger->warning("The following properties to include are not available in the resource type '$resourceTypeName': $unknownPropertiesString");
-            }
         }
-    }
-
-    /**
-     * Wraps each given property into quotes and concatenates them with a comma.
-     *
-     * @param array<int, string> $properties
-     */
-    private function propertiesToString(array $properties): string
-    {
-        $properties = array_map(static function (string $property): string {
-            return "`$property`";
-        }, $properties);
-
-        return implode(', ', $properties);
     }
 }

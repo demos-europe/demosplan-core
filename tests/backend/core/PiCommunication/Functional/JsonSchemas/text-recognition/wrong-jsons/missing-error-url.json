@@ -1,0 +1,16 @@
+{
+  "data_": {
+    "type": "launch",
+    "id": "8B7C2D98-86C8-4D03-A762-2501168B637A",
+    "attributes": {
+      "pipeline_id": "5905da5d-5987-422b-8fa2-062fca45db6a",
+      "parameters": {
+        "de.demos-deutschland.URLSource:0:URL": "http://localhost/api/ai/annotated-statement-pdf/8B7C2D98-86C8-4D03-A762-2501168B637A",
+        "de.demos-deutschland.URLSource:0:authorization": "Basic Ym9iLTpzaA==",
+        "de.demos-deutschland.URLTarget:0:URL": "http://localhost/api/ai/annotated-statement-pdf/text-proposal/8B7C2D98-86C8-4D03-A762-2501168B637A",
+        "de.demos-deutschland.URLTarget:0:authorization": "Basic Ym9iLTpzaA=="
+      },
+      "error_auth": "Basic Ym9iLTpzaA=="
+    }
+  }
+}

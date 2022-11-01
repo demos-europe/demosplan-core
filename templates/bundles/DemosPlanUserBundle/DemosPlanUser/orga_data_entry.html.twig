@@ -58,15 +58,6 @@
             }
         ] }) }}
 
-        {{ uiComponent('form.row', { elements: [{
-            label: { text: 'url'|trans },
-            control: { name: organisation.ident|default ~ ':url' },
-            id: 'orga_url',
-            type: 'text',
-            value: organisation.url|default,
-            disabled: not may_edit_orga_data
-        }] }) }}
-
         {% if hasPermission('field_organisation_phone') %}
             {{ uiComponent('form.row', { elements: [{
                 label: { text: 'phone'|trans },
@@ -325,7 +316,7 @@
                 label: { text: 'data.protection.notes'|trans, hint: 'customer.data.protection.explanation'|trans },
                 control: { hiddenInput: organisation.ident|default ~ ':data_protection', headings: [3,4] },
                 id: 'orga_data_protection',
-                type: 'tiptap',
+                type: 'editor',
                 value: organisation.dataProtection|default,
             }] }) }}
         {% endif %}
@@ -335,7 +326,7 @@
                 label: { text: 'imprint'|trans, hint: 'organisation.imprint.hint'|trans },
                 control: { name: 'data_protection', hiddenInput: organisation.ident|default ~ ':imprint', headings: [3,4] },
                 id: 'orga_imprint',
-                type: 'tiptap',
+                type: 'editor',
                 value: organisation.imprint|default,
             }] }) }}
         {% endif %}

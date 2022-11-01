@@ -8,13 +8,13 @@
  */
 
 import { bootstrap } from '@DpJs/bootstrap'
-import DpAccordion from '@DemosPlanCoreBundle/components/DpAccordion'
+import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
 import initGlobalEventListener from '@DpJs/lib/GlobalEventListener'
-import { initStore } from './store/initStore'
+import { initStore } from '@DpJs/store/core/initStore'
 import initToggleSideMenu from '@DpJs/lib/ToggleSideMenu'
 import initUserbox from '@DpJs/lib/touchFriendlyUserbox'
-import { loadLibs } from '@DpJs/lib/loadLibs'
+import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import NotificationStoreAdapter from '@DpJs/lib/NotificationStoreAdapter'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
@@ -29,8 +29,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     /* eslint-disable no-new */
     const vm = new Vue({
       el: '#app',
-      // DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
-      // register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
+      /*
+       * DpAccordion is registered globally here, because we need it for the sidemenu in sidemenu.html.twig and can't
+       * register it locally there (special knp menu renderer, see https://github.com/KnpLabs/KnpMenu).
+       */
       components: { ...components, DpAccordion, DpNotifyContainer },
       store: store,
       mounted () {

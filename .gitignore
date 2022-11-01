@@ -13,6 +13,7 @@ phpstan.neon
 !.babelrc
 !.dpconfig.yml
 !.php_cs
+!.editorconfig
 !.env
 .ssh/
 .lnav

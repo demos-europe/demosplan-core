@@ -1,0 +1,169 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <dp-loading v-if="isLoading" />
+    <dp-tree-list
+      v-else
+      :tree-data="transformedCategories"
+      :branch-identifier="branchFunc()"
+      :options="options"
+      @tree-data-change="updateCategorySort">
+      <template v-slot:header="">
+        <div class="layout--flush">
+          <div class="layout__item u-4-of-12">
+            {{ Translator.trans('heading') }}
+          </div><!--
+       --><div class="layout__item u-4-of-12">
+            {{ Translator.trans('visibility') }}
+          </div><!--
+       --><div class="layout__item u-2-of-12 text--center">
+            {{ Translator.trans('status') }}
+          </div><!--
+       --><div class="layout__item u-2-of-12 text--center">
+            {{ Translator.trans('edit') }}
+          </div>
+        </div>
+      </template>
+      <template v-slot:branch="{ nodeElement, nodeChildren }">
+        <dp-faq-category-item
+          :faq-category-item="nodeElement"
+          :category-children="nodeChildren" />
+      </template>
+      <template v-slot:leaf="{ nodeElement, parentId }">
+        <dp-faq-item
+          :faq-item="nodeElement"
+          :parent-id="parentId" />
+      </template>
+    </dp-tree-list>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapMutations, mapState } from 'vuex'
+import DpFaqCategoryItem from './DpFaqCategoryItem'
+import DpFaqItem from './DpFaqItem'
+import { DpLoading } from 'demosplan-ui/components'
+import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
+
+export default {
+  name: 'DpFaqList',
+
+  components: {
+    DpFaqCategoryItem,
+    DpFaqItem,
+    DpLoading,
+    DpTreeList
+  },
+
+  data () {
+    return {
+      options: {
+        branchesSelectable: false,
+        leavesSelectable: false,
+        dragLeaves: true
+      },
+      treeListData: null,
+      categories: null,
+      isLoading: true
+    }
+  },
+
+  computed: {
+    ...mapState('faqCategory', {
+      faqCategories: 'items'
+    }),
+
+    ...mapState('faq', {
+      faqItems: 'items'
+    }),
+
+    transformedCategories () {
+      return this.faqItems && this.faqCategories ? this.transformCategoryData(this.faqCategories) : []
+    }
+  },
+
+  methods: {
+    ...mapActions('faqCategory', {
+      categoryList: 'list',
+      saveCategory: 'save'
+    }),
+
+    ...mapActions('role', {
+      roleList: 'list'
+    }),
+
+    ...mapMutations('faqCategory', {
+      updateCategory: 'setItem'
+    }),
+
+    transformCategoryData (categories) {
+      return Object.values(categories).map(category => {
+        let catCpy = JSON.parse(JSON.stringify(category))
+        catCpy = category.hasRelationship('faq') ? { ...catCpy, ...{ children: Object.values(category.relationships.faq.list()) } } : catCpy
+        return JSON.parse(JSON.stringify(catCpy))
+      })
+    },
+
+    branchFunc () {
+      return function ({ node, id, children }) {
+        return node.type === 'faqCategory'
+      }
+    },
+
+    updateCategorySort (e) {
+      const catCpy = JSON.parse(JSON.stringify(this.faqCategories[e.nodeId]))
+      const newSort = e.newOrder.map(item => {
+        return {
+          id: item.id,
+          type: item.type
+        }
+      })
+
+      catCpy.relationships.faq.data = newSort
+
+      this.updateCategory({ ...catCpy, id: catCpy.id })
+
+      const manualSortParam = 'manualsort=' + newSort.reduce((acc, item, idx) => {
+        return idx !== newSort.length - 1 ? acc + item.id + ',' : acc + item.id
+      }, '')
+
+      const categoryParam = 'category=custom_category'
+      const categoryIdParam = 'categoryId=' + e.nodeId
+
+      const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
+
+      const xhr = new XMLHttpRequest()
+      const url = Routing.generate('DemosPlan_faq_administration_faq')
+      xhr.open('POST', url, true)
+
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+      xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+      xhr.setRequestHeader('Upgrade-Insecure-Requests', '1')
+
+      // Display notifications on success or failure of the request
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
+          dplan.notify.notify('confirm', Translator.trans('confirm.sort.saved'))
+        } else if (xhr.readyState === 4) {
+          dplan.notify.error(Translator.trans('error.update.manual.order'))
+        }
+      }
+      xhr.send(postParams)
+    }
+  },
+
+  mounted () {
+    this.categoryList().then(() => {
+      this.isLoading = false
+    })
+  }
+}
+</script>

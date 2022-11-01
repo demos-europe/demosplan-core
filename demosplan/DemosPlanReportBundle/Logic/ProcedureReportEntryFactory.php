@@ -15,10 +15,12 @@ namespace demosplan\DemosPlanReportBundle\Logic;
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -44,16 +46,16 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $mailSubject
     ): ReportEntry {
         $data = [
-            'recipients'  => $recipients,
+            'recipients' => $recipients,
             'ccAddresses' => $ccAddresses,
-            'phase'       => $phase,
-            'ident'       => $procedureId,
+            'phase' => $phase,
+            'ident' => $procedureId,
             'mailSubject' => $mailSubject,
         ];
 
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_REGISTER_INVITATION);
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifier($procedureId);
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -68,15 +70,15 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $mailSubject
     ): ReportEntry {
         $data = [
-            'recipients'  => $recipientsWithEmail,
-            'phase'       => $phase,
-            'ident'       => $procedureId,
+            'recipients' => $recipientsWithEmail,
+            'phase' => $phase,
+            'ident' => $procedureId,
             'mailSubject' => $mailSubject,
         ];
 
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_INVITATION);
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifier($procedureId);
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -89,7 +91,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         Procedure $procedure
     ): ReportEntry {
         $entry = $this->createReportEntry();
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifier($procedure->getIdent());
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setCategory(ReportEntry::CATEGORY_ADD);
@@ -102,11 +104,11 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     {
         $data = [
             'newStartDate' => $procedure->getPublicParticipationStartDateTimestamp(),
-            'newEndDate'   => $procedure->getPublicParticipationEndDateTimestamp(),
+            'newEndDate' => $procedure->getPublicParticipationEndDateTimestamp(),
         ];
 
         $entry = $this->createReportEntry();
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifier($procedure->getIdent());
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -140,6 +142,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         User $user
     ): ReportEntry {
         $messageData['sourceProcedure'] = $coupledProcedure->getName();
+
         return $this->createProcedureCoupleEntry($procedureIdToCreateTheReportEntryFor, $coupledProcedure, $user, $messageData);
     }
 
@@ -151,6 +154,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         Procedure $coupledProcedure
     ): ReportEntry {
         $messageData['targetProcedure'] = $coupledProcedure->getName();
+
         return $this->createProcedureCoupleEntry($procedureIdToCreateTheReportEntryFor, $coupledProcedure, null, $messageData);
     }
 
@@ -184,7 +188,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setIdentifier($procedure->getId());
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -198,7 +202,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
-        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setUser($this->getCurrentUser());
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setIdentifier($procedureId);
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -212,9 +216,9 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         User $user
     ): ReportEntry {
         $message = [
-            'ident'        => $procedureId,
-            'group'        => ReportEntry::GROUP_PROCEDURE,
-            'category'     => ReportEntry::CATEGORY_UPDATE,
+            'ident' => $procedureId,
+            'group' => ReportEntry::GROUP_PROCEDURE,
+            'category' => ReportEntry::CATEGORY_UPDATE,
             'externalDesc' => $externalDescription,
         ];
 
@@ -235,11 +239,11 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $statementMailAddresses
     ): ReportEntry {
         $message = [
-            'procedureId'   => $procedureId,
-            'ident'         => $procedureId,
+            'procedureId' => $procedureId,
+            'ident' => $procedureId,
             'receiverCount' => count($statementMailAddresses),
-            'mailSubject'   => $preparationMail->getMailSubject(),
-            'mailBody'      => $preparationMail->getMailBody(),
+            'mailSubject' => $preparationMail->getMailSubject(),
+            'mailBody' => $preparationMail->getMailBody(),
         ];
 
         $entry = $this->createReportEntry();
@@ -258,5 +262,16 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE);
 
         return $reportEntry;
+    }
+
+    private function getCurrentUser(): User
+    {
+        try {
+            $currentUser = $this->currentUserProvider->getUser();
+        } catch (UserNotFoundException $e) {
+            $currentUser = new AnonymousUser();
+        }
+
+        return $currentUser;
     }
 }
