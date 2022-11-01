@@ -160,9 +160,9 @@ export default {
         features: []
       }
 
-      Object.values(this.drawingsData).forEach((data) => {
-        if (data) {
-          data.features.forEach((feature) => {
+      Object.values(this.drawingsData).forEach(data => {
+        if (data.features) {
+          data.features.forEach(feature => {
             mapData.features.push(feature)
           })
         }
@@ -212,6 +212,8 @@ export default {
     },
 
     save () {
+      console.log(this.featuresObject);
+
       this.setItem({
         ...this.segment,
         attributes: {
