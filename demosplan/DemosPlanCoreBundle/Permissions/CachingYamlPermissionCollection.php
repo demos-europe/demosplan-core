@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use InvalidArgumentException;
@@ -19,7 +20,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use function array_key_exists;
 
 class CachingYamlPermissionCollection implements PermissionCollectionInterface
 {

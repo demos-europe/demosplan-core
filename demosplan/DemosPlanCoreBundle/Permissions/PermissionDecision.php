@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -11,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use InvalidArgumentException;
 use function array_key_exists;
+use InvalidArgumentException;
 
 class PermissionDecision
 {
@@ -81,7 +82,7 @@ class PermissionDecision
             $memberOf,
             $parameter
         ))->toArray();
-        $this->userConditionCounter += 1;
+        ++$this->userConditionCounter;
 
         return $this;
     }
@@ -109,7 +110,7 @@ class PermissionDecision
             $memberOf,
             $parameter
         ))->toArray();
-        $this->procedureConditionCounter += 1;
+        ++$this->procedureConditionCounter;
 
         return $this;
     }
@@ -137,7 +138,7 @@ class PermissionDecision
             $memberOf,
             $parameter
         ))->toArray();
-        $this->customerConditionCounter += 1;
+        ++$this->customerConditionCounter;
 
         return $this;
     }

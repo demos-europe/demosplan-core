@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -36,7 +37,7 @@ class MaillaneAddonActivator implements AddonActivatorInterface
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_ADMIN, 'OR_GROUP')
                 ->addUserCondition('roleInCustomers.role.code', '=', Role::PLANNING_AGENCY_WORKER, 'OR_GROUP')
                 ->addUserGroup('OR_GROUP', 'OR')
-                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true)
+                ->addUserCondition('roleInCustomers.customer.id', '=', EvaluatablePermission::CURRENT_CUSTOMER_ID, null, true),
         ];
     }
 

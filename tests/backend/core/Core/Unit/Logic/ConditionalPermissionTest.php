@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -13,8 +14,8 @@ namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use PHPUnit\Framework\TestCase;
 
 class ConditionalPermissionTest extends TestCase

@@ -59,7 +59,7 @@ class EvaluatablePermission
     }
 
     /**
-     * FIXME: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination
+     * FIXME: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination.
      */
     public function isPermissionEnabled(?User $user, ?Procedure $procedure, ?Customer $customer): bool
     {
@@ -75,7 +75,7 @@ class EvaluatablePermission
 
     /**
      * @param array<non-empty-string, array{condition: array{path: non-empty-string, operator: non-empty-string,value?: mixed, memberOf?: non-empty-string, parameter: bool}}|array{group: array{conjunction: non-empty-string, memberOf?: non-empty-string}}> $filterList
-     * @param Customer|User|Procedure|null                                                                                                                                                                                                    $evaluationTarget
+     * @param Customer|User|Procedure|null                                                                                                                                                                                                                     $evaluationTarget
      */
     protected function evaluate(array $filterList, ?object $evaluationTarget, ?User $user, ?Procedure $procedure, ?Customer $customer): bool
     {

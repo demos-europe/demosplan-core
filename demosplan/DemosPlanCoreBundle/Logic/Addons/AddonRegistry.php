@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Addons;
 
 use demosplan\DemosPlanCoreBundle\Entity\DplanAddon;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\EvaluatablePermission;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionDecision;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\DplanAddonRepository;
 use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
