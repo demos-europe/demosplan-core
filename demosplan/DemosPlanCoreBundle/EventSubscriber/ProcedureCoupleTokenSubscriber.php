@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
@@ -40,6 +41,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 {
+    private const SYNCHRONIZED_PROPERTY = 'synchronized';
+
     /**
      * Key of the related event concern.
      */
@@ -122,6 +125,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
                 ['coupleProcedures'],
             ],
             GetPropertiesEvent::class           => 'addProperties',
+            GetInternalPropertiesEvent::class   => 'addInternalProperties',
         ];
     }
 
@@ -250,7 +254,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 
         $path = new End();
         $path->setParent($this->statementResourceType);
-        $path->setParentPropertyName('synchronized');
+        $path->setParentPropertyName(self::SYNCHRONIZED_PROPERTY);
         $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
         $property->readable(false, function (Statement $statement): bool {
             return null !== $this->entitySyncLinkRepository->findOneBy([
@@ -259,5 +263,12 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
             ]);
         });
         $event->addProperty($property);
+    }
+
+    public function addInternalProperties(GetInternalPropertiesEvent $event): void
+    {
+        $properties = $event->getProperties();
+        $properties[self::SYNCHRONIZED_PROPERTY] = null;
+        $event->setProperties($properties);
     }
 }

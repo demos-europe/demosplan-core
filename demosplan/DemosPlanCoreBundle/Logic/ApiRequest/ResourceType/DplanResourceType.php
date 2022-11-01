@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use function collect;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
@@ -300,7 +301,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     public function getInternalProperties(): array
     {
-        return array_map(static function (string $className): ?string {
+        $properties = array_map(static function (string $className): ?string {
             $classImplements = class_implements($className);
             if (is_array($classImplements) && in_array(ResourceTypeInterface::class, $classImplements, true)) {
                 /* @var ResourceTypeInterface $className */
@@ -309,6 +310,11 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
             return null;
         }, $this->getAutoPathProperties());
+
+        $event = new GetInternalPropertiesEvent($properties);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getProperties();
     }
 
     /**
