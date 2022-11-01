@@ -16,7 +16,7 @@ const log = require('./webpack/log').log
 function projectConfig (mode, project) {
   const frontendIntegratorCommand = [
     'bin/console',
-    'dplan:frontend:integrator'
+    'dplan:frontend:buildinfo'
   ]
 
   if (mode === 'production') {
@@ -27,10 +27,10 @@ function projectConfig (mode, project) {
   try {
     beConfigOutput = spawnSync('php', frontendIntegratorCommand, {
       env: {
-        'ACTIVE_PROJECT': project,
-        'DEVELOPMENT_CONTAINER': '1'
+        ...process.env,
+        ACTIVE_PROJECT: project
       },
-      windowsHide: true,
+      windowsHide: true
     })
 
     if (beConfigOutput.status !== 0) {

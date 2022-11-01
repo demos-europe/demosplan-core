@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\SliceDefinition;

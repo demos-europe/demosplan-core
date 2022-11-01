@@ -15,14 +15,14 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionException;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -47,7 +47,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function reviewAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         string $procedureId,
         string $documentId
     ): Response {
@@ -70,7 +70,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
 
         $templateVars = [
             'documentId'       => $documentId,
-            'aiPipelineLabels' => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels' => $aiPipelineConfiguration->getAiPipelineLabels(),
         ];
 
         return $this->renderTemplate(
@@ -95,13 +95,11 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      * @throws Exception
      */
     public function nextAnnotatedStatementPdfToReviewAction(
-        ProcedureHandler $procedureHandler,
+        AnnotatedStatementPdfRepository $annotatedStatementPdfRepository,
         string $procedureId
     ): Response {
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-
         $result = [
-            'documentId' => $procedure->getNextAnnotatedStatementPdfToReview(),
+            'documentId' => $annotatedStatementPdfRepository->getNextAnnotatedStatementPdfToReview($procedureId),
         ];
 
         return APIResponse::create($result, 200);
@@ -120,7 +118,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
      */
     public function convertToStatementAction(
         AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
-        GlobalConfigInterface $globalConfig,
+        AiPipelineConfiguration $aiPipelineConfiguration,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         CurrentProcedureService $currentProcedureService,
@@ -143,7 +141,7 @@ class DemosPlanAnnotatedStatementPdfController extends APIController
             'documentId'            => $documentId,
             'newestInternalId'      => $statementService->getNewestInternId($procedureId),
             'usedInternIds'         => $statementService->getInternIdsFromProcedure($procedureId),
-            'aiPipelineLabels'      => $globalConfig->getAiPipelineLabels(),
+            'aiPipelineLabels'      => $aiPipelineConfiguration->getAiPipelineLabels(),
             'submitter'             => $annotatedStatementPdf->getSubmitterJson(),
             'currentProcedurePhase' => $currentProcedureService->getProcedureWithCertainty()->getPhase(),
         ];

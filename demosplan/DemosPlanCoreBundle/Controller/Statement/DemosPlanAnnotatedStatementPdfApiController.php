@@ -21,11 +21,11 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\AnnotatedStatementPdfResourceTyp
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager;
 use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager;
+use demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -267,13 +267,11 @@ class DemosPlanAnnotatedStatementPdfApiController extends APIController
      * @throws Exception
      */
     public function nextAnnotatedStatementPdfAction(
-        ProcedureHandler $procedureHandler,
+        AnnotatedStatementPdfRepository $annotatedStatementPdfRepository,
         string $procedureId
     ): Response {
-        $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
-
         $result = [
-            'documentId' => $procedure->getNextAnnotatedStatementPdfToReview(),
+            'documentId' => $annotatedStatementPdfRepository->getNextAnnotatedStatementPdfToReview($procedureId),
         ];
 
         return APIResponse::create($result, 200);

@@ -2,13 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
 

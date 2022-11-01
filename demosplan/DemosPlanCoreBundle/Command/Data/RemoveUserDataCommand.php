@@ -261,7 +261,6 @@ class RemoveUserDataCommand extends CoreCommand
                 $organisation->setCode($this->map($organisation->getCode(), $organisation->getName()));
                 $organisation->setEmail2($this->map($organisation->getEmail2(), $this->faker->companyEmail));
                 $organisation->setCcEmail2($this->map($organisation->getCcEmail2(), $this->faker->email));
-                $organisation->setUrl(null === $organisation->getUrl() ? null : $this->faker->url);
                 $organisation->setGwId(null === $organisation->getGwId() ? null : $this->getNextUniqueGwId());
                 $organisation->setCompetence($this->faker->text(99)); //?
                 $organisation->setContactPerson($this->map($organisation->getContactPerson(), $this->faker->name));

@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonRegistry;
-use Symfony\Component\HttpFoundation\Session\Session;
 use function array_key_exists;
 use function array_map;
 use function collect;
@@ -24,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
@@ -38,6 +37,7 @@ use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use function stripos;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
@@ -311,6 +311,10 @@ class Permissions implements PermissionsInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
+                'feature_json_api_create',
+                'feature_json_api_delete',
+                'feature_json_api_list',
+                'feature_json_api_update',
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
@@ -321,6 +325,16 @@ class Permissions implements PermissionsInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
+
+            if ($this->isMemberOfPlanningOrganisation()) {
+                $this->enablePermissions([
+                    'area_institution_tag_manage',
+                    'feature_institution_tag_create',
+                    'feature_institution_tag_delete',
+                    'feature_institution_tag_read',
+                    'feature_institution_tag_update',
+                ]);
+            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
@@ -756,6 +770,18 @@ class Permissions implements PermissionsInterface
         $subdomain = $this->globalConfig->getSubdomain();
 
         return in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+    }
+
+    /**
+     * Checks if the user is Member of a planning organisation.
+     */
+    protected function isMemberOfPlanningOrganisation(): bool
+    {
+        $isAcceptedMunicipality = $this->isMemberOfMunicipality();
+        $isAcceptedPlanningAgency = $this->isMemberOfPlanningoffice();
+        $isAcceptedHearingAuthorityAgency = $this->isMemberOfHearingAuthority();
+
+        return $isAcceptedMunicipality || $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
     }
 
     /**

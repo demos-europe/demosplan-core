@@ -337,8 +337,13 @@ check.fragment.delete: "Sind Sie sicher, dass Sie den Datensatz löschen möchte
 check.fragment.save: "Wenn Sie die Bearbeitung dieses Datensatzes abschliessen, können Sie die Bearbeitung nicht wieder aufnehmen."
 check.item.delete: "Sind Sie sicher, dass Sie dieses Element löschen möchten?"
 check.items.marked.delete: "Sind Sie sicher, dass Sie alle markierten Elemente löschen möchten?"
-check.mail.result.citizen: "Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten? Die E-Mail geht an den einreichenden und an alle mitzeichnenden Bürger*innen, sowie an alle im Kopie-Feld eingetragenen E-Mail-Adressen."
-check.mail.result: "Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten? Die E-Mail geht an die einreichende Institutions-Koordination, die bei der Institution hinterlegte E-Mail-Adresse für die Beteiligung sowie an die eingetragenen E-Mail-Adressen im Kopie-Feld."
+check.mail.result: >-
+    Sind Sie sicher, dass Sie die Informationen über das Abwägungsergebnis versenden möchten?
+    {sentTo}
+    Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen erhalten die E-Mail ebenfalls.
+check.mail.result.citizen: "Die E-Mail geht an die/den Einreichende*n."
+check.mail.result.citizenAndVoters: "Die E-Mail geht an die/den Einreichende*n und alle Mitzeichnende*n."
+check.mail.result.institutions: "Die E-Mail geht an die einreichende Institutions-Koordination und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung."
 check.master.invitable_institution.delete: "Wollen Sie diese Organisation wirklich löschen? Der Vorgang kann nicht mehr rückgängig gemacht werden."
 check.invitable_institutions.marked.delete: "Sind Sie sicher, dass Sie die markierten Institutionen aus Ihrem Verfahren löschen möchten?"
 check.release.delete: "Sind Sie sicher, dass Sie dieses Release und alle dazugehörigen User Stories löschen möchten?"
@@ -529,15 +534,39 @@ confirm.statement.deleted: "Die Stellungnahme wurde gelöscht."
 confirm.statement.detach.cluster.element: "Die Stellungnahme {statementId} wurde aus der Gruppe {clusterId} gelöst."
 confirm.statement.final.not.sent: "Die Schlussmitteilung wurde noch nicht versendet."
 confirm.statement.final.sent.date: "Die Schlussmitteilung wurde am <strong>{date} Uhr</strong> versendet."
-confirm.statement.final.sent.only.voters: "Die Schlussmitteilung wurde erfolgreich an {numVoters} Mitzeichnende versendet. Sie haben eine E-Mail in Kopie erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
-confirm.statement.final.sent.voters: "Die Schlussmitteilung wurde erfolgreich an die/den Einreicher*in und {numVoters} Mitzeichnende versendet. Sie haben eine E-Mail in Kopie erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
-confirm.statement.final.sent: "Die Schlussmitteilung wurde erfolgreich an die/den Einreicher*in versendet. Sie und eingetragene Empfänger*innen im Kopie-Feld haben die E-Mail ebenfalls erhalten. Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf \"Schlussmitteilung versendet\"."
+confirm.statement.final.sent: >-
+    {sent_to, select,
+        citizen_only {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n versendet.}
+        citizen_and_voters {{voters_count, plural,
+            =1    {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n und # Mitzeichnende*n versendet.}
+            other {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n und # Mitzeichnende versendet.}
+        }}
+        voters_only {{voters_count, plural,
+            =1    {Die Schlussmitteilung wurde erfolgreich an # Mitzeichnende*n versendet.}
+            other {Die Schlussmitteilung wurde erfolgreich an # Mitzeichnende versendet.}
+        }}
+        institution_only {
+            Die Schlussmitteilung wurde erfolgreich an die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung versendet.
+        }
+        institution_and_coordination {
+            Die Schlussmitteilung wurde erfolgreich an die einreichende Institutions-Koordination
+            und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung versendet.
+        }
+        other {Die Schlussmitteilung wurde erfolgreich an die/den Einreichende*n versendet.}
+    }
+confirm.statement.final.sent.emailCC: >-
+    Sie und ggf. weitere im Kopie-Feld eingetragene Empfänger*innen haben die E-Mail ebenfalls erhalten.
+    Bitte ändern Sie den Bearbeitungsstatus der Stellungnahme auf "Schlussmitteilung versendet".
 confirm.statement.fragment.created: "Ein neuer Datensatz wurde erstellt."
 confirm.statement.id.copied: "Stellungnahme <a href=\"{link}\" target=\"_blank\">{externId}</a> wurde erfolgreich kopiert."
 confirm.statement.id.copied.nolink: "Stellungnahme {externId} wurde erfolgreich kopiert."
 confirm.statement.id.deleted: "Stellungnahme {externId} wurde erfolgreich gelöscht."
 confirm.statement.id.updated: "Stellungnahme <a href=\"{link}\" target=\"_blank\">{externId}</a> wurde erfolgreich aktualisiert."
 confirm.statement.id.updated.nolink: "Stellungnahme {externId} wurde erfolgreich aktualisiert."
+confirm.statement.id.synchronized.source: "Die Stellungnahme {externId} wurde mit dem gekoppelten Verfahren synchronisiert."
+confirm.statement.id.synchronized.source.nolink: "Die Stellungnahme {externId} wurde mit dem gekoppelten Verfahren synchronisiert."
+confirm.statement.id.synchronized.target: "Die Stellungnahme {externId} wurde aus dem gekoppelten Verfahren synchronisiert."
+confirm.statement.id.synchronized.target.nolink: "Die Stellungnahme {externId} wurde aus dem gekoppelten Verfahren synchronisiert."
 confirm.original.statement.attachment.deleted: "Anhänge der Originalstellungnahme <a href=\"{link}\">{externId}</a> und deren Kopien gelöscht."
 confirm.original.statement.meta.anonymized: "Einreichendendaten der Originalstellungnahme <a href=\"{link}\">{externId}</a> und deren Kopien anonymisiert."
 confirm.original.statement.text.anonymized: "Text der Originalstellungnahme <a href=\"{link}\">{externId}</a> anonymisiert."
@@ -623,6 +652,7 @@ considerationadvice: "Abwägung / Empfehlung"
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
+considerationtable_ascii: "Abwaegungstabelle"
 # considerationtext = considerationadvice
 considerationtext: "Abwägungstext"
 consolidate: "Gruppieren"
@@ -1763,6 +1793,7 @@ insert: "Einfügen"
 institution: "Institution"
 institution.name: "Name der Institution"
 institution.represents: "vertretene Institution"
+institution.tags.management: "Institutionen verschlagworten"
 instruction: "Hinweistext"
 internal: "Intern"
 internalnote: "Interne Notiz"
@@ -3396,6 +3427,7 @@ table.cols.sort: "Spalten sortieren nach"
 table.rows: "Reihen"
 tabs.navigate: "Inhalte in Tabs"
 tag_topic.name.default: "Sonstiges"
+tag.administrate: "Schlagworte verwalten"
 tag.administration: "Schlagworte"
 tag.administration_single: "Schlagwort bearbeiten"
 tag.category: "Schlagwortkategorie"
@@ -3404,6 +3436,7 @@ tag.delete: "Schlagwort löschen"
 tag.move.toTopic: "in Thema verschieben"
 tag.move: "Schlagwort verschieben"
 tag.name: "Name des neuen Schlagwortes"
+tag.new: "Neues Schlagwort"
 tag.rename: "Schlagwort umbenennen"
 tag.search: "Schlagwort suchen"
 tag.topic.new: "Schlagwort oder Thema anlegen…"
@@ -3773,7 +3806,7 @@ warning.password.weak: "Ihr Passwort ist leicht zu erraten. Bitte ändern Sie es
 warning.phase.voting.not.possible: "In dieser Phase können keine {points} vergeben werden!"
 warning.privacy.confirm: "Bitte bestätigen Sie, dass Sie keine anderen Personen namentlich genannt oder beschrieben haben."
 warning.procedure.proposal.notfound: "Der Verfahrensvorschlag konnte nicht gefunden werden."
-warning.search.query.invalid: "Folgende Zeichen haben eine Sonderfunktion und können deshalb nicht ohne Weiteres verwendet werden:<br /><br /><strong> . ? + * | { } [ ] ( ) \" \\ # @ & < > ~ </strong><br /><br />Sonderzeichen können aufgrund ihrer besonderen Funktion nicht gefunden werden.<br /><br />Wenn ein Sonderzeichen in Ihrer Suche enthalten ist, schreiben Sie \"\\\" vor das Zeichen.<br />Haben Sie z.B. ein \"?\" in Ihrer Suche, müssen Sie \"\\?\" eingeben."
+warning.search.query.invalid: "Folgende Zeichen haben eine Sonderfunktion und können deshalb nicht ohne Weiteres verwendet werden:<br /><br /><strong> . ? + * | &lbrace; &rbrace; [ ] ( ) \" \\ # @ & < > ~ </strong><br /><br />Sonderzeichen können aufgrund ihrer besonderen Funktion nicht gefunden werden.<br /><br />Wenn ein Sonderzeichen in Ihrer Suche enthalten ist, schreiben Sie \"\\\" vor das Zeichen.<br />Haben Sie z.B. ein \"?\" in Ihrer Suche, müssen Sie \"\\?\" eingeben."
 warning.segment.needLock.generic: "Dieser Abschnitt ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie den Abschnitt zunächst für sich beanspruchen."
 warning.select.entries: "Bitte wählen Sie Einträge aus."
 warning.select.entry: "Bitte wählen Sie einen Eintrag aus."
@@ -3885,6 +3918,7 @@ workflow.place: "Schritt"
 workflow.place.added: "Schritt wurde hinzugefügt"
 workflow.place.deleted: "Schritt gelöscht"
 workflow.place.error.duplication: "Der Name des Schritts ist bereits in Verwendung. Bitte vergeben Sie einen anderen Namen."
+workflow.tag.error.duplication: "Das Schlagwort existiert bereits."
 worksheet: "Arbeitsblatt"
 xplan: "XPlan"
 xplanning: "XPlanung"

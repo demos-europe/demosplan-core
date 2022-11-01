@@ -40,7 +40,7 @@
 
 <script>
 import { DpIcon } from 'demosplan-ui/components'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import SideNav from '@DpJs/lib/SideNav'
 
 export default {

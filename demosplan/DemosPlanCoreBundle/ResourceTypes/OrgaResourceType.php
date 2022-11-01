@@ -57,7 +57,6 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $houseNumber @deprecated Use a {@link Address} relationships instead
  * @property-read End                              $submissionType
  * @property-read End                              $types @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
- * @property-read End                              $url
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
@@ -208,7 +207,6 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->types)->readable(true, function (Orga $orga): array {
                 return $orga->getTypes($this->globalConfig->getSubdomain());
             }),
-            $this->createAttribute($this->url)->readable(true),
             $this->createAttribute($this->registrationStatuses)->readable(true, [$this, 'getRegistrationStatuses']),
             $this->createToOneRelationship($this->currentSlug, true)->readable(true),
             $this->createToManyRelationship($this->customers)->readable(false, static function (Orga $orga): Collection {

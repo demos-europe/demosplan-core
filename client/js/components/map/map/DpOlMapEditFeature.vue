@@ -1,0 +1,217 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<documentation>
+  <!--
+
+    !!! THIS COMPONENT SHOULD BE 3 COMPONENTS OR MERGED WITH DpOlMapDrawFeature !!!
+    !!! THIS COMPONENT SHOULD BE 3 COMPONENTS OR MERGED WITH DpOlMapDrawFeature !!!
+    !!! THIS COMPONENT SHOULD BE 3 COMPONENTS OR MERGED WITH DpOlMapDrawFeature !!!
+    !!! THIS COMPONENT SHOULD BE 3 COMPONENTS OR MERGED WITH DpOlMapDrawFeature !!!
+
+  -->
+  <!--
+      # component requires an Layer with Features
+      #
+      # Required Props:
+      # target<String>
+      # >>> Has to match the Layername of the Layer wich includes the Vector-Feature this Component should be able to manipulate
+      #
+      # Emits:
+      # > 'setDrawingActive'
+      # >>> fired after clicking the Control
+      # >>> Payload: [name]|''
+      #
+      # On:
+      # > 'setDrawingActive'
+      # >>> updates the active-state of the control and the featureLayer (Einzeichnungs-Ebene)
+      # >>> checks against the provided name
+  -->
+  <usage variant="With Control rendered">
+    <dp-ol-map-edit-feature
+      target="nameToIdentifyTheEvent/FeatureLayer"
+    />
+  </usage>
+  <!--
+    for a read-only-layer just the features are neccessary.
+    optional you can fit/zoom the map to the drawing
+   -->
+  <usage variant="read-Only">
+    <dp-ol-map-draw-feature
+      :features="features"
+      :fitDrawing="true"
+    />
+  </usage>
+</documentation>
+
+<template>
+  <span>
+    <button
+      type="button"
+      @click="toggle"
+      v-tooltip="Translator.trans('explanation.territory.help.edit',{editTool: Translator.trans('map.territory.tools.edit')})"
+      class="btn--blank u-ml-0_5 o-link--default weight--bold"
+      :class="{'color--highlight':currentlyActive}">
+      {{ Translator.trans('map.territory.tools.edit') }}
+    </button>
+    <button
+      type="button"
+      @click="removeFeature"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'), editTool: Translator.trans('map.territory.tools.edit')})"
+      class="btn--blank u-ml-0_5 weight--bold"
+      :class="{'o-link--default': (false === disabled)}">
+      {{ Translator.trans('map.territory.tools.removeSelected') }}
+    </button>
+    <button
+      type="button"
+      @click="clearAll"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.all', {deleteAllTool: Translator.trans('map.territory.tools.removeAll')})"
+      class="btn--blank u-ml-0_5 o-link--default weight--bold">
+      {{ Translator.trans('map.territory.tools.removeAll') }}
+    </button>
+  </span>
+</template>
+
+<script>
+import { Modify, Select } from 'ol/interaction'
+import { hasOwnProp } from 'demosplan-utils'
+import { v4 as uuid } from 'uuid'
+import VectorLayer from 'ol/layer/Vector'
+
+export default {
+  name: 'DpOlMapEditFeature',
+
+  inject: ['olMapState'],
+
+  props: {
+    // The name is used to identify the Events
+    name: {
+      required: false,
+      type: String,
+      default: uuid()
+    },
+
+    // Required to target a Layer with Vector-Featurs
+    target: {
+      required: true,
+      type: String
+    },
+
+    initActive: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    defaultControl: {
+      required: false,
+      type: Boolean,
+      default: false
+    }
+  },
+
+  data () {
+    return {
+      selectInteraction: new Select({ wrapX: false }),
+      modifyInteraction: null,
+      currentlyActive: this.initActive,
+      selectedFeatureId: [],
+      layerNameOfSelectedFeature: '',
+      disabled: true
+    }
+  },
+
+  computed: {
+    map () {
+      return this.olMapState.map
+    }
+  },
+
+  methods: {
+    activateTool (name) {
+      if (this.map === null || this.renderControl === false) {
+        return
+      }
+      if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
+        this.selectInteraction.getFeatures().on('add', event => {
+          const id = 'selected' + uuid()
+          if (this.selectedFeatureId.indexOf(id) === -1) {
+            this.selectedFeatureId.push(id)
+            if (hasOwnProp(event, 'element')) {
+              event.element.set('id', id)
+              this.disabled = false
+            }
+          }
+        })
+        this.selectInteraction.getFeatures().on('remove', event => {
+          if (hasOwnProp(event, 'element')) {
+            event.element.get('id')
+            const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
+            this.selectedFeatureId.splice(elIdx, 1)
+            if (this.selectedFeatureId.length <= 0) {
+              this.disabled = true
+            }
+          }
+        })
+        this.map.addInteraction(this.selectInteraction)
+        this.map.addInteraction(this.modifyInteraction)
+        this.currentlyActive = true
+      } else {
+        this.map.removeInteraction(this.selectInteraction)
+        this.map.removeInteraction(this.modifyInteraction)
+        this.currentlyActive = false
+      }
+    },
+
+    toggle () {
+      if (this.currentlyActive === false) {
+        this.$root.$emit('setDrawingActive', this.name)
+      } else {
+        this.$root.$emit('setDrawingActive', '')
+      }
+    },
+
+    removeFeature () {
+      const features = this.selectInteraction.getFeatures()
+      if (features !== null && features.getLength() > 0) {
+        features.getArray().forEach(feature => {
+          const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
+          if (featureInSelection > -1) {
+            this.map.getLayers().forEach(layer => {
+              if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+                layer.getSource().removeFeature(feature)
+              }
+            })
+            this.selectedFeatureId = []
+            this.selectInteraction.getFeatures().clear()
+            this.$nextTick(() => this.map.render())
+          }
+        })
+      }
+    },
+
+    clearAll () {
+      if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
+        this.map.getLayers().forEach(layer => {
+          if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+            this.selectInteraction.getFeatures().clear()
+            layer.getSource().clear()
+            this.selectedFeatureId = []
+          }
+        })
+      }
+    }
+  },
+
+  mounted () {
+    this.modifyInteraction = new Modify({ features: this.selectInteraction.getFeatures() })
+    this.$root.$on('setDrawingActive', name => this.activateTool(name))
+  }
+}
+</script>
