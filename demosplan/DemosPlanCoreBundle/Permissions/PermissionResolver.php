@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -24,7 +25,6 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_key_exists;
 
 /**
  * @psalm-type PsalmDrupalFilterGroup = array{
@@ -76,7 +76,7 @@ class PermissionResolver
     }
 
     /**
-     * FIXME: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination
+     * FIXME: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination.
      */
     public function isPermissionEnabled(
         ResolvablePermission $permission,
@@ -91,7 +91,7 @@ class PermissionResolver
 
     /**
      * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $filterList
-     * @param Customer|User|Procedure|null                    $evaluationTarget
+     * @param Customer|User|Procedure|null                         $evaluationTarget
      */
     protected function evaluate(
         array $filterList,

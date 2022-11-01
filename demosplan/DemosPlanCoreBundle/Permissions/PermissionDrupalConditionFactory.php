@@ -35,8 +35,7 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
     protected function getOperatorFunctions(): array
     {
         $functions = parent::getOperatorFunctions();
-        $functions[self::FALSE] = fn (array $path, $conditionValue): PathsBasedInterface
-            => $this->conditionFactory->false();
+        $functions[self::FALSE] = fn (array $path, $conditionValue): PathsBasedInterface => $this->conditionFactory->false();
 
         return $functions;
     }

@@ -58,8 +58,7 @@ class AddonRegistry
         $permissions = $activator->getAddonPermissionsWithDefaults();
 
         $keyedPermissions = collect($permissions)
-            ->mapWithKeys(fn (ResolvablePermission $conditionalPermission): array
-                => [$conditionalPermission->getName() => $conditionalPermission])
+            ->mapWithKeys(fn (ResolvablePermission $conditionalPermission): array => [$conditionalPermission->getName() => $conditionalPermission])
             ->all();
 
         if (count($keyedPermissions) !== count($permissions)) {

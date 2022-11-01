@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionBuilder;
-use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use PHPUnit\Framework\TestCase;
 
 class ConditionalPermissionTest extends TestCase
