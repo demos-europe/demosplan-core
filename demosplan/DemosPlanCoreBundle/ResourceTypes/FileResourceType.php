@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Event\GetFilePropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 
 /**
  * @template-extends DplanResourceType<File>
@@ -42,8 +45,10 @@ final class FileResourceType extends DplanResourceType
     public function isAvailable(): bool
     {
         // Currently the File resource needs to be exposed for statement import and assessment table.
-        return $this->currentUser->hasAnyPermissions(
-            'feature_import_statement_pdf',
+        /** @var IsFileAvailableEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new IsFileAvailableEvent());
+
+        return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
             'field_sign_language_overview_video_edit',
             'feature_platform_logo_edit',
@@ -68,8 +73,10 @@ final class FileResourceType extends DplanResourceType
 
     public function isDirectlyAccessible(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_import_statement_pdf',
+        /** @var IsFileDirectlyAccessibleEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new IsFileDirectlyAccessibleEvent());
+
+        return $event->isFileDirectlyAccessible() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
             'field_sign_language_overview_video_edit'
         );
@@ -92,17 +99,12 @@ final class FileResourceType extends DplanResourceType
             $mimetype,
         ];
 
+        $this->eventDispatcher->dispatch(new GetFilePropertiesEvent($properties));
+
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $id->filterable()->sortable();
             $hash->readable(true)->filterable()->sortable();
             $filename->readable(true, [self::class, 'getFileName']);
-        }
-
-        if ($this->currentUser->hasPermission('feature_import_statement_pdf')) {
-            $id->filterable()->sortable();
-            $hash->readable(true)->filterable()->sortable();
-            $filename->readable(true, [self::class, 'getFileName']);
-            $created->readable(true, [$this, 'getCreated']);
         }
 
         if ($this->currentUser->hasPermission('field_sign_language_overview_video_edit')) {
