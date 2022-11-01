@@ -67,7 +67,7 @@ area_admin_globalnews:
 area_admin_import:
     description: |-
         Import center for procedure - eventually, all supported import flows will be moved
-        into this place. As a starting point, users may find the E-Mail import here.
+        into this place.
     expose: true
     label: 'Procedure Import Center'
     loginRequired: true
