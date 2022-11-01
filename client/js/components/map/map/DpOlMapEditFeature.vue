@@ -192,33 +192,43 @@ export default {
 
     removeFeature () {
       const features = this.selectInteraction.getFeatures()
+
       if (features !== null && features.getLength() > 0) {
         features.getArray().forEach(feature => {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
               if (layer instanceof VectorLayer && this.target.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
-                layer.getSource().removeFeature(feature)
+                layer.getSource().removeFeature(feature) // @TODO For some reason this only works for new Features
               }
             })
-            this.selectedFeatureId = []
-            this.selectInteraction.getFeatures().clear()
-            this.$nextTick(() => this.map.render())
+
           }
         })
+
+        this.resetSelection()
       }
     },
 
     clearAll () {
-      if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
-        this.map.getLayers().forEach(layer => {
-          if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
-            this.selectInteraction.getFeatures().clear()
-            layer.getSource().clear()
-            this.selectedFeatureId = []
-          }
-        })
+      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
+        return
       }
+
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
+          this.selectInteraction.getFeatures().clear()
+          layer.getSource().clear()
+        }
+      })
+
+      this.resetSelection()
+    },
+
+    resetSelection () {
+      this.selectedFeatureId = []
+      this.selectInteraction.getFeatures().clear()
+      this.$nextTick(() => this.map.render())
     }
   },
 
