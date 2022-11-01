@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use EDT\Wrapping\Contracts\Types\TypeInterface;
 
 class GetInternalPropertiesEvent extends DPlanEvent
 {
@@ -21,12 +22,15 @@ class GetInternalPropertiesEvent extends DPlanEvent
      */
     private array $properties;
 
+    private TypeInterface $type;
+
     /**
      * @param array<non-empty-string, non-empty-string|null> $properties
      */
-    public function __construct(array $properties)
+    public function __construct(array $properties, TypeInterface $type)
     {
         $this->properties = $properties;
+        $this->type = $type;
     }
 
     /**
@@ -43,5 +47,10 @@ class GetInternalPropertiesEvent extends DPlanEvent
     public function setProperties(array $properties): void
     {
         $this->properties = $properties;
+    }
+
+    public function getType(): TypeInterface
+    {
+        return $this->type;
     }
 }

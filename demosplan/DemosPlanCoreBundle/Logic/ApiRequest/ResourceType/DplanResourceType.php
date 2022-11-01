@@ -311,7 +311,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
             return null;
         }, $this->getAutoPathProperties());
 
-        $event = new GetInternalPropertiesEvent($properties);
+        $event = new GetInternalPropertiesEvent($properties, $this);
         $this->eventDispatcher->dispatch($event);
 
         return $event->getProperties();

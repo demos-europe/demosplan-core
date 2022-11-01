@@ -267,6 +267,11 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 
     public function addInternalProperties(GetInternalPropertiesEvent $event): void
     {
+        // The synchronized property is added to statement resource only
+        if (!$event->getType() instanceof StatementResourceType) {
+            return;
+        }
+
         $properties = $event->getProperties();
         $properties[self::SYNCHRONIZED_PROPERTY] = null;
         $event->setProperties($properties);
