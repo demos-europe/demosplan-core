@@ -105,6 +105,7 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         $description = $this->createAttribute($this->description)
             ->readable();
         $sortIndex = $this->createAttribute($this->sortIndex)
+            ->readable(true)
             ->filterable()
             ->sortable();
         // allow filtering by procedure to limit places in facet dropdown
