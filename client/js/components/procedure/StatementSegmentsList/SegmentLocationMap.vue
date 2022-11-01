@@ -28,6 +28,7 @@
             icon
             icon-class="fa-map-marker u-mb-0_25 font-size-h2"
             name="Point"
+            :options="{ multiplePoints: true }"
             render-control
             :title="Translator.trans('map.relation.set')"
             type="Point"

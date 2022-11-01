@@ -134,6 +134,12 @@ export default {
       default: uuid()
     },
 
+    options: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
     renderControl: {
       required: false,
       type: Boolean,
@@ -196,12 +202,15 @@ export default {
           style: drawStyle(style)
         })
 
-        if (this.type === 'Point') {
+        if (this.type === 'Point' && !this.options.multiplePoints) {
           this.drawInteraction.on('drawstart', () => {
             this.layerToDrawInto.getSource().clear()
           })
         }
-        this.snap = new Snap({ source: new VectorSource() })
+
+        this.snap = new Snap({
+          source: new VectorSource()
+        })
         this.map.addInteraction(this.drawInteraction)
         this.map.addInteraction(this.snap)
         this.currentlyActive = true
@@ -225,6 +234,7 @@ export default {
       if (this.map === null) {
         return
       }
+
       //  Define layer source to draw into
       this.vectorSourceOptions = {
         format: new GeoJSON(),
