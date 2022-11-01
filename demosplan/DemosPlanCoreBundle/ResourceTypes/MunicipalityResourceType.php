@@ -52,6 +52,7 @@ final class MunicipalityResourceType extends DplanResourceType
                 return false;
             }
         }
+
         return $this->currentUser->hasPermission('field_statement_municipality');
     }
 
