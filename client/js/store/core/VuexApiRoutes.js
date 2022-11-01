@@ -189,6 +189,32 @@ export const VuexApiRoutes = [
     url: '/2.0/Tag'
   },
   {
+    module: 'institutionTag',
+    action: 'create',
+    url: '/2.0/InstitutionTag'
+  },
+  {
+    module: 'institutionTag',
+    action: 'list',
+    url: '/2.0/InstitutionTag'
+  },
+  {
+    module: 'institutionTag',
+    action: 'update',
+    url: '/2.0/InstitutionTag/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
+    module: 'institutionTag',
+    action: 'delete',
+    url: '/2.0/InstitutionTag/{id}',
+    parameters: [
+      'id'
+    ]
+  },
+  {
     module: 'tagTopic',
     action: 'list',
     url: '/2.0/TagTopic'

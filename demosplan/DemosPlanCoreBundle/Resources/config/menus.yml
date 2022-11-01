@@ -94,6 +94,10 @@ sidemenu:
                 permission: 'area_admin_orga_address_book'
                 link_attributes:
                     data-cy: 'publicagencyUnregisteredAdminister'
+            invitable_institution_tag_management:
+                label: 'institution.tags.management'
+                path: 'DemosPlan_get_institution_tag_management'
+                permission: 'area_institution_tag_manage'
             globalnews:
                 label: 'globalnews'
                 path: 'DemosPlan_globalnews_administration_news'
