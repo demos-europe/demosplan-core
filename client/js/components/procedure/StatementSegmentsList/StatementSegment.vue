@@ -428,6 +428,10 @@ export default {
       this.toggleAssignableUsersSelect()
     },
 
+    checkIfToolIsActive (tool) {
+      return (this.segment.id === this.slidebar.segmentId && this.slidebar.showTab === tool)
+    },
+
     claimSegment () {
       const dataToUpdate = {
         ...this.segment,
@@ -531,6 +535,10 @@ export default {
     },
 
     showComments () {
+      if (this.checkIfToolIsActive('comments')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
 
       this.toggleSlidebarContent({
@@ -548,12 +556,20 @@ export default {
     },
 
     showMap () {
+      if (this.checkIfToolIsActive('map')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
     },
 
     showSegmentVersionHistory () {
+      if (this.checkIfToolIsActive('history')) {
+        return
+      }
+
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
       this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'history' } })
