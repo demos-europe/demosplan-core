@@ -13,7 +13,7 @@
       class="hide-visually"
       v-text="Translator.trans('upload.files')" />
     <dp-label
-      v-if="label.text !== ''"
+      v-if="label.text"
       class="layout__item"
       v-bind="{
         for: id,
