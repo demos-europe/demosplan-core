@@ -432,8 +432,7 @@ export default {
       const dataToUpdate = {
         ...this.segment,
         ...{
-          relationships:
-          {
+          relationships: {
             ...this.segment.relationships,
             ...{
               assignee: {

@@ -78,6 +78,7 @@
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
+        :disabled="!hasChanges"
         primary
         secondary
         @primary-action="save"
@@ -124,6 +125,7 @@ export default {
   data () {
     return {
       drawingsData: {},
+      hasChanges: false,
       initData: {},
       mapData: null,
       segmentPoint: ''
