@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-
 class isFileDirectlyAccessibleEvent extends DPlanEvent
 {
     /**

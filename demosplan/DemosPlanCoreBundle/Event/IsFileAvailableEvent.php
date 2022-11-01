@@ -10,10 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-
 namespace demosplan\DemosPlanCoreBundle\Event;
-
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class IsFileAvailableEvent extends DPlanEvent
 {
@@ -31,5 +28,4 @@ class IsFileAvailableEvent extends DPlanEvent
     {
         return $this->isAvailable;
     }
-
 }

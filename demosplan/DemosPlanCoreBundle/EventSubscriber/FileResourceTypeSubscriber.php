@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Event\GetFilePropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FileResourceTypeSubscriber implements EventSubscriberInterface
 {
@@ -38,6 +38,7 @@ class FileResourceTypeSubscriber implements EventSubscriberInterface
         $this->currentUser = $currentUser;
         $this->permissions = $permissions;
     }
+
     public static function getSubscribedEvents(): array
     {
         return [
