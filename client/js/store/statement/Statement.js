@@ -471,27 +471,20 @@ export default {
         'attachments.file',
         'files'
       ]
-      // The fragmentsElements are available in includes with the following permission
-      if (hasPermission('area_statement_fragments')) {
-        includes.push('fragmentsElements')
-      }
-      let additionalFields = {}
-      // County is available and readable with the following permission
-      if (hasPermission('field_statement_county')) {
-        additionalFields.County = 'name'
-      }
-      // PriorityArea is available and readable with the following permission
-      if (hasPermission('field_statement_priority_area')) {
-        additionalFields.PriorityArea = 'name'
-      }
-      // Municipality is available and readable with the following permission
-      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
-        additionalFields.Municipality = 'name'
-      }
-      // isSubmittedByCitizen is available and readable with one of the following permissions
+
+      // isSubmittedByCitizen, priorityAreas,  is available and readable with one of the following permissions
       const statementFields = []
       if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
         statementFields.push('isSubmittedByCitizen')
+      }
+      if (hasPermission('field_statement_priority_area')) {
+        statementFields.push('priorityAreas')
+      }
+      if (hasPermission('field_statement_county')) {
+        statementFields.push('counties')
+      }
+      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+        statementFields.push('munipicalities')
       }
 
       return dpApi({
@@ -516,7 +509,6 @@ export default {
               'attachments',
               'authoredDate',
               'authorName',
-              'counties',
               'document',
               'documentParentId',
               'elementId',
@@ -536,7 +528,6 @@ export default {
               'movedFromProcedureName',
               'movedToProcedureId',
               'movedToProcedureName',
-              'municipalities',
               'name',
               'originalId',
               'paragraph',
@@ -545,7 +536,6 @@ export default {
               'phase',
               'polygon',
               'priority',
-              'priorityAreas',
               'procedureId',
               'publicVerified',
               'publicVerifiedTranslation',
@@ -565,7 +555,6 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
-            ...additionalFields,
             Claim: [
               'name',
               'orgaName'
