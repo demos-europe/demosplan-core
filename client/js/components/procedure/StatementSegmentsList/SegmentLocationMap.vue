@@ -90,6 +90,7 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { diff } from 'deep-object-diff'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -153,6 +154,23 @@ export default {
       return `${Translator.trans('segment')} ${this.segment?.attributes.externId} - ${Translator.trans('public.participation.relation')}`
     },
 
+    featuresObject () {
+      const mapData = {
+        type: 'FeatureCollection',
+        features: []
+      }
+
+      Object.values(this.drawingsData).forEach((data) => {
+        if (data) {
+          data.features.forEach((feature) => {
+            mapData.features.push(feature)
+          })
+        }
+      })
+
+      return mapData
+    },
+
     segment () {
       return this.segments[this.segmentId] || null
     }
@@ -173,71 +191,68 @@ export default {
       saveSegmentAction: 'save'
     }),
 
+    checkForChanges () {
+      return JSON.stringify(diff(this.drawingsData, this.initData)) !== '{}'
+    },
+
     closeSlidebar () {
       // Trigger click event for SideNav.js
       document.querySelector('[data-slidebar-hide]').click()
-    },
-
-    getMapData () {
-      const mapData = {
-        type: 'FeatureCollection',
-        features: []
-      }
-
-      Object.values(this.drawingsData).forEach((data) => {
-        if (data) {
-          data.features.forEach((feature) => {
-            mapData.features.push(feature)
-          })
-        }
-      })
-
-      return mapData
     },
 
     resetCurrentMap () {
       this.$refs.drawPoint.clearAll()
       this.$refs.drawLine.clearAll()
       this.$refs.drawPolygon.clearAll()
+
+      this.$nextTick(() => {
+        this.setInitDrawings()
+        this.$refs.map.updateMapInstance()
+      })
     },
 
     save () {
-      const mapData = this.getMapData()
+      this.setItem({
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          polygon: JSON.stringify(this.featuresObject)
+        }
+      })
 
-      // TO DO: How to load lodash
-      //if (!lodash.isEqual(this.getMapData(), this.initData)) {
-        this.setItem({
-          ...this.segment,
-          attributes: {
-            ...this.segment.attributes,
-            polygon: JSON.stringify(mapData)
-          }
+      return this.saveSegmentAction(this.segmentId)
+        .then(checkResponse)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+          this.initData = JSON.parse(JSON.stringify(this.drawingsData))
         })
-        return this.saveSegmentAction(this.segmentId)
-          .then(checkResponse)
-          .then(() => {
-            dplan.notify.confirm(Translator.trans('confirm.saved'))
-          })
-          .catch(() => {
-            dplan.notify.error(Translator.trans('error.changes.not.saved'))
-          })
-      //}
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     setInitDrawings () {
-      this.initData = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
-      if (this.initData.features) {
+      if (this.segmentId === '') {
+        return
+      }
+
+      const initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
+      if (initPolygons.features) {
         ['Polygon', 'LineString', 'Point'].forEach(type => {
           this.drawingsData[type.toLowerCase()] = {
             type: 'FeatureCollection',
-            features: this.initData.features.filter(f => f.geometry.type === type)
+            features: initPolygons.features.filter(f => f.geometry.type === type)
           }
         })
       }
+
+      this.initData = JSON.parse(JSON.stringify(this.drawingsData))
+      this.hasChanges = this.checkForChanges()
     },
 
     updateDrawings (type, data) {
       this.drawingsData[type] = JSON.parse(data)
+      this.hasChanges = this.checkForChanges()
     }
   }
 }
