@@ -83,11 +83,6 @@ final class OriginalStatementResourceType extends DplanResourceType
 
         $this->eventDispatcher->dispatch(new GetOriginalStatementPropertiesEvent($properties));
 
-        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $properties[] = $this->createToManyRelationship($this->statements)->readable()
-                ->aliasedPath($this->statementsCreatedFromOriginal);
-        }
-
         return $properties;
     }
 }
