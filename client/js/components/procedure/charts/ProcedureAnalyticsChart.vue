@@ -46,7 +46,7 @@
 <script>
 import DpCard from '@DpJs/components/core/DpCard'
 import { DpLoading } from 'demosplan-ui/components'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpRpc } from '@DpJs/plugins/DpApi'
 import { initLineChart } from '@DpJs/lib/procedure/charts/helpers/init'
 
 export default {

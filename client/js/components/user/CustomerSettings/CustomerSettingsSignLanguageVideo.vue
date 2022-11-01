@@ -80,7 +80,7 @@
 
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'

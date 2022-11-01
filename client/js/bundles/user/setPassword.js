@@ -12,7 +12,7 @@
  */
 
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import SetPassword from '@DpJs/components/user/portalUser/SetPassword'
 

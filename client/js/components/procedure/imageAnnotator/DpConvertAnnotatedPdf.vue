@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'

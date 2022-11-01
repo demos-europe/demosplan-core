@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'

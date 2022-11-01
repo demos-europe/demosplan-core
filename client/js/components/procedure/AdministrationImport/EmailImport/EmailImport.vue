@@ -104,7 +104,7 @@
 
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpLoading } from 'demosplan-ui/components'

@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { DpLoading } from 'demosplan-ui/components'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 

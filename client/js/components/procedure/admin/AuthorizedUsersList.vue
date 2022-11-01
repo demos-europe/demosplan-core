@@ -289,7 +289,7 @@
 </template>
 
 <script>
-import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, dpRpc } from '@DpJs/plugins/DpApi'
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'

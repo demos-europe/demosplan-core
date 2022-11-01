@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'

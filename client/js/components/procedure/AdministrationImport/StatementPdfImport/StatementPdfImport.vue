@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, handleResponseMessages } from '@DpJs/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { getFileIdsByHash } from '@DpJs/components/core/DpUpload/utils/GetFileIdsByHash'

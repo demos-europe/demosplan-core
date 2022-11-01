@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {

@@ -9,7 +9,7 @@
 
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,

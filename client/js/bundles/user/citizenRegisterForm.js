@@ -13,7 +13,7 @@
 
 import CitizenRegisterForm from '@DpJs/components/user/citizenRegisterForm/CitizenRegisterForm'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const components = {

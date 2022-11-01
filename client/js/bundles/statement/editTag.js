@@ -13,7 +13,7 @@
 
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 
 const components = { DpEditor }

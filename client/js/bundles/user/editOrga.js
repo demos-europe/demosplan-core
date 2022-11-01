@@ -14,7 +14,7 @@
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 
 const components = {

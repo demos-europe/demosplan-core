@@ -12,7 +12,7 @@
  */
 import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/core/FormActions'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpTooltipIcon

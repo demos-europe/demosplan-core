@@ -15,7 +15,7 @@
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'

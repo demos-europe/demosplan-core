@@ -10,8 +10,8 @@
 /**
  * This is the entrypoint for publix_index.html.twig in planfestsh.
  */
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { dpApi } from '@DpJs/plugins/DpApi'
+import { initialize } from '@DpJs/InitVue'
 
 initialize()
   .then(() => {

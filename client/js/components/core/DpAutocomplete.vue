@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import VueOmnibox from 'vue-omnibox'
 

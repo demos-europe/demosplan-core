@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 
 const LocationStore = {
 

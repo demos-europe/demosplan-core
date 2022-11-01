@@ -13,7 +13,7 @@
 
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpUploadFiles

@@ -12,7 +12,7 @@
  */
 import DpSlidebar from '@DpJs/components/core/DpSlidebar'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import SegmentFilterStore from '@DpJs/store/procedure/SegmentFilter'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 

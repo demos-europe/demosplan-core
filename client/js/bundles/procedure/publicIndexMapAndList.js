@@ -11,9 +11,9 @@
  * This is the entrypoint for public_index.html.twig
  * where the Map is on the left hand side and the Procedurelist on the right.
  */
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 
 const stores = {}

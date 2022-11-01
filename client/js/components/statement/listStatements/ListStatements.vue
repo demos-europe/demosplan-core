@@ -271,7 +271,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, dpRpc } from '@DpJs/plugins/DpApi'
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'

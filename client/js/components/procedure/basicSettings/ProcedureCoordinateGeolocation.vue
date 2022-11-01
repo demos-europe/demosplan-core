@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpRpc } from '@DpJs/plugins/DpApi'
 import { DpInput, DpLoading } from 'demosplan-ui/components'
 
 const LookupStatus = {

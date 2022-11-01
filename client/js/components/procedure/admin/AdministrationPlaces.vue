@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, dpRpc } from '@DpJs/plugins/DpApi'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'

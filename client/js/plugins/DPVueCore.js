@@ -11,7 +11,7 @@
  * DPVueCorePlugin adds dplan object, globally used functions and filters to the main Vue instance
  */
 
-import { extendedEmit, extendedOn } from '../lib/ExtendedVueEvents'
+import { extendedEmit, extendedOn } from '../lib/core/ExtendedVueEvents'
 import { hasOwnProp } from 'demosplan-utils'
 import MatchMedia from '@DpJs/lib/MatchMedia'
 

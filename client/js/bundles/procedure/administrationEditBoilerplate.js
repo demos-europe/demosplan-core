@@ -15,7 +15,7 @@ import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplat
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpEditBoilerplate,

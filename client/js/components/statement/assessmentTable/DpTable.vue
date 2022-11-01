@@ -240,7 +240,7 @@ import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/Dp
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { DpLoading } from 'demosplan-ui/components'
 import DpPager from '@DpJs/components/core/DpPager'
-import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { handleResponseMessages } from '@DpJs/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
 import Stickier from '@DpJs/lib/Stickier'
 

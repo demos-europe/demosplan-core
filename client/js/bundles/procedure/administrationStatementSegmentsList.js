@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_statement_segments_list.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
 import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
 import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'

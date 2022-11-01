@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_segments_bulk_edit.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
 
 const components = { SegmentsBulkEdit }

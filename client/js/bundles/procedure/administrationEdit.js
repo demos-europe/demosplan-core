@@ -18,7 +18,7 @@ import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import DPWizard from '@DpJs/lib/procedure/DPWizard'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 
 const components = { DpBasicSettings, DpEmailList, DpDateRangePicker }

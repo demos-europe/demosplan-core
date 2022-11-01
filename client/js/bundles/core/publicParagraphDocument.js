@@ -13,7 +13,7 @@
 
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { prefixClass } from 'demosplan-ui/lib'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import TableWrapper from '@DpJs/lib/TableWrapper'

@@ -14,7 +14,7 @@
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpCheckbox, DpEditor }
 

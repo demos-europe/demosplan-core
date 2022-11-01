@@ -198,7 +198,7 @@ import {
   toggleFullscreen,
   unbindFullScreenChange
 } from 'demosplan-utils'
-import { dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, makeFormPost } from '@DpJs/plugins/DpApi'
 import dataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'

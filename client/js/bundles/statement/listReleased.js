@@ -14,7 +14,7 @@
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 
 const components = {

@@ -12,7 +12,7 @@
  */
 
 import DpAccordion from '@DpJs/components/core/DpAccordion'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { VPopover } from 'demosplan-ui/directives'
 
 const components = {

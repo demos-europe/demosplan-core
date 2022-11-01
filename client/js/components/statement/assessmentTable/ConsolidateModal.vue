@@ -206,7 +206,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, handleResponseMessages } from '@DpJs/plugins/DpApi'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'

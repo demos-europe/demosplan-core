@@ -14,7 +14,7 @@
 import AnimateById from '@DpJs/lib/AnimateById'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpTooltipIcon,

@@ -127,7 +127,7 @@ import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 import { debounce } from 'demosplan-utils'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpRpc } from '@DpJs/plugins/DpApi'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
 
 export default {

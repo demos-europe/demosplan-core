@@ -16,7 +16,7 @@ import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 

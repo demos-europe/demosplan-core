@@ -15,7 +15,7 @@ import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import DpDashboardTaskCard from '@DpJs/components/core/DpDashboardTaskCard'
 import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import ProcedureAnalyticsChart from '@DpJs/components/procedure/charts/ProcedureAnalyticsChart'
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 

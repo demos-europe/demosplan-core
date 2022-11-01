@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'

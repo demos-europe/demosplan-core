@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 
 const components = {

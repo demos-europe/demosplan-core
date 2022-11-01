@@ -13,7 +13,7 @@
  * their functionality to other components.
  */
 
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@DpJs/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
 
 export default function AssessmentTableOriginal () {

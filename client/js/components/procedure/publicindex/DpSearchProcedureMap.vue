@@ -210,7 +210,7 @@
 </template>
 <script>
 import { DpInput, DpLoading } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
 import { hasOwnProp } from 'demosplan-utils'
 import { prefixClassMixin } from 'demosplan-ui/mixins'

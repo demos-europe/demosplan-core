@@ -11,7 +11,7 @@
  * This is the entrypoint for gateway_newUser.html.twig
  */
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {}
 

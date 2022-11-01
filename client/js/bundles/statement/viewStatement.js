@@ -14,7 +14,7 @@
 import AnimateById from '@DpJs/lib/AnimateById'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpHeightLimit from '@DpJs/components/core/HeightLimit'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,

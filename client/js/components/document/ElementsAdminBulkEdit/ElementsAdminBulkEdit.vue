@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpRpc } from '@DpJs/plugins/DpApi'
 import { formatDate, hasOwnProp } from 'demosplan-utils'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'

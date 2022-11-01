@@ -9,7 +9,7 @@
 
 /* eslint-disable-next-line import/extensions */
 import 'swagger-ui-dist/swagger-ui.css'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { SwaggerUIBundle } from 'swagger-ui-dist'
 
 initialize().then(() => {

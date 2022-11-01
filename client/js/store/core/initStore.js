@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, handleResponseMessages } from '@DpJs/plugins/DpApi'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import { hasOwnProp } from 'demosplan-utils'
 import notify from './Notify'

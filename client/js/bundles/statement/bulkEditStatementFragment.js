@@ -14,7 +14,7 @@
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
 import FragmentStore from '@DpJs/store/statement/Fragment'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {

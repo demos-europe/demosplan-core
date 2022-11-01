@@ -621,7 +621,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, makeFormPost } from '@DpJs/plugins/DpApi'
 import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
 import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
 import { mapMutations, mapState } from 'vuex'

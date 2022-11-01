@@ -12,7 +12,7 @@
  */
 
 import DpCard from '@DpJs/components/core/DpCard'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpCard }
 const stores = {}

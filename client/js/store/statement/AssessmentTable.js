@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@DpJs/plugins/DpApi'
 import { hasOwnProp } from 'demosplan-utils'
 
 const AssessmentTable = {
