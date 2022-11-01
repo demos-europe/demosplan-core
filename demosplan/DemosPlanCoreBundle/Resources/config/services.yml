@@ -1079,8 +1079,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
-            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1091,9 +1090,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider:
+    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 

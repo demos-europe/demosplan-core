@@ -14,6 +14,7 @@ use Closure;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ConnectionException;
@@ -25,6 +26,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -39,6 +41,11 @@ abstract class CoreRepository extends ServiceEntityRepository
      */
     protected $logger;
 
+    /**
+     * @var ValidatorInterface
+     */
+    protected $validator;
+
     protected $obscureTag = 'dp-obscure';
 
     /**
@@ -51,6 +58,20 @@ abstract class CoreRepository extends ServiceEntityRepository
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     *
+     * @return $this
+     */
+    public function setValidator(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
 
         return $this;
     }
@@ -478,5 +499,13 @@ abstract class CoreRepository extends ServiceEntityRepository
     public function getOriginalEntityData(CoreEntity $entity): array
     {
         return $this->getEntityManager()->getUnitOfWork()->getOriginalEntityData($entity);
+    }
+
+    protected function validate(object $entityToValidate)
+    {
+        $violations = $this->validator->validate($entityToValidate);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
     }
 }

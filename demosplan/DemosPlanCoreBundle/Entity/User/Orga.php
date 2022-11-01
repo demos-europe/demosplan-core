@@ -127,15 +127,6 @@ class Orga extends SluggedEntity
     protected $emailReviewerAdmin;
 
     /**
-     * @var string|null
-     *
-     * @ORM\Column(name="_o_url", type="string", length=364, nullable=true)
-     *
-     * @Assert\Url
-     */
-    protected $url;
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="_o_deleted", type="boolean", nullable=false, options={"default":false})
@@ -533,18 +524,6 @@ class Orga extends SluggedEntity
         $this->emailReviewerAdmin = $emailReviewerAdmin;
 
         return $this;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
     }
 
     public function setDeleted(bool $deleted): self

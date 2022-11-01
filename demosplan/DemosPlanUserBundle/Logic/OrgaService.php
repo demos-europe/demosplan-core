@@ -47,9 +47,9 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
@@ -500,8 +500,8 @@ class OrgaService extends CoreService
 
         return [
             'invitable_institution' => $institutionCount,
-            'planningagency' => $planningAgencyCount,
-            'procedure.agency' => $municipalityCount,
+            'planningagency'        => $planningAgencyCount,
+            'procedure.agency'      => $municipalityCount,
         ];
     }
 
