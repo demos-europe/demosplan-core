@@ -51,11 +51,17 @@
 <template>
   <button
     v-if="renderControl"
-    type="button"
-    @click="toggle"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
-    :class="{'color--highlight':currentlyActive}">
+    :class="{'color--highlight':currentlyActive}"
+    type="button"
+    :title="title"
+    @click="toggle">
     {{ label }}
+    <i
+      v-if="icon"
+      class="fa"
+      :class="iconClass"
+      aria-hidden="true" />
   </button>
 </template>
 
@@ -74,34 +80,16 @@ export default {
   inject: ['olMapState'],
 
   props: {
-    name: {
-      required: false,
-      type: String,
-      default: uuid()
-    },
-
-    label: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    iconClass: {
-      required: false,
-      type: String,
-      default: 'fa fa-map'
-    },
-
-    type: {
-      required: false,
-      type: String,
-      default: 'Point'
-    },
-
-    initActive: {
+    defaultControl: {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    drawStyle: {
+      required: false,
+      type: [Object, null],
+      default: null
     },
 
     features: {
@@ -116,39 +104,75 @@ export default {
       default: false
     },
 
+    icon: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    iconClass: {
+      required: false,
+      type: String,
+      default: 'fa-map'
+    },
+
+    initActive: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    label: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    name: {
+      required: false,
+      type: String,
+      default: uuid()
+    },
+
     renderControl: {
       required: false,
       type: Boolean,
       default: false
     },
 
-    defaultControl: {
+    title: {
       required: false,
-      type: Boolean,
-      default: false
+      type: String,
+      default: ''
     },
 
-    drawStyle: {
+    type: {
       required: false,
-      type: [Object, null],
-      default: null
+      type: String,
+      default: 'Point'
     }
   },
 
   data () {
     return {
-      drawInteraction: null,
+      currentlyActive: this.initActive,
       drawingExtent: '',
+      drawInteraction: null,
       layerToDrawInto: null,
       snap: null,
-      vectorSourceOptions: {},
-      currentlyActive: this.initActive
+      vectorSourceOptions: {}
     }
   },
 
   computed: {
     map () {
       return this.olMapState.map
+    }
+  },
+
+  watch: {
+    features () {
+      this.init()
     }
   },
 
@@ -186,6 +210,15 @@ export default {
         this.map.removeInteraction(this.snap)
         this.currentlyActive = false
       }
+    },
+
+    clearAll () {
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.name === layer.get('name')) {
+          layer.getSource().clear()
+          this.map.removeLayer(layer)
+        }
+      })
     },
 
     init () {
