@@ -72,7 +72,7 @@
         }"
         init-sort="{{ sort }}"
         procedure-id="{{ procedure }}"
-        :procedure-statement-priority-area="Boolean('{{ procedureStatementPriorityArea|default(false) }})')"
+        :procedure-statement-priority-area="Boolean('{{ procedureStatementPriorityArea|default(false) }}')"
         :public-participation-publication-enabled="Boolean('{{ templateVars.table.procedure.publicParticipationPublicationEnabled }}')"
         :search-fields="{{ templateVars.table.searchFields|default([])|json_encode }}"
         search-term="{{ templateVars.table.search|default }}"
