@@ -198,8 +198,7 @@ export default {
     },
 
     closeSlidebar () {
-      // Trigger click event for SideNav.js
-      document.querySelector('[data-slidebar-hide]').click()
+      this.$root.$emit('hide-slidebar')
     },
 
     resetCurrentMap () {
