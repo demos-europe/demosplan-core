@@ -50,10 +50,10 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
         if (!$event->getType() instanceof OriginalStatementResourceType) {
             return;
         }
-        $properties = $event->getProperties();
         if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $properties = $this->createToManyRelationship($resourceType->statements)->readable()
+            $property = $this->createToManyRelationship($resourceType->statements)->readable()
                 ->aliasedPath($resourceType->statementsCreatedFromOriginal);
+            $event->addProperty($property);
         }
     }
 }
