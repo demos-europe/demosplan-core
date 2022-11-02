@@ -551,7 +551,7 @@ export default {
           show: true
         }
       })
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'comments' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('show-slidebar')
     },
 
@@ -561,7 +561,7 @@ export default {
       }
 
       this.$parent.$parent.resetSlidebar()
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'map' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
     },
 
@@ -572,7 +572,7 @@ export default {
 
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'history' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
     startEditing () {

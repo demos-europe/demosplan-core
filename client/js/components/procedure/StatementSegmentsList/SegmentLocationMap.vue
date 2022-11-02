@@ -137,6 +137,8 @@ export default {
       segments: 'items'
     }),
 
+    ...mapState('segmentSlidebar', ['slidebar']),
+
     pointData () {
       return {
         type: 'FeatureCollection',
@@ -202,6 +204,9 @@ export default {
 
     resetCurrentMap () {
       this.clearTools()
+      if (this.slidebar.isOpen) {
+        this.setInitDrawings()
+      }
 
       this.$nextTick(() => {
         this.$refs.map.updateMapInstance()
