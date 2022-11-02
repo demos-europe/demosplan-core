@@ -409,8 +409,8 @@ export default {
 
     ...mapGetters('assessmentTable', [
       'assignEntityModal',
-      'copyStatementModal',
       'consolidateModal',
+      'copyStatementModal',
       'isLoading'
     ]),
 
