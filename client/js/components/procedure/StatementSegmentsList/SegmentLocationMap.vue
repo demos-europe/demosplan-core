@@ -55,7 +55,9 @@
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
-          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
+          <dp-ol-map-edit-feature
+            class="border--left u-ml-0_25"
+            :target="['Polygon', 'Line', 'Point']">
             <template v-slot:editButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.edit')"
@@ -91,6 +93,7 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { diff } from 'deep-object-diff'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -195,6 +198,10 @@ export default {
       this.$refs.drawPoint.clearAll()
       this.$refs.drawLine.clearAll()
       this.$refs.drawPolygon.clearAll()
+    },
+
+    checkForChanges () {
+      return JSON.stringify(diff(this.drawingsData, this.initData)) !== '{}'
     },
 
     closeSlidebar () {
