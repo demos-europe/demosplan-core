@@ -324,7 +324,7 @@ class AssessmentTableServiceStorage
 
             //On UPDATE: Ensure hour, minute and second will stay untouched, to avoid changing of order by submitDate.
             $currentlySavedDate = Carbon::instance($currentStatement->getSubmitObject());
-            $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']["submitted_date"]);
+            $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']['submitted_date']);
             $incomingDate->setTime($currentlySavedDate->hour, $currentlySavedDate->minute, $currentlySavedDate->second);
             $statementArray['submittedDate'] = $incomingDate->rawFormat('d.m.Y H:i:s');
         }
@@ -702,6 +702,7 @@ class AssessmentTableServiceStorage
                 }
                 // manuell eingegebene Stellungnahme
                 elseif ('' != $statement->getMeta()->getOrgaEmail()) {
+                    $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
                         $statement->getMeta()->getOrgaEmail(),
                         $from,
