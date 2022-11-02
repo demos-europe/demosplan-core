@@ -509,8 +509,7 @@ export default {
       window.history.pushState({
         html: newUrl.join('?'),
         pageTitle: document.title
-      },
-        document.title, newUrl.join('?'))
+      }, document.title, newUrl.join('?'))
     },
 
     handlePageChange (newPage) {
@@ -707,8 +706,7 @@ export default {
         window.history.pushState({
           html: url.join('?'),
           pageTitle: document.title
-          },
-          document.title, url.join('?'))
+          }, document.title, url.join('?'))
       }
     },
 
