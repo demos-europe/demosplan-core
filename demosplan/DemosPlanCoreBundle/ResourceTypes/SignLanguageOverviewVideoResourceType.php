@@ -84,7 +84,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->description)->readable()->initializable(),
-            $this->createAttribute($this->file)->readable()->initializable(),
+            $this->createToOneRelationship($this->file)->readable()->initializable(),
         ];
     }
 
