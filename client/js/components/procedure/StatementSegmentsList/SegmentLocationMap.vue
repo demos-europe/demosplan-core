@@ -54,7 +54,9 @@
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
             @layerFeaturesChanged="data => updateDrawings('polygon', data)" />
-          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
+          <dp-ol-map-edit-feature
+            class="border--left u-ml-0_25"
+            :target="['Polygon', 'Line', 'Point']">
             <template v-slot:editButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.edit')"
