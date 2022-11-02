@@ -182,20 +182,16 @@ $dp-nav-item-font-family:                   $headings-font-family !default;
                     color: $nav-item-color-hover;
 
                     text-decoration: none;
+                }
 
-                    svg path {
-                        fill: $nav-item-color-hover;
-                    }
+                svg path {
+                    fill: currentColor;
                 }
             }
 
             &.current > a {
                 background-color: $nav-item-bg-color-current;
                 color: $nav-item-color-current;
-
-                svg path {
-                    fill: $nav-item-color-current;
-                }
             }
 
             // On mobile devices, indicate current/active state with the same colors.
