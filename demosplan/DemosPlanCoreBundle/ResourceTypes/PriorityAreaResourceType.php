@@ -52,7 +52,7 @@ final class PriorityAreaResourceType extends DplanResourceType
         if (!$behaviorDefinition->hasPriorityArea()) {
             return false;
         }
-        if (!$this->currentUser->hasPermission('area_admin_assessmenttable ')) {
+        if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $formDefinition = $procedure->getStatementFormDefinition();
             if (null === $formDefinition) {
                 return false;
