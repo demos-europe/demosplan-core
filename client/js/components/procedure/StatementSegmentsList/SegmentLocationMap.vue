@@ -204,14 +204,11 @@ export default {
       this.clearTools()
 
       this.$nextTick(() => {
-        this.setInitDrawings()
         this.$refs.map.updateMapInstance()
       })
     },
 
     save () {
-      console.log(this.featuresObject);
-
       this.setItem({
         ...this.segment,
         attributes: {
@@ -224,7 +221,6 @@ export default {
         .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
-          this.initPolygons = JSON.parse(JSON.stringify(this.currentPolygons))
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))

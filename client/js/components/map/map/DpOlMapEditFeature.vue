@@ -199,10 +199,9 @@ export default {
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
               if (layer instanceof VectorLayer && this.target.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
-                layer.getSource().removeFeature(feature) // @TODO For some reason this only works for new Features
+                layer.getSource().removeFeature(feature)
               }
             })
-
           }
         })
 
