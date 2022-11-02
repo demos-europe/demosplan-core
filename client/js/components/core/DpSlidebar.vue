@@ -60,6 +60,7 @@ export default {
     hideSlideBar () {
       if (hasOwnProp(this.sideNav, 'hideSideNav')) {
         this.sideNav.hideSideNav()
+        this.$emit('close')
       }
     },
 
