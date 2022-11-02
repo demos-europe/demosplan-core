@@ -32,6 +32,7 @@ class GetOriginalStatementPropertiesEvent extends DPlanEvent
     {
         return $this->properties;
     }
+
     public function addProperty(PropertyBuilder $property): void
     {
         $this->properties[] = $property;
