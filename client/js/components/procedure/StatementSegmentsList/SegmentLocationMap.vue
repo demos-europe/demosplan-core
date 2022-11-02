@@ -236,7 +236,7 @@ export default {
         return
       }
 
-      this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ features: [] }').features
+      this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
       this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
     },
 
