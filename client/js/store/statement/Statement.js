@@ -469,7 +469,7 @@ export default {
         'files'
       ]
 
-      // isSubmittedByCitizen, priorityAreas,  is available and readable with one of the following permissions
+      // isSubmittedByCitizen, priorityAreas, counties and municipalities are available and readable with one of the following permissions
       const statementFields = []
       if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
         statementFields.push('isSubmittedByCitizen')
