@@ -41,6 +41,7 @@
     <dp-button
       v-if="primary"
       :busy="busy"
+      :disabled="disabled"
       :text="primaryText"
       :variant="variant"
       @click.prevent="$emit('primary-action')"
@@ -80,6 +81,15 @@ export default {
      * The primary button may have a "busy" state to indicate system progress.
      */
     busy: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    /**
+     * The primary button may have a "disabled" state to prevent unwanted user interaction e.g if no data is changed yet.
+     */
+    disabled: {
       type: Boolean,
       required: false,
       default: false

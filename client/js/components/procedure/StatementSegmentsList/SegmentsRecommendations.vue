@@ -135,7 +135,7 @@ export default {
         if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
           if (window.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
-              .then((err) => {
+              .then(err => {
                 if (typeof err === 'undefined') {
                   this.goToSplitStatementView()
                 }
@@ -146,7 +146,7 @@ export default {
         }
       } else {
         this.claimStatement()
-          .then((err) => {
+          .then(err => {
             if (typeof err === 'undefined') {
               this.goToSplitStatementView()
             }
@@ -211,6 +211,7 @@ export default {
             'externId',
             'internId',
             'orderInProcedure',
+            'polygon',
             'recommendation'
           ].join(),
           SegmentComment: [
