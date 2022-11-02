@@ -616,9 +616,18 @@ export default {
     },
 
     triggerApiCallForStatements () {
-      this.setProperty({ prop: 'isLoading', val: true })
+      this.setProperty({
+        prop: 'isLoading',
+        val: true
+      })
       // Trigger the get-action for all the required statements
-      this.getStatementAction({ filterHash: this.filterHash, procedureId: this.procedureId, pagination: this.pagination, sort: this.sort.value })
+      this.getStatementAction({
+        filterHash: this.filterHash,
+        hasPriorityArea: this.procedureStatementPriorityArea,
+        procedureId: this.procedureId,
+        pagination: this.pagination,
+        sort: this.sort.value
+      })
         .then((response) => {
           this.updateFilterHash(response.meta.filterHash)
           this.setSelectedElementsMethod(response)

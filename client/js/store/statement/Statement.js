@@ -462,9 +462,6 @@ export default {
         'elements',
         'paragraph',
         'document',
-        'counties',
-        'municipalities',
-        'priorityAreas',
         'tags',
         'assignee',
         'attachments',
@@ -477,14 +474,17 @@ export default {
       if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
         statementFields.push('isSubmittedByCitizen')
       }
-      if (hasPermission('field_statement_priority_area')) {
+      if (hasPermission('field_statement_priority_area') && data.hasPriorityArea === true) {
+        includes.push('priorityAreas')
         statementFields.push('priorityAreas')
       }
       if (hasPermission('field_statement_county')) {
+        includes.push('counties')
         statementFields.push('counties')
       }
       if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
-        statementFields.push('munipicalities')
+        includes.push('municipalities')
+        statementFields.push('municipalities')
       }
 
       return dpApi({
@@ -555,6 +555,9 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
+            ...(hasPermission('field_statement_county') && { County: 'name' }),
+            ...((hasPermission('field_statement_priority_area') && data.hasPriorityArea) && { PriorityArea: 'name' }),
+            ...(hasPermission('field_statement_municipality') && { Municipality: 'name' }),
             Claim: [
               'name',
               'orgaName'
