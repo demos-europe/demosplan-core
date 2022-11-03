@@ -320,7 +320,7 @@ export default {
         if (customer.relationships.signLanguageOverviewVideo.data) {
           const signLanguageOverviewVideoId = customer.relationships.signLanguageOverviewVideo.data.id
           const signLanguageOverviewVideo = response.data.included.find(item => item.id === signLanguageOverviewVideoId) || null
-          const file = response.data.included.find(item => item.id === signLanguageOverviewVideo.relationships.file.data.id) || null
+          const file = response.data.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data.id) || null
 
           if (signLanguageOverviewVideoId && file) {
             this.signLanguageOverviewVideo = { ...signLanguageOverviewVideo.attributes }
