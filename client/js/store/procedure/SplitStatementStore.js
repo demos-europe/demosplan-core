@@ -210,7 +210,7 @@ const SplitStatementStore = {
         fields: {
           Statement: [
             'segmentDraftList'
-          ]
+          ].join()
         }
       }))
         .then(({ data }) => {
@@ -346,7 +346,7 @@ const SplitStatementStore = {
             'submitDate',
             'submitName',
             'submitType'
-          ]
+          ].join()
         }
       }))
         .then((response) => {
