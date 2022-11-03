@@ -13,11 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 /**
+ * Beside some basic permission information, instances of this class carry three filter array
+ * properties:
+ *
+ * * {@link self::$customerFilters}
+ * * {@link self::$userFilters}
+ * * {@link self::$procedureFilters}
+ *
+ * Each filter will be evaluated against the current customer, user or procedure, respectively.
+ * If all three match, then the permission represented by this instance will be considered enabled.
+ *
  * Filters that are set to empty arrays will be handled as "there is no condition to be fulfilled
- * for the permission to be enabled". So if all filters ({@link self::$customerFilters},
- * {@link self::$userFilters} and {@link self::$procedureFilters}) are set to empty arrays,
- * the permission will always be enabled, regardless of the state (current customer, user and
- * procedure) of the application.
+ * for the permission to be enabled". So if all filters are set to empty arrays,
+ * the permission will always be enabled, regardless of the state of the application (current
+ * customer, current user and current procedure).
  *
  * @psalm-type PsalmDrupalFilterGroup = array{
  *            conjunction: non-empty-string,
