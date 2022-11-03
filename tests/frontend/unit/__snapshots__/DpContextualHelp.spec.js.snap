@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DpContextualHelp should render the correct html 1`] = `"<i class=\\"fa fa-question-circle  has-tooltip\\" aria-label=\\"contextual.help\\" data-original-title=\\"null\\"></i>"`;
