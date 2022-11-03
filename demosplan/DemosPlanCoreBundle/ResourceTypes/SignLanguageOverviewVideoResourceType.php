@@ -108,7 +108,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange = new ResourceChange($video, $this, $properties);
 
         // until the FE supports multiple sign language videos we automatically remove the old one when a new one is created
-        $customer->getSignLanguageOverviewVideos()->forAll(static function (int $index, Video $oldVideo) use ($resourceChange, $customer): void {
+        $customer->getSignLanguageOverviewVideos()->forAll(static function (Video $oldVideo) use ($resourceChange, $customer): void {
             $customer->removeSignLanguageOverviewVideo($oldVideo);
             $resourceChange->addEntityToDelete($oldVideo);
         });
