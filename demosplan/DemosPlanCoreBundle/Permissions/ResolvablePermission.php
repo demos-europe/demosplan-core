@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * Beside some basic permission information, instances of this class carry three filter array
  * properties:
@@ -58,31 +61,53 @@ class ResolvablePermission
 
     /**
      * @var non-empty-string
+     *
+     * @Assert\NotBlank(normalizer="trim", allowNull=false)
+     * @Assert\Type(type="string")
+     * @Assert\Regex(pattern="/^[a-z]+(_[a-z]+)*$/")
      */
     private string $name;
 
     /**
      * @var non-empty-string
+     *
+     * @Assert\NotBlank(normalizer="trim", allowNull=false)
+     * @Assert\Type(type="string")
      */
     private string $label;
 
     /**
      * @var non-empty-string
+     *
+     * @Assert\NotNull()
+     * @Assert\Type(type="string")
      */
     private string $description;
 
     /**
      * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     *
+     * @Assert\NotNull()
+     * @Assert\Type(type="array")
+     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
      */
     private array $customerFilters = [];
 
     /**
      * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     *
+     * @Assert\NotNull()
+     * @Assert\Type(type="array")
+     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
      */
     private array $userFilters = [];
 
     /**
      * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     *
+     * @Assert\NotNull()
+     * @Assert\Type(type="array")
+     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
      */
     private array $procedureFilters = [];
 
