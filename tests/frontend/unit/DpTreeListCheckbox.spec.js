@@ -1,4 +1,4 @@
-import DpTreeListCheckbox from '@DemosPlanCoreBundle/components/DpTreeList/DpTreeListCheckbox'
+import DpTreeListCheckbox from '@DpJs/components/core/DpTreeList/DpTreeListCheckbox'
 
 import { shallowMount } from '@vue/test-utils'
 

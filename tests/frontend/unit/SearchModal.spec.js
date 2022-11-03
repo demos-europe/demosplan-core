@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import SearchModal from '@DemosPlanStatementBundle/components/assessmentTable/SearchModal/SearchModal'
+import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 import Vuex from 'vuex'

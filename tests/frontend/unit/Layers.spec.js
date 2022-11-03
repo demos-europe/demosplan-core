@@ -9,14 +9,14 @@
 
 import { apiData } from './__mocks__/layer_json.mock'
 import { createLocalVue } from '@vue/test-utils'
-import Layers from '@DemosPlanMapBundle/store/Layers'
+import Layers from '@DpJs/store/map/Layers'
 import Vuex from 'vuex'
 
 const LocalVue = createLocalVue()
 LocalVue.use(Vuex)
 let StubStore
 
-// non-instance tests
+// Non-instance tests
 describe('Layer-Store', () => {
   it('is namespaced', () => {
     expect(Layers.hasOwnProperty('namespaced')).toBe(true)
@@ -38,7 +38,7 @@ describe('Layer-Store', () => {
   })
 })
 
-// active tests
+// Active tests
 describe('Layers', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
@@ -61,6 +61,8 @@ describe('Layers', () => {
     expect(StubStore.state.layers.apiData).not.toEqual(StubStore.state.layers.originalApiData)
   })
 
-  // commit('setLayersAndCategoriesById', data);
-  // commit('setVisibilityGroups');
+  /*
+   * Commit('setLayersAndCategoriesById', data);
+   * commit('setVisibilityGroups');
+   */
 })

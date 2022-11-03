@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DataTableSearch from '@DemosPlanCoreBundle/components/DpDataTable/DataTableSearch'
+import DataTableSearch from '@DpJs/components/core/DpDataTable/DataTableSearch'
 
 describe('DataTableSearch a utility function to perform full-text search in strings', () => {
   it('should escape all regex special chars', () => {

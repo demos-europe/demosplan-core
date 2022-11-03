@@ -7,12 +7,12 @@
  * All rights reserved
  */
 
-import DpTiptap from '@DemosPlanCoreBundle/components/DpTiptap'
+import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('Tiptap', () => {
   it('currentValue should reflect the input value', () => {
-    const instance = shallowMountWithGlobalMocks(DpTiptap, {
+    const instance = shallowMountWithGlobalMocks(DpEditor, {
       propsData: {
         value: 'test'
       }

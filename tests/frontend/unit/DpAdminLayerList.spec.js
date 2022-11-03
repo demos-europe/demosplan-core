@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import DpAdminLayerList from '@DemosPlanMapBundle/components/admin/DpAdminLayerList'
-import LayersStore from '@DemosPlanMapBundle/store/Layers'
+import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
+import LayersStore from '@DpJs/store/map/Layers'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 import Vuex from 'vuex'

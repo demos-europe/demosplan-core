@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpProcedureCoordinateInput from '@DemosPlanProcedureBundle/components/basicSettings/DpProcedureCoordinateInput'
+import DpProcedureCoordinateInput from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinateInput'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('DpProcedureCoordinateInput', () => {

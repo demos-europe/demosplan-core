@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpCheckbox from '@DemosPlanCoreBundle/components/form/DpCheckbox'
+import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { runBooleanAttrTests } from './shared/Attributes'
 import { runLabelTests } from './shared/Label'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'

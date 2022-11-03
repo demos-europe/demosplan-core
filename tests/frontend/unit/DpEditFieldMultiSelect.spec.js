@@ -8,7 +8,7 @@
  */
 
 import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
-import DpEditFieldMultiSelect from '@DemosPlanStatementBundle/components/assessmentTable/DpEditFieldMultiSelect'
+import DpEditFieldMultiSelect from '@DpJs/components/statement/assessmentTable/DpEditFieldMultiSelect'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
@@ -26,14 +26,16 @@ describe('DpEditFieldMultiSelect', () => {
     expect(DpEditFieldMultiSelect.name).toBe('DpEditFieldMultiSelect')
   })
 
-  // it('data.selected should be an array', done => {
-  //     function callback(data) {
-  //         expect(Array.isArray(vm.selected)).toBe(true);
-  //         done();
-  //     }
-  //
-  //
-  // });
+  /*
+   * It('data.selected should be an array', done => {
+   *     function callback(data) {
+   *         expect(Array.isArray(vm.selected)).toBe(true);
+   *         done();
+   *     }
+   *
+   *
+   * });
+   */
 
   const AssessmentTable = {
     state: {
@@ -83,8 +85,9 @@ describe('DpEditFieldMultiSelect', () => {
     expect(instance.vm.assessmentBaseLoaded).toBe(true)
     const modal = instance.vm
 
-    //
-    // expect(modal.filterList).toBe(modal.$store.state.filter.filterList);
-    // expect(modal.filterGroups).toBe(modal.$store.state.filter.filterGroups);
+    /*
+     * Expect(modal.filterList).toBe(modal.$store.state.filter.filterList);
+     * expect(modal.filterGroups).toBe(modal.$store.state.filter.filterGroups);
+     */
   })
 })

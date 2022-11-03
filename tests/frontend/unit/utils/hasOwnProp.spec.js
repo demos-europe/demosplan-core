@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 const OGwarn = console.warn
 

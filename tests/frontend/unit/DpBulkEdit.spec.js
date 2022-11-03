@@ -8,7 +8,7 @@
  */
 
 import $ from 'jquery'
-import DpBulkEditStatement from '@DemosPlanStatementBundle/components/assessmentTable/DpBulkEditStatement'
+import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 import Vuex from 'vuex'
 
@@ -32,49 +32,51 @@ describe('DpBulkEditStatement', () => {
   }
 
   /*
-  beforeEach(() => {
-    actions = {
-      setProcedureIdAction: jest.fn(),
-      setSelectedElementsAction: jest.fn(),
-      addToSelectionAction: jest.fn()
-    }
+   *BeforeEach(() => {
+   *  actions = {
+   *    setProcedureIdAction: jest.fn(),
+   *    setSelectedElementsAction: jest.fn(),
+   *    addToSelectionAction: jest.fn()
+   *  }
+   *
+   *  getters = {
+   *    selectedElementsLength: jest.fn()
+   *  }
+   *
+   *  store = new Vuex.Store({
+   *    modules: {
+   *      statement: {
+   *        namespaced: true,
+   *        state: {
+   *          procedureId: '',
+   *          selectedElements: {},
+   *          statements: {}
+   *        },
+   *        actions,
+   *        getters
+   *      }
+   *    }
+   *  })
+   *})
+   */
 
-    getters = {
-      selectedElementsLength: jest.fn()
-    }
-
-    store = new Vuex.Store({
-      modules: {
-        statement: {
-          namespaced: true,
-          state: {
-            procedureId: '',
-            selectedElements: {},
-            statements: {}
-          },
-          actions,
-          getters
-        }
-      }
-    })
-  })
-  */
-
-  // @TODO: find out how to fix 'Routing is not defined' error
-  // it('renders correct markup with isEditMode = true', () => {
-  //
-  //     let wrapper = shallowMountWithGlobalMocks(
-  //         DpBulkEdit,
-  //         {
-  //             propsData: {
-  //                 procedureId: '2a1cc2f5-bd9e-11e8-b87f-4f2df2384097',
-  //                 isEditMode: true,
-  //                 token: ''
-  //             },
-  //             store,
-  //             actions
-  //          },
-  //     );
-  //     expect(wrapper.html()).toMatchSnapshot()
-  // });
+  /*
+   * @TODO: find out how to fix 'Routing is not defined' error
+   * it('renders correct markup with isEditMode = true', () => {
+   *
+   *     let wrapper = shallowMountWithGlobalMocks(
+   *         DpBulkEdit,
+   *         {
+   *             propsData: {
+   *                 procedureId: '2a1cc2f5-bd9e-11e8-b87f-4f2df2384097',
+   *                 isEditMode: true,
+   *                 token: ''
+   *             },
+   *             store,
+   *             actions
+   *          },
+   *     );
+   *     expect(wrapper.html()).toMatchSnapshot()
+   * });
+   */
 })

@@ -8,11 +8,10 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import Obscure from '@DemosPlanCoreBundle/components/Obscure'
+import Obscure from '@DpJs/components/core/Obscure'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
-
-/* mock hasPermission for the sake of testing */
+/* Mock hasPermission for the sake of testing */
 // TODO: hasPermission should probably live in the webpack world
 
 describe('Obscure', () => {

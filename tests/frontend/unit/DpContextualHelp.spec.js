@@ -8,7 +8,7 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import DpContextualHelp from '@DemosPlanCoreBundle/components/DpContextualHelp'
+import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('DpContextualHelp', () => {

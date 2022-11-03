@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpBoilerPlate from '@DemosPlanCoreBundle/components/tiptapComponents/DpBoilerPlate'
+import DpBoilerPlate from '@DpJs/components/core/DpEditor/DpBoilerPlate'
 
 describe('DpBoilerPlate', () => {
   it('should be an object', () => {

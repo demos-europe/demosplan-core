@@ -7,12 +7,14 @@
  * All rights reserved
  */
 
-import { getResolutionsFromScales, getScalesAndResolutions } from '@DemosPlanMapBundle/components/map/utils/utils'
+import { getResolutionsFromScales, getScalesAndResolutions } from '@DpJs/components/map/map/utils/utils'
 import ResponseAttributes from './__mocks__/dplan_api_map_options_admin.json'
 
 describe('DpOlMap/utils', () => {
-  //  Fake window.matchMedia
-  //  See https://stackoverflow.com/questions/39830580/jest-test-fails-typeerror-window-matchmedia-is-not-a-function
+  /*
+   *  Fake window.matchMedia
+   *  See https://stackoverflow.com/questions/39830580/jest-test-fails-typeerror-window-matchmedia-is-not-a-function
+   */
   beforeAll(() => {
     Object.defineProperty(window, 'matchMedia', {
       value: jest.fn((query) => {

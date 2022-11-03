@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { hasAllPermissions, hasAnyPermissions, hasPermission } from '@DpJs/lib/utils/hasPermission'
+import { hasAllPermissions, hasAnyPermissions, hasPermission } from 'demosplan-utils'
 
 window.dplan = {
   permissions: {
@@ -47,7 +47,7 @@ describe.each([
   { permission: undefined, result: 'error' }
 ])('hasPermission - check any access rights', ({ permission, result }) => {
   test(`returns 'Error' for testcase with '${permission}'`, () => {
-    expect(() => hasAnyPermissions(permission)).toThrowError('Typeof "permissions" is not an Array')
+    expect(() => hasAnyPermissions(permission)).toThrow('Typeof "permissions" is not an Array')
   })
 })
 
@@ -66,6 +66,6 @@ describe.each([
   { permission: undefined, result: 'error' }
 ])('hasPermission - check all access rights', ({ permission, result }) => {
   test(`returns 'Error' for testcase with '${permission}'`, () => {
-    expect(() => hasAllPermissions(permission)).toThrowError('Typeof "permissions" is not an Array')
+    expect(() => hasAllPermissions(permission)).toThrow('Typeof "permissions" is not an Array')
   })
 })

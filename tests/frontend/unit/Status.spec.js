@@ -7,9 +7,7 @@
  * All rights reserved
  */
 
-import { mount } from '@vue/test-utils'
-import Status from '@DemosPlanStatementBundle/components/fragment/Status'
-import Vuex from 'vuex'
+import Status from '@DpJs/components/statement/fragment/Status'
 
 describe('Status', () => {
   it('should be an object', () => {

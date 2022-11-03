@@ -8,7 +8,7 @@
  */
 
 import { createLocalVue, shallowMount } from '@vue/test-utils'
-import DpPublicLayerList from '@DemosPlanMapBundle/components/publicdetail/controls/layerlist/DpPublicLayerList'
+import DpPublicLayerList from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerList'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()

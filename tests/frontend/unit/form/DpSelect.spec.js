@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpSelect from '@DemosPlanCoreBundle/components/form/DpSelect'
+import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { runBooleanAttrTests } from './shared/Attributes'
 // Import { runLabelTests } from './shared/Label'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'

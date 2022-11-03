@@ -9,7 +9,7 @@
 
 import { createLocalVue } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
-import DpModal from '@DemosPlanCoreBundle/components/DpModal'
+import DpModal from '@DpJs/components/core/DpModal'
 
 describe('Modal', () => {
   it('should be an object', () => {

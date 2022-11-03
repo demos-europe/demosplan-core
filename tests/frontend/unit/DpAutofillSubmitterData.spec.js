@@ -10,7 +10,7 @@
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 // Component to test
-import SubmitterComponent from '@DemosPlanStatementBundle/components/statement/DpAutofillSubmitterData'
+import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 
 // Test data which is defined in Twig
 import Submitters from './DpAutofillSubmitterData.json'

@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
-import DpClaim from '@DemosPlanStatementBundle/components/DpClaim'
+import { createLocalVue } from '@vue/test-utils'
+import DpClaim from '@DpJs/components/statement/DpClaim'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('DpClaim', () => {

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpLayerLegend from '@DemosPlanMapBundle/components/publicdetail/controls/legendList/DpLayerLegend'
+import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('DpLayerLegend', () => {

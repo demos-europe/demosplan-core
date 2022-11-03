@@ -8,8 +8,8 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import DpPublicStatement from '@DemosPlanStatementBundle/components/publicStatementLists/DpPublicStatement'
-import { generateMenuItems } from '@DemosPlanStatementBundle/components/publicStatementLists/menuItems'
+import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement'
+import { generateMenuItems } from '@DpJs/components/statement/publicStatementLists/menuItems'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 describe('DpPublicStatement', () => {

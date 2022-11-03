@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { transformHTMLPositionsToProsemirrorPositions } from '../../../../../../demosplan/DemosPlanProcedureBundle/Resources/client/js/store/storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
+import { transformHTMLPositionsToProsemirrorPositions } from '@DpJs/store/procedure/storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
 describe('It should transform html char references to prosemirror indices.', () => {
   it('should subtract the length of html tags from char positions', () => {

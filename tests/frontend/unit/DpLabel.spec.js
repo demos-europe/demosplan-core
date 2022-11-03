@@ -1,5 +1,5 @@
-import { shallowMount } from "@vue/test-utils"
-import { DpLabel } from "demosplan-ui/components"
+import { shallowMount } from '@vue/test-utils'
+import { DpLabel } from 'demosplan-ui/components'
 
 describe('DpLabel', () => {
   const wrapper = shallowMount(DpLabel, {
@@ -8,7 +8,7 @@ describe('DpLabel', () => {
       hint: '',
       text: 'test text'
     }
-  });
+  })
 
   it('returns empty array when hint props is empty', () => {
     expect(wrapper.vm.hints).toEqual(expect.arrayContaining([]))

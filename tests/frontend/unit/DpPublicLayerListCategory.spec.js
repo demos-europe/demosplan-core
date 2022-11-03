@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpPublicLayerListCategory from '@DemosPlanMapBundle/components/publicdetail/controls/layerlist/DpPublicLayerListCategory'
+import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 
 const propsData = {

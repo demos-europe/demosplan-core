@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { createLocalVue, mount } from '@vue/test-utils'
-import FilterModalSelectItem from '@DemosPlanStatementBundle/components/assessmentTable/FilterModalSelectItem'
+import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem'
 
 describe('FilterModalSelectItem', () => {
   it('should be an object', () => {

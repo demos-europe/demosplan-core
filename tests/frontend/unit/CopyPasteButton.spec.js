@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import CopyPasteButton from '@DemosPlanCoreBundle/components/CopyPasteButton'
+import CopyPasteButton from '@DpJs/components/core/CopyPasteButton'
 import { createLocalVue } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
 

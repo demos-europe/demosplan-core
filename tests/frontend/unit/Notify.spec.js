@@ -8,14 +8,14 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import Notify from '@DemosPlanCoreBundle/store/Notify'
+import Notify from '@DpJs/store/core/Notify'
 import Vuex from 'vuex'
 
 const LocalVue = createLocalVue()
 LocalVue.use(Vuex)
 let StubStore
 
-// non-instance tests
+// Non-instance tests
 describe('Notify', () => {
   it('is namespaced', () => {
     expect(Notify.hasOwnProperty('namespaced')).toBe(true)
@@ -29,7 +29,7 @@ describe('Notify', () => {
   })
 })
 
-// active tests
+// Active tests
 describe('Notify', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})

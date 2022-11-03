@@ -7,8 +7,10 @@
  * All rights reserved
  */
 
-// import DpUploadFiles from '@DemosPlanCoreBundle/components/DpUpload/DpUploadFiles'
-// import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+/*
+ * import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+ * import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+ */
 
 describe.skip('DpUploadFiles', () => {
   it('should be an object', () => {
@@ -56,7 +58,6 @@ describe.skip('DpUploadFiles', () => {
     expect(comp.fileHashes.length).toBe(1)
     expect(comp.fileHashes[0]).toBe(File.hash)
   })
-
 
   it('should reset the files and filehash-list after calling the clear-list method', () => {
     const File = {

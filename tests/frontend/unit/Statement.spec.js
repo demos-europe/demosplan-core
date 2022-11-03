@@ -8,7 +8,7 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import Statement from './@DemosPlanStatementBundle/store/Statement'
+import Statement from '.@DpJs/store/statement/Statement'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
@@ -16,7 +16,7 @@ localVue.use(Vuex)
 let StubStore
 global.Vue = localVue
 
-// non-instance tests
+// Non-instance tests
 describe('Statement', () => {
   it('is namespaced', () => {
     expect(Statement.hasOwnProperty('namespaced')).toBe(true)

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpNotifyMessage from '@DemosPlanCoreBundle/components/notify/DpNotifyMessage'
+import DpNotifyMessage from '@DpJs/components/core/notify/DpNotifyMessage'
 import { mount } from '@vue/test-utils'
 
 describe('DpNotifyMessage', () => {
@@ -128,7 +128,7 @@ describe('DpNotifyMessage', () => {
     const wrapper = mount(DpNotifyMessage, {
       propsData: {
         message: message,
-        hideTimer: 25 // make this timeout reasonably short to keep the test time low
+        hideTimer: 25 // Make this timeout reasonably short to keep the test time low
       }
     })
 
