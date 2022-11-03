@@ -1,0 +1,429 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <div class="flex flex-items-center space-inline-s u-mv-0_5">
+      <p
+        class="weight--bold u-m-0"
+        v-text="Translator.trans('statement.similarStatementSubmitters')" />
+      <dp-contextual-help :text="Translator.trans('statement.similarStatementSubmitters.hint')" />
+    </div>
+    <dp-editable-list
+      :entries="listEntries"
+      :has-permission-to-edit="editable"
+      :translation-keys="translationKeys"
+      @reset="resetFormFields"
+      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => saveSimilarStatementSubmitter(index), false)"
+      ref="listComponent">
+      <template v-slot:list="{ entry, index }">
+        <ul class="o-list o-list--csv display--inline">
+          <template v-if="isRequestFormPost">
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
+              :value="entry.submitterName">
+
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][city]'"
+              :value="entry.submitterCity">
+
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
+              :value="entry.submitterAddress">
+
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
+              :value="entry.submitterHouseNumber">
+
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
+              :value="entry.submitterPostalCode">
+
+            <input
+              type="hidden"
+              :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
+              :value="entry.submitterEmailAddress">
+          </template>
+
+          <li
+            v-if="entry.submitterName"
+            class="o-list__item"
+            v-text="entry.submitterName" />
+          <li
+            v-if="entry.submitterEmailAddress"
+            class="o-list__item"
+            v-text="entry.submitterEmailAddress" />
+          <li
+            v-if="entry.submitterAddress"
+            class="o-list__item"
+            v-text="entry.submitterAddress" />
+          <li
+            v-if="entry.submitterHouseNumber"
+            class="o-list__item"
+            v-text="entry.submitterHouseNumber" />
+          <li
+            v-if="entry.submitterPostalCode"
+            class="o-list__item"
+            v-text="entry.submitterPostalCode" />
+          <li
+            v-if="entry.submitterCity"
+            class="o-list__item"
+            v-text="entry.submitterCity" />
+        </ul>
+      </template>
+
+      <template v-slot:form>
+        <div
+          data-dp-validate="similarStatementSubmitterForm"
+          class="space-stack-s space-inset-s border">
+          <div :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
+            <div
+              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
+              class="space-stack-s">
+              <dp-input
+                id="statementSubmitterName"
+                v-model="formFields.submitterName"
+                :label="{
+                  text: Translator.trans('institution')
+                }"
+                required />
+              <dp-input
+                id="statementSubmitterEmail"
+                v-model="formFields.submitterEmailAddress"
+                :label="{
+                  text: Translator.trans('email')
+                }"
+                type="email" />
+            </div><!--
+
+         --><div
+              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
+              class="space-stack-s">
+              <div class="o-form__group">
+                <dp-input
+                  id="statementSubmitterAddress"
+                  v-model="formFields.submitterAddress"
+                  class="o-form__group-item"
+                  :label="{
+                    text: Translator.trans('street')
+                  }" />
+                <dp-input
+                  id="statementSubmitterHouseNumber"
+                  v-model="formFields.submitterHouseNumber"
+                  class="o-form__group-item shrink"
+                  :label="{
+                    text: Translator.trans('street.number.short')
+                  }"
+                  :size="3" />
+              </div>
+
+              <div class="o-form__group">
+                <dp-input
+                  id="statementSubmitterPostalCode"
+                  v-model="formFields.submitterPostalCode"
+                  class="o-form__group-item shrink"
+                  :label="{
+                    text: Translator.trans('postalcode')
+                  }"
+                  pattern="^[0-9]{4,5}$"
+                  :size="5" />
+                <dp-input
+                  id="statementSubmitterCity"
+                  v-model="formFields.submitterCity"
+                  class="o-form__group-item"
+                  :label="{
+                    text: Translator.trans('city')
+                  }" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </dp-editable-list>
+  </div>
+</template>
+
+<script>
+import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
+import DpEditableList from '@DpJs/components/core/DpEditableList'
+import { DpInput } from 'demosplan-ui/components'
+import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+
+export default {
+  name: 'SimilarStatementSubmitters',
+
+  components: {
+    DpContextualHelp,
+    DpEditableList,
+    DpInput
+  },
+
+  mixins: [dpValidateMixin],
+
+  props: {
+    editable: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+
+    fieldsFullWidth: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    isRequestFormPost: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+
+    procedureId: {
+      type: String,
+      required: true
+    },
+
+    similarStatementSubmitters: {
+      type: Array,
+      default: () => ([]),
+      required: false
+    },
+
+    statementId: {
+      type: String,
+      default: '',
+      required: false
+    }
+  },
+
+  data () {
+    return {
+      isFormVisible: false,
+      isListUpdated: false,
+      listEntries: [],
+      formFields: {
+        submitterName: null,
+        submitterEmailAddress: null,
+        submitterAddress: null,
+        submitterHouseNumber: null,
+        submitterPostalCode: null,
+        submitterCity: null
+      },
+      similarStatementSubmitterId: '',
+      updating: false
+    }
+  },
+
+  computed: {
+    /**
+     * The "add" button text of EditableList is too long when inside the narrow context.
+     * This is why a shorter button text is rendered there.
+     * @return {{add, new, abort, update, noEntries, delete}}
+     */
+    translationKeys () {
+      return {
+        new: Translator.trans('add'),
+        add: Translator.trans(this.fieldsFullWidth ? 'add' : 'statement.similarStatementSubmitters.add'),
+        abort: Translator.trans('abort'),
+        update: Translator.trans('save'),
+        noEntries: Translator.trans('none'),
+        delete: Translator.trans('delete')
+      }
+    }
+  },
+
+  methods: {
+    deleteSimilarStatementSubmitter () {
+      const payload = {
+        type: 'Statement',
+        id: this.statementId,
+        relationships: {
+          similarStatementSubmitters: {
+            data: this.listEntries.map((entry) => {
+              return {
+                type: 'SimilarStatementSubmitter',
+                id: entry.id
+              }
+            })
+          }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload })
+        .then(response => { checkResponse(response) })
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
+        })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.entry.deleted'))
+        })
+      this.resetFormFields()
+    },
+
+    loadInitialListEntries () {
+      if (this.similarStatementSubmitters) {
+        this.listEntries = this.similarStatementSubmitters.map(el => {
+          const { city, emailAddress, fullName, postalCode, streetName, streetNumber } = el.attributes
+          return {
+            id: el.id,
+            submitterAddress: streetName,
+            submitterCity: city,
+            submitterEmailAddress: emailAddress,
+            submitterHouseNumber: streetNumber,
+            submitterName: fullName,
+            submitterPostalCode: postalCode
+          }
+        })
+      }
+    },
+
+    removeItemFromListEntries (index) {
+      this.listEntries.splice(index, 1)
+    },
+
+    resetFormFields () {
+      for (const [key] of Object.entries(this.formFields)) {
+        this.formFields[key] = null
+      }
+    },
+
+    saveSimilarStatementSubmitter (index) {
+      const { submitterName, submitterEmailAddress, submitterAddress, submitterHouseNumber, submitterCity, submitterPostalCode } = this.formFields
+      if (this.isListUpdated === false) {
+        this.listEntries.push({
+          id: this.similarStatementSubmitterId,
+          submitterName,
+          submitterEmailAddress,
+          submitterAddress,
+          submitterHouseNumber,
+          submitterCity,
+          submitterPostalCode
+        })
+        if (this.isRequestFormPost === false) {
+          const payload = {
+            type: 'SimilarStatementSubmitter',
+            attributes: {
+              fullName: submitterName,
+              city: submitterCity,
+              streetName: submitterAddress,
+              streetNumber: submitterHouseNumber,
+              postalCode: submitterPostalCode,
+              emailAddress: submitterEmailAddress
+            },
+            relationships: {
+              similarStatements: {
+                data: [
+                  {
+                    type: 'Statement',
+                    id: this.statementId
+                  }
+                ]
+              },
+              procedure: {
+                data: {
+                  type: 'Procedure',
+                  id: this.procedureId
+                }
+              }
+            }
+          }
+          dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SimilarStatementSubmitter' }), {}, { data: payload })
+            // The similarStatementSubmitterId is generated by BE after the API call
+            .then(response => {
+              this.listEntries[this.listEntries.length - 1].id = response.data.data.id
+            })
+        }
+      }
+      if (this.isListUpdated) {
+        const updatedList = {
+          id: this.listEntries[index].id,
+          submitterName,
+          submitterEmailAddress,
+          submitterAddress,
+          submitterHouseNumber,
+          submitterCity,
+          submitterPostalCode
+        }
+
+        this.updateListEntry(index, updatedList)
+        if (this.isRequestFormPost === false) {
+          this.updateSimilarStatementSubmitter(index)
+        }
+        this.isListUpdated = false
+      }
+
+      this.resetFormFields()
+      this.$refs.listComponent.toggleFormVisibility(false)
+    },
+
+    toggleFormVisibility (visibility) {
+      this.isFormVisible = visibility
+    },
+
+    updateListEntry (index, list) {
+      this.listEntries.splice(index, 1, list)
+    },
+
+    updateSimilarStatementSubmitter (index) {
+      const payload = {
+        type: 'SimilarStatementSubmitter',
+        id: this.listEntries[index].id,
+        attributes: {
+          fullName: this.listEntries[index].submitterName,
+          city: this.listEntries[index].submitterCity !== '' ? this.listEntries[index].submitterCity : null,
+          streetName: this.listEntries[index].submitterAddress !== '' ? this.listEntries[index].submitterPostalCode : null,
+          streetNumber: this.listEntries[index].submitterHouseNumber !== '' ? this.listEntries[index].submitterPostalCode : null,
+          postalCode: this.listEntries[index].submitterPostalCode !== '' ? this.listEntries[index].submitterPostalCode : null,
+          emailAddress: this.listEntries[index].submitterEmailAddress !== '' ? this.listEntries[index].submitterEmailAddress : null
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
+        .then(response => { checkResponse(response) })
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.entry.updated'))
+        })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.entry.updated'))
+        })
+    }
+  },
+
+  mounted () {
+    this.loadInitialListEntries()
+
+    this.$on('delete', (index) => {
+      this.removeItemFromListEntries(index)
+      if (this.isRequestFormPost === false) {
+        this.deleteSimilarStatementSubmitter()
+      }
+      if (this.isRequestFormPost) {
+        this.resetFormFields()
+      }
+    })
+
+    this.$on('showUpdateForm', (index) => {
+      this.isListUpdated = true
+      this.formFields.submitterCity = this.listEntries[index].submitterCity
+      this.formFields.submitterName = this.listEntries[index].submitterName
+      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
+      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
+      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
+      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
+    })
+  }
+}
+</script>

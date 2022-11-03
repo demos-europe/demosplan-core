@@ -1,3 +1,12 @@
+/**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 const glob = require('glob')
 const StyleDictionary = require('style-dictionary')
 
@@ -14,8 +23,8 @@ StyleDictionary.registerTransform({
   name: 'name/scss',
   type: 'name',
   transformer: (token) => {
-    // "scale" within colors should not be part of the variable name
-    if (token.path[0] === 'color' && token.path[1] === 'scale') {
+    // "palette" within colors should not be part of the variable name
+    if (token.path[0] === 'color' && token.path[1] === 'palette') {
       token.path.splice(1, 1)
     }
     return prefix + token.path.join('-')

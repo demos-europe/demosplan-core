@@ -211,6 +211,14 @@ area_imprint_text:
         access to it, it actually serves more as a parent and structural permission than one with an actual purpose.
     label: 'Basic ability to see imprint text of the website'
     loginRequired: false
+area_institution_tag_manage:
+    description: |-
+        Allows to access the management area of institution tags, to create, update, delete and use tags.
+        Please note that there are more fine grained permissions for the individual tasks.
+    expose: true
+    label: 'Manage (change and use) institution tags.'
+    loginRequired: true
+    parent: feature_institution_participation
 area_invite_unregistered_public_agencies:
     description: 'Invite institutions from addressbook by email to participate in procedure'
     expose: false
@@ -900,6 +908,38 @@ feature_imprint_text_customized_view:
 feature_institution_participation:
     expose: true
     label: Institutionsbeteiligung
+    loginRequired: true
+feature_institution_tag_create:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to
+        group them by a custom category/label.
+        When enabled this permission allows creating a tag
+        setting the owningOrganisation to the current organisation.
+    label: 'allows to create a new tag for an institution'
+    loginRequired: true
+feature_institution_tag_delete:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to
+        group them by a custom category/label.
+        When enabled this permission allows deleting tags
+        given by the current organisation.
+    label: 'allows to delete an existing institution tag'
+    loginRequired: true
+feature_institution_tag_read:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to
+        group them by a custom category/label.
+        When enabled this permission allows reading the tags
+        given by the current organisation.
+    label: 'allows to show the Tagged institutions'
+    loginRequired: true
+feature_institution_tag_update:
+    descriptions: |-
+        Within a procedure institutions can be tagged in order to
+        group them by a custom category/label.
+        When enabled this permission allows to alter the tags
+        that belong to the current organisation.
+    label: 'allows to alter an existing institution tag'
     loginRequired: true
 feature_json_api_create:
     descriptions: |-
@@ -1665,6 +1705,19 @@ feature_segment_content_changes_view:
         When enabled allows the user access to the history of changes in a Segment
     expose: true
     label: 'Allows access to Segment`s change history.'
+    loginRequired: true
+feature_segment_polygon_read:
+    description: |-
+        Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
+    expose: true
+    label: 'allows read-access to the statementSegment polygon property used in the StatementSegmentResourceType'
+    loginRequired: true
+feature_segment_polygon_set:
+    description: |-
+        Allow adding/modifying the statementSegment-polygon property. Used on statementSegment
+        updates via the StatementSegmentResourceType
+    expose: true
+    label: 'used for editing statementSegment polygons'
     loginRequired: true
 feature_segment_recommendation_edit:
     description: |

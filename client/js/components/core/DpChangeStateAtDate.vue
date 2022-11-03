@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { formatDate, toDate } from '@DpJs/lib/utils/date'
+import { formatDate, toDate } from 'demosplan-utils'
 import { de } from 'vuejs-datepicker/dist/locale'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import { DpLabel } from 'demosplan-ui/components'

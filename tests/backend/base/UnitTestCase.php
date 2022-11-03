@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace Tests\Base;
+
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+/**
+ * Base Class for Unit Tests in Demos Plan
+ * Class UnitTestCase.
+ *
+ *          @group UnitTest
+ */
+class UnitTestCase extends FunctionalTestCase
+{
+}

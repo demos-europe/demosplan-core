@@ -8,7 +8,7 @@
  */
 
 import axios from 'axios'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { stringify } from 'qs'
 import { v4 as uuid } from 'uuid'
 
@@ -162,4 +162,23 @@ const checkResponse = function (response, messages) {
   })
 }
 
-export { dpApi, handleResponseMessages, checkResponse, dpRpc }
+function makeFormPost (payload, url) {
+  const postData = new FormData()
+
+  for (const [key, value] of Object.entries(payload)) {
+    if (Array.isArray(value)) {
+      value.forEach(el => postData.append(key + '[]', el))
+    } else {
+      postData.append(key, value)
+    }
+  }
+
+  return dpApi({
+    method: 'post',
+    url: url,
+    data: postData,
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
+
+export { dpApi, handleResponseMessages, checkResponse, dpRpc, makeFormPost }

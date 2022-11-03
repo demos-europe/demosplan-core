@@ -1,0 +1,10 @@
+services:
+    _defaults:
+        autowire: true
+        public: false
+
+    demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider:
+        arguments:
+            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+        lazy: true
+        autoconfigure: false

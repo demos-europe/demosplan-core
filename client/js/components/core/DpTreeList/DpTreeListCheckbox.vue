@@ -71,7 +71,7 @@ export default {
       this.$emit('check', !this.checked)
     },
 
-    toggleCheckedStatus(deselect, select) {
+    toggleCheckedStatus (deselect, select) {
       return Translator.trans(this.checked ? deselect : select)
     }
   }

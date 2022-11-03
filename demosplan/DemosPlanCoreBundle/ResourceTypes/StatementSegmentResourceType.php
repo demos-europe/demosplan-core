@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Facets\AssigneesFacet;
@@ -27,9 +27,9 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\plugins\workflow\SegmentsManager\ElasticsearchQueries\QuerySegment;
 use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use EDT\JsonApi\ResourceTypes\SetableProperty;
+use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Type;
 
 /**
@@ -38,6 +38,7 @@ use Elastica\Type;
  * @template-extends DplanResourceType<Segment>
  *
  * @property-read End $recommendation
+ * @property-read End $polygon
  * @property-read End $text
  * @property-read End $externId
  * @property-read End $internId
@@ -101,7 +102,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -141,6 +142,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
         if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             $updatableProperties[] = $this->recommendation;
+        }
+
+        if ($this->currentUser->hasPermission('feature_segment_polygon_set')) {
+            $updatableProperties[] = $this->polygon;
         }
 
         return $this->toProperties(...$updatableProperties);
@@ -231,9 +236,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
     protected function getProperties(): array
     {
-        return array_map(static function (SetableProperty $property): SetableProperty {
-            return $property->filterable()->sortable();
-        }, [
+        $properties = [
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->recommendation)->readable(true),
             $this->createAttribute($this->text)->readable(true),
@@ -246,6 +249,13 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             // for now all segments have a place, this may change however
             $this->createToOneRelationship($this->place)->readable(),
             $this->createToManyRelationship($this->comments)->readable(),
-        ]);
+        ];
+        if ($this->currentUser->hasPermission('feature_segment_polygon_read')) {
+            $properties[] = $this->createAttribute($this->polygon)->readable(true);
+        }
+
+        return array_map(static function (PropertyBuilder $property): PropertyBuilder {
+            return $property->filterable()->sortable();
+        }, $properties);
     }
 }

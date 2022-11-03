@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
-use DateTime;
 use function collect;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
@@ -35,11 +36,10 @@ use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathTrait;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\TypeAccessor;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 use function in_array;
 use function is_array;
 use IteratorAggregate;
@@ -104,7 +104,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected $typeAccessor;
 
     /**
-     * @var WrapperFactoryInterface
+     * @var WrapperObjectFactory
      */
     protected $wrapperFactory;
 
@@ -347,7 +347,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $event->getProperties();
     }
 
-    protected function getWrapperFactory(): WrapperFactoryInterface
+    protected function getWrapperFactory(): WrapperObjectFactory
     {
         return $this->wrapperFactory;
     }

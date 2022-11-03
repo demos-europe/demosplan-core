@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -32,6 +31,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
+use demosplan\DemosPlanCoreBundle\Event\CheckFileIsUsedEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -50,12 +51,19 @@ class FileInUseChecker
      */
     private $logger;
 
+    /**
+     * @var TraceableEventDispatcher
+     */
+    private $eventDispatcher;
+
     public function __construct(
         ManagerRegistry $managerRegistry,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        TraceableEventDispatcher $eventDispatcher
     ) {
         $this->managerRegistry = $managerRegistry;
         $this->logger = $logger;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -229,13 +237,18 @@ class FileInUseChecker
     private function isUsedInReferences(string $fileId): bool
     {
         $references = [
-            AnnotatedStatementPdf::class => 'file',
             Branding::class              => 'logo',
             DraftStatementFile::class    => 'file',
             FileContainer::class         => 'file',
             StatementAttachment::class   => 'file',
             Video::class                 => 'file',
         ];
+
+        /** @var CheckFileIsUsedEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new CheckFileIsUsedEvent($fileId));
+        if ($event->getIsUsed()) {
+            return true;
+        }
         foreach ($references as $class => $field) {
             /** @var EntityRepository $repos */
             $repos = $this->managerRegistry->getRepository($class);

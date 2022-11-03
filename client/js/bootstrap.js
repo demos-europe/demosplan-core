@@ -9,7 +9,7 @@
 
 import availableTranslations from '@DpJs/generated/translations.json'
 import exposedRoutes from '@DpJs/generated/routes.json'
-import { hasPermission } from '@DpJs/lib/utils/hasPermission'
+import { hasPermission } from 'demosplan-utils'
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router'
 import Translator from '../../vendor/willdurand/js-translation-bundle/Resources/js/translator'
 

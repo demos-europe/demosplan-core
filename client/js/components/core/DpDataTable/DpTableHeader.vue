@@ -10,7 +10,7 @@
 <script>
 import { DpIcon } from 'demosplan-ui/components'
 import DpWrapTrigger from './DpWrapTrigger'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 import { renderResizeWrapper } from './lib/ResizableColumns'
 
 export default {

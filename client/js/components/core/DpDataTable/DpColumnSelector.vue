@@ -33,11 +33,13 @@
     <div class="space-stack-xs u-pv-0_25">
       <dp-checkbox
         v-for="([value, label]) in selectableColumns"
-        :key="value"
         :id="`columnSelector:${value}`"
+        :key="value"
         :checked="selectedColumns.has(value)"
-        @change="broadcastSelection(value, !selectedColumns.has(value))"
-        :label="label" />
+        :label="{
+          text: label
+        }"
+        @change="broadcastSelection(value, !selectedColumns.has(value))" />
     </div>
   </dp-flyout>
 </template>
@@ -45,7 +47,7 @@
 <script>
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import hasOwnProp from '@DpJs/lib/utils/hasOwnProp'
+import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpColumnSelector',
