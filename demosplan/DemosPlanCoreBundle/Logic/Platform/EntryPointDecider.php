@@ -108,6 +108,12 @@ class EntryPointDecider implements EntryPointDeciderInterface
                 $this->logger->info('Entrypoint organisation administration');
                 break;
 
+            case $user->hasRole(Role::ORGANISATION_ADMINISTRATION)
+                && $this->permissions->hasPermission('area_institution_tag_manage'):
+                $entrypointRoute->setRoute('DemosPlan_get_institution_tag_management');
+                $this->logger->info('Entrypoint organisation administration');
+                break;
+
             case $user->isCitizen() || $user->isPublicAgency():
                 $entrypointRoute->setController('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
                 $entrypointRoute->setDoRedirect(false);
