@@ -129,7 +129,7 @@ export default {
   data () {
     return {
       currentPolygons: [],
-      hasChanges: false, // @TODO FInd a good way to detect if the init and the current Polygons deverge,
+      hasChanges: true, // @TODO Set to false when checking for changes works
       initPolygons: [],
       mapData: null
     }
@@ -200,9 +200,10 @@ export default {
       this.$refs.drawPolygon.clearAll()
     },
 
-    checkForChanges () {
-      return JSON.stringify(diff(this.drawingsData, this.initData)) !== '{}'
-    },
+    // @TODO Find good way to compare
+    // checkForChanges () {
+    //   return JSON.stringify(diff(this.currentPolygons, this.initPolygons)) !== '{}'
+    // },
 
     closeSlidebar () {
       this.$root.$emit('hide-slidebar')
@@ -250,6 +251,8 @@ export default {
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
+      // @TODO Commented out for now until check works
+      // this.hasChanges = this.checkForChanges()
     }
   }
 }
