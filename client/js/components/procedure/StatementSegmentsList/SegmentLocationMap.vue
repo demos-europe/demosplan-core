@@ -25,6 +25,7 @@
             ref="drawPoint"
             data-cy="setMapRelation"
             :features="pointData"
+            fit-drawing
             icon
             icon-class="fa-map-marker u-mb-0_25 font-size-h2"
             name="Point"
@@ -37,6 +38,7 @@
             data-cy="setMapLine"
             ref="drawLine"
             :features="lineData"
+            fit-drawing
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
@@ -48,6 +50,7 @@
             ref="drawPolygon"
             data-cy="setMapTerritory"
             :features="polygonData"
+            fit-drawing
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"

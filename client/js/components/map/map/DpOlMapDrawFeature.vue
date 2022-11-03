@@ -43,7 +43,7 @@
   <usage variant="read-Only">
     <dp-ol-map-draw-feature
       :features="features"
-      :fitDrawing="true"
+      fit-drawing
     />
   </usage>
 </documentation>
@@ -289,6 +289,10 @@ export default {
     },
 
     fitMapToDrawing () {
+      // Return if nothing is to be centered
+      if (this.features.features.length === 0) {
+        return
+      }
       //  Add features to vector source if set via props
       if (this.features.type === 'FeatureCollection' &&
         this.features.features.length === 1 &&
