@@ -93,7 +93,6 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { diff } from 'deep-object-diff'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -129,7 +128,7 @@ export default {
   data () {
     return {
       currentPolygons: [],
-      hasChanges: true, // @TODO Set to false when checking for changes works
+      hasChanges: true,
       initPolygons: [],
       mapData: null
     }
@@ -200,11 +199,6 @@ export default {
       this.$refs.drawPolygon.clearAll()
     },
 
-    // @TODO Find good way to compare
-    // checkForChanges () {
-    //   return JSON.stringify(diff(this.currentPolygons, this.initPolygons)) !== '{}'
-    // },
-
     closeSlidebar () {
       this.$root.$emit('hide-slidebar')
     },
@@ -251,8 +245,6 @@ export default {
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
-      // @TODO Commented out for now until check works
-      // this.hasChanges = this.checkForChanges()
     }
   }
 }
