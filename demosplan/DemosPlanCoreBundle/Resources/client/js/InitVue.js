@@ -10,12 +10,12 @@
 import { bootstrap } from '@DpJs/bootstrap'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
-import initGlobalEventListener from '@DpJs/lib/GlobalEventListener'
+import initGlobalEventListener from '@DpJs/lib/core/GlobalEventListener'
 import { initStore } from '@DpJs/store/core/initStore'
-import initToggleSideMenu from '@DpJs/lib/ToggleSideMenu'
-import initUserbox from '@DpJs/lib/touchFriendlyUserbox'
+import initToggleSideMenu from '@DpJs/lib/core/ToggleSideMenu'
+import initUserbox from '@DpJs/lib/core/touchFriendlyUserbox'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
-import NotificationStoreAdapter from '@DpJs/lib/NotificationStoreAdapter'
+import NotificationStoreAdapter from '@DpJs/lib/core/NotificationStoreAdapter'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()

@@ -14,7 +14,7 @@
 <script>
 import { de } from './utils/UppyTranslations'
 import DragDrop from '@uppy/drag-drop'
-import { getFileTypes } from '@DpJs/lib/FileInfo'
+import { getFileTypes } from '@DpJs/lib/core/FileInfo'
 import { hasOwnProp } from 'demosplan-utils'
 import ProgressBar from '@uppy/progress-bar'
 import Tus from '@uppy/tus'
