@@ -70,7 +70,7 @@
         editTool: Translator.trans('map.territory.tools.edit')
       })"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled) }">
+      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor--default': disabled }">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
