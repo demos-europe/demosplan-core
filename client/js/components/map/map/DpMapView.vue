@@ -70,7 +70,7 @@
             :label="Translator.trans('map.territory.define')"
             v-tooltip="{content:Translator.trans('explanation.territory.help.draw', {drawTool: Translator.trans('map.territory.define') }), container: '#DpOlMap'}"
             icon-class="fa fa-pencil-square-o"
-            @layerFeaturesChanged="updateTerritory" />
+            @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
           <i
             class="fa fa-question-circle float--right"
@@ -91,7 +91,7 @@
             data-cy="setMapRelation"
             :label="Translator.trans('map.relation.set')"
             :features="procedureCoordinatesFeature"
-            @layerFeaturesChanged="updateCoordinates" />
+            @layerFeatures:changed="updateCoordinates" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
@@ -104,7 +104,7 @@
             class="u-mb-0_5"
             :label="Translator.trans('map.relation.set')"
             :features="procedureCoordinatesFeature"
-            @layerFeaturesChanged="updateCoordinates" />
+            @layerFeatures:changed="updateCoordinates" />
         </template>
 
         <dp-ol-map-drag-zoom class="u-mb-0_5" />

@@ -23,7 +23,7 @@ export default {
       required: false,
       type: String,
       default: () => {
-        return Translator.trans('map.attribution.default', { a: msg => `<a href="/impressum">${msg}</a>` })
+        return Translator.trans('map.attribution.default', { link: Routing.generate('DemosPlan_misccontent_static_imprint') })
       }
     },
 
