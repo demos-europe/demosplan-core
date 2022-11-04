@@ -143,11 +143,11 @@
             class="line-clamp-3 overflow-word-break"
             v-cleanhtml="text" />
         </template>
-        <template v-slot:flyout="{ id, originalPdf, segmentsCount, synchronized }">
+        <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
             <a
               v-if="hasPermission('area_statement_segmentation')"
-              :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' }"
+              :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' && (assignee.id !== '' && assignee.id !== currentUserId)}"
               :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('split') }}
