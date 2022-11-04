@@ -12,39 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 
-class GetOriginalStatementPropertiesEvent extends DPlanEvent
+class GetOriginalStatementPropertiesEvent extends GetPropertiesEvent
 {
-    /**
-     * @var TypeInterface<O>
-     */
-    private $type;
 
-    /**
-     * @var array
-     */
-    private $properties;
-
-    public function __construct(TypeInterface $type, array $properties)
-    {
-        $this->properties = $properties;
-        $this->type = $type;
-    }
-
-    public function getProperties(): array
-    {
-        return $this->properties;
-    }
-
-    public function addProperty(PropertyBuilder $property): void
-    {
-        $this->properties[] = $property;
-    }
-
-    public function getType(): TypeInterface
-    {
-        return $this->type;
-    }
 }
