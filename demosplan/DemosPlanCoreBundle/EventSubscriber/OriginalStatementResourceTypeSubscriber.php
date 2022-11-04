@@ -12,23 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
 use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
 {
     /**
      * @var AbstractResourceType
      */
-
     private $abstractResourceType;
     /**
      * @var CurrentUserInterface
@@ -38,7 +37,7 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
     public function __construct(AbstractResourceType $abstractResourceType, CurrentUserInterface $currentUser)
     {
         $this->abstractResourceType = $abstractResourceType;
-        $this->currentUser          = $currentUser;
+        $this->currentUser = $currentUser;
     }
 
     public static function getSubscribedEvents(): array
