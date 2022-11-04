@@ -37,7 +37,7 @@
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
       <div class="flex space-inline-xs">
-        <dp-flyout align="left">
+        <dp-flyout :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
             <i
@@ -166,7 +166,7 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
-              :class="`${ statementsObject[id].relationships.assignee.data && currentUserId === statementsObject[id].relationships.assignee.data.id ? '' : 'opacity-7 pointer-events-none' } btn--blank o-link--default text-decoration-underline--hover`"
+              :class="`${ assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized"
               type="button"
               @click="triggerStatementDeletion(id)">
