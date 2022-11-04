@@ -14,7 +14,7 @@ const config = require('../config').config
 function resolveAliases () {
   const aliases = {
     '@DpJs': config.absoluteRoot + 'client/js',
-    vue: 'vue/dist/vue.esm.js'
+    vue: '@vue/compat'
   }
 
   glob.sync(config.oldBundlesPath + 'Demos*Bundle').forEach(dir => {

@@ -109,7 +109,14 @@ const moduleRules =
     },
     {
       test: /\.vue$/,
-      loader: 'vue-loader'
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
     },
     {
       test: /\.js$/,
@@ -179,7 +186,7 @@ const moduleRules =
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
       use: [{
-        loader: 'asset/resource',
+        loader: 'file-loader',
         options: {
           name: '[name].[ext]',
           outputPath: 'fonts/'
@@ -189,7 +196,7 @@ const moduleRules =
     {
       test: /\.(png|jp(e)?g|gif|svg)$/,
       use: [{
-        loader: 'asset/resource',
+        loader: 'file-loader',
         options: {
           name: '[name].[ext]',
           outputPath: 'img/'
