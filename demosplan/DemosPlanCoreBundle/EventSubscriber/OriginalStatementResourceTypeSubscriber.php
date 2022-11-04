@@ -12,22 +12,33 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use EDT\JsonApi\ResourceTypes\AbstractResourceType;
+use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
+use EDT\Querying\Contracts\EntityBasedInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\PropertyPathInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var AbstractResourceType
+     */
+
+    private $abstractResourceType;
     /**
      * @var CurrentUserInterface
      */
     private $currentUser;
 
-    public function __construct(CurrentUserInterface $currentUser)
+    public function __construct(AbstractResourceType $abstractResourceType, CurrentUserInterface $currentUser)
     {
-        $this->currentUser = $currentUser;
+        $this->abstractResourceType = $abstractResourceType;
+        $this->currentUser          = $currentUser;
     }
 
     public static function getSubscribedEvents(): array
@@ -55,5 +66,21 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
                 ->aliasedPath($resourceType->statementsCreatedFromOriginal);
             $event->addProperty($property);
         }
+    }
+
+    /**
+     * @template TRelationship of object
+     *
+     * @param PropertyPathInterface&EntityBasedInterface<TRelationship> $path
+     *
+     * @return RelationshipBuilder<TEntity, TRelationship>
+     *
+     * @throws PathException
+     */
+    protected function createToManyRelationship(
+        PropertyPathInterface $path,
+        bool $defaultInclude = false
+    ): RelationshipBuilder {
+        return new RelationshipBuilder($path, $this->abstractResourceType->getEntityClass(), $defaultInclude);
     }
 }
