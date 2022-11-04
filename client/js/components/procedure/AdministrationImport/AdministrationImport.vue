@@ -32,7 +32,6 @@
 import AdministrationImportNone from './AdministrationImportNone'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import EmailImport from './EmailImport/EmailImport'
 import ExcelImport from './ExcelImport/ExcelImport'
 import { hasAnyPermissions } from 'demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -45,7 +44,6 @@ export default {
     AdministrationImportNone,
     DpTab,
     DpTabs,
-    EmailImport,
     ExcelImport,
     StatementFormImport,
     StatementPdfImport
@@ -100,23 +98,29 @@ export default {
 
   data () {
     return {
-      activeTabId: ''
+      addons: [
+        {
+          name: 'StatementPdfImport',
+          permissions: ['feature_import_statement_pdf'],
+          title: 'import.options.pdf',
+          url: '/js/addons/StatementPdfImport/StatementPdfImport.umd.js'
+        },
+        {
+          name: 'EmailImport',
+          permissions: ['feature_import_statement_via_email'],
+          title: 'statement.import_email.title',
+          url: '/js/addons/EmailImport/EmailImport.umd.js'
+        }
+      ],
+      activeTabId: '',
+      asyncComponents: []
     }
   },
 
   computed: {
     availableImportOptions () {
       return [
-        {
-          name: EmailImport.name,
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title'
-        },
-        {
-          name: StatementPdfImport.name,
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf'
-        },
+        ...this.asyncComponents,
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
@@ -142,11 +146,44 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
+    },
+
+    async loadExternalComponentScripts (addon) {
+      const name = addon.url.split('/').reverse()[0].match(/^(.*?)\.umd/)[1]
+
+      if (window[name]) return window[name]
+
+      window[name] = new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+
+        script.async = true
+        script.addEventListener('load', () => {
+          resolve(window[name])
+          this.$options.components[name] = window[name]
+
+          this.asyncComponents.push({
+            name: name,
+            permissions: addon.permissions,
+            title: addon.title
+          })
+        })
+
+        script.addEventListener('error', () => {
+          reject(new Error(`Error loading ${url}`))
+        })
+
+        script.src = addon.url
+        document.head.appendChild(script)
+      });
+
+      return window[name]
     }
   },
 
-  created () {
-    this.setActiveTabId()
+  mounted () {
+    this.addons.forEach(addon => {
+      this.loadExternalComponentScripts(addon).then(this.setActiveTabId())
+    })
   }
 }
 </script>
