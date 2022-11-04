@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use demosplan\DemosPlanCoreBundle\Event\GetFilePropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -28,15 +27,9 @@ class FileResourceTypeSubscriber implements EventSubscriberInterface
      */
     private $currentUser;
 
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-
-    public function __construct(CurrentUserInterface $currentUser, PermissionsInterface $permissions)
+    public function __construct(CurrentUserInterface $currentUser)
     {
         $this->currentUser = $currentUser;
-        $this->permissions = $permissions;
     }
 
     public static function getSubscribedEvents(): array
