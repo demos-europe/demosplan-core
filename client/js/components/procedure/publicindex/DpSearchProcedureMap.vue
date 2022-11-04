@@ -135,9 +135,10 @@
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
-          :key="'label_' + idx"
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')">
           {{ filter.title }}
@@ -149,7 +150,6 @@
             v-tooltip="{ content: filter.contextHelp }" />
         </label><!--
      --><div
-          :key="'select_' + filter.name"
           :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')">
           <select
             :ref="'filter_' + idx"

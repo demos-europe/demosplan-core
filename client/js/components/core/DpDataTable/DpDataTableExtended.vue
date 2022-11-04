@@ -113,11 +113,11 @@
         </slot>
       </template>
       <template
-        v-for="(el, i) in filteredFields"
-        v-slot:[filteredFields[i].field]="element">
+        v-for="el in filteredFields"
+        v-slot:[el.field]="element">
         <!-- table cells (TDs) -->
         <slot
-          :name="filteredFields[i].field"
+          :name="el.field"
           v-bind="element" />
       </template>
       <template v-slot:expandedContent="element">

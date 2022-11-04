@@ -56,11 +56,11 @@
 </template>
 
 <script>
-import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from 'vue2-leaflet'
+import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from '@vue-leaflet/vue-leaflet'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import getCssVariable from '@DpJs/lib/DpGetCssVariable'
 import L from 'leaflet'
-import LMarkerCluster from 'vue2-leaflet-markercluster'
+import LMarkerCluster from 'leaflet.markercluster'
 import proj4 from 'proj4'
 
 export default {

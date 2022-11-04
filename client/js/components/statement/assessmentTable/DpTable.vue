@@ -166,10 +166,9 @@
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
-      <template
-        v-else
-        v-for="statement in statements">
+      <template v-else>
         <dp-assessment-table-card
+          v-for="statement in statements"
           :ref="'itemdisplay_' + statement.id"
           :key="`statement:${statement.id}`"
           class="o-list__item"

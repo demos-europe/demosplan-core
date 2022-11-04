@@ -71,7 +71,7 @@ const chunkSplitting = {
       name: 'leaflet',
       chunks: 'all',
       enforce: true,
-      test: /[\\/]node_modules[\\/](leaflet|vue2-leaflet|leaflet.markercluster)[\\/]/,
+      test: /[\\/]node_modules[\\/](leaflet|@vue-leaflet|leaflet.markercluster)[\\/]/,
       priority: -5,
       reuseExistingChunk: true
     }

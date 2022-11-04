@@ -26,7 +26,7 @@ module.exports = {
      * Consider switching to `plugin:vue/recommended` for stricter rules.
      */
     'plugin:vue/strongly-recommended',
-    'plugin:jest/recommended',
+    // 'plugin:jest/recommended',
     // https://github.com/standard/standard/blob/master/RULES.md
     'standard'
   ],
@@ -55,7 +55,7 @@ module.exports = {
   plugins: [
     '@babel',
     'vue',
-    'jest',
+    // 'jest',
     'jquery',
     'vuejs-accessibility'
   ],

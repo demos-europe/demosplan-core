@@ -77,11 +77,11 @@ export default {
   This is currently not supported but will accelerate the animation
   once the <style> part of Vue single file templates is also included in the build.
 -->
-<style scoped>
-  * {
-    will-change: height;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
-</style>
+<!--<style scoped>-->
+<!--  * {-->
+<!--    will-change: height;-->
+<!--    transform: translateZ(0);-->
+<!--    backface-visibility: hidden;-->
+<!--    perspective: 1000px;-->
+<!--  }-->
+<!--</style>-->
