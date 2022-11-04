@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from '@vue-leaflet/vue-leaflet'
+import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from 'vue2-leaflet'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import getCssVariable from '@DpJs/lib/DpGetCssVariable'
 import L from 'leaflet'
