@@ -21,6 +21,11 @@ class GetFilePropertiesEvent extends DPlanEvent
      */
     private $type;
 
+    /**
+     * @var array
+     */
+    private $properties;
+
     public function __construct(TypeInterface $type, array $properties)
     {
         $this->properties = $properties;
