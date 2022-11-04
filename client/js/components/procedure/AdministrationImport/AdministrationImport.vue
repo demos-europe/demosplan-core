@@ -8,26 +8,24 @@
 </license>
 
 <template>
-  <div>
-    <dp-tabs
-      :active-id="activeTabId"
-      use-url-fragment
-      @change="setActiveTabId">
-      <dp-tab
-        v-for="(option, index) in availableImportOptions"
-        :key="index"
-        :id="option.name"
-        :label="Translator.trans(option.title)">
-        <slot>
-          <keep-alive>
-            <component
-              class="u-mt"
-              :is="option.name" />
-          </keep-alive>
-        </slot>
-      </dp-tab>
-    </dp-tabs>
-  </div>
+  <dp-tabs
+    :active-id="activeTabId"
+    use-url-fragment
+    @change="setActiveTabId">
+    <dp-tab
+      v-for="(option, index) in availableImportOptions"
+      :key="index"
+      :id="option.name"
+      :label="Translator.trans(option.title)">
+      <slot>
+        <keep-alive>
+          <component
+            class="u-mt"
+            :is="option.name" />
+        </keep-alive>
+      </slot>
+    </dp-tab>
+  </dp-tabs>
 </template>
 
 <script>
