@@ -16,5 +16,4 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 
 class GetOriginalStatementPropertiesEvent extends GetPropertiesEvent
 {
-
 }
