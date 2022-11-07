@@ -12,10 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
-use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PropertyPathInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
@@ -24,27 +23,18 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
+    private CurrentUserInterface $currentUser;
 
-    /**
-     * @var OriginalStatementResourceType
-     */
-    private $originalStatementResourceType;
-
-    public function __construct(CurrentUserInterface $currentUser, OriginalStatementResourceType $originalStatementResourceType)
+    public function __construct(CurrentUserInterface $currentUser)
     {
-        $this->currentUser                      = $currentUser;
-        $this->originalStatementResourceType    = $$originalStatementResourceType;
+        $this->currentUser = $currentUser;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            IsOriginalStatementAvailableEvent::class            => 'isOriginalStatementAvailable',
-            GetPropertiesEvent::class                           => 'getOriginalStatementProperties',
+            IsOriginalStatementAvailableEvent::class => 'isOriginalStatementAvailable',
+            GetPropertiesEvent::class                => 'getOriginalStatementProperties',
         ];
     }
 
@@ -55,31 +45,24 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
         }
     }
 
-    public function getOriginalStatementProperties(GetPropertiesEvent $event)
+    /**
+     * @throws PathException
+     * @throws UserNotFoundException
+     */
+    public function getOriginalStatementProperties(GetPropertiesEvent $event): void
     {
-        if (!$event->getType() instanceof OriginalStatementResourceType) {
+        $resourceType = $event->getType();
+        if (!$resourceType instanceof OriginalStatementResourceType) {
             return;
         }
+
         if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $property = $this->createToManyRelationship($this->originalStatementResourceType->statements)->readable()
-                ->aliasedPath($this->originalStatementResourceType->statementsCreatedFromOriginal);
+            $property = (new RelationshipBuilder(
+                $resourceType->statements,
+                $resourceType->getEntityClass(),
+                false
+            ))->readable()->aliasedPath($resourceType->statementsCreatedFromOriginal);
             $event->addProperty($property);
         }
-    }
-
-    /**
-     * @template TRelationship of object
-     *
-     * @param PropertyPathInterface&EntityBasedInterface<TRelationship> $path
-     *
-     * @return RelationshipBuilder<TEntity, TRelationship>
-     *
-     * @throws PathException
-     */
-    protected function createToManyRelationship(
-        PropertyPathInterface $path,
-        bool $defaultInclude = false
-    ): RelationshipBuilder {
-        return new RelationshipBuilder($path, $this->originalStatementResourceType->getEntityClass(), $defaultInclude);
     }
 }
