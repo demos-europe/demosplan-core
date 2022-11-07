@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import Stickier from '@DpJs/lib/Stickier'
+import Stickier from '@DpJs/lib/core/Stickier'
 
 export default {
   name: 'DpStickyElement',

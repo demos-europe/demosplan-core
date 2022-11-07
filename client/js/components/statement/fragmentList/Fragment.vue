@@ -503,7 +503,7 @@ import DpFragmentVersions from '../fragment/Version'
 import DpHeightLimit from '@DpJs/components/core/HeightLimit'
 import DpItemRow from '../assessmentTable/ItemRow'
 import DpTextWrapper from '@DpJs/components/core/TextWrapper'
-import { getFileInfo } from '@DpJs/lib/FileInfo'
+import { getFileInfo } from '@DpJs/lib/core/FileInfo'
 
 export default {
   name: 'DpStatementFragment',

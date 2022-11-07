@@ -18,6 +18,8 @@ use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\DqlQuerying\Utilities\JoinFinder;
+use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\FluentQuery;
@@ -31,20 +33,11 @@ use EDT\Querying\FluentQueries\SortDefinition;
  */
 abstract class FluentRepository extends CoreRepository
 {
-    /**
-     * @var ConditionFactoryInterface
-     */
-    protected $conditionFactory;
+    protected ConditionFactoryInterface $conditionFactory;
 
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    protected $sortMethodFactory;
+    protected SortMethodFactoryInterface $sortMethodFactory;
 
-    /**
-     * @var DoctrineOrmEntityProvider
-     */
-    protected $objectProvider;
+    protected DoctrineOrmEntityProvider $objectProvider;
 
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
@@ -57,10 +50,11 @@ abstract class FluentRepository extends CoreRepository
         $this->conditionFactory = $dqlConditionFactory;
         $this->sortMethodFactory = $sortMethodFactory;
 
-        $this->objectProvider = new DoctrineOrmEntityProvider(
-            $entityClass,
-            $this->getEntityManager()
-        );
+        $entityManager = $this->getEntityManager();
+        $metadataFactory = $entityManager->getMetadataFactory();
+        $joinFinder = new JoinFinder($metadataFactory);
+        $builderPreparer = new QueryBuilderPreparer($entityClass, $metadataFactory, $joinFinder);
+        $this->objectProvider = new DoctrineOrmEntityProvider($entityManager, $builderPreparer);
     }
 
     public function createFluentQuery(): FluentQuery

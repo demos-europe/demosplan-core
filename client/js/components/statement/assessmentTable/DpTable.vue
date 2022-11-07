@@ -242,7 +242,7 @@ import { DpLoading } from 'demosplan-ui/components'
 import DpPager from '@DpJs/components/core/DpPager'
 import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
-import Stickier from '@DpJs/lib/Stickier'
+import Stickier from '@DpJs/lib/core/Stickier'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )
