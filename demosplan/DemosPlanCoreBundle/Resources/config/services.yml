@@ -182,8 +182,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
+            $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
+            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
         lazy: true
@@ -222,6 +224,10 @@ services:
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor:
+        arguments:
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
         lazy: true
         arguments:
@@ -239,6 +245,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
+            $entityManager: '@doctrine.orm.entity_manager'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -1032,6 +1039,10 @@ services:
 
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
+    EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
+        arguments:
+            $objectManager: '@doctrine.orm.entity_manager'
+
     EDT\DqlQuerying\SortMethodFactories\SortMethodFactory: ~
 
     EDT\JsonApi\ApiDocumentation\AttributeTypeResolver: ~
@@ -1074,6 +1085,24 @@ services:
     EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+
+    EDT\Querying\Utilities\ConditionEvaluator:
+        arguments:
+            $tableJoiner: '@EDT\Querying\Utilities\TableJoiner'
+
+    EDT\Querying\Utilities\Sorter:
+        arguments:
+            $tableJoiner: '@EDT\Querying\Utilities\TableJoiner'
+
+    EDT\Querying\Utilities\TableJoiner:
+        arguments:
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
+
+    EDT\Wrapping\Utilities\CachingPropertyReader:
+        arguments:
+            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
+            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
+            $sorter: '@EDT\Querying\Utilities\Sorter'
 
     EDT\Wrapping\Utilities\SchemaPathProcessor:
         arguments:

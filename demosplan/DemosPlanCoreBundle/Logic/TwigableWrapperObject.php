@@ -20,17 +20,16 @@ use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\Utilities\TypeAccessor;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
+use function strlen;
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 class TwigableWrapperObject extends WrapperObject
 {
-    /**
-     * @var object
-     */
-    protected $backingObject;
+    protected object $backingObject;
 
     public function __construct(
         object $object,
@@ -39,7 +38,7 @@ class TwigableWrapperObject extends WrapperObject
         TypeAccessor $typeAccessor,
         PropertyAccessorInterface $propertyAccessor,
         ConditionEvaluator $conditionEvaluator,
-        WrapperFactoryInterface $wrapperFactory
+        WrapperObjectFactory $wrapperFactory
     ) {
         parent::__construct(
             $object,

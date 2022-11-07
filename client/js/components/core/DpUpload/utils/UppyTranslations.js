@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { convertSize } from '@DpJs/lib/FileInfo'
+import { convertSize } from '@DpJs/lib/core/FileInfo'
 const de = () => {
   return {
     strings: {

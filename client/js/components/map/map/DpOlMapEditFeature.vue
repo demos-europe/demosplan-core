@@ -55,25 +55,37 @@
     <button
       type="button"
       @click="toggle"
-      v-tooltip="Translator.trans('explanation.territory.help.edit',{editTool: Translator.trans('map.territory.tools.edit')})"
+      data-cy="editButtonDesc"
+      v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{'color--highlight':currentlyActive}">
-      {{ Translator.trans('map.territory.tools.edit') }}
+      :class="{ 'color--highlight' : currentlyActive }">
+      <slot name="editButtonDesc">
+        {{ Translator.trans('map.territory.tools.edit') }}
+      </slot>
     </button>
     <button
       type="button"
       @click="removeFeature"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'), editTool: Translator.trans('map.territory.tools.edit')})"
+      data-cy="removeButtonDesc"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {
+        deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
+        editTool: Translator.trans('map.territory.tools.edit')
+      })"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{'o-link--default': (false === disabled)}">
-      {{ Translator.trans('map.territory.tools.removeSelected') }}
+      :class="{ 'o-link--default': (false === disabled) }">
+      <slot name="removeButtonDesc">
+        {{ Translator.trans('map.territory.tools.removeSelected') }}
+      </slot>
     </button>
     <button
       type="button"
       @click="clearAll"
-      v-tooltip="Translator.trans('explanation.territory.help.delete.all', {deleteAllTool: Translator.trans('map.territory.tools.removeAll')})"
+      data-cy="removeAllButtonDesc"
+      v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
-      {{ Translator.trans('map.territory.tools.removeAll') }}
+      <slot name="removeAllButtonDesc">
+        {{ Translator.trans('map.territory.tools.removeAll') }}
+      </slot>
     </button>
   </span>
 </template>
@@ -100,7 +112,7 @@ export default {
     // Required to target a Layer with Vector-Featurs
     target: {
       required: true,
-      type: String
+      type: [String, Array]
     },
 
     initActive: {
@@ -123,7 +135,8 @@ export default {
       currentlyActive: this.initActive,
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
-      disabled: true
+      disabled: true,
+      targets: Array.isArray(this.target) ? this.target : [this.target]
     }
   },
 
@@ -138,6 +151,7 @@ export default {
       if (this.map === null || this.renderControl === false) {
         return
       }
+
       if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
         this.selectInteraction.getFeatures().on('add', event => {
           const id = 'selected' + uuid()
@@ -149,6 +163,7 @@ export default {
             }
           }
         })
+
         this.selectInteraction.getFeatures().on('remove', event => {
           if (hasOwnProp(event, 'element')) {
             event.element.get('id')
@@ -159,6 +174,7 @@ export default {
             }
           }
         })
+
         this.map.addInteraction(this.selectInteraction)
         this.map.addInteraction(this.modifyInteraction)
         this.currentlyActive = true
@@ -184,7 +200,7 @@ export default {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
-              if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+              if (layer instanceof VectorLayer && this.target.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
                 layer.getSource().removeFeature(feature)
               }
             })
@@ -199,7 +215,7 @@ export default {
     clearAll () {
       if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
         this.map.getLayers().forEach(layer => {
-          if (layer instanceof VectorLayer && layer.get('name') === this.target) {
+          if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
             this.selectInteraction.getFeatures().clear()
             layer.getSource().clear()
             this.selectedFeatureId = []

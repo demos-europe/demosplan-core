@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import Stickier from '@DpJs/lib/Stickier'
+import Stickier from './Stickier'
 /**
  * A Wrapper providing a simple Dom API for stickier.js that once used semantic-ui-sticky under the hood
  * but was refactored to get rid of the jQuery dependency.

@@ -242,7 +242,7 @@ import { DpLoading } from 'demosplan-ui/components'
 import DpPager from '@DpJs/components/core/DpPager'
 import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
-import Stickier from '@DpJs/lib/Stickier'
+import Stickier from '@DpJs/lib/core/Stickier'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )
@@ -342,15 +342,15 @@ export default {
       default: ''
     },
 
+    procedureId: {
+      required: true,
+      type: String
+    },
+
     procedureStatementPriorityArea: {
       required: false,
       type: Boolean,
       default: false
-    },
-
-    procedureId: {
-      required: true,
-      type: String
     },
 
     publicParticipationPublicationEnabled: {
@@ -420,11 +420,11 @@ export default {
     ]),
 
     ...mapGetters('statement', [
+      'getSelectionStateById',
       'selectedElementsFromOtherPages',
-      'statements',
       'selectedElementsLength',
-      'statementsInOrder',
-      'getSelectionStateById'
+      'statements',
+      'statementsInOrder'
     ]),
 
     ...mapGetters('fragment', [
@@ -450,9 +450,15 @@ export default {
 
       this.sortingOptions.forEach(option => {
         const hasSortingDirection = option.value !== 'forPoliticians'
-        dropdownOptions.push({ value: option.value, label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation) })
+        dropdownOptions.push({
+          value: option.value,
+          label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation)
+        })
         if (hasSortingDirection) {
-          dropdownOptions.push({ value: '-' + option.value, label: descPrefix + ' nach ' + Translator.trans(option.translation) })
+          dropdownOptions.push({
+            value: '-' + option.value,
+            label: descPrefix + ' nach ' + Translator.trans(option.translation)
+          })
         }
       })
       return dropdownOptions || []
@@ -466,21 +472,21 @@ export default {
 
     ...mapActions('statement', [
       'addToSelectionAction',
+      'getStatementAction',
       'removeFromSelectionAction',
-      'updateStatementAction',
-      'getStatementAction'
+      'updateStatementAction'
     ]),
 
     ...mapActions('statement', {
+      resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
-      setSelectedStatements: 'setSelectedElementsAction',
-      resetStatementSelection: 'resetSelection'
+      setSelectedStatements: 'setSelectedElementsAction'
     }),
 
     ...mapActions('fragment', {
+      resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
-      setSelectedFragments: 'setSelectedFragmentsAction',
-      resetFragmentSelection: 'resetSelection'
+      setSelectedFragments: 'setSelectedFragmentsAction'
     }),
 
     ...mapMutations('assessmentTable', [
@@ -500,14 +506,23 @@ export default {
     changeUrl (pager) {
       const newUrl = changeUrlforPager(pager)
 
-      window.history.pushState({ html: newUrl.join('?'), pageTitle: document.title }, document.title, newUrl.join('?'))
+      window.history.pushState({
+        html: newUrl.join('?'),
+        pageTitle: document.title
+      }, document.title, newUrl.join('?'))
     },
 
     handlePageChange (newPage) {
-      const tmpPager = Object.assign(this.pagination, { current_page: newPage, count: this.pagination.per_page })
+      const tmpPager = Object.assign(this.pagination, {
+        current_page: newPage,
+        count: this.pagination.per_page
+      })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
-      this.setProperty({ prop: 'isLoading', val: true })
+      this.setProperty({
+        prop: 'isLoading',
+        val: true
+      })
       this.triggerApiCallForStatements()
     },
 
@@ -515,12 +530,18 @@ export default {
       const tmpPager = Object.assign(this.pagination, { count: newSize })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
-      this.setProperty({ prop: 'isLoading', val: true })
+      this.setProperty({
+        prop: 'isLoading',
+        val: true
+      })
       this.triggerApiCallForStatements()
     },
 
     handleSortChange (newVal) {
-      this.setProperty({ prop: 'sort', val: newVal })
+      this.setProperty({
+        prop: 'sort',
+        val: newVal
+      })
       this.triggerApiCallForStatements()
     },
 
@@ -566,27 +587,51 @@ export default {
 
     setInitialData () {
       const sortVal = this.sortingOptionsForDropdown.find(opt => opt.value === this.initSort) || {}
-      this.setProperty({ prop: 'sort', val: sortVal })
+      this.setProperty({
+        prop: 'sort',
+        val: sortVal
+      })
 
-      this.setProperty({ prop: 'searchTerm', val: this.searchTerm })
+      this.setProperty({
+        prop: 'searchTerm',
+        val: this.searchTerm
+      })
 
-      this.setProperty({ prop: 'statementFormDefinitions', val: this.statementFormDefinitions })
+      this.setProperty({
+        prop: 'statementFormDefinitions',
+        val: this.statementFormDefinitions
+      })
 
-      this.setAssessmentBaseProperty({ prop: 'exactSearch', val: this.exactSearch })
+      this.setAssessmentBaseProperty({
+        prop: 'exactSearch',
+        val: this.exactSearch
+      })
 
-      this.setProperty({ prop: 'filterSet', val: this.filterSet })
+      this.setProperty({
+        prop: 'filterSet',
+        val: this.filterSet
+      })
 
       // Set current user id in store to be able to check editable state of selected elements later on
-      this.setProperty({ prop: 'currentUserId', val: this.currentUserId })
+      this.setProperty({
+        prop: 'currentUserId',
+        val: this.currentUserId
+      })
 
-      this.setProperty({ prop: 'viewMode', val: this.viewMode })
+      this.setProperty({
+        prop: 'viewMode',
+        val: this.viewMode
+      })
 
       this.setProperty({
         prop: 'publicParticipationPublicationEnabled',
         val: this.publicParticipationPublicationEnabled
       })
 
-      this.setProperty({ prop: 'procedureStatementPriorityArea', val: this.procedureStatementPriorityArea })
+      this.setProperty({
+        prop: 'procedureStatementPriorityArea',
+        val: this.procedureStatementPriorityArea
+      })
 
       this.setProperty({ prop: 'accessibleProcedureIds', val: this.accessibleProcedureIds })
 
@@ -616,16 +661,31 @@ export default {
     },
 
     triggerApiCallForStatements () {
-      this.setProperty({ prop: 'isLoading', val: true })
+      this.setProperty({
+        prop: 'isLoading',
+        val: true
+      })
       // Trigger the get-action for all the required statements
-      this.getStatementAction({ filterHash: this.filterHash, procedureId: this.procedureId, pagination: this.pagination, sort: this.sort.value })
+      this.getStatementAction({
+        filterHash: this.filterHash,
+        hasPriorityArea: this.procedureStatementPriorityArea,
+        procedureId: this.procedureId,
+        pagination: this.pagination,
+        sort: this.sort.value
+      })
         .then((response) => {
           this.updateFilterHash(response.meta.filterHash)
           this.setSelectedElementsMethod(response)
-          this.setProperty({ prop: 'isLoading', val: false })
+          this.setProperty({
+            prop: 'isLoading',
+            val: false
+          })
         })
         .catch(() => {
-          this.setProperty({ prop: 'isLoading', val: false })
+          this.setProperty({
+            prop: 'isLoading',
+            val: false
+          })
         })
 
       if (window.location.hash) {
@@ -643,7 +703,10 @@ export default {
         this.filterHash = hash
         const url = window.location.href.split('?')
         url[0] = url[0].substring(0, url[0].length - 12) + hash
-        window.history.pushState({ html: url.join('?'), pageTitle: document.title }, document.title, url.join('?'))
+        window.history.pushState({
+          html: url.join('?'),
+          pageTitle: document.title
+          }, document.title, url.join('?'))
       }
     },
 
@@ -702,11 +765,20 @@ export default {
         // Set the procedureId in stores (statement and fragment)
         this.setProcedureIdForStatement(this.procedureId)
           .then(() => {
-            this.setAssessmentBaseProperty({ prop: 'initFilterHash', val: this.initFilterHash })
+            this.setAssessmentBaseProperty({
+              prop: 'initFilterHash',
+              val: this.initFilterHash
+            })
 
-            this.setAssessmentBaseProperty({ prop: 'searchFields', val: this.searchFields })
+            this.setAssessmentBaseProperty({
+              prop: 'searchFields',
+              val: this.searchFields
+            })
 
-            this.setAssessmentBaseProperty({ prop: 'appliedFilters', val: this.appliedFilters })
+            this.setAssessmentBaseProperty({
+              prop: 'appliedFilters',
+              val: this.appliedFilters
+            })
 
             if (hasPermission('area_statements_fragment')) {
               this.setProcedureIdForFragment(this.procedureId)

@@ -96,7 +96,7 @@ import DpTreeListNode from './DpTreeListNode'
 import DpTreeListToggle from './DpTreeListToggle'
 import draggable from 'vuedraggable'
 import { dragHandleWidth } from './utils/constants'
-import Stickier from '@DpJs/lib/Stickier'
+import Stickier from '@DpJs/lib/core/Stickier'
 
 export default {
   name: 'DpTreeList',

@@ -32,7 +32,7 @@ jobs:
 
       - name: Run headerWriter
         run: |
-          python3 .github/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i  **/node_modules/**/* client/js/legacy/**/* client/js/legacy/*  client/js/legacy/**/**/*  demosplan/DemosPlanCoreBundle/Resources/client/js/ResourceTypes.js demosplan/DemosPlanCoreBundle/Resources/client/js/lib/* client/js/lib/* -a -v
+          python3 .github/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i  'client/js/legacy/*' 'client/js/generated/*' '*/node_modules/*' 'client/js/lib/core/SideNav.js' 'client/js/lib/core/Detabinator.js' 'demosplan/DemosPlanCoreBundle/Resources/client/js/lib/*' -a -v
         shell: bash
 
       - name: delete headerWriter
