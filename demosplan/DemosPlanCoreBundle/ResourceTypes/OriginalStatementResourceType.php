@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 
 /**
  * @template-extends DplanResourceType<Statement>
@@ -82,7 +82,7 @@ final class OriginalStatementResourceType extends DplanResourceType
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
 
-        $this->eventDispatcher->dispatch(new GetOriginalStatementPropertiesEvent($properties));
+        $this->eventDispatcher->dispatch(new GetPropertiesEvent($properties));
 
         return $properties;
     }

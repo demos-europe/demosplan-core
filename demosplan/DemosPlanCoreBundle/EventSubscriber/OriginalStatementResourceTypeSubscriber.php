@@ -12,16 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Event\GetOriginalStatementPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
 use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
 {
@@ -44,7 +44,7 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
     {
         return [
             IsOriginalStatementAvailableEvent::class            => 'isOriginalStatementAvailable',
-            GetOriginalStatementPropertiesEvent::class          => 'getOriginalStatementProperties',
+            GetPropertiesEvent::class                           => 'getOriginalStatementProperties',
         ];
     }
 
@@ -55,7 +55,7 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
         }
     }
 
-    public function getOriginalStatementProperties(GetOriginalStatementPropertiesEvent $event, OriginalStatementResourceType $resourceType)
+    public function getOriginalStatementProperties(GetPropertiesEvent $event, OriginalStatementResourceType $resourceType)
     {
         if (!$event->getType() instanceof OriginalStatementResourceType) {
             return;
