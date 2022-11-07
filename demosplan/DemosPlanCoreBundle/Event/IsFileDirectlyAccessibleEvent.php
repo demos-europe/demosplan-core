@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class isFileDirectlyAccessibleEvent extends DPlanEvent
+class IsFileDirectlyAccessibleEvent extends DPlanEvent
 {
     /**
      * @param bool
