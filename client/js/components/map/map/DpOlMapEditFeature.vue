@@ -55,6 +55,7 @@
     <button
       type="button"
       @click="toggle"
+      data-cy="editButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
       :class="{ 'color--highlight' : currentlyActive }">
@@ -65,6 +66,7 @@
     <button
       type="button"
       @click="removeFeature"
+      data-cy="removeButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {
         deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
         editTool: Translator.trans('map.territory.tools.edit')
@@ -78,6 +80,7 @@
     <button
       type="button"
       @click="clearAll"
+      data-cy="removeAllButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
       <slot name="removeAllButtonDesc">

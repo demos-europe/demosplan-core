@@ -8,7 +8,7 @@
  */
 
 import { getScrollTop } from 'demosplan-utils'
-import MatchMedia from '@DpJs/lib/MatchMedia'
+import MatchMedia from './MatchMedia'
 
 /**
  * This is a minimal own implementation of sticky behavior, since our "beloved" semantic-ui Sticky
