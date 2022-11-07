@@ -40,6 +40,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\RequestHandling\AbstractApiService;
 use EDT\JsonApi\RequestHandling\ApiListResultInterface;
 use EDT\JsonApi\RequestHandling\FilterParserInterface;
@@ -142,8 +143,8 @@ class JsonApiActionService extends AbstractApiService
     }
 
     /**
-     * @param array<int, FunctionInterface<bool>> $conditions
-     * @param array<int,SortMethodInterface>      $sortMethods
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     * @param array<int, OrderBySortMethodInterface>    $sortMethods
      *
      * @throws QueryException
      * @throws UserNotFoundException
