@@ -12,31 +12,26 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
 use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
-class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
+Abstract class OriginalStatementResourceTypeSubscriber extends AbstractResourceType implements EventSubscriberInterface
 {
-    /**
-     * @var AbstractResourceType
-     */
-    private $abstractResourceType;
     /**
      * @var CurrentUserInterface
      */
     private $currentUser;
 
-    public function __construct(AbstractResourceType $abstractResourceType, CurrentUserInterface $currentUser)
+    public function __construct(CurrentUserInterface $currentUser)
     {
-        $this->abstractResourceType = $abstractResourceType;
         $this->currentUser = $currentUser;
     }
 
@@ -80,6 +75,6 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
         PropertyPathInterface $path,
         bool $defaultInclude = false
     ): RelationshipBuilder {
-        return new RelationshipBuilder($path, $this->abstractResourceType->getEntityClass(), $defaultInclude);
+        return new RelationshipBuilder($path, $this->getEntityClass(), $defaultInclude);
     }
 }
