@@ -100,11 +100,6 @@ class JsonApiActionService extends AbstractApiService
     private $paginationParser;
 
     /**
-     * @var PrefilledResourceTypeProvider
-     */
-    protected $typeProvider;
-
-    /**
      * @var JsonApiEsService
      */
     private $jsonApiEsService;
@@ -131,7 +126,6 @@ class JsonApiActionService extends AbstractApiService
             $propertyValuesGenerator,
             $typeProvider
         );
-        $this->typeProvider = $typeProvider;
         $this->eventDispatcher = $eventDispatcher;
         $this->resourceTypeService = $resourceTypeService;
         $this->entityFetcher = $entityFetcher;

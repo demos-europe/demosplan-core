@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use EDT\Wrapping\Utilities\PropertyPathProcessor;
 use EDT\Wrapping\Utilities\PropertyPathProcessorFactory;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractTypeAccessor;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Psr\Log\LoggerInterface;
 
 class DplanPropertyPathProcessorFactory extends PropertyPathProcessorFactory
@@ -29,8 +29,8 @@ class DplanPropertyPathProcessorFactory extends PropertyPathProcessorFactory
         $this->logger = $logger;
     }
 
-    public function createPropertyPathProcessor(AbstractTypeAccessor $typeAccessor): PropertyPathProcessor
+    public function createPropertyPathProcessor(AbstractProcessorConfig $processorConfig): PropertyPathProcessor
     {
-        return new DplanPropertyPathProcessor($typeAccessor, $this->logger);
+        return new DplanPropertyPathProcessor($processorConfig, $this->logger);
     }
 }
