@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
 use EDT\Querying\Contracts\EntityBasedInterface;
 use EDT\Querying\Contracts\PathException;
@@ -23,16 +22,22 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
-Abstract class OriginalStatementResourceTypeSubscriber extends AbstractResourceType implements EventSubscriberInterface
+class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterface
 {
     /**
      * @var CurrentUserInterface
      */
     private $currentUser;
 
-    public function __construct(CurrentUserInterface $currentUser)
+    /**
+     * @var OriginalStatementResourceType
+     */
+    private $originalStatementResourceType;
+
+    public function __construct(CurrentUserInterface $currentUser, OriginalStatementResourceType $originalStatementResourceType)
     {
-        $this->currentUser = $currentUser;
+        $this->currentUser                      = $currentUser;
+        $this->originalStatementResourceType    = $$originalStatementResourceType;
     }
 
     public static function getSubscribedEvents(): array
@@ -50,14 +55,14 @@ Abstract class OriginalStatementResourceTypeSubscriber extends AbstractResourceT
         }
     }
 
-    public function getOriginalStatementProperties(GetPropertiesEvent $event, OriginalStatementResourceType $resourceType)
+    public function getOriginalStatementProperties(GetPropertiesEvent $event)
     {
         if (!$event->getType() instanceof OriginalStatementResourceType) {
             return;
         }
         if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $property = $this->createToManyRelationship($resourceType->statements)->readable()
-                ->aliasedPath($resourceType->statementsCreatedFromOriginal);
+            $property = $this->createToManyRelationship($this->originalStatementResourceType->statements)->readable()
+                ->aliasedPath($this->originalStatementResourceType->statementsCreatedFromOriginal);
             $event->addProperty($property);
         }
     }
@@ -75,6 +80,6 @@ Abstract class OriginalStatementResourceTypeSubscriber extends AbstractResourceT
         PropertyPathInterface $path,
         bool $defaultInclude = false
     ): RelationshipBuilder {
-        return new RelationshipBuilder($path, $this->getEntityClass(), $defaultInclude);
+        return new RelationshipBuilder($path, $this->originalStatementResourceType->getEntityClass(), $defaultInclude);
     }
 }
