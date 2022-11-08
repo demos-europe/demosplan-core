@@ -99,7 +99,7 @@ final class FileResourceType extends DplanResourceType
             $mimetype,
         ];
 
-        $this->eventDispatcher->dispatch(new GetFilePropertiesEvent($properties));
+        $this->eventDispatcher->dispatch(new GetFilePropertiesEvent($this, $properties));
 
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $id->filterable()->sortable();
