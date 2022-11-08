@@ -55,6 +55,14 @@ class GetPropertiesEvent extends DPlanEvent
     }
 
     /**
+     * @param list<PropertyBuilder> $properties
+     */
+    public function setProperties(array $properties): void
+    {
+        $this->properties = $properties;
+    }
+
+    /**
      * @return TypeInterface<O>
      */
     public function getType(): TypeInterface

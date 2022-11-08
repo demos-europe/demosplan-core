@@ -25,6 +25,7 @@ use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,9 +57,11 @@ class DemosPlanCustomerController extends BaseController
             // approach completely.
             $customerResourceType = $resourceTypeProvider->requestType(CustomerResourceType::getName())
                 ->instanceOf(ResourceTypeInterface::class)
-                ->available(true)
-                ->getTypeInstance();
+                ->getInstanceOrThrow();
             $currentCustomer = $customerHandler->getCurrentCustomer();
+            if (!$customerResourceType->isAvailable()) {
+                throw AccessException::typeNotAvailable($customerResourceType);
+            }
             $customerResource = $wrapperFactory->createWrapper($currentCustomer, $customerResourceType);
 
             $templateVars = [

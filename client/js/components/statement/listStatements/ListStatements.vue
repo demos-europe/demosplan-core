@@ -37,7 +37,7 @@
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
       <div class="flex space-inline-xs">
-        <dp-flyout align="left">
+        <dp-flyout :align="'left'">
           <template v-slot:trigger>
             {{ Translator.trans('export.verb') }}
             <i
@@ -143,11 +143,11 @@
             class="line-clamp-3 overflow-word-break"
             v-cleanhtml="text" />
         </template>
-        <template v-slot:flyout="{ id, originalPdf, segmentsCount, synchronized }">
+        <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
             <a
               v-if="hasPermission('area_statement_segmentation')"
-              :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' }"
+              :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' && (assignee.id !== '' && assignee.id !== currentUserId)}"
               :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('split') }}
@@ -166,7 +166,7 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
-              :class="`${ statementsObject[id].relationships.assignee.data && currentUserId === statementsObject[id].relationships.assignee.data.id ? '' : 'opacity-7 pointer-events-none' } btn--blank o-link--default text-decoration-underline--hover`"
+              :class="`${ assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
               :disabled="synchronized"
               type="button"
               @click="triggerStatementDeletion(id)">

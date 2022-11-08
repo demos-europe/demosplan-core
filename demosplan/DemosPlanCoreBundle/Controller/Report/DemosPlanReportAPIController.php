@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Symfony\Component\Routing\Annotation\Route;
@@ -81,8 +82,11 @@ class DemosPlanReportAPIController extends APIController
 
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         $pagination = $paginationParser->parseApiPaginationProfile(
             $this->request->query->get('page', []),

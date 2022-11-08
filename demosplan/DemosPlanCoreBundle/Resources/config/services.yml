@@ -244,6 +244,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
@@ -1050,7 +1051,7 @@ services:
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 

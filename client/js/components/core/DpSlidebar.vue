@@ -57,6 +57,13 @@ export default {
   },
 
   methods: {
+    hideSlideBar () {
+      if (hasOwnProp(this.sideNav, 'hideSideNav')) {
+        this.sideNav.hideSideNav()
+        this.$emit('close')
+      }
+    },
+
     showSlideBar () {
       if (hasOwnProp(this.sideNav, 'showSideNav')) {
         this.sideNav.showSideNav()
@@ -67,6 +74,10 @@ export default {
   mounted () {
     // Initialize SideNav
     this.sideNav = new SideNav()
+
+    this.$root.$on('hide-slidebar', () => {
+      this.hideSlideBar()
+    })
 
     this.$root.$on('show-slidebar', () => {
       this.showSlideBar()

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
@@ -105,8 +106,11 @@ class ApiResourceService
     {
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         return new Collection($data, $resourceType->getTransformer(), $resourceType::getName());
     }
@@ -135,8 +139,11 @@ class ApiResourceService
     {
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         return new Item($data, $resourceType->getTransformer(), $resourceType::getName());
     }

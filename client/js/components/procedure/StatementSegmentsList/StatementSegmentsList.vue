@@ -531,7 +531,7 @@ export default {
         this.$refs.locationMap.resetCurrentMap()
       }
 
-      this.setContent({ prop: 'slidebar', val: { showTab: '', segmentId: '' } })
+      this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
     },
 
     saveStatement (statement) {

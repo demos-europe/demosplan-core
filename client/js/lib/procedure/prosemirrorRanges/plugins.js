@@ -351,7 +351,7 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
             return
           }
 
-          if (e.clientX !== view.lastClick.x || e.clientY !== view.lastClick.y) {
+          if (e.clientX !== view.input.lastClick.x || e.clientY !== view.input.lastClick.y) {
             const existingRanges = rangeEditingKey.getState(state)
             let positionsCovered = []
             Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))

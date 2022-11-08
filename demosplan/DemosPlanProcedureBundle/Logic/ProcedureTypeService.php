@@ -37,6 +37,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -482,6 +483,10 @@ class ProcedureTypeService extends CoreService
      */
     public function getAllProcedureTypeResources(): array
     {
+        if (!$this->procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
+        }
+
         $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
 
