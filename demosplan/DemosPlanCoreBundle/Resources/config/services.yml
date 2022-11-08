@@ -1072,7 +1072,7 @@ services:
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 
