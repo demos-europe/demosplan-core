@@ -132,7 +132,7 @@ export default {
     },
 
     institutions () {
-      return Object.values(this.institutionData).map(tag => {
+      return Object.values(this.institutionMockData).map(tag => {
         const { id, attributes, tags } = tag
         return {
           id,
