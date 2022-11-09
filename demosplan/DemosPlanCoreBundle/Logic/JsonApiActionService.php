@@ -190,7 +190,7 @@ class JsonApiActionService extends AbstractApiService
     protected function updateObject(ResourceTypeInterface $resourceType, string $resourceId, array $properties): ?object
     {
         if (!$resourceType instanceof UpdatableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), UpdatableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not updatable: {$resourceType::getName()}");
         }
 
         $entity = $this->entityFetcher->getEntityAsUpdateTarget($resourceType, $resourceId);
@@ -214,7 +214,7 @@ class JsonApiActionService extends AbstractApiService
     public function createObject(ResourceTypeInterface $resourceType, array $properties): ?object
     {
         if (!$resourceType instanceof CreatableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), CreatableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not creatable: {$resourceType::getName()}");
         }
 
         if (!$resourceType->isCreatable()) {
@@ -321,7 +321,7 @@ class JsonApiActionService extends AbstractApiService
     protected function deleteObject(ResourceTypeInterface $resourceType, string $resourceId): void
     {
         if (!$resourceType instanceof DeletableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), DeletableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not deletable: {$resourceType::getName()}");
         }
 
         $entity = $this->entityFetcher->getEntityAsDeletionTarget($resourceType, $resourceId);

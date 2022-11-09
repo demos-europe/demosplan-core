@@ -311,6 +311,30 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         }, $this->getAutoPathProperties());
     }
 
+    public function isExposedAsPrimaryResource(): bool
+    {
+        return $this->isAvailable() && $this->isDirectlyAccessible();
+    }
+
+    /**
+     * @deprecated do not implement or call this method, it will be removed as soon as possible
+     */
+    public function isExposedAsRelationship(): bool
+    {
+        return $this->isAvailable() && $this->isReferencable();
+    }
+
+    abstract public function isAvailable(): bool;
+
+    abstract public function isDirectlyAccessible(): bool;
+
+    /**
+     * @deprecated Move the permission-checks from the overrides of this method to the
+     *             {@link self::getProperties()} method of the referencing resource type instead.
+     *             Afterwards, return `true` in the override of this method.
+     */
+    abstract public function isReferencable(): bool;
+
     /**
      * Convert the given array to an array with different mapping.
      *

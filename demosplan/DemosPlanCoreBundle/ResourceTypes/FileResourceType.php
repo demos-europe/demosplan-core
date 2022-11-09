@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Event\GetFilePropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -99,8 +98,6 @@ final class FileResourceType extends DplanResourceType
             $mimetype,
         ];
 
-        $this->eventDispatcher->dispatch(new GetFilePropertiesEvent($this, $properties));
-
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $id->filterable()->sortable();
             $hash->readable(true)->filterable()->sortable();
@@ -117,11 +114,6 @@ final class FileResourceType extends DplanResourceType
         }
 
         return $properties;
-    }
-
-    public function getCreated(File $file): string
-    {
-        return $this->formatDate($file->getCreated());
     }
 
     public static function getFileName(File $file): string

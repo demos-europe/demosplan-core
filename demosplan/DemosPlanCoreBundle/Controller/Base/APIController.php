@@ -37,6 +37,7 @@ use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\PropertyAccessException;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -444,8 +445,12 @@ abstract class APIController extends BaseController
                 // Checking if the type exists and is a resource type implementation.
                 $type = $this->resourceTypeProvider->requestType($typeIdentifier)
                     ->instanceOf(ResourceTypeInterface::class)
-                    ->available(true)
-                    ->getTypeInstance();
+                    ->getInstanceOrThrow();
+
+                if (!$type->isAvailable()) {
+                    throw AccessException::typeNotAvailable($type);
+                }
+
                 $nonReadableProperties = $this->fieldsValidator->getNonReadableProperties($propertiesString, $type);
                 if ([] !== $nonReadableProperties) {
                     $unknownPropertiesString = $this->messageFormatter->propertiesToString($nonReadableProperties);
@@ -499,7 +504,7 @@ abstract class APIController extends BaseController
         if (is_string($resourceTypeName)) {
             try {
                 $this->resourceTypeProvider->requestType($resourceTypeName)
-                    ->getTypeInstance();
+                    ->getInstanceOrThrow();
             } catch (TypeRetrievalAccessException $exception) {
                 // The accessed resource type is probably not a generic one, thus we can not
                 // continue to validate the 'include' properties.
@@ -510,9 +515,13 @@ abstract class APIController extends BaseController
             // available, directly accessible resource type
             $type = $this->resourceTypeProvider->requestType($resourceTypeName)
                 ->instanceOf(ResourceTypeInterface::class)
-                ->available(true)
-                ->getTypeInstance();
-            if (!$type->isDirectlyAccessible()) {
+                ->getInstanceOrThrow();
+
+            if (!$type->isAvailable()) {
+                throw AccessException::typeNotAvailable($type);
+            }
+
+            if (!$type->isExposedAsPrimaryResource()) {
                 throw new InvalidArgumentException("The resource type '$resourceTypeName' is not directly accessible");
             }
 
