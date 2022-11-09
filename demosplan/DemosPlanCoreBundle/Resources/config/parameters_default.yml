@@ -156,8 +156,8 @@ parameters:
 
     email_enabled: false
     email_is_live_system: false
-    email_test_from: ""
-    email_test_to: ""
+    email_test_from: "testMailSender@localhost.de"
+    email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
     email_bounce_check: false
     # #refactor: path and file could be used as one
