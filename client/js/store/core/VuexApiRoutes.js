@@ -127,6 +127,11 @@ export const VuexApiRoutes = [
     ]
   },
   {
+    module: 'invitableInstitution',
+    action: 'list',
+    url: '/2.0/InvitableInstitution'
+  },
+  {
     module: 'place',
     action: 'list',
     url: '/2.0/Place'
