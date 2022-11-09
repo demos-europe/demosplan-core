@@ -129,7 +129,7 @@ export const VuexApiRoutes = [
   {
     module: 'invitableInstitution',
     action: 'list',
-    url: '/2.0/InvitableInstitution'
+    url: '/2.0/InvitableInstitution/'
   },
   {
     module: 'place',

@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import { mapState, mapActions } from "vuex";
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 
 
@@ -145,6 +145,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('invitableInstitution', {
+      invitableInstitution: 'list'
+    }),
+
     editTag (id) {
       this.addNewTag = false
       this.editingTagId = id
@@ -187,6 +191,10 @@ export default {
     abortEdit () {
       this.editingTagId = null
     }
+  },
+
+  mounted() {
+    this.invitableInstitution()
   }
 }
 </script>
