@@ -56,17 +56,20 @@ class InvitableInstitutionResourceType extends DplanResourceType
 
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue(true, ...$this->showlist),
-        );
+        return $this->conditionFactory->true();
     }
 
     protected function getProperties(): array
     {
+        $id = $this->createAttribute($this->id)->readable(true);
+        $name = $this->createAttribute($this->name)->readable(true);
+        $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
+        $assignedTags =  $this->createAttribute($this->assignedTags)->readable(true);
         return [
-            $this->createAttribute($this->name)->readable(true),
-            $this->createAttribute($this->createdDate)->readable(true)->sortable(),
+            $id,
+            $name,
+            $createdDate,
+            $assignedTags,
         ];
     }
 }
