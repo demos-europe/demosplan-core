@@ -4,7 +4,7 @@
     has-flyout
     :header-fields="headerFields"
     track-by="id"
-    :items="institutions"
+    :items="institutionsMock"
     class="u-mt-2">
     <template v-slot:action="rowData">
       <div class="float--right">
@@ -131,7 +131,7 @@ export default {
       })
     },
 
-    institutions () {
+    institutionsMock () {
       return Object.values(this.institutionMockData).map(tag => {
         const { id, attributes, tags } = tag
         return {
@@ -146,7 +146,7 @@ export default {
 
   methods: {
     ...mapActions('invitableInstitution', {
-      invitableInstitution: 'list'
+      listInvitableInstitution: 'list'
     }),
 
     editTag (id) {
@@ -194,7 +194,7 @@ export default {
   },
 
   mounted() {
-    this.invitableInstitution()
+    this.listInvitableInstitution()
   }
 }
 </script>
