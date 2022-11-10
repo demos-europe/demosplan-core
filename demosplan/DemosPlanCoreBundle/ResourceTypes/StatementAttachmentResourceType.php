@@ -90,8 +90,11 @@ final class StatementAttachmentResourceType extends DplanResourceType implements
         $properties = [
             $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->type)->readable(true)->sortable()->filterable()->initializable(),
-            $this->createToOneRelationship($this->file)->readable()->sortable()->filterable()->initializable(),
         ];
+
+        if ($this->currentUser->hasPermission('feature_read_source_statement_via_api')) {
+            $properties[] = $this->createToOneRelationship($this->file)->readable()->sortable()->filterable()->initializable();
+        }
 
         if ($this->isCreatable()) {
             $properties[] = $this->createToOneRelationship($this->statement)->initializable()->readable();
