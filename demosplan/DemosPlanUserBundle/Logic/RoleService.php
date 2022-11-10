@@ -20,19 +20,10 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 
 class RoleService extends CoreService
 {
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
+    private CurrentUserInterface $currentUser;
 
-    /**
-     * @var RoleRepository
-     */
-    private $roleRepository;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private RoleRepository $roleRepository;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(CurrentUserInterface $currentUser, GlobalConfigInterface $globalConfig, RoleRepository $roleRepository)
     {

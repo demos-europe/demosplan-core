@@ -71,105 +71,42 @@ class UserService extends CoreService
      */
     private const PW_HASH = 'sha512';
 
-    /**
-     * @var ContentService
-     */
-    protected $contentService;
+    protected ContentService $contentService;
 
-    /**
-     * @var PermissionsInterface
-     */
-    protected $permissions;
+    protected PermissionsInterface $permissions;
 
-    /**
-     * @var MasterToebService
-     */
-    protected $serviceMasterToeb;
+    protected MasterToebService $serviceMasterToeb;
 
-    /**
-     * @var DraftStatementService
-     */
-    protected $draftStatementService;
+    protected DraftStatementService $draftStatementService;
 
-    /**
-     * @var CustomerService
-     */
-    private $customerService;
+    private CustomerService $customerService;
 
-    /**
-     * @var AddressService
-     */
-    protected $addressService;
+    protected AddressService $addressService;
 
-    /**
-     * @var OrgaService
-     */
-    protected $orgaService;
-    /**
-     * @var ReportService
-     */
-    private $reportService;
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
+    protected OrgaService $orgaService;
+    private ReportService $reportService;
+    private MessageBagInterface $messageBag;
 
-    /**
-     * @var ProdLogger
-     */
-    private $prodLogger;
+    private ProdLogger $prodLogger;
 
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    private $userPasswordHasher;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
-    /**
-     * @var PasswordHasherFactoryInterface
-     */
-    private $passwordHasherFactory;
+    private PasswordHasherFactoryInterface $passwordHasherFactory;
 
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
+    private UserRepository $userRepository;
 
-    /**
-     * @var UserRoleInCustomerRepository
-     */
-    private $userRoleInCustomerRepository;
+    private UserRoleInCustomerRepository $userRoleInCustomerRepository;
 
-    /**
-     * @var StatementVoteRepository
-     */
-    private $statementVoteRepository;
+    private StatementVoteRepository $statementVoteRepository;
 
-    /**
-     * @var DepartmentRepository
-     */
-    private $departmentRepository;
+    private DepartmentRepository $departmentRepository;
 
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
-    /**
-     * @var BrandingRepository
-     */
-    private $brandingRepository;
+    private OrgaRepository $orgaRepository;
+    private BrandingRepository $brandingRepository;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private TranslatorInterface $translator;
+    private EntityHelper $entityHelper;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(
         AddressService $addressService,

@@ -81,34 +81,19 @@ use Twig\Error\SyntaxError;
 
 class UserHandler extends CoreHandler
 {
-    /**
-     * @var MailService
-     */
-    protected $mailService;
+    protected MailService $mailService;
 
-    /**
-     * @var Environment
-     */
-    protected $twig;
+    protected Environment $twig;
 
-    /**
-     * @var UserService
-     */
-    protected $userService;
+    protected UserService $userService;
 
-    /**
-     * @var DraftStatementService
-     */
-    protected $draftStatementService;
+    protected DraftStatementService $draftStatementService;
 
-    /** @var ValidatorInterface */
-    protected $validator;
+    protected ValidatorInterface $validator;
 
-    /** @var CustomerService */
-    protected $customerService;
+    protected CustomerService $customerService;
 
-    /** @var OrgaService */
-    protected $orgaService;
+    protected OrgaService $orgaService;
 
     /**
      * Since updating the orga show list is not allowed for
@@ -121,63 +106,27 @@ class UserHandler extends CoreHandler
      *
      * @var bool is the showlist update allowed?
      */
-    protected $canUpdateShowList = false;
+    protected bool $canUpdateShowList = false;
 
-    protected $splashModalVariablePrefix = 'splashModalHideVersion';
-    /**
-     * @var RoleHandler
-     */
-    private $roleHandler;
+    protected string $splashModalVariablePrefix = 'splashModalHideVersion';
+    private RoleHandler $roleHandler;
 
-    /**
-     * @var OrgaHandler
-     */
-    protected $orgaHandler;
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
-    /**
-     * @var MasterToebService
-     */
-    private $masterToebService;
-    /**
-     * @var FileService
-     */
-    private $fileService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-    /**
-     * @var ContentService
-     */
-    private $contentService;
+    protected OrgaHandler $orgaHandler;
+    private ProcedureService $procedureService;
+    private MasterToebService $masterToebService;
+    private FileService $fileService;
+    private TranslatorInterface $translator;
+    private ContentService $contentService;
 
-    /**
-     * @var UserHasher
-     */
-    private $userHasher;
+    private UserHasher $userHasher;
 
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private GlobalConfigInterface $globalConfig;
 
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
+    private PermissionsInterface $permissions;
 
-    /**
-     * @var FlashMessageHandler
-     */
-    private $flashMessageHandler;
+    private FlashMessageHandler $flashMessageHandler;
 
-    /**
-     * @var PasswordValidator
-     */
-    private $passwordValidator;
+    private PasswordValidator $passwordValidator;
 
     public function __construct(
         ContentService $contentService,

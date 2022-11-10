@@ -21,10 +21,7 @@ use Exception;
 
 class BrandingService extends CoreService
 {
-    /**
-     * @var ProcedureService
-     */
-    private $procedureService;
+    private ProcedureService $procedureService;
 
     public function __construct(ProcedureService $procedureService)
     {

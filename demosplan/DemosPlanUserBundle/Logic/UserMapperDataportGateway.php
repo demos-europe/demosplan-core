@@ -35,66 +35,32 @@ use Tightenco\Collect\Support\Collection;
 
 abstract class UserMapperDataportGateway implements UserMapperInterface
 {
-    /**
-     * @var UserService
-     */
-    protected $userService;
+    protected UserService $userService;
 
-    /**
-     * @var GlobalConfigInterface
-     */
-    protected $globalConfig;
+    protected GlobalConfigInterface $globalConfig;
 
-    /**
-     * @var Logger
-     */
-    protected $logger;
+    protected LoggerInterface $logger;
 
-    /**
-     * @var string
-     */
-    protected $salt;
+    protected string $salt;
 
-    /**
-     * @var Collection
-     */
-    protected $roles;
+    protected Collection $roles;
 
-    /**
-     * @var array
-     */
-    protected $data;
+    protected array $data;
 
-    /**
-     * @var CustomerHandler
-     */
-    protected $customerHandler;
+    protected CustomerHandler $customerHandler;
 
-    /**
-     * @var AddressService
-     */
-    protected $addressService;
-    /**
-     * @var OrgaService
-     */
-    protected $orgaService;
-    /**
-     * @var HttpCall
-     */
-    private $httpCall;
+    protected AddressService $addressService;
+    protected OrgaService $orgaService;
+    private HttpCall $httpCall;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     /**
      * Variable set when user needs to be redirected to a distinct verification route
      * Could be used when orga or department changed.
      *
-     * @var string|null
      */
-    protected $verificationRoute;
+    protected ?string $verificationRoute = null;
 
     public function __construct(
         AddressService $addressService,

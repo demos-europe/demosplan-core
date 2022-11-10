@@ -22,13 +22,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class HashedAndSaltedPassword extends ValueObject
 {
-    /**
-     * @var string
-     */
-    protected $hash;
+    protected string $hash;
 
-    /**
-     * @var string
-     */
-    protected $salt;
+    protected string $salt;
 }

@@ -14,10 +14,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 
 class UserNotFoundException extends ResourceNotFoundException
 {
-    /**
-     * @var string|null
-     */
-    private $userLogin;
+    private ?string $userLogin = null;
 
     public static function createFromId(string $userId): self
     {

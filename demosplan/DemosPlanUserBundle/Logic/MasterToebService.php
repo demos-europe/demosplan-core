@@ -30,47 +30,20 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MasterToebService extends CoreService
 {
-    /**
-     * @var UserService
-     */
-    protected $serviceUser;
+    protected UserService $serviceUser;
 
-    /**
-     * @var ReportService
-     */
-    private $reportService;
+    private ReportService $reportService;
 
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
+    private CurrentUserInterface $currentUser;
 
-    /**
-     * @var MasterToebRepository
-     */
-    private $masterToebRepository;
+    private MasterToebRepository $masterToebRepository;
 
-    /**
-     * @var MasterToebVersionRepository
-     */
-    private $masterToebVersionRepository;
+    private MasterToebVersionRepository $masterToebVersionRepository;
 
-    /**
-     * @var MasterPublicAgencyReportEntryFactory
-     */
-    private $masterPublicAgencyReportEntryFactory;
-    /**
-     * @var EntityHelper
-     */
-    private $entityHelper;
-    /**
-     * @var DateHelper
-     */
-    private $dateHelper;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private MasterPublicAgencyReportEntryFactory $masterPublicAgencyReportEntryFactory;
+    private EntityHelper $entityHelper;
+    private DateHelper $dateHelper;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(
         CurrentUserInterface $currentUser,

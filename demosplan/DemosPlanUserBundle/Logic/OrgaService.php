@@ -59,102 +59,44 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaService extends CoreService
 {
-    /** @var MailService */
-    protected $mailService;
+    protected MailService $mailService;
 
-    /**
-     * @var RoleService
-     */
-    protected $roleService;
+    protected RoleService $roleService;
 
-    /**
-     * @var AddressService
-     */
-    protected $addressService;
+    protected AddressService $addressService;
 
-    /**
-     * @var ContentService
-     */
-    protected $contentService;
+    protected ContentService $contentService;
 
-    /**
-     * @var PermissionsInterface
-     */
-    protected $permissions;
+    protected PermissionsInterface $permissions;
 
-    /**
-     * @var TokenStorageInterface
-     */
-    protected $tokenStorage;
+    protected TokenStorageInterface $tokenStorage;
 
-    /**
-     * @var FileService
-     */
-    private $fileService;
+    private FileService $fileService;
 
-    /**
-     * @var ReportService
-     */
-    private $reportService;
+    private ReportService $reportService;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var UserService
-     */
-    private $userService;
+    private UserService $userService;
 
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
+    private DqlConditionFactory $conditionFactory;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
+    private EntityFetcher $entityFetcher;
 
-    /**
-     * @var SortMethodFactoryInterface
-     */
-    private $sortMethodFactory;
+    private SortMethodFactory $sortMethodFactory;
 
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
+    private CustomerRepository $customerRepository;
 
-    /**
-     * @var OrgaRepository
-     */
-    private $orgaRepository;
+    private OrgaRepository $orgaRepository;
 
-    /**
-     * @var OrgaTypeRepository
-     */
-    private $orgaTypeRepository;
+    private OrgaTypeRepository $orgaTypeRepository;
 
-    /**
-     * @var OrganisationReportEntryFactory
-     */
-    private $organisationReportEntryFactory;
+    private OrganisationReportEntryFactory $organisationReportEntryFactory;
 
-    /**
-     * @var OrgaResourceType
-     */
-    private $orgaResourceType;
+    private OrgaResourceType $orgaResourceType;
 
-    /**
-     * @var InvitablePublicAgencyResourceType
-     */
-    private $invitablePublicAgencyResourceType;
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(
         AddressService $addressService,

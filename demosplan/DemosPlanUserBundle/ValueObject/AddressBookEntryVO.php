@@ -28,22 +28,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class AddressBookEntryVO extends ValueObject
 {
-    /** @var string */
-    protected $id;
+    protected string $id;
 
-    /** @var string */
-    protected $name;
+    protected string $name;
 
-    /** @var Orga */
-    protected $organisation;
+    protected Orga $organisation;
 
     /**
      * @Assert\NotBlank(message = "email.address.invalid")
      * @Assert\Email(message = "email.address.invalid")
      *
-     * @var string
      */
-    protected $emailAddress;
+    protected string $emailAddress;
 
     public function __construct(string $name, string $emailAddress, Orga $organisation)
     {

@@ -22,10 +22,7 @@ use Exception;
 
 class PublicAffairsAgentHandler extends CoreHandler
 {
-    /**
-     * @var OrgaHandler
-     */
-    private $orgaHandler;
+    private OrgaHandler $orgaHandler;
 
     protected function getOrgaHandler(): OrgaHandler
     {

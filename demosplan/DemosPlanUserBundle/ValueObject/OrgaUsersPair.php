@@ -25,12 +25,9 @@ class OrgaUsersPair extends ValueObject
     /**
      * @var array<int, User>
      */
-    protected $users;
+    protected array $users;
 
-    /**
-     * @var Orga
-     */
-    protected $organisation;
+    protected Orga $organisation;
 
     /**
      * @param array<int, User> $users

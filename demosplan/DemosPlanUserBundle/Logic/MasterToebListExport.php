@@ -21,10 +21,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MasterToebListExport extends XlsxExporter
 {
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
+    private PermissionsInterface $permissions;
 
     public function __construct(PermissionsInterface $permissions, TranslatorInterface $translator)
     {

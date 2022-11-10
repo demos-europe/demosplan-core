@@ -26,30 +26,15 @@ use Exception;
 
 class AddressBookEntryService extends CoreService
 {
-    /**
-     * @var MessageBagInterface
-     */
-    private $messageBag;
+    private MessageBagInterface $messageBag;
 
-    /**
-     * @var ConditionFactoryInterface
-     */
-    private $conditionFactory;
+    private DqlConditionFactory $conditionFactory;
 
-    /**
-     * @var SortMethodFactory
-     */
-    private $sortMethodFactory;
+    private SortMethodFactory $sortMethodFactory;
 
-    /**
-     * @var EntityFetcher
-     */
-    private $entityFetcher;
+    private EntityFetcher $entityFetcher;
 
-    /**
-     * @var AddressBookEntryRepository
-     */
-    private $addressBookEntryRepository;
+    private AddressBookEntryRepository $addressBookEntryRepository;
 
     public function __construct(AddressBookEntryRepository $addressBookEntryRepository, DqlConditionFactory $conditionFactory, EntityFetcher $entityFetcher, MessageBagInterface $messageBag, SortMethodFactory $sortMethodFactory)
     {

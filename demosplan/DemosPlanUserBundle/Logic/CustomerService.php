@@ -19,15 +19,9 @@ use Doctrine\ORM\ORMException;
 
 class CustomerService
 {
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
+    private CustomerRepository $customerRepository;
 
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(CustomerRepository $customerRepository, GlobalConfigInterface $globalConfig)
     {

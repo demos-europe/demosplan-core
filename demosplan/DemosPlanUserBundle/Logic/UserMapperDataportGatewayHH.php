@@ -32,15 +32,9 @@ use Symfony\Component\Yaml\Parser;
 
 class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 {
-    /**
-     * @var MasterToebService
-     */
-    protected $masterToebService;
+    protected MasterToebService $masterToebService;
 
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
+    private UserRepository $userRepository;
 
     public function __construct(
         AddressService $addressService,

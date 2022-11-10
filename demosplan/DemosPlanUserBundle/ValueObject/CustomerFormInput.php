@@ -15,16 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CustomerFormInput implements CustomerInterface
 {
-    /** @var string|null */
-    private $id;
+    private ?string $id = null;
     /** @var string|null */
     private $dataProtection;
     /** @var string|null */
     private $imprint;
     /** @var string|null */
     private $termsOfUse;
-    /** @var File|null */
-    private $logo;
+    private ?File $logo = null;
     /** @var string|null */
     private $mapAttribution;
     /** @var string|null */

@@ -17,15 +17,9 @@ use Psr\Log\LoggerInterface;
 
 class AddressService
 {
-    /**
-     * @var AddressRepository
-     */
-    private $addressRepository;
+    private AddressRepository $addressRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(AddressRepository $addressRepository, LoggerInterface $logger)
     {

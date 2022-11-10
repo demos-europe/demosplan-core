@@ -18,10 +18,7 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 
 class UserHasher
 {
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
+    private GlobalConfigInterface $globalConfig;
 
     public function __construct(GlobalConfigInterface $globalConfig)
     {

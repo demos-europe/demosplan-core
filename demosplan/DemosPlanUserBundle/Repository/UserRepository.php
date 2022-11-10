@@ -46,10 +46,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     public const LOGIN_LIST_CACHE_DURATION = 43200; // 12 hours
 
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
+    private CacheInterface $cache;
 
     public function __construct(CacheInterface $cache, ManagerRegistry $registry, string $entityClass)
     {

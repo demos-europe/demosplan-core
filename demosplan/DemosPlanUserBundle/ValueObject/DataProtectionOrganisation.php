@@ -14,20 +14,11 @@ namespace demosplan\DemosPlanUserBundle\ValueObject;
 
 class DataProtectionOrganisation
 {
-    /**
-     * @var string
-     */
-    private $id;
+    private string $id;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $dataProtection;
+    private string $dataProtection;
 
     public function __construct(string $id, string $name, string $dataProtection)
     {

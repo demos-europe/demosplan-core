@@ -24,19 +24,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {
-    /**
-     * @var OrgaService
-     */
-    private $orgaService;
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private OrgaService $orgaService;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var CurrentUserInterface
-     */
-    private $currentUser;
+    private CurrentUserInterface $currentUser;
 
     public function __construct(OrgaService $orgaService, MessageBag $messageBag, TranslatorInterface $translator, CurrentUserInterface $currentUser)
     {

@@ -25,18 +25,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomerHandler extends CoreHandler
 {
-    /**
-     * @var CustomerService
-     */
-    protected $customerService;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    protected CustomerService $customerService;
+    private PermissionsInterface $permissions;
+    private ValidatorInterface $validator;
 
     public function __construct(
         CustomerService $customerService,

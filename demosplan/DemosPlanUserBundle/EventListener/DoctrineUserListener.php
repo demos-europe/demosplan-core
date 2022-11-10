@@ -18,14 +18,11 @@ use Exception;
 
 class DoctrineUserListener
 {
-    /**
-     * @var CustomerService
-     */
-    protected $customerService;
+    protected CustomerService $customerService;
     /**
      * @var array<int, string>
      */
-    protected $rolesAllowed;
+    protected array $rolesAllowed;
 
     /**
      * @param GlobalConfigInterface|GlobalConfig $globalConfig

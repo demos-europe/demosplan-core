@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanUserBundle\Repository;
 
 
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
@@ -84,7 +85,7 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete statementVote failed: ', [$e]);
         }
     }

@@ -21,23 +21,11 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class CurrentUserService implements CurrentUserInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
+    private TokenStorageInterface $tokenStorage;
 
-    /**
-     * @var CustomerHandler
-     */
-    private $customerHandler;
-    /**
-     * @var PermissionsInterface
-     */
-    private $permissions;
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
+    private CustomerHandler $customerHandler;
+    private PermissionsInterface $permissions;
+    private LoggerInterface $logger;
 
     public function __construct(
         LoggerInterface $logger,

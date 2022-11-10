@@ -19,15 +19,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class UserMapper implements UserMapperInterface
 {
-    /**
-     * @var UserService
-     */
-    protected $userService;
+    protected UserService $userService;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     public function __construct(
         RequestStack $requestStack,

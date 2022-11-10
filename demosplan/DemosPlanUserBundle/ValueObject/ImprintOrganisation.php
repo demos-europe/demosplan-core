@@ -14,20 +14,11 @@ namespace demosplan\DemosPlanUserBundle\ValueObject;
 
 final class ImprintOrganisation
 {
-    /**
-     * @var string
-     */
-    private $id;
+    private string $id;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @var string
-     */
-    private $imprint;
+    private string $imprint;
 
     public function __construct(string $id, string $name, string $imprint)
     {
