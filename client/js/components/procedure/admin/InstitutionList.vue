@@ -7,9 +7,20 @@
     :items="institutions"
     class="u-mt-2">
     <template v-slot:tags="rowData">
-      <div
-        v-if="!rowData.edit"
-        v-text="rowData.tags" />
+      <div v-if="!rowData.edit">
+        <div v-for="(tag, i) in rowData.tags"
+             :key="i">
+          <span v-cleanhtml="tag" />
+          <button
+            :aria-label="Translator.trans('item.delete')"
+            class="btn--blank o-link--default"
+            @click="removeTag(tag)">
+            <i
+              class="fa fa-trash"
+              aria-hidden="true" />
+          </button>
+        </div>
+      </div>
       <dp-input
         v-else
         id="editInstitutionTags"
@@ -23,15 +34,14 @@
           <button
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
-            @click="editTag(rowData.id)">
+            @click="editInstitution(rowData.id, rowData.tags)">
             <i
               class="fa fa-pencil"
               aria-hidden="true" />
           </button>
           <button
             :aria-label="Translator.trans('item.delete')"
-            class="btn--blank o-link--default"
-            @click="deleteTag(rowData.id)">
+            class="btn--blank o-link--default">
             <i
               class="fa fa-trash"
               aria-hidden="true" />
@@ -62,10 +72,15 @@
 import { mapState, mapActions } from "vuex";
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
+import { CleanHtml } from 'demosplan-ui/directives'
 
 
 export default {
   name: "InstitutionList",
+
+  directives: {
+    cleanhtml: CleanHtml
+  },
 
   components: {
     DpDataTable,
@@ -79,7 +94,8 @@ export default {
     return {
       addNewTag: false,
       edit: false,
-      editingTagId: null,
+      editingInstitutionId: null,
+      editingInstitutionTags: [],
       newTag: {},
       headerFields: [
         {
@@ -152,11 +168,9 @@ export default {
         const { id, attributes } = tag
         return {
           id,
-          edit: this.editingTagId === id,
+          edit: this.editingInstitutionId === id,
           institution: attributes.name,
-          tags: attributes.assignedTags.map(el => {
-            return el
-          })
+          tags: attributes.assignedTags
         }
       })
     }
@@ -167,14 +181,20 @@ export default {
       listInvitableInstitution: 'list'
     }),
 
-    editTag (id) {
+    editInstitution (id, tags) {
+      console.log('tags: ', tags)
+      this.editingInstitutionTags = tags
       this.addNewTag = false
-      this.editingTagId = id
-      this.newTag.label = null
+      this.editingInstitutionId = id
+      this.newTag.tags = null
+    },
+
+    removeTag (tag) {
+      console.log('institutiontags: ', tag)
     },
 
     abortEdit () {
-      this.editingTagId = null
+      this.editingInstitutionId = null
     }
   },
 
