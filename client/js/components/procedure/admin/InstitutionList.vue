@@ -4,8 +4,19 @@
     has-flyout
     :header-fields="headerFields"
     track-by="id"
-    :items="institutionsMock"
+    :items="institutions"
     class="u-mt-2">
+    <template v-slot:tags="rowData">
+      <div
+        v-if="!rowData.edit"
+        v-text="rowData.tags" />
+      <dp-input
+        v-else
+        id="editInstitutionTags"
+        maxlength="250"
+        required
+        v-model="rowData.tags" />
+    </template>
     <template v-slot:action="rowData">
       <div class="float--right">
         <template v-if="!rowData.edit">
@@ -29,16 +40,14 @@
         <template v-else>
           <button
             :aria-label="Translator.trans('save')"
-            class="btn--blank o-link--default u-mr-0_25"
-            @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.label), false)">
+            class="btn--blank o-link--default u-mr-0_25">
             <dp-icon
               icon="check"
               aria-hidden="true" />
           </button>
           <button
             class="btn--blank o-link--default"
-            :aria-label="Translator.trans('abort')"
-            @click="abortEdit()">
+            :aria-label="Translator.trans('abort')">
             <dp-icon
               icon="xmark"
               aria-hidden="true" />
@@ -52,13 +61,18 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 
 
 export default {
   name: "InstitutionList",
 
   components: {
-    DpDataTable
+    DpDataTable,
+    DpButton,
+    DpInput,
+    DpIcon,
+    DpLoading
   },
 
   data () {
@@ -66,6 +80,7 @@ export default {
       addNewTag: false,
       edit: false,
       editingTagId: null,
+      newTag: {},
       headerFields: [
         {
           field: 'institution',
@@ -87,25 +102,26 @@ export default {
         {
           id: 'abc1',
           attributes: {
-            title: 'Institution-1'
+            name: 'Institution-1',
+            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
           },
-          tags: 'tag-1'
+          createdDate: '2013-03-18 17:48:54.000000'
         },
         {
           id: 'abc2',
-          label: 'Institution-2',
           attributes: {
-            title: 'Institution-2'
+            name: 'Institution-2',
+            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
           },
-          tags: 'tag-2'
+          createdDate: '2013-03-18 17:48:54.000000'
         },
         {
           id: 'abc3',
-          label: 'Institution-3',
           attributes: {
-            title: 'Institution-3'
+            name: 'Institution-3',
+            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
           },
-          tags: 'tag-3'
+          createdDate: '2013-03-18 17:48:54.000000'
         }
       ]
     }
@@ -131,14 +147,16 @@ export default {
       })
     },
 
-    institutionsMock () {
+    institutions () {
       return Object.values(this.institutionMockData).map(tag => {
-        const { id, attributes, tags } = tag
+        const { id, attributes } = tag
         return {
           id,
           edit: this.editingTagId === id,
-          institution: attributes.title,
-          tags: tags
+          institution: attributes.name,
+          tags: attributes.assignedTags.map(el => {
+            return el
+          })
         }
       })
     }
@@ -153,39 +171,6 @@ export default {
       this.addNewTag = false
       this.editingTagId = id
       this.newTag.label = null
-    },
-
-    deleteTag (id) {
-      this.deleteInstitutionTag(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
-        .catch(err => {
-          console.error(err)
-        })
-    },
-
-    updateTag (id, label) {
-      if (!this.isUniqueTagName(label)) {
-        return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
-      }
-
-      this.updateInstitutionTag({
-        id: id,
-        type: this.institutionTags[id].type,
-        attributes: {
-          ...this.institutionTags[id].attributes,
-          label: label
-        }
-      })
-
-      this.saveInstitutionTag(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
-        .catch(err => {
-          this.restoreTagFromInitial(id)
-          console.error(err)
-        })
-        .finally(() => {
-          this.editingTagId = null
-        })
     },
 
     abortEdit () {
