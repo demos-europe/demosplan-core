@@ -146,6 +146,7 @@
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
             <a
+              class="is-disabled"
               v-if="hasPermission('area_statement_segmentation')"
               :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' && (assignee.id !== '' && assignee.id !== currentUserId)}"
               :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
