@@ -170,7 +170,6 @@ class Permissions implements PermissionsInterface
             'area_globalnews',
             'area_imprint_text',
             'area_login_dialog',
-            'area_main_contact',
             'area_main_file',
             'area_main_procedures',
             'area_map_participation_area',
