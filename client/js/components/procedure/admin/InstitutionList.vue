@@ -8,25 +8,27 @@
     class="u-mt-2">
     <template v-slot:tags="rowData">
       <div v-if="!rowData.edit">
-        <div v-for="(tag, i) in rowData.tags"
-             :key="i">
-          <span v-cleanhtml="tag" />
-          <button
-            :aria-label="Translator.trans('item.delete')"
-            class="btn--blank o-link--default"
-            @click="removeTag(tag)">
-            <i
-              class="fa fa-trash"
-              aria-hidden="true" />
-          </button>
+          <span v-for="(tag, i) in rowData.tags"
+                :key="i"
+                v-cleanhtml="tag" />
         </div>
-      </div>
-      <dp-input
+      <dp-multiselect
         v-else
         id="editInstitutionTags"
-        maxlength="250"
-        required
-        v-model="rowData.tags" />
+        class="display--inline-block"
+        v-model="selectedTags"
+        :options="institutionTags"
+        :searchable="false"
+        selected-label=""
+        multiple
+      >
+        <template v-slot:option>
+          <span class="multiselect__tag" v-for="tag in institutionTags">
+            {{ tag.name }}
+          </span>
+        </template>
+
+      </dp-multiselect>
     </template>
     <template v-slot:action="rowData">
       <div class="float--right">
@@ -57,7 +59,8 @@
           </button>
           <button
             class="btn--blank o-link--default"
-            :aria-label="Translator.trans('abort')">
+            :aria-label="Translator.trans('abort')"
+            @click="abortEdit()">
             <dp-icon
               icon="xmark"
               aria-hidden="true" />
@@ -73,6 +76,7 @@ import { mapState, mapActions } from "vuex";
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { CleanHtml } from 'demosplan-ui/directives'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 
 export default {
@@ -87,7 +91,8 @@ export default {
     DpButton,
     DpInput,
     DpIcon,
-    DpLoading
+    DpLoading,
+    DpMultiselect
   },
 
   data () {
@@ -97,6 +102,7 @@ export default {
       editingInstitutionId: null,
       editingInstitutionTags: [],
       newTag: {},
+      selectedTags: {},
       headerFields: [
         {
           field: 'institution',
@@ -139,13 +145,14 @@ export default {
           },
           createdDate: '2013-03-18 17:48:54.000000'
         }
-      ]
+      ],
+      assignedTagsMock : ['tag-1', 'tag-2', 'tag-3']
     }
   },
 
   computed: {
     ...mapState('institutionTag', {
-      institutionTags: 'items'
+      institutionTagList: 'items'
     }),
 
     ...mapState('invitableInstitution', {
@@ -153,12 +160,22 @@ export default {
     }),
 
     tags () {
-      return Object.values(this.institutionTags).map(tag => {
+      return Object.values(this.institutionTagList).map(tag => {
         const { id, attributes } = tag
         return {
           id,
           edit: this.editingTagId === id,
           label: attributes.label
+        }
+      })
+    },
+
+    institutionTags () {
+      return Object.values(this.institutionTagList).map(el => {
+        const { id, attributes } = el
+        return {
+          id,
+          name: attributes.label
         }
       })
     },
@@ -178,19 +195,16 @@ export default {
 
   methods: {
     ...mapActions('invitableInstitution', {
-      listInvitableInstitution: 'list'
+      listInvitableInstitution: 'list',
+      saveInvitableInstitution: 'save'
+
     }),
 
     editInstitution (id, tags) {
-      console.log('tags: ', tags)
       this.editingInstitutionTags = tags
       this.addNewTag = false
       this.editingInstitutionId = id
       this.newTag.tags = null
-    },
-
-    removeTag (tag) {
-      console.log('institutiontags: ', tag)
     },
 
     abortEdit () {
