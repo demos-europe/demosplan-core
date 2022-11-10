@@ -90,17 +90,19 @@
         <slot :map="map" />
 
         <!-- Default layer -->
-        <dp-ol-map-layer
-          :url="baselayer"
-          :layers="baselayerLayers"
-          :projection="baseLayerProjection"
-          v-if="!options.hideDefaultLayer" />
+<!--        Remove when api implemenation is ready -->
+<!--        <dp-ol-map-layer-->
+<!--          :url="baselayer"-->
+<!--          :layers="baselayerLayers"-->
+<!--          :projection="baseLayerProjection"-->
+<!--          v-if="!options.hideDefaultLayer" />-->
       </div>
 
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        id="map">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -121,7 +123,7 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { Map, View } from 'ol'
+// import { Map, View } from 'ol'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
 import { deepMerge } from 'demosplan-utils'
@@ -131,6 +133,7 @@ import DpOlMapLayer from './DpOlMapLayer'
 import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
+import masterportal from '@masterportal/masterportalapi/src/maps/map'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
@@ -251,22 +254,112 @@ export default {
     },
 
     createMap () {
-      return new Map({
-        controls: this.options.controls ? this.options.controls : this._options.controls,
-        target: this.$refs.mapContainer,
-        view: new View({
-          center: [this.centerX, this.centerY],
-          projection: this.projection,
-          resolutions: this.resolutions,
-          extent: this.maxExtent,
-          minResolution: this.resolutions[(this.resolutions.length - 1)],
-          maxResolution: this.resolutions[0],
-          constrainOnlyCenter: true,
-          constrainResolution: true
-        }),
-        loadTilesWhileAnimating: true,
-        resolutions: this.resolutions
-      })
+      // return new Map({
+      //   controls: this.options.controls ? this.options.controls : this._options.controls,
+      //   target: this.$refs.mapContainer,
+      //   view: new View({
+      //     center: [this.centerX, this.centerY],
+      //     projection: this.projection,
+      //     resolutions: this.resolutions,
+      //     extent: this.maxExtent,
+      //     minResolution: this.resolutions[(this.resolutions.length - 1)],
+      //     maxResolution: this.resolutions[0],
+      //     constrainOnlyCenter: true,
+      //     constrainResolution: true
+      //   }),
+      //   loadTilesWhileAnimating: true,
+      //   resolutions: this.resolutions
+      // })
+
+      const namedProjections = [
+        [
+          this._options.projection.code,
+          this._options.projection.transform
+        ]
+      ]
+
+      // Layer config for createMap, used in config
+      const layerConf = [{
+        layers: 'onmaps_graustufen',
+        url: 'https://wms.onmaps.de/?key=8ae2a661a3374681f5b409787b17f34c',
+        id: '1234',
+        typ: 'WMS',
+        format: 'image/png',
+        name: 'baselayer_global',
+        transparent: false
+      }]
+
+      // Config for createMap
+      const config = {
+        target: 'map',
+        layerConf: layerConf,
+        extent: [ 1252344.2714243277,6574807.424977722,1565430.3392804097,6887893.492833805],
+        layers: [
+          {
+            id: '1234'
+          }
+        ],
+        epsg: 'EPSG:3857',
+        units: 'm'
+      }
+
+      // Customized test layer conf from node_modules/@masterportal/masterportalapi/example/config/services.json
+      const testLayer = [{
+        "id": "1001",
+        "typ": "WMS",
+        "name": "WebAtlasDe",
+        "url": "https://sgx.geodatenzentrum.de/wms_basemapde",
+        "format": "image/png",
+        "version": "1.3.0",
+        "layers": "de_basemapde_web_raster_grau",
+        "transparent": false,
+        "singleTile": false,
+        "tilesize": 256,
+        "gutter": 0,
+        "minScale": 1,
+        "maxScale": 200
+      }]
+
+      // Customized test conf from node_modules/@masterportal/masterportalapi/example/config/portal.json
+      const apiConf = {
+        // id of wrapper div
+        "target": "map",
+        "epsg": "EPSG:3857",
+        "namedProjections": [
+          ["EPSG:3857", "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"],
+          ["EPSG:25832", "+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs"],
+          ["EPSG:25833", "+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs"]
+        ],
+        // Max boundingbox
+        "extent": [353647.59,5961794.41,1740029.22,7391224.47],
+        "options": [
+          { "resolution": 264.583190458, "scale": 1000000, "zoomLevel": 0 },
+          { "resolution": 132.291595229, "scale": 500000, "zoomLevel": 1 },
+          { "resolution": 66.14579761460263, "scale": 250000, "zoomLevel": 2 },
+          { "resolution": 26.458319045841044, "scale": 100000, "zoomLevel": 3 },
+          { "resolution": 15.874991427504629, "scale": 60000, "zoomLevel": 4 },
+          { "resolution": 10.583327618336419, "scale": 40000, "zoomLevel": 5 },
+          { "resolution": 5.2916638091682096, "scale": 20000, "zoomLevel": 6 },
+          { "resolution": 2.6458319045841048, "scale": 10000, "zoomLevel": 7 },
+          { "resolution": 1.3229159522920524, "scale": 5000, "zoomLevel": 8 },
+          { "resolution": 0.6614579761460262, "scale": 2500, "zoomLevel": 9 },
+          { "resolution": 0.2645831904584105, "scale": 1000, "zoomLevel": 10 },
+          { "resolution": 0.13229159522920521, "scale": 500, "zoomLevel": 11 }
+        ],
+        "startResolution": 132.291595229,
+        "startCenter": [this.centerX, this.centerY],
+        "units": "m",
+        "layerConf": testLayer,
+        "layers": [
+          {
+            // Layer id from testLayer
+            "id": "1001"
+          }
+        ],
+        "cesiumLib":"https://geoportal-hamburg.de/mastercode/cesium/1_95/Cesium.js"
+      }
+
+      return masterportal.createMap(apiConf)
     },
 
     /**
@@ -316,6 +409,7 @@ export default {
       })
     },
 
+    // @TODO Needs to be adjusted for masterportal
     setProjection () {
       /*
        *  Add custom projection to OpenLayers instance
@@ -438,15 +532,15 @@ export default {
      *  This also mounts child components that are wrapped inside v-if="Boolean(map)".
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
-    this.olMapState.map = this.createMap()
-
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));
      */
 
     //  After child components have added their stuff to the map instance, it needs to update accordingly
+
     this.$nextTick(() => {
+      this.olMapState.map = this.createMap()
       this.updateMapInstance()
 
       // If startkartenausschnitt is defined by user, show it on mounted
