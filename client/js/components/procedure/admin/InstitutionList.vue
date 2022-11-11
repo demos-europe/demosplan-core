@@ -19,8 +19,7 @@
         :searchable="false"
         label="label"
         track-by="id"
-        multiple
-      >
+        multiple>
       </dp-multiselect>
     </template>
     <template v-slot:action="rowData">
@@ -45,7 +44,8 @@
         <template v-else>
           <button
             :aria-label="Translator.trans('save')"
-            class="btn--blank o-link--default u-mr-0_25">
+            class="btn--blank o-link--default u-mr-0_25"
+            @click="addTags(rowData.id)">
             <dp-icon
               icon="check"
               aria-hidden="true" />
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import {mapState, mapActions, mapMutations} from "vuex";
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { CleanHtml } from 'demosplan-ui/directives'
@@ -177,7 +177,12 @@ export default {
 
   methods: {
     ...mapActions('invitableInstitution', {
-      listInvitableInstitution: 'list'
+      listInvitableInstitution: 'list',
+      saveInvitableInstitution: 'save'
+    }),
+
+    ...mapMutations('invitableInstitution', {
+      updateInvitableInstitution: 'setItem'
     }),
 
     editInstitution (id) {
@@ -188,6 +193,26 @@ export default {
 
     abortEdit () {
       this.editingInstitutionId = null
+    },
+
+    addTags (id) {
+      console.log('tags: ', this.selectedTags)
+      console.log('id: ', id)
+      this.updateInvitableInstitution({
+        id: id,
+        type: this.invitableInstitutionList[id].type,
+        attributes: {
+          ...this.invitableInstitutionList[id].attributes,
+          assignedTags: this.selectedTags
+        }
+      })
+
+      this.saveInvitableInstitution(id)
+        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .catch(err => {
+
+          console.error(err)
+        })
     }
   },
 
