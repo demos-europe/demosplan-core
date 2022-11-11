@@ -14,20 +14,13 @@
         </div>
       <dp-multiselect
         v-else
-        id="editInstitutionTags"
-        class="display--inline-block"
         v-model="selectedTags"
-        :options="institutionTags"
+        :options="tags"
         :searchable="false"
-        selected-label=""
+        label="label"
+        track-by="id"
         multiple
       >
-        <template v-slot:option>
-          <span class="multiselect__tag" v-for="tag in institutionTags">
-            {{ tag.name }}
-          </span>
-        </template>
-
       </dp-multiselect>
     </template>
     <template v-slot:action="rowData">
@@ -36,7 +29,7 @@
           <button
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
-            @click="editInstitution(rowData.id, rowData.tags)">
+            @click="editInstitution(rowData.id)">
             <i
               class="fa fa-pencil"
               aria-hidden="true" />
@@ -100,9 +93,8 @@ export default {
       addNewTag: false,
       edit: false,
       editingInstitutionId: null,
-      editingInstitutionTags: [],
       newTag: {},
-      selectedTags: {},
+      selectedTags: [],
       headerFields: [
         {
           field: 'institution',
@@ -156,7 +148,7 @@ export default {
     }),
 
     ...mapState('invitableInstitution', {
-      invitableInstitution: 'items'
+      invitableInstitutionList: 'items'
     }),
 
     tags () {
@@ -170,18 +162,8 @@ export default {
       })
     },
 
-    institutionTags () {
-      return Object.values(this.institutionTagList).map(el => {
-        const { id, attributes } = el
-        return {
-          id,
-          name: attributes.label
-        }
-      })
-    },
-
     institutions () {
-      return Object.values(this.institutionMockData).map(tag => {
+      return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes } = tag
         return {
           id,
@@ -195,13 +177,10 @@ export default {
 
   methods: {
     ...mapActions('invitableInstitution', {
-      listInvitableInstitution: 'list',
-      saveInvitableInstitution: 'save'
-
+      listInvitableInstitution: 'list'
     }),
 
-    editInstitution (id, tags) {
-      this.editingInstitutionTags = tags
+    editInstitution (id) {
       this.addNewTag = false
       this.editingInstitutionId = id
       this.newTag.tags = null
