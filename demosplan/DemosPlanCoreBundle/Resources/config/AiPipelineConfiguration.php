@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
 
 class AiPipelineConfiguration
 {
@@ -59,6 +61,12 @@ class AiPipelineConfiguration
      */
     private $parameterBag;
 
+    /** @var string */
+    protected $aiServiceSalt = '';
+
+    /** @var string */
+    protected $aiServicePostUrl = '';
+
     public function __construct(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
@@ -71,6 +79,20 @@ class AiPipelineConfiguration
         $this->piPipelineSegmentRecognitionId = $this->parameterBag->get('pi.pipeline.segment.recognition.id');
         if ($this->parameterBag->has('pipeline.ai.labels')) {
             $this->aiPipelineLabels = $this->parameterBag->get('pipeline.ai.labels');
+        }
+        if ($parameterBag->has('ai_service_salt')) {
+            $aiServiceSalt = $parameterBag->get('ai_service_salt');
+            if (is_string($aiServiceSalt)) {
+                $this->aiServiceSalt = $aiServiceSalt;
+            }
+        }
+        if ($parameterBag->has('ai_service_post_url')) {
+            $aiServicePostUrl = $parameterBag->get('ai_service_post_url');
+            $validator = Validation::createValidator();
+            $violations = $validator->validate($aiServicePostUrl, new Url());
+            if (0 === $violations->count()) {
+                $this->aiServicePostUrl = $aiServicePostUrl;
+            }
         }
     }
 
@@ -116,5 +138,21 @@ class AiPipelineConfiguration
     public function getAiPipelineLabels(): array
     {
         return $this->aiPipelineLabels;
+    }
+
+    /**
+     * @return string may be empty if not configured properly
+     */
+    public function getAiServiceSalt(): string
+    {
+        return $this->aiServiceSalt;
+    }
+
+    /**
+     * @return string may be empty if not configured properly
+     */
+    public function getAiServicePostUrl(): string
+    {
+        return $this->aiServicePostUrl;
     }
 }
