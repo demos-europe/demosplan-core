@@ -90,11 +90,9 @@ export default {
 
   data () {
     return {
-      addNewTag: false,
-      edit: false,
       editingInstitutionId: null,
-      newTag: {},
-      selectedTags: [],
+      editingInstitutionTags: [],
+      editingInstitution: {},
       headerFields: [
         {
           field: 'institution',
@@ -112,33 +110,6 @@ export default {
           colClass: 'u-1-of-12'
         }
       ],
-      institutionMockData: [
-        {
-          id: 'abc1',
-          attributes: {
-            name: 'Institution-1',
-            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
-          },
-          createdDate: '2013-03-18 17:48:54.000000'
-        },
-        {
-          id: 'abc2',
-          attributes: {
-            name: 'Institution-2',
-            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
-          },
-          createdDate: '2013-03-18 17:48:54.000000'
-        },
-        {
-          id: 'abc3',
-          attributes: {
-            name: 'Institution-3',
-            assignedTags: ['tag-1', 'tag-2', 'tag-3'],
-          },
-          createdDate: '2013-03-18 17:48:54.000000'
-        }
-      ],
-      assignedTagsMock : ['tag-1', 'tag-2', 'tag-3']
     }
   },
 
@@ -160,6 +131,16 @@ export default {
           label: attributes.label
         }
       })
+    },
+
+    selectedTags: {
+      get () {
+        return this.editingInstitutionTags
+      },
+
+      set (newValue) {
+        return this.editingInstitutionTags.push(newValue)
+      }
     },
 
     institutions () {
@@ -186,9 +167,9 @@ export default {
     }),
 
     editInstitution (id) {
-      this.addNewTag = false
       this.editingInstitutionId = id
-      this.newTag.tags = null
+      this.editingInstitution = this.invitableInstitutionList[id]
+      this.editingInstitutionTags = this.editingInstitution.attributes.assignedTags
     },
 
     abortEdit () {
@@ -196,8 +177,6 @@ export default {
     },
 
     addTags (id) {
-      console.log('tags: ', this.selectedTags)
-      console.log('id: ', id)
       this.updateInvitableInstitution({
         id: id,
         type: this.invitableInstitutionList[id].type,
