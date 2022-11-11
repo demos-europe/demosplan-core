@@ -158,7 +158,7 @@
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
-            <a
+            <a v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file', { hash: originalPdf })"
               rel="noreferrer noopener"
