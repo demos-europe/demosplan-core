@@ -40,7 +40,7 @@ class OriginalStatementResourceTypeSubscriber implements EventSubscriberInterfac
 
     public function isOriginalStatementAvailable(IsOriginalStatementAvailableEvent $event)
     {
-        if ($this->currentUser->hasPermission('feature_json_api_original_statement')) {
+        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
             $event->setIsOriginalStatementAvailable(true);
         }
     }
