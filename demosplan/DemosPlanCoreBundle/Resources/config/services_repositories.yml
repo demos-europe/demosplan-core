@@ -210,9 +210,6 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\StatementImportEmailRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail'
-
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
 
@@ -272,6 +269,3 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection'

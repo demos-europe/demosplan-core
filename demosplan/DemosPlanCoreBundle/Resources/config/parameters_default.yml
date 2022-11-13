@@ -488,15 +488,3 @@ parameters:
     # This can be a relative or an absolute path, relative paths
     # will use DemosPlanPath::getRootDir() as base.
     deployment_sync_dir: '../htdocs'
-
-    # Configuration for Maillane connection
-
-    # Expects the API endpoint base URL for the used maillane instance
-    # Example: 172.0.0.1:9999
-    maillane_api_baseurl: ""
-    # Auth token used for verifying the import request originated from
-    # the expected Maillane instance
-    maillane_api_token: ""
-    # Domain for generated recipient email addresses. (The part after the '@')
-    # Example: maillane.com
-    maillane_email_domain: ""
