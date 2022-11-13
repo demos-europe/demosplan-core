@@ -640,10 +640,6 @@ feature_alternative_newsletter:
     expose: false
     label: 'Usage of an external service to provide newsletters instead of the internal one.'
     loginRequired: false
-feature_annotated_statement_pdf_rollback_review_status:
-    description: 'Allows running the task to bring all AnnotatedStatements which are in BOX_REVIEW status back to READY_TO_REVIEW and those in TEXT_REVIEW back to READY_TO_CONVERT'
-    label: 'Access to bring AnnotatedStatementPDfs from box- and text-review back to their previous statuses'
-    loginRequired: false
 feature_assessmenttable_special_sorting:
     description: 'Introduces a special (nested) sort type of assessment table for HH to be used for presentations/discussions with authorities (politicians).'
     label: 'Special sort type for HH'
@@ -869,16 +865,6 @@ feature_identity_broker_login:
     label: 'Enables/disables account login and registration by identity broker'
     expose: true
     loginRequired: false
-feature_import_statement_pdf:
-    description: |-
-        When enabled users are able to upload PDF files which are then automatically
-        processed to annotate relevant information in the pages. After the processing
-        is done the user can review and adjust the annotations. When the review is done
-        a statement can be created from the data annotated in the PDF file with the PDF
-        file attached to the statement.
-    expose: true
-    label: 'Upload and annotate PDF files to create statements from it.'
-    loginRequired: true
 feature_imprint_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:

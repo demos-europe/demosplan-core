@@ -123,12 +123,6 @@ services:
     demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
 
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf'
-
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfPageRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage'
-
     demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
 
