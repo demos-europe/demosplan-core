@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
+
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
+
+class EmailImportSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            CreateSimplifiedStatementEvent::class => 'importingStatementViaEmail',
+        ];
+    }
+    public function importingStatementViaEmail (CreateSimplifiedStatementEvent $event, StatementFromEmailCreator $emailStatementCreator)
+    {
+        $request = $event->getRequest();
+        if ($emailStatementCreator->isImportingStatementViaEmail($request)) {
+            $event->setStatementFromEmailCreator($emailStatementCreator);
+        }
+    }
+}

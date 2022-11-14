@@ -159,6 +159,7 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'feature_ai_create_annotated_statement_pdf_pages',
                     'feature_ai_generated_draft_segments',
+                    'feature_read_source_statement_via_api',
                     'field_statement_recommendation',
                 ],
                 'features_denied'                   => [
@@ -2954,7 +2955,6 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_development',
                     'area_globalnews',
                     'area_demosplan',
                     'area_mydata_password',
