@@ -66,7 +66,6 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
 import { DpIcon } from 'demosplan-ui/components'
 import { formatDate } from 'demosplan-utils'
 import { mapState, mapActions, mapMutations } from "vuex"
@@ -76,10 +75,6 @@ import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: "InstitutionList",
-
-  directives: {
-    cleanhtml: CleanHtml
-  },
 
   components: {
     DpDataTable,
@@ -92,7 +87,6 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: [],
-      test: ['test-1', 'test-1', 'test-1'],
       headerFields: [
         {
           field: 'institution',
@@ -182,6 +176,7 @@ export default {
       this.updateInvitableInstitution ({
         id: id,
         type: "InvitableInstitution",
+        attributes: { ...this.invitableInstitutionList[id].attributes },
         relationships: {
           assignedTags: {
             data: payload
@@ -192,9 +187,13 @@ export default {
       this.saveInvitableInstitution (id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
-          this.restoreInstitutionFromInitial(id)
+          // Restore statement in store in case request failed
+          this.restoreInstitutionFromInitial (id)
           console.error(err)
         })
+        .finally(() => {
+        this.editingInstitutionId = null
+      })
     },
 
     sortByCreatedDate (array) {
@@ -204,7 +203,7 @@ export default {
     },
 
     date (d) {
-      return formatDate(d)
+      return formatDate (d)
     },
 
     separateByCommas (arr) {
@@ -215,7 +214,19 @@ export default {
   },
 
   mounted () {
-    this.listInvitableInstitution()
+    this.listInvitableInstitution({
+      include: [
+        'id',
+        'type'
+      ].join(),
+      fields: {
+          assignedTags: [
+            'id',
+            'type'
+        ].join()
+      },
+      sort: 'createdDate'
+    })
   }
 }
 </script>
