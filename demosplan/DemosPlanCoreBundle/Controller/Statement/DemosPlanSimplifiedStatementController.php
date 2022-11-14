@@ -47,8 +47,8 @@ class DemosPlanSimplifiedStatementController extends BaseController
         string $procedureId
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
-        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent());
-        $eventStatementCreator = $event->getStatementFromEmailCreator($request);
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
+        $eventStatementCreator = $event->getStatementFromEmailCreator();
         if (null !== $eventStatementCreator) {
             return $eventStatementCreator($request, $procedureId);
         }
