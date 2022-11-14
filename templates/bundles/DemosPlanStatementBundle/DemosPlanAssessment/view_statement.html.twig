@@ -456,14 +456,16 @@
                                     aria-hidden="true">
                                 </i>
                                 {% for source_stn in source_statements %}
-                                    <a
-                                        class="o-hellip--nowrap u-mb-0_25 display--inline"
-                                        title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        href="{{ path("core_file", { 'hash': source_stn.file.hash|default }) }}">
-                                        {{ source_stn.file.name|default('original.pdf'|trans) }}
-                                    </a>
+                                    {% if hasPermission('feature_read_source_statement_via_api') %}
+                                        <a
+                                            class="o-hellip--nowrap u-mb-0_25 display--inline"
+                                            title="{{ source_stn.file.name|default('original.pdf'|trans) }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            href="{{ path("core_file", { 'hash': source_stn.file.hash|default }) }}">
+                                            {{ source_stn.file.name|default('original.pdf'|trans) }}
+                                        </a>
+                                    {% endif %}
                                 {% endfor %}
                         </span>
                         </div>
