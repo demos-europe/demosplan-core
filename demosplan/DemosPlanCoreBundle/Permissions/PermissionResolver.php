@@ -27,24 +27,22 @@ use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @psalm-type PsalmDrupalFilterGroup = array{
- *            conjunction: non-empty-string,
- *            memberOf?: non-empty-string
- *          }
- * @psalm-type PsalmDrupalFilterCondition = array{
- *            path: non-empty-string,
- *            value?: mixed,
- *            operator: non-empty-string,
- *            memberOf?: non-empty-string
- *          }
- * @psalm-type PsalmParameterCondition = array{
+ * @phpstan-import-type DrupalFilterGroup from DrupalFilterParser
+ * @phpstan-import-type DrupalFilterCondition from DrupalFilterParser
+ * @phpstan-type ParameterCondition = array{
  *            path: non-empty-string,
  *            parameter: value-of<ResolvablePermission::PARAMETER_VALUES>,
  *            operator: non-empty-string,
  *            memberOf?: non-empty-string
  *          }
- * @psalm-type PsalmCustomizedDrupalFilter = array{condition: PsalmDrupalFilterCondition}|array{group: PsalmDrupalFilterGroup}|array{parameterCondition: PsalmParameterCondition}
- * @psalm-type PsalmDrupalFilter = array{condition: PsalmDrupalFilterCondition}|array{group: PsalmDrupalFilterGroup}
+ * @phpstan-type CustomizedDrupalFilter = array{
+ *            condition: DrupalFilterCondition
+ *          }|array{
+ *            group: DrupalFilterGroup
+ *          }|array{
+ *            parameterCondition: ParameterCondition
+ *          }
+ * @phpstan-type DrupalFilter = array{condition: DrupalFilterCondition}|array{group: DrupalFilterGroup}
  */
 class PermissionResolver
 {
@@ -90,7 +88,7 @@ class PermissionResolver
     }
 
     /**
-     * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $filterList
+     * @param array<non-empty-string, CustomizedDrupalFilter> $filterList
      * @param Customer|User|Procedure|null                         $evaluationTarget
      */
     protected function evaluate(
@@ -134,9 +132,9 @@ class PermissionResolver
      *
      * The `parameter` field will be removed in the process.
      *
-     * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $filterList
+     * @param array<non-empty-string, CustomizedDrupalFilter> $filterList
      *
-     * @return array<non-empty-string, PsalmDrupalFilter>
+     * @return array<non-empty-string, DrupalFilter>
      */
     private function replaceParameterConditions(array $filterList, ?User $user, ?Procedure $procedure, ?Customer $customer): array
     {
@@ -162,10 +160,10 @@ class PermissionResolver
     }
 
     /**
-     * @param array{parameterCondition: PsalmParameterCondition} $conditionWrapper
+     * @param array{parameterCondition: ParameterCondition} $conditionWrapper
      * @param Procedure|Customer|User|null                       $entity
      *
-     * @return array{condition: PsalmDrupalFilterCondition}
+     * @return array{condition: DrupalFilterCondition}
      */
     private function adjustCondition(array $conditionWrapper, ?UuidEntityInterface $entity): array
     {

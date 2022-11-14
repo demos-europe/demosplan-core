@@ -31,23 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * the permission will always be enabled, regardless of the state of the application (current
  * customer, current user and current procedure).
  *
- * @psalm-type PsalmDrupalFilterGroup = array{
- *            conjunction: non-empty-string,
- *            memberOf?: non-empty-string
- *          }
- * @psalm-type PsalmDrupalFilterCondition = array{
- *            path: non-empty-string,
- *            value?: mixed,
- *            operator: non-empty-string,
- *            memberOf?: non-empty-string
- *          }
- * @psalm-type PsalmParameterCondition = array{
- *            path: non-empty-string,
- *            parameter: value-of<ResolvablePermission::PARAMETER_VALUES>,
- *            operator: non-empty-string,
- *            memberOf?: non-empty-string
- *          }
- * @psalm-type PsalmCustomizedDrupalFilter = array{condition: PsalmDrupalFilterCondition}|array{group: PsalmDrupalFilterGroup}|array{parameterCondition: PsalmParameterCondition}
+ * @phpstan-import-type CustomizedDrupalFilter from PermissionResolver
  */
 class ResolvablePermission
 {
@@ -85,7 +69,7 @@ class ResolvablePermission
     private string $description;
 
     /**
-     * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @var array<non-empty-string, CustomizedDrupalFilter>
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
@@ -94,7 +78,7 @@ class ResolvablePermission
     private array $customerFilters = [];
 
     /**
-     * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @var array<non-empty-string, CustomizedDrupalFilter>
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
@@ -103,7 +87,7 @@ class ResolvablePermission
     private array $userFilters = [];
 
     /**
-     * @var array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @var array<non-empty-string, CustomizedDrupalFilter>
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
@@ -148,7 +132,7 @@ class ResolvablePermission
     }
 
     /**
-     * @return array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @return array<non-empty-string, CustomizedDrupalFilter>
      */
     public function getCustomerFilters(): array
     {
@@ -156,7 +140,7 @@ class ResolvablePermission
     }
 
     /**
-     * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $customerFilters
+     * @param array<non-empty-string, CustomizedDrupalFilter> $customerFilters
      */
     public function setCustomerFilters(array $customerFilters): void
     {
@@ -164,7 +148,7 @@ class ResolvablePermission
     }
 
     /**
-     * @return array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @return array<non-empty-string, CustomizedDrupalFilter>
      */
     public function getUserFilters(): array
     {
@@ -172,7 +156,7 @@ class ResolvablePermission
     }
 
     /**
-     * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $userFilters
+     * @param array<non-empty-string, CustomizedDrupalFilter> $userFilters
      */
     public function setUserFilters(array $userFilters): void
     {
@@ -180,7 +164,7 @@ class ResolvablePermission
     }
 
     /**
-     * @return array<non-empty-string, PsalmCustomizedDrupalFilter>
+     * @return array<non-empty-string, CustomizedDrupalFilter>
      */
     public function getProcedureFilters(): array
     {
@@ -188,7 +172,7 @@ class ResolvablePermission
     }
 
     /**
-     * @param array<non-empty-string, PsalmCustomizedDrupalFilter> $procedureFilters
+     * @param array<non-empty-string, CustomizedDrupalFilter> $procedureFilters
      */
     public function setProcedureFilters(array $procedureFilters): void
     {
