@@ -10,15 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Event\ImportingStatementViaEmailEvent;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 
 /**
  * Takes care of actions related to the simplified version of a Statement.
@@ -40,14 +41,12 @@ class DemosPlanSimplifiedStatementController extends BaseController
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
     public function createAction(
+        TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
-        StatementFromEmailCreator $emailStatementCreator,
         Request $request,
         string $procedureId
     ): Response {
-        if ($emailStatementCreator->isImportingStatementViaEmail($request)) {
-            return $emailStatementCreator($request, $procedureId);
-        }
+        $eventDispatcher->dispatch(new ImportingStatementViaEmailEvent($request, $procedureId));
 
         return $statementCreator($request, $procedureId);
     }
