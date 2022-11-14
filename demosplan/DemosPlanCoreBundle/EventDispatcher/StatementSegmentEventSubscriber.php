@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateFlushEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 
 class StatementSegmentEventSubscriber extends BaseEventSubscriber
 {

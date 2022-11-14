@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\PiSegmentRecognitionRequester;
+use demosplan\addons\workflow\SegmentsManager\Logic\Segment\PiSegmentRecognitionRequester;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;

@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\PiSegmentRecognitionRequester;
+use demosplan\addons\workflow\SegmentsManager\Logic\Segment\PiSegmentRecognitionRequester;
 
 class StatementUpdateSubscriber extends BaseEventSubscriber
 {

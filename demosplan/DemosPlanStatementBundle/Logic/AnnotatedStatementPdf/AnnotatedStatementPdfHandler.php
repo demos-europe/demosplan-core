@@ -23,7 +23,7 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidStatusTransitionExceptio
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;

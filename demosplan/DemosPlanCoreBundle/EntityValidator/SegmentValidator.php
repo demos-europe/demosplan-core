@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EntityValidator;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

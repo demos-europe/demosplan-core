@@ -19,8 +19,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\SegmentService;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Logic\Segment\SegmentService;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 
 class UpdateElasticaStatementPostListener

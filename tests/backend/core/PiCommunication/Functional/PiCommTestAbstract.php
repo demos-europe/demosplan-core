@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication;
 use demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
-use demosplan\plugins\workflow\SegmentsManager\SegmentsManager;
+use demosplan\addons\workflow\SegmentsManager\SegmentsManager;
 use DirectoryIterator;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;

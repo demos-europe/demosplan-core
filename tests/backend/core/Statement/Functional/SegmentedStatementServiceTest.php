@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Normalizer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\SegmentedStatementService;
+use demosplan\addons\workflow\SegmentsManager\Logic\Segment\SegmentedStatementService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
