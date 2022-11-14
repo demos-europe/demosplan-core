@@ -89,7 +89,7 @@ class PermissionResolver
 
     /**
      * @param array<non-empty-string, CustomizedDrupalFilter> $filterList
-     * @param Customer|User|Procedure|null                         $evaluationTarget
+     * @param Customer|User|Procedure|null                    $evaluationTarget
      */
     protected function evaluate(
         array $filterList,
@@ -161,7 +161,7 @@ class PermissionResolver
 
     /**
      * @param array{parameterCondition: ParameterCondition} $conditionWrapper
-     * @param Procedure|Customer|User|null                       $entity
+     * @param Procedure|Customer|User|null                  $entity
      *
      * @return array{condition: DrupalFilterCondition}
      */
