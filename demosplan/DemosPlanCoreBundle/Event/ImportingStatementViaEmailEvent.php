@@ -12,27 +12,20 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
 use Symfony\Component\HttpFoundation\Request;
 
 class ImportingStatementViaEmailEvent  extends DPlanEvent
 {
+    private ?StatementFromEmailCreator $emailStatementCreator = null;
 
-    private string $procedureId;
-
-    private Request $request;
-
-    public function __construct(Request $request, string $procedureId)
+    public function getStatementFromEmailCreator (): ?StatementFromEmailCreator
     {
-        $this->request      = $request;
-        $this->procedureId  = $procedureId;
+        return $this->emailStatementCreator;
     }
 
-    public function getRequest(): Request
+    public function setStatementFromEmailCreator (?StatementFromEmailCreator $emailStatementCreator): void
     {
-        return $this->request;
-    }
-    public function getProcedureId()
-    {
-        return $this->procedureId;
+       $this->emailStatementCreator = $emailStatementCreator;
     }
 }

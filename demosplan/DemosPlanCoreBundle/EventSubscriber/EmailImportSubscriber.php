@@ -27,9 +27,8 @@ class EmailImportSubscriber implements EventSubscriberInterface
     public function importingStatementViaEmail (ImportingStatementViaEmailEvent $event, StatementFromEmailCreator $emailStatementCreator)
     {
         $request = $event->getRequest();
-        $procedureId = $event->getProcedureId();
         if ($emailStatementCreator->isImportingStatementViaEmail($request)) {
-            return $emailStatementCreator($request, $procedureId);
+            $event->setStatementFromEmailCreator($emailStatementCreator);
         }
     }
 }
