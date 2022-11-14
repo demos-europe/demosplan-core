@@ -56,7 +56,8 @@ export default {
   data () {
     return {
       activeTab: '#procedureDetailsDocumentlist',
-      consultationTokenInputField: ''
+      consultationTokenInputField: '',
+      isSubmitting: false
     }
   },
 
