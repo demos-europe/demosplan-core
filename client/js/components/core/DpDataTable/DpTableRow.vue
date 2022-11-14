@@ -282,7 +282,9 @@ export default {
           })
         }
 
-        let cellAttributes = {}
+        let cellAttributes = {
+          attrs: {}
+        }
         let cellInnerElement = null
         let cellInnerElementStyle = ''
         if (!wrapped && typeof headerField.initialWidth !== 'undefined') {
@@ -307,6 +309,14 @@ export default {
               style: cellInnerElementStyle
             }
           }, [(scopedSlots[field] && scopedSlots[field](item)) || highlighted || txt || ''])
+        }
+
+        if (hasFlyout) {
+          cellAttributes = {
+            attrs: {
+              class: cellAttributes.attrs.class ? cellAttributes.attrs.class + ' overflow-visible' : 'overflow-visible'
+            }
+          }
         }
 
         return h('td',

@@ -4,18 +4,28 @@
     has-flyout
     :header-fields="headerFields"
     track-by="id"
-    :items="institutions"
+    :items="institutionList"
     class="u-mt-2">
+    <template v-slot:institution="rowData">
+      <ul class="o-list max-width-350">
+        <li>
+          {{ rowData.institution }}
+        </li>
+        <li class="o-list__item o-hellip--nowrap">
+          {{ date(rowData.createdDate) }}
+        </li>
+      </ul>
+    </template>
     <template v-slot:tags="rowData">
       <div v-if="!rowData.edit">
           <span v-for="(tag, i) in rowData.tags"
                 :key="i"
-                v-cleanhtml="tag" />
+                v-cleanhtml="tag.label" />
         </div>
       <dp-multiselect
         v-else
-        v-model="selectedTags"
-        :options="tags"
+        v-model="editingInstitutionTags"
+        :options="tagList"
         :searchable="false"
         label="label"
         track-by="id"
@@ -33,19 +43,12 @@
               class="fa fa-pencil"
               aria-hidden="true" />
           </button>
-          <button
-            :aria-label="Translator.trans('item.delete')"
-            class="btn--blank o-link--default">
-            <i
-              class="fa fa-trash"
-              aria-hidden="true" />
-          </button>
         </template>
         <template v-else>
           <button
             :aria-label="Translator.trans('save')"
             class="btn--blank o-link--default u-mr-0_25"
-            @click="addTags(rowData.id)">
+            @click="addTagsToInstitution(rowData.id)">
             <dp-icon
               icon="check"
               aria-hidden="true" />
@@ -65,10 +68,11 @@
 </template>
 
 <script>
-import {mapState, mapActions, mapMutations} from "vuex";
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { CleanHtml } from 'demosplan-ui/directives'
+import { DpIcon } from 'demosplan-ui/components'
+import { formatDate } from 'demosplan-utils'
+import { mapState, mapActions, mapMutations } from "vuex"
+import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 
@@ -81,29 +85,25 @@ export default {
 
   components: {
     DpDataTable,
-    DpButton,
-    DpInput,
-    DpIcon,
-    DpLoading,
-    DpMultiselect
+    DpMultiselect,
+    DpIcon
   },
 
   data () {
     return {
       editingInstitutionId: null,
+      editingInstitution: null,
       editingInstitutionTags: [],
-      editingInstitution: {},
       headerFields: [
         {
           field: 'institution',
           label: Translator.trans('institution'),
-          colClass: 'u-2-of-12'
+          colClass: 'u-2-of-12',
         },
         {
           field: 'tags',
           label: Translator.trans('tags'),
-          colClass: 'u-9-of-12'
-
+          colClass: 'u-9-of-12',
         },
         {
           field: 'action',
@@ -122,44 +122,37 @@ export default {
       invitableInstitutionList: 'items'
     }),
 
-    tags () {
+    tagList () {
       return Object.values(this.institutionTagList).map(tag => {
         const { id, attributes } = tag
         return {
           id,
-          edit: this.editingTagId === id,
           label: attributes.label
         }
       })
     },
 
-    selectedTags: {
-      get () {
-        return this.editingInstitutionTags
-      },
-
-      set (newValue) {
-        return this.editingInstitutionTags.push(newValue)
-      }
-    },
-
-    institutions () {
-      return Object.values(this.invitableInstitutionList).map(tag => {
+    institutionList () {
+      const institutionList = Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes } = tag
         return {
           id,
           edit: this.editingInstitutionId === id,
           institution: attributes.name,
-          tags: attributes.assignedTags
+          tags: attributes.assignedTags,
+          createdDate: attributes.createdDate.date
         }
       })
+
+      return this.sortByCreatedDate (institutionList)
     }
   },
 
   methods: {
     ...mapActions('invitableInstitution', {
       listInvitableInstitution: 'list',
-      saveInvitableInstitution: 'save'
+      saveInvitableInstitution: 'save',
+      restoreInstitutionFromInitial: 'restoreFromInitial'
     }),
 
     ...mapMutations('invitableInstitution', {
@@ -176,22 +169,43 @@ export default {
       this.editingInstitutionId = null
     },
 
-    addTags (id) {
-      this.updateInvitableInstitution({
-        id: id,
-        type: this.invitableInstitutionList[id].type,
-        attributes: {
-          ...this.invitableInstitutionList[id].attributes,
-          assignedTags: this.selectedTags
+    addTagsToInstitution (id) {
+      const institutionTagsString = JSON.stringify(this.editingInstitutionTags)
+      const institutionTagsArray = JSON.parse(institutionTagsString)
+
+      const payload = institutionTagsArray.map(el => {
+        return {
+          id: el.id,
+          type: 'InstitutionTag'
         }
       })
 
-      this.saveInvitableInstitution(id)
+      this.updateInvitableInstitution ({
+        id: id,
+        type: "InvitableInstitution",
+        relationships: {
+          assignedTags: {
+            data: payload
+          }
+        }
+      })
+
+      this.saveInvitableInstitution (id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
-
+          this.restoreInstitutionFromInitial(id)
           console.error(err)
         })
+    },
+
+    sortByCreatedDate (array) {
+      return array.sort((a, b) => {
+        return new Date(b.createdDate) - new Date(a.createdDate)
+      })
+    },
+
+    date (d) {
+      return formatDate(d)
     }
   },
 
