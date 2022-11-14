@@ -48,7 +48,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
     ): Response {
         /** @var ImportingStatementViaEmailEvent $event * */
         $event = $eventDispatcher->dispatch(new ImportingStatementViaEmailEvent());
-        $eventStatementCreator = $event->getStatementFromEmailCreator();
+        $eventStatementCreator = $event->getStatementFromEmailCreator($request);
         if (null !== $eventStatementCreator) {
             return $eventStatementCreator($request, $procedureId);
         }

@@ -19,6 +19,18 @@ class ImportingStatementViaEmailEvent  extends DPlanEvent
 {
     private ?StatementFromEmailCreator $emailStatementCreator = null;
 
+    private Request $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
     public function getStatementFromEmailCreator (): ?StatementFromEmailCreator
     {
         return $this->emailStatementCreator;
