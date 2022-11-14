@@ -831,13 +831,13 @@ class StatementService extends CoreService
         $updater->ifPresent(
             $this->similarStatementSubmitterResourceType->similarStatements,
             static function (Collection $similarStatements) use ($change, $submitter): void {
-                $similarStatements->forAll(
-                    static function (int $index, Statement $statement) use ($change, $submitter): bool {
-                        $statement->getSimilarStatementSubmitters()->add($submitter);
-                        $change->addEntityToPersist($statement);
-                        return true;
-                });
-        });
+                /** @var Statement $statement */
+                foreach ($similarStatements as $statement){
+                    $statement->getSimilarStatementSubmitters()->add($submitter);
+                    $change->addEntitiesToPersist($statement);
+                }
+            }
+        );
 
         return $change;
     }
