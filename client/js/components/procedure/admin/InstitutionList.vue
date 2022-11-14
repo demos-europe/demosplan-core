@@ -18,9 +18,7 @@
     </template>
     <template v-slot:tags="rowData">
       <div v-if="!rowData.edit">
-          <span v-for="(tag, i) in rowData.tags"
-                :key="i"
-                v-cleanhtml="tag.label" />
+        <span> {{ separateByCommas(rowData.tags) }}</span>
         </div>
       <dp-multiselect
         v-else
@@ -94,6 +92,7 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: [],
+      test: ['test-1', 'test-1', 'test-1'],
       headerFields: [
         {
           field: 'institution',
@@ -109,7 +108,7 @@ export default {
           field: 'action',
           colClass: 'u-1-of-12'
         }
-      ],
+      ]
     }
   },
 
@@ -206,10 +205,16 @@ export default {
 
     date (d) {
       return formatDate(d)
+    },
+
+    separateByCommas (arr) {
+      const newString = arr.join(", ")
+
+      return newString
     }
   },
 
-  mounted() {
+  mounted () {
     this.listInvitableInstitution()
   }
 }
