@@ -828,12 +828,16 @@ class StatementService extends CoreService
 
         $updater = new PropertiesUpdater($properties);
         $this->updatePersonEditableProperties($updater, $submitter);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->similarStatements, static function (Collection $similarStatements) use ($change, $submitter): void {
-            $similarStatements->forAll(static function (int $index, Statement $statement) use ($change, $submitter): void {
-                $statement->getSimilarStatementSubmitters()->add($submitter);
-                $change->addEntityToPersist($statement);
-            });
-        });
+        $updater->ifPresent(
+            $this->similarStatementSubmitterResourceType->similarStatements,
+            static function (Collection $similarStatements) use ($change, $submitter): void {
+                /** @var Statement $statement */
+                foreach ($similarStatements as $statement){
+                    $statement->getSimilarStatementSubmitters()->add($submitter);
+                    $change->addEntitiesToPersist($statement);
+                }
+            }
+        );
 
         return $change;
     }
