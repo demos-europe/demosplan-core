@@ -50,10 +50,9 @@ use EDT\JsonApi\RequestHandling\PropertyValuesGenerator;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\SortMethodInterface;
 use EDT\Querying\Utilities\Iterables;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
-use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use Exception;
 use function get_class;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -144,7 +143,7 @@ class JsonApiActionService extends AbstractApiService
      * @throws UserNotFoundException
      */
     public function listObjects(
-        ReadableTypeInterface $type,
+        TransferableTypeInterface $type,
         array $conditions,
         array $sortMethods = [],
         APIPagination $pagination = null

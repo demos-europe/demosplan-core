@@ -41,7 +41,6 @@ use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\PropertyAccessException;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
-use EDT\Wrapping\Utilities\TypeAccessor;
 use InvalidArgumentException;
 use function is_array;
 use function is_string;
@@ -127,10 +126,7 @@ abstract class APIController extends BaseController
             new DplanPropertyPathProcessorFactory($apiLogger),
             $resourceTypeProvider
         );
-        $this->fieldsValidator = new FieldsValidator(
-            new TypeAccessor($resourceTypeProvider),
-            Validation::createValidator()
-        );
+        $this->fieldsValidator = new FieldsValidator(Validation::createValidator());
         $this->messageFormatter = new MessageFormatter();
     }
 
