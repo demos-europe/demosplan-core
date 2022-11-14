@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
@@ -31,6 +33,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read InstitutionTagResourceType       $assignedTags
  * @property-read End                              $deleted
  * @property-read End                              $showlist
+ * @property-read UserResourceType                 $users
+ * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
 class InvitableInstitutionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
@@ -62,7 +66,24 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->true();
+        $customer = $this->currentCustomerService->getCurrentCustomer();
+
+        return $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(true, ...$this->showlist),
+            $this->conditionFactory->propertyHasValue(
+                Role::GPSORG,
+                ...$this->users->roleInCustomers->role->groupCode
+            ),
+            $this->conditionFactory->propertyHasValue(
+                OrgaType::PUBLIC_AGENCY,
+                ...$this->statusInCustomers->orgaType->name
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $customer->getId(),
+                ...$this->statusInCustomers->customer->id
+            ),
+        );
     }
 
     protected function getProperties(): array
@@ -93,9 +114,7 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
     {
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->assignedTags, function (Collection $newAssignedTags) use ($institution): void {
-            /**
-             * @var Collection $currentlyAssignedTags
-             */
+
             $currentlyAssignedTags = $institution->getAssignedTags();
 
             // removed tags

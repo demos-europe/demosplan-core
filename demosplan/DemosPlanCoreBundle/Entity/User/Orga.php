@@ -1471,6 +1471,7 @@ class Orga extends SluggedEntity
     {
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
+            $tag->getTaggedInstitutions()->removeElement($this);
         }
     }
 
