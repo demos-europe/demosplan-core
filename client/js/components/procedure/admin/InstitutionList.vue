@@ -127,12 +127,12 @@ export default {
 
     institutionList () {
       const institutionList = Object.values(this.invitableInstitutionList).map(tag => {
-        const { id, attributes } = tag
+        const { id, attributes, relationships } = tag
         return {
           id,
           edit: this.editingInstitutionId === id,
           institution: attributes.name,
-          tags: attributes.assignedTags,
+          tags: relationships.assignedTags.data,
           createdDate: attributes.createdDate.date
         }
       })
@@ -155,7 +155,7 @@ export default {
     editInstitution (id) {
       this.editingInstitutionId = id
       this.editingInstitution = this.invitableInstitutionList[id]
-      this.editingInstitutionTags = this.editingInstitution.attributes.assignedTags
+      this.editingInstitutionTags = this.editingInstitution.relationships.assignedTags.data
     },
 
     abortEdit () {
@@ -169,7 +169,8 @@ export default {
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
-          type: 'InstitutionTag'
+          type: 'InstitutionTag',
+          label: el.label
         }
       })
 
@@ -206,27 +207,25 @@ export default {
       return formatDate (d)
     },
 
-    separateByCommas (arr) {
-      const newString = arr.join(", ")
+    separateByCommas (tagsArr) {
+      const tagsLabels = this.getTagsLabels(tagsArr)
 
-      return newString
+      return tagsLabels.join(", ")
+  },
+
+    getTagsLabels (tagsArr) {
+      let tagsLabels = []
+
+      tagsArr.map(el => {
+        tagsLabels.push(el.label)
+      })
+
+      return tagsLabels
     }
   },
 
   mounted () {
-    this.listInvitableInstitution({
-      include: [
-        'id',
-        'type'
-      ].join(),
-      fields: {
-          assignedTags: [
-            'id',
-            'type'
-        ].join()
-      },
-      sort: 'createdDate'
-    })
+    this.listInvitableInstitution()
   }
 }
 </script>
