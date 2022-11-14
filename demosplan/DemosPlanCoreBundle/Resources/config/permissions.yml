@@ -173,7 +173,7 @@ area_demosplan:
     loginRequired: false
 area_development:
     description: 'Enables the area where users can write Featurerequests and Ideas for the dPlan-software and sort of organise the release planning'
-    label: 'shows the userStory / development forum area'
+    label: 'shows the userStory / development forum area (the default setup if used in project is: enabled for all except GUEST, PROSPECT, CITIZEN)'
     loginRequired: true
     parent: area_demosplan
 area_documents:
