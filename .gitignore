@@ -19,6 +19,7 @@ phpstan.neon
 .lnav
 !.github
 logs
+addons/vendor/
 
 ###> symfony/framework-bundle ###
 /.env.local
