@@ -2956,7 +2956,6 @@ class PermissionsTest extends FunctionalTestCase
                 'featuresAllowed'                   => [
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_development',
                     'area_globalnews',
                     'area_demosplan',
                     'area_mydata_password',

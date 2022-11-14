@@ -165,12 +165,10 @@ class Permissions implements PermissionsInterface
             'area_combined_participation_area',
             'area_data_protection_text',
             'area_demosplan',
-            'area_development',
             'area_documents',
             'area_globalnews',
             'area_imprint_text',
             'area_login_dialog',
-            'area_main_contact',
             'area_main_file',
             'area_main_procedures',
             'area_map_participation_area',
@@ -482,7 +480,6 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                'area_development',
                 'area_main_procedures',  // Menüitem Planverfahren
                 'area_mydata',  // Meine Daten
                 'area_participants_internal',  // Übersicht Teilnehmende intern
@@ -562,7 +559,6 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                'area_development',
                 'feature_procedure_single_document_upload_zip',  // citizens are not allowed to upload documents into procedures at all, hence do not allow for zip upload
             ]);
         }
