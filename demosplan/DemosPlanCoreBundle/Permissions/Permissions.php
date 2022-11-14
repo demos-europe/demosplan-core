@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
-use demosplan\DemosPlanCoreBundle\Logic\Addons\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
@@ -111,15 +110,7 @@ class Permissions implements PermissionsInterface
      */
     private $permissionCollection;
 
-    /**
-     * @var AddonRegistry
-     */
-    private $addonRegistry;
-
-    private PermissionResolver $permissionResolver;
-
     public function __construct(
-        AddonRegistry $addonRegistry,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         PermissionCollectionInterface $permissionCollection,
@@ -132,7 +123,6 @@ class Permissions implements PermissionsInterface
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
-        $this->addonRegistry = $addonRegistry;
         $this->permissionResolver = $permissionResolver;
     }
 
@@ -1177,35 +1167,6 @@ class Permissions implements PermissionsInterface
      */
     protected function evaluatePermission($permission): void
     {
-        $addonAndPermission = explode(':', $permission);
-        switch (count($addonAndPermission)) {
-            case 1:
-                $addonIdentifier = null;
-                break;
-            case 2:
-                $addonIdentifier = $addonAndPermission[0];
-                $permission = $addonIdentifier[1];
-                break;
-            default:
-                throw new InvalidArgumentException("Invalid permission: $permission");
-        }
-
-        if (null !== $addonIdentifier) {
-            $allAddonPermissions = $this->addonRegistry->getAllAddonPermissions();
-            $evaluatablePermission = $allAddonPermissions[$addonIdentifier][$permission];
-
-            if ($this->permissionResolver->isPermissionEnabled(
-                $evaluatablePermission,
-                $this->user,
-                $this->procedure,
-                $this->user->getCurrentCustomer()
-            )) {
-                return;
-            }
-
-            throw AccessDeniedException::missingPermission($permission, $this->user);
-        }
-
         // deny permission when permissions are not defined at all
         if (!is_array($this->permissions) || 0 === count($this->permissions)) {
             throw AccessDeniedException::missingPermissions($this->user);
