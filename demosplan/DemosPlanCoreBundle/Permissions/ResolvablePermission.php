@@ -16,8 +16,12 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * Instances represent a permission and provides all information necessary to determine if that
+ * permission should be enabled in a specific context (current user, current customer, current
+ * procedure).
+ *
  * Beside some basic permission information, instances of this class carry three filter array
- * properties:.
+ * properties:
  *
  * * {@link self::$customerFilters}
  * * {@link self::$userFilters}
