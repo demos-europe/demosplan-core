@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Beside some basic permission information, instances of this class carry three filter array
- * properties:
+ * properties:.
  *
  * * {@link self::$customerFilters}
  * * {@link self::$userFilters}
