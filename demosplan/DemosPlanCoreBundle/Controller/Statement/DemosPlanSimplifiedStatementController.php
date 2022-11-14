@@ -49,7 +49,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         /** @var CreateSimplifiedStatementEvent $event * */
         $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
         $eventStatementCreator = $event->getStatementFromEmailCreator();
-        if (null !== $eventStatementCreator) {
+        if (null !== $eventStatementCreator && is_callable($eventStatementCreator)) {
             return $eventStatementCreator($request, $procedureId);
         }
 
