@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Event\ImportingStatementViaEmailEvent;
+use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
@@ -46,8 +46,8 @@ class DemosPlanSimplifiedStatementController extends BaseController
         Request $request,
         string $procedureId
     ): Response {
-        /** @var ImportingStatementViaEmailEvent $event * */
-        $event = $eventDispatcher->dispatch(new ImportingStatementViaEmailEvent());
+        /** @var CreateSimplifiedStatementEvent $event * */
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent());
         $eventStatementCreator = $event->getStatementFromEmailCreator($request);
         if (null !== $eventStatementCreator) {
             return $eventStatementCreator($request, $procedureId);

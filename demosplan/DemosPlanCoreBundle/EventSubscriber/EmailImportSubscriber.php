@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Event\ImportingStatementViaEmailEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
 
 class EmailImportSubscriber implements EventSubscriberInterface
@@ -21,10 +21,10 @@ class EmailImportSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ImportingStatementViaEmailEvent::class => 'importingStatementViaEmail',
+            CreateSimplifiedStatementEvent::class => 'importingStatementViaEmail',
         ];
     }
-    public function importingStatementViaEmail (ImportingStatementViaEmailEvent $event, StatementFromEmailCreator $emailStatementCreator)
+    public function importingStatementViaEmail (CreateSimplifiedStatementEvent $event, StatementFromEmailCreator $emailStatementCreator)
     {
         $request = $event->getRequest();
         if ($emailStatementCreator->isImportingStatementViaEmail($request)) {

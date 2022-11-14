@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
 use Symfony\Component\HttpFoundation\Request;
 
-class ImportingStatementViaEmailEvent  extends DPlanEvent
+class CreateSimplifiedStatementEvent  extends DPlanEvent
 {
     private ?StatementFromEmailCreator $emailStatementCreator = null;
 
