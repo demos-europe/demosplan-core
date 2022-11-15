@@ -249,9 +249,6 @@ services:
     demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer'
-
     demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 

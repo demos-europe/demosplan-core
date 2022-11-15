@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -972,14 +971,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @ORM\Column(name="pi_segments_proposal_resource_url", type="string", length=255, nullable=true)
      */
     private $piSegmentsProposalResourceUrl;
-
-    /**
-     * @var BthgKompassAnswer
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer")
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
-     */
-    private $bthgKompassAnswer;
 
     /**
      * @var Collection<int, ProcedurePerson>
@@ -4070,16 +4061,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setPiSegmentsProposalResourceUrl(?string $piSegmentsProposalResourceUrl): void
     {
         $this->piSegmentsProposalResourceUrl = $piSegmentsProposalResourceUrl;
-    }
-
-    public function getBthgKompassAnswer(): ?BthgKompassAnswer
-    {
-        return $this->bthgKompassAnswer;
-    }
-
-    public function setBthgKompassAnswer(?BthgKompassAnswer $bthgKompassAnswer): void
-    {
-        $this->bthgKompassAnswer = $bthgKompassAnswer;
     }
 
     public function hasDefaultGuestUser(): bool

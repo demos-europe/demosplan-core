@@ -14,7 +14,6 @@ use function array_key_exists;
 use function compact;
 use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceStorage;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
@@ -22,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Event\Statement\EnrichDataOfStatementDetailViewEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
@@ -817,16 +815,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 $clusterStatements instanceof Collection ? $clusterStatements->count() : 0;
         }
 
-        $templateVars['bthgKompassAnswers'] = [];
-        $event = new EnrichDataOfStatementDetailViewEvent();
-
-        try {
-            $postedEvent = $eventDispatcherPost->post($event);
-
-            $templateVars['bthgKompassAnswers'] = $postedEvent->getBthgKompassAnswers();
-        } catch (Exception $e) {
-            $this->logger->warning('Could not successfully load bthg kompass answers', [$e]);
-        }
+        // We need to rebuild the EnrichDataView event
 
         return $this->renderTemplate(
             $template,
