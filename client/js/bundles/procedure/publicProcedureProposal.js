@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for procedure_proposal.html.twig
  */
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpEditor } from 'demosplan-ui/components/core'
 import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

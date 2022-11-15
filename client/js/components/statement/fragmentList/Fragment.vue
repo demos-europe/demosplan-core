@@ -500,9 +500,8 @@ import DpClaim from '../DpClaim'
 import DpFragmentEdit from '../fragment/Edit'
 import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
+import { DpHeightLimit, DpTextWrapper } from 'demosplan-ui/components/core'
 import DpItemRow from '../assessmentTable/ItemRow'
-import DpTextWrapper from '@DpJs/components/core/TextWrapper'
 import { getFileInfo } from '@DpJs/lib/core/FileInfo'
 
 export default {

@@ -86,7 +86,7 @@
 <script>
 import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import { DpDataTable } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
 
 export default {

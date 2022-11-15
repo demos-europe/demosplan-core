@@ -102,8 +102,7 @@
 
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpFormRow from '@DpJs/components/core/form/DpFormRow'
+import { DpCheckbox, DpFormRow } from 'demosplan-ui/components/core'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {

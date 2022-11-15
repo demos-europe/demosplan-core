@@ -158,7 +158,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpMultiselect } from 'demosplan-ui/components/core'
 import qs from 'qs'
 import { sortAlphabetically } from 'demosplan-utils'
 

@@ -33,8 +33,7 @@
 </template>
 
 <script>
-import DpModal from '@DpJs/components/core/DpModal'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
+import { DpModal, DpSelect } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpLabelModal',

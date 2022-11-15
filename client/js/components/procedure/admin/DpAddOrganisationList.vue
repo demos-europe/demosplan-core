@@ -50,7 +50,7 @@
 import { mapActions, mapState } from 'vuex'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
-import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
+import { DpDataTableExtended } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpAddOrganisationList',

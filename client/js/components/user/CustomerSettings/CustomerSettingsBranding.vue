@@ -71,9 +71,7 @@
 
 <script>
 import { DpDetails, DpLabel } from 'demosplan-ui/components'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpCheckbox, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
 
 export default {
   name: 'CustomerSettingsBranding',

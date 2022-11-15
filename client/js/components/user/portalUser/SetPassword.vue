@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { DpButtonRow } from 'demosplan-ui/components/core'
 import { DpInput } from 'demosplan-ui/components'
 import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 

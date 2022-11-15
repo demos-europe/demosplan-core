@@ -198,8 +198,7 @@
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTextWrapper from '@DpJs/components/core/TextWrapper'
+import { DpMultiselect, DpTextWrapper } from 'demosplan-ui/components/core'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -209,7 +208,10 @@ export default {
     DpMultiselect,
     DpButton,
     DpTextWrapper,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   props: {

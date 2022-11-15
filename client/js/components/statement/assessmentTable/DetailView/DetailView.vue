@@ -14,14 +14,11 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
+import { DpAccordion, DpDatepicker, DpMultiselect, DpUploadFiles } from 'demosplan-ui/components/core'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpButton } from 'demosplan-ui/components'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
 
 export default {
@@ -40,8 +37,14 @@ export default {
     // Only needed in statement detail view
     DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
 
-    DpSlidebar: () => import(/* webpackChunkName: "slidebar" */ '@DpJs/components/core/DpSlidebar'),
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpSlidebar: async () => {
+      const { DpSlidebar } = await import('demosplan-ui/components/core')
+      return DpSlidebar
+    },
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    },
     DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),
     StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect'),
     StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')

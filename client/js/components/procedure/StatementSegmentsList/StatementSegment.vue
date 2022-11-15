@@ -243,10 +243,8 @@ import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { CleanHtml, VPopover } from 'demosplan-ui/directives'
 import { DpIcon, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import { DpButtonRow, DpCheckbox, DpMultiselect } from 'demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'StatementSegment',
@@ -260,7 +258,10 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    },
     VPopover
   },
 

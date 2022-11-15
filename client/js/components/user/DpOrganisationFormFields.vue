@@ -684,7 +684,7 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpDetails } from 'demosplan-ui/components'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
+import { DpTextArea } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {

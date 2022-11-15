@@ -195,7 +195,8 @@
               data-cy="segmentVersionHistory">
               {{ Translator.trans('history') }}
             </button>
-            <a v-if="hasPermission('feature_read_source_statement_via_api')"
+            <a
+              v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
               target="_blank"
               :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
@@ -232,12 +233,7 @@ import { CleanHtml, VPopover } from 'demosplan-ui/directives'
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
-import DpColumnSelector from '@DpJs/components/core/DpDataTable/DpColumnSelector'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
+import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement } from 'demosplan-ui/components/core'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'

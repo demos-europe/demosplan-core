@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import DpTextWrapper from '@DpJs/components/core/TextWrapper'
+import DpTextWrapper from './DpTextWrapper'
 
 export default {
   name: 'DpHeightLimit',

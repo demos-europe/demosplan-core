@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpModal } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpNewOrgaModal',

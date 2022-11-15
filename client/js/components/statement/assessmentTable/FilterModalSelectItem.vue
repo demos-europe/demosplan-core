@@ -101,7 +101,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpLoading } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpMultiselect } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpFilterModalSelectItem',

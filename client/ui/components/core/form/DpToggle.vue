@@ -39,7 +39,7 @@
 <script>
 // Simple Toggle by Adam Wathan https://jsfiddle.net/adamwathan/hfs34ye4/
 export default {
-  name: 'DpSimpleToggle',
+  name: 'DpToggle',
 
   props: {
     value: {

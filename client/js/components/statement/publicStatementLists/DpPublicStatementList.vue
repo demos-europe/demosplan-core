@@ -39,7 +39,7 @@
 
 <script>
 import dayjs from 'dayjs'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import { DpInlineNotification } from 'demosplan-ui/components/core'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'

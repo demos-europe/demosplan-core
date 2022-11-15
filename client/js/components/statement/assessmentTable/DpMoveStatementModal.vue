@@ -120,7 +120,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { DpLoading } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpModal } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {

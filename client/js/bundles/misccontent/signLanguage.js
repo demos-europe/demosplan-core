@@ -11,7 +11,7 @@
  * This is the entrypoint for sign_language.html.twig
  */
 
-import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
+import { DpVideoPlayer } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpVideoPlayer }

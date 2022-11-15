@@ -12,8 +12,7 @@
  */
 
 import AnimateById from '@DpJs/lib/core/AnimateById'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
+import { DpAccordion, DpHeightLimit } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

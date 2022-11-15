@@ -239,7 +239,7 @@ import { CleanHtml } from 'demosplan-ui/directives'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { DpLoading } from 'demosplan-ui/components'
-import DpPager from '@DpJs/components/core/DpPager'
+import { DpPager } from 'demosplan-ui/components/core'
 import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
 import Stickier from '@DpJs/lib/core/Stickier'
@@ -263,7 +263,10 @@ export default {
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
-    DpSlidebar: () => import(/* webpackChunkName: "dp-slidebar" */ '@DpJs/components/core/DpSlidebar'),
+    DpSlidebar: async () => {
+      const { DpSlidebar } = await import('demosplan-ui/components/core')
+      return DpSlidebar
+    },
     DpAssessmentTableCard,
     DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
   },
@@ -706,7 +709,7 @@ export default {
         window.history.pushState({
           html: url.join('?'),
           pageTitle: document.title
-          }, document.title, url.join('?'))
+        }, document.title, url.join('?'))
       }
     },
 

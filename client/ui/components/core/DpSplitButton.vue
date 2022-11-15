@@ -46,7 +46,6 @@
 import ClickOutside from 'vue-click-outside'
 
 export default {
-
   name: 'DpSplitButton',
 
   directives: {

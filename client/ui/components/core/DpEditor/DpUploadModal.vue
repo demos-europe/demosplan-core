@@ -60,8 +60,8 @@
 
 <script>
 import { DpInput } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import DpModal from '../DpModal'
+import DpUploadFiles from '../DpUpload/DpUploadFiles'
 
 export default {
   name: 'DpUploadModal',

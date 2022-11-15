@@ -28,7 +28,7 @@
 
 <script>
 import { DpButton } from 'demosplan-ui/components'
-import DpResettableInput from '@DpJs/components/core/DpResettableInput'
+import DpResettableInput from '../DpResettableInput'
 
 export default {
   name: 'DpSearchField',

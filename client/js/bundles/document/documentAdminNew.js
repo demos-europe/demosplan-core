@@ -12,9 +12,7 @@
  */
 
 import { DpInput } from 'demosplan-ui/components'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpRadio, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

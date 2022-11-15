@@ -101,9 +101,8 @@
 <script>
 import { DpIcon, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { DpButtonRow, DpSelect } from 'demosplan-ui/components/core'
 import DpCreateTag from './DpCreateTag'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { hasOwnProp } from 'demosplan-utils'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'

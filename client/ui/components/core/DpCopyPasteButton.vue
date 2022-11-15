@@ -29,7 +29,7 @@
 
 <script>
 export default {
-  name: 'CopyPasteButton',
+  name: 'DpCopyPasteButton',
 
   props: {
     copyContent: {

@@ -156,8 +156,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
-import DpEditableList from '@DpJs/components/core/DpEditableList'
+import { DpContextualHelp, DpEditableList } from 'demosplan-ui/components/core'
 import { DpInput } from 'demosplan-ui/components'
 import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 

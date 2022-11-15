@@ -11,7 +11,7 @@
 import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/core/FormActions'
 import { mapMutations, mapState } from 'vuex'
 import { DpButton } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpModal } from 'demosplan-ui/components/core'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
@@ -28,8 +28,14 @@ export default {
     DpPublicSurvey,
     DpPublicStatementList,
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
+    DpSelect: async () => {
+      const { DpSelect } = await import('demosplan-ui/components/core')
+      return DpSelect
+    },
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('demosplan-ui/components/core')
+      return DpVideoPlayer
+    },
     ElementsList: () => import('@DpJs/components/document/ElementsList')
   },
 

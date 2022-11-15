@@ -14,7 +14,7 @@
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
+import { DpDateRangePicker } from 'demosplan-ui/components/core'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import DPWizard from '@DpJs/lib/procedure/DPWizard'

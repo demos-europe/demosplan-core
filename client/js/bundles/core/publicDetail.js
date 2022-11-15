@@ -13,11 +13,9 @@
  */
 
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 import TableWrapper from '@DpJs/lib/core/TableWrapper'
 

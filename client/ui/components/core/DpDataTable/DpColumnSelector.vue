@@ -45,8 +45,8 @@
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
+import DpCheckbox from '../form/DpCheckbox'
+import DpFlyout from '../DpFlyout'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {

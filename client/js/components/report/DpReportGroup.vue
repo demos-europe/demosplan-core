@@ -56,9 +56,8 @@
 
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import { DpDataTable, DpSlidingPagination } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 import { formatDate } from 'demosplan-utils'
 
 export default {

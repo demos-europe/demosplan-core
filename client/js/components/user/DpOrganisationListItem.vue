@@ -70,9 +70,8 @@
 </template>
 
 <script>
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { DpButtonRow, DpTableCard } from 'demosplan-ui/components/core'
 import { DpIcon } from 'demosplan-ui/components'
-import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
 import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 import { mapState } from 'vuex'
 
