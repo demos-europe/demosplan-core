@@ -272,16 +272,16 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc } from 'demosplan-utils'
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { checkResponse, dpApi, dpRpc } from '@demos-europe/demosplan-utils'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpBulkEditHeader, DpDataTable, DpFlyout, DpInlineNotification, DpSelect, DpSlidingPagination, DpStickyElement } from 'demosplan-ui/components/core'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpBulkEditHeader, DpDataTable, DpFlyout, DpInlineNotification, DpSelect, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import { formatDate } from 'demosplan-utils'
+import { formatDate } from '@demos-europe/demosplan-utils'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import { tableSelectAllItems } from 'demosplan-utils/mixins'
+import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'ListStatements',

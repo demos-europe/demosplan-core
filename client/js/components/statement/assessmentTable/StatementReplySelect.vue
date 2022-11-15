@@ -48,8 +48,8 @@
 </template>
 
 <script>
-import { DpCheckbox, DpMultiselect } from 'demosplan-ui/components/core'
-import { DpLabel } from 'demosplan-ui/components'
+import { DpCheckbox, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
+import { DpLabel } from '@demos-europe/demosplan-ui/components'
 
 export default {
   name: 'StatementReplySelect',

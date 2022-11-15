@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import { formatDate } from 'demosplan-utils'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { formatDate } from '@demos-europe/demosplan-utils'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 
 export default {
   name: 'DpPublicSurveyComment',

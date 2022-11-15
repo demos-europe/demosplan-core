@@ -8,7 +8,7 @@
  */
 
 import { normalize, setItem } from '@DpJs/store/core/utils/storeUtils'
-import { dpApi } from 'demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
 
 const BoilerplatesStore = {
   namespaced: true,

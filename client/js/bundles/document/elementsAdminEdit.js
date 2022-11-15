@@ -12,8 +12,8 @@
  */
 
 import DpElementAdminEdit from '@DpJs/components/document/DpElementAdminEdit'
-import { DpUploadFiles } from 'demosplan-ui/components/core'
-import { dpValidate } from 'demosplan-utils/lib/validation'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from 'demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
 import normalize from 'json-api-normalizer'
 
 const fetchResourcesByProcedureId = (mutationName, url, includes = []) => ({ commit }, procedureId) => {

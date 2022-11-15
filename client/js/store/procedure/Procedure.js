@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from 'demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
 
 const ProcedureStore = {
 

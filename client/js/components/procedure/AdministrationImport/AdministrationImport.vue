@@ -30,9 +30,9 @@
 
 <script>
 import AdministrationImportNone from './AdministrationImportNone'
-import { DpTab, DpTabs } from 'demosplan-ui/components/core'
+import { DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from 'demosplan-utils'
+import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { hasOwnProp } from 'demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 const statementStructure = {
   action: 'statementpublicnew',

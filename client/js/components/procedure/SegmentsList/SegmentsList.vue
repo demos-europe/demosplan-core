@@ -228,16 +228,16 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from 'demosplan-utils'
-import { CleanHtml, VPopover } from 'demosplan-ui/directives'
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui/directives'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
-import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement } from 'demosplan-ui/components/core'
+import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import { tableSelectAllItems } from 'demosplan-utils/mixins'
+import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'SegmentsList',

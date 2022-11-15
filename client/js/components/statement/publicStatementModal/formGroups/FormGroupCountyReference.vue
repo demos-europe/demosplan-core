@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { DpRadio } from 'demosplan-ui/components/core'
+import { DpRadio } from '@demos-europe/demosplan-ui/components/core'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

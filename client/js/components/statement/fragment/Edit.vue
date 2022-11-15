@@ -103,9 +103,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from 'demosplan-utils'
-import { DpButton } from 'demosplan-ui/components'
-import { DpEditor, DpMultiselect } from 'demosplan-ui/components/core'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import qs from 'qs'
 
 export default {

@@ -58,7 +58,7 @@
 <script>
 import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from 'vue2-leaflet'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { getCssVariable } from 'demosplan-utils'
+import { getCssVariable } from '@demos-europe/demosplan-utils'
 import L from 'leaflet'
 import LMarkerCluster from 'vue2-leaflet-markercluster'
 import proj4 from 'proj4'

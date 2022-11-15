@@ -621,14 +621,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from 'demosplan-utils'
-import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
+import { checkResponse, dpApi, makeFormPost } from '@demos-europe/demosplan-utils'
+import { DpInput, DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from '@demos-europe/demosplan-utils'
 import { mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from 'demosplan-ui/components/core'
-import { dpValidateMixin } from 'demosplan-utils/mixins'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -664,7 +664,7 @@ export default {
     DpModal,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
       return DpEditor
     },
     DpUploadFiles,

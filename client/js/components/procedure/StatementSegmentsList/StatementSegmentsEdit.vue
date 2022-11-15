@@ -85,14 +85,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from 'demosplan-utils'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpButtonRow } from 'demosplan-ui/components/core'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
-import { DpLoading } from 'demosplan-ui/components'
-import { dpValidateMixin } from 'demosplan-utils/mixins'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 import { scrollTo } from 'vue-scrollto'
 
 export default {
@@ -104,7 +104,7 @@ export default {
     DpEditField,
     DpLoading,
     DpEditor: async () => {
-      const { DpEditor } = await import('demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
       return DpEditor
     }
   },

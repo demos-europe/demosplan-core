@@ -64,7 +64,7 @@
 
 <script>
 import DpEditField from './DpEditField'
-import { DpMultiselect } from 'demosplan-ui/components/core'
+import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
 

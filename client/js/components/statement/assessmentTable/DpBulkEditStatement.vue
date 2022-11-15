@@ -195,10 +195,10 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from 'demosplan-utils'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpButton } from 'demosplan-ui/components'
-import { DpMultiselect, DpTextWrapper } from 'demosplan-ui/components/core'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui/components/core'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -209,7 +209,7 @@ export default {
     DpButton,
     DpTextWrapper,
     DpEditor: async () => {
-      const { DpEditor } = await import('demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
       return DpEditor
     }
   },

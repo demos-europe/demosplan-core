@@ -114,7 +114,7 @@
 
 <script>
 import isMobile from 'ismobilejs'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 
 export default {
   name: 'DpMapTools',

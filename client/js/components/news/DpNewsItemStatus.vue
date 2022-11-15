@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { DpToggle, DpTooltipIcon } from 'demosplan-ui/components/core'
+import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpNewsItemStatus',

@@ -99,9 +99,9 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpLoading } from 'demosplan-ui/components'
-import { DpMultiselect } from 'demosplan-ui/components/core'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpFilterModalSelectItem',

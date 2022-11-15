@@ -12,7 +12,7 @@
  */
 
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import { DpModal, DpUploadFiles } from 'demosplan-ui/components/core'
+import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'

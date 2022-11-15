@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import { dpApi } from 'demosplan-utils'
-import { DpLoading } from 'demosplan-ui/components'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 

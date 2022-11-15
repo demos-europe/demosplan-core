@@ -89,9 +89,9 @@
 </template>
 
 <script>
-import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpSelect } from 'demosplan-ui/components/core'
-import { DpLabel } from 'demosplan-ui/components'
-import { formatDate } from 'demosplan-utils'
+import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpSelect } from '@demos-europe/demosplan-ui/components/core'
+import { DpLabel } from '@demos-europe/demosplan-ui/components'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -101,7 +101,7 @@ export default {
     DpDateRangePicker,
     DpDatetimePicker,
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
       return DpInlineNotification
     },
     DpLabel,

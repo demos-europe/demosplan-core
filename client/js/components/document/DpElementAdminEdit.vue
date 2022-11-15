@@ -8,8 +8,8 @@
 </license>
 
 <script>
-import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles } from 'demosplan-ui/components/core'
-import { makeFormPost } from 'demosplan-utils'
+import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { makeFormPost } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpElementAdminEdit',
@@ -19,7 +19,7 @@ export default {
     DpDataTable,
     DpDatetimePicker,
     DpEditor: async () => {
-      const { DpEditor } = await import('demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
       return DpEditor
     },
     DpUploadFiles
