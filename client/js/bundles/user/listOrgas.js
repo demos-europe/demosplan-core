@@ -14,7 +14,7 @@
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 

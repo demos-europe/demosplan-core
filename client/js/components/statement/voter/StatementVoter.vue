@@ -221,7 +221,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import DpEditableList from '@DpJs/components/core/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import dpValidateMixin from 'demosplan-utils/lib/validation/dpValidateMixin'
 
 export default {
   name: 'StatementVoter',

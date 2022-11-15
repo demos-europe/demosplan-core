@@ -70,7 +70,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpResettableInput from '@DpJs/components/core/DpResettableInput'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import dpValidateMixin from 'demosplan-utils/lib/validation/dpValidateMixin'
 
 export default {
   name: 'DpCreateTag',

@@ -10,12 +10,12 @@
 import { bootstrap } from '@DpJs/bootstrap'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
-import initGlobalEventListener from '@DpJs/lib/core/GlobalEventListener'
+import initGlobalEventListener from 'demosplan-utils/lib/GlobalEventListener'
 import { initStore } from '@DpJs/store/core/initStore'
-import initToggleSideMenu from '@DpJs/lib/core/ToggleSideMenu'
-import initUserbox from '@DpJs/lib/core/touchFriendlyUserbox'
-import { loadLibs } from '@DpJs/lib/core/loadLibs'
-import NotificationStoreAdapter from '@DpJs/lib/core/NotificationStoreAdapter'
+import initToggleSideMenu from 'demosplan-utils/lib/ToggleSideMenu'
+import initUserbox from 'demosplan-utils/lib/touchFriendlyUserbox'
+import { loadLibs } from 'demosplan-utils/lib/loadLibs'
+import NotificationStoreAdapter from 'demosplan-utils/lib/NotificationStoreAdapter'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()

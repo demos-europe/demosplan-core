@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for gateway_newUser.html.twig
  */
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {}

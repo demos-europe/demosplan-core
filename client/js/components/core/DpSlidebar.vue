@@ -41,7 +41,7 @@
 <script>
 import { DpIcon } from 'demosplan-ui/components'
 import { hasOwnProp } from 'demosplan-utils'
-import SideNav from '@DpJs/lib/core/SideNav'
+import SideNav from 'demosplan-utils/lib/SideNav'
 
 export default {
   name: 'DpSlidebar',

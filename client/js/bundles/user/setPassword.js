@@ -11,7 +11,7 @@
  * This is the entrypoint for user_set_password.html.twig
  */
 
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import SetPassword from '@DpJs/components/user/portalUser/SetPassword'

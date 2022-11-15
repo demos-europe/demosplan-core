@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_member_list.html.twig
  */
-import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/core/FormActions'
+import { addFormHiddenField, removeFormHiddenField } from 'demosplan-utils/lib/FormActions'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

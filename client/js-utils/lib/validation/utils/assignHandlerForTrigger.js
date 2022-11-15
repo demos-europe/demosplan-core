@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { addFormHiddenField } from '@DpJs/lib/core/FormActions'
+import { addFormHiddenField } from 'demosplan-utils/lib/FormActions'
 import { scrollToVisibleElement } from './helpers'
 import validateForm from './validateForm'
 

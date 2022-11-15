@@ -11,7 +11,7 @@
  * This is the entrypoint for faqlist.html.twig
  */
 
-import { highlightActiveLinks } from '@DpJs/lib/core/HighlightHashLink'
+import { highlightActiveLinks } from 'demosplan-utils/lib/HighlightHashLink'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 

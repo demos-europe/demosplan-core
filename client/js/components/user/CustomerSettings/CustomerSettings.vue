@@ -195,7 +195,7 @@ import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
 import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import dpValidateMixin from 'demosplan-utils/lib/validation/dpValidateMixin'
 
 export default {
   name: 'CustomerSettings',

@@ -13,7 +13,7 @@
 
 import AlternativeLogin from '@DpJs/components/user/AlternativeLogin'
 import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import SamlLoginForm from '@DpJs/components/user/samlLoginForm/SamlLoginForm'
