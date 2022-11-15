@@ -17,14 +17,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
 
 class ProcedureNewsService extends CoreService
 {
@@ -126,7 +125,7 @@ class ProcedureNewsService extends CoreService
 
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
-            //shorten the list of entries to the given limit
+            // shorten the list of entries to the given limit
             $result = array_slice($result, 0, $limit);
         }
 
@@ -153,7 +152,7 @@ class ProcedureNewsService extends CoreService
 
         $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
 
-        //Legacy Arrays
+        // Legacy Arrays
         $result = [];
         foreach ($news as $singleNews) {
             $result[] = $this->convertToLegacy($singleNews);
@@ -174,7 +173,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return array
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getSingleNews($ident)
     {
@@ -182,7 +181,7 @@ class ProcedureNewsService extends CoreService
             $singleNews = $this->newsRepository->get($ident);
 
             return $this->convertToLegacy($singleNews);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines NewsEntry: ', [$e]);
             throw $e;
         }
@@ -195,15 +194,15 @@ class ProcedureNewsService extends CoreService
      *
      * @return array - The added Object as an array
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function addNews($data)
     {
         try {
             $singleNews = $this->newsRepository->add($data);
-            //convert to Legacy Array
+            // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Fehler beim Anlegen eines Newsbeitrags: ', [$e]);
             throw $e;
         }
@@ -217,11 +216,11 @@ class ProcedureNewsService extends CoreService
      *
      * @return bool - true, if the new order was saved, otherwise false
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function setManualSortOfNews($procedureId, $sortIds): bool
     {
-        //keine leerzeichen zwischen den Ids
+        // keine leerzeichen zwischen den Ids
         $sortIds = str_replace(' ', '', $sortIds);
 
         $data = [
@@ -241,7 +240,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return array
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function updateNews($data)
     {
@@ -252,7 +251,7 @@ class ProcedureNewsService extends CoreService
             $singleNews = $this->newsRepository->update($data['ident'], $data);
 
             return $this->convertToLegacy($singleNews);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Update SingleNews failed Message: ', [$e]);
             throw $e;
         }
@@ -267,7 +266,7 @@ class ProcedureNewsService extends CoreService
      */
     protected function convertToLegacy($singleNews)
     {
-        //returnValue, if newsId doesn't exist
+        // returnValue, if newsId doesn't exist
         if (!$singleNews instanceof News) {
             // Legacy returnvalues if no singlenews found
             return [
@@ -281,7 +280,7 @@ class ProcedureNewsService extends CoreService
         foreach ($roles as $role) {
             $rolesAsArray[] = $this->entityHelper->toArray($role);
         }
-        //Transform News into an array
+        // Transform News into an array
         $singleNews = $this->entityHelper->toArray($singleNews);
         $singleNews['roles'] = $rolesAsArray;
 
@@ -293,7 +292,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return News[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getNewsToSetStateToday(): array
     {
@@ -311,7 +310,7 @@ class ProcedureNewsService extends CoreService
      * @param News $news News which state will be switched
      *
      * @throws NoDesignatedStateException
-     * @throws Exception
+     * @throws \Exception
      */
     public function setState(News $news): void
     {
@@ -327,7 +326,7 @@ class ProcedureNewsService extends CoreService
 
     private function determineRoles(?array $roles, ?User $user): ?array
     {
-        //if no roles are given, take the user roles from session
+        // if no roles are given, take the user roles from session
         if (is_array($roles) && 0 === count($roles)) {
             $roles = [Role::GUEST];
             if (null !== $user) {

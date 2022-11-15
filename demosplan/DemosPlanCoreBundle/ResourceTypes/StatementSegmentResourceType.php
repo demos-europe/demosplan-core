@@ -12,7 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use function array_key_exists;
+use demosplan\addons\workflow\SegmentsManager\ElasticsearchQueries\QuerySegment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -25,8 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\addons\workflow\SegmentsManager\ElasticsearchQueries\QuerySegment;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -35,6 +34,7 @@ use Elastica\Type;
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Segment>
  * @template-implements ReadableEsResourceTypeInterface<Segment>
+ *
  * @template-extends DplanResourceType<Segment>
  *
  * @property-read End $recommendation
@@ -169,11 +169,11 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
         $parentStatementPropertyPath = $this->parentStatement->getAsNamesInDotNotation();
         $parentStatementOfSegment = null;
-        if (array_key_exists($parentStatementPropertyPath, $properties)) {
+        if (\array_key_exists($parentStatementPropertyPath, $properties)) {
             $parentStatementOfSegment = $properties[$parentStatementPropertyPath];
         }
 
-        if (array_key_exists($parentStatementPropertyPath, $properties)) {
+        if (\array_key_exists($parentStatementPropertyPath, $properties)) {
             unset($properties[$parentStatementPropertyPath]);
             $entity->setParentStatementOfSegment($parentStatementOfSegment);
         }

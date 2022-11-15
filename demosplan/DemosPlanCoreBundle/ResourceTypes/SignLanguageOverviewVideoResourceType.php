@@ -24,6 +24,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Video>
+ *
  * @template-implements  CreatableDqlResourceTypeInterface<Video>
  * @template-implements UpdatableDqlResourceTypeInterface<Video>
  * @template-implements DeletableDqlResourceTypeInterface<Video>

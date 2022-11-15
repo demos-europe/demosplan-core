@@ -172,7 +172,7 @@ class TagService extends CoreService
      */
     public function moveTagToTopic($tag, $newTopic): bool
     {
-        //setTopic also removes the tag from the current Topic
+        // setTopic also removes the tag from the current Topic
         $newTopic->addTag($tag);
         $tag->setTopic($newTopic);
 

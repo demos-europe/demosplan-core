@@ -39,11 +39,8 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use Exception;
 use League\Fractal\Resource\Collection;
-use LogicException;
 use Pagerfanta\Adapter\ArrayAdapter;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -72,7 +69,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_user_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
@@ -94,7 +90,7 @@ class DemosPlanUserAPIController extends APIController
             $e = new EntityIdNotFoundException('No user with that id in found database.');
             $e->setEntityId($userId);
             throw $e;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getMessageBag()->add('error', 'warning.access.denied');
             $this->logger->error('Unable to find user: '.$e);
 
@@ -107,7 +103,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_users_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
@@ -157,7 +152,7 @@ class DemosPlanUserAPIController extends APIController
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getMessageBag()->add('error', 'warning.access.denied');
             $this->logger->error('Unable to get user list: '.$e);
 
@@ -170,7 +165,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_user_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
@@ -208,7 +202,7 @@ class DemosPlanUserAPIController extends APIController
                 return $this->renderResource($item);
             }
 
-            throw new RuntimeException('Could not create user');
+            throw new \RuntimeException('Could not create user');
         } catch (EmailAddressInUseException|LoginNameInUseException $e) {
             $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
 
@@ -217,7 +211,7 @@ class DemosPlanUserAPIController extends APIController
             $this->getMessageBag()->add('error', 'error.user.login.exists');
 
             return $this->handleApiError($e);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->error('New User Entity could not been saved');
             $this->getMessageBag()->add('error', 'error.save');
 
@@ -230,7 +224,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"DELETE"},
      *        name="dplan_api_user_delete",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
@@ -247,7 +240,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_api_user_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_edit")
      */
     public function updateAction(string $id, UserHandler $userHandler): APIResponse
@@ -280,7 +272,7 @@ class DemosPlanUserAPIController extends APIController
                         break;
 
                     default:
-                        throw new LogicException("Unexpected relationship {$relationship}");
+                        throw new \LogicException("Unexpected relationship {$relationship}");
                 }
             }
         } catch (InvalidArgumentException $e) {

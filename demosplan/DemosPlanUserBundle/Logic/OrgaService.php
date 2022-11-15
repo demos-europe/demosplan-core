@@ -52,8 +52,6 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use Exception;
-use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -267,7 +265,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function sendRegistrationRequestConfirmation(string $emailFrom, string $userEmail, array $orgaTypeNames, string $customerName, string $userFirstName, string $userLastName, string $orgaName)
     {
@@ -287,7 +285,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function sendRegistrationAccepted(string $from, string $to, string $orgaTypeLabel, string $customerName, string $userFirstName, string $userLastName, string $orgaName)
     {
@@ -305,7 +303,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function sendRegistrationRejected(string $from, string $to, string $orgaTypeLabel, string $customerName, string $userFirstName, string $userLastName, string $orgaName)
     {
@@ -331,15 +329,15 @@ class OrgaService extends CoreService
      *
      * @param string $entityId
      *
-     * @throws Exception
-     *
      * @return bool
+     *
+     * @throws \Exception
      */
     public function deleteOrga($entityId)
     {
         try {
             return $this->orgaRepository->delete($entityId);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler beim Löschen der Orga: ', [$e]);
 
             return false;
@@ -360,16 +358,16 @@ class OrgaService extends CoreService
             $organisation = $this->orgaRepository->get($entityId);
 
             foreach ($organisation->getAddresses() as $address) {
-                //remove addresses form organisation, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form organisation, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $organisation->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
 
-            //remove addresses form organisation, to avoid undefined index
-            //doctrine will not do this, because there are no address sited relation, to use annotations
+            // remove addresses form organisation, to avoid undefined index
+            // doctrine will not do this, because there are no address sited relation, to use annotations
             $organisation->setAddresses([]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler beim Löschen der Adressen: ', [$e]);
 
             return false;
@@ -381,13 +379,13 @@ class OrgaService extends CoreService
     /**
      * @return Department[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getDepartments(Orga $orga): array
     {
         try {
             return $orga->getDepartments()->toArray();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Abteilungsliste: ', [$e]);
             throw $e;
         }
@@ -400,7 +398,7 @@ class OrgaService extends CoreService
      *
      * @return Orga
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function orgaAddUser($orgaId, User $user)
     {
@@ -409,7 +407,7 @@ class OrgaService extends CoreService
             $this->logger->info('Added User '.$user->getLogin().' to Orga '.$orgaId);
 
             return $orga;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bem Update der Orga: ', [$e]);
             throw $e;
         }
@@ -458,7 +456,7 @@ class OrgaService extends CoreService
      *
      * @return array<int, Orga>
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getOrganisations(array $additionalConditions = []): array
     {
@@ -475,7 +473,7 @@ class OrgaService extends CoreService
             array_map([$this, 'loadMissingOrgaData'], $orgas);
 
             return $orgas;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei getList Orga:', [$e]);
             throw $e;
         }
@@ -535,13 +533,13 @@ class OrgaService extends CoreService
     /**
      * Load existing notifications for the Organisation.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function loadOrgaNotifications(Orga $orga): void
     {
         $notifications = [];
 
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $settingNewStatement = $this->contentService->getSettings(
                 'emailNotificationNewStatement',
@@ -552,7 +550,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $settingEndingPhase = $this->contentService->getSettings(
                 'emailNotificationEndingPhase',
@@ -569,7 +567,7 @@ class OrgaService extends CoreService
     /**
      * Load existing submissionType for the Organisation.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function loadOrgaSubmissionType(Orga $orga): void
     {
@@ -593,7 +591,7 @@ class OrgaService extends CoreService
      *
      * @param string $orgaId
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getOrga($orgaId): ?Orga
     {
@@ -605,7 +603,7 @@ class OrgaService extends CoreService
             }
 
             return $orga;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Orga: ', [$e]);
             throw $e;
         }
@@ -631,7 +629,7 @@ class OrgaService extends CoreService
         try {
             return $this->orgaRepository
                 ->wipe($organisationId);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler beim Löschen der Organisation: ', [$e]);
 
             return false;
@@ -643,7 +641,7 @@ class OrgaService extends CoreService
      *
      * @param array|Orga $data
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function addOrga($data): Orga
     {
@@ -658,7 +656,7 @@ class OrgaService extends CoreService
             $orga = $this->updateOrgaNotifications($orga, $data);
 
             return $this->updateOrgaSubmissionType($orga, $data);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bem Anlegen der Orga: ', [$e]);
             throw $e;
         }
@@ -679,7 +677,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaNotifications($orga, $data)
     {
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationNewStatement');
             if (array_key_exists('emailNotificationNewStatement', $data)) {
@@ -691,7 +689,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationEndingPhase');
 
@@ -718,11 +716,11 @@ class OrgaService extends CoreService
      *
      * @return Orga
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function updateOrgaSubmissionType($orga, $data)
     {
-        //Update Orga Submission Type
+        // Update Orga Submission Type
         if (!$this->permissions->hasPermission('feature_change_submission_type')) {
             return $orga;
         }
@@ -743,7 +741,7 @@ class OrgaService extends CoreService
             }
             try {
                 $this->contentService->deleteSetting($existingSetting[0]->getId());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // bad luck. Has been logged, go on ;-(
             }
         } else {
@@ -768,7 +766,7 @@ class OrgaService extends CoreService
      *
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     public function addReport(string $orgaId, $data, $showListBefore)
     {
@@ -816,7 +814,7 @@ class OrgaService extends CoreService
     /**
      * Completely deletes the logo of an organisation.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function deleteLogoByOrgaId(string $orgaId): bool
     {
@@ -841,13 +839,13 @@ class OrgaService extends CoreService
      *
      * @return array Orga[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getDataInputOrgaList()
     {
         try {
             return $this->orgaRepository->getDataInputOrgaList();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der InputOrgas: ', [$e]);
             throw $e;
         }
@@ -856,7 +854,7 @@ class OrgaService extends CoreService
     /**
      * @return array<int, Orga>
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getInvitablePublicAgencies(): array
     {
@@ -868,13 +866,13 @@ class OrgaService extends CoreService
      *
      * @return array<int, Orga>|null
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getPlanningOfficesList(Customer $customer): ?array
     {
         try {
             return $this->orgaRepository->getPlanningOfficesList($customer);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der PlanningOffices: ', [$e]);
             throw $e;
         }
@@ -887,7 +885,7 @@ class OrgaService extends CoreService
      *
      * @return Orga[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getOrganisationsByIds($organisationIds)
     {
@@ -899,7 +897,7 @@ class OrgaService extends CoreService
             $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
             return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);
             throw $e;
         }
@@ -912,13 +910,13 @@ class OrgaService extends CoreService
      *
      * @return array Orga[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getOrgaByFields($filter)
     {
         try {
             return $this->orgaRepository->findBy($filter);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der Organisation: ', [$e]);
             throw $e;
         }
@@ -1092,7 +1090,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function getOrgaSignatureByProcedure(Procedure $procedure): OrgaSignatureValueObject
     {
