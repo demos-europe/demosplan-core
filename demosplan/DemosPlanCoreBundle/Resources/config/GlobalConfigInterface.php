@@ -410,16 +410,6 @@ interface GlobalConfigInterface
     public function getPublicIndexRouteParameters(): array;
 
     /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServiceSalt(): string;
-
-    /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServicePostUrl(): string;
-
-    /**
      * @return array<int, string>
      */
     public function getRolesAllowed(): array;

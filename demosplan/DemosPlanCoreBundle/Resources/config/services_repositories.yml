@@ -120,12 +120,6 @@ services:
     demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
 
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf'
-
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfPageRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage'
-
     demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
 
@@ -207,9 +201,6 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\StatementImportEmailRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail'
-
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
 
@@ -269,6 +260,3 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection'

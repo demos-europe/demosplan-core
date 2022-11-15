@@ -112,7 +112,7 @@
               aria-hidden="true"
               class="fa fa-paperclip color--grey" />
             <a
-              v-if="statement.sourceAttachment !== ''"
+              v-if="statement.sourceAttachment !== '' && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
               target="_blank"
               rel="noopener"

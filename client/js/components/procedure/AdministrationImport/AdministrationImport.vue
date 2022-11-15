@@ -98,20 +98,7 @@ export default {
 
   data () {
     return {
-      addons: [
-        {
-          name: 'StatementPdfImport',
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf',
-          url: '/js/addons/StatementPdfImport/StatementPdfImport.umd.js'
-        },
-        {
-          name: 'EmailImport',
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title',
-          url: '/js/addons/EmailImport/EmailImport.umd.js'
-        }
-      ],
+      addons: [],
       activeTabId: '',
       asyncComponents: []
     }
@@ -146,44 +133,7 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
-    },
-
-    async loadExternalComponentScripts (addon) {
-      const name = addon.url.split('/').reverse()[0].match(/^(.*?)\.umd/)[1]
-
-      if (window[name]) return window[name]
-
-      window[name] = new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-
-        script.async = true
-        script.addEventListener('load', () => {
-          resolve(window[name])
-          this.$options.components[name] = window[name]
-
-          this.asyncComponents.push({
-            name: name,
-            permissions: addon.permissions,
-            title: addon.title
-          })
-        })
-
-        script.addEventListener('error', () => {
-          reject(new Error(`Error loading ${url}`))
-        })
-
-        script.src = addon.url
-        document.head.appendChild(script)
-      });
-
-      return window[name]
     }
-  },
-
-  mounted () {
-    this.addons.forEach(addon => {
-      this.loadExternalComponentScripts(addon).then(this.setActiveTabId())
-    })
   }
 }
 </script>

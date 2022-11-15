@@ -49,9 +49,10 @@ final class FileResourceType extends DplanResourceType
 
         return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
-            'field_sign_language_overview_video_edit',
+            'area_admin_globalnews',
             'feature_platform_logo_edit',
-            'area_admin_globalnews'
+            'feature_read_source_statement_via_api',
+            'field_sign_language_overview_video_edit',
         );
     }
 
