@@ -28,18 +28,6 @@ updates:
     labels:
       - dependencies:yarn
 
-    # JS/CSS Dependencies of demosplan-ui
-  - package-ecosystem: npm
-    directory: "/client/ui"
-    schedule:
-        interval: daily
-        time: "09:00"
-        timezone: Europe/Berlin
-    open-pull-requests-limit: 10
-    labels:
-        - dependencies:yarn
-
-
   # PHP Dependencies of demosplan
   - package-ecosystem: composer
     directory: "/"
