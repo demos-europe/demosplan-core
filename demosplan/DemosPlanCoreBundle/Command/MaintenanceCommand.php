@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Event\PluginMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
@@ -377,7 +377,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function pluginMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new PluginMaintenanceEvent());
+            $this->eventDispatcher->dispatch(new AddonMaintenanceEvent());
         } catch (Exception $e) {
             $this->logger->error('Plugin Maintenance failed', [$e]);
         }

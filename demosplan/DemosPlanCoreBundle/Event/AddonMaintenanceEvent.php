@@ -10,6 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class PluginMaintenanceEvent extends DPlanEvent
+class AddonMaintenanceEvent extends DPlanEvent
 {
 }
