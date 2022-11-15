@@ -1,3 +1,12 @@
+/**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 import dataTableSearch from './DpDataTable/DataTableSearch'
 import DpAccordion from './DpAccordion'
 import DpAnonymizeText from './DpAnonymizeText'
