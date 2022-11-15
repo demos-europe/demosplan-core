@@ -21,13 +21,10 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\FunctionalTestCase;
-use Tests\Base\PluginTestTrait;
 
 abstract class PiCommTestAbstract extends FunctionalTestCase
 {
-    use PluginTestTrait;
-
-    /**
+   /**
      * @var PiCommunication
      */
     protected $sut;
