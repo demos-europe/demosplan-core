@@ -86,13 +86,13 @@ class VendorlistUpdateCommand extends CoreCommand
                     // of demosplan
                     static function ($_, $package) use ($directDependencies): bool {
                         return 1 === count(
-                                array_filter(
-                                    $directDependencies,
-                                    static function ($directDependency) use ($package): bool {
-                                        return $directDependency['name'] === $package;
-                                    }
-                                )
-                            );
+                            array_filter(
+                                $directDependencies,
+                                static function ($directDependency) use ($package): bool {
+                                    return $directDependency['name'] === $package;
+                                }
+                            )
+                        );
                     }
                 );
 
@@ -274,5 +274,4 @@ class VendorlistUpdateCommand extends CoreCommand
         $fs->dumpFile($filenameLicenseFile, $licenseString);
         $this->io->success("Updated PHP vendor information to file {$filenameLicenseFile}");
     }
-
 }
