@@ -91,7 +91,7 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         $id = $this->createAttribute($this->id)->readable(true);
         $name = $this->createAttribute($this->name)->readable(true);
         $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
-        $assignedTags =  $this->createAttribute($this->assignedTags)->readable(true)->filterable();
+        $assignedTags =  $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
         return [
             $id,
             $name,
