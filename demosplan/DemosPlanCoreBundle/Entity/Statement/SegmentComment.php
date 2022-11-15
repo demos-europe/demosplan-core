@@ -16,7 +16,7 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -40,7 +40,7 @@ class SegmentComment implements UuidEntityInterface
      * @var Segment
      *
      * @ORM\ManyToOne(
-     *     targetEntity="demosplan\plugins\workflow\SegmentsManager\Entity\Segment",
+     *     targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment",
      *     inversedBy="comments"
      * )
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)

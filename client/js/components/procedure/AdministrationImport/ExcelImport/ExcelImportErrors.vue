@@ -75,9 +75,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpProgressBar from '@DpJs/components/core/DpProgressBar'
+import { DpCheckbox, DpInlineNotification, DpProgressBar } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'ExcelImportErrors',

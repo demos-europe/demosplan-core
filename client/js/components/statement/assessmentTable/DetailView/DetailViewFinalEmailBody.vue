@@ -20,7 +20,10 @@ export default {
   name: 'AssessmentStatementDetailFinalEmail',
 
   components: {
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   props: {

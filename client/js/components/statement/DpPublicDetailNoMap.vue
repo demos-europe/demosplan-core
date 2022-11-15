@@ -8,14 +8,14 @@
 </license>
 
 <script>
-import { addFormHiddenField, removeFormHiddenField } from '@DpJs/lib/core/FormActions'
+import { addFormHiddenField, removeFormHiddenField } from '@demos-europe/demosplan-utils/lib/FormActions'
 import { mapMutations, mapState } from 'vuex'
-import { DpButton } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpModal } from '@demos-europe/demosplan-ui/components/core'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
@@ -28,8 +28,14 @@ export default {
     DpPublicSurvey,
     DpPublicStatementList,
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpSelect: () => import('@DpJs/components/core/form/DpSelect'),
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
+    DpSelect: async () => {
+      const { DpSelect } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpSelect
+    },
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpVideoPlayer
+    },
     ElementsList: () => import('@DpJs/components/document/ElementsList')
   },
 
@@ -84,6 +90,7 @@ export default {
 
       if (this.dpValidate[formId]) {
         form.submit()
+        this.isSubmitting = true
         removeFormHiddenField(form)
       }
     },

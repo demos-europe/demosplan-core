@@ -52,10 +52,9 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpButton } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { checkResponse } from '@demos-europe/demosplan-utils'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'AssignEntityModal',

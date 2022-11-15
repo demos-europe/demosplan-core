@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 
 export default {
   name: 'DpSurveyChart',

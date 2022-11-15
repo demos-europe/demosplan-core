@@ -8,6 +8,8 @@
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
 @babel/runtime: MIT
+@demos-europe/demosplan-utils: MIT
+@demos-europe/dp-consent: MIT
 @efrane/vuex-json-api: MIT
 @fullhuman/postcss-purgecss: MIT
 @sentry/browser: BSD-3-Clause
@@ -23,7 +25,6 @@ a11y-datepicker: MIT
 acorn: MIT
 assets-webpack-plugin: MIT
 autoprefixer: MIT
-axios: MIT
 babel-core: MIT
 babel-helper-vue-jsx-merge-props: MIT
 babel-jest: MIT
@@ -45,7 +46,6 @@ d3-sankey-diagram: MIT
 dayjs: MIT
 deep-object-diff: MIT
 dompurify: (MPL-2.0 OR Apache-2.0)
-dp-consent: ISC
 eslint: MIT
 eslint-config-standard: MIT
 eslint-friendly-formatter: MIT
@@ -57,6 +57,7 @@ eslint-plugin-node: MIT
 eslint-plugin-promise: ISC
 eslint-plugin-standard: MIT
 eslint-plugin-vue: MIT
+eslint-plugin-vuejs-accessibility: MIT
 eslint-webpack-plugin: MIT
 font-awesome: (OFL-1.1 AND MIT)
 fs: ISC
@@ -76,6 +77,7 @@ leaflet.markercluster: MIT
 lscache: Apache-2.0
 mini-css-extract-plugin: MIT
 node-notifier: MIT
+normalize.css: MIT
 ol: BSD-2-Clause
 plyr: MIT
 portal-vue: MIT
@@ -90,7 +92,6 @@ prosemirror-schema-list: MIT
 purgecss-webpack-plugin: MIT
 qs: BSD-3-Clause
 raf: MIT
-rate-it: MIT
 regenerator-runtime: MIT
 sass: MIT
 sass-loader: MIT
@@ -127,4 +128,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 14.09.2022 07:15
+As of 15.11.2022 20:21

@@ -62,11 +62,11 @@
 </template>
 
 <script>
-import { formatBytes, hasOwnProp } from 'demosplan-utils'
+import { formatBytes, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpLoading } from 'demosplan-ui/components'
-import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpTreeList } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'ElementsList',

@@ -301,8 +301,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
-    demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration: ~
-
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
@@ -542,24 +540,6 @@ services:
     demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-
-    demosplan\DemosPlanPluginBundle\Logic\Plugin:
-        abstract: true
-        calls:
-            - [ 'setLogger', [ '@monolog.logger.dplan_plugin' ]]
-
-    demosplan\DemosPlanPluginBundle\EventListener\PluginEventListener:
-        lazy: true
-        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
-
-    demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber:
-        arguments: [ '@demosplan\DemosPlanCoreBundle\Context\PluginContext' ]
-        tags:
-            - { name: kernel.event_subscriber }
-
-    demosplan\DemosPlanPluginBundle\Logic\PluginList: ~
-
-    demosplan\DemosPlanPluginBundle\Twig\Extension\ExecutePluginExtension: ~
 
     demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
         autowire: true
@@ -861,12 +841,6 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
-        arguments:
-            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
-        lazy: true
-
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
 
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
@@ -881,9 +855,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
-        tags: [kernel.event_subscriber]
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
@@ -893,16 +864,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:

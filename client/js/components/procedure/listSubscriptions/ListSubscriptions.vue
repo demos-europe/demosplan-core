@@ -95,10 +95,9 @@
 </template>
 
 <script>
-import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
-import { DpButton } from 'demosplan-ui/components'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { formatDate } from 'demosplan-utils'
+import { DpAutocomplete, DpSelect } from '@demos-europe/demosplan-ui/components/core'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'ListSubscriptions',
@@ -106,8 +105,14 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: () => import(/* webpackChunkName: "dp-data-table" */ '@DpJs/components/core/DpDataTable/DpDataTable'),
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
+    DpDataTable: async () => {
+      const { DpDataTable } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpDataTable
+    },
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpSelect
   },
 

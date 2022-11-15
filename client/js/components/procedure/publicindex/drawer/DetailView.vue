@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
 import Scroller from '@DpJs/directives/scroller'
 import SharedMethods from './../SharedProcedureMethods'
 

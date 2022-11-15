@@ -36,7 +36,7 @@
           v-model="newTag.label"
           :label="{
             text: Translator.trans('name')
-          }"/>
+          }" />
         <dp-button-row
           :busy="isLoading"
           align="left"
@@ -109,11 +109,10 @@
 </template>
 
 <script>
-import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpIcon, DpInput, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { DpButtonRow, DpDataTable } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'InstitutionTagManagement',

@@ -12,9 +12,9 @@
  */
 
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 

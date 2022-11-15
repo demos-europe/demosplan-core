@@ -8,7 +8,7 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
+import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
 
 const components = {
   RegisterFlyout

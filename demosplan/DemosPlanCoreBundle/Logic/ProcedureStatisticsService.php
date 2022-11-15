@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProcedureStatisticsService

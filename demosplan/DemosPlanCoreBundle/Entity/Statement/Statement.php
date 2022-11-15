@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -35,7 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,7 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\plugins\workflow\SegmentsManager\Entity\Segment"})
+ * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\addons\workflow\SegmentsManager\Entity\Segment"})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
  * @ClaimConstraint()
  * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
@@ -929,7 +928,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @var Collection<int, Segment>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\plugins\workflow\SegmentsManager\Entity\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
      */
     protected $segmentsOfStatement;
 
@@ -972,14 +971,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @ORM\Column(name="pi_segments_proposal_resource_url", type="string", length=255, nullable=true)
      */
     private $piSegmentsProposalResourceUrl;
-
-    /**
-     * @var BthgKompassAnswer
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer")
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
-     */
-    private $bthgKompassAnswer;
 
     /**
      * @var Collection<int, ProcedurePerson>
@@ -4070,16 +4061,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setPiSegmentsProposalResourceUrl(?string $piSegmentsProposalResourceUrl): void
     {
         $this->piSegmentsProposalResourceUrl = $piSegmentsProposalResourceUrl;
-    }
-
-    public function getBthgKompassAnswer(): ?BthgKompassAnswer
-    {
-        return $this->bthgKompassAnswer;
-    }
-
-    public function setBthgKompassAnswer(?BthgKompassAnswer $bthgKompassAnswer): void
-    {
-        $this->bthgKompassAnswer = $bthgKompassAnswer;
     }
 
     public function hasDefaultGuestUser(): bool

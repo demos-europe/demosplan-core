@@ -99,11 +99,11 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
-import { hasOwnProp } from 'demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpHeightLimit } from '@demos-europe/demosplan-ui/components/core'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'TiptapEditText',
@@ -112,7 +112,10 @@ export default {
     DpButton,
     DpHeightLimit,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   props: {

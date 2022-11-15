@@ -197,7 +197,6 @@ class AssessmentTableServiceStorage
         if (array_key_exists('case_worker', $rParams)) {
             $statementArray['case_worker'] = $rParams['case_worker'];
         }
-        $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['bthg_kompass_answer'], ['empty' => 'string']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['counties'], ['empty' => 'array']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['departmentName']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['ident']);

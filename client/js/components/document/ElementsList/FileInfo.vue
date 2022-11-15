@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { formatBytes } from 'demosplan-utils'
+import { formatBytes } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'FileInfo',

@@ -11,9 +11,9 @@
  * This is the entrypoint for administration_new_survey.html.twig
  */
 
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
 import DpSurveyStatus from '@DpJs/components/procedure/DpSurveyStatus'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
