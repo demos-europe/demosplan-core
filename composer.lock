@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d61ef9982c2f19ffe4d725021fcf8003",
+    "content-hash": "672c82cb93e986f29c2e6276a052d14e",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -12572,16 +12572,16 @@
         },
         {
             "name": "symfony/form",
-            "version": "v5.4.5",
+            "version": "v5.4.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/form.git",
-                "reference": "18f4f8209d2db06fc3cf5ba3b2eb8e4706b34aac"
+                "reference": "e6a97a09c7672b3b3d26335ca66f366734f6df56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/form/zipball/18f4f8209d2db06fc3cf5ba3b2eb8e4706b34aac",
-                "reference": "18f4f8209d2db06fc3cf5ba3b2eb8e4706b34aac",
+                "url": "https://api.github.com/repos/symfony/form/zipball/e6a97a09c7672b3b3d26335ca66f366734f6df56",
+                "reference": "e6a97a09c7672b3b3d26335ca66f366734f6df56",
                 "shasum": ""
             },
             "require": {
@@ -12655,7 +12655,7 @@
             "description": "Allows to easily create, process and reuse HTML forms",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/form/tree/v5.4.5"
+                "source": "https://github.com/symfony/form/tree/v5.4.15"
             },
             "funding": [
                 {
@@ -12671,7 +12671,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-04T23:26:40+00:00"
+            "time": "2022-10-23T10:30:41+00:00"
         },
         {
             "name": "symfony/framework-bundle",
@@ -21621,5 +21621,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
