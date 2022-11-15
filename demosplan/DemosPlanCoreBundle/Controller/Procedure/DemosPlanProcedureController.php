@@ -1969,12 +1969,7 @@ class DemosPlanProcedureController extends BaseController
                 $id = $templateVars['publicStatements']['statements'][$key]['id'];
                 $templateVars['publicStatements']['statements'][$key]['fileContainers'] = $statementService->getFileContainersForStatement($id);
 
-                //improve: use an enrichStatementDisplayDataEvent to enrich each statement with bthgKompassAnwers data
-                $currentStatementId = $templateVars['publicStatements']['statements'][$key]['id'];
-                $currentStatement = $statementService->getStatement($currentStatementId);
-                $answer = null === $currentStatement ? null : $currentStatement->getBthgKompassAnswer();
-                $url = null === $answer ? null : $answer->getUrl();
-                $templateVars['publicStatements']['statements'][$key]['bthgKompassAnswer']['url'] = $url;
+                //improve: use an event to enrich the data with additional data from addons
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2

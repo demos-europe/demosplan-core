@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use Carbon\Carbon;
 use DateInterval;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -35,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
@@ -51,12 +51,30 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Tightenco\Collect\Support\Collection;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
+    private EventDispatcher $eventDispatcher;
+
+    public function __construct(
+        DqlConditionFactory $dqlConditionFactory,
+        EventDispatcher $eventDispatcher,
+        ManagerRegistry $registry,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass
+    )
+    {
+        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     /**
      * @return FluentStatementQuery
      */
@@ -918,16 +936,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->getMeta()->setHouseNumber($data['houseNumber']);
         }
 
-        //todo: extract into plugin?
-        if (array_key_exists('bthg_kompass_answer', $data)) {
-            if ('' === $data['bthg_kompass_answer']) {
-                $statement->setBthgKompassAnswer(null);
-            } else {
-                /** @var BthgKompassAnswer $answer */
-                $answer = $em->getReference(BthgKompassAnswer::class, $data['bthg_kompass_answer']);
-                $statement->setBthgKompassAnswer($answer);
-            }
-        }
+        // Throw an event to allow addons to handle specific keys in $data
+        $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($statement, $data));
 
         return $statement;
     }
