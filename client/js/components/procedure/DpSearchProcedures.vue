@@ -85,11 +85,11 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from 'demosplan-utils'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { dpApi } from '@demos-europe/demosplan-utils'
 
-import { DpMultiselect } from 'demosplan-ui/components/core'
+import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpSearchProcedures',

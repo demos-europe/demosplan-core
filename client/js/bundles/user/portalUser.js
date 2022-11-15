@@ -12,8 +12,8 @@
  */
 
 import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
-import { DpAccordion } from 'demosplan-ui/components/core'
-import { dpValidate } from 'demosplan-utils/lib/validation'
+import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 

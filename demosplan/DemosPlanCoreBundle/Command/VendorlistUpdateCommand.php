@@ -31,7 +31,7 @@ class VendorlistUpdateCommand extends CoreCommand
      * @const string[] Elements should be given as `package-name`
      */
     private const JS_PACKAGE_DENYLIST = [
-        'demosplan-ui',
+        '@demos-europe/demosplan-ui',
     ];
 
     /**

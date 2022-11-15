@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { formatDate } from 'demosplan-utils'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'EmailImportDate',

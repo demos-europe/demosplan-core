@@ -40,9 +40,9 @@
 </template>
 
 <script>
-import { dpApi, handleResponseMessages } from 'demosplan-utils'
-import { DpButton } from 'demosplan-ui/components'
-import { DpUploadFiles, getFileIdsByHash } from 'demosplan-ui/components/core'
+import { dpApi, handleResponseMessages } from '@demos-europe/demosplan-utils'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui/components/core'
 import StatementPdfImportList from './StatementPdfImportList'
 
 export default {

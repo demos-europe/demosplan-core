@@ -42,6 +42,8 @@
   },
   "dependencies": {
     "@demos-europe/dp-consent": "^1.1.2",
+    "@demos-europe/demosplan-ui": "0.0.1",
+    "@demos-europe/demosplan-utils": "0.0.1",
     "@efrane/vuex-json-api": "0.0.38",
     "@sentry/browser": "^7.16.0",
     "@sentry/integrations": "^7.16.0",
@@ -56,8 +58,6 @@
     "d3-sankey-diagram": "^0.7.3",
     "dayjs": "^1.11.5",
     "deep-object-diff": "^1.1.7",
-    "demosplan-ui": "file:client/ui",
-    "demosplan-utils": "file:client/js-utils",
     "dompurify": "^2.4.0",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",

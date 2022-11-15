@@ -8,13 +8,13 @@
 </license>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
 import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
-import { dpApi } from 'demosplan-utils'
-import { DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpMultiselect } from 'demosplan-ui/components/core'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
-import { sortAlphabetically } from 'demosplan-utils'
+import { sortAlphabetically } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpBasicSettings',
@@ -32,7 +32,7 @@ export default {
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
     DpUploadFiles: async () => {
-      const { DpUploadFiles } = await import('demosplan-ui/components/core')
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui/components/core')
       return DpUploadFiles
     },
     ExportSettings

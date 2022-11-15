@@ -13,11 +13,11 @@
  */
 
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
-import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from 'demosplan-ui/components/core'
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import { TableWrapper } from 'demosplan-utils'
+import { TableWrapper } from '@demos-europe/demosplan-utils'
 
 const components = {
   DpPublicDetailNoMap,

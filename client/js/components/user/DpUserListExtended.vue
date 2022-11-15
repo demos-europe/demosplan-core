@@ -69,11 +69,11 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { debounce, dpApi, hasOwnProp } from 'demosplan-utils'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { debounce, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
-import { dpSelectAllMixin } from 'demosplan-utils/mixins'
-import { DpTableCardListHeader } from 'demosplan-ui/components/core'
+import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
+import { DpTableCardListHeader } from '@demos-europe/demosplan-ui/components/core'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
 export default {
@@ -83,7 +83,7 @@ export default {
     DpButton,
     DpLoading,
     DpSlidingPagination: async () => {
-      const { DpSlidingPagination } = await import('demosplan-ui/components/core')
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui/components/core')
       return DpSlidingPagination
     },
     DpTableCardListHeader,

@@ -185,11 +185,11 @@
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from 'demosplan-utils'
+import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapGetters, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from 'demosplan-utils'
-import { DpFlyout, DpHeightLimit } from 'demosplan-ui/components/core'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpFlyout, DpHeightLimit } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'OriginalStatementsTableItem',

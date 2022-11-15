@@ -139,9 +139,9 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { DpDataTable, DpSearchField, DpSelect } from 'demosplan-ui/components/core'
-import { dpApi, formatDate } from 'demosplan-utils'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpDataTable, DpSearchField, DpSelect } from '@demos-europe/demosplan-ui/components/core'
+import { dpApi, formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'AdministrationProceduresList',

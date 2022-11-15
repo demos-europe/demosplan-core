@@ -95,9 +95,9 @@
 </template>
 
 <script>
-import { DpAutocomplete, DpSelect } from 'demosplan-ui/components/core'
-import { DpButton } from 'demosplan-ui/components'
-import { formatDate } from 'demosplan-utils'
+import { DpAutocomplete, DpSelect } from '@demos-europe/demosplan-ui/components/core'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'ListSubscriptions',
@@ -106,11 +106,11 @@ export default {
     DpAutocomplete,
     DpButton,
     DpDataTable: async () => {
-      const { DpDataTable } = await import('demosplan-ui/components/core')
+      const { DpDataTable } = await import('@demos-europe/demosplan-ui/components/core')
       return DpDataTable
     },
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
       return DpInlineNotification
     },
     DpSelect

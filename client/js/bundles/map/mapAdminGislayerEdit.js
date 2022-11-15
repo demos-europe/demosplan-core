@@ -11,8 +11,8 @@
  * This is the entrypoint for map_admin_gislayer_edit.html.twig
  */
 
-import { DpUploadFiles } from 'demosplan-ui/components/core'
-import { dpValidate } from 'demosplan-utils/lib/validation'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import LayerSettings from '@DpJs/components/map/admin/LayerSettings'

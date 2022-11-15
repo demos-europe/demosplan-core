@@ -55,10 +55,10 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpDataTable, DpSlidingPagination } from 'demosplan-ui/components/core'
-import { DpLoading } from 'demosplan-ui/components'
-import { formatDate } from 'demosplan-utils'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpDataTable, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpReportGroup',

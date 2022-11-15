@@ -39,13 +39,13 @@
 
 <script>
 import dayjs from 'dayjs'
-import { DpInlineNotification } from 'demosplan-ui/components/core'
+import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
-import { dpSelectAllMixin } from 'demosplan-utils/mixins'
+import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
 import draggable from 'vuedraggable'
 import { generateMenuItems } from './menuItems'
-import { getFileInfo } from 'demosplan-utils/lib/FileInfo'
+import { getFileInfo } from '@demos-europe/demosplan-utils/lib/FileInfo'
 
 const editPermissions = {
   draft: 'feature_statements_draft_edit',

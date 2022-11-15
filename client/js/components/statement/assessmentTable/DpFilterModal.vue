@@ -216,9 +216,9 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
-import { DpLoading } from 'demosplan-ui/components'
-import { DpModal, DpMultiselect, DpTab, DpTabs } from 'demosplan-ui/components/core'
-import { hasOwnProp } from 'demosplan-utils'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpModal, DpMultiselect, DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpFilterModal',

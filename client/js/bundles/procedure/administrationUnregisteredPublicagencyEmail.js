@@ -10,9 +10,9 @@
 /**
  * This is the entrypoint for administration_unregistered_publicagency_email.html.twig
  */
-import { DpAccordion } from 'demosplan-ui/components/core'
-import { DpEditor } from 'demosplan-ui/components/core'
-import { dpValidate } from 'demosplan-utils/lib/validation'
+import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
+import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpAccordion, DpEditor }

@@ -12,8 +12,8 @@
  */
 
 import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
-import { DpSplitButton, DpUploadFiles } from 'demosplan-ui/components/core'
-import { dpValidate } from 'demosplan-utils/lib/validation'
+import { DpSplitButton, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import layers from '@DpJs/store/map/Layers'
 

@@ -17,14 +17,14 @@ import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
-import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from 'demosplan-ui/components/core'
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import layers from '@DpJs/store/map/Layers'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import { TableWrapper } from 'demosplan-utils'
+import { TableWrapper } from '@demos-europe/demosplan-utils'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {

@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import { DpModal } from 'demosplan-ui/components/core'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { DpModal } from '@demos-europe/demosplan-ui/components/core'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 
 export default {
   name: 'DpMapModal',

@@ -20,7 +20,7 @@ import {
   Tabs,
   ToggleAnything,
   Tooltips
-} from 'demosplan-utils'
+} from '@demos-europe/demosplan-utils'
 
 /*
  * Libs to be invoked after vue mounted

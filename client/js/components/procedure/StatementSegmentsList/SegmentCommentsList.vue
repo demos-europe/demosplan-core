@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CreateCommentForm from './CreateCommentForm'
 
@@ -66,7 +66,7 @@ export default {
     CreateCommentForm,
     DpButton,
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
       return DpInlineNotification
     },
     DpLoading,

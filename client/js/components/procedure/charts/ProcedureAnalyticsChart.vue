@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import { DpCard } from 'demosplan-ui/components/core'
-import { DpLoading } from 'demosplan-ui/components'
-import { dpRpc } from 'demosplan-utils'
+import { DpCard } from '@demos-europe/demosplan-ui/components/core'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { dpRpc } from '@demos-europe/demosplan-utils'
 import { initLineChart } from '@DpJs/lib/procedure/charts/helpers/init'
 
 export default {

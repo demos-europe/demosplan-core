@@ -359,8 +359,8 @@
 </template>
 
 <script>
-import { DpModal } from 'demosplan-ui/components/core'
-import { hasOwnProp } from 'demosplan-utils'
+import { DpModal } from '@demos-europe/demosplan-ui/components/core'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpExportModal',

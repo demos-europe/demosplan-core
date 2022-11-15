@@ -74,9 +74,9 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasOwnProp } from 'demosplan-utils'
-import { DpButton, DpDetails, DpIcon, DpInput } from 'demosplan-ui/components'
-import { DpCheckbox, DpFlyout } from 'demosplan-ui/components/core'
+import { checkResponse, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpButton, DpDetails, DpIcon, DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpCheckbox, DpFlyout } from '@demos-europe/demosplan-ui/components/core'
 import lscache from 'lscache'
 
 export default {

@@ -164,13 +164,13 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from 'demosplan-utils'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpCheckbox, DpTextArea } from 'demosplan-ui/components/core'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpCheckbox, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
 import DpPublicSurveyComment from '@DpJs/components/procedure/survey/DpPublicSurveyComment'
 import DpSurveyChart from '@DpJs/components/procedure/survey/DpSurveyChart'
-import { MatchMedia } from 'demosplan-utils'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { MatchMedia } from '@demos-europe/demosplan-utils'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 
 export default {
   name: 'DpPublicSurvey',
