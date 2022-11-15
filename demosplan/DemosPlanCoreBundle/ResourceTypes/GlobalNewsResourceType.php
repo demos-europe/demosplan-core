@@ -93,7 +93,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
      */
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
     }
 
     /**

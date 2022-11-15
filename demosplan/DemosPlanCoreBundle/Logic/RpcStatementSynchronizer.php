@@ -300,7 +300,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         $conditions = $this->filterParser->parseFilter($filter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $sourceProcedure->getId(),
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         if (null === $searchParams) {

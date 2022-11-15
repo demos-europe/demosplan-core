@@ -63,7 +63,7 @@ final class FileResourceType extends DplanResourceType
      */
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
     }
 
     public function isReferencable(): bool

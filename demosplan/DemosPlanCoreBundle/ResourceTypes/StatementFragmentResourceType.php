@@ -187,10 +187,10 @@ final class StatementFragmentResourceType extends DplanResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->statement->procedure->id),
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue(false, ...$this->statement->deleted)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->statement->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyHasValue(false, $this->statement->deleted)
         );
     }
 }

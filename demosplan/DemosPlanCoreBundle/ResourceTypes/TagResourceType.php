@@ -72,7 +72,7 @@ final class TagResourceType extends DplanResourceType implements CreatableDqlRes
 
         return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            ...$this->topic->procedure->id
+            $this->topic->procedure->id
         );
     }
 

@@ -58,7 +58,7 @@ final class ConsultationTokenResourceType extends DplanResourceType implements U
 
         return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            ...$this->originalStatement->procedure->id
+            $this->originalStatement->procedure->id
         );
     }
 

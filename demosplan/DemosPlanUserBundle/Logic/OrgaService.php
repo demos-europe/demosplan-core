@@ -421,8 +421,8 @@ class OrgaService extends CoreService
     public function getParticipants(): array
     {
         return $this->getOrganisations([
-            $this->conditionFactory->propertyHasValue(1, ...$this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, ...$this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
         ]);
     }
 
@@ -466,9 +466,9 @@ class OrgaService extends CoreService
             $conditions = array_merge($additionalConditions, $this->orgaResourceType->getMandatoryConditions());
             $conditions[] = $this->conditionFactory->propertyHasNotValue(
                 User::ANONYMOUS_USER_ORGA_ID,
-                ...$this->orgaResourceType->id
+                $this->orgaResourceType->id
             );
-            $sortMethod = $this->sortMethodFactory->propertyAscending(...$this->orgaResourceType->name);
+            $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
             $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
@@ -515,17 +515,17 @@ class OrgaService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                ...$this->orgaResourceType->statusInCustomers->status
+                $this->orgaResourceType->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
                 $orgaTypeName,
-                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+                $this->orgaResourceType->statusInCustomers->orgaType->name
             ),
             // The resource type will already contain this restriction,
             // but we add it here too for clarity.
             $this->conditionFactory->propertyHasValue(
                 $customerContext->getId(),
-                ...$this->orgaResourceType->statusInCustomers->customer->id
+                $this->orgaResourceType->statusInCustomers->customer->id
             ),
         ];
 

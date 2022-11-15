@@ -855,7 +855,7 @@ class StatementService extends CoreService
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         return $this->entityFetcher->getEntityCount(
@@ -4944,7 +4944,7 @@ class StatementService extends CoreService
         }
 
         if ($this->includeStatementFragments($entityClassesToInclude)) {
-            $explodedStatement->push(...$statement->getFragments());
+            $explodedStatement->push($statement->getFragments());
         }
 
         return $explodedStatement;
@@ -4959,7 +4959,7 @@ class StatementService extends CoreService
     {
         $condition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         return $this->entityFetcher->listEntities($this->statementResourceType, [$condition]);

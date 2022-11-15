@@ -118,9 +118,9 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         }
 
         $adminConditions = [
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id),
-            $this->conditionFactory->propertyHasNotValue(Elements::ELEMENTS_CATEGORY_MAP, ...$this->category),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+            $this->conditionFactory->propertyHasNotValue(Elements::ELEMENTS_CATEGORY_MAP, $this->category),
         ];
 
         // These "elements" are needed for technical reasons but are no actual categories.
@@ -129,7 +129,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
-            $adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, ...$this->title);
+            $adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
         }
 
         $ownsProcedure = $this->procedureAccessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure);
@@ -141,16 +141,16 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         if ($this->currentUser->hasPermission('feature_admin_element_invitable_institution_or_public_authorisations')) { //einschränkung der elements erlaubt?
             if (!$this->currentUser->hasPermission('feature_admin_element_public_access')) {
-                $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_public_access', ...$this->permission);
+                $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_public_access', $this->permission);
             }
             if (!$this->currentUser->hasPermission('feature_admin_element_invitable_institution_access')) {
-                $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_invitable_institution_access', ...$this->permission);
+                $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_invitable_institution_access', $this->permission);
             }
         }
 
         // without owning the procedure and administration permissions users are only
         // allowed to see enabled elements
-        $publicConditions[] = $this->conditionFactory->propertyHasValue(true, ...$this->enabled);
+        $publicConditions[] = $this->conditionFactory->propertyHasValue(true, $this->enabled);
         $publicConditions[] = $this->createNestingCondition();
 
         return $this->conditionFactory->allConditionsApply(...$publicConditions);
@@ -307,7 +307,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         for ($i = 0; $i < Elements::MAX_PARENTS_COUNT; ++$i) {
             $conditions[] = $this->conditionFactory->anyConditionApplies(
                 // the parent must be either enabled...
-                $this->conditionFactory->propertyHasValue(true, ...$parentPath->enabled),
+                $this->conditionFactory->propertyHasValue(true, $parentPath->enabled),
                 // ...or there must be no parent at all
                 $this->conditionFactory->propertyIsNull(...$parentPath)
             );

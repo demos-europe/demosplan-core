@@ -2856,7 +2856,7 @@ class DemosPlanProcedureController extends BaseController
             throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
-        $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
+        $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
         $procedureTypeResources = array_map(function (object $entity) use ($wrapperFactory) {
             return $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType);

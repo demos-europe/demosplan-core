@@ -75,7 +75,7 @@ class FaqResourceType extends DplanResourceType implements UpdatableDqlResourceT
 
         return $this->conditionFactory->propertyHasValue(
             $customer->getId(),
-            ...$this->faqCategory->customer->id
+            $this->faqCategory->customer->id
         );
     }
 

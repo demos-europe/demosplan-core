@@ -106,8 +106,8 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->pId),
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->pId),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted)
         );
     }
 

@@ -76,27 +76,27 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue(true, ...$this->showlist),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyHasValue(true, $this->showlist),
             $this->conditionFactory->propertyHasValue(
                 Role::GPSORG,
-                ...$this->users->roleInCustomers->role->groupCode
+                $this->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaType::PUBLIC_AGENCY,
-                ...$this->statusInCustomers->orgaType->name
+                $this->statusInCustomers->orgaType->name
             ),
             $this->conditionFactory->propertyHasValue(
                 $customer->getId(),
-                ...$this->statusInCustomers->customer->id
+                $this->statusInCustomers->customer->id
             ),
             // avoid already invited organisations
             $this->conditionFactory->anyConditionApplies(
                 $this->conditionFactory->propertyHasNotValue(
                     $procedure->getId(),
-                    ...$this->procedureInvitations->id
+                    $this->procedureInvitations->id
                 ),
-                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations)
+                $this->conditionFactory->propertyIsNull($this->procedureInvitations)
             )
         );
     }
@@ -104,7 +104,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
     public function getDefaultSortMethods(): array
     {
         return [
-            $this->sortMethodFactory->propertyAscending(...$this->name),
+            $this->sortMethodFactory->propertyAscending($this->name),
         ];
     }
 

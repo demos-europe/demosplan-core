@@ -277,7 +277,7 @@ class ConsultationTokenService
     {
         $condition = $this->conditionFactory
             ->allConditionsApply(
-                $this->conditionFactory->propertyHasValue($procedureId, ...$this->consultationTokenResourceType->statement->procedure->id),
+                $this->conditionFactory->propertyHasValue($procedureId, $this->consultationTokenResourceType->statement->procedure->id),
             );
         $sort = $this->getSortMethod($sortParams);
 

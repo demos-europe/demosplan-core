@@ -78,7 +78,7 @@ final class PlaceResourceType extends DplanResourceType implements UpdatableDqlR
         // for now all places can be read by anyone if they are available
         return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            ...$this->procedure->id
+            $this->procedure->id
         );
     }
 

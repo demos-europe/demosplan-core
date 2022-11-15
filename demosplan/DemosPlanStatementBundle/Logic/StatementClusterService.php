@@ -159,7 +159,7 @@ class StatementClusterService extends CoreService
             $this->clusterStatementResourceType->getAccessCondition(),
             $this->conditionFactory->propertyHasValue(
                 $procedureId,
-                ...$this->clusterStatementResourceType->procedure->id
+                $this->clusterStatementResourceType->procedure->id
             ),
         ];
 

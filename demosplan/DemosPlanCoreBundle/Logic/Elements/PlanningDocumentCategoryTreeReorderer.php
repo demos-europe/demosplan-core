@@ -146,7 +146,7 @@ class PlanningDocumentCategoryTreeReorderer
                 $this->getProcedureCondition($procedureId),
                 $this->conditionFactory->propertyHasAnyOfValues(
                     $categoryToMoveAndNewParentIds,
-                    ...$this->categoryResourceType->id
+                    $this->categoryResourceType->id
                 ),
             ]
         );
@@ -224,7 +224,7 @@ class PlanningDocumentCategoryTreeReorderer
     {
         $sortMethods = [
             $this->sortMethodFactory->propertyAscending(
-                ...$this->categoryResourceType->order
+                $this->categoryResourceType->order
             ),
         ];
 
@@ -237,7 +237,7 @@ class PlanningDocumentCategoryTreeReorderer
         } else {
             $rootCondition = [
                 $this->getProcedureCondition($procedureId),
-                $this->conditionFactory->propertyIsNull(...$this->categoryResourceType->parent),
+                $this->conditionFactory->propertyIsNull($this->categoryResourceType->parent),
             ];
             $neighbors = $this->entityFetcher->listEntitiesUnrestricted(
                 $this->categoryResourceType->getEntityClass(),
@@ -262,7 +262,7 @@ class PlanningDocumentCategoryTreeReorderer
     {
         return $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->categoryResourceType->procedure->id
+            $this->categoryResourceType->procedure->id
         );
     }
 

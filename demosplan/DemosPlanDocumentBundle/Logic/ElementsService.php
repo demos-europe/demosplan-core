@@ -842,9 +842,9 @@ class ElementsService extends CoreService
     ): array {
         $condition = $this->conditionFactory
             ->allConditionsApply(
-                $this->conditionFactory->propertyHasValue($procedureId, ...$this->elementResourceType->procedure->id),
-                $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, ...$this->elementResourceType->id),
-                $this->conditionFactory->propertyHasValue(!$designatedState, ...$this->elementResourceType->enabled),
+                $this->conditionFactory->propertyHasValue($procedureId, $this->elementResourceType->procedure->id),
+                $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
+                $this->conditionFactory->propertyHasValue(!$designatedState, $this->elementResourceType->enabled),
             );
 
         /** @var Elements[] $elements */

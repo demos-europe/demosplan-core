@@ -173,7 +173,7 @@ class JsonApiEsService
         $esIds = array_column($esResultArrays, 'id');
         $condition = $this->conditionFactory->propertyHasAnyOfValues(
             $esIds,
-            ...$resourceType->id
+            $resourceType->id
         );
 
         $entities = [];

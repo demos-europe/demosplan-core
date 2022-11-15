@@ -141,17 +141,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         return $this->conditionFactory->allConditionsApply(
         // Statement resources can never be deleted
-            $this->conditionFactory->propertyHasValue(false, ...$pathStartResourceType->deleted),
+            $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
             // Normally the path to the relationship would suffice for a NULL check, but the ES
             // provides the 'original.id' path only hence we need the path to the ID to support
             // ES queries beside Doctrine.
-            $this->conditionFactory->propertyIsNotNull(...$pathStartResourceType->original->id),
-            $this->conditionFactory->propertyIsNull(...$pathStartResourceType->headStatement->id),
+            $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id),
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
-            $this->conditionFactory->propertyIsNull(...$pathStartResourceType->movedStatement),
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             $this->conditionFactory->propertyHasAnyOfValues(
                 $allowedProcedureIds,
-                ...$pathStartResourceType->procedure->id
+                $pathStartResourceType->procedure->id
             )
         );
     }
