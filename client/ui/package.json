@@ -3,7 +3,7 @@
   "version": "2021.11.0",
   "description": "Vue components, Vue directives, Design Token and Scss files to build interfaces for demosPlan.",
   "dependencies": {
-    "@braintree/sanitize-url": "^6.0.1",
+    "@braintree/sanitize-url": "^6.0.2",
     "@uppy/core": "^3.0.1",
     "@uppy/drag-drop": "^3.0.0",
     "@uppy/progress-bar": "^3.0.0",
