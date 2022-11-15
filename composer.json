@@ -155,8 +155,7 @@
         "psr-4": {
           "demosplan\\": "demosplan/",
           "demosplan\\deployment\\": "deploy/",
-          "Projects\\": "projects/",
-          "demosplan\\addons\\": "addons/vendor/demos-europe/"
+          "Projects\\": "projects/"
         }
     },
     "autoload-dev": {
