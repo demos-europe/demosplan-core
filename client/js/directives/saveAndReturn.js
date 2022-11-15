@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { addFormHiddenField } from '@DpJs/lib/core/FormActions'
+import { addFormHiddenField } from 'demosplan-utils/lib/FormActions'
 
 const saveAndReturn = {
   inserted: function (el) {

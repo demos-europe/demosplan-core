@@ -155,11 +155,11 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from 'demosplan-utils'
 import DpContextualHelp from '@DpJs/components/core/DpContextualHelp'
 import DpEditableList from '@DpJs/components/core/DpEditableList'
 import { DpInput } from 'demosplan-ui/components'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'SimilarStatementSubmitters',

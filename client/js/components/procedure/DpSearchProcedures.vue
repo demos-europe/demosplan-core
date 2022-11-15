@@ -87,7 +87,7 @@
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 

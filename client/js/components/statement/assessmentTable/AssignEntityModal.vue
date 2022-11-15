@@ -52,7 +52,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse } from 'demosplan-utils'
 import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'

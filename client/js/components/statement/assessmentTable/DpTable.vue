@@ -240,9 +240,9 @@ import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/Dp
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { DpLoading } from 'demosplan-ui/components'
 import DpPager from '@DpJs/components/core/DpPager'
-import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { handleResponseMessages } from 'demosplan-utils'
 import { scrollTo } from 'vue-scrollto'
-import Stickier from '@DpJs/lib/core/Stickier'
+import { Stickier } from 'demosplan-utils'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )

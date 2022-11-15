@@ -90,13 +90,12 @@
 </template>
 
 <script>
-import { deepMerge, hasOwnProp } from 'demosplan-utils'
+import { deepMerge, hasOwnProp, Stickier } from 'demosplan-utils'
 import DpTreeListCheckbox from './DpTreeListCheckbox'
 import DpTreeListNode from './DpTreeListNode'
 import DpTreeListToggle from './DpTreeListToggle'
 import draggable from 'vuedraggable'
 import { dragHandleWidth } from './utils/constants'
-import Stickier from '@DpJs/lib/core/Stickier'
 
 export default {
   name: 'DpTreeList',

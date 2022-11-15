@@ -92,7 +92,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse } from 'demosplan-utils'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'

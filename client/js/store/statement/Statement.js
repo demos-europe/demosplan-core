@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, handleResponseMessages } from 'demosplan-utils'
 import { hasAnyPermissions, hasOwnProp } from 'demosplan-utils'
 
 /**

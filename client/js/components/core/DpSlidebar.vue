@@ -39,9 +39,8 @@
 </template>
 
 <script>
+import { hasOwnProp, SideNav } from 'demosplan-utils'
 import { DpIcon } from 'demosplan-ui/components'
-import { hasOwnProp } from 'demosplan-utils'
-import SideNav from '@DpJs/lib/core/SideNav'
 
 export default {
   name: 'DpSlidebar',

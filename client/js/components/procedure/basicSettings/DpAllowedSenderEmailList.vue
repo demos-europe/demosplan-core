@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
 export default {

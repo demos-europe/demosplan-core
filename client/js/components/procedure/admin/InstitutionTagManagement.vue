@@ -113,7 +113,7 @@ import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'InstitutionTagManagement',

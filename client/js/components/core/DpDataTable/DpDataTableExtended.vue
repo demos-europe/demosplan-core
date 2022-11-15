@@ -148,7 +148,7 @@ import DpSelectPageItemCount from './DpSelectPageItemCount'
 import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { hasOwnProp } from 'demosplan-utils'
 import SlidingPagination from 'vue-sliding-pagination'
-import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
+import { tableSelectAllItems } from 'demosplan-utils/mixins'
 
 export default {
   name: 'DpDataTableExtended',

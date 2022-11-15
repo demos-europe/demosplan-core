@@ -194,8 +194,8 @@ import { DpLabel, DpLoading } from 'demosplan-ui/components'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpApi } from 'demosplan-utils'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'CustomerSettings',

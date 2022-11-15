@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import isMobile from 'ismobilejs'
 import LayerSettings from '@DpJs/components/map/admin/LayerSettings'
 import { prefixClass } from 'demosplan-ui/lib'

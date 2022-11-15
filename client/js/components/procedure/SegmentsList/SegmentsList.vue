@@ -227,7 +227,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from 'demosplan-utils'
 import { CleanHtml, VPopover } from 'demosplan-ui/directives'
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
@@ -241,7 +241,7 @@ import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
+import { tableSelectAllItems } from 'demosplan-utils/mixins'
 
 export default {
   name: 'SegmentsList',

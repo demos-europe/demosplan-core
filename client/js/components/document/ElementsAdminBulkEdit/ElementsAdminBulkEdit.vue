@@ -77,15 +77,14 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { formatDate, hasOwnProp } from 'demosplan-utils'
+import { checkResponse, dpRpc, formatDate, hasOwnProp } from 'demosplan-utils'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import lscache from 'lscache'
 
 export default {

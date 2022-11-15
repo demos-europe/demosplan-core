@@ -621,7 +621,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, makeFormPost } from 'demosplan-utils'
 import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
 import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
 import { mapMutations, mapState } from 'vuex'
@@ -630,7 +630,7 @@ import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import MultistepNav from '@DpJs/components/core/MultistepNav'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'

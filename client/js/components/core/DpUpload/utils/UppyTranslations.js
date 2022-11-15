@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { convertSize } from '@DpJs/lib/core/FileInfo'
+import { convertSize } from 'demosplan-utils/lib/FileInfo'
 const de = () => {
   return {
     strings: {
