@@ -10,20 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
-use function array_merge;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanPluginBundle\Logic\PluginList;
 use Exception;
-use function file_exists;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -32,6 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
+use function array_merge;
+use function file_exists;
 
 /**
  * This class loads all classes used by DPlan core and may be
@@ -71,8 +70,6 @@ class DemosPlanKernel extends Kernel
      */
     public const ENVIRONMENT_PROD = 'prod';
 
-    protected $plugins = [];
-
     /**
      * @var string
      */
@@ -99,18 +96,17 @@ class DemosPlanKernel extends Kernel
     {
         $bundles = require $this->getBundlesConfigPath();
 
-        $bundles = array_merge($bundles, $this->getPlugins());
-
         foreach ($bundles as $class => $envs) {
             if ($envs[$this->environment] ?? $envs['all'] ?? false) {
                 yield new $class();
             }
         }
-    }
 
-    public function setPlugins(array $plugins): void
-    {
-        $this->plugins = $plugins;
+        // Register all addons
+        $addonRegistry = new AddonRegistry();
+        foreach ($addonRegistry->getAllAddons() as $addonName => $addonData) {
+            yield new $addonName($addonData['enabled']);
+        }
     }
 
     protected function configureRoutes(RouteCollectionBuilder $routes): void
@@ -251,25 +247,6 @@ class DemosPlanKernel extends Kernel
     public function isLocalContainer(): bool
     {
         return array_key_exists('DEVELOPMENT_CONTAINER', $_SERVER) && '1' === $_SERVER['DEVELOPMENT_CONTAINER'];
-    }
-
-    /**
-     * Return a list of enabled plugin bundles in the bundles.php format.
-     */
-    protected function getPlugins(): array
-    {
-        $defaultPlugins = PluginList::getBundles();
-
-        return array_merge(
-            $defaultPlugins,
-            collect($this->plugins)
-                ->flatMap(
-                    static function ($pluginClass) {
-                        return [$pluginClass => ['all' => true]];
-                    }
-                )
-                ->toArray()
-        );
     }
 
     private function getBundlesConfigPath(): string
