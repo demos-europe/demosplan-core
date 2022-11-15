@@ -33,7 +33,7 @@
     "@babel/core": "^7.19.3",
     "@storybook/addon-actions": "6.5.13",
     "@storybook/addon-docs": "6.5.13",
-    "@storybook/addon-essentials": "6.5.12",
+    "@storybook/addon-essentials": "6.5.13",
     "@storybook/addon-links": "6.5.12",
     "@storybook/vue": "6.5.12",
     "babel-loader": "^8.2.5",
