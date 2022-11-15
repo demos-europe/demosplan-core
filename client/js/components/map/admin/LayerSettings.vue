@@ -126,7 +126,7 @@ import { DpInput, DpLabel } from 'demosplan-ui/components'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 import { debounce } from 'demosplan-utils'
 import { DpCheckbox, DpMultiselect, DpSelect } from 'demosplan-ui/components/core'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpRpc } from 'demosplan-utils'
 
 export default {
   name: 'LayerSettings',

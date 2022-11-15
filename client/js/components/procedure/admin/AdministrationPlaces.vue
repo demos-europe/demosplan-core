@@ -120,10 +120,10 @@
 </template>
 
 <script>
-import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, dpRpc } from 'demosplan-utils'
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { DpButtonRow, DpDataTable, DpInlineNotification } from 'demosplan-ui/components/core'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'AdministrationPlaces',

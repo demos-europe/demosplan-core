@@ -35,7 +35,7 @@ import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } fro
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { Map, View } from 'ol'
 import { TileWMS, WMTS } from 'ol/source'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpAutocomplete } from 'demosplan-ui/components/core'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'

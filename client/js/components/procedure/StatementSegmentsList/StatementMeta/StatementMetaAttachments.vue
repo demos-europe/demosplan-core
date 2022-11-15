@@ -58,7 +58,7 @@
 
 <script>
 import { DpButton, DpLabel } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpUploadFiles } from 'demosplan-ui/components/core'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 

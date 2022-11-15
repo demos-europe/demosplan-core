@@ -502,7 +502,7 @@ import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
 import { DpHeightLimit, DpTextWrapper } from 'demosplan-ui/components/core'
 import DpItemRow from '../assessmentTable/ItemRow'
-import { getFileInfo } from '@DpJs/lib/core/FileInfo'
+import { getFileInfo } from 'demosplan-utils/lib/FileInfo'
 
 export default {
   name: 'DpStatementFragment',

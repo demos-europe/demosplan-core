@@ -68,7 +68,7 @@
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { DpButtonRow, DpMultiselect, DpResettableInput } from 'demosplan-ui/components/core'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'DpCreateTag',

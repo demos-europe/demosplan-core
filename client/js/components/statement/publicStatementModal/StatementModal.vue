@@ -621,13 +621,13 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, makeFormPost } from 'demosplan-utils'
 import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
 import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
 import { mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from 'demosplan-ui/components/core'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 

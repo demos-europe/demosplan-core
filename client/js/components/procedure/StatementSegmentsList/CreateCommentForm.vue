@@ -30,7 +30,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpButtonRow, DpEditor } from 'demosplan-ui/components/core'
 import { DpLabel } from 'demosplan-ui/components'
 

@@ -232,12 +232,11 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, hasOwnProp } from 'demosplan-utils'
 import { DpDatepicker, DpToggle } from 'demosplan-ui/components/core'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'
-import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpMapSettingsPreview',

@@ -120,11 +120,10 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, deepMerge, dpApi } from 'demosplan-utils'
 import { Map, View } from 'ol'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
-import { deepMerge } from 'demosplan-utils'
 import { DpAutocomplete } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
 import DpOlMapLayer from './DpOlMapLayer'

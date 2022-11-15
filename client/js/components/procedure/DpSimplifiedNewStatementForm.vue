@@ -350,7 +350,7 @@
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 

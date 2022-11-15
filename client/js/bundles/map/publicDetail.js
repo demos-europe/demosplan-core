@@ -24,7 +24,7 @@ import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import TableWrapper from '@DpJs/lib/core/TableWrapper'
+import { TableWrapper } from 'demosplan-utils'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {

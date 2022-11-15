@@ -156,7 +156,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpRpc } from 'demosplan-utils'
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { mapGetters, mapMutations } from 'vuex'
 import { dataTableSearch, DpFlyout, DpResettableInput } from 'demosplan-ui/components/core'

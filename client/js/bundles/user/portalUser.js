@@ -13,7 +13,7 @@
 
 import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
 import { DpAccordion } from 'demosplan-ui/components/core'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 

@@ -42,7 +42,7 @@
 <script>
 import { DpEditableList } from 'demosplan-ui/components/core'
 import { DpInput } from 'demosplan-ui/components'
-import validateEmail from '@DpJs/lib/core/validation/utils/validateEmail'
+import { validateEmail } from 'demosplan-utils/lib/validation'
 
 export default {
   name: 'DpEmailList',

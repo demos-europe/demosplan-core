@@ -120,7 +120,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpButtonRow, DpTableCard } from 'demosplan-ui/components/core'
 import { DpIcon } from 'demosplan-ui/components'
 import DpUserFormFields from './DpUserFormFields'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'DpUserListItem',

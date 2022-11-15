@@ -140,9 +140,8 @@
 
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { DpDataTable, DpSearchField, DpSelect } from 'demosplan-ui/components/core'
-import { formatDate } from 'demosplan-utils'
+import { dpApi, formatDate } from 'demosplan-utils'
 
 export default {
   name: 'AdministrationProceduresList',

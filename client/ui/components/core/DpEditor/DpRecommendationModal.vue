@@ -72,7 +72,7 @@
 import { DpLabel, DpLoading } from 'demosplan-ui/components'
 import { mapMutations, mapState } from 'vuex'
 import dataTableSearch from '../DpDataTable/DataTableSearch'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import DpInsertableRecommendation from './DpRecommendationModal/DpInsertableRecommendation'
 import DpModal from '../DpModal'
 import DpSearchField from '../form/DpSearchField'

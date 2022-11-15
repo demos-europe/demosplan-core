@@ -26,7 +26,7 @@
 
 <script>
 import DpAccordion from './DpAccordion'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'DpToggleForm',

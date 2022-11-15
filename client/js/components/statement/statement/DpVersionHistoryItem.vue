@@ -163,7 +163,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from 'demosplan-utils'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpLoading } from 'demosplan-ui/components'
 import { formatDate } from 'demosplan-utils'

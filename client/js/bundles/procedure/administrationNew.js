@@ -14,7 +14,7 @@
 import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
 import { DpDateRangePicker } from 'demosplan-ui/components/core'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpNewProcedure, DpDateRangePicker }

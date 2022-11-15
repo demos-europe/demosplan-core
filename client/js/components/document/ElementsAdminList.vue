@@ -88,7 +88,7 @@ import { hasAnyPermissions, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpBulkEditHeader, DpTreeList } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpRpc } from 'demosplan-utils'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
 

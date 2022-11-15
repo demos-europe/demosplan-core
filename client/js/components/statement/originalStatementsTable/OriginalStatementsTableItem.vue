@@ -188,7 +188,7 @@
 import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { mapGetters, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpFlyout, DpHeightLimit } from 'demosplan-ui/components/core'
 
 export default {

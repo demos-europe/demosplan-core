@@ -8,8 +8,8 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanPluginBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Event;
 
-class ManagePluginException extends \RuntimeException
+class AddonMaintenanceEvent extends DPlanEvent
 {
 }

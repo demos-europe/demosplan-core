@@ -10,7 +10,7 @@
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import CoupleTokenInput from './CoupleTokenInput'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpDateRangePicker, DpFormRow, DpInlineNotification, DpMultiselect, DpSelect, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
 
 export default {

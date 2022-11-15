@@ -11,7 +11,11 @@
  * This is the entrypoint for administration_procedure_type_edit.html.twig
  */
 
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+/*
+ * import DpAccordion from '@DpJs/components/core/DpAccordion'
+ * import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+ */
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 

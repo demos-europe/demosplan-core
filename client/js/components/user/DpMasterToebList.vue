@@ -199,7 +199,7 @@ import {
   unbindFullScreenChange
 } from 'demosplan-utils'
 import { dataTableSearch, DpDataTable, DpSelectPageItemCount, DpStickyElement } from 'demosplan-ui/components/core'
-import { dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, makeFormPost } from 'demosplan-utils'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
 import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'

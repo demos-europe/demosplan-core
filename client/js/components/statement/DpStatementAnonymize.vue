@@ -234,7 +234,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from 'demosplan-utils'
 import { CleanHtml } from 'demosplan-ui/directives'
 import { DpAnonymizeText, DpCheckbox, DpTooltipIcon } from 'demosplan-ui/components/core'
 import { DpButton } from 'demosplan-ui/components'

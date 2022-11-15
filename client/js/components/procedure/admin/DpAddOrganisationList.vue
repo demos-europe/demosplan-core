@@ -48,7 +48,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpButton } from 'demosplan-ui/components'
 import { DpDataTableExtended } from 'demosplan-ui/components/core'
 

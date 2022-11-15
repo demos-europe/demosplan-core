@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 
 class SegmentCommentFactory
 {

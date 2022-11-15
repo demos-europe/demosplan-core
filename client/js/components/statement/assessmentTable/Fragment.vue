@@ -383,7 +383,7 @@ useful info about the component:
 import { formatDate, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'

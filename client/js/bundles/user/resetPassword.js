@@ -11,7 +11,7 @@
  * This is the entrypoint for password_recover.html.twig
  */
 
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import { DpRegisterFlyout } from 'demosplan-ui/components/core'
 

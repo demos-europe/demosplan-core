@@ -9,7 +9,7 @@
 
 <script>
 import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles } from 'demosplan-ui/components/core'
-import { makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { makeFormPost } from 'demosplan-utils'
 
 export default {
   name: 'DpElementAdminEdit',

@@ -17,7 +17,7 @@ import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from 'demosplan-ui/com
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import TableWrapper from '@DpJs/lib/core/TableWrapper'
+import { TableWrapper } from 'demosplan-utils'
 
 const components = {
   DpPublicDetailNoMap,

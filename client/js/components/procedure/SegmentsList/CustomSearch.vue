@@ -74,10 +74,9 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpRpc, hasOwnProp } from 'demosplan-utils'
 import { DpButton, DpDetails, DpIcon, DpInput } from 'demosplan-ui/components'
 import { DpCheckbox, DpFlyout } from 'demosplan-ui/components/core'
-import { hasOwnProp } from 'demosplan-utils'
 import lscache from 'lscache'
 
 export default {

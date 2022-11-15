@@ -101,7 +101,7 @@
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpHeightLimit } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 

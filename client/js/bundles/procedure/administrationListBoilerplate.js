@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_list_boilerplate.html.twig
  */
 
-import AnimateById from '@DpJs/lib/core/AnimateById'
+import { AnimateById } from 'demosplan-utils'
 import { DpFlyout, DpSplitButton } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

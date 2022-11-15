@@ -10,7 +10,7 @@
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpMultiselect } from 'demosplan-ui/components/core'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'

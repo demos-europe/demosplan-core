@@ -80,9 +80,9 @@
 
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpTextArea, DpUploadFiles, getFileIdsByHash } from 'demosplan-ui/components/core'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
