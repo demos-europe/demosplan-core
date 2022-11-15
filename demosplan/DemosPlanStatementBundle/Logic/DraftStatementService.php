@@ -281,8 +281,8 @@ class DraftStatementService extends CoreService
             }
 
             $conditions = [
-                $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
+                $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
             ];
 
             // only show drafts from own organisation
@@ -290,33 +290,33 @@ class DraftStatementService extends CoreService
             // When a gateway name is set, users see drafts from any organisation that has the same gateway name as own orga
             $userOrganisationGatewayName = $user->getOrga()->getGatewayName();
             if (null === $userOrganisationGatewayName || '' === $userOrganisationGatewayName) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($user->getOrganisationId(), 'organisation');
+                $conditions[] = $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['organisation']);
             } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, 'organisation', 'gatewayName');
+                $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
 
             if ('own' === $scope || 'ownCitizen' === $scope) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), 'user');
+                $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
                 $filters->setSomeOnesUserId($user->getIdent());
             }
 
             if (null !== $filters->getReleased()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getReleased(), 'released');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getReleased(), ['released']);
             }
             if (null !== $filters->getSubmitted()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getSubmitted(), 'submitted');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getSubmitted(), ['submitted']);
             }
             if (null !== $filters->getElement()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getElement(), 'element');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getElement(), ['element']);
             }
             if (null !== $filters->getDepartment()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getDepartment(), 'department');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getDepartment(), ['department']);
             }
 
             // Suche
             if (is_string($search) && 0 < strlen($search)) {
-                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, 'text');
+                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
             // Sortierung
@@ -365,16 +365,16 @@ class DraftStatementService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'organisation'),
-                $this->conditionFactory->propertyHasValue(true, 'submitted'),
-                $this->conditionFactory->propertyHasValue(true, 'showToAll'),
+                $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['organisation']),
+                $this->conditionFactory->propertyHasValue(true, ['submitted']),
+                $this->conditionFactory->propertyHasValue(true, ['showToAll']),
             ];
 
             // Suche
             if (is_string($search) && 0 < strlen($search)) {
-                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, 'text');
+                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
             // Sortierung
@@ -2142,7 +2142,7 @@ class DraftStatementService extends CoreService
      */
     public function getByIds(array $draftStatementIds): array
     {
-        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, 'id');
+        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, ['id']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, [$condition]);
     }

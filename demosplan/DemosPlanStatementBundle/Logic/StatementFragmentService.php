@@ -465,7 +465,7 @@ class StatementFragmentService extends CoreService
         try {
             return $this->entityFetcher->listEntitiesUnrestricted(
                 StatementFragment::class,
-                [$this->conditionFactory->propertyHasValue($statementId, 'statement')],
+                [$this->conditionFactory->propertyHasValue($statementId, ['statement'])],
                 [$this->sortMethodFactory->propertyAscending(['sortIndex'])]
             );
         } catch (Exception $e) {

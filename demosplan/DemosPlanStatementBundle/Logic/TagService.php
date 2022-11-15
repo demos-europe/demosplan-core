@@ -292,8 +292,8 @@ class TagService extends CoreService
     public function findUniqueByTitle(string $tagTitle, string $procedureId): ?Tag
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($tagTitle, 'title'),
-            $this->conditionFactory->propertyHasValue($procedureId, 'topic', 'procedure', 'id'),
+            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         ];
 
         $tags = $this->entityFetcher->listEntitiesUnrestricted(Tag::class, $conditions);

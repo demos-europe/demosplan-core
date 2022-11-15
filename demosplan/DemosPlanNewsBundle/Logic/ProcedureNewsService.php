@@ -99,14 +99,14 @@ class ProcedureNewsService extends CoreService
     public function getNewsList($procedureId, $user, $manualSortScope = null, $limit = null, $roles = [])
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(true, 'enabled'),
-            $this->conditionFactory->propertyHasValue($procedureId, 'pId'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(true, ['enabled']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['pId']),
         ];
 
         $roles = $this->determineRoles($roles, $user);
         if (isset($roles) && 0 < count($roles)) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, 'roles', 'code');
+            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
@@ -145,8 +145,8 @@ class ProcedureNewsService extends CoreService
     public function getProcedureNewsAdminList($procedureId, $manualSortScope = null)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue($procedureId, 'pId'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['pId']),
         ];
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);

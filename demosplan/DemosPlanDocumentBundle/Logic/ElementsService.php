@@ -154,18 +154,18 @@ class ElementsService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue($procedureId, 'pId'),
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
+                $this->conditionFactory->propertyHasValue($procedureId, ['pId']),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
             ];
 
             if (!$ignoreEnabled) {
-                $conditions[] = $this->conditionFactory->propertyHasValue(true, 'enabled');
+                $conditions[] = $this->conditionFactory->propertyHasValue(true, ['enabled']);
             }
 
             if ((false === $isOwner) && null !== $organisationId) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyHasStringAsMember($organisationId, 'organisations'),
-                    $this->conditionFactory->propertyHasSize(0, 'organisations')
+                    $this->conditionFactory->propertyHasStringAsMember($organisationId, ['organisations']),
+                    $this->conditionFactory->propertyHasSize(0, ['organisations'])
                 );
             }
 
@@ -193,10 +193,10 @@ class ElementsService extends CoreService
     public function getElementsAdminList($procedureId): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'pId'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['pId']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
             // The element must have a title
-            $this->conditionFactory->propertyHasNotValue('', 'title'),
+            $this->conditionFactory->propertyHasNotValue('', ['title']),
         ];
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);

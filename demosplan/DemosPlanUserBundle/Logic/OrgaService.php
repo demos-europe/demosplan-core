@@ -893,8 +893,8 @@ class OrgaService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, 'id'),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
             ];
             $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 

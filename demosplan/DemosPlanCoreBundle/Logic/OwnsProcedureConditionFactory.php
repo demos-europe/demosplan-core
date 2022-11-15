@@ -65,7 +65,7 @@ class OwnsProcedureConditionFactory
 
         return $this->conditionFactory->propertyHasAnyOfValues(
             $procedurePlanningOffices,
-            'orga', 'id'
+            ['orga', 'id']
         );
     }
 
@@ -83,7 +83,7 @@ class OwnsProcedureConditionFactory
     {
         $orgaOwnsProcedure = $this->conditionFactory->propertyHasValue(
             $this->procedure->getOrgaId(),
-            'orga', 'id'
+            ['orga', 'id']
         );
 
         //T8427: allow access by manually configured users, overwriting the organisation-based access
@@ -91,7 +91,7 @@ class OwnsProcedureConditionFactory
             $planningAgencyIsAuthorized = $this->isAuthorizedViaPlanningAgency();
             $userIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
                 $this->procedure->getAuthorizedUserIds(),
-                'id'
+                ['id']
             );
 
             $orgaOwnsProcedure = $this->conditionFactory->anyConditionApplies(
@@ -150,9 +150,7 @@ class OwnsProcedureConditionFactory
             // ist es ein PLanungsbüro?
             $planningAgencyOwnsProcedure = $this->conditionFactory->propertyHasValue(
                 Role::PRIVATE_PLANNING_AGENCY,
-                'roleInCustomers',
-                'role',
-                'code'
+                ['roleInCustomers', 'role', 'code']
             );
         }
 
@@ -166,7 +164,7 @@ class OwnsProcedureConditionFactory
     {
         return $this->conditionFactory->propertyHasValue(
             $customer->getId(),
-            'roleInCustomers', 'customer', 'id'
+            ['roleInCustomers', 'customer', 'id']
         );
     }
 }

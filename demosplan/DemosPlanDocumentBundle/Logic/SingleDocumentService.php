@@ -90,9 +90,9 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(true, 'visible'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(true, ['visible']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -154,9 +154,9 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($category, 'category'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($category, ['category']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -197,8 +197,8 @@ class SingleDocumentService extends CoreService
          *
         */
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -257,7 +257,7 @@ class SingleDocumentService extends CoreService
      */
     public function getVersions($singleDocumentId)
     {
-        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, 'singleDocument');
+        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, ['singleDocument']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(SingleDocumentVersion::class, [$condition]);
     }

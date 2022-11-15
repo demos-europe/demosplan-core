@@ -164,9 +164,9 @@ class ReportService extends CoreService
     {
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $conditions = [
-            $this->conditionFactory->propertyHasValue('orgaShowlistChange', 'category'),
-            $this->conditionFactory->propertyHasValue('orga', 'group'),
-            $this->conditionFactory->propertyHasValue($currentCustomer, 'customer'),
+            $this->conditionFactory->propertyHasValue('orgaShowlistChange', ['category']),
+            $this->conditionFactory->propertyHasValue('orga', ['group']),
+            $this->conditionFactory->propertyHasValue($currentCustomer, ['customer']),
         ];
 
         $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);

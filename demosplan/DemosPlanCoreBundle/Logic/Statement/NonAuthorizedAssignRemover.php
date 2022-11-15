@@ -158,14 +158,14 @@ class NonAuthorizedAssignRemover
         // Fetches not only statements but child classes too (i.e. segments)
             Statement::class,
             [
-                $this->conditionFactory->propertyIsNotNull('assignee'),
+                $this->conditionFactory->propertyIsNotNull(['assignee']),
                 $this->conditionFactory->propertyHasNotAnyOfValues(
                     $this->getAssignableUserIds($procedure),
-                    'assignee', 'id'
+                    ['assignee', 'id']
                 ),
                 $this->conditionFactory->propertyHasValue(
                     $procedure->getId(),
-                    'procedure', 'id'
+                    ['procedure', 'id']
                 ),
             ]
         );

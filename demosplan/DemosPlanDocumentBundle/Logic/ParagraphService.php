@@ -128,10 +128,10 @@ class ParagraphService extends CoreService
     public function getParaDocumentObjectList($procedureId, $elementId): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($elementId, 'element'),
-            $this->conditionFactory->propertyHasAnyOfValues([1, 2], 'visible'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($elementId, ['element']),
+            $this->conditionFactory->propertyHasAnyOfValues([1, 2], ['visible']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
@@ -201,8 +201,8 @@ class ParagraphService extends CoreService
     public function getParaDocumentAdminListAll($procedureId)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
@@ -712,12 +712,12 @@ class ParagraphService extends CoreService
     public function getParagraphDocumentAdminListAsObjects($procedureId, $elementId, bool $nullParentOnly = false): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($elementId, 'element'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($elementId, ['element']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
         if ($nullParentOnly) {
-            $conditions[] = $this->conditionFactory->propertyIsNull('parent');
+            $conditions[] = $this->conditionFactory->propertyIsNull(['parent']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);

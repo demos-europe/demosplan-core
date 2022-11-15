@@ -854,7 +854,7 @@ class ProcedureService extends CoreService
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
         $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, 'deleted');
+        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
 
         $organisationId = $user->getOrganisationId();
 
@@ -862,7 +862,7 @@ class ProcedureService extends CoreService
         // authorized for (enabled via field_procedure_adjustments_planning_agency).
         $planningAgencyCondition = $this->conditionFactory->false();
         if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, 'planningOffices');
+            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
         }
 
         $orgaOwnsProcedureCondition = $this->conditionFactory->false();
@@ -875,11 +875,11 @@ class ProcedureService extends CoreService
             || $user->isPlanningAgency()
         ) {
             // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, 'orga');
+            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
 
             // If enabled via globalConfig, Planning agencies can be authorized user-wise.
             if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), 'authorizedUsers');
+                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
             }
         }
 
@@ -891,7 +891,7 @@ class ProcedureService extends CoreService
             )
         );
 
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, 'master');
+        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
 
         return $conditions;
     }
@@ -2512,19 +2512,19 @@ class ProcedureService extends CoreService
     public function getInaccessibleProcedures(User $user, $procedureIdToExclude = null)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
         ];
 
         if (null !== $procedureIdToExclude) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, ['id']);
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
         if (false !== stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
-            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), 'planningOffices');
+            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'orga');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
@@ -2555,10 +2555,10 @@ class ProcedureService extends CoreService
     public function getUnauthorizedProcedures(User $user)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
-            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), 'orga'),
-            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), 'authorizedUsers'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
+            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['orga']),
+            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), ['authorizedUsers']),
         ];
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
@@ -2764,12 +2764,12 @@ class ProcedureService extends CoreService
         if (is_string($search) && 0 < strlen($search)) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
-                'name'
+                ['name']
             );
         }
 
         if (isset($filters['municipalCode']) && is_array($filters['municipalCode'])) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], 'municipalCode');
+            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
         //use array_key_exists, because value of key 'customer' is null
@@ -2779,31 +2779,31 @@ class ProcedureService extends CoreService
                 $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
             ) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyIsNull('customer'),
-                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), 'customer')
+                    $this->conditionFactory->propertyIsNull(['customer']),
+                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), ['customer'])
                 );
             } elseif (null === $filters['customer']) {
-                $conditions[] = $this->conditionFactory->propertyIsNull('customer');
+                $conditions[] = $this->conditionFactory->propertyIsNull(['customer']);
             } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], 'customer');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], ['customer']);
             }
         }
 
         if (array_key_exists('orgaCustomerId', $filters)) {
             $conditions[] = $this->conditionFactory->propertyHasValue(
                 $filters['orgaCustomerId'],
-                'orga', 'statusInCustomers', 'customer', 'id'
+                ['orga', 'statusInCustomers', 'customer', 'id']
             );
         }
 
         if (isset($filters['procedureIdToExclude'])) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], ['id']);
         }
 
         if ($excludeArchived) {
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', 'phase'),
-                $this->conditionFactory->propertyHasNotValue('closed', 'publicParticipationPhase')
+                $this->conditionFactory->propertyHasNotValue('closed', ['phase']),
+                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase'])
             );
         }
 
@@ -2818,8 +2818,8 @@ class ProcedureService extends CoreService
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'phase'),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'publicParticipationPhase'),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase']),
             );
         }
 

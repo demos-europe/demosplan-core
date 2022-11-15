@@ -475,8 +475,8 @@ class MailService extends CoreService
     public function getMailsToSend(int $limit = 200): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue('new', 'status'),
-            $this->conditionFactory->valueSmallerEqualsThan(20, 'sendAttempt'),
+            $this->conditionFactory->propertyHasValue('new', ['status']),
+            $this->conditionFactory->valueSmallerEqualsThan(20, ['sendAttempt']),
         ];
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 

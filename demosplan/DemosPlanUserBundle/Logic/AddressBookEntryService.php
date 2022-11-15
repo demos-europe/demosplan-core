@@ -109,7 +109,7 @@ class AddressBookEntryService extends CoreService
         try {
             return $this->entityFetcher->listEntitiesUnrestricted(
                 AddressBookEntry::class,
-                [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, 'id')],
+                [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, ['id'])],
                 [$this->sortMethodFactory->propertyAscending(['name'])]
             );
         } catch (Exception $e) {
