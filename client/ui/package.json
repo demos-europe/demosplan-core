@@ -27,7 +27,7 @@
     "vue-omnibox": "^0.3.7",
     "vue-sliding-pagination": "^1.3.2",
     "vuedraggable": "^2.24.3",
-    "vuex": "^3.6.2"
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
