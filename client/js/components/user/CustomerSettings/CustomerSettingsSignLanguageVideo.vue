@@ -83,7 +83,7 @@ import { DpButton, DpInput } from 'demosplan-ui/components'
 import { dpApi } from 'demosplan-utils'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import { getFileIdsByHash } from '@DpJs/components/core/DpUpload/utils/GetFileIdsByHash'
 
 export default {

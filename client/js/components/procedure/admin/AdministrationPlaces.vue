@@ -125,7 +125,7 @@ import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'AdministrationPlaces',

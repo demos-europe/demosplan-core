@@ -70,10 +70,9 @@
 
 <script>
 import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { debounce, hasOwnProp } from 'demosplan-utils'
+import { debounce, dpApi, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapState } from 'vuex'
-import { dpApi } from 'demosplan-utils'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
+import { dpSelectAllMixin } from 'demosplan-utils/mixins'
 import DpTableCardListHeader from '@DpJs/components/core/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 

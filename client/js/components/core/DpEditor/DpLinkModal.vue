@@ -59,7 +59,7 @@ import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import { DpInput } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'DpLinkModal',

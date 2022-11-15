@@ -84,7 +84,7 @@ import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import lscache from 'lscache'
 
 export default {

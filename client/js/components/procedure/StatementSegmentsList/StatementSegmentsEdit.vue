@@ -92,7 +92,7 @@ import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { DpLoading } from 'demosplan-ui/components'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 import { scrollTo } from 'vue-scrollto'
 
 export default {

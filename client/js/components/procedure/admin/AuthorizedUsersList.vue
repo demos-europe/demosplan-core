@@ -295,7 +295,7 @@ import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
 import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import { dpValidateMixin } from 'demosplan-utils/lib/validation'
+import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {
   name: 'AuthorizedUsersList',

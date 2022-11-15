@@ -286,7 +286,7 @@ import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import { formatDate } from 'demosplan-utils'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
+import { tableSelectAllItems } from 'demosplan-utils/mixins'
 
 export default {
   name: 'ListStatements',
