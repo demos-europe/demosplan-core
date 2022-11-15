@@ -1,68 +1,74 @@
 <template>
-  <dp-data-table
-    data-dp-validate="tagsTable"
-    has-flyout
-    :header-fields="headerFields"
-    track-by="id"
-    :items="institutionList"
-    class="u-mt-2">
-    <template v-slot:institution="rowData">
-      <ul class="o-list max-width-350">
-        <li>
-          {{ rowData.institution }}
-        </li>
-        <li class="o-list__item o-hellip--nowrap">
-          {{ date(rowData.createdDate) }}
-        </li>
-      </ul>
-    </template>
-    <template v-slot:tags="rowData">
-      <div v-if="!rowData.edit">
-        <span> {{ separateByCommas(rowData.tags) }}</span>
+  <div>
+    <dp-inline-notification
+      dismissible
+      :message="Translator.trans('explanation.invitable_institution.group.tags')"
+      type="info" />
+    <dp-data-table
+      data-dp-validate="tagsTable"
+      has-flyout
+      :header-fields="headerFields"
+      track-by="id"
+      :items="institutionList"
+      class="u-mt-2">
+      <template v-slot:institution="rowData">
+        <ul class="o-list max-width-350">
+          <li>
+            {{ rowData.institution }}
+          </li>
+          <li class="o-list__item o-hellip--nowrap">
+            {{ date(rowData.createdDate) }}
+          </li>
+        </ul>
+      </template>
+      <template v-slot:tags="rowData">
+        <div v-if="!rowData.edit">
+          <span> {{ separateByCommas(rowData.tags) }}</span>
+          </div>
+        <dp-multiselect
+          v-else
+          v-model="editingInstitutionTags"
+          :options="tagList"
+          :searchable="false"
+          label="label"
+          track-by="id"
+          multiple>
+        </dp-multiselect>
+      </template>
+      <template v-slot:action="rowData">
+        <div class="float--right">
+          <template v-if="!rowData.edit">
+            <button
+              :aria-label="Translator.trans('item.edit')"
+              class="btn--blank o-link--default"
+              @click="editInstitution(rowData.id)">
+              <i
+                class="fa fa-pencil"
+                aria-hidden="true" />
+            </button>
+          </template>
+          <template v-else>
+            <button
+              :aria-label="Translator.trans('save')"
+              class="btn--blank o-link--default u-mr-0_25"
+              @click="addTagsToInstitution(rowData.id)">
+              <dp-icon
+                icon="check"
+                aria-hidden="true" />
+            </button>
+            <button
+              class="btn--blank o-link--default"
+              :aria-label="Translator.trans('abort')"
+              @click="abortEdit()">
+              <dp-icon
+                icon="xmark"
+                aria-hidden="true" />
+            </button>
+          </template>
         </div>
-      <dp-multiselect
-        v-else
-        v-model="editingInstitutionTags"
-        :options="tagList"
-        :searchable="false"
-        label="label"
-        track-by="id"
-        multiple>
-      </dp-multiselect>
-    </template>
-    <template v-slot:action="rowData">
-      <div class="float--right">
-        <template v-if="!rowData.edit">
-          <button
-            :aria-label="Translator.trans('item.edit')"
-            class="btn--blank o-link--default"
-            @click="editInstitution(rowData.id)">
-            <i
-              class="fa fa-pencil"
-              aria-hidden="true" />
-          </button>
-        </template>
-        <template v-else>
-          <button
-            :aria-label="Translator.trans('save')"
-            class="btn--blank o-link--default u-mr-0_25"
-            @click="addTagsToInstitution(rowData.id)">
-            <dp-icon
-              icon="check"
-              aria-hidden="true" />
-          </button>
-          <button
-            class="btn--blank o-link--default"
-            :aria-label="Translator.trans('abort')"
-            @click="abortEdit()">
-            <dp-icon
-              icon="xmark"
-              aria-hidden="true" />
-          </button>
-        </template>
-      </div>
-    </template>
-  </dp-data-table>
+      </template>
+    </dp-data-table>
+  </div>
 </template>
 
 <script>
@@ -71,6 +77,7 @@ import { formatDate } from 'demosplan-utils'
 import { mapState, mapActions, mapMutations } from "vuex"
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 
 
 export default {
@@ -79,7 +86,8 @@ export default {
   components: {
     DpDataTable,
     DpMultiselect,
-    DpIcon
+    DpIcon,
+    DpInlineNotification
   },
 
   data () {
