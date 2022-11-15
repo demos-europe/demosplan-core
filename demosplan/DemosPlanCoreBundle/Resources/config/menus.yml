@@ -293,6 +293,9 @@ submenu_procedures:
     import:
         label: 'import'
         path: 'DemosPlan_procedure_import'
+        child_paths: [
+            'DemosPlan_statement_import',
+        ]
         path_params: ['procedureId']
         permission: 'area_admin_import'
         link_attributes:
