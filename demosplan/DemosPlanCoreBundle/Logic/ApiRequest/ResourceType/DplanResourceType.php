@@ -17,6 +17,7 @@ use function collect;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
@@ -300,7 +301,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     public function getInternalProperties(): array
     {
-        return array_map(static function (string $className): ?string {
+        $properties = array_map(static function (string $className): ?string {
             $classImplements = class_implements($className);
             if (is_array($classImplements) && in_array(ResourceTypeInterface::class, $classImplements, true)) {
                 /* @var ResourceTypeInterface $className */
@@ -309,6 +310,11 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
             return null;
         }, $this->getAutoPathProperties());
+
+        $event = new GetInternalPropertiesEvent($properties, $this);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getProperties();
     }
 
     public function isExposedAsPrimaryResource(): bool

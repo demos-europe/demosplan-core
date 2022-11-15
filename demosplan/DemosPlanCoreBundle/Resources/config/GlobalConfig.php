@@ -544,11 +544,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $entityContentChangeFieldMapping;
 
     /** @var string */
-    protected $aiServiceSalt = '';
-    /** @var string */
-    protected $aiServicePostUrl = '';
-
-    /** @var string */
     protected $publicIndexRoute;
 
     /** @var array */
@@ -823,22 +818,6 @@ class GlobalConfig implements GlobalConfigInterface
         }
         $this->subdomainMap = $parameterBag->get('subdomain_map');
         $this->subdomainsAllowed = $parameterBag->get('subdomains_allowed');
-
-        if ($parameterBag->has('ai_service_salt')) {
-            $aiServiceSalt = $parameterBag->get('ai_service_salt');
-            if (is_string($aiServiceSalt)) {
-                $this->aiServiceSalt = $aiServiceSalt;
-            }
-        }
-
-        if ($parameterBag->has('ai_service_post_url')) {
-            $aiServicePostUrl = $parameterBag->get('ai_service_post_url');
-            $validator = Validation::createValidator();
-            $violations = $validator->validate($aiServicePostUrl, new Url());
-            if (0 === $violations->count()) {
-                $this->aiServicePostUrl = $aiServicePostUrl;
-            }
-        }
 
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
@@ -1784,22 +1763,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getPublicIndexRouteParameters(): array
     {
         return $this->publicIndexRouteParameters;
-    }
-
-    /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServiceSalt(): string
-    {
-        return $this->aiServiceSalt;
-    }
-
-    /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServicePostUrl(): string
-    {
-        return $this->aiServicePostUrl;
     }
 
     /**

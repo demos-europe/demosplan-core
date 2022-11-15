@@ -7,12 +7,6 @@
         {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
     {% endfor %}
 
-    <split-statement-view
-        statement-id="{{ statementId }}"
-        statement-extern-id="{{ statementExternId }}"
-        procedure-id="{{ procedure }}"
-        :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
-    </split-statement-view>
 {% endblock %}
 
 {% block javascripts %}

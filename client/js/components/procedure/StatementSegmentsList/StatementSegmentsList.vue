@@ -79,7 +79,7 @@
               {{ Translator.trans('export.verb') }}
             </a>
           </li>
-          <li class="display--inline-block">
+          <li class="display--inline-block" v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
               <template slot="trigger">
                 <span>
