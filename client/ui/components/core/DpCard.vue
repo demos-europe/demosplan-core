@@ -28,7 +28,7 @@ export default {
   name: 'DpCard',
 
   components: {
-    DpContextualHelp: () => import(/* webpackChunkName: "dp-contextual-help" */ './DpContextualHelp')
+    DpContextualHelp: () => import('./DpContextualHelp')
   },
 
   props: {

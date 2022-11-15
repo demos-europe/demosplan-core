@@ -87,7 +87,7 @@ export default {
   },
 
   created () {
-    this.player = import(/* webpackChunkName: "plyr" */'plyr/dist/plyr.polyfilled.min')
+    this.player = import('plyr/dist/plyr.polyfilled.min')
   },
 
   mounted () {

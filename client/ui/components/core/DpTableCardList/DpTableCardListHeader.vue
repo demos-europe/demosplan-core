@@ -44,7 +44,7 @@ export default {
 
   components: {
     DpCheckbox,
-    DpSearchField: () => import(/* webpackChunkName: "dp-search-field" */ '../form/DpSearchField'),
+    DpSearchField: () => import('../form/DpSearchField'),
     DpStickyElement
   },
 
