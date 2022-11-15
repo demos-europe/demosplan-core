@@ -11,13 +11,7 @@
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from 'demosplan-utils'
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpFormRow from '@DpJs/components/core/form/DpFormRow'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpDateRangePicker, DpFormRow, DpInlineNotification, DpMultiselect, DpSelect, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpNewProcedure',

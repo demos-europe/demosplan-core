@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpModal } from 'demosplan-ui/components/core'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {

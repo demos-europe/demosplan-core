@@ -9,7 +9,7 @@
 
 <script>
 import DpEmailList from './DpEmailList'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpMultiselect } from 'demosplan-ui/components/core'
 
 export default {
   name: 'DpMasterBasicSettings',
@@ -17,8 +17,14 @@ export default {
   components: {
     DpEmailList,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
-    DpUploadFiles: () => import('@DpJs/components/core/DpUpload/DpUploadFiles')
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    },
+    DpUploadFiles: async () => {
+      const { DpUploadFiles } = await import('demosplan-ui/components/core')
+      return DpUploadFiles
+    }
   },
 
   props: {

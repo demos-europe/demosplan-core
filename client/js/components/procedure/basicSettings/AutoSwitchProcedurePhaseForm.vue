@@ -89,11 +89,8 @@
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
+import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpSelect } from 'demosplan-ui/components/core'
 import { DpLabel } from 'demosplan-ui/components'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { formatDate } from 'demosplan-utils'
 
 export default {
@@ -103,7 +100,10 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpLabel,
     DpSelect
   },

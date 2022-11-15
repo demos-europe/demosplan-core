@@ -12,7 +12,7 @@
  */
 
 import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpUploadFiles } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

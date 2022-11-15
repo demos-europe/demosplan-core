@@ -12,7 +12,7 @@
  */
 
 import { DpButton } from 'demosplan-ui/components'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import { DpInlineNotification } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

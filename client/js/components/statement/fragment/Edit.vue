@@ -105,8 +105,7 @@
 <script>
 import { checkResponse, dpApi } from 'demosplan-utils'
 import { DpButton } from 'demosplan-ui/components'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpEditor, DpMultiselect } from 'demosplan-ui/components/core'
 import qs from 'qs'
 
 export default {

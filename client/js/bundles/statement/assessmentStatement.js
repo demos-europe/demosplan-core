@@ -14,7 +14,7 @@
 import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpUploadFiles } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'

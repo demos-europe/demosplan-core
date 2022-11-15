@@ -86,10 +86,9 @@
 <script>
 import { hasAnyPermissions, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
+import { DpBulkEditHeader, DpTreeList } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
 import { dpRpc } from 'demosplan-utils'
-import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
 

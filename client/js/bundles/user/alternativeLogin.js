@@ -12,10 +12,9 @@
  */
 
 import AlternativeLogin from '@DpJs/components/user/AlternativeLogin'
-import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
+import { DpDataTableExtended, DpRegisterFlyout } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import SamlLoginForm from '@DpJs/components/user/samlLoginForm/SamlLoginForm'
 
 const components = {

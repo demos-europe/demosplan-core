@@ -240,9 +240,7 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import DomPurify from 'dompurify'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
+import { DpFlyout, DpInlineNotification, DpTableCard } from 'demosplan-ui/components/core'
 import { mapState } from 'vuex'
 
 export default {

@@ -68,8 +68,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpToggle from '@DpJs/components/core/form/DpToggle'
+import { DpMultiselect, DpToggle } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {

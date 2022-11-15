@@ -67,9 +67,7 @@
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpResettableInput from '@DpJs/components/core/DpResettableInput'
+import { DpButtonRow, DpMultiselect, DpResettableInput } from 'demosplan-ui/components/core'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {

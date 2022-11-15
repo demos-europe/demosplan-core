@@ -201,8 +201,7 @@ import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionSte
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
+import { DpMultiselect, DpRadio } from 'demosplan-ui/components/core'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
@@ -213,10 +212,16 @@ export default {
     ActionStepper,
     ActionStepperAction,
     ActionStepperResponse,
-    DpInlineNotification: () => import('@DpJs/components/core/DpInlineNotification'),
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpMultiselect,
     DpRadio,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    },
     SelectedTagsList
   },
 

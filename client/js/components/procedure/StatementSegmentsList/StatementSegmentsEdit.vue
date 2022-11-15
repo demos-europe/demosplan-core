@@ -88,7 +88,7 @@
 import { checkResponse, dpApi } from 'demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from 'demosplan-ui/directives'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { DpButtonRow } from 'demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { DpLoading } from 'demosplan-ui/components'
@@ -103,7 +103,10 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   directives: {

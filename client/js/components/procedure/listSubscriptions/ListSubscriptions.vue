@@ -95,9 +95,8 @@
 </template>
 
 <script>
-import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
+import { DpAutocomplete, DpSelect } from 'demosplan-ui/components/core'
 import { DpButton } from 'demosplan-ui/components'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
 import { formatDate } from 'demosplan-utils'
 
 export default {
@@ -106,8 +105,14 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: () => import(/* webpackChunkName: "dp-data-table" */ '@DpJs/components/core/DpDataTable/DpDataTable'),
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
+    DpDataTable: async () => {
+      const { DpDataTable } = await import('demosplan-ui/components/core')
+      return DpDataTable
+    },
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpSelect
   },
 

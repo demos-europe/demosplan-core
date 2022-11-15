@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpTableCard from '@DpJs/components/core/DpTableCardList/DpTableCard'
+import { DpAccordion, DpTableCard } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

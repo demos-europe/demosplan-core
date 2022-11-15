@@ -11,8 +11,7 @@
  * This is the entrypoint for administration_send_email.html.twig
  */
 
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpCheckbox, DpEditor } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

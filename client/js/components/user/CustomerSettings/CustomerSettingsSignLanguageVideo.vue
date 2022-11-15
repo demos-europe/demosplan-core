@@ -81,10 +81,8 @@
 <script>
 import { DpButton, DpInput } from 'demosplan-ui/components'
 import { dpApi } from 'demosplan-utils'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpTextArea, DpUploadFiles, getFileIdsByHash } from 'demosplan-ui/components/core'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
-import { getFileIdsByHash } from '@DpJs/components/core/DpUpload/utils/GetFileIdsByHash'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -94,7 +92,10 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer')
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('demosplan-ui/components/core')
+      return DpVideoPlayer
+    }
   },
 
   mixins: [dpValidateMixin],

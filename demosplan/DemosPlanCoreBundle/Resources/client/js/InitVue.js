@@ -9,8 +9,7 @@
 
 import { initGlobalEventListener, initToggleSideMenu, initUserbox, NotificationStoreAdapter } from 'demosplan-utils'
 import { bootstrap } from '@DpJs/bootstrap'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
+import { DpAccordion, DpNotifyContainer } from 'demosplan-ui/components/core'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 

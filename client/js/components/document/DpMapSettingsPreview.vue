@@ -233,10 +233,9 @@
 
 <script>
 import { checkResponse, dpApi, hasOwnProp } from 'demosplan-utils'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
+import { DpDatepicker, DpToggle } from 'demosplan-ui/components/core'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
-import DpToggle from '@DpJs/components/core/form/DpToggle'
 import { fromExtent } from 'ol/geom/Polygon'
 
 export default {

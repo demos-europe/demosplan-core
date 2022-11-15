@@ -11,7 +11,7 @@
  * This is the entrypoint for paragraph_admin_new.html.twig
  */
 
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpEditor } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

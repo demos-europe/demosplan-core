@@ -93,10 +93,9 @@
 
 <script>
 import { formatDate, toDate } from 'demosplan-utils'
-import { de } from 'vuejs-datepicker/dist/locale'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
+import DpDatepicker from './form/DpDatepicker'
 import { DpLabel } from 'demosplan-ui/components'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
+import DpSelect from './form/DpSelect'
 
 export default {
   name: 'DpChangeStateAtDate',
@@ -211,10 +210,6 @@ export default {
     toggleCheckbox () {
       this.active = this.active === false
     }
-  },
-
-  created () {
-    this.de = de
   },
 
   mounted () {

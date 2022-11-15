@@ -12,7 +12,7 @@
  */
 
 import DpElementAdminEdit from '@DpJs/components/document/DpElementAdminEdit'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpUploadFiles } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

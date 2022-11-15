@@ -349,14 +349,7 @@
 
 <script>
 import { DpInput, DpLabel } from 'demosplan-ui/components'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from 'demosplan-ui/components/core'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
@@ -384,7 +377,10 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    },
     DpUploadFiles,
     SimilarStatementSubmitters
   },

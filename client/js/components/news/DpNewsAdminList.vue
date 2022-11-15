@@ -75,8 +75,7 @@
 
 <script>
 import { dpApi, makeFormPost } from 'demosplan-utils'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import { DpBulkEditHeader, DpDataTable } from 'demosplan-ui/components/core'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {

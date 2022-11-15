@@ -36,7 +36,7 @@
           v-model="newTag.label"
           :label="{
             text: Translator.trans('name')
-          }"/>
+          }" />
         <dp-button-row
           :busy="isLoading"
           align="left"
@@ -111,8 +111,7 @@
 <script>
 import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
+import { DpButtonRow, DpDataTable } from 'demosplan-ui/components/core'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {

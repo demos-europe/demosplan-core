@@ -222,10 +222,7 @@
 <script>
 import { DpIcon, DpInput, DpLabel } from 'demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
+import { DpButtonRow, DpDatepicker, DpSelect, DpTextArea } from 'demosplan-ui/components/core'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'

@@ -55,10 +55,10 @@
 </template>
 
 <script>
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import DpButtonRow from '../DpButtonRow'
+import DpCheckbox from '../form/DpCheckbox'
 import { DpInput } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
+import DpModal from '../DpModal'
 import { dpValidateMixin } from 'demosplan-utils/mixins'
 
 export default {

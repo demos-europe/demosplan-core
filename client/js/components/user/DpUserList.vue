@@ -116,7 +116,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: () => import(/* webpackChunkName: "sliding-pagination" */ '@DpJs/components/core/DpSlidingPagination'),
+    DpSlidingPagination: async () => {
+      const { DpSlidingPagination } = await import('demosplan-ui/components/core')
+      return DpSlidingPagination
+    },
     DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')
   },
 

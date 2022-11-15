@@ -19,7 +19,13 @@ import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
-const components = { DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'), ProcedureTypeSelect }
+const components = {
+  DpEditor: async () => {
+    const { DpEditor } = await import('demosplan-ui/components/core')
+    return DpEditor
+  },
+  ProcedureTypeSelect
+}
 // Const components = { DpAccordion, DpEditor }
 const stores = {}
 const apiStores = []

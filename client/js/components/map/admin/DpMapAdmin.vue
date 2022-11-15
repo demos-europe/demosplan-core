@@ -9,7 +9,7 @@
 
 <script>
 import DpMapView from '@DpJs/components/map/map/DpMapView'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpMultiselect } from 'demosplan-ui/components/core'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 
 export default {

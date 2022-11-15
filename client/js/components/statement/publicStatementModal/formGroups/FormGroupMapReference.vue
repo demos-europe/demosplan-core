@@ -113,7 +113,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
+import { DpRadio } from 'demosplan-ui/components/core'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

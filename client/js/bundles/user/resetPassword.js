@@ -13,7 +13,7 @@
 
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
+import { DpRegisterFlyout } from 'demosplan-ui/components/core'
 
 const components = {
   RegisterFlyout

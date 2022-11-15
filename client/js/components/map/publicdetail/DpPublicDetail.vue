@@ -30,7 +30,10 @@ export default {
     DpPublicLayerListWrapper,
     DpPublicSurvey,
     DpUnfoldToolbarControl,
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('demosplan-ui/components/core')
+      return DpVideoPlayer
+    },
     StatementModal
   },
 

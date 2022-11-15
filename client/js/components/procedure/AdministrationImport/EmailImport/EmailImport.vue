@@ -105,8 +105,7 @@
 <script>
 import { CleanHtml } from 'demosplan-ui/directives'
 import { dpApi } from 'demosplan-utils'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import { DpDataTable, DpInlineNotification } from 'demosplan-ui/components/core'
 import { DpLoading } from 'demosplan-ui/components'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 import EmailImportDate from './EmailImportDate'

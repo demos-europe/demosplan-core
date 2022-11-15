@@ -12,8 +12,7 @@
  */
 
 import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplate'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpEditor, DpMultiselect } from 'demosplan-ui/components/core'
 import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

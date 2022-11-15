@@ -12,8 +12,7 @@
  */
 
 import { AnimateById } from 'demosplan-utils'
-import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpTooltipIcon, DpUploadFiles } from 'demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

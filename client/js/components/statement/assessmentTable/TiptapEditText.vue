@@ -102,7 +102,7 @@
 import { DpButton, DpLoading } from 'demosplan-ui/components'
 import { Base64 } from 'js-base64'
 import { dpApi } from 'demosplan-utils'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
+import { DpHeightLimit } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {
@@ -112,7 +112,10 @@ export default {
     DpButton,
     DpHeightLimit,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   props: {

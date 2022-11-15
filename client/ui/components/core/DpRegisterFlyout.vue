@@ -35,10 +35,10 @@
 </template>
 
 <script>
-import DpFlyout from '@DpJs/components/core/DpFlyout'
+import DpFlyout from './DpFlyout'
 
 export default {
-  name: 'RegisterFlyout',
+  name: 'DpRegisterFlyout',
 
   components: {
     DpFlyout

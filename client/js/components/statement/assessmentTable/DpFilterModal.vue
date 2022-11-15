@@ -217,10 +217,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
 import { DpLoading } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTab from '@DpJs/components/core/DpTabs/DpTab'
-import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
+import { DpModal, DpMultiselect, DpTab, DpTabs } from 'demosplan-ui/components/core'
 import { hasOwnProp } from 'demosplan-utils'
 
 export default {
