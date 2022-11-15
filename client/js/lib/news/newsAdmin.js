@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import CharCount from 'demosplan-utils/lib/CharCount'
+import { CharCount } from 'demosplan-utils'
 
 /**
  * Toggle input fields for captions.

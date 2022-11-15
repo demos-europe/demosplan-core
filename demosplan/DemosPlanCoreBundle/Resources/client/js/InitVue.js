@@ -7,15 +7,12 @@
  * All rights reserved
  */
 
+import { initGlobalEventListener, initToggleSideMenu, initUserbox, NotificationStoreAdapter } from 'demosplan-utils'
 import { bootstrap } from '@DpJs/bootstrap'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpNotifyContainer from '@DpJs/components/core/notify/DpNotifyContainer'
-import initGlobalEventListener from 'demosplan-utils/lib/GlobalEventListener'
 import { initStore } from '@DpJs/store/core/initStore'
-import initToggleSideMenu from 'demosplan-utils/lib/ToggleSideMenu'
-import initUserbox from 'demosplan-utils/lib/touchFriendlyUserbox'
-import { loadLibs } from 'demosplan-utils/lib/loadLibs'
-import NotificationStoreAdapter from 'demosplan-utils/lib/NotificationStoreAdapter'
+import { loadLibs } from '@DpJs/lib/core/loadLibs'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()

@@ -15,7 +15,7 @@
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpAccordion from '@DpJs/components/core/DpAccordion'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from 'demosplan-utils'
 import { DpButton } from 'demosplan-ui/components'
 import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'

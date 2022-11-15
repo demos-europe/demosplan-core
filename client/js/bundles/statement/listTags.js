@@ -11,7 +11,7 @@
  * This is the entrypoint for list_tags.html.twig
  */
 
-import AnimateById from 'demosplan-utils/lib/AnimateById'
+import { AnimateById } from 'demosplan-utils'
 import DpTooltipIcon from '@DpJs/components/core/DpTooltipIcon'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'

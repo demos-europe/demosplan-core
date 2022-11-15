@@ -15,7 +15,7 @@ import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpLabel } from 'demosplan-ui/components'
-import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

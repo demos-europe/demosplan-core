@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, dpRpc, hasOwnProp } from 'demosplan-utils'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
@@ -203,7 +203,6 @@ import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/A
 import { CleanHtml } from 'demosplan-ui/directives'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpRadio from '@DpJs/components/core/form/DpRadio'
-import { hasOwnProp } from 'demosplan-utils'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 

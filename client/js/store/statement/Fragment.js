@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { hasOwnProp } from 'demosplan-utils'
+import { checkResponse, dpApi, hasOwnProp } from 'demosplan-utils'
 
 export default {
   namespaced: true,

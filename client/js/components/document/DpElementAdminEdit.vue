@@ -12,7 +12,7 @@ import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import { makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { makeFormPost } from 'demosplan-utils'
 
 export default {
   name: 'DpElementAdminEdit',

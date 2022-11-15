@@ -8,7 +8,7 @@
  */
 
 import axios from 'axios'
-import { hasOwnProp } from 'demosplan-utils'
+import hasOwnProp from '../hasOwnProp'
 import { stringify } from 'qs'
 import { v4 as uuid } from 'uuid'
 

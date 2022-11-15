@@ -12,7 +12,7 @@
  */
 
 import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import LayerSettings from '@DpJs/components/map/admin/LayerSettings'

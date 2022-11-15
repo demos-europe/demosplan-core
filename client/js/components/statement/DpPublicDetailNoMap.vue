@@ -14,7 +14,7 @@ import { DpButton } from 'demosplan-ui/components'
 import DpModal from '@DpJs/components/core/DpModal'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
-import dpValidateMixin from 'demosplan-utils/lib/validation/dpValidateMixin'
+import { dpValidateMixin } from 'demosplan-utils/lib/validation'
 import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 

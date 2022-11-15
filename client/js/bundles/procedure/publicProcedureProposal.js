@@ -12,7 +12,7 @@
  */
 import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
 import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
-import dpValidate from 'demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from 'demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 initialize({

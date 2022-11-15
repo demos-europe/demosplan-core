@@ -1,5 +1,10 @@
 {
   "name": "demosplan-utils",
   "version": "2022.1.0",
-  "description": "Utility Methods used in demosplan to simplify life"
+  "description": "Utility Methods used in demosplan to simplify life",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "qs": "^6.11.0",
+    "uuid": "^9.0.0"
+  }
 }

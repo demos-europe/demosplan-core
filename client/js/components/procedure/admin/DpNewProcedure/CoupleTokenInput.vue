@@ -30,7 +30,7 @@
 <script>
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import { DpInput } from 'demosplan-ui/components'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpRpc } from 'demosplan-utils'
 import length from 'demosplan-ui/shared/props'
 
 export default {

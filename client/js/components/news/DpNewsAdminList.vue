@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi, makeFormPost } from 'demosplan-utils'
 import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpNewsItemStatus from './DpNewsItemStatus'

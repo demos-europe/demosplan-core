@@ -74,11 +74,10 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpRpc, hasOwnProp } from 'demosplan-utils'
 import { DpButton, DpDetails, DpIcon, DpInput } from 'demosplan-ui/components'
 import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
 import DpFlyout from '@DpJs/components/core/DpFlyout'
-import { hasOwnProp } from 'demosplan-utils'
 import lscache from 'lscache'
 
 export default {
