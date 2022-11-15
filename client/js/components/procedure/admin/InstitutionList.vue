@@ -29,7 +29,6 @@
           v-else
           v-model="editingInstitutionTags"
           :options="tagList"
-          :searchable="false"
           label="label"
           track-by="id"
           multiple>
