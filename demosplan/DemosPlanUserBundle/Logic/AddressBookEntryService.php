@@ -110,7 +110,7 @@ class AddressBookEntryService extends CoreService
             return $this->entityFetcher->listEntitiesUnrestricted(
                 AddressBookEntry::class,
                 [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, 'id')],
-                [$this->sortMethodFactory->propertyAscending('name')]
+                [$this->sortMethodFactory->propertyAscending(['name'])]
             );
         } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);

@@ -133,7 +133,7 @@ class ParagraphService extends CoreService
             $this->conditionFactory->propertyHasAnyOfValues([1, 2], 'visible'),
             $this->conditionFactory->propertyHasValue(false, 'deleted'),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
     }
@@ -204,7 +204,7 @@ class ParagraphService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
             $this->conditionFactory->propertyHasValue(false, 'deleted'),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
 
@@ -720,7 +720,7 @@ class ParagraphService extends CoreService
             $conditions[] = $this->conditionFactory->propertyIsNull('parent');
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
     }

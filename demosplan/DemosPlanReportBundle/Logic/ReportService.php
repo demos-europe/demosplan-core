@@ -169,7 +169,7 @@ class ReportService extends CoreService
             $this->conditionFactory->propertyHasValue($currentCustomer, 'customer'),
         ];
 
-        $sorting = $this->sortMethodFactory->propertyDescending('createDate');
+        $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
 
         return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9999999, [$sorting]);
     }

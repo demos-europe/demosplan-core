@@ -109,7 +109,7 @@ class ProcedureNewsService extends CoreService
             $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, 'roles', 'code');
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
 
         $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
 
@@ -149,7 +149,7 @@ class ProcedureNewsService extends CoreService
             $this->conditionFactory->propertyHasValue($procedureId, 'pId'),
         ];
 
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
 
         $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
 

@@ -896,7 +896,7 @@ class OrgaService extends CoreService
                 $this->conditionFactory->propertyHasValue(false, 'deleted'),
                 $this->conditionFactory->propertyHasAnyOfValues($organisationIds, 'id'),
             ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
             return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
         } catch (Exception $e) {

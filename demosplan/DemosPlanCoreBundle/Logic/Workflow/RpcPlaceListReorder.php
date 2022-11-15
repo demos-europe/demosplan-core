@@ -217,7 +217,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
     private function loadPlaces(string $procedureId): \Doctrine\Common\Collections\Collection
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, $this->placeResourceType->procedure->id);
-        $sortMethod = $this->sortMethodFactory->propertyAscending('sortIndex');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['sortIndex']);
 
         if (!$this->placeResourceType instanceof UpdatableDqlResourceTypeInterface) {
             throw new AccessDeniedException('Entity is not Updatable');

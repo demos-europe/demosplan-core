@@ -628,7 +628,7 @@ class ForumService extends CoreService
         $votesObjects = $this->entityFetcher->listEntitiesUnrestricted(
             DevelopmentUserStoryVote::class,
             [$this->conditionFactory->propertyHasValue($storyId, 'userStory')],
-            [$this->sortMethodFactory->propertyDescending('userStory', 'ident')]
+            [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );
 
         $votes = array_map([\demosplan\DemosPlanForumBundle\Logic\ForumService::class, 'convertToLegacy'], $votesObjects);

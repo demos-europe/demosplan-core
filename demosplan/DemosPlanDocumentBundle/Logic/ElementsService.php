@@ -169,7 +169,7 @@ class ElementsService extends CoreService
                 );
             }
 
-            $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+            $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
             $elements = $this->entityFetcher->listEntitiesUnrestricted(Elements::class, $conditions, [$sortMethod]);
 
@@ -199,7 +199,7 @@ class ElementsService extends CoreService
             $this->conditionFactory->propertyHasNotValue('', 'title'),
         ];
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(
             Elements::class,

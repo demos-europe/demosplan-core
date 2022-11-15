@@ -116,7 +116,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 $currentCustomer = $customerHandler->getCurrentCustomer();
                 $condition[] = $conditionFactory->propertyHasValue($currentCustomer->getId(), 'statusInCustomers', 'customer');
                 $condition[] = $conditionFactory->propertyHasValue(false, 'deleted');
-                $sortMethod = $sortMethodFactory->propertyAscending('name');
+                $sortMethod = $sortMethodFactory->propertyAscending(['name']);
                 $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
                 $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
                 $filterRegisterStatus = $filter['registerStatus'] ?? '';

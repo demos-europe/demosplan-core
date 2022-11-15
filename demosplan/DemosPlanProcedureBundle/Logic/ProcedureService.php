@@ -2527,7 +2527,7 @@ class ProcedureService extends CoreService
             $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'orga');
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
         $foreignProcedures = $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2561,7 +2561,7 @@ class ProcedureService extends CoreService
             $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), 'authorizedUsers'),
         ];
 
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createdDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2840,8 +2840,8 @@ class ProcedureService extends CoreService
     {
         $sortMethods = [];
         if (null === $sort) {
-            $sortMethods[] = $this->sortMethodFactory->propertyDescending('createdDate');
-            $sortMethods[] = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethods[] = $this->sortMethodFactory->propertyDescending(['createdDate']);
+            $sortMethods[] = $this->sortMethodFactory->propertyAscending(['name']);
         } else {
             foreach ($sort as $key => $value) {
                 if ('ASC' === $value) {

@@ -478,7 +478,7 @@ class MailService extends CoreService
             $this->conditionFactory->propertyHasValue('new', 'status'),
             $this->conditionFactory->valueSmallerEqualsThan(20, 'sendAttempt'),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createdDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(
             MailSend::class,
