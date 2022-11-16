@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="u-mt-0_5" >
     <div
       v-if="!addNewTag"
       class="text--right">
