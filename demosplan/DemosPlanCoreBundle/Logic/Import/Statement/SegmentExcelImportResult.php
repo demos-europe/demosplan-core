@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 final class SegmentExcelImportResult

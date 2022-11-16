@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;

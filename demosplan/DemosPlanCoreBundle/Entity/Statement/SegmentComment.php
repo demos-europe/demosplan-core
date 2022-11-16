@@ -40,7 +40,7 @@ class SegmentComment implements UuidEntityInterface
      * @var Segment
      *
      * @ORM\ManyToOne(
-     *     targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment",
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
      *     inversedBy="comments"
      * )
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)

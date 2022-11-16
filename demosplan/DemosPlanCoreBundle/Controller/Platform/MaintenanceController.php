@@ -24,7 +24,7 @@ use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Exception;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;

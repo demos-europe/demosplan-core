@@ -14,7 +14,7 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

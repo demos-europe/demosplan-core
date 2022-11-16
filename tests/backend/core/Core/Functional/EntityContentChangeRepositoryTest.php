@@ -12,8 +12,8 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\addons\workflow\SegmentsManager\DataFixtures\ORM\TestData\LoadSegmentData;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 

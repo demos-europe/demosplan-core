@@ -56,16 +56,16 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
-    private EventDispatcher $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         DqlConditionFactory $dqlConditionFactory,
-        EventDispatcher $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass

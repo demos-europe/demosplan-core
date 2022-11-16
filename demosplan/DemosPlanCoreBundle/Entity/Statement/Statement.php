@@ -34,7 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -45,7 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\addons\workflow\SegmentsManager\Entity\Segment"})
+ * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
  * @ClaimConstraint()
  * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
@@ -928,7 +928,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @var Collection<int, Segment>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
      */
     protected $segmentsOfStatement;
 
