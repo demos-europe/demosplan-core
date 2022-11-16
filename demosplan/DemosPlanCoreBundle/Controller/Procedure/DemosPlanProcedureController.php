@@ -1697,7 +1697,7 @@ class DemosPlanProcedureController extends BaseController
         StatementService $statementService,
         SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
-        string $procedure,
+        string $procedure
     ) {
         // @improve T14613
         $procedureId = $procedure;
