@@ -339,6 +339,14 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     private $rolesArrayCache;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=false,
+     *      options={"comment":"Determines if this user is identified by external provider", "default": false})
+     */
+    private $hasExternalIdentityProvider = false;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
@@ -1726,5 +1734,21 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
     public function isDefaultGuestUser(): bool
     {
         return self::ANONYMOUS_USER_ID === $this->id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHasExternalIdentityProvider(): bool
+    {
+        return $this->hasExternalIdentityProvider;
+    }
+
+    /**
+     * @param bool $hasExternalIdentityProvider
+     */
+    public function setHasExternalIdentityProvider(bool $hasExternalIdentityProvider): void
+    {
+        $this->hasExternalIdentityProvider = $hasExternalIdentityProvider;
     }
 }
