@@ -34,9 +34,12 @@ class AddonRegistry
      */
     private function loadAddonInformation(): void
     {
-        $configFile = Yaml::parseFile(DemosPlanPath::getRootPath('addons/addons.yaml'));
-        if (is_array($configFile) && array_key_exists('addons', $configFile) && is_array($configFile['addons'])) {
-            $this->addons = collect($configFile['addons']);
+        $this->addons = collect([]);
+        if (file_exists(DemosPlanPath::getRootPath('addons/addons.yaml'))) {
+            $configFile = Yaml::parseFile(DemosPlanPath::getRootPath('addons/addons.yaml'));
+            if (is_array($configFile) && array_key_exists('addons', $configFile) && is_array($configFile['addons'])) {
+                $this->addons = collect($configFile['addons']);
+            }
         }
     }
 
