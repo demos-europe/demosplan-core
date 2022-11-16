@@ -1,5 +1,8 @@
 <?php
 
+
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -8,14 +11,11 @@
  * All rights reserved
  */
 
-declare(strict_types=1);
-
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
-use function collect;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
@@ -30,21 +30,21 @@ class AddonRegistry
     }
 
     /**
-     * Reads addon information from the configuration file for all installed addons
+     * Reads addon information from the configuration file for all installed addons.
      */
     private function loadAddonInformation(): void
     {
-        $this->addons = collect([]);
+        $this->addons = \collect([]);
         if (file_exists(DemosPlanPath::getRootPath('addons/addons.yaml'))) {
             $configFile = Yaml::parseFile(DemosPlanPath::getRootPath('addons/addons.yaml'));
             if (is_array($configFile) && array_key_exists('addons', $configFile) && is_array($configFile['addons'])) {
-                $this->addons = collect($configFile['addons']);
+                $this->addons = \collect($configFile['addons']);
             }
         }
     }
 
     /**
-     * Returns all available addons
+     * Returns all available addons.
      */
     public function getAllAddons(): Collection
     {
@@ -52,7 +52,7 @@ class AddonRegistry
     }
 
     /**
-     * returns only enabled addons
+     * returns only enabled addons.
      */
     public function getEnabledAddons(): Collection
     {
@@ -62,7 +62,7 @@ class AddonRegistry
     }
 
     /**
-     * returns only disabled addons
+     * returns only disabled addons.
      */
     public function getDisabledAddons(): Collection
     {
