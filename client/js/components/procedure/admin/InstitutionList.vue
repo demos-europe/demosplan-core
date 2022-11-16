@@ -67,6 +67,13 @@
         </div>
       </template>
     </dp-data-table>
+    <dp-sliding-pagination
+      class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
+      v-if="totalPages > 1"
+      :current="currentPage"
+      :total="totalPages"
+      :non-sliding-size="10"
+      @page-change="getInstitutionsByPage" />
   </div>
 </template>
 
@@ -77,6 +84,7 @@ import { mapState, mapActions, mapMutations } from "vuex"
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
 import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 
 
 export default {
@@ -86,7 +94,8 @@ export default {
     DpDataTable,
     DpMultiselect,
     DpIcon,
-    DpInlineNotification
+    DpInlineNotification,
+    DpSlidingPagination
   },
 
   data () {
@@ -119,7 +128,9 @@ export default {
     }),
 
     ...mapState('invitableInstitution', {
-      invitableInstitutionList: 'items'
+      invitableInstitutionList: 'items',
+      currentPage: 'currentPage',
+      totalPages: 'totalPages'
     }),
 
     tagList () {
@@ -133,7 +144,7 @@ export default {
     },
 
     institutionList () {
-      const institutionList = Object.values(this.invitableInstitutionList).map(tag => {
+      return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes, relationships } = tag
         return {
           id,
@@ -143,8 +154,6 @@ export default {
           createdDate: attributes.createdDate.date
         }
       })
-
-      return this.sortByCreatedDate (institutionList)
     }
   },
 
@@ -158,6 +167,15 @@ export default {
     ...mapMutations('invitableInstitution', {
       updateInvitableInstitution: 'setItem'
     }),
+
+    getInstitutionsByPage (page) {
+      this.listInvitableInstitution({
+        page: {
+          number: page
+        },
+        sort: '-createdDate'
+      })
+    },
 
     editInstitution (id) {
       this.editingInstitutionId = id
@@ -183,7 +201,7 @@ export default {
 
       this.updateInvitableInstitution ({
         id: id,
-        type: "InvitableInstitution",
+        type: 'InvitableInstitution',
         attributes: { ...this.invitableInstitutionList[id].attributes },
         relationships: {
           assignedTags: {
@@ -232,7 +250,7 @@ export default {
   },
 
   mounted () {
-    this.listInvitableInstitution()
+    this.getInstitutionsByPage(1)
   }
 }
 </script>
