@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
@@ -23,6 +24,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -38,6 +41,15 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 class InvitableInstitutionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
+
+    public function __construct(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
+    }
 
     public static function getName(): string
     {
@@ -92,6 +104,7 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         $name = $this->createAttribute($this->name)->readable(true);
         $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
         $assignedTags =  $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
+
         return [
             $id,
             $name,
@@ -112,8 +125,9 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
      */
     public function updateObject(object $institution, array $properties): ResourceChange
     {
+        $violations = new ConstraintViolationList([]);
         $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent($this->assignedTags, function (Collection $newAssignedTags) use ($institution): void {
+        $updater->ifPresent($this->assignedTags, function (Collection $newAssignedTags) use ($institution, $violations): void {
 
             $currentlyAssignedTags = $institution->getAssignedTags();
 
@@ -129,12 +143,20 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
             foreach ($removedTags as $removedTag) {
                 $institution->removeAssignedTag($removedTag);
+                $violations->addAll($this->validator->validate($removedTag));
             }
 
             foreach ($newTags as $newTag) {
                 $institution->addAssignedTag($newTag);
+                $violations->addAll($this->validator->validate($newTag));
             }
+
+            $violations->addAll($this->validator->validate($institution));
         });
+
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
 
         return new ResourceChange($institution, $this, $properties);
     }
