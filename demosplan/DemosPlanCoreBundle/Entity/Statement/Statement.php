@@ -4064,11 +4064,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         $this->piSegmentsProposalResourceUrl = $piSegmentsProposalResourceUrl;
     }
 
-    public function setBthgKompassAnswer(?BthgKompassAnswer $bthgKompassAnswer): void
-    {
-        $this->bthgKompassAnswer = $bthgKompassAnswer;
-    }
-
     public function hasDefaultGuestUser(): bool
     {
         return $this->getUser() instanceof User && $this->getUser()->isDefaultGuestUser();
