@@ -74,4 +74,16 @@ class BthgKompassAnswerRepository extends CoreRepository implements ObjectInterf
         $em->remove($bthgKompassAnswer);
         $em->flush();
     }
+
+    /**
+     * @param string $statementId
+     *
+     * @return mixed|object|null
+     */
+    public function getBthgKompassAnswerwithStatementId(string $statementId)
+    {
+        return $this->findOneBy([
+            'statements' => $statementId,
+        ]);
+    }
 }

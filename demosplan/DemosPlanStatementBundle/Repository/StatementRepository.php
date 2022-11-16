@@ -12,6 +12,14 @@ namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use Carbon\Carbon;
 use DateInterval;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use EDT\Querying\FluentQueries\FluentQuery;
+use Exception;
+use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -20,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -32,9 +41,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Event\SetBthgKompassAnswerEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
@@ -46,17 +56,19 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EDT\Querying\FluentQueries\FluentQuery;
-use Exception;
-use Tightenco\Collect\Support\Collection;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
+    /**
+     * @var TraceableEventDispatcher
+     */
+    private $eventDispatcher;
+
+    public function __construct(  TraceableEventDispatcher $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     /**
      * @return FluentStatementQuery
      */
@@ -927,6 +939,11 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
                 $answer = $em->getReference(BthgKompassAnswer::class, $data['bthg_kompass_answer']);
                 $statement->setBthgKompassAnswer($answer);
             }
+        }
+
+        if (array_key_exists('bthg_kompass_answer', $data)) {
+            /** @var SetBthgKompassAnswerEvent $event * */
+            $this->eventDispatcher->dispatch(new SetBthgKompassAnswerEvent($data, $statement->getId()));
         }
 
         return $statement;

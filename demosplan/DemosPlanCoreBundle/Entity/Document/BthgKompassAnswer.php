@@ -10,10 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 
 /**
  * This Entity allows a specific project to store the (extern related) BTHG-Compass-Answer
@@ -83,11 +86,22 @@ class BthgKompassAnswer extends CoreEntity implements UuidEntityInterface
      */
     private $creationDate;
 
+    /**
+     * @var Collection<int, Statement>
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Statement", cascade={"persist", "remove"})
+     * @ORM\JoinTable(name="statements_kompass_answer_relationship",
+     *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", nullable=false)},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="kompass_answer_id", referencedColumnName="id", unique=true, nullable=false)}
+     *     )
+     */
+    private $statements;
+
     public function __construct(string $title, string $breadcrumbTrail, string $url)
     {
         $this->title = $title;
         $this->breadcrumbTrail = $breadcrumbTrail;
         $this->url = $url;
+        $this->statements = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -123,5 +137,27 @@ class BthgKompassAnswer extends CoreEntity implements UuidEntityInterface
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return Collection<int, Statement>
+     */
+    public function getStatements(): Collection
+    {
+        return $this->statements;
+    }
+
+    /**
+     * @param Collection<int, Statements> $statements
+     */
+    public function setStatements(Collection $statements): void
+    {
+        $this->statements = $statements;
+    }
+
+    public function addStatement(Statement $statement): void
+    {
+        if (!$this->statements->contains($statement))
+        $this->statements->add($statement);
     }
 }
