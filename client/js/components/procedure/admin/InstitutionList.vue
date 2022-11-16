@@ -174,7 +174,10 @@ export default {
           number: page,
           size: 50
         },
-        sort: '-createdDate'
+        sort: '-createdDate',
+        fields: {
+          InstitutionTag: ['label', 'id'].join()
+        }
       })
     },
 
