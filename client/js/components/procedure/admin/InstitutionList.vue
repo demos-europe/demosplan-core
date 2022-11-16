@@ -179,9 +179,13 @@ export default {
     },
 
     editInstitution (id) {
+      this.editingInstitutionTags = []
       this.editingInstitutionId = id
       this.editingInstitution = this.invitableInstitutionList[id]
-      this.editingInstitutionTags = this.editingInstitution.relationships.assignedTags.data
+      this.editingInstitution.relationships.assignedTags.data.map(el => {
+        const tag = this.getTagById(el.id)
+        this.editingInstitutionTags.push(tag)
+      })
     },
 
     abortEdit () {
@@ -196,7 +200,6 @@ export default {
         return {
           id: el.id,
           type: 'InstitutionTag',
-          label: el.label
         }
       })
 
@@ -223,30 +226,44 @@ export default {
       })
     },
 
-    sortByCreatedDate (array) {
-      return array.sort((a, b) => {
-        return new Date(b.createdDate) - new Date(a.createdDate)
-      })
-    },
-
     date (d) {
       return formatDate (d)
     },
 
-    separateByCommas (tagsArr) {
-      const tagsLabels = this.getTagsLabels(tagsArr)
-
-      return tagsLabels.join(", ")
-  },
-
-    getTagsLabels (tagsArr) {
+    separateByCommas (institutionTags) {
       let tagsLabels = []
 
-      tagsArr.map(el => {
-        tagsLabels.push(el.label)
+      institutionTags.map(el => {
+        const label = this.getTagLabelById(el.id)
+        tagsLabels.push(label)
       })
 
-      return tagsLabels
+      return tagsLabels.join(", ")
+    },
+
+    getTagById (tagId) {
+      let tag = {}
+      this.tagList.map(el => {
+        if(el.id === tagId) {
+          tag = {
+            id: el.id,
+            label: el.label
+          }
+        }
+      })
+
+      return tag
+    },
+
+    getTagLabelById (tagId) {
+      let label = ''
+      this.tagList.map(el => {
+        if(el.id === tagId) {
+          label = el.label
+        }
+      })
+
+      return label
     }
   },
 
