@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use Carbon\Carbon;
 use DateInterval;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -930,21 +931,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->getMeta()->setHouseNumber($data['houseNumber']);
         }
 
-        //todo: extract into plugin?
-        if (array_key_exists('bthg_kompass_answer', $data)) {
-            if ('' === $data['bthg_kompass_answer']) {
-                $statement->setBthgKompassAnswer(null);
-            } else {
-                /** @var BthgKompassAnswer $answer */
-                $answer = $em->getReference(BthgKompassAnswer::class, $data['bthg_kompass_answer']);
-                $statement->setBthgKompassAnswer($answer);
-            }
-        }
-
-        if (array_key_exists('bthg_kompass_answer', $data)) {
-            /** @var SetBthgKompassAnswerEvent $event * */
-            $this->eventDispatcher->dispatch(new SetBthgKompassAnswerEvent($data, $statement));
-        }
+        $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($statement, $data));
 
         return $statement;
     }
