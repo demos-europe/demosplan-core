@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationFloodEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
-use demosplan\addons\FloodControl\Exception\CookieException;
+use demosplan\DemosPlanCoreBundle\Exception\CookieException;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;

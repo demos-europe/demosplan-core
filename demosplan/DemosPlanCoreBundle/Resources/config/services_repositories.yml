@@ -57,6 +57,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'
 
+    demosplan\DemosPlanCoreBundle\Repository\FloodRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Flood'
+
     demosplan\DemosPlanCoreBundle\Repository\SettingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Setting'
 
