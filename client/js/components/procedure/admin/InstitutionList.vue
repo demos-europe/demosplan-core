@@ -72,7 +72,7 @@
       v-if="totalPages > 1"
       :current="currentPage"
       :total="totalPages"
-      :non-sliding-size="10"
+      :non-sliding-size="50"
       @page-change="getInstitutionsByPage" />
   </div>
 </template>
@@ -171,7 +171,8 @@ export default {
     getInstitutionsByPage (page) {
       this.listInvitableInstitution({
         page: {
-          number: page
+          number: page,
+          size: 50
         },
         sort: '-createdDate'
       })

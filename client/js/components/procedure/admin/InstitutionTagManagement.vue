@@ -1,5 +1,6 @@
 <template>
   <dp-tabs
+    tab-size="medium"
     :active-id="activeTabId"
     use-url-fragment
     @change="setActiveTabId">
