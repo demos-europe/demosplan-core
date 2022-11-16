@@ -1809,6 +1809,7 @@ invitable_institution.add.explanation: "Fügen Sie hier Institutionen hinzu, um 
 invitable_institution.administer: "Institutionen verwalten"
 invitable_institution.authorisations: "Institutions-Berechtigungen"
 invitable_institution.for: "für Institutionen"
+invitable_institution.group: "Institutionen gruppieren"
 invitable_institution.list.back: "Zurück zur Institutionen-Liste"
 invitable_institution.list.change: "Änderungen Institutionen-Liste"
 invitable_institution.list.show: "Anzeige in Institutionen-Liste"

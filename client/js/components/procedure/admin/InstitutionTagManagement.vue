@@ -6,14 +6,14 @@
     @change="setActiveTabId">
     <dp-tab
       id="institutionList"
-      label="Institutionen gruppieren">
+      :label="Translator.trans('invitable_institution.group')">
       <slot>
         <InstitutionList></InstitutionList>
       </slot>
     </dp-tab>
     <dp-tab
       id="tagList"
-      label="Schlagworte verwalten">
+      :label="Translator.trans('tag.administrate')">
       <slot>
         <TagList></TagList>
       </slot>
