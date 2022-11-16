@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
-use demosplan\DemosPlanCoreBundle\Event\GetBthgKompassAnswerEvent;
+use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\SetBthgKompassAnswerEvent;
 use demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository;
 
@@ -34,27 +35,29 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
     {
         return [
             SetBthgKompassAnswerEvent::class            => 'setBthgKompassAnswerEvent',
-            GetBthgKompassAnswerEvent::class            => 'getBthgKompassAnswerEvent'
+            AdditionalStatementDataEvent::class            => 'additionalStatementDataEvent'
         ];
     }
 
     public function setBthgKompassAnswerEvent(SetBthgKompassAnswerEvent $event): void
     {
-        $data = $event->getData();
-        $statementId = $event->getStatementId();
-        $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statementId);
-        if ('' === $data['bthg_kompass_answer']) {
-            $bthgKompassAnswer->setBthgKompassAnswer(null);
-        } else {
-            /** @var BthgKompassAnswer $answer */
-            $answer = $em->getReference(BthgKompassAnswer::class, $data['bthg_kompass_answer']);
-            $statement->setBthgKompassAnswer($answer);
-        }
+    //    $em = $this->getEntityManager();
+    //    $data = $event->getData();
+    //    $statement = $event->getStatement();
+    //    /** @var BthgKompassAnswer $bthgKompassAnswer */
+    //    $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
+    //    if ($bthgKompassAnswer !== null) {
+    //        if ('' !== $data['bthg_kompass_answer']) {
+    //            $bthgKompassAnswer->addStatement($statement);
+    //        }
+    //    }
     }
 
-    public function getBthgKompassAnswerEvent(GetBthgKompassAnswerEvent $event): void
+    public function additionalStatementDataEvent(AdditionalStatementDataEvent $event): void
     {
-        $statementId = $event->getStatementId();
+        /** @var Statement $statement * */
+        $statement = $event->getStatement();
+        $statementId = $statement->getStatementId();
         $answer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statementId);
         $event->setAnswer($answer);
     }

@@ -943,7 +943,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         if (array_key_exists('bthg_kompass_answer', $data)) {
             /** @var SetBthgKompassAnswerEvent $event * */
-            $this->eventDispatcher->dispatch(new SetBthgKompassAnswerEvent($data, $statement->getId()));
+            $this->eventDispatcher->dispatch(new SetBthgKompassAnswerEvent($data, $statement));
         }
 
         return $statement;

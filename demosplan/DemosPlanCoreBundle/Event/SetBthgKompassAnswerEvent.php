@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+
 class SetBthgKompassAnswerEvent extends DPlanEvent
 {
     /**
@@ -19,14 +21,14 @@ class SetBthgKompassAnswerEvent extends DPlanEvent
     private $data;
 
     /**
-     * @param string
+     * @param Statement
      */
-    private $statementId;
+    private $statement;
 
-    public function __construct(array $data, string $statementId)
+    public function __construct(array $data, Statement $statement)
     {
         $this->data = $data;
-        $this->statementId = $statementId;
+        $this->statement = $statement;
     }
 
     public function getData(): array
@@ -34,9 +36,9 @@ class SetBthgKompassAnswerEvent extends DPlanEvent
         return $this->data;
     }
 
-    public function getStatementId(): array
+    public function getStatement(): Statement
     {
-        return $this->statementId;
+        return $this->statement;
     }
 
     public function setData(array $data)

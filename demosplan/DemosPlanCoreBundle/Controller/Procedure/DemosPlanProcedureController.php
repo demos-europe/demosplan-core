@@ -49,7 +49,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
-use demosplan\DemosPlanCoreBundle\Event\GetBthgKompassAnswerEvent;
+use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
@@ -1982,8 +1982,8 @@ class DemosPlanProcedureController extends BaseController
                 $currentStatementId = $templateVars['publicStatements']['statements'][$key]['id'];
                 $currentStatement = $statementService->getStatement($currentStatementId);
                 if (null !== $currentStatement) {
-                    /** @var GetBthgKompassAnswerEvent $event * */
-                    $event = $this->eventDispatcher->dispatch(new GetBthgKompassAnswerEvent($currentStatementId));
+                    /** @var AdditionalStatementDataEvent $event * */
+                    $event = $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($currentStatement, []));
                     $answer = $event->getAnswer();
                 }
                 $url = null === $answer ? null : $answer->getUrl();
