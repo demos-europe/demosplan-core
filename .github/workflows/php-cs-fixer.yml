@@ -68,7 +68,9 @@ jobs:
                     git config  user.name "Demos-CI"
             -   name: Commit
                 run: |
+                    if ! git diff --exit-code; then
                     git pull
                     git add .
                     git commit -m "style: Apply php-cs-fixer" --no-gpg-sign
                     git push
+                    fi
