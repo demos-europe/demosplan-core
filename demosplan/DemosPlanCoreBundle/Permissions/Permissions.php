@@ -320,6 +320,7 @@ class Permissions implements PermissionsInterface
             if ($this->isMemberOfPlanningOrganisation()) {
                 $this->enablePermissions([
                     'area_institution_tag_manage',
+                    'feature_institution_tag_assign',
                     'feature_institution_tag_create',
                     'feature_institution_tag_delete',
                     'feature_institution_tag_read',

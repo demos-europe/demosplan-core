@@ -105,19 +105,29 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
         $assignedTags =  $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
 
-        return [
-            $id,
-            $name,
-            $createdDate,
-            $assignedTags,
-        ];
+        $allowedProperties = [];
+        if ($this->currentUser->hasPermission('feature_institution_tag_assign')
+            || $this->currentUser->hasPermission('feature_institution_tag_read')
+        ) {
+            $allowedProperties[] = $id;
+            $allowedProperties[] = $name;
+            $allowedProperties[] = $createdDate;
+            $allowedProperties[] = $assignedTags;
+        }
+
+        return $allowedProperties;
     }
 
     public function getUpdatableProperties(object $updateTarget): array
     {
-        return $this->toProperties(
-            $this->assignedTags
-        );
+        if ($this->currentUser->hasPermission('feature_institution_tag_assign')) {
+
+            return $this->toProperties(
+                $this->assignedTags
+            );
+        }
+
+        return [];
     }
 
     /**
