@@ -39,8 +39,6 @@ class SamlUserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         $user = $this->userService->findDistinctUserByEmailOrLogin($identifier);
-        $user->setHasExternalIdentityProvider(true);
-        $user = $this->userService->updateUserObject($user);
         if (!$user instanceof User) {
             throw new UserNotFoundException();
         }
