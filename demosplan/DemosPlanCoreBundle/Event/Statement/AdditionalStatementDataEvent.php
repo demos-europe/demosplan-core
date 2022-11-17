@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class AdditionalStatementDataEvent extends DPlanEvent
 {
     private Statement $statement;
+
+    private ?BthgKompassAnswer $answer;
 
     /**
      * The array containing all the data to update a given statement.
@@ -62,5 +65,21 @@ class AdditionalStatementDataEvent extends DPlanEvent
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    /**
+     * @return ?BthgKompassAnswer
+     */
+    public function getAnswer(): ?BthgKompassAnswer
+    {
+        return $this->answer;
+    }
+
+    /**
+     * @param BthgKompassAnswer $answer
+     */
+    public function setAnswer(BthgKompassAnswer $answer): void
+    {
+        $this->answer = $answer;
     }
 }
