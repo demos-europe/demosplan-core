@@ -50,9 +50,9 @@ import DpContentToggle from './ContentToggle'
 import DpDetailView from './DetailView'
 import DpHandle from './Handle'
 import DpList from './List'
-import { DpLoading } from 'demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpSearch from './Search'
-import MatchMedia from '@DpJs/lib/core/MatchMedia'
+import { MatchMedia } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpDrawer',

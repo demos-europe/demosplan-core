@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { hasOwnProp } from 'demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 const Filter = {
 

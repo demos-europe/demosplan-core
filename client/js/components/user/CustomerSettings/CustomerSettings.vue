@@ -190,12 +190,12 @@
 </template>
 
 <script>
-import { DpLabel, DpLoading } from 'demosplan-ui/components'
+import { DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'CustomerSettings',
@@ -207,7 +207,10 @@ export default {
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    }
   },
 
   mixins: [dpValidateMixin],

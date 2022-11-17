@@ -90,9 +90,9 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { DpLoading } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
-import { hasOwnProp } from 'demosplan-utils'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpModal } from '@demos-europe/demosplan-ui/components/core'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CopyStatementModal',

@@ -8,17 +8,13 @@
 </license>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
 import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import DpEmailList from './DpEmailList'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import ExportSettings from './ExportSettings'
-import { sortAlphabetically } from 'demosplan-utils'
+import { sortAlphabetically } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpBasicSettings',
@@ -35,7 +31,10 @@ export default {
     DpInput,
     DpMultiselect,
     DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpUploadFiles: () => import(/* webpackChunkName: "dp-upload-files" */ '@DpJs/components/core/DpUpload/DpUploadFiles'),
+    DpUploadFiles: async () => {
+      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpUploadFiles
+    },
     ExportSettings
   },
 

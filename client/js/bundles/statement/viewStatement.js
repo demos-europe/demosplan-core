@@ -11,9 +11,8 @@
  * This is the entrypoint for view_statement.html.twig
  */
 
-import AnimateById from '@DpJs/lib/core/AnimateById'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
+import { AnimateById } from '@demos-europe/demosplan-utils'
+import { DpAccordion, DpHeightLimit } from '@demos-europe/demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

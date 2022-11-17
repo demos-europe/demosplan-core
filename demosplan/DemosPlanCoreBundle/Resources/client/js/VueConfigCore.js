@@ -13,11 +13,11 @@
  */
 import * as Sentry from '@sentry/browser'
 import { BrowserTracing } from '@sentry/tracing'
-import DpObscure from '@DpJs/components/core/Obscure'
-import dpValidateMultiselectDirective from '@DpJs/lib/core/validation/dpValidateMultiselectDirective'
+import { DpObscure } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMultiselectDirective } from '@demos-europe/demosplan-utils/lib/validation'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
-import { Tooltip } from 'demosplan-ui/directives'
+import { Tooltip } from '@demos-europe/demosplan-ui/directives'
 import Vue from 'vue'
 import Vuex from 'vuex'
 

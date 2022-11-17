@@ -11,10 +11,8 @@
  * This is the entrypoint for news_admin_edit.html.twig
  */
 
-import DpChangeStateAtDate from '@DpJs/components/core/DpChangeStateAtDate'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { DpChangeStateAtDate, DpEditor, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import newsAdminInit from '@DpJs/lib/news/newsAdmin'
 

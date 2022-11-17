@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -46,7 +45,7 @@ use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\addons\workflow\SegmentsManager\Entity\Segment"})
+ * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
  * @ClaimConstraint()
  * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
@@ -124,6 +123,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * Elternstellungnahme, von der diese kopiert wurde.
      *
      * @var Statement
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="children")
      * @ORM\JoinColumn(name="_st_p_id", referencedColumnName="_st_id", onDelete="SET NULL")
      */
@@ -142,6 +142,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * do not delete cascade children in case of delete this one (parent), because children can be existing without parent (copies)
      *
      * @var Collection<int, Statement>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="parent")
      */
     protected $children;
@@ -204,7 +205,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var string|null
      *
      * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
-     *
      * @Assert\Length(max=35)
      */
     protected $internId;
@@ -236,7 +236,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=true, onDelete="RESTRICT")
-     *
      * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
     protected $organisation;
@@ -311,6 +310,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     /**
      * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
@@ -318,6 +318,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     /**
      * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */
@@ -325,20 +326,22 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     /**
      * @var \DateTime
+     *
      * @ORM\Column(name="_st_send_date", type="datetime", nullable=false)
      */
     protected $send;
 
     /**
      * @var \DateTime
+     *
      * @ORM\Column(name="_st_sent_assessment_date", type="datetime", nullable=false)
      */
     protected $sentAssessmentDate;
 
     /**
      * @var \DateTime *
-     * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      *
+     * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateBlank")
      * @Assert\Type("DateTime", groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateType")
      */
@@ -346,6 +349,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     /**
      * @var \DateTime *
+     *
      * @ORM\Column(name="_st_deleted_date", type="datetime", nullable=false)
      */
     protected $deletedDate;
@@ -653,7 +657,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var StatementMeta
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta", mappedBy="statement", cascade={"persist", "remove"})
-     *
      * @Assert\Valid(groups={Statement::IMPORT_VALIDATION})
      */
     protected $meta;
@@ -746,7 +749,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Collection<int, StatementFragment>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="statement", cascade={"remove"})
-     *
      * @ORM\OrderBy({"sortIndex" = "ASC"})
      */
     protected $fragments;
@@ -798,8 +800,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     /**
      * @var string
-     * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      *
+     * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitTypeBlank")
      */
     protected $submitType = 'system';
@@ -845,6 +847,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * @var Statement
      *
      * This is the owning side
+     *
      * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
@@ -905,12 +908,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * Enable name (cluster-)statements.
      *
      * @var string
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $name;
 
     /**
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
     protected $replied = false;
@@ -929,7 +934,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @var Collection<int, Segment>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
      */
     protected $segmentsOfStatement;
 
@@ -989,6 +994,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      * (This is currently only possible as unregistered guest user in public detail).
      *
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
     private $anonymous = false;
@@ -1895,15 +1901,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     {
         return $this->files;
     }
+
     /**
      * @return array<int,string>
      */
     public function getFileNames(): array
     {
         $names = [];
-        foreach($this->files as $file) {
+        foreach ($this->files as $file) {
             $names[] = explode(':', $file)[0];
         }
+
         return $names;
     }
 
@@ -3547,7 +3555,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setMovedStatement($movedStatement)
     {
         $this->movedStatement = $movedStatement;
-        //@improve: do not use association/relation to avoid coupling procedures. May we should use only an ID or flag
+        // @improve: do not use association/relation to avoid coupling procedures. May we should use only an ID or flag
     }
 
     /**
@@ -3590,7 +3598,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setPlaceholderStatement($placeholderStatement)
     {
         $this->placeholderStatement = $placeholderStatement;
-        //@improve: do not use association/relation to avoid coupling procedures. May we should use only an ID or flag
+        // @improve: do not use association/relation to avoid coupling procedures. May we should use only an ID or flag
     }
 
     /**
@@ -3765,14 +3773,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getSubmitterId()
     {
-        //internal:
+        // internal:
         if (self::INTERNAL === $this->getPublicStatement()) {
-            //on internal statements, submitUId on meta should be always filled.
+            // on internal statements, submitUId on meta should be always filled.
             return $this->getMeta()->getSubmitUId();
         }
 
-        //external:
-        //on external statements, the author is always the submitter
+        // external:
+        // on external statements, the author is always the submitter
         return User::ANONYMOUS_USER_ID === $this->getUserId() ? null : $this->getUserId();
     }
 
@@ -3782,7 +3790,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getSubmitterName(): ?string
     {
-        //internal:
+        // internal:
         if (self::INTERNAL === $this->getPublicStatement()) {
             return $this->getMeta()->getSubmitName();
         }

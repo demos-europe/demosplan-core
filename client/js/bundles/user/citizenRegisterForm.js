@@ -12,9 +12,9 @@
  */
 
 import CitizenRegisterForm from '@DpJs/components/user/citizenRegisterForm/CitizenRegisterForm'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
+import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
 
 const components = {
   CitizenRegisterForm,

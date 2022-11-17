@@ -195,7 +195,8 @@
               data-cy="segmentVersionHistory">
               {{ Translator.trans('history') }}
             </button>
-            <a v-if="hasPermission('feature_read_source_statement_via_api')"
+            <a
+              v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
               target="_blank"
               :href="Routing.generate('core_file', { hash: getOriginalPdfAttachmentHashBySegment(rowData) })"
@@ -227,21 +228,16 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { CleanHtml, VPopover } from 'demosplan-ui/directives'
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui/directives'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
-import DpColumnSelector from '@DpJs/components/core/DpDataTable/DpColumnSelector'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
+import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
+import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'SegmentsList',
@@ -485,7 +481,7 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then((data) => {
+        .then(data => {
           this.isLoading = false
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
@@ -493,6 +489,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter: filter,
+            search: payload.search,
             fields: {
               StatementSegment: ['id'].join()
             }

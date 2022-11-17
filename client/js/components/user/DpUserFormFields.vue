@@ -157,10 +157,10 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import qs from 'qs'
-import { sortAlphabetically } from 'demosplan-utils'
+import { sortAlphabetically } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpUserFormFields',

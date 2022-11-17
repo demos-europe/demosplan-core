@@ -1198,7 +1198,7 @@ class DemosPlanDocumentController extends BaseController
             try {
                 $eventDispatcherPost->post($event);
             } catch (Exception $e) {
-                $this->logger->warning('Could not successfully import bthg kompass ', [$e]);
+                $this->logger->warning('Could not successfully handle paragraph element ', [$e]);
             }
 
             $renderData = $this->generateDataForAdminList(

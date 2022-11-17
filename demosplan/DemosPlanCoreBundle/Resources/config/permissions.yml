@@ -2638,25 +2638,25 @@ field_statement_text:
 field_statement_user_group:
     description: 'Show usergroup field in statement form and save its value.'
     expose: true
-    label: 'Input field for usergroup (BTHG)'
+    label: 'Input field for usergroup'
     loginRequired: false
     parent: field_statement
 field_statement_user_organisation:
     description: 'Show organisation field in statement form and save its value.'
     expose: true
-    label: "Field for user's organisation (BTHG)"
+    label: "Field for user's organisation"
     loginRequired: false
     parent: field_statement
 field_statement_user_position:
     description: 'Show user position in organisation field in statement form and save its value.'
     expose: true
-    label: 'Field for the position in organisation (BTHG)'
+    label: 'Field for the position in organisation'
     loginRequired: false
     parent: field_statement
 field_statement_user_state:
     description: 'Show Bundesland field in statement form and save its value.'
     expose: true
-    label: "Field input for user's Bundlesland (BTHG)"
+    label: "Field input for user's Bundlesland"
     loginRequired: false
     parent: field_statement
 field_statement_vote_pla:
