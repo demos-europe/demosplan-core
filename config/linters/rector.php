@@ -28,7 +28,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         Option::SYMFONY_CONTAINER_XML_PATH_PARAMETER,
         '/tmp/bimschgsh/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
     );
-    $parameters->set(Option::AUTOLOAD_PATHS, [__DIR__ . '/../../vendor/autoload.php']);
+    $parameters->set(Option::AUTOLOAD_PATHS, [__DIR__.'/../../vendor/autoload.php']);
 
     $parameters->set(Option::AUTO_IMPORT_NAMES, true);
 
