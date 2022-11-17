@@ -68,7 +68,7 @@ class SegmentComment implements UuidEntityInterface
     protected $place;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
@@ -110,7 +110,7 @@ class SegmentComment implements UuidEntityInterface
         return $this->place;
     }
 
-    public function getCreationDate(): DateTime
+    public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
     }
