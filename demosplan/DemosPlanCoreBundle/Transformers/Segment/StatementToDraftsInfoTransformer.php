@@ -81,7 +81,6 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
         $result = $statement->getDraftsListJson();
         if (empty($result)) {
             $text = $statement->getText();
-            $draftsList = $this->getDraftsList($text);
             $draftsInfo['data'] = [
                 'id'         => Uuid::uuid(),
                 'type'       => 'slicing transaction',
@@ -89,7 +88,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
                     'statementId'      => $statement->getId(),
                     'procedureId'      => $statement->getProcedureId(),
                     'textualReference' => $text,
-                    'segments'         => $draftsList,
+                    'segments'         => [],
                 ],
             ];
             if (!($result = Json::encode($draftsInfo))) {
@@ -124,15 +123,6 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
                 $piTag->id = $existingTag->getId();
             }
         }
-    }
-
-    /**
-     * @return mixed[]
-     */
-    private function getDraftsList(string $text): array
-    {
-        return [
-        ];
     }
 
     /**
