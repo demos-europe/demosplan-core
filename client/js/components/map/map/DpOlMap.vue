@@ -267,7 +267,7 @@ export default {
       const config = {
         epsg: this.projection.getCode(),
         extent: this.maxExtent,
-        namedProjections: namedProjections,
+        namedProjections,
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
         target: 'map',
