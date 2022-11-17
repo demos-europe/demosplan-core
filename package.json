@@ -57,7 +57,7 @@
     "d3": "^7.6.1",
     "d3-sankey-diagram": "^0.7.3",
     "dayjs": "^1.11.5",
-    "deep-object-diff": "^1.1.7",
+    "deep-object-diff": "^1.1.9",
     "dompurify": "^2.4.0",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",
