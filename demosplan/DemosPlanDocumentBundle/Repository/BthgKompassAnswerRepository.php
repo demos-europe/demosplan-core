@@ -76,8 +76,6 @@ class BthgKompassAnswerRepository extends CoreRepository implements ObjectInterf
     }
 
     /**
-     * @param string $statementId
-     *
      * @return mixed|object|null
      */
     public function getBthgKompassAnswerwithStatementId(string $statementId)

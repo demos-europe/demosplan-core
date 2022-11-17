@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 
 /**
  * This Entity allows a specific project to store the (extern related) BTHG-Compass-Answer
@@ -81,6 +81,7 @@ class BthgKompassAnswer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -88,6 +89,7 @@ class BthgKompassAnswer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Collection<int, Statement>
+     *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Statement", cascade={"persist", "remove"})
      * @ORM\JoinTable(name="statements_kompass_answer_relationship",
      *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", nullable=false)},
@@ -157,7 +159,8 @@ class BthgKompassAnswer extends CoreEntity implements UuidEntityInterface
 
     public function addStatement(Statement $statement): void
     {
-        if (!$this->statements->contains($statement))
-        $this->statements->add($statement);
+        if (!$this->statements->contains($statement)) {
+            $this->statements->add($statement);
+        }
     }
 }

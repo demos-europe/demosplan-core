@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -30,8 +40,8 @@ class Version20221117085946 extends AbstractMigration
         foreach ($matchingRecords as $matchingRecord) {
             $this->addSql('INSERT INTO statements_kompass_answer_relationship (statement_id, kompass_answer_id) VALUES (:statementId, :kompassAnswerId)',
                 [
-                    'statementId' => $matchingRecord['_st_id'],
-                    'kompassAnswerId' => $matchingRecord['bthg_kompass_answer_id']
+                    'statementId'     => $matchingRecord['_st_id'],
+                    'kompassAnswerId' => $matchingRecord['bthg_kompass_answer_id'],
                 ]);
         }
         $this->addSql('ALTER TABLE _statement DROP FOREIGN KEY FK_8D47F06BC96FC090');
@@ -52,8 +62,8 @@ class Version20221117085946 extends AbstractMigration
             $this->addSql('UPDATE _statement SET bthg_kompass_answer_id = :kompassAnswerId
                         WHERE _st_id = :statementId',
                 [
-                    'statementId' => $matchingRecord['statement_id'],
-                    'kompassAnswerId' => $matchingRecord['kompass_answer_id']
+                    'statementId'     => $matchingRecord['statement_id'],
+                    'kompassAnswerId' => $matchingRecord['kompass_answer_id'],
                 ]);
         }
         $this->addSql('ALTER TABLE statements_kompass_answer_relationship DROP FOREIGN KEY FK_29FA2438F2039FF');

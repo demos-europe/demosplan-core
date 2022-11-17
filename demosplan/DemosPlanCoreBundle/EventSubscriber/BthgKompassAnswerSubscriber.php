@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
-use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalStatementDataEvent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\SetBthgKompassAnswerEvent;
+use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BthgKompassAnswerSubscriber implements EventSubscriberInterface
 {
@@ -34,23 +34,23 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            SetBthgKompassAnswerEvent::class            => 'setBthgKompassAnswerEvent',
-            AdditionalStatementDataEvent::class            => 'additionalStatementDataEvent'
+            SetBthgKompassAnswerEvent::class               => 'setBthgKompassAnswerEvent',
+            AdditionalStatementDataEvent::class            => 'additionalStatementDataEvent',
         ];
     }
 
     public function setBthgKompassAnswerEvent(SetBthgKompassAnswerEvent $event): void
     {
-        //$em = $this->getEntityManager();
-        //$data = $event->getData();
-        //$statement = $event->getStatement();
-        ///** @var BthgKompassAnswer $bthgKompassAnswer */
-        //$bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
-        //if ($bthgKompassAnswer !== null) {
+        // $em = $this->getEntityManager();
+        // $data = $event->getData();
+        // $statement = $event->getStatement();
+        // /** @var BthgKompassAnswer $bthgKompassAnswer */
+        // $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
+        // if ($bthgKompassAnswer !== null) {
         //    if ('' !== $data['bthg_kompass_answer']) {
         //        $bthgKompassAnswer->addStatement($statement);
         //    }
-        //}
+        // }
     }
 
     public function additionalStatementDataEvent(AdditionalStatementDataEvent $event): void
@@ -59,14 +59,13 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
         $statement = $event->getStatement();
         /** @var BthgKompassAnswer $bthgKompassAnswer */
         $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
-        if ($data === null) {
-            if ($bthgKompassAnswer !== null) {
+        if (null === $data) {
+            if (null !== $bthgKompassAnswer) {
                 $event->setAnswer($bthgKompassAnswer);
             }
-        }else {
-            //when no data than retrieve the BthgKompassAnswer that belong to statement but it can be also an update or an
+        } else {
+            // when no data than retrieve the BthgKompassAnswer that belong to statement but it can be also an update or an
             // add action and this will be hard to see this way !!
         }
-
     }
 }
