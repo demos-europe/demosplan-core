@@ -38,7 +38,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DraftsInfoApiController extends APIController
 {
     /**
-     * Gets the Statement's text with the segmented info proposed by PI.
+     * Gets the Statement's text with the segmented info.
      *
      * @Route(
      *     name="dplan_drafts_list_edit_ajax",
@@ -166,7 +166,7 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
-            // request statement processing via AI (asynchronous)
+            // request additional statement processing (asynchronous)
             $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)));
 
             $currentUser = $currentUserProvider->getUser();

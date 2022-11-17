@@ -69,7 +69,7 @@ class DraftsInfoController extends BaseController
 
     /**
      * Gets the Twig Template to call the endpoint loading the Statement's Text with
-     * the segmentation proposed by PI.
+     * the segmentation.
      *
      * @Route(
      *     name="dplan_drafts_list_edit",

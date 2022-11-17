@@ -34,7 +34,7 @@ class DraftsInfoService extends CoreService
     {
         $statement = $this->statementHandler->getStatement($statementId);
         if (null === $statement) {
-            $this->getLogger()->error('PI-Communication-Error: No Statement found for Id: '.$statementId);
+            $this->getLogger()->error('Error: No Statement found for Id: '.$statementId);
             throw StatementNotFoundException::createFromId($statementId);
         }
         $statement->setDraftsListJson($data);
