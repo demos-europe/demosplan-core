@@ -446,7 +446,7 @@ services:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
 
     # Segmentable Statement Validator
-    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator:
+    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator: ~
 
     demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
         tags:
