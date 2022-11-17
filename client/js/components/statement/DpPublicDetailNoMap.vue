@@ -84,6 +84,7 @@ export default {
       }
 
       if (this.dpValidate[formId]) {
+        this.isSubmitting = true
         form.submit()
         removeFormHiddenField(form)
       }
