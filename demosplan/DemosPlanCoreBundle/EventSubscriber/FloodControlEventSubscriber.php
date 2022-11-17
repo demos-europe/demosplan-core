@@ -10,18 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Context\PluginContext;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationFloodEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber;
-use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

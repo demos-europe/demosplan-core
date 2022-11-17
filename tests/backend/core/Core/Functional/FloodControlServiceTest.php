@@ -21,10 +21,8 @@ use Tests\Base\FunctionalTestCase;
 
 class FloodControlServiceTest extends FunctionalTestCase
 {
-
     /** @var FloodControlService */
     protected $sut;
-
 
     protected function setUp(): void
     {

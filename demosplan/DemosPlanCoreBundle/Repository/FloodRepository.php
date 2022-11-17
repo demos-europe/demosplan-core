@@ -10,10 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Entity\Flood;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Flood;
-use UnexpectedValueException;
 
 class FloodRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
@@ -32,7 +31,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
     /**
      * @return Flood[]|null
      *
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     public function getAllOfIdentifier(?string $identifier, ?string $event): ?array
     {
@@ -84,8 +83,6 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
 
     /**
      * Delete Entity.
-     *
-     * @param $entityId
      *
      * @return bool
      */

@@ -10,23 +10,15 @@
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Context\PluginContext;
-use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
+use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\plugins\FloodControl\Exception\HoneypotException;
-use demosplan\plugins\FloodControl\FloodControl;
 use demosplan\plugins\FloodControl\Logic\FloodControlService;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\FunctionalTestCase;
-use Tests\Base\PluginTestTrait;
 
 class HoneypotTest extends FunctionalTestCase
 {
