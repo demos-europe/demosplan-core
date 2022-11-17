@@ -48,7 +48,7 @@
     "@sentry/browser": "^7.16.0",
     "@sentry/integrations": "^7.16.0",
     "@sentry/tracing": "^7.16.0",
-    "@uppy/core": "^3.0.1",
+    "@uppy/core": "^3.0.4",
     "@uppy/drag-drop": "^3.0.0",
     "@uppy/progress-bar": "^3.0.0",
     "@uppy/tus": "^3.0.1",
