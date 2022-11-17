@@ -185,7 +185,10 @@ export default {
 
     deleteTag (id) {
       this.deleteInstitutionTag(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.deleted')))
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.deleted'))
+          this.$emit("tagIsRemoved")
+        })
         .catch(err => {
           console.error(err)
         })

@@ -15,10 +15,9 @@
       id="tagList"
       :label="Translator.trans('tag.administrate')">
       <slot>
-        <TagList></TagList>
+        <TagList v-on:tagIsRemoved="institutionListReset"></TagList>
       </slot>
     </dp-tab>
-
   </dp-tabs>
 </template>
 
@@ -27,6 +26,7 @@ import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
 import TagList from "./TagList";
 import InstitutionList from "./InstitutionList";
+import {mapActions} from "vuex";
 
 export default {
   name: "InstitutionTagManagement",
@@ -40,11 +40,40 @@ export default {
 
   data () {
     return {
-      activeTabId: 'institutionList'
+      activeTabId: 'institutionList',
+      needToReset: false
+    }
+  },
+
+  watch: {
+    needToReset (newValue) {
+      if (newValue === true) {
+        this.getInstitutionsByPage(1)
+      }
     }
   },
 
   methods: {
+    ...mapActions('invitableInstitution', {
+      listInvitableInstitution: 'list',
+    }),
+
+    getInstitutionsByPage (page) {
+      this.listInvitableInstitution({
+        page: {
+          number: page,
+          size: 50
+        },
+        sort: '-createdDate',
+        fields: {
+          InstitutionTag: ['label', 'id'].join()
+        }
+      })
+        .then(() => {
+        this.needToReset = false
+      })
+    },
+
     setActiveTabId (id) {
       if (id) {
         window.localStorage.setItem('tagManagementActiveTabId', id)
@@ -54,6 +83,10 @@ export default {
         this.activeTabId = window.localStorage.getItem('tagManagementActiveTabId')
       }
     },
+
+    institutionListReset () {
+      this.needToReset = true
+    }
   }
 }
 </script>
