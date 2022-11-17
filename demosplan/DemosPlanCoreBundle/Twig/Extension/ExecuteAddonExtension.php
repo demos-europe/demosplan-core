@@ -16,15 +16,17 @@ use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormNewProcedureEven
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormParagraphAdminImportOptionEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Twig\Environment;
+use Twig\TwigFunction;
 
 class ExecuteAddonExtension extends ExtensionBase
 {
     public function getFunctions(): array
     {
         return [
-            new \Twig_SimpleFunction('executePluginFunction', [$this, 'executePluginFunction']),
-            new \Twig_SimpleFunction('extensionPointMarkup', [$this, 'extensionPointMarkup']), // Is this really secure enough?
-            new \Twig_SimpleFunction('extensionPointData', [$this, 'extensionPointData']),
+            new TwigFunction('executeAddonFunction', [$this, 'executeAddonFunction']),
+            new TwigFunction('extensionPointMarkup', [$this, 'extensionPointMarkup']), // Is this really secure enough?
+            new TwigFunction('extensionPointData', [$this, 'extensionPointData']),
         ];
     }
 
@@ -37,7 +39,7 @@ class ExecuteAddonExtension extends ExtensionBase
      *
      * @return string
      */
-    public function executePluginFunction($extensionName, $function, $args = [])
+    public function executeAddonFunction($extensionName, $function, $args = [])
     {
         $hasExtension = $this->getTwig()->hasExtension($extensionName);
         if (!$hasExtension) {
@@ -126,7 +128,7 @@ class ExecuteAddonExtension extends ExtensionBase
     {
         return [
             TraceableEventDispatcher::class,
-            'twig' => \Twig_Environment::class,
+            'twig' => Environment::class,
         ];
     }
 }
