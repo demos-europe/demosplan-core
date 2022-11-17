@@ -79,7 +79,9 @@
               {{ Translator.trans('export.verb') }}
             </a>
           </li>
-          <li class="display--inline-block">
+          <li
+            class="display--inline-block"
+            v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
               <template slot="trigger">
                 <span>
@@ -159,12 +161,10 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpSlidebar from '@DpJs/components/core/DpSlidebar'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
+import { DpFlyout, DpSlidebar, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'

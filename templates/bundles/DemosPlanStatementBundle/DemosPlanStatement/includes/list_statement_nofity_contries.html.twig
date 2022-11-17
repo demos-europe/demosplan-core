@@ -37,6 +37,7 @@
         data-cy="submitStatement"
         name="statementSubmit"
         :text="Translator.trans('statements.marked.submit')"
+        :disabled="isSubmitting"
         @click="dpValidateAction('{{ targetForm }}', () => submitForm('{{ targetForm }}', 'statementSubmit'), false)"
     ></dp-button>
 </div>

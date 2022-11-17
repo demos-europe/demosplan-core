@@ -32,6 +32,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\QueryException;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -147,8 +148,13 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         // List of ProcedureTypes
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        /** @var ProcedureType $procedureTypeEntity */
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
@@ -209,6 +215,10 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
@@ -268,6 +278,10 @@ class DemosPlanProcedureTypeController extends BaseController
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
         Request $request
     ) {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = new ProcedureType(
             '',
             '',
@@ -399,6 +413,10 @@ class DemosPlanProcedureTypeController extends BaseController
         ResourcePersister $resourcePersister,
         string $procedureTypeId
     ) {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
         $formName = 'procedureTypeEdit';

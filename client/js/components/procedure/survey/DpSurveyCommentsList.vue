@@ -85,10 +85,10 @@
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from 'demosplan-utils'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import { DpLoading } from 'demosplan-ui/components'
+import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpDataTable } from '@demos-europe/demosplan-ui/components/core'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 
 export default {
   name: 'DpSurveyCommentsList',

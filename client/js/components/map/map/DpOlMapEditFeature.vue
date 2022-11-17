@@ -92,7 +92,7 @@
 
 <script>
 import { Modify, Select } from 'ol/interaction'
-import { hasOwnProp } from 'demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { v4 as uuid } from 'uuid'
 import VectorLayer from 'ol/layer/Vector'
 

@@ -32,7 +32,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { hasOwnProp } from 'demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import MultiSelect from '@DpJs/components/procedure/splitStatement/MultiSelect'
 
 export default {

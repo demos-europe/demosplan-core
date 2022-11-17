@@ -146,8 +146,8 @@
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
             <a
+              class="is-disabled"
               v-if="hasPermission('area_statement_segmentation')"
-              :class="{'is-disabled': segmentsCount > 0 && segmentsCount !== '-' && (assignee.id !== '' && assignee.id !== currentUserId)}"
               :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('split') }}
@@ -159,6 +159,7 @@
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
+              v-if="hasPermission('feature_read_source_statement_via_api')"
               :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file', { hash: originalPdf })"
               rel="noreferrer noopener"
@@ -271,22 +272,16 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { checkResponse, dpApi, dpRpc } from '@demos-europe/demosplan-utils'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpBulkEditHeader, DpDataTable, DpFlyout, DpInlineNotification, DpSelect, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
-import { formatDate } from 'demosplan-utils'
+import { formatDate } from '@demos-europe/demosplan-utils'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import tableSelectAllItems from '@DpJs/mixins/tableSelectAllItems'
+import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'ListStatements',

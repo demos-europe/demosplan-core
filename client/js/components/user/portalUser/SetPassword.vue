@@ -54,9 +54,9 @@
 </template>
 
 <script>
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import { DpInput } from 'demosplan-ui/components'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
+import { DpInput } from '@demos-europe/demosplan-ui/components'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'SetPassword',

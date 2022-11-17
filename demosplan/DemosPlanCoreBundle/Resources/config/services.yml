@@ -306,8 +306,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
-    demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration: ~
-
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
@@ -372,6 +370,24 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
+    # Drafts Info Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoTransformerPass:
+        arguments: [ !tagged dplan.drafts.info.transformer ]
+
+    # From DraftsInfo
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer:
+        tags:
+            - { name: "dplan.segment.transformer" }
+
+    # Segment Entities Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass:
+        arguments: [ !tagged dplan.segment.transformer ]
+
+    # From Statement
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer:
+        tags:
+            - { name: "dplan.drafts.info.transformer" }
+
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
@@ -408,6 +424,11 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator }
 
+    # Validate Drafts Info
+    demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator:
+        arguments:
+            $schemaFilePath: "%drafts_info_schema_path%"
+
     demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator }
@@ -423,6 +444,9 @@ services:
     demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
+
+    # Segmentable Statement Validator
+    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator: ~
 
     demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
         tags:
@@ -547,24 +571,6 @@ services:
     demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-
-    demosplan\DemosPlanPluginBundle\Logic\Plugin:
-        abstract: true
-        calls:
-            - [ 'setLogger', [ '@monolog.logger.dplan_plugin' ]]
-
-    demosplan\DemosPlanPluginBundle\EventListener\PluginEventListener:
-        lazy: true
-        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
-
-    demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber:
-        arguments: [ '@demosplan\DemosPlanCoreBundle\Context\PluginContext' ]
-        tags:
-            - { name: kernel.event_subscriber }
-
-    demosplan\DemosPlanPluginBundle\Logic\PluginList: ~
-
-    demosplan\DemosPlanPluginBundle\Twig\Extension\ExecutePluginExtension: ~
 
     demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
         autowire: true
@@ -866,12 +872,6 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
-        arguments:
-            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
-        lazy: true
-
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
 
     demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
@@ -886,9 +886,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
-        tags: [kernel.event_subscriber]
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
@@ -900,15 +897,35 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
+    # Drafts Info Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\DraftsInfoService: ~
+
+    # Segment Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
+
+    # Drafts Info Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler: ~
+
+    # Segment Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler: ~
+
+    # Segment Handler Interface
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler'
+
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
+        arguments:
+            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+
+    demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
+        lazy: true
+        autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
         lazy: true
@@ -1072,7 +1089,7 @@ services:
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 

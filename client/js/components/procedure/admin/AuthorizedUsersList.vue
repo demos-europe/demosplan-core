@@ -289,13 +289,10 @@
 </template>
 
 <script>
-import { dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpButton, DpInput } from 'demosplan-ui/components'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { dpApi, dpRpc } from '@demos-europe/demosplan-utils'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpAccordion, DpButtonRow, DpDataTableExtended, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'AuthorizedUsersList',

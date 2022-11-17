@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "A JSON RPC 2.0 result",
+  "oneOf": [
+    {
+      "description": "An individual request",
+      "$ref": "#/definitions/result"
+    },
+    {
+      "description": "An array of requests",
+      "type": "array",
+      "items": { "$ref": "#/definitions/result" }
+    }
+  ],
+  "definitions": {
+    "result": {
+      "type": "object",
+      "required": [ "jsonrpc", "result", "id" ],
+      "properties": {
+        "jsonrpc": { "enum": [ "2.0" ] },
+        "result": {
+          "type": [ "string" ]
+        },
+        "id": {
+          "type": [ "string" ]
+        }
+      }
+    }
+  }
+}

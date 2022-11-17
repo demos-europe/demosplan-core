@@ -96,9 +96,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, dpRpc, handleResponseMessages } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { DpLoading } from 'demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import { v4 as uuid } from 'uuid'
 
 export default {
