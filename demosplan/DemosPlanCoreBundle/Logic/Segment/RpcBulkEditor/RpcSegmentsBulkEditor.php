@@ -61,7 +61,7 @@ use stdClass;
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
-    public const RPC_JSON_SCHEMA_PATH = 'demosplan/plugins/workflow/SegmentsManager/Resources/config/json-schema/rpc-segment-bulk-edit-schema.json';
+    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schemas/segment/rpc-segment-bulk-edit-schema.json';
 
     public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
