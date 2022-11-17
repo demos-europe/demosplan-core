@@ -1125,12 +1125,13 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
-"@demos-europe/demosplan-ui@0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.1.tgz#b02dd92233fb6a7ba9642aa3ba37662dbc7cc82a"
-  integrity sha512-M87ukB5eWhgk2KAGUOgZQ448l1dQUvpPFl1bYpfPlb0rqZA1d44I4YZ9Nh2FJwzlsHgOrPj/AAfumIihIL1U4A==
+"@demos-europe/demosplan-ui@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.2.tgz#ba9733ffd6b8fa687f2d7c16baa6768af22ce068"
+  integrity sha512-ehcm52N6lcSqs8QRGQ9Ec6aw0aipBG4a4cZvv++Ux3ktTRBh9oPJx6LQsOB82OsuZRv3ANq0rXFbTNaXkuCKKg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
+    "@demos-europe/demosplan-utils" "^0.0.2"
     "@uppy/core" "^3.0.1"
     "@uppy/drag-drop" "^3.0.0"
     "@uppy/progress-bar" "^3.0.0"
@@ -1156,10 +1157,10 @@
     vuedraggable "^2.24.3"
     vuex "^3.6.2"
 
-"@demos-europe/demosplan-utils@0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-utils/-/demosplan-utils-0.0.1.tgz#2189142a5dd447107a6946097939a939265f0eb6"
-  integrity sha512-kRmYPOn4sUxvuPQSMcIBbraJztzWklvO6fyzyO2UtfqSU1GstubYnjnfgzkBtzMAs8vFcdD23IHn1IliwRKcMg==
+"@demos-europe/demosplan-utils@0.0.2", "@demos-europe/demosplan-utils@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-utils/-/demosplan-utils-0.0.2.tgz#d5b9a7085217092d6c01fcd545eaa5bed89d4e89"
+  integrity sha512-G2MIKAy7lK6XlAfolEPi/S6h4lGnb9WK/RV4WUCu8QudLOziYCCm5D7eirj6wxD4ucBDI0VrG7rjoqD9QOAWCg==
   dependencies:
     axios "^0.27.2"
     qs "^6.11.0"
