@@ -139,7 +139,7 @@ class FloodControlService extends CoreService
     public function getHoneypotMarkup(TwigExtensionFormExtraFieldsEvent $event)
     {
         $event->addMarkup(
-            $this->twig->render('@DemosPlanCore/DemosPlanCore/FloodControl/honeypotFields.html.twig')
+            $this->twig->render('@DemosPlanCore/DemosPlanCore/floodControl/honeypotFields.html.twig')
         );
     }
 
