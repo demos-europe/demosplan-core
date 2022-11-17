@@ -267,7 +267,7 @@ export default {
       })
 
       const config = {
-        epsg: 'EPSG:3857',
+        epsg: this.projection.getCode(),
         extent: this.maxExtent,
         namedProjections: namedProjections,
         options: resolutions,
