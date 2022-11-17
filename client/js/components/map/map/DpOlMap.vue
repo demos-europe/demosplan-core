@@ -262,7 +262,6 @@ export default {
 
       // Put resolutions in correct format for masterportalapi
       const resolutions = this.resolutions.map(resolution => ({ resolution }))
-      })
 
       const config = {
         epsg: this.projection.getCode(),
