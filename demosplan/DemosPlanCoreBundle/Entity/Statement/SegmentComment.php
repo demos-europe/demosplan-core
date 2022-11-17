@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -44,7 +44,6 @@ class SegmentComment implements UuidEntityInterface
      *     inversedBy="comments"
      * )
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
-     *
      * @Assert\NotNull
      */
     protected $segment;
@@ -70,10 +69,9 @@ class SegmentComment implements UuidEntityInterface
     protected $place;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $creationDate;
@@ -85,7 +83,6 @@ class SegmentComment implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
      * @Assert\NotBlank
      * @Assert\Length(min=1, max=65536)
      */
@@ -114,7 +111,7 @@ class SegmentComment implements UuidEntityInterface
         return $this->place;
     }
 
-    public function getCreationDate(): DateTime
+    public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
     }

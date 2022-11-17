@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use RuntimeException;
-
-class MisconfiguredException extends RuntimeException
+class MisconfiguredException extends \RuntimeException
 {
     public static function missingParameters(): self
     {

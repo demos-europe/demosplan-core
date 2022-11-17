@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Handler;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use Doctrine\ORM\OptimisticLockException;
@@ -91,8 +91,6 @@ class SegmentHandler implements SegmentHandlerInterface
     /**
      * Given a Procedure Id, returns the next integer to be used in the sorting field for a new
      * segment (if none so far 0, otherwise maximum existing till the moment + 1).
-     *
-     * @param $procedureId
      */
     public function getNextSegmentOrderNumber($procedureId): int
     {

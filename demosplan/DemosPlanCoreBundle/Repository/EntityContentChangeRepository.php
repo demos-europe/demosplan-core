@@ -12,14 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\Expr\Join;
-use Exception;
 
 class EntityContentChangeRepository extends CoreRepository implements ImmutableObjectInterface
 {
@@ -40,7 +39,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      *
      * @return EntityContentChange
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function addObject($entity)
     {
@@ -49,7 +48,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
             $this->getEntityManager()->flush();
 
             return $entity;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Add EntityContentChange failed Message: ', [$e]);
             throw $e;
         }
@@ -60,7 +59,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      *
      * @return mixed
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getDescListOfObjects(EntityContentChange $oldestRelevantVersionObject)
     {
@@ -77,7 +76,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
                 ->orderBy('ecc.created', 'DESC')
                 ->getQuery()
                 ->getResult();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Failed to get list of relevant EntityContentChange Objects ', [$e]);
             throw $e;
         }
@@ -88,7 +87,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      *
      * @return array<int, EntityContentChange>
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function findAllObjectsOfChangeInstance(EntityContentChange $oldestRelevantVersionObject): array
     {
@@ -102,7 +101,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
                 ->setParameter('created', $oldestRelevantVersionObject->getCreated())
                 ->getQuery()
                 ->getResult();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Failed to get list of relevant EntityContentChange Objects ', [$e]);
             throw $e;
         }
@@ -114,7 +113,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      * @param array<int,string> $relatedEntityIds
      * @param string            $field            field name or 'all' to delete all fields
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function deleteByEntityIds(array $relatedEntityIds, string $field): void
     {
@@ -130,7 +129,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
                     ->setParameter('field', $field)
                     ->getQuery()->execute();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->error('Error on delete EntityContentChanges by EntityId ', [$e, $relatedEntityIds]);
             throw $e;
         }
@@ -171,7 +170,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      *
      * @return EntityContentChange[] entityContentChanges
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function findByProcedure(string $procedureId): array
     {
@@ -201,7 +200,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
      *
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws Exception
+     * @throws \Exception
      */
     public function deleteByProcedure(string $procedureId): int
     {

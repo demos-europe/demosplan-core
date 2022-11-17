@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 

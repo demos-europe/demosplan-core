@@ -12,23 +12,22 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Doctrine\ORM\Query\QueryException;
-use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,7 +131,7 @@ class DraftsInfoApiController extends APIController
      * @throws QueryException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     * @throws Exception
+     * @throws \Exception
      *
      * @DplanPermissions("area_statement_segmentation")
      */

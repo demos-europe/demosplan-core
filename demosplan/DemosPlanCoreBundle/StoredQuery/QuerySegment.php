@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\StoredQuery;
 
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SearchField;
 
 class QuerySegment extends AbstractQuery
 {
@@ -24,5 +23,4 @@ class QuerySegment extends AbstractQuery
     {
         return false;
     }
-
 }

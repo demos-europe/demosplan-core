@@ -29,9 +29,9 @@ class Segment extends Statement
 
     /**
      * @var Statement
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
-     *
      * @Assert\NotNull(groups={Segment::VALIDATION_GROUP_IMPORT})
      * @Assert\Type(groups={Segment::VALIDATION_GROUP_IMPORT}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
      */
@@ -53,7 +53,6 @@ class Segment extends Statement
      * @var int
      *
      * @Assert\NotNull(groups={Segment::VALIDATION_GROUP_SEGMENT_MANDATORY})
-     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $orderInProcedure;
@@ -72,7 +71,6 @@ class Segment extends Statement
      * @var Place
      *
      * @Assert\NotBlank(groups={"Default", Segment::VALIDATION_GROUP_IMPORT})
-     *
      * @ORM\ManyToOne(targetEntity=Place::class)
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */

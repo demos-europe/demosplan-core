@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use ArrayIterator;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -26,13 +25,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ExportOrgaInfoHeader
 {
     /**
-     * @var ArrayIterator<int, string>
+     * @var \ArrayIterator<int, string>
      */
     private $orgaHeaders;
 
     public function __construct(Statement $statement, CurrentUserInterface $currentUser, TranslatorInterface $translator)
     {
-        $this->orgaHeaders = new ArrayIterator();
+        $this->orgaHeaders = new \ArrayIterator();
         $authorName = $statement->getUserName();
         $authorName = $this->validInfoString($authorName)
             ? $authorName

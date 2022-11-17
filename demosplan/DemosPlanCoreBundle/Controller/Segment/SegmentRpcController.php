@@ -28,7 +28,6 @@ class SegmentRpcController extends APIController
      *     options={"expose": true},
      *     methods={"PATCH"}
      * )
-     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function updateSegmentListQueryAction(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response

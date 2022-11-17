@@ -24,9 +24,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
-use stdClass;
 
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
@@ -113,11 +111,11 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $jsonArray = $this->resourceService->getFractal()->createData($item)->toArray();
                 $jsonArray['meta']['count'] = $apiListResult->getResultCount();
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $jsonArray);
-            } catch (InvalidArgumentException | InvalidSchemaException $e) {
+            } catch (InvalidArgumentException|InvalidSchemaException $e) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException | UserNotFoundException $e) {
+            } catch (AccessDeniedException|UserNotFoundException $e) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }
@@ -127,7 +125,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 
     public function generateMethodResult(object $rpcRequest, array $resultArray): object
     {
-        $result = new stdClass();
+        $result = new \stdClass();
         $result->jsonrpc = '2.0';
         $result->result = $resultArray;
         $result->id = $rpcRequest->id;

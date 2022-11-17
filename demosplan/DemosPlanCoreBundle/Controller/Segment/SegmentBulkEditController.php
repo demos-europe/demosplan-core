@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,10 +24,9 @@ class SegmentBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/bulk-edit",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_segments_bulk_edit")
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function showFormAction(string $procedureId): Response
     {

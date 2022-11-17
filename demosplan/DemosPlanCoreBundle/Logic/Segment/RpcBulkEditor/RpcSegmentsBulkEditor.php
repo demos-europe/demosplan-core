@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
@@ -22,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
@@ -32,17 +34,12 @@ use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
-use Exception;
-use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
-use stdClass;
 
 /**
  * You find general RPC API usage information
@@ -212,7 +209,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }
@@ -228,7 +225,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws TransactionRequiredException
      * @throws UserNotAssignableException
      * @throws UserNotFoundException
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function validateRpcRequest(object $rpcRequest): void
     {
@@ -239,7 +236,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     public function generateMethodResult(object $rpcRequest): object
     {
-        $result = new stdClass();
+        $result = new \stdClass();
         $result->jsonrpc = '2.0';
         $result->result = 'ok';
         $result->id = $rpcRequest->id;
@@ -305,7 +302,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function validateRpcRequestJson(object $rpcRequest): void
     {
@@ -333,7 +330,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws OptimisticLockException
      * @throws UserNotAssignableException
      * @throws TransactionRequiredException
-     * @throws Exception
+     * @throws \Exception
      */
     private function validateAssignee(object $rpcRequest): void
     {
@@ -345,7 +342,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     private function extractAssignee(object $rpcRequest): ?User
     {

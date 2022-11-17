@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
-use function array_key_exists;
 use Cocur\Slugify\Slugify;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -23,7 +23,6 @@ use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -76,8 +75,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     /**
      * Exports Segments or the Statement itself, in case of unsegmented Statement.
-     *
-     * @param Statement ...$statements
      *
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
@@ -172,7 +169,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         foreach ($statements as $statement) {
             $pathInZip = $this->getPathInZip($statement, false);
             // in case of a duplicate, add the database ID to the name
-            if (array_key_exists($pathInZip, $pathedStatements)) {
+            if (\array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
                 $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
                 $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true);
@@ -180,7 +177,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                 $pathInZip = $this->getPathInZip($statement, true);
             }
 
-            if (array_key_exists($pathInZip, $pathedStatements)) {
+            if (\array_key_exists($pathInZip, $pathedStatements)) {
                 throw new InvalidArgumentException('duplicated statement given');
             }
 
@@ -280,7 +277,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
 
-        //Some data is stored on parentStatement instead on Segment and have to get from there
+        // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
             $exportData['meta']['orgaCity'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaCity();
             $exportData['meta']['orgaStreet'] = $segmentOrStatement->getParentStatementOfSegment()->getOrgaStreet();
@@ -294,7 +291,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData['oName'] = $segmentOrStatement->getParentStatementOfSegment()->getOName();
             $exportData['meta']['authoredDate'] = $segmentOrStatement->getParentStatementOfSegment()->getAuthoredDate();
             $exportData['dName'] = $segmentOrStatement->getParentStatementOfSegment()->getDName();
-            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); //Segments using place instead of status
+            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
             $exportData['fileNames'] = $segmentOrStatement->getParentStatementOfSegment()->getFileNames();
         }
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();

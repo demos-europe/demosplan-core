@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
-use DateTime;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -46,24 +46,18 @@ use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
-use function array_combine;
-use function array_key_exists;
-use function is_array;
-use function iterator_to_array;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use UnexpectedValueException;
 
 class ExcelImporter extends CoreService
 {
@@ -286,7 +280,7 @@ class ExcelImporter extends CoreService
                 if ($this->isEmpty($statement)) {
                     continue;
                 }
-                $statement = array_combine($columnNames, $statement);
+                $statement = \array_combine($columnNames, $statement);
                 $statement[self::PUBLIC_STATEMENT] = $publicStatement;
                 $generatedStatement = $this->generateStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
 
@@ -334,13 +328,13 @@ class ExcelImporter extends CoreService
             $statementIterator = $row->getCellIterator('A', $metaDataWorksheet->getHighestColumn());
             $statement = array_map(static function (Cell $cell) {
                 return $cell->getValue();
-            }, iterator_to_array($statementIterator));
+            }, \iterator_to_array($statementIterator));
 
             if ($this->isEmpty($statement)) {
                 continue;
             }
 
-            $statement = array_combine($columnNamesMeta, $statement);
+            $statement = \array_combine($columnNamesMeta, $statement);
             $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
 
             $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
@@ -426,14 +420,14 @@ class ExcelImporter extends CoreService
             $segmentIterator = $row->getCellIterator('A', $segmentsWorksheet->getHighestColumn());
             $segmentData = array_map(function (Cell $cell) {
                 return $this->replaceLineBreak($cell->getValue());
-            }, iterator_to_array($segmentIterator));
+            }, \iterator_to_array($segmentIterator));
 
             if ($this->isEmpty($segmentData)) {
                 continue;
             }
 
-            $segmentData = array_combine($columnNamesSegments, $segmentData);
-            if (!is_array($segmentData)) {
+            $segmentData = \array_combine($columnNamesSegments, $segmentData);
+            if (!\is_array($segmentData)) {
                 continue;
             }
             $segmentData['segment_line'] = $segmentLine;
@@ -446,7 +440,7 @@ class ExcelImporter extends CoreService
             }
 
             $statementId = $segmentData[self::STATEMENT_ID];
-            if (!array_key_exists($statementId, $segments)) {
+            if (!\array_key_exists($statementId, $segments)) {
                 $segments[$statementId] = [];
             }
 
@@ -589,7 +583,7 @@ class ExcelImporter extends CoreService
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
         $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
-        $segment->setCreated(new DateTime());
+        $segment->setCreated(new \DateTime());
         $segment->setOrderInProcedure($counter);
 
         // Handle Tags
@@ -708,12 +702,12 @@ class ExcelImporter extends CoreService
         );
         $newOriginalStatement->setExternId($externId);
 
-        //always use standard statementElement for now:
+        // always use standard statementElement for now:
         $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
         $newOriginalStatement->setElement($statementElement);
         $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
 
-        //not supported:
+        // not supported:
         // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,
         // attachements, paragaph, polygon, feedback, documents, publication
 
@@ -729,12 +723,12 @@ class ExcelImporter extends CoreService
 
     public function mapSubmitType(string $incomingSubmitType): string
     {
-        //use translation? (translation keys in form_options)
-        if (array_key_exists($incomingSubmitType, self::SUBMIT_TYPE_MAPPING)) {
+        // use translation? (translation keys in form_options)
+        if (\array_key_exists($incomingSubmitType, self::SUBMIT_TYPE_MAPPING)) {
             return self::SUBMIT_TYPE_MAPPING[$incomingSubmitType];
         }
 
-        throw new UnexpectedValueException("Invalid submit type: $incomingSubmitType");
+        throw new \UnexpectedValueException("Invalid submit type: $incomingSubmitType");
     }
 
     /**

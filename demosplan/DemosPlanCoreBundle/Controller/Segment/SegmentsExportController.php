@@ -15,14 +15,13 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
-use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -39,7 +38,7 @@ class SegmentsExportController extends BaseController
      *     options={"expose": true})
      *
      * @throws StatementNotFoundException
-     * @throws Exception
+     * @throws \Exception
      *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
@@ -76,7 +75,6 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/gruppiert",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
     public function exportByStatementsFilterAction(
@@ -110,7 +108,6 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/xlsx",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_admin_assessmenttable_export_statement_generic_xlsx")
      */
     public function exportByStatementsFilterXlsAction(
@@ -153,7 +150,6 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/gepackt",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
     public function exportPackagedStatementsAction(

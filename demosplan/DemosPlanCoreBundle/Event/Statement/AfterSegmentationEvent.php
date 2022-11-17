@@ -1,5 +1,8 @@
 <?php
 
+
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -7,8 +10,6 @@
  *
  * All rights reserved
  */
-
-declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
@@ -24,20 +25,13 @@ class AfterSegmentationEvent extends DPlanEvent
         $this->statement = $statement;
     }
 
-    /**
-     * @return Statement
-     */
     public function getStatement(): Statement
     {
         return $this->statement;
     }
 
-    /**
-     * @param Statement $statement
-     */
     public function setStatement(Statement $statement): void
     {
         $this->statement = $statement;
     }
-
 }

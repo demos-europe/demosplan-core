@@ -11,9 +11,9 @@
 namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -35,7 +35,7 @@ class EntityContentChangeRepositoryTest extends FunctionalTestCase
 
         $this->sut = self::$container->get(EntityContentChangeRepository::class);
 
-        //set permission feature_statement_content_changes_save = true!
+        // set permission feature_statement_content_changes_save = true!
         $this->mockSession = $this->setUpMockSession();
     }
 
