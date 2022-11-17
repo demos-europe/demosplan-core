@@ -345,7 +345,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      * @ORM\Column(type="boolean", nullable=false,
      *      options={"comment":"Determines if this user is identified by external provider", "default": false})
      */
-    private $hasExternalIdentityProvider = false;
+    private $providedByIdentityProvider = false;
 
     public function __construct()
     {
@@ -1736,19 +1736,13 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
         return self::ANONYMOUS_USER_ID === $this->id;
     }
 
-    /**
-     * @return bool
-     */
-    public function isHasExternalIdentityProvider(): bool
+    public function isProvidedByIdentityProvider(): bool
     {
-        return $this->hasExternalIdentityProvider;
+        return $this->providedByIdentityProvider;
     }
 
-    /**
-     * @param bool $hasExternalIdentityProvider
-     */
-    public function setHasExternalIdentityProvider(bool $hasExternalIdentityProvider): void
+    public function setProvidedByIdentityProvider(bool $providedByIdentityProvider): void
     {
-        $this->hasExternalIdentityProvider = $hasExternalIdentityProvider;
+        $this->providedByIdentityProvider = $providedByIdentityProvider;
     }
 }

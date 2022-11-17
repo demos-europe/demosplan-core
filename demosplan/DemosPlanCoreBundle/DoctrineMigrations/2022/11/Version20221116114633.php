@@ -19,7 +19,7 @@ class Version20221116114633 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _user ADD has_external_identity_provider TINYINT(1) DEFAULT 0 NOT NULL COMMENT \'Determines if this user is identified by external provider\'');
+        $this->addSql('ALTER TABLE _user ADD provided_by_identity_provider TINYINT(1) DEFAULT 0 NOT NULL COMMENT \'Determines if this user is identified by external provider\'');
     }
 
     /**
@@ -28,7 +28,7 @@ class Version20221116114633 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _user DROP has_external_identity_provider');
+        $this->addSql('ALTER TABLE _user DROP provided_by_identity_provider');
     }
 
     /**
