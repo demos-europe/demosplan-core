@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormNewProcedureEven
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormParagraphAdminImportOptionEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use Twig_Environment;
 
 class ExecuteAddonExtension extends ExtensionBase
 {
@@ -127,7 +126,7 @@ class ExecuteAddonExtension extends ExtensionBase
     {
         return [
             TraceableEventDispatcher::class,
-            'twig' => Twig_Environment::class,
+            'twig' => \Twig_Environment::class,
         ];
     }
 }
