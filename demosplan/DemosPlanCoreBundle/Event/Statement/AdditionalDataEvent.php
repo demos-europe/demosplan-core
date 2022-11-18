@@ -40,11 +40,6 @@ class AdditionalDataEvent extends DPlanEvent
         return $this->entity;
     }
 
-    public function setEntity(CoreEntity $entity): void
-    {
-        $this->entity = $entity;
-    }
-
     /**
      * @return array<string, mixed>
      */
