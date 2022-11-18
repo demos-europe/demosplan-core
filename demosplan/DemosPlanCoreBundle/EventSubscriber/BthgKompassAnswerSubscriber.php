@@ -34,7 +34,7 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
     {
         return [
             SetBthgKompassAnswerEvent::class               => 'setBthgKompassAnswerEvent',
-            AdditionalDataEvent::class            => 'additionalStatementDataEvent',
+            AdditionalDataEvent::class                     => 'additionalStatementDataEvent',
         ];
     }
 
@@ -55,7 +55,6 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
     public function additionalStatementDataEvent(AdditionalDataEvent $event): void
     {
         if (!$event->getEntity() instanceof Statement) {
-
             return;
         }
         if (self::ADDON_NAME === $event->getAddon()) {
@@ -66,10 +65,10 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
             $data['bthgKompassAnswer'] = $bthgKompassAnswer;
             $event->setData($data);
 
-            //{
-                // when no data than retrieve the BthgKompassAnswer that belong to statement but it can be also an update or an
-                // add action and this will be hard to see this way !!
-            //}
+            // {
+            // when no data than retrieve the BthgKompassAnswer that belong to statement but it can be also an update or an
+            // add action and this will be hard to see this way !!
+            // }
         }
     }
 }
