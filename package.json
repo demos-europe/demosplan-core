@@ -37,7 +37,7 @@
     "watch:robobsh": "cross-env ./fe watch robobsh",
     "watch:teilhabe": "cross-env ./fe watch teilhabe",
     "watch:wmmsh": "cross-env ./fe watch wmmsh",
-    "lint": "eslint -c config/eslintrc.js --ext .js,.vue",
+    "lint": "eslint -c eslintrc.js --ext .js,.vue",
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
