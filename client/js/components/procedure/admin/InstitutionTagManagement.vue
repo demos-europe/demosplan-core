@@ -1,3 +1,12 @@
+<license>
+(c) 2010-present DEMOS E-Partizipation GmbH.
+
+This file is part of the package demosplan,
+for more information see the license file.
+
+All rights reserved
+</license>
+
 <template>
   <dp-tabs
     tab-size="medium"
@@ -8,28 +17,28 @@
       id="institutionList"
       :label="Translator.trans('invitable_institution.group')">
       <slot>
-        <InstitutionList></InstitutionList>
+        <InstitutionList />
       </slot>
     </dp-tab>
     <dp-tab
       id="tagList"
       :label="Translator.trans('tag.administrate')">
       <slot>
-        <TagList v-on:tagIsRemoved="institutionListReset"></TagList>
+        <TagList v-on:tagIsRemoved="institutionListReset" />
       </slot>
     </dp-tab>
   </dp-tabs>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import DpTab from '@DpJs/components/core/DpTabs/DpTab'
 import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import TagList from "./TagList";
-import InstitutionList from "./InstitutionList";
-import {mapActions} from "vuex";
+import InstitutionList from './InstitutionList'
+import TagList from './TagList'
 
 export default {
-  name: "InstitutionTagManagement",
+  name: 'InstitutionTagManagement',
 
   components: {
     DpTabs,

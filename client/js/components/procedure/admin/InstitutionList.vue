@@ -1,3 +1,12 @@
+<license>
+(c) 2010-present DEMOS E-Partizipation GmbH.
+
+This file is part of the package demosplan,
+for more information see the license file.
+
+All rights reserved
+</license>
+
 <template>
   <div>
     <dp-inline-notification
@@ -23,7 +32,9 @@
       </template>
       <template v-slot:tags="rowData">
         <div v-if="!rowData.edit">
-          <span> {{ separateByCommas(rowData.tags) }}</span>
+           <span>
+             {{ separateByCommas(rowData.tags) }}
+           </span>
           </div>
         <dp-multiselect
           v-else
@@ -78,17 +89,17 @@
 </template>
 
 <script>
+import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpIcon } from 'demosplan-ui/components'
 import { formatDate } from 'demosplan-utils'
-import { mapState, mapActions, mapMutations } from "vuex"
 import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
+import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
 
 
 export default {
-  name: "InstitutionList",
+  name: 'InstitutionList',
 
   components: {
     DpDataTable,
@@ -176,7 +187,10 @@ export default {
         },
         sort: '-createdDate',
         fields: {
-          InstitutionTag: ['label', 'id'].join()
+          InstitutionTag: [
+            'label',
+            'id'
+          ].join()
         }
       })
     },
@@ -193,6 +207,7 @@ export default {
 
     abortEdit () {
       this.editingInstitutionId = null
+      this.editingInstitutionTags = []
     },
 
     addTagsToInstitution (id) {
@@ -241,32 +256,29 @@ export default {
         tagsLabels.push(label)
       })
 
-      return tagsLabels.join(", ")
+      return tagsLabels.join(', ')
     },
 
     getTagById (tagId) {
       let tag = {}
-      this.tagList.map(el => {
-        if(el.id === tagId) {
+      this.tagList
+        .filter(el => el.id === tagId)
+        .map(el => {
           tag = {
             id: el.id,
             label: el.label
           }
-        }
-      })
+        })
 
       return tag
     },
 
     getTagLabelById (tagId) {
-      let label = ''
-      this.tagList.map(el => {
-        if(el.id === tagId) {
-          label = el.label
-        }
-      })
-
-      return label
+      return this.tagList
+        .filter(el => el.id === tagId)
+        .map(el => {
+          return el.label
+        })
     }
   },
 
@@ -275,6 +287,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-</style>
