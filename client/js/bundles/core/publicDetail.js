@@ -23,7 +23,7 @@ const components = {
   DpPublicDetailNoMap,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 const stores = {
