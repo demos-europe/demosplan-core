@@ -13,58 +13,42 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 
-/**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\EntityInterface
- */
-class GetPropertiesEvent extends DPlanEvent
+class GetInternalPropertiesEvent extends DPlanEvent
 {
     /**
-     * @var array<int, PropertyBuilder>
+     * @var array<non-empty-string, non-empty-string|null>
      */
-    private $properties;
+    private array $properties;
+
+    private TypeInterface $type;
 
     /**
-     * @var TypeInterface<O>
+     * @param array<non-empty-string, non-empty-string|null> $properties
      */
-    private $type;
-
-    /**
-     * @param TypeInterface<O>            $type
-     * @param array<int, PropertyBuilder> $properties
-     */
-    public function __construct(TypeInterface $type, array $properties)
+    public function __construct(array $properties, TypeInterface $type)
     {
         $this->properties = $properties;
         $this->type = $type;
     }
 
     /**
-     * @return array<int, PropertyBuilder>
+     * @return array<non-empty-string, non-empty-string|null>
      */
     public function getProperties(): array
     {
         return $this->properties;
     }
 
-    public function addProperty(PropertyBuilder $property): void
-    {
-        $this->properties[] = $property;
-    }
-
     /**
-     * @param list<PropertyBuilder> $properties
+     * @param array<non-empty-string, non-empty-string|null> $properties
      */
     public function setProperties(array $properties): void
     {
         $this->properties = $properties;
     }
 
-    /**
-     * @return TypeInterface<O>
-     */
     public function getType(): TypeInterface
     {
         return $this->type;

@@ -17,6 +17,7 @@ use function collect;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
@@ -300,7 +301,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
     public function getInternalProperties(): array
     {
-        return array_map(static function (string $className): ?string {
+        $properties = array_map(static function (string $className): ?string {
             $classImplements = class_implements($className);
             if (is_array($classImplements) && in_array(ResourceTypeInterface::class, $classImplements, true)) {
                 /* @var ResourceTypeInterface $className */
@@ -309,7 +310,36 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
 
             return null;
         }, $this->getAutoPathProperties());
+
+        $event = new GetInternalPropertiesEvent($properties, $this);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getProperties();
     }
+
+    public function isExposedAsPrimaryResource(): bool
+    {
+        return $this->isAvailable() && $this->isDirectlyAccessible();
+    }
+
+    /**
+     * @deprecated do not implement or call this method, it will be removed as soon as possible
+     */
+    public function isExposedAsRelationship(): bool
+    {
+        return $this->isAvailable() && $this->isReferencable();
+    }
+
+    abstract public function isAvailable(): bool;
+
+    abstract public function isDirectlyAccessible(): bool;
+
+    /**
+     * @deprecated Move the permission-checks from the overrides of this method to the
+     *             {@link self::getProperties()} method of the referencing resource type instead.
+     *             Afterwards, return `true` in the override of this method.
+     */
+    abstract public function isReferencable(): bool;
 
     /**
      * Convert the given array to an array with different mapping.

@@ -613,7 +613,7 @@
 
            --><div class="layout--flush layout__item c-at-item__row overflow-word-break">
                 <a
-                  v-if="hasOwnProp(statement.sourceAttachment, 'filename')"
+                  v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
                   :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })"
                   rel="noopener"

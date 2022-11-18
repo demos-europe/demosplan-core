@@ -105,6 +105,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use const FILTER_VALIDATE_BOOLEAN;
@@ -2854,6 +2855,10 @@ class DemosPlanProcedureController extends BaseController
         // to pass the variable if it's a procedure template (Blaupause)
         if ($isProcedureTemplate) {
             return $templateVars;
+        }
+
+        if (!$this->procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
