@@ -158,7 +158,7 @@ class ReportService extends CoreService
     /**
      * Reporteinträge zur Sichtbarkeitsänderung von InvitableInstitution.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInvitableInstitutionShowlistChanges(): DemosPlanPaginator
     {
@@ -200,11 +200,11 @@ class ReportService extends CoreService
             $anonymizeSubmitterData = $statement->isSubmitter($userId);
             $anonymizeAuthorData = $statement->isAuthor($userId);
 
-            // anonymize data of user is more or less deprecated
-            // instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
+            //anonymize data of user is more or less deprecated
+            //instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
             if ($statement->isSubmitter($userId)
                 && $statement->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator()) {
-                // Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
+                //Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
                 $anonymizeAuthorData = true;
             }
         }
@@ -219,7 +219,7 @@ class ReportService extends CoreService
                     $anonymizeAuthorData,
                     $isManualStatement
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->error('Error on anonymize user data of EeportEntry:'.$e);
             }
         }
@@ -252,7 +252,7 @@ class ReportService extends CoreService
             $statementArray = $this->anonymizeAuthorUserData($statementArray);
         }
 
-        // In case of statement is not a manual statement the data of the author are stored directly on the report.
+        //In case of statement is not a manual statement the data of the author are stored directly on the report.
         if (!$isManualStatement
             && ReportEntry::CATEGORY_ADD === $reportEntry->getCategory()
             && ReportEntry::GROUP_STATEMENT === $reportEntry->getGroup()

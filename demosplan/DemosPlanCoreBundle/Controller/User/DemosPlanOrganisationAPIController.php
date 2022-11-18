@@ -35,11 +35,13 @@ use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use UnexpectedValueException;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -52,6 +54,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("feature_orga_get")
      */
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
@@ -74,7 +77,7 @@ class DemosPlanOrganisationAPIController extends APIController
             }
 
             throw OrgaNotFoundException::createFromId($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('', [$e]);
 
             return $this->handleApiError($e);
@@ -90,6 +93,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
@@ -154,7 +158,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleApiError($e);
         }
     }
@@ -269,7 +273,10 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"DELETE"},
      *     name="organisation_delete"
      * )
+     *
      * @DplanPermissions("feature_orga_delete")
+     *
+     * @return APIResponse
      */
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
     {
@@ -289,7 +296,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $this->getMessageBag()->add('error', 'error.organisation.not.deleted');
 
             return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleApiError($e);
         }
     }
@@ -303,6 +310,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"POST"},
      *     name="organisation_create"
      * )
+     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
@@ -326,7 +334,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $newOrga = $userHandler->addOrga($orgaDataArray);
 
-            // Fehlermeldung, Pflichtfelder
+            //Fehlermeldung, Pflichtfelder
             if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
                 $this->getMessageBag()->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
@@ -335,7 +343,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
 
             return $this->renderResource($item);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add('error', 'error.organisation.not.created');
             $this->logger->error('Unable to create Orga: ', [$e]);
 
@@ -351,6 +359,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"PATCH"},
      *     name="organisation_update"
      * )
+     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse
@@ -412,8 +421,8 @@ class DemosPlanOrganisationAPIController extends APIController
                 return $this->renderResource($item);
             }
 
-            throw new \UnexpectedValueException();
-        } catch (\Exception $e) {
+            throw new UnexpectedValueException();
+        } catch (Exception $e) {
             return $this->handleApiError($e);
         }
     }

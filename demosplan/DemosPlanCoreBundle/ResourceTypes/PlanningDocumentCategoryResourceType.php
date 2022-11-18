@@ -28,10 +28,10 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use function in_array;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
- *
  * @template-extends DplanResourceType<Elements>
  *
  * @property-read End $category
@@ -94,8 +94,8 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
     {
         return $this->currentUser->hasAnyPermissions(
             'feature_admin_element_edit',
-            // used within the procedure detail view (project specific)
-            'area_documents')
+                // used within the procedure detail view (project specific)
+               'area_documents')
             || $this->isBulkEditAllowed();
     }
 
@@ -139,7 +139,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         $publicConditions = $adminConditions;
 
-        if ($this->currentUser->hasPermission('feature_admin_element_invitable_institution_or_public_authorisations')) { // einschränkung der elements erlaubt?
+        if ($this->currentUser->hasPermission('feature_admin_element_invitable_institution_or_public_authorisations')) { //einschränkung der elements erlaubt?
             if (!$this->currentUser->hasPermission('feature_admin_element_public_access')) {
                 $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_public_access', $this->permission);
             }
@@ -226,13 +226,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentId->readable(true);
             $title->readable(true);
             $documents->readable(true);
-            if (!\in_array($fileInfo, $properties, true)) {
+            if (!in_array($fileInfo, $properties, true)) {
                 $properties[] = $fileInfo;
             }
-            if (!\in_array($filePathWithHash, $properties, true)) {
+            if (!in_array($filePathWithHash, $properties, true)) {
                 $properties[] = $filePathWithHash;
             }
-            if (!\in_array($children, $properties, true)) {
+            if (!in_array($children, $properties, true)) {
                 $properties[] = $children;
             }
             $properties[] = $index;
@@ -245,7 +245,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         if ($this->currentUser->hasPermission('feature_admin_element_edit')) {
             $id->filterable();
-            if (!\in_array($index, $properties, true)) {
+            if (!in_array($index, $properties, true)) {
                 $properties[] = $index;
             }
             $properties = array_merge($properties, [

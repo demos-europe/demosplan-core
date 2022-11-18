@@ -23,7 +23,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Faq>
- *
  * @template-implements UpdatableDqlResourceTypeInterface<Faq>
  *
  * @property-read End                     $enabled

@@ -26,7 +26,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<User>
- *
  * @template-extends DplanResourceType<User>
  *
  * @property-read End $firstname

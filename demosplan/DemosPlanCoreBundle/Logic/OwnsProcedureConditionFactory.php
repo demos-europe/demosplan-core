@@ -86,7 +86,7 @@ class OwnsProcedureConditionFactory
             ['orga', 'id']
         );
 
-        // T8427: allow access by manually configured users, overwriting the organisation-based access
+        //T8427: allow access by manually configured users, overwriting the organisation-based access
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $planningAgencyIsAuthorized = $this->isAuthorizedViaPlanningAgency();
             $userIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
@@ -116,7 +116,7 @@ class OwnsProcedureConditionFactory
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             // Fachplaner-Admin GLAUTH Kommune oder Fachplaner SB
 
-            // Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
+            //Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
 
             $ownsOrgaRoleCondition = $this->conditionFactory->propertyHasAnyOfValues(
                 [

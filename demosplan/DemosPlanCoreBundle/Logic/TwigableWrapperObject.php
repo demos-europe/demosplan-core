@@ -23,6 +23,8 @@ use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
+use function strlen;
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 class TwigableWrapperObject extends WrapperObject
 {
@@ -64,13 +66,13 @@ class TwigableWrapperObject extends WrapperObject
         }
 
         $backTrace = debug_backtrace(
-            \DEBUG_BACKTRACE_IGNORE_ARGS,
+            DEBUG_BACKTRACE_IGNORE_ARGS,
             1
         );
 
         // if we're called from inside a twig template, only allow getting values
         if (0 < strpos($backTrace[0]['file'], ValueObject::TWIG_LOCATION)) {
-            if (0 < \strlen($match[1])) {
+            if (0 < strlen($match[1])) {
                 throw ValueObjectException::noAccessorAllowedFromTwig();
             }
 

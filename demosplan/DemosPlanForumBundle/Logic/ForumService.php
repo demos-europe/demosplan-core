@@ -31,6 +31,8 @@ use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use Exception;
+use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ForumService extends CoreService
@@ -127,7 +129,7 @@ class ForumService extends CoreService
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addThreadEntry($threadId, $data)
     {
@@ -157,7 +159,7 @@ class ForumService extends CoreService
             $finalResponse['body'] = $response;
 
             return $finalResponse;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add Entry failed.', [$e]);
             throw $e;
         }
@@ -170,7 +172,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getThreadEntryList($threadId)
     {
@@ -192,7 +194,7 @@ class ForumService extends CoreService
             }
 
             return $resultArray;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der Forumseinträge: ', [$e]);
             throw $e;
         }
@@ -205,7 +207,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getThreadEntry($threadEntryId)
     {
@@ -221,7 +223,7 @@ class ForumService extends CoreService
             unset($entry['topic']);
 
             return $entry;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Entries: ', [$e]);
             throw $e;
         }
@@ -234,7 +236,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getThread($threadId)
     {
@@ -248,7 +250,7 @@ class ForumService extends CoreService
             $thread['topic'] = $this->convertToLegacy($thread['topic']);
 
             return $thread;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get Thread failed.', [$e]);
             throw $e;
         }
@@ -262,7 +264,7 @@ class ForumService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateThreadEntry($threadEntryId, $data)
     {
@@ -299,7 +301,7 @@ class ForumService extends CoreService
             unset($updatedEntry['topic']);
 
             return ['status' => true, 'body' => $updatedEntry];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update Entry failed.', [$e]);
             throw $e;
         }
@@ -312,7 +314,7 @@ class ForumService extends CoreService
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @internal param string $fileId
      */
@@ -320,13 +322,13 @@ class ForumService extends CoreService
     {
         try {
             return $this->forumEntryFileRepository->delete($fileHash);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete ForumEntryFile failed');
             throw $e;
         }
     }
 
-    // ----Weiterentwicklungsbereich----
+    //----Weiterentwicklungsbereich----
 
     /**
      * Save a new release.
@@ -335,7 +337,7 @@ class ForumService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newRelease($data)
     {
@@ -346,7 +348,7 @@ class ForumService extends CoreService
             $result['status'] = true;
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add Release failed.', [$e]);
             throw $e;
         }
@@ -360,7 +362,7 @@ class ForumService extends CoreService
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateRelease($releaseId, $data)
     {
@@ -368,7 +370,7 @@ class ForumService extends CoreService
             $this->developmentReleaseRepository->update($releaseId, $data);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update Release failed.', [$e]);
             throw $e;
         }
@@ -379,13 +381,13 @@ class ForumService extends CoreService
      *
      * @param string $releaseId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteRelease($releaseId): void
     {
         try {
             $this->developmentReleaseRepository->delete($releaseId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete Release failed.', [$e]);
             throw $e;
         }
@@ -398,7 +400,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getRelease($releaseId)
     {
@@ -410,7 +412,7 @@ class ForumService extends CoreService
             unset($entry['createDate']);
 
             return $entry;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Entries: ', [$e]);
             throw $e;
         }
@@ -420,7 +422,7 @@ class ForumService extends CoreService
      * Get all releases.
      *
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function getReleases()
     {
@@ -436,7 +438,7 @@ class ForumService extends CoreService
             }
 
             return $resultArray;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der Forumseinträge: ', [$e]);
             throw $e;
         }
@@ -451,7 +453,7 @@ class ForumService extends CoreService
      * @return mixed
      *
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function newUserStory($releaseId, $data)
     {
@@ -463,7 +465,7 @@ class ForumService extends CoreService
             $result['status'] = true;
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add Release failed.', [$e]);
             throw $e;
         }
@@ -477,7 +479,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateUserStory($storyId, $data)
     {
@@ -489,7 +491,7 @@ class ForumService extends CoreService
             $response['responseCode'] = 204;
 
             return $response;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update Release failed.', [$e]);
             throw $e;
         }
@@ -502,13 +504,13 @@ class ForumService extends CoreService
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteUserStory($storyId)
     {
         try {
             $this->developmentUserStoryRepository->delete($storyId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete Release failed.', [$e]);
             throw $e;
         }
@@ -523,7 +525,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getUserStories($releaseId)
     {
@@ -543,7 +545,7 @@ class ForumService extends CoreService
             }
 
             return $resultArray;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der Forumseinträge: ', [$e]);
             throw $e;
         }
@@ -556,7 +558,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getUserStory($storyId)
     {
@@ -568,7 +570,7 @@ class ForumService extends CoreService
             unset($entry['thread']);
 
             return $entry;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Entries: ', [$e]);
             throw $e;
         }
@@ -589,7 +591,7 @@ class ForumService extends CoreService
      * @return mixed
      *
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveVotes($releaseId, $votes)
     {
@@ -604,7 +606,7 @@ class ForumService extends CoreService
             $result['status'] = true;
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add Release failed.', [$e]);
             throw $e;
         }
@@ -617,7 +619,7 @@ class ForumService extends CoreService
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVotes($storyId)
     {
@@ -644,7 +646,7 @@ class ForumService extends CoreService
      *
      * @return array|mixed
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function convertToLegacy($object)
     {
@@ -678,7 +680,7 @@ class ForumService extends CoreService
      *
      * @return array|ForumEntry|mixed
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function convertEntryToLegacy($entry)
     {

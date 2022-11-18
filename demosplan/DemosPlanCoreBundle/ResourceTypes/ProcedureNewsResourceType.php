@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use Carbon\Carbon;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
@@ -28,10 +29,10 @@ use demosplan\DemosPlanUserBundle\Logic\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>
- *
  * @template-implements DeletableDqlResourceTypeInterface<News>
  * @template-implements CreatableDqlResourceTypeInterface<News>
  *
@@ -202,7 +203,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         });
         $updater->ifPresent($this->roles, function (Collection $roles) use ($news): void {
             if (0 === $roles->count()) {
-                throw new \InvalidArgumentException('error.mandatoryfield.visibility');
+                throw new InvalidArgumentException('error.mandatoryfield.visibility');
             }
             array_map(static function (Role $glauthRole) use ($roles): void {
                 // user in the GLAUTH group must always be allowed to see procedure news
@@ -218,7 +219,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
                 $news->setDesignatedSwitchDate(null);
                 $news->setDeterminedToSwitch(false);
             } else {
-                $date = Carbon::createFromFormat(\DateTime::ATOM, $dateString);
+                $date = Carbon::createFromFormat(DateTime::ATOM, $dateString);
                 $news->setDesignatedSwitchDate($date);
                 $news->setDeterminedToSwitch(true);
             }

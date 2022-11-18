@@ -26,7 +26,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Place>
- *
  * @template-implements UpdatableDqlResourceTypeInterface<Place>
  * @template-implements CreatableDqlResourceTypeInterface<Place>
  *

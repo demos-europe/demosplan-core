@@ -27,7 +27,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
- *
  * @template-implements DeletableDqlResourceTypeInterface<GlobalContent>
  * @template-implements CreatableDqlResourceTypeInterface<GlobalContent>
  *

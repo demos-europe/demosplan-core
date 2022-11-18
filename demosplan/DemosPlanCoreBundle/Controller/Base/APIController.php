@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
+use function array_key_exists;
 use function data_get;
-
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -41,6 +41,9 @@ use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\PropertyAccessException;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+use InvalidArgumentException;
+use function is_array;
+use function is_string;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\ResourceAbstract;
@@ -52,6 +55,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 abstract class APIController extends BaseController
 {
@@ -152,7 +156,7 @@ abstract class APIController extends BaseController
             try {
                 $normalizer = new Normalizer();
                 $this->requestData = $normalizer->normalize($content);
-            } catch (\InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 $this->getLogger()->info(
                     'Request did not contain valid json, but was expected to.',
                     [$e, $e->getTraceAsString()]
@@ -209,7 +213,7 @@ abstract class APIController extends BaseController
     protected function createResponse(array $data, $status): APIResponse
     {
         // @improve T16794
-        if (false === \array_key_exists('included', $data)) {
+        if (false === array_key_exists('included', $data)) {
             $data['included'] = [];
         }
 
@@ -232,7 +236,7 @@ abstract class APIController extends BaseController
      *
      * Also add messages to message bag.
      */
-    public function handleApiError(\Throwable $exception = null): APIResponse
+    public function handleApiError(Throwable $exception = null): APIResponse
     {
         $status = Response::HTTP_BAD_REQUEST;
         $message = '';
@@ -407,7 +411,7 @@ abstract class APIController extends BaseController
         if (null === $this->requestJson) {
             try {
                 $this->requestJson = Json::decodeToArray($this->getRequestBody());
-            } catch (\InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 $this->logger->warning(
                     'Request did not contain valid json, but was expected to.',
                     $e->getTrace()
@@ -417,7 +421,7 @@ abstract class APIController extends BaseController
             }
         }
 
-        return \data_get($this->requestJson, $path);
+        return data_get($this->requestJson, $path);
     }
 
     /**
@@ -472,14 +476,14 @@ abstract class APIController extends BaseController
         $baseMessage = 'If the \'include\' parameter is present, its value must be a comma-separated '
             .'list of relationship paths as a single string. Eg. “include=comments,authors“';
 
-        if (\is_array($rawIncludes)) {
+        if (is_array($rawIncludes)) {
             // See https://jsonapi.org/format/#fetching-includes
             $message = $baseMessage.', not “include[]=comments&include[]=authors”. Request URL was: '
                 .$this->request->getRequestUri();
             throw new BadRequestException($message);
         }
 
-        if (!\is_string($rawIncludes)) {
+        if (!is_string($rawIncludes)) {
             $this->apiLogger->warning("$baseMessage, not the type ".gettype($rawIncludes).'.');
 
             return;
@@ -493,7 +497,7 @@ abstract class APIController extends BaseController
 
         // the existence of properties in a resource type can only be checked if we were able to
         // retrieve the accessed resource type from the request
-        if (\is_string($resourceTypeName)) {
+        if (is_string($resourceTypeName)) {
             try {
                 $this->resourceTypeProvider->requestType($resourceTypeName)
                     ->getInstanceOrThrow();
@@ -514,7 +518,7 @@ abstract class APIController extends BaseController
             }
 
             if (!$type->isExposedAsPrimaryResource()) {
-                throw new \InvalidArgumentException("The resource type '$resourceTypeName' is not directly accessible");
+                throw new InvalidArgumentException("The resource type '$resourceTypeName' is not directly accessible");
             }
 
             $includes = explode(',', $rawIncludes);

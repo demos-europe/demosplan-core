@@ -22,7 +22,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureUiDefinition>
- *
  * @template-extends DplanResourceType<ProcedureUiDefinition>
  *
  * @property-read End $statementFormHintStatement

@@ -15,11 +15,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use Exception;
+use function explode;
+use ReflectionException;
 
 class SingleDocumentService extends CoreService
 {
@@ -82,7 +85,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
@@ -102,7 +105,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            // Legacy structure
+            //Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -121,7 +124,7 @@ class SingleDocumentService extends CoreService
      *
      * @param array $documents
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function sortDocuments($documents): bool
     {
@@ -146,7 +149,7 @@ class SingleDocumentService extends CoreService
      * @param string      $category
      * @param string|null $search
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
@@ -162,7 +165,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            // Legacy structure
+            //Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -185,7 +188,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentAdminListAll($procedureId, $search = null)
     {
@@ -204,7 +207,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            // Legacy structure
+            //Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -225,8 +228,7 @@ class SingleDocumentService extends CoreService
      *
      * @return SingleDocument|array|null
      *
-     * @throws \ReflectionException
-     *
+     * @throws ReflectionException
      * @psalm-return SingleDocument|array{statement_enabled: mixed}|null
      */
     public function getSingleDocument($ident, bool $legacy = true)
@@ -237,7 +239,7 @@ class SingleDocumentService extends CoreService
         if (null !== $result && $legacy) {
             $result = $this->entityHelper->toArray($result);
             $result = $this->convertDateTime($result);
-            // Legacy structure
+            //Legacy structure
             $result['statement_enabled'] = $result['statementEnabled'];
         }
 
@@ -251,7 +253,7 @@ class SingleDocumentService extends CoreService
      *
      * @return SingleDocumentVersion[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVersions($singleDocumentId)
     {
@@ -267,7 +269,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function addSingleDocument($data)
     {
@@ -275,7 +277,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        // Legacy structure
+        //Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
@@ -300,14 +302,14 @@ class SingleDocumentService extends CoreService
                 try {
                     // lösche die Entity
                     $repos->delete($documentId);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines SingleDocuments: ', [$e]);
                     $success = false;
                 }
             }
 
             return $success;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Löschen eines SingleDocuments: ', [$e]);
 
             return false;
@@ -321,7 +323,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function updateSingleDocument($data)
     {
@@ -330,7 +332,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        // Legacy structure
+        //Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
@@ -394,7 +396,7 @@ class SingleDocumentService extends CoreService
      */
     public function convertSingleDocumentTitle($title)
     {
-        $documentParts = \explode(':', $title);
+        $documentParts = explode(':', $title);
         // set somehow misleading title 'title.pdf' to avoid missing docType in Windows
         return $documentParts[0] ?? 'title.pdf';
     }
@@ -407,7 +409,7 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentInfo(SingleDocument $singleDocument): array
     {
         $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = \explode(':', $singleDocument->getDocument());
+        $documentStringParts = explode(':', $singleDocument->getDocument());
         if (count($documentStringParts) >= 4) {
             $fileInfo['name'] = $documentStringParts[0];
             $fileInfo['hash'] = $documentStringParts[1];
@@ -472,7 +474,7 @@ class SingleDocumentService extends CoreService
     /**
      * Create Version of SingleDocument.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createSingleDocumentVersion(SingleDocument $singleDocument): SingleDocumentVersion
     {

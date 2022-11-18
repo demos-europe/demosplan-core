@@ -128,9 +128,9 @@ final class StatementFragmentResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('feature_statements_fragment_advice')) {
             $properties[] = $this->createAttribute($this->voteAdvice)->readable(true, function (StatementFragment $fragment): ?string {
-                // fragment is currently not assigned to a department (to set advice)
-                // and current user has permission to set vote -> voteAdvice needed
-                // (the one who set set vote, shall not see voteAdvice until it is completed)
+                //fragment is currently not assigned to a department (to set advice)
+                //and current user has permission to set vote -> voteAdvice needed
+                //(the one who set set vote, shall not see voteAdvice until it is completed)
                 if (null === $fragment->getDepartmentId() && $this->currentUser->hasPermission('feature_statements_fragment_vote')) {
                     return null;
                 }

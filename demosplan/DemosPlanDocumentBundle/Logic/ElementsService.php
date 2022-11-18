@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use function array_key_exists;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -23,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
@@ -41,6 +42,9 @@ use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
+use Exception;
+use ReflectionException;
+use Throwable;
 
 class ElementsService extends CoreService
 {
@@ -144,7 +148,7 @@ class ElementsService extends CoreService
      *
      * @return Elements[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElementsListObjects($procedureId, $organisationId = null, $isOwner = false, $ignoreEnabled = false): array
     {
@@ -170,7 +174,7 @@ class ElementsService extends CoreService
             $elements = $this->entityFetcher->listEntitiesUnrestricted(Elements::class, $conditions, [$sortMethod]);
 
             return $this->getElementsRepository()->filterElementsByPermissions($elements);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('getElementsListObjects List failed. ', [$e]);
             throw $e;
         }
@@ -184,7 +188,7 @@ class ElementsService extends CoreService
      *
      * @return array<int,Elements>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElementsAdminList($procedureId): array
     {
@@ -219,7 +223,7 @@ class ElementsService extends CoreService
      *
      * @return array the converted Elements
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function convertToLegacyArrayItems($inputElements): array
     {
@@ -245,7 +249,7 @@ class ElementsService extends CoreService
         $hiddenByConfigCategories =
             $this->getTopElements($procedureId, [], ['title' => $hiddenTitlesArray, 'deleted' => [false]]);
 
-        // return IDs only:
+        //return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
             function ($element) {
                 /* @var Elements $element */
@@ -263,7 +267,7 @@ class ElementsService extends CoreService
      *
      * @return Elements[]|array[] The elements
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getTopElementsByProcedureId(string $procedureId, $notWhere = [], bool $toLegacy = false): array
     {
@@ -293,13 +297,13 @@ class ElementsService extends CoreService
      *
      * @param string $id - Identifiziert das Element, welches abgerufen werden soll
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElementObject(string $id): ?Elements
     {
         try {
             return $this->getElementsRepository()->get($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('getElementObject failed. ', [$e]);
             throw $e;
         }
@@ -312,7 +316,7 @@ class ElementsService extends CoreService
      *
      * @return array|Elements
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated use {@link ElementsService::getElementObject()} instead
      */
@@ -322,7 +326,7 @@ class ElementsService extends CoreService
             $element = $this->getElementsRepository()->get($elementId);
 
             return $toArray ? $this->convertElementToArray($element) : $element;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('getElements failed. ', [$e]);
             throw $e;
         }
@@ -333,7 +337,7 @@ class ElementsService extends CoreService
      *
      * @return array<int,Elements>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getEnabledFileAndParagraphElements(string $procedureId, ?string $organisationId, bool $isOwner = false): array
     {
@@ -363,7 +367,7 @@ class ElementsService extends CoreService
      *
      * @return Elements|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getMapElements(string $procedureId)
     {
@@ -376,7 +380,7 @@ class ElementsService extends CoreService
      *
      * @return Elements[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getParagraphElements(string $procedureId): array
     {
@@ -385,7 +389,7 @@ class ElementsService extends CoreService
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElementsIdsWithoutParagraphsAndDocuments(string $procedureId): array
     {
@@ -399,7 +403,7 @@ class ElementsService extends CoreService
             if ($negativeReportElement instanceof Elements && $negativeReportElement->getEnabled()) {
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Negative report element could not be found',
                 ['procedureId' => $procedureId]
             );
@@ -411,7 +415,7 @@ class ElementsService extends CoreService
     /**
      * Ruft die Fehlanzeigenkategorie eines bestimmten Verfahrens ab.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getNegativeReportElement(string $procedureId): ?Elements
     {
@@ -450,7 +454,7 @@ class ElementsService extends CoreService
      *
      * @return Elements
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getMapElement(string $procedureId)
     {
@@ -463,7 +467,7 @@ class ElementsService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addElement(array $data): ?array
     {
@@ -472,14 +476,14 @@ class ElementsService extends CoreService
             $result = $this->getElementsRepository()->add($data);
 
             return $this->convertElementToArray($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('addElement failed. ', [$e]);
             throw $e;
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function addEntity(Elements $element): Elements
     {
@@ -521,7 +525,7 @@ class ElementsService extends CoreService
                         }
                     }
 
-                    // lösche ggf paragraphs
+                    //lösche ggf paragraphs
                     $paragraphIds = $this->getElementsRepository()
                         ->getParagraphIds($elementId);
 
@@ -533,7 +537,7 @@ class ElementsService extends CoreService
                         ));
                     }
 
-                    // lösche rekursiv Unterkategorien
+                    //lösche rekursiv Unterkategorien
                     if (null !== $elementEntity && $elementEntity->getChildren() instanceof Collection) {
                         foreach ($elementEntity->getChildren() as $child) {
                             $deleted = $this->deleteElement($child->getId());
@@ -546,14 +550,14 @@ class ElementsService extends CoreService
                         }
                     }
                     $this->getElementsRepository()->delete($elementId);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->error('An error occurred while deleting an element: ', [$e]);
                     $success = false;
                 }
             }
 
             return $success;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('An error occurred while deleting an element: ', [$e]);
 
             return false;
@@ -565,7 +569,7 @@ class ElementsService extends CoreService
      *
      * Warning: does not support storing $data in the database if $data has $designatedSwitchDate set to something non-null.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Use {@link updateElementObject} instead
      */
@@ -574,21 +578,21 @@ class ElementsService extends CoreService
         $repository = $this->getElementsRepository();
         $defaultStatementElementTitle = $this->globalConfig->getElementsStatementCategoryTitle();
         $id = $element['ident'];
-        // use getter of repos
+        //use getter of repos
         $currentTitle = $repository->get($id)->getTitle();
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         if (collect($titlesOfHiddenElements)->contains($currentTitle)) {
-            // deny update of elements which are hidden for this project, because this means also there are not editable.
+            //deny update of elements which are hidden for this project, because this means also there are not editable.
             return [];
         }
 
-        // deny set $defaultStatementElementTitle as new title ?
-        if (\array_key_exists('title', $element) && $element['title'] === $defaultStatementElementTitle) {
+        //deny set $defaultStatementElementTitle as new title ?
+        if (array_key_exists('title', $element) && $element['title'] === $defaultStatementElementTitle) {
             $element['title'] = $currentTitle;
         }
 
-        // deny update title of statementElement? (Gesamtstellungnahme)
+        //deny update title of statementElement? (Gesamtstellungnahme)
         if ($currentTitle === $defaultStatementElementTitle) {
             $element['title'] = $defaultStatementElementTitle;
         }
@@ -606,7 +610,7 @@ class ElementsService extends CoreService
         $repository = $this->getElementsRepository();
         $defaultStatementElementTitle = $this->globalConfig->getElementsStatementCategoryTitle();
 
-        // use getter of repos
+        //use getter of repos
         $currentTitle = $repository->get($element->getId())->getTitle();
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
@@ -615,17 +619,17 @@ class ElementsService extends CoreService
             return Elements::FILE_TYPE_PLANZEICHNUNG !== $title;
         });
         if ($titlesOfHiddenElements->contains($currentTitle)) {
-            // deny update of elements which are hidden for this project, because this means also there are not editable.
+            //deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
         }
 
-        // deny set $defaultStatementElementTitle as new title ?
+        //deny set $defaultStatementElementTitle as new title ?
         $newTitleToSet = $element->getTitle();
         if ($newTitleToSet === $defaultStatementElementTitle) {
             $element->setTitle($currentTitle);
         }
 
-        // deny update title of statementElement? (Gesamtstellungnahme)
+        //deny update title of statementElement? (Gesamtstellungnahme)
         if ($currentTitle === $defaultStatementElementTitle) {
             $element->setTitle($defaultStatementElementTitle);
         }
@@ -666,7 +670,7 @@ class ElementsService extends CoreService
             $this->getLogger()->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
 
             return false;
@@ -702,7 +706,7 @@ class ElementsService extends CoreService
             $this->getLogger()->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
 
             return false;
@@ -743,7 +747,7 @@ class ElementsService extends CoreService
     /**
      * @param Elements $element
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function convertElementToArray($element): array
     {
@@ -759,11 +763,11 @@ class ElementsService extends CoreService
         if (null !== $entityDocuments && !$entityDocuments->isEmpty()) {
             foreach ($entityDocuments as $s) {
                 if ($s->getDeleted()) {
-                    // Legacy fehlende where Annotation in doctrine
+                    //Legacy fehlende where Annotation in doctrine
                     continue;
                 }
                 $sres = $this->entityHelper->toArray($s);
-                // Legacy notation
+                //Legacy notation
                 $sres['statement_enabled'] = $sres['statementEnabled'];
                 $documents[] = $this->convertDateTime($sres);
             }
@@ -832,7 +836,7 @@ class ElementsService extends CoreService
      */
     public function prepareElementsForAutoSwitchState(
         array $elementIdsToSwitch,
-        \DateTime $designatedSwitchDateTime,
+        DateTime $designatedSwitchDateTime,
         bool $designatedState,
         string $procedureId
     ): array {
@@ -860,7 +864,7 @@ class ElementsService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copy(string $sourceProcedureId, Procedure $destinationProcedure): ?array
     {
@@ -870,7 +874,7 @@ class ElementsService extends CoreService
         $paragraphRepository = $entityManager->getRepository(Paragraph::class);
 
         try {
-            // this method will only called on creating a new procedure, therefore the related elements should not be filtered by userroles
+            //this method will only called on creating a new procedure, therefore the related elements should not be filtered by userroles
             $elementsToCopy = $this->elementsRepository->findBy(['pId' => $sourceProcedureId], ['order' => 'asc']);
             $elementsToCopy = $this->elementsRepository->filterElementsByPermissions($elementsToCopy);
 
@@ -896,16 +900,16 @@ class ElementsService extends CoreService
 
                 $entityManager->persist($copiedElement);
 
-                // copy related singleDocuments
+                //copy related singleDocuments
                 foreach ($elementToCopy->getDocuments() as $documentToCopy) {
                     $this->singleDocumentRepository->copyDocumentOfElement($documentToCopy, $copiedElement);
                     $this->copyDocumentRelatedFiles($destinationProcedure);
                 }
 
-                // copy related paragraphs and duplicate files
+                //copy related paragraphs and duplicate files
                 $paragraphRepository->copyParagraphsOfElement($elementToCopy, $copiedElement);
 
-                // copy related file
+                //copy related file
                 $this->copyElementRelatedFiles($destinationProcedure);
 
                 $elementIds[$elementToCopy->getId()] = $copiedElement->getId();
@@ -913,7 +917,7 @@ class ElementsService extends CoreService
             $entityManager->flush();
 
             return $elementIds;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Copy elements failed. Message: ', [$e]);
             throw $e;
         }
@@ -924,7 +928,7 @@ class ElementsService extends CoreService
      *
      * @throws OptimisticLockException
      * @throws InvalidDataException
-     * @throws ORMException|\Throwable
+     * @throws ORMException|Throwable
      */
     private function copyDocumentRelatedFiles(Procedure $newProcedure): void
     {
@@ -942,7 +946,7 @@ class ElementsService extends CoreService
     }
 
     /**
-     * @throws InvalidDataException|\Throwable
+     * @throws InvalidDataException|Throwable
      */
     private function copyElementRelatedFiles(Procedure $newProcedure): void
     {
@@ -964,7 +968,7 @@ class ElementsService extends CoreService
      * @throws InvalidArgumentException          thrown if the given data would result in an {@link Elements}
      *                                           entity with more parents than allowed by
      *                                           {@link Elements::MAX_PARENTS_COUNT}
-     * @throws \Exception
+     * @throws Exception
      */
     private function validateParentsCount(array $data): void
     {

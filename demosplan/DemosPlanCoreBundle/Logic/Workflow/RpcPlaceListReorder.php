@@ -35,6 +35,7 @@ use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
+use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 
 /**
@@ -188,7 +189,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
                     $allPlacesOfProcedure
                 );
                 $listReorder->reorderEntityList();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
 
                 return $resultResponse;
@@ -203,7 +204,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         try {
             return $this->procedureService->isUserAuthorized($procedureId)
                 && $this->permissions->hasPermission('area_manage_segment_places');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

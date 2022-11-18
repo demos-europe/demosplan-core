@@ -42,10 +42,11 @@ use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
-use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
+use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+use function is_array;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
@@ -223,7 +224,7 @@ class EntityFetcher implements EntityFetcherInterface
         $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
         $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
 
-        return \is_array($entities) ? $entities : iterator_to_array($entities);
+        return is_array($entities) ? $entities : iterator_to_array($entities);
     }
 
     /**
@@ -248,7 +249,7 @@ class EntityFetcher implements EntityFetcherInterface
 
         $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
 
-        return \is_array($entities) ? $entities : iterator_to_array($entities);
+        return is_array($entities) ? $entities : iterator_to_array($entities);
     }
 
     /**
@@ -374,12 +375,12 @@ class EntityFetcher implements EntityFetcherInterface
 
     /**
      * @param IdentifiableTypeInterface&TransferableTypeInterface $type
-     * @param array<int,FunctionInterface<bool>>                  $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>                      $sortMethods Order matters. Lower positions imply
-     *                                                                         higher priority. Ie. a second sort method
-     *                                                                         will be applied to each subset individually
-     *                                                                         that resulted from the first sort method.
-     *                                                                         The array keys will be ignored.
+     * @param array<int,FunctionInterface<bool>>              $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>                  $sortMethods Order matters. Lower positions imply
+     *                                                                     higher priority. Ie. a second sort method
+     *                                                                     will be applied to each subset individually
+     *                                                                     that resulted from the first sort method.
+     *                                                                     The array keys will be ignored.
      *
      * @return array<int, string> the identifiers of the entities, sorted by the given $sortMethods
      *
@@ -414,7 +415,7 @@ class EntityFetcher implements EntityFetcherInterface
      * Check if the given object matches any of the given conditions.
      *
      * @param array<int, ClauseFunctionInterface<bool>> $conditions at least one condition must match for `true`
-     *                                                              to be returned; must not be empty
+     *                                                        to be returned; must not be empty
      */
     public function objectMatchesAny(object $object, array $conditions): bool
     {

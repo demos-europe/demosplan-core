@@ -24,7 +24,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
- *
  * @template-implements CreatableDqlResourceTypeInterface<TagTopic>
  *
  * @property-read End $id
