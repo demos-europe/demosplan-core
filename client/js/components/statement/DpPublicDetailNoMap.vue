@@ -62,7 +62,8 @@ export default {
   data () {
     return {
       activeTab: '#procedureDetailsDocumentlist',
-      consultationTokenInputField: ''
+      consultationTokenInputField: '',
+      isSubmitting: false
     }
   },
 
@@ -89,6 +90,7 @@ export default {
       }
 
       if (this.dpValidate[formId]) {
+        this.isSubmitting = true
         form.submit()
         this.isSubmitting = true
         removeFormHiddenField(form)

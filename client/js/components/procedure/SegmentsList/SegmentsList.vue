@@ -481,7 +481,7 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then((data) => {
+        .then(data => {
           this.isLoading = false
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
@@ -489,6 +489,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter: filter,
+            search: payload.search,
             fields: {
               StatementSegment: ['id'].join()
             }

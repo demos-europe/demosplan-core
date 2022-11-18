@@ -31,7 +31,7 @@
 import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
 import { DpInput } from '@demos-europe/demosplan-ui/components'
 import { dpRpc } from '@demos-europe/demosplan-utils'
-import length from '@demos-europe/demosplan-ui/shared/props'
+import { length } from '@demos-europe/demosplan-ui/shared/props'
 
 export default {
   name: 'CoupleTokenInput',
