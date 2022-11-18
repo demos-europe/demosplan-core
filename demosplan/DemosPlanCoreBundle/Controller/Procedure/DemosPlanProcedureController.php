@@ -1960,7 +1960,7 @@ class DemosPlanProcedureController extends BaseController
                 $currentStatement = $statementService->getStatement($currentStatementId);
                 if (null !== $currentStatement) {
                     /** @var AdditionalDataEvent $event * */
-                    $event = $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, [], 'bthgKompassAnswerAddon'));
+                    $event = $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, 'bthgKompassAnswerAddon'));
                     $answer = $event->getData()['bthgKompassAnswer'];
                 }
                 $url = null === $answer ? null : $answer->getUrl();

@@ -29,10 +29,9 @@ class AdditionalDataEvent extends DPlanEvent
      */
     private array $data;
 
-    public function __construct(CoreEntity $entity, array $data, string $addon)
+    public function __construct(CoreEntity $entity, string $addon)
     {
         $this->entity = $entity;
-        $this->data = $data;
         $this->addon = $addon;
     }
 
