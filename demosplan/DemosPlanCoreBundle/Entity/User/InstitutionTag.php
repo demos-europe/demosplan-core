@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -37,8 +39,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, nullable=false)
      *
+     * @ORM\Column(type="string", length=255, nullable=false)
      * @Assert\NotNull(message="institutionTag.label.not.null")
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
@@ -64,14 +66,16 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     protected $owningOrganisation;
 
     /**
-     * @var DateTime
+     * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
 
     /**
-     * @var DateTime
+     * @var \DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -111,12 +115,12 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
         $this->taggedInstitutions = $institutions;
     }
 
-    public function getCreationDate(): DateTime
+    public function getCreationDate(): \DateTime
     {
         return $this->creationDate;
     }
 
-    public function getModificationDate(): DateTime
+    public function getModificationDate(): \DateTime
     {
         return $this->modificationDate;
     }

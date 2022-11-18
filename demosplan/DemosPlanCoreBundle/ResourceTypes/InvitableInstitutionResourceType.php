@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,7 +11,6 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -29,6 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
+ *
  * @template-implements UpdatableDqlResourceTypeInterface<Orga>
  *
  * @property-read End                              $name
@@ -103,7 +104,7 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         $id = $this->createAttribute($this->id)->readable(true);
         $name = $this->createAttribute($this->name)->readable(true);
         $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
-        $assignedTags =  $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
+        $assignedTags = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
 
         $allowedProperties = [];
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
@@ -121,7 +122,6 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
     public function getUpdatableProperties(object $updateTarget): array
     {
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')) {
-
             return $this->toProperties(
                 $this->assignedTags
             );
@@ -138,7 +138,6 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         $violations = new ConstraintViolationList([]);
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent($this->assignedTags, function (Collection $newAssignedTags) use ($institution, $violations): void {
-
             $currentlyAssignedTags = $institution->getAssignedTags();
 
             // removed tags
