@@ -935,7 +935,6 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // Throw an event to allow addons to handle specific keys in $data
-        $this->eventDispatcher->dispatch(new AdditionalDataEvent($statement, $data));
 
         return $statement;
     }
