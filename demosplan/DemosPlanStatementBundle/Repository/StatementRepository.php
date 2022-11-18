@@ -33,7 +33,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
@@ -935,7 +935,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // Throw an event to allow addons to handle specific keys in $data
-        $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($statement, $data));
+        $this->eventDispatcher->dispatch(new AdditionalDataEvent($statement, $data));
 
         return $statement;
     }

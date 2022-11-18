@@ -12,15 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class AdditionalStatementDataEvent extends DPlanEvent
+class AdditionalDataEvent extends DPlanEvent
 {
-    private Statement $statement;
+    private CoreEntity $entity;
 
-    private ?BthgKompassAnswer $answer;
+    private string $addon;
 
     /**
      * The array containing all the data to update a given statement.
@@ -30,20 +31,21 @@ class AdditionalStatementDataEvent extends DPlanEvent
      */
     private array $data;
 
-    public function __construct(Statement $statement, array $data)
+    public function __construct(CoreEntity $entity, array $data, string $addon)
     {
-        $this->statement = $statement;
+        $this->entity = $entity;
         $this->data = $data;
+        $this->addon = $addon;
     }
 
-    public function getStatement(): Statement
+    public function getEntity(): CoreEntity
     {
-        return $this->statement;
+        return $this->entity;
     }
 
-    public function setStatement(Statement $statement): void
+    public function setEntity(CoreEntity $entity): void
     {
-        $this->statement = $statement;
+        $this->entity = $entity;
     }
 
     /**
@@ -63,15 +65,10 @@ class AdditionalStatementDataEvent extends DPlanEvent
     }
 
     /**
-     * @return ?BthgKompassAnswer
+     * @return string
      */
-    public function getAnswer(): ?BthgKompassAnswer
+    public function getAddon(): string
     {
-        return $this->answer;
-    }
-
-    public function setAnswer(BthgKompassAnswer $answer): void
-    {
-        $this->answer = $answer;
+        return $this->addon;
     }
 }

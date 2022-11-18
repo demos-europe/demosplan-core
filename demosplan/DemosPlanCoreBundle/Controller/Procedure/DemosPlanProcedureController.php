@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
@@ -1959,9 +1959,9 @@ class DemosPlanProcedureController extends BaseController
                 $currentStatementId = $templateVars['publicStatements']['statements'][$key]['id'];
                 $currentStatement = $statementService->getStatement($currentStatementId);
                 if (null !== $currentStatement) {
-                    /** @var AdditionalStatementDataEvent $event * */
-                    $event = $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($currentStatement, []));
-                    $answer = $event->getAnswer();
+                    /** @var AdditionalDataEvent $event * */
+                    $event = $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, [], 'bthgKompassAnswerAddon'));
+                    $answer = $event->getData()['bthgKompassAnswer'];
                 }
                 $url = null === $answer ? null : $answer->getUrl();
                 $templateVars['publicStatements']['statements'][$key]['bthgKompassAnswer']['url'] = $url;
