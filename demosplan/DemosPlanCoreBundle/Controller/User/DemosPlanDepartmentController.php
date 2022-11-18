@@ -24,7 +24,6 @@ use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,12 +38,11 @@ class DemosPlanDepartmentController extends BaseController
      *     path="/department/verifychanges",
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function verifyDepartmentSwitchOrUpdateAction(AuthenticationUtils $authenticationUtils, Request $request)
     {
@@ -62,7 +60,7 @@ class DemosPlanDepartmentController extends BaseController
                     ],
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -74,14 +72,13 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_list",
      *     path="/department/list/{orgaId}"
      * )
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param null $orgaId
      *
      * @return RedirectResponse|Response
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function listDepartmentsAction(
         CurrentUserService $currentUser,
@@ -95,10 +92,10 @@ class DemosPlanDepartmentController extends BaseController
         $orgaId)
     {
         $requestPost = $request->request;
-        //Hole die User Entity
+        // Hole die User Entity
         $user = $currentUser->getUser();
 
-        //use ogranisationId of requestpost instead of incoming parameter $orgaId, if exists.
+        // use ogranisationId of requestpost instead of incoming parameter $orgaId, if exists.
         if (0 < count($requestPost) && $requestPost->has('orgaId')) {
             $orgaId = $requestPost->get('orgaId');
         }
@@ -107,7 +104,7 @@ class DemosPlanDepartmentController extends BaseController
         $userRoles = $user->getRoles();
 
         $orgaList = [];
-        //Falls es sich um den SupportUser handelt, hole alle Orgas des customers,
+        // Falls es sich um den SupportUser handelt, hole alle Orgas des customers,
         // damit er zwischen der orgas wechseln kann
         if (in_array(Role::PLATFORM_SUPPORT, $userRoles, true)) {
             $condition[] = $conditionFactory->propertyHasValue($customerHandler->getCurrentCustomer()->getId(), ['statusInCustomers', 'customer']);
@@ -136,7 +133,6 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_add",
      *     path="/department/add"
      * )
-     *
      * @DplanPermissions("feature_department_add")
      *
      * @return RedirectResponse|Response
@@ -149,7 +145,7 @@ class DemosPlanDepartmentController extends BaseController
         try {
             if ($request->isMethod('POST') && $requestPost->has('orgaId')) {
                 $result = $userHandler->addDepartment($requestPost->get('orgaId'), $requestPost->all());
-                //Fehlermeldung, Pflichtfelder
+                // Fehlermeldung, Pflichtfelder
                 if (array_key_exists('mandatoryfieldwarning', $result)) {
                     $this->getMessageBag()->add('error', 'error.mandatoryfields');
                 }
@@ -163,7 +159,7 @@ class DemosPlanDepartmentController extends BaseController
                 'error', 'error.reserved.name',
                 ['name' => $reservedSystemNameException->getName()]
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // TODO: check wether we can't return more sanely here
 
             return $this->handleError($e);
@@ -179,12 +175,11 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_edit",
      *     path="/department/edit/{departmentId}"
      * )
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return RedirectResponse|Response
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function editDepartmentAction(Request $request)
     {
@@ -205,18 +200,17 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_departments_admin",
      *     path="/departments/admin/{orgaId}"
      * )
-     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param string $orgaId
      *
      * @return RedirectResponse|Response
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function adminDepartmentsAction(Request $request, UserHandler $userHandler, $orgaId)
     {
-        //wenn der request gefüllt ist, bearbeite ihn
+        // wenn der request gefüllt ist, bearbeite ihn
         if (0 < $request->request->count()) {
             $requestPost = $request->request;
             $userHandler->adminDepartmentsHandler($requestPost);

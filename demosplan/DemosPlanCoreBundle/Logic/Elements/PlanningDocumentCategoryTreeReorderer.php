@@ -21,7 +21,6 @@ use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
-use InvalidArgumentException;
 
 class PlanningDocumentCategoryTreeReorderer
 {
@@ -162,13 +161,13 @@ class PlanningDocumentCategoryTreeReorderer
         /** @var Elements $categoryToMove */
         $categoryToMove = $categoryToMoveAndNewParent[$idOfCategoryToMove] ?? null;
         if (null === $categoryToMove) {
-            throw new InvalidArgumentException("No category found for target ID '$idOfCategoryToMove'.");
+            throw new \InvalidArgumentException("No category found for target ID '$idOfCategoryToMove'.");
         }
 
         /** @var Elements|null $newParent */
         $newParent = $categoryToMoveAndNewParent[$newParentId] ?? null;
         if (null !== $newParentId && null === $newParent) {
-            throw new InvalidArgumentException("No category found for parent ID '$newParentId'.");
+            throw new \InvalidArgumentException("No category found for parent ID '$newParentId'.");
         }
 
         $newNeighbors = $this->getNeighbors($newParent, $procedureId);
@@ -254,8 +253,6 @@ class PlanningDocumentCategoryTreeReorderer
     }
 
     /**
-     * @param string $procedureId
-     *
      * @return FunctionInterface<bool>
      */
     private function getProcedureCondition(string $procedureId): FunctionInterface

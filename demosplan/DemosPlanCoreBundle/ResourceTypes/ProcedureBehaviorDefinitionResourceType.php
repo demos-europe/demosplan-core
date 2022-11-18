@@ -22,6 +22,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureBehaviorDefinition>
+ *
  * @template-extends DplanResourceType<ProcedureBehaviorDefinition>
  *
  * @property-read End $allowedToEnableMap

@@ -24,8 +24,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
-use ReflectionException;
 
 class ParagraphService extends CoreService
 {
@@ -85,7 +83,7 @@ class ParagraphService extends CoreService
      * @param string $procedureId
      * @param string $elementId
      *
-     * @throws ReflectionException
+     * @throws \ReflectionException
      *
      * @deprecated use {@link getParaDocumentObjectList} instead
      */
@@ -103,7 +101,7 @@ class ParagraphService extends CoreService
          */
         $result = $this->getParaDocumentObjectList($procedureId, $elementId);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);
@@ -123,7 +121,7 @@ class ParagraphService extends CoreService
      *
      * @return Paragraph[]
      *
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     public function getParaDocumentObjectList($procedureId, $elementId): array
     {
@@ -145,7 +143,7 @@ class ParagraphService extends CoreService
      *
      * @return Paragraph[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getParaDocumentListByIds($ids)
     {
@@ -162,8 +160,8 @@ class ParagraphService extends CoreService
      * @param bool        $toLegacy    if true, the method returns the deprecated legacy list of
      *                                 array as result
      *
-     * @throws ReflectionException
-     * @throws Exception
+     * @throws \ReflectionException
+     * @throws \Exception
      */
     public function getParaDocumentAdminList($procedureId, $elementId, $search, $toLegacy = false, bool $nullParentOnly = false): array
     {
@@ -171,7 +169,7 @@ class ParagraphService extends CoreService
         $resArray = $result;
 
         if ($toLegacy) {
-            //Convert result to array
+            // Convert result to array
             $resArray = [];
             foreach ($result as $p) {
                 $res = $this->entityHelper->toArray($p);
@@ -196,7 +194,7 @@ class ParagraphService extends CoreService
      *
      * @return array
      *
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     public function getParaDocumentAdminListAll($procedureId)
     {
@@ -208,7 +206,7 @@ class ParagraphService extends CoreService
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);
@@ -229,7 +227,7 @@ class ParagraphService extends CoreService
      * @return array
      *
      * @throws NonUniqueResultException
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     public function getParaDocument($ident)
     {
@@ -463,14 +461,14 @@ class ParagraphService extends CoreService
             foreach ($idents as $paragraphId) {
                 try {
                     $this->paragraphRepository->delete($paragraphId);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines Paragrphs: ', [$e]);
                     $success = false;
                 }
             }
 
             return $success;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Fehler beim Löschen eines Paragrphs: ', [$e]);
 
             return false;
@@ -675,7 +673,7 @@ class ParagraphService extends CoreService
             $this->updateParaDocumentObject($paragraphToMove);
         } catch (InvalidArgumentException $e) {
             throw $e;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler beim Ändern der Order eines Paragraphs: ', [$e]);
         }
     }
@@ -707,7 +705,7 @@ class ParagraphService extends CoreService
      *
      * @return Paragraph[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getParagraphDocumentAdminListAsObjects($procedureId, $elementId, bool $nullParentOnly = false): array
     {
@@ -730,7 +728,7 @@ class ParagraphService extends CoreService
      *
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws Exception
+     * @throws \Exception
      */
     public function createParagraphVersion(Paragraph $paragraph): ParagraphVersion
     {
