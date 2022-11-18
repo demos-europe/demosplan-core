@@ -17,16 +17,14 @@ import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import DpVideoPlayer from '@DpJs/components/core/DpVideoPlayer'
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import layers from '@DpJs/store/map/Layers'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import TableWrapper from '@DpJs/lib/core/TableWrapper'
+import { TableWrapper } from '@demos-europe/demosplan-utils'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {
@@ -46,7 +44,7 @@ const components = {
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components, stores).then(() => {

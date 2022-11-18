@@ -16,7 +16,7 @@ import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
@@ -30,7 +30,10 @@ export default {
     DpPublicLayerListWrapper,
     DpPublicSurvey,
     DpUnfoldToolbarControl,
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer'),
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpVideoPlayer
+    },
     StatementModal
   },
 

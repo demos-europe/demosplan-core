@@ -621,18 +621,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
+import { checkResponse, dpApi, makeFormPost } from '@demos-europe/demosplan-utils'
+import { DpInput, DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from '@demos-europe/demosplan-utils'
 import { mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-import MultistepNav from '@DpJs/components/core/MultistepNav'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -667,7 +663,10 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    },
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

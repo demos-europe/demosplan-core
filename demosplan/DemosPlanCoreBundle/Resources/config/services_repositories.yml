@@ -6,11 +6,8 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
-    demosplan\plugins\FloodControl\Repository\FloodRepository:
-        $entityClass: 'demosplan\plugins\FloodControl\Entity\Flood'
-
-    demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository:
-        $entityClass: 'demosplan\plugins\workflow\SegmentsManager\Entity\Segment'
+    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
     demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
@@ -251,9 +248,6 @@ services:
 
     demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
-
-    demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer'
 
     demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'

@@ -12,7 +12,7 @@
  */
 
 import DpReportListing from '@DpJs/components/report/DpReportListing'
-import { hasPermission } from 'demosplan-utils'
+import { hasPermission } from '@demos-europe/demosplan-utils'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const stores = {}

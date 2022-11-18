@@ -38,6 +38,8 @@ intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
+knplabs/knp-menu-bundle: MIT
+lcobucci/jwt: BSD-3-Clause
 league/flysystem-bundle: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
@@ -119,4 +121,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 
-As of 14.09.2022 07:15
+As of 15.11.2022 20:21

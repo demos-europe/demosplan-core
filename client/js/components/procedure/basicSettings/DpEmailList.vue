@@ -40,9 +40,9 @@
 </template>
 
 <script>
-import DpEditableList from '@DpJs/components/core/DpEditableList'
-import { DpInput } from 'demosplan-ui/components'
-import validateEmail from '@DpJs/lib/core/validation/utils/validateEmail'
+import { DpEditableList } from '@demos-europe/demosplan-ui/components/core'
+import { DpInput } from '@demos-europe/demosplan-ui/components'
+import { validateEmail } from '@demos-europe/demosplan-utils/lib/validation'
 
 export default {
   name: 'DpEmailList',

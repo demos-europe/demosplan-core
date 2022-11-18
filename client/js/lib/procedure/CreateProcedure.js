@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@demos-europe/demosplan-utils'
 
 function getXplanboxBounds (procedureName) {
   return dpApi({

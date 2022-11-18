@@ -46,9 +46,8 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import { DpAccordion, DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'DpCreateItem',
