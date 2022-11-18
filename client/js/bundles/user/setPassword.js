@@ -17,7 +17,7 @@ import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
 import SetPassword from '@DpJs/components/user/portalUser/SetPassword'
 
 const components = {
-  RegisterFlyout,
+  DpRegisterFlyout,
   SetPassword
 }
 

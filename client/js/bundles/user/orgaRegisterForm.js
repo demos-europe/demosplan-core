@@ -18,7 +18,7 @@ import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
 
 const components = {
   OrgaRegisterForm,
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components).then(() => {

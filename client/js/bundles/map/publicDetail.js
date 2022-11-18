@@ -44,7 +44,7 @@ const components = {
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components, stores).then(() => {
