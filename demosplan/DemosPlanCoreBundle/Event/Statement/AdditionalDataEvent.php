@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class AdditionalDataEvent extends DPlanEvent
