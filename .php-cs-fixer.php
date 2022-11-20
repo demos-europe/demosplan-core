@@ -22,7 +22,7 @@ $finder = PhpCsFixer\Finder::create()
 $config = new PhpCsFixer\Config();
 
 $config
-    ->setRiskyAllowed(false)
+    ->setRiskyAllowed(true)
     ->setRules(
         [
             'array_syntax'           => ['syntax' => 'short'],
@@ -33,6 +33,8 @@ $config
                     '=>' => 'align',
                 ],
             ],
+            'native_constant_invocation' => false,
+            'native_function_invocation' => false,
             'phpdoc_no_alias_tag'    => [
                 'replacements' => ['type' => 'var', 'link' => 'see'],
             ],
