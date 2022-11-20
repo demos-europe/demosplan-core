@@ -328,7 +328,7 @@ class ForumService extends CoreService
         }
     }
 
-    //----Weiterentwicklungsbereich----
+    // ----Weiterentwicklungsbereich----
 
     /**
      * Save a new release.

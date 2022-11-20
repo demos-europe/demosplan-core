@@ -254,8 +254,6 @@ class PlanningDocumentCategoryTreeReorderer
     }
 
     /**
-     * @param string $procedureId
-     *
      * @return FunctionInterface<bool>
      */
     private function getProcedureCondition(string $procedureId): FunctionInterface

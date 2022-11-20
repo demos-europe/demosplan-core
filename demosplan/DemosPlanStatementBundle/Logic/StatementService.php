@@ -15,9 +15,12 @@ use function array_map;
 use function array_merge;
 use function array_unique;
 use function array_values;
+
 use Carbon\Carbon;
 use Closure;
+
 use function collect;
+
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ClusterCitizenInstitutionSorter;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
@@ -139,15 +142,22 @@ use Elastica\Query\BoolQuery;
 use Elastica\Type;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
+
 use function in_array;
 use function is_array;
 use function is_string;
+
 use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+
 use const PHP_INT_MAX;
+
+use ReflectionException;
 use RuntimeException;
+
 use function strcmp;
 use function strlen;
+
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -504,7 +514,7 @@ class StatementService extends CoreService
             );
         }
 
-        //get submitOrgaId to set it in generateObjectValues() to the statement->meta
+        // get submitOrgaId to set it in generateObjectValues() to the statement->meta
         $data['submitOrgaId'] = $this->currentUser->getUser()->getOrganisationId();
 
         $statement = new Statement();
@@ -578,7 +588,7 @@ class StatementService extends CoreService
             } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen($data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $attrRepo->removeCounty($statement);
                 }
             }
@@ -592,14 +602,14 @@ class StatementService extends CoreService
         $statementArray = $this->convertToLegacy($statement);
         try {
             $this->addReportNewStatement($statementArray);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Add Report in newStatement() failed Message: ', [$e]);
         }
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->post(new ManualOriginalStatementCreatedEvent($statement));
 
-        //statement similarities are calculated?
+        // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
         if (null !== $statementSimilarities) {
             foreach ($statementSimilarities as $statementSimilarity) {
@@ -624,10 +634,10 @@ class StatementService extends CoreService
      */
     public function newStatement($data)
     {
-        //creating originalStatement
+        // creating originalStatement
         try {
             return $this->createOriginalStatement($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new Statement failed:', [$e]);
 
             return false;
@@ -782,7 +792,7 @@ class StatementService extends CoreService
             $statementCreatedEvent = $this->eventDispatcher->post(new StatementCreatedEvent($assessableStatement));
 
             return $statementCreatedEvent->getStatement();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create Statement failed:', [$e]);
 
             return false;
@@ -794,7 +804,7 @@ class StatementService extends CoreService
      *
      * @param string $ident
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVersionFields($ident): array
     {
@@ -832,7 +842,7 @@ class StatementService extends CoreService
             $this->similarStatementSubmitterResourceType->similarStatements,
             static function (Collection $similarStatements) use ($change, $submitter): void {
                 /** @var Statement $statement */
-                foreach ($similarStatements as $statement){
+                foreach ($similarStatements as $statement) {
                     $statement->getSimilarStatementSubmitters()->add($submitter);
                     $change->addEntitiesToPersist($statement);
                 }
@@ -891,7 +901,7 @@ class StatementService extends CoreService
     {
         try {
             $id = $this->statementRepository->getNewestInternId($procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get newest Intern Id of statement of the procedure: '.$procedureId.' failed: ', [$e]);
 
             return null;
@@ -956,12 +966,12 @@ class StatementService extends CoreService
         if ($statementEntitiesCount < $statementIdsCount) {
             $this->getLogger()->warning('At least one statement could not be found.
             It may have been deleted or moved into a different procedure.', [$procedureId]);
-            //schedule reindexing of statements warnings
+            // schedule reindexing of statements warnings
             $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
         if ($statementEntitiesCount > $statementIdsCount) {
             $this->getLogger()->warning('Doctrine returned more results than asked for.', [$procedureId]);
-            //schedule reindexing of statements warnings
+            // schedule reindexing of statements warnings
             $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
 
@@ -1092,7 +1102,7 @@ class StatementService extends CoreService
             );
 
             $statementList = $this->searchService->simplifyEsStructure($elasticsearchResult, $search, $filters, $sort);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get Statement List failed. Reason: ', [$e]);
             throw $e;
         }
@@ -1123,7 +1133,7 @@ class StatementService extends CoreService
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
     }
@@ -1247,13 +1257,13 @@ class StatementService extends CoreService
      *
      * @return Statement[] - laoded Statements
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getStatementsByIds(array $statementIds)
     {
         try {
             $statementList = $this->statementRepository->getStatements($statementIds);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get Statement List failed. Reason: ', [$e]);
             throw $e;
         }
@@ -1406,7 +1416,7 @@ class StatementService extends CoreService
                 $this->getLogger()->warning('Trying to update a locked by assignment statement.');
             }
 
-            //there are fields, which are only allowed to modify on a manual statement?
+            // there are fields, which are only allowed to modify on a manual statement?
             $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
             $updateForbidden = $hasManualStatementUpdateFields && !$currentStatementObject->isManual();
             if ($updateForbidden) {
@@ -1453,7 +1463,7 @@ class StatementService extends CoreService
 
                 return $result;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Update Statement failed:', [$e, $e->getTraceAsString()]);
 
             return false;
@@ -1482,7 +1492,7 @@ class StatementService extends CoreService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning(
                 'Unable to get Text from given arrayOrObject. ', [$e]
             );
@@ -1498,7 +1508,7 @@ class StatementService extends CoreService
      *
      * @return array<int, FileContainer> the result from the repository
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getFileContainersForStatement($statementId): array
     {
@@ -1516,7 +1526,7 @@ class StatementService extends CoreService
      *
      * @return FileContainer[] the array of FileContainers with their ident as array key
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createFileHashToFileContainerMapping($statementId): array
     {
@@ -1544,7 +1554,7 @@ class StatementService extends CoreService
         $currentSubmitterName = $currentStatement->getSubmitterName();
         $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
         $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
-        //orgaName is submitterType:
+        // orgaName is submitterType:
         $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
         $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
         $currentOrgaCity = $currentStatement->getOrgaCity();
@@ -1762,12 +1772,12 @@ class StatementService extends CoreService
                 $entry = $this->statementReportEntryFactory->createUpdateEntry($statement);
                 $this->reportService->persistAndFlushReportEntries($entry);
                 $this->logger->debug('generate report of updateStatement(). ReportID: '.$entry->getIdentifier());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Add Report in updateStatement() failed Message: ', [$e]);
             }
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update Statement failed:', [$e]);
 
             return false;
@@ -1783,7 +1793,7 @@ class StatementService extends CoreService
      *
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
     {
@@ -1817,7 +1827,7 @@ class StatementService extends CoreService
     {
         try {
             return $this->statementRepository->findAll();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning($e);
 
             return [];
@@ -1852,7 +1862,7 @@ class StatementService extends CoreService
                 ->assignedToUser($user);
 
             return $query->getEntities();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get assigend Statements', [$e]);
 
             return null;
@@ -1864,7 +1874,7 @@ class StatementService extends CoreService
      *
      * @param string $ident
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Use {@link StatementService::getStatement()} instead
      */
@@ -1885,11 +1895,11 @@ class StatementService extends CoreService
             if (0 < count($accessMap) && 0 === strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
                 try {
                     $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning('Add Report in getStatementByIdent() failed Message: ', [$e]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
 
@@ -1925,16 +1935,16 @@ class StatementService extends CoreService
                 if (0 < count($accessMap) && 0 === strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
                     try {
                         $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
             }
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error($e);
             $this->getLogger()->warning('No Statement found for Id '.$statementId);
 
@@ -1961,7 +1971,7 @@ class StatementService extends CoreService
 
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Could not copy statement ', [$e]);
 
             return false;
@@ -2017,7 +2027,7 @@ class StatementService extends CoreService
             $success = false;
             $statementId = $statement->getId();
 
-            //if the corresponding permission is disabled, the Statement can be deleted anyway
+            // if the corresponding permission is disabled, the Statement can be deleted anyway
             $ignoreAssignment = $ignoreAssignment || (false === $this->permissions->hasPermission('feature_statement_assignment'));
             $noAssignee = null === $statement->getAssignee();
             $assignedToCurrentUser = $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
@@ -2025,11 +2035,11 @@ class StatementService extends CoreService
             $lockedByAssignment = !($ignoreAssignment || $noAssignee || $assignedToCurrentUser);
             $lockedByAssignmentOfRelatedFragments = !$this->statementFragmentService->areAllFragmentsClaimedByCurrentUser($statementId);
             $lockedByCluster = $statement->isInCluster();
-            //placeholders (even originalSTN) are allowed to delete:
+            // placeholders (even originalSTN) are allowed to delete:
             $lockedBecauseOfOriginal = $statement->isOriginal() && !$ignoreOriginal;
 
             $allowedToDelete = (
-                   !$lockedByAssignmentOfRelatedFragments
+                !$lockedByAssignmentOfRelatedFragments
                 && !$lockedByAssignment
                 && !$lockedByCluster
                 && !$lockedBecauseOfOriginal
@@ -2060,14 +2070,14 @@ class StatementService extends CoreService
                         );
                     }
                     $deleted = $this->statementRepository->delete($statementId);
-                    //add report:
+                    // add report:
                     try {
                         if (true === $deleted) {
                             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
                             $this->reportService->persistAndFlushReportEntries($entry);
                             $this->logger->info('generate report of deleteStatement(). ReportID: ', ['identifier' => $entry->getIdentifier()]);
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
                     $doctrineConnection->commit();
@@ -2086,7 +2096,7 @@ class StatementService extends CoreService
                         $demosException->getUserMsg()
                     );
                     $success = false;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
                     $doctrineConnection->rollBack();
                     $success = false;
@@ -2130,7 +2140,7 @@ class StatementService extends CoreService
             }
 
             return $success;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
             $doctrineConnection->rollBack();
 
@@ -2155,7 +2165,7 @@ class StatementService extends CoreService
                 'lastName'  => $user->getLastname(),
             ];
 
-            //only one vote per user per statement
+            // only one vote per user per statement
             $vote = $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
                 'statement' => $statementId,
@@ -2173,7 +2183,7 @@ class StatementService extends CoreService
             }
 
             return $vote;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
 
             return false;
@@ -2208,7 +2218,7 @@ class StatementService extends CoreService
             );
 
             return $like;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new StatementLike failed:', [$e]);
 
             return false;
@@ -2266,7 +2276,7 @@ class StatementService extends CoreService
                     // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                     $parentParagraph = $statement['paragraph']->getParagraph();
                     $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                     $this->logger->error(
                         'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
@@ -2288,7 +2298,7 @@ class StatementService extends CoreService
                         isset($statement['procedure']['planningOffices']) ?
                             $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
                             [];
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
                             $statement['id'],
@@ -2300,7 +2310,7 @@ class StatementService extends CoreService
             if ($statement['organisation'] instanceof Orga) {
                 try {
                     $statement['organisation'] = $this->entityHelper->toArray($statement['organisation']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
                             $statement['id'],
@@ -2312,14 +2322,14 @@ class StatementService extends CoreService
             if ($statement['meta'] instanceof StatementMeta) {
                 try {
                     $statement['meta'] = $this->entityHelper->toArray($statement['meta']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert Statement Meta to Legacy. Statement: '.DemosPlanTools::varExport($statement['id'], true).$e
                     );
                 }
             }
 
-            //Enter StatementAttributes
+            // Enter StatementAttributes
             if (count($statementAttributes) > 0) {
                 $statement['statementAttributes'] = [];
             }
@@ -2362,7 +2372,7 @@ class StatementService extends CoreService
             $statement['votes'] = $votes;
 
             $statement = $this->dateHelper->convertDatesToLegacy($statement);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Could not convert Statement to Legacy.',
                 [$statementId, $e]
@@ -2377,7 +2387,7 @@ class StatementService extends CoreService
      *
      * @return array $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getEntityVersions(array $data): array
     {
@@ -2547,7 +2557,7 @@ class StatementService extends CoreService
      * @param string    $orgaDisplayName
      * @param string    $role
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createRecommendationVersion($statement, $recommendation, $user, $orgaDisplayName, $role): StatementVersionField
     {
@@ -2576,7 +2586,7 @@ class StatementService extends CoreService
     {
         try {
             return $this->statementRepository->isManualStatement($statementId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Check statement for manual failed:', [$e]);
         }
     }
@@ -2612,7 +2622,7 @@ class StatementService extends CoreService
      * @param string[] $statementsIds
      * @param string[] $fragmentIds
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
     {
@@ -2662,7 +2672,7 @@ class StatementService extends CoreService
      *
      * @param Statement[] $statements
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createElementsGroupStructureBobHH(string $procedureId, array $statements, string $missingGroupTitle): StatementEntityGroup
     {
@@ -3835,7 +3845,7 @@ class StatementService extends CoreService
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
 
             $elasticsearchResultStatement = $this->searchService->getESEmptyResult(
@@ -3882,7 +3892,7 @@ class StatementService extends CoreService
      * @param array  $bucket
      * @param string $idKey
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getParagraphMap($bucket, $idKey = 'key'): array
     {
@@ -4004,7 +4014,7 @@ class StatementService extends CoreService
      * @param Tag       $tag
      * @param Statement $statement
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Used by tests only. Tags are automatically persisted when their statement is
      *             persisted, so you can simply add Tags to statements and persist the statements
@@ -4103,7 +4113,7 @@ class StatementService extends CoreService
      *
      * @return Statement the updated object
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementObject(Statement $statement): Statement
     {
@@ -4136,7 +4146,7 @@ class StatementService extends CoreService
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get internIds of statement of the procedure: '.$procedureId.' failed: ', [$e]);
 
             return null;
@@ -4169,7 +4179,7 @@ class StatementService extends CoreService
                     $result->push($clusterMember->getHeadStatementId());
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get HeadStatement IDs of statements : '.DemosPlanTools::varExport($statementIds, true).' failed: ', [$e]);
         }
 
@@ -4257,7 +4267,7 @@ class StatementService extends CoreService
     /**
      * @throws ConnectionException
      * @throws NoTargetsException
-     * @throws \Exception
+     * @throws Exception
      */
     public function bulkEditStatementsAddData(StatementBulkEditVO $statementEdit): void
     {
@@ -4315,7 +4325,7 @@ class StatementService extends CoreService
                 }
             }
             $conn->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $conn->rollBack();
             throw $e;
         }
@@ -4429,7 +4439,7 @@ class StatementService extends CoreService
                     $to['total'] += $bucket['doc_count'];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedToProcedureCount failed. ', [$e]);
         }
 
@@ -4482,7 +4492,7 @@ class StatementService extends CoreService
                     $from['total'] += $bucket['doc_count'];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedFromProcedureCount failed. ', [$e]);
         }
 
@@ -4569,7 +4579,7 @@ class StatementService extends CoreService
         if (array_key_exists('fragments_lastClaimed_id', $userFilters)) {
             $userFragmentFilters['lastClaimedUserId'] = $userFilters['fragments_lastClaimed_id'];
         }
-        //Bearbeitungsstatus
+        // Bearbeitungsstatus
         if (array_key_exists('fragments_status', $userFilters)) {
             $userFragmentFilters['status'] = $userFilters['fragments_status'];
         }
@@ -4654,7 +4664,7 @@ class StatementService extends CoreService
 
         if (array_key_exists('r_orga_email', $data)) {
             $statement['orga_email'] = $data['r_orga_email'];
-            //Globaleinstellung Rückmeldung per email (wichtig für SN von Bürgern)
+            // Globaleinstellung Rückmeldung per email (wichtig für SN von Bürgern)
             $statement['feedback'] = 'email';
             // Save that user wants feedback. Might be better dedicated checkbox to explicitly set wish
             // for feedback. Keep current implicit behavior to avoid BC break.
@@ -4697,7 +4707,7 @@ class StatementService extends CoreService
             } else {
                 $incomingDate = Carbon::createFromTimestamp(strtotime($data['r_submitted_date']));
                 $now = Carbon::now();
-                //On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
+                // On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
                 $incomingDate->setTime($now->hour, $now->minute, $now->second);
                 $statement['submittedDate'] = $incomingDate->format('d.m.Y H:i:s');
             }
@@ -4748,7 +4758,7 @@ class StatementService extends CoreService
             $statement['categories'] = $data['r_categories'];
         }
 
-        //Kennzeichne manuelle SN von Bürgern und übergebe Ihnen den richtigen Wert für Feedback
+        // Kennzeichne manuelle SN von Bürgern und übergebe Ihnen den richtigen Wert für Feedback
 
         if (array_key_exists('r_role', $data)) {
             if ('0' === $data['r_role']) {
@@ -4987,7 +4997,7 @@ class StatementService extends CoreService
                     && is_array($aggregations[$label])
                     && array_key_exists('buckets', $aggregations[$label])
                     && empty($aggregations[$label]['buckets'])
-                ) {
+            ) {
                 // A filter was set by the user that caused an empty search result - therefore the filter ist not
                 // set within the aggregations by default - add those filters manually to let the FE know we used a filter
                 $aggregations[$label]['buckets'] = [['key' => $value[0], 'doc_count' => 0]];

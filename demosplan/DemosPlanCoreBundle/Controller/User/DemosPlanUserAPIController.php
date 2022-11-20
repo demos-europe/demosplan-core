@@ -72,7 +72,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_user_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
@@ -107,7 +106,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_users_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
@@ -170,7 +168,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_user_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
@@ -230,7 +227,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"DELETE"},
      *        name="dplan_api_user_delete",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
@@ -247,7 +243,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_api_user_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_edit")
      */
     public function updateAction(string $id, UserHandler $userHandler): APIResponse

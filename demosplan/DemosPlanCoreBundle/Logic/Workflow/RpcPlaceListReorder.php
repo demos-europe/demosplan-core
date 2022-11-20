@@ -36,6 +36,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 
 /**
@@ -151,7 +152,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
 
     /**
      * @throws InvalidSchemaException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function validateRpcRequest(object $rpcRequest): void
     {

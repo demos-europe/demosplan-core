@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use function collect;
+
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -78,11 +79,15 @@ use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Elastica\Type;
 use Exception;
+
 use function is_array;
+
 use Pagerfanta\Exception\NotValidCurrentPageException;
+
 use function str_replace;
 use function strlen;
 use function strpos;
+
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService extends CoreService
@@ -328,8 +333,8 @@ class StatementFragmentService extends CoreService
         }
 
         $ignoreAssignment = $ignoreAssignment || (false === $this->permissions->hasPermission(
-                    'feature_statement_assignment'
-                ));
+            'feature_statement_assignment'
+        ));
         $noAssignee = null === $fragmentToDelete->getAssignee();
         $assignedToCurrentUser = $this->isFragmentAssignedToCurrentUser($fragmentToDelete);
         $lockedByAssignment = !($ignoreAssignment || $noAssignee || $assignedToCurrentUser);
@@ -340,7 +345,7 @@ class StatementFragmentService extends CoreService
 
         try {
             $fragmentToDelete->getStatement()->removeFragment($fragmentToDelete);
-            //T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
+            // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
             $this->statementFragmentRepository->delete($fragmentToDelete);
 
             $this->searchIndexTaskService->deleteFromIndexTask(
@@ -385,8 +390,8 @@ class StatementFragmentService extends CoreService
             $fieldsToReturn[] = 'vote';
         }
 
-        //fragment currently not assigned to department (to set advice)
-        //and current user has permission to set vote -> return voteAdvice
+        // fragment currently not assigned to department (to set advice)
+        // and current user has permission to set vote -> return voteAdvice
         if (null === $fragment['departmentId'] && $this->permissions->hasPermission('feature_statements_fragment_vote')) {
             $fieldsToReturn[] = 'voteAdvice';
         }
@@ -504,7 +509,7 @@ class StatementFragmentService extends CoreService
                 $permissionEnabled = $this->permissions->hasPermission('feature_statement_assignment');
                 $statement = $fragmentToCopy->getStatement();
 
-                //T5140: unable to create Fragment if permission is enabled and Statement is not assigned to current user
+                // T5140: unable to create Fragment if permission is enabled and Statement is not assigned to current user
                 $statementAssignedToCurrentUser = $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
                 if ($permissionEnabled && !$statementAssignedToCurrentUser) {
                     $this->getLogger()->error(
@@ -530,7 +535,7 @@ class StatementFragmentService extends CoreService
                 $newFragment->setStatement($statementToCopyTo);
                 $newFragment->setProcedure($statementToCopyTo->getProcedure());
 
-                //copy to another procedure?
+                // copy to another procedure?
                 if ($fragmentToCopy->getProcedureId() !== $statementToCopyTo->getProcedureId()) {
                     $this->moveFragmentIntoProcedure($newFragment, $fragmentToCopy);
                 }
@@ -569,7 +574,7 @@ class StatementFragmentService extends CoreService
      */
     public function moveFragmentIntoProcedure(StatementFragment $newFragment, StatementFragment $fragmentToCopy): StatementFragment
     {
-        //todo write test
+        // todo write test
         $newFragment->setCreated(new DateTime());
         $newFragment->setModified(new DateTime());
         $newFragment->setDisplayId(null);
@@ -580,7 +585,7 @@ class StatementFragmentService extends CoreService
         $newFragment->setDepartment(null);
 
         $newFragment->setElement(null);
-        //if "Gesamtstellungnahme", is it possible to create association:
+        // if "Gesamtstellungnahme", is it possible to create association:
         if (null !== $fragmentToCopy->getElement() && $this->elementService->isStatementElement($fragmentToCopy->getElement())) {
             $statementElement = $this->elementService->getStatementElement($fragmentToCopy->getProcedureId());
             $newFragment->setElement($statementElement);
@@ -769,7 +774,7 @@ class StatementFragmentService extends CoreService
                 $fieldVersions = $versions;
                 break;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Versions ', [$e]);
 
             return null;
@@ -790,7 +795,7 @@ class StatementFragmentService extends CoreService
             $filters['procedureId'] = $procedureId;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters, '', null, $limit, $page);
             $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Procedure List', [$e]);
 
             return (new ElasticsearchResultSet())->lock();
@@ -861,7 +866,7 @@ class StatementFragmentService extends CoreService
 
             $esResult = $this->getElasticsearchStatementFragmentResult($userFilters, $search, null, $limit, $page, [], false);
             $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Statement List', [$e]);
 
             return (new ElasticsearchResultSet())->lock();
@@ -972,9 +977,9 @@ class StatementFragmentService extends CoreService
         $statementFragment = $this->updateLastClaimedIdInCurrentObjectAfterAllOtherChanges($statementFragment);
         $statementFragment = $this->statementFragmentRepository->addObject($statementFragment);
         $statementFragment->getStatement()->addFragment($statementFragment);
-        //T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
+        // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
 
-        //add StatementFragment to Elasticsearch index
+        // add StatementFragment to Elasticsearch index
         $this->searchIndexTaskService->addIndexTask(
             StatementFragment::class,
             $statementFragment->getId()
@@ -983,7 +988,7 @@ class StatementFragmentService extends CoreService
         $version = new StatementFragmentVersion($statementFragment);
         $this->statementFragmentVersionRepository->addObject($version);
 
-        //when creating a new fragment no update of siblings needed as nothing could have changed
+        // when creating a new fragment no update of siblings needed as nothing could have changed
         $this->reindexStatementFragment($statementFragment, false);
 
         return $statementFragment;
@@ -1018,7 +1023,7 @@ class StatementFragmentService extends CoreService
             $fragment = $this->updateLastClaimedIdInCurrentObjectAfterAllOtherChanges($fragment);
             $result = $this->statementFragmentRepository->updateObject($fragment);
 
-            //only create version on update of Fragment:
+            // only create version on update of Fragment:
             if ($result instanceof StatementFragment) {
                 $version = new StatementFragmentVersion($result);
 
@@ -1110,7 +1115,7 @@ class StatementFragmentService extends CoreService
             $result = $this->updateLastClaimedIdInCurrentObjectAfterAllOtherChanges($result);
             $result = $this->statementFragmentRepository->updateObject($result);
 
-            //only create version on update of Fragment:
+            // only create version on update of Fragment:
             if ($result instanceof StatementFragment) {
                 $version = new StatementFragmentVersion($result);
 
@@ -1172,9 +1177,9 @@ class StatementFragmentService extends CoreService
                     }
                 }
             }
-            //bring structure of each fragmentVersion into line with structure of fragment
+            // bring structure of each fragmentVersion into line with structure of fragment
             foreach ($result as $key => $latestVersion) {
-                //copy static fields:
+                // copy static fields:
                 $result[$key]['id'] = $latestVersion['statementFragment']['id'];
                 $result[$key]['statement'] = $latestVersion['statementFragment']['statement'];
                 $result[$key]['statementId'] = $latestVersion['statementFragment']['statementId'];
@@ -1183,11 +1188,11 @@ class StatementFragmentService extends CoreService
                 $result[$key]['displayId'] = $latestVersion['statementFragment']['displayId'];
                 $result[$key]['elementId'] = $latestVersion['statementFragment']['elementId'];
 
-                //unset because reviewer only:
+                // unset because reviewer only:
                 unset($result[$key]['vote'], $result[$key]['consideration']);
 
-                //special format:
-                //tags:
+                // special format:
+                // tags:
                 $decoded = Json::decodeToMatchingType($latestVersion['tagAndTopicNames']);
                 $topics = $decoded ?? [];
                 $tagsOfVersion = collect([]);
@@ -1201,7 +1206,7 @@ class StatementFragmentService extends CoreService
                 }
                 $result[$key]['tags'] = $tagsOfVersion->toArray();
 
-                //counties:
+                // counties:
                 $result[$key]['counties'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['countyNamesAsJson']);
                 $countyNames = $decoded ?? [];
@@ -1209,7 +1214,7 @@ class StatementFragmentService extends CoreService
                     $result[$key]['counties'][]['name'] = $countyName;
                 }
 
-                //municipalities:
+                // municipalities:
                 $result[$key]['municipalities'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['municipalityNamesAsJson']);
                 $municipalityNames = $decoded ?? [];
@@ -1217,7 +1222,7 @@ class StatementFragmentService extends CoreService
                     $result[$key]['municipalities'][]['name'] = $municipalityName;
                 }
 
-                //priorityAreas:
+                // priorityAreas:
                 $result[$key]['priorityAreas'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['priorityAreaNamesAsJson']);
                 $priorityAreaKeys = $decoded ?? [];
@@ -1661,7 +1666,7 @@ class StatementFragmentService extends CoreService
             $elasticsearchResultStatement->setPager($paginator);
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
             $elasticsearchResultStatement = $this->searchService->getESEmptyResult();
         }
@@ -1690,14 +1695,14 @@ class StatementFragmentService extends CoreService
                 throw new EntityNotFoundException('Create StatementFragment failed: Statement not found.');
             }
 
-            //T5140: unable to creating Fragment if permission is enabled and Statement is not assigned to current user
+            // T5140: unable to creating Fragment if permission is enabled and Statement is not assigned to current user
             if ($permissionEnabled && false === $this->assignService->isStatementObjectAssignedToCurrentUser($statement)) {
                 $this->getLogger()->error('Tried to fragment an unassigned Statement.');
                 throw NotAssignedException::mustBeAssignedException();
             }
 
             $statementFragment = $this->createStatementFragmentIgnoreAssignment($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add StatementFragment', [$e]);
 
             return null;
@@ -1874,7 +1879,7 @@ class StatementFragmentService extends CoreService
                     $considerationAddition = $statementFragmentUpdate->getConsiderationAddition();
                     $statementFragment->addConsiderationParagraph($considerationAddition);
                     break;
-                // add additionally supported fields here as more case statements
+                    // add additionally supported fields here as more case statements
                 case 'assigneeId':
                     // DO NOTHING! assignee will be handled by updateClaimingForStatementFragmentFromStatementFragmentUpdate
                     break;
@@ -1917,7 +1922,7 @@ class StatementFragmentService extends CoreService
      */
     public function areAllStatementFragmentsClaimedByCurrentUser($statementFragments, bool $ignoreLocked = false): bool
     {
-        //if the corresponding permission is disabled, the Statement can be updated anyway
+        // if the corresponding permission is disabled, the Statement can be updated anyway
         if ($ignoreLocked || (false === $this->permissions->hasPermission('feature_statement_assignment'))) {
             return true;
         }

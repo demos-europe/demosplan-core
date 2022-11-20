@@ -140,7 +140,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $allowedProcedureIds[] = $procedure->getId();
 
         return $this->conditionFactory->allConditionsApply(
-        // Statement resources can never be deleted
+            // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
             // Normally the path to the relationship would suffice for a NULL check, but the ES
             // provides the 'original.id' path only hence we need the path to the ID to support

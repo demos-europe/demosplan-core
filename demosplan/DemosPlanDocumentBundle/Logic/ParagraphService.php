@@ -103,7 +103,7 @@ class ParagraphService extends CoreService
          */
         $result = $this->getParaDocumentObjectList($procedureId, $elementId);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);
@@ -171,7 +171,7 @@ class ParagraphService extends CoreService
         $resArray = $result;
 
         if ($toLegacy) {
-            //Convert result to array
+            // Convert result to array
             $resArray = [];
             foreach ($result as $p) {
                 $res = $this->entityHelper->toArray($p);
@@ -208,7 +208,7 @@ class ParagraphService extends CoreService
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);

@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use function array_key_exists;
+
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
@@ -249,7 +250,7 @@ class ElementsService extends CoreService
         $hiddenByConfigCategories =
             $this->getTopElements($procedureId, [], ['title' => $hiddenTitlesArray, 'deleted' => [false]]);
 
-        //return IDs only:
+        // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
             function ($element) {
                 /* @var Elements $element */
@@ -525,7 +526,7 @@ class ElementsService extends CoreService
                         }
                     }
 
-                    //lösche ggf paragraphs
+                    // lösche ggf paragraphs
                     $paragraphIds = $this->getElementsRepository()
                         ->getParagraphIds($elementId);
 
@@ -537,7 +538,7 @@ class ElementsService extends CoreService
                         ));
                     }
 
-                    //lösche rekursiv Unterkategorien
+                    // lösche rekursiv Unterkategorien
                     if (null !== $elementEntity && $elementEntity->getChildren() instanceof Collection) {
                         foreach ($elementEntity->getChildren() as $child) {
                             $deleted = $this->deleteElement($child->getId());
@@ -578,21 +579,21 @@ class ElementsService extends CoreService
         $repository = $this->getElementsRepository();
         $defaultStatementElementTitle = $this->globalConfig->getElementsStatementCategoryTitle();
         $id = $element['ident'];
-        //use getter of repos
+        // use getter of repos
         $currentTitle = $repository->get($id)->getTitle();
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         if (collect($titlesOfHiddenElements)->contains($currentTitle)) {
-            //deny update of elements which are hidden for this project, because this means also there are not editable.
+            // deny update of elements which are hidden for this project, because this means also there are not editable.
             return [];
         }
 
-        //deny set $defaultStatementElementTitle as new title ?
+        // deny set $defaultStatementElementTitle as new title ?
         if (array_key_exists('title', $element) && $element['title'] === $defaultStatementElementTitle) {
             $element['title'] = $currentTitle;
         }
 
-        //deny update title of statementElement? (Gesamtstellungnahme)
+        // deny update title of statementElement? (Gesamtstellungnahme)
         if ($currentTitle === $defaultStatementElementTitle) {
             $element['title'] = $defaultStatementElementTitle;
         }
@@ -610,7 +611,7 @@ class ElementsService extends CoreService
         $repository = $this->getElementsRepository();
         $defaultStatementElementTitle = $this->globalConfig->getElementsStatementCategoryTitle();
 
-        //use getter of repos
+        // use getter of repos
         $currentTitle = $repository->get($element->getId())->getTitle();
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
@@ -619,17 +620,17 @@ class ElementsService extends CoreService
             return Elements::FILE_TYPE_PLANZEICHNUNG !== $title;
         });
         if ($titlesOfHiddenElements->contains($currentTitle)) {
-            //deny update of elements which are hidden for this project, because this means also there are not editable.
+            // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
         }
 
-        //deny set $defaultStatementElementTitle as new title ?
+        // deny set $defaultStatementElementTitle as new title ?
         $newTitleToSet = $element->getTitle();
         if ($newTitleToSet === $defaultStatementElementTitle) {
             $element->setTitle($currentTitle);
         }
 
-        //deny update title of statementElement? (Gesamtstellungnahme)
+        // deny update title of statementElement? (Gesamtstellungnahme)
         if ($currentTitle === $defaultStatementElementTitle) {
             $element->setTitle($defaultStatementElementTitle);
         }
@@ -763,11 +764,11 @@ class ElementsService extends CoreService
         if (null !== $entityDocuments && !$entityDocuments->isEmpty()) {
             foreach ($entityDocuments as $s) {
                 if ($s->getDeleted()) {
-                    //Legacy fehlende where Annotation in doctrine
+                    // Legacy fehlende where Annotation in doctrine
                     continue;
                 }
                 $sres = $this->entityHelper->toArray($s);
-                //Legacy notation
+                // Legacy notation
                 $sres['statement_enabled'] = $sres['statementEnabled'];
                 $documents[] = $this->convertDateTime($sres);
             }
@@ -874,7 +875,7 @@ class ElementsService extends CoreService
         $paragraphRepository = $entityManager->getRepository(Paragraph::class);
 
         try {
-            //this method will only called on creating a new procedure, therefore the related elements should not be filtered by userroles
+            // this method will only called on creating a new procedure, therefore the related elements should not be filtered by userroles
             $elementsToCopy = $this->elementsRepository->findBy(['pId' => $sourceProcedureId], ['order' => 'asc']);
             $elementsToCopy = $this->elementsRepository->filterElementsByPermissions($elementsToCopy);
 
@@ -900,16 +901,16 @@ class ElementsService extends CoreService
 
                 $entityManager->persist($copiedElement);
 
-                //copy related singleDocuments
+                // copy related singleDocuments
                 foreach ($elementToCopy->getDocuments() as $documentToCopy) {
                     $this->singleDocumentRepository->copyDocumentOfElement($documentToCopy, $copiedElement);
                     $this->copyDocumentRelatedFiles($destinationProcedure);
                 }
 
-                //copy related paragraphs and duplicate files
+                // copy related paragraphs and duplicate files
                 $paragraphRepository->copyParagraphsOfElement($elementToCopy, $copiedElement);
 
-                //copy related file
+                // copy related file
                 $this->copyElementRelatedFiles($destinationProcedure);
 
                 $elementIds[$elementToCopy->getId()] = $copiedElement->getId();

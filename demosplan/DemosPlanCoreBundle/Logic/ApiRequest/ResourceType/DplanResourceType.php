@@ -13,18 +13,15 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use EDT\PathBuilding\PropertyAutoPathInterface;
-use EDT\Wrapping\Contracts\TypeProviderInterface;
-use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
-use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Properties\UpdatableRelationship;
+
 use function collect;
+
 use DateTime;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
@@ -41,12 +38,19 @@ use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
+use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Wrapping\Contracts\TypeProviderInterface;
+use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
+use EDT\Wrapping\Contracts\Types\TypeInterface;
+use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
+
 use function in_array;
 use function is_array;
+
 use IteratorAggregate;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
@@ -59,11 +63,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @property-read End $id
  */
-abstract class DplanResourceType extends CachingResourceType implements
-    IteratorAggregate,
-    PropertyPathInterface,
-    PropertyAutoPathInterface,
-    ExposableRelationshipTypeInterface
+abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyPathInterface, PropertyAutoPathInterface, ExposableRelationshipTypeInterface
 {
     use PropertyAutoPathTrait;
 
@@ -362,8 +362,6 @@ abstract class DplanResourceType extends CachingResourceType implements
      * relationship or `null` in case of an attribute
      *
      * The behavior for multiple given property paths with the same dot notation is undefined.
-     *
-     * @param PropertyPathInterface ...$propertyPaths
      *
      * @return array<non-empty-string, UpdatableRelationship|null>
      */

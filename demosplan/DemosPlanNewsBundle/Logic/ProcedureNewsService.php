@@ -17,14 +17,15 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
+use InvalidArgumentException;
 
 class ProcedureNewsService extends CoreService
 {
@@ -126,7 +127,7 @@ class ProcedureNewsService extends CoreService
 
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
-            //shorten the list of entries to the given limit
+            // shorten the list of entries to the given limit
             $result = array_slice($result, 0, $limit);
         }
 
@@ -153,7 +154,7 @@ class ProcedureNewsService extends CoreService
 
         $news = $this->entityFetcher->listEntitiesUnrestricted(News::class, $conditions, [$sortMethod]);
 
-        //Legacy Arrays
+        // Legacy Arrays
         $result = [];
         foreach ($news as $singleNews) {
             $result[] = $this->convertToLegacy($singleNews);
@@ -201,7 +202,7 @@ class ProcedureNewsService extends CoreService
     {
         try {
             $singleNews = $this->newsRepository->add($data);
-            //convert to Legacy Array
+            // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Anlegen eines Newsbeitrags: ', [$e]);
@@ -221,7 +222,7 @@ class ProcedureNewsService extends CoreService
      */
     public function setManualSortOfNews($procedureId, $sortIds): bool
     {
-        //keine leerzeichen zwischen den Ids
+        // keine leerzeichen zwischen den Ids
         $sortIds = str_replace(' ', '', $sortIds);
 
         $data = [
@@ -247,7 +248,7 @@ class ProcedureNewsService extends CoreService
     {
         try {
             if (!isset($data['ident']) || '' === $data['ident']) {
-                throw new \InvalidArgumentException('Ident is missing');
+                throw new InvalidArgumentException('Ident is missing');
             }
             $singleNews = $this->newsRepository->update($data['ident'], $data);
 
@@ -267,7 +268,7 @@ class ProcedureNewsService extends CoreService
      */
     protected function convertToLegacy($singleNews)
     {
-        //returnValue, if newsId doesn't exist
+        // returnValue, if newsId doesn't exist
         if (!$singleNews instanceof News) {
             // Legacy returnvalues if no singlenews found
             return [
@@ -281,7 +282,7 @@ class ProcedureNewsService extends CoreService
         foreach ($roles as $role) {
             $rolesAsArray[] = $this->entityHelper->toArray($role);
         }
-        //Transform News into an array
+        // Transform News into an array
         $singleNews = $this->entityHelper->toArray($singleNews);
         $singleNews['roles'] = $rolesAsArray;
 
@@ -327,7 +328,7 @@ class ProcedureNewsService extends CoreService
 
     private function determineRoles(?array $roles, ?User $user): ?array
     {
-        //if no roles are given, take the user roles from session
+        // if no roles are given, take the user roles from session
         if (is_array($roles) && 0 === count($roles)) {
             $roles = [Role::GUEST];
             if (null !== $user) {

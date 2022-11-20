@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
@@ -58,6 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use UnexpectedValueException;
 
 class ExcelImporter extends CoreService
 {
@@ -583,7 +585,7 @@ class ExcelImporter extends CoreService
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
         $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
-        $segment->setCreated(new \DateTime());
+        $segment->setCreated(new DateTime());
         $segment->setOrderInProcedure($counter);
 
         // Handle Tags
@@ -728,7 +730,7 @@ class ExcelImporter extends CoreService
             return self::SUBMIT_TYPE_MAPPING[$incomingSubmitType];
         }
 
-        throw new \UnexpectedValueException("Invalid submit type: $incomingSubmitType");
+        throw new UnexpectedValueException("Invalid submit type: $incomingSubmitType");
     }
 
     /**

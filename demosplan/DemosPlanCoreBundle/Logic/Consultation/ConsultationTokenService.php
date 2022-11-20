@@ -35,6 +35,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodInterface;
+use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -226,7 +227,7 @@ class ConsultationTokenService
             $token = $this->createRandomString(8, self::TOKEN_CHARACTERS);
             ++$emergencyCounter;
             if ($emergencyCounter > 1000) {
-                throw new \Exception('Couldn\' find an unreserved token after 1000 attempts.');
+                throw new Exception('Couldn\' find an unreserved token after 1000 attempts.');
             }
         } while ($this->isTokenStringInUse($token));
 

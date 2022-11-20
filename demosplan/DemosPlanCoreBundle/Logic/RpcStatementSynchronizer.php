@@ -33,7 +33,9 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+
 use function is_object;
+
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 

@@ -54,7 +54,9 @@ use EDT\Querying\Utilities\Iterables;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use Exception;
+
 use function get_class;
+
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 

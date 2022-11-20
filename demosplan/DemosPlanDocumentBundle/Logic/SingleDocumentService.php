@@ -15,13 +15,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
+
 use function explode;
+
 use ReflectionException;
 
 class SingleDocumentService extends CoreService
@@ -105,7 +107,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -165,7 +167,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -207,7 +209,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -229,6 +231,7 @@ class SingleDocumentService extends CoreService
      * @return SingleDocument|array|null
      *
      * @throws ReflectionException
+     *
      * @psalm-return SingleDocument|array{statement_enabled: mixed}|null
      */
     public function getSingleDocument($ident, bool $legacy = true)
@@ -239,7 +242,7 @@ class SingleDocumentService extends CoreService
         if (null !== $result && $legacy) {
             $result = $this->entityHelper->toArray($result);
             $result = $this->convertDateTime($result);
-            //Legacy structure
+            // Legacy structure
             $result['statement_enabled'] = $result['statementEnabled'];
         }
 
@@ -277,7 +280,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        //Legacy structure
+        // Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
@@ -332,7 +335,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        //Legacy structure
+        // Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
