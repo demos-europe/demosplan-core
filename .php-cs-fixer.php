@@ -33,8 +33,7 @@ $config
                     '=>' => 'align',
                 ],
             ],
-            'native_constant_invocation' => false,
-            'native_function_invocation' => false,
+            'global_namespace_import' => true,
             'phpdoc_no_alias_tag'    => [
                 'replacements' => ['type' => 'var', 'link' => 'see'],
             ],
