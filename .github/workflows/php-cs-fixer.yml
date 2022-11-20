@@ -48,9 +48,10 @@ jobs:
                 id: files
 
             -   name: download configs
-                run: |
-                    wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/php-cs-fixer/.php-cs-fixer-header.php -O .php-cs-fixer-header.php
-                    wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/php-cs-fixer/.php-cs-fixer.php -O .php-cs-fixer.php
+                run:  wget --header "Authorization: Token ${{ secrets.DEMOSCI_PAT }}" https://raw.githubusercontent.com/demos-europe/demosplan-infrastructure/main/php-cs-fixer/.php-cs-fixer-header.php -O .php-cs-fixer-header.php
+
+            -   name: run ls
+                run:  ls -la
 
             -   name: Run php-cs-fixer
                 run: "vendor/bin/php-cs-fixer fix --config .php-cs-fixer.php ${{ steps.files.outputs.added_modified }}"
