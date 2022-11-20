@@ -108,7 +108,7 @@ fos_elastica:
                     indexable_callback: 'shouldBeIndexed'
                     persistence:
                         driver: orm
-                        model: demosplan\addons\workflow\SegmentsManager\Entity\Segment
+                        model: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
                         model_to_elastica_transformer:
                             service: path_based_model_to_elastica_transformer
                         provider: ~

@@ -6,8 +6,8 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
-    demosplan\addons\workflow\SegmentsManager\Repository\Segment\SegmentRepository:
-        $entityClass: 'demosplan\addons\workflow\SegmentsManager\Entity\Segment'
+    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
     demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'

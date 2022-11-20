@@ -2,7 +2,7 @@
     "name": "demos/demosplan",
     "description": "demosplan",
     "type": "project",
-    "license": "proprietary",
+    "license": "EUPL-1.2",
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.4,<8",
