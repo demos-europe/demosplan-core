@@ -3759,7 +3759,7 @@ warning.draftStatement.already.submitted: "Stellungnahme {draftStatementId} wurd
 warning.document.import.toplevel: "Dateien auf oberster Ebene des Archivs können nicht importiert werden. Bitte speichern Sie sie unterhalb eines Ordners"
 warning.addressBookEntry.not.created: "E-Mail-Adressbucheintrag konnte nicht erstellt werden."
 warning.entries.deleted: "Die Einträge konnten nicht alle korrekt gelöscht werden"
-warning.email.and.password.editable.via.serviceprovier: "Sie können Ihre E-Mail-Adresse / Ihr Passwort bei dem Serviceprovider ändern, über den Sie sich eingeloggt haben."
+warning.email.and.password.editable.via.serviceprovider: "Sie können Ihre E-Mail-Adresse / Ihr Passwort bei dem Serviceprovider ändern, über den Sie sich eingeloggt haben."
 warning.entries.no.selected: "Es wurden keine Einträge ausgewählt."
 warning.entry.missing: "Der Beitrag existiert nicht mehr."
 warning.entry.not.editable: "Der Beitrag kann nicht mehr bearbeitet werden!"
