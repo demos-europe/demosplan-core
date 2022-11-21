@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -108,8 +107,8 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
-            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);;
-            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();;
+            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
+            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
             $allowedProperties[] = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
         }
 
