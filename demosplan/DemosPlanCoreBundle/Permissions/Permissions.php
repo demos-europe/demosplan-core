@@ -26,8 +26,11 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
+use InvalidArgumentException;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Yaml\Yaml;
@@ -846,7 +849,7 @@ class Permissions implements PermissionsInterface
     {
         if ('' === $scope) {
             $this->logger->debug('No permissionset given');
-            throw new \InvalidArgumentException('Parameter scope muss gesetzt werden');
+            throw new InvalidArgumentException('Parameter scope muss gesetzt werden');
         }
 
         // hole dir die Phasendefinitionen der Rolle
@@ -867,7 +870,7 @@ class Permissions implements PermissionsInterface
         $this->logger->debug('Phase: '.$phase.' Config: '.DemosPlanTools::varExport($phaseConfig, true));
 
         // welche Phase ist derzeit aktiv?
-        $arrIt = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($phaseConfig));
+        $arrIt = new RecursiveIteratorIterator(new RecursiveArrayIterator($phaseConfig));
         foreach ($arrIt as $sub) {
             $subArray = $arrIt->getSubIterator();
             if ($subArray['key'] === $phase) {
@@ -1122,7 +1125,7 @@ class Permissions implements PermissionsInterface
     {
         try {
             $this->evaluatePermission($permission);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -1182,7 +1185,7 @@ class Permissions implements PermissionsInterface
                     true
                 )
             );
-            throw new \InvalidArgumentException('Permission ist nicht definiert: '.$permission);
+            throw new InvalidArgumentException('Permission ist nicht definiert: '.$permission);
         }
 
         if ($this->permissions[$permission]->isEnabled()) {

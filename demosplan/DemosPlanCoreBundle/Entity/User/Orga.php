@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -86,7 +88,7 @@ class Orga extends SluggedEntity
     protected $code;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_o_created_date", type="datetime", nullable=false)
@@ -94,7 +96,7 @@ class Orga extends SluggedEntity
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_o_modified_date", type="datetime", nullable=false)
@@ -460,9 +462,9 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @param \DateTime|\DateTimeImmutable $createdDate
+     * @param DateTime|DateTimeImmutable $createdDate
      */
-    public function setCreatedDate(\DateTimeInterface $createdDate): self
+    public function setCreatedDate(DateTimeInterface $createdDate): self
     {
         $this->createdDate = $createdDate;
 
@@ -470,17 +472,17 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @return \DateTime|\DateTimeImmutable
+     * @return DateTime|DateTimeImmutable
      */
-    public function getCreatedDate(): \DateTimeInterface
+    public function getCreatedDate(): DateTimeInterface
     {
         return $this->createdDate;
     }
 
     /**
-     * @param \DateTime|\DateTimeImmutable $modifiedDate
+     * @param DateTime|DateTimeImmutable $modifiedDate
      */
-    public function setModifiedDate(\DateTimeInterface $modifiedDate): self
+    public function setModifiedDate(DateTimeInterface $modifiedDate): self
     {
         $this->modifiedDate = $modifiedDate;
 
@@ -488,9 +490,9 @@ class Orga extends SluggedEntity
     }
 
     /**
-     * @return \DateTime|\DateTimeImmutable
+     * @return DateTime|DateTimeImmutable
      */
-    public function getModifiedDate(): \DateTimeInterface
+    public function getModifiedDate(): DateTimeInterface
     {
         return $this->modifiedDate;
     }

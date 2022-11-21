@@ -66,7 +66,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     protected $owningOrganisation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
@@ -74,7 +74,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
     private $creationDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
@@ -115,12 +115,12 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
         $this->taggedInstitutions = $institutions;
     }
 
-    public function getCreationDate(): \DateTime
+    public function getCreationDate(): DateTime
     {
         return $this->creationDate;
     }
 
-    public function getModificationDate(): \DateTime
+    public function getModificationDate(): DateTime
     {
         return $this->modificationDate;
     }
