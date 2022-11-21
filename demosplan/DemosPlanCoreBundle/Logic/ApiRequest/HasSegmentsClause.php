@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\Querying\Contracts\PropertyPathAccessInterface;
 use EDT\Querying\PropertyPaths\PathInfo;
 use EDT\Querying\PropertyPaths\PropertyPath;
 
@@ -32,7 +33,7 @@ class HasSegmentsClause implements ClauseFunctionInterface
 
     public function getPropertyPaths(): array
     {
-        $idPath = new PropertyPath(null, '', PropertyPath::DIRECT, 'id');
+        $idPath = new PropertyPath(null, '', PropertyPathAccessInterface::DIRECT, ['id']);
 
         return [new PathInfo($idPath, true)];
     }

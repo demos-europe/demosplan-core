@@ -94,7 +94,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { DpLoading } from 'demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpReportGroup from './DpReportGroup'
 import { scrollTo } from 'vue-scrollto'
 

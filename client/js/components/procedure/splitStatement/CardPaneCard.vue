@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import DpButtonIcon from '@DpJs/components/core/DpButtonIcon'
+import { DpButtonIcon } from '@demos-europe/demosplan-ui/components/core'
 import { mapGetters } from 'vuex'
 
 export default {

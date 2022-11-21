@@ -56,8 +56,7 @@
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpCheckboxGroup from '@DpJs/components/core/DpCheckboxGroup'
+import { DpCheckbox, DpCheckboxGroup } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'ExportSettings',

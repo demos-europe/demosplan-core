@@ -1348,12 +1348,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->propertyIsNotNull('settings', 'designatedSwitchDate')
             ->propertyIsNotNull('settings', 'designatedPhase')
             ->propertyIsNotNull('settings', 'designatedEndDate')
-            ->propertyHasValueBeforeNow('settings', 'designatedSwitchDate');
+            ->propertyHasValueBeforeNow(['settings', 'designatedSwitchDate']);
         $orCondition->allConditionsApply()
             ->propertyIsNotNull('settings', 'designatedPublicSwitchDate')
             ->propertyIsNotNull('settings', 'designatedPublicPhase')
             ->propertyIsNotNull('settings', 'designatedPublicEndDate')
-            ->propertyHasValueBeforeNow('settings', 'designatedPublicSwitchDate');
+            ->propertyHasValueBeforeNow(['settings', 'designatedPublicSwitchDate']);
 
         return $query->getEntities();
     }

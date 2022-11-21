@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 3
         steps:
-            -   uses: styfle/cancel-workflow-action@0.10.0
+            -   uses: styfle/cancel-workflow-action@0.11.0
                 with:
                     workflow_id: "php-cs-fixer"
                     access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -24,7 +24,7 @@ jobs:
                     ref: ${{ github.head_ref }}
 
             -   name: Cache php dependencies
-                uses: actions/cache@v3.0.8
+                uses: actions/cache@v3.0.11
                 with:
                     path: |
                         ~/.composer/cache
@@ -68,7 +68,9 @@ jobs:
                     git config  user.name "Demos-CI"
             -   name: Commit
                 run: |
+                    if ! git diff --exit-code; then
                     git pull
                     git add .
                     git commit -m "style: Apply php-cs-fixer" --no-gpg-sign
                     git push
+                    fi

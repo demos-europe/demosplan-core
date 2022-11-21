@@ -30,11 +30,9 @@
 
 <script>
 import AdministrationImportNone from './AdministrationImportNone'
-import DpTab from '@DpJs/components/core/DpTabs/DpTab'
-import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import EmailImport from './EmailImport/EmailImport'
+import { DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from 'demosplan-utils'
+import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 
@@ -45,7 +43,6 @@ export default {
     AdministrationImportNone,
     DpTab,
     DpTabs,
-    EmailImport,
     ExcelImport,
     StatementFormImport,
     StatementPdfImport
@@ -100,23 +97,16 @@ export default {
 
   data () {
     return {
-      activeTabId: ''
+      addons: [],
+      activeTabId: '',
+      asyncComponents: []
     }
   },
 
   computed: {
     availableImportOptions () {
       return [
-        {
-          name: EmailImport.name,
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title'
-        },
-        {
-          name: StatementPdfImport.name,
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf'
-        },
+        ...this.asyncComponents,
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
@@ -143,10 +133,6 @@ export default {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
     }
-  },
-
-  created () {
-    this.setActiveTabId()
   }
 }
 </script>

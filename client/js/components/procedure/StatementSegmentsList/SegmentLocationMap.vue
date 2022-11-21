@@ -24,37 +24,40 @@
           <dp-ol-map-draw-feature
             ref="drawPoint"
             data-cy="setMapRelation"
-            :features="drawingsData.point"
+            :features="pointData"
             icon
             icon-class="fa-map-marker u-mb-0_25 font-size-h2"
             name="Point"
+            :options="{ multiplePoints: true }"
             render-control
             :title="Translator.trans('map.relation.set')"
             type="Point"
-            @layerFeaturesChanged="data => updateDrawings('point', data)" />
+            @layerFeatures:changed="data => updateDrawings('Point', data)" />
           <dp-ol-map-draw-feature
             data-cy="setMapLine"
             ref="drawLine"
-            :features="drawingsData.linestring"
+            :features="lineData"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
             :title="Translator.trans('statement.map.draw.mark_line')"
             type="LineString"
-            @layerFeaturesChanged="data => updateDrawings('linestring', data)" />
+            @layerFeatures:changed="data => updateDrawings('LineString', data)" />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
             data-cy="setMapTerritory"
-            :features="drawingsData.polygon"
+            :features="polygonData"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
             :title="Translator.trans('statement.map.draw.mark_polygon')"
             type="Polygon"
-            @layerFeaturesChanged="data => updateDrawings('polygon', data)" />
-          <dp-ol-map-edit-feature :target="['Polygon', 'Line', 'Point']">
+            @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
+          <dp-ol-map-edit-feature
+            class="border--left u-ml-0_25"
+            :target="['Polygon', 'Line', 'Point']">
             <template v-slot:editButtonDesc>
               <i
                 :title="Translator.trans('map.territory.tools.edit')"
@@ -89,9 +92,8 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { checkResponse } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { diff } from 'deep-object-diff'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
+import { checkResponse } from '@demos-europe/demosplan-utils'
+import { DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
@@ -125,11 +127,10 @@ export default {
 
   data () {
     return {
-      drawingsData: {},
-      hasChanges: false,
-      initData: {},
-      mapData: null,
-      segmentPoint: ''
+      currentPolygons: [],
+      hasChanges: true,
+      initPolygons: [],
+      mapData: null
     }
   },
 
@@ -138,16 +139,27 @@ export default {
       segments: 'items'
     }),
 
-    center () {
-      if (this.segmentPoint) {
-        const array = this.segmentPoint.split(',')
-        return [
-          Number(array[0]),
-          Number(array[1])
-        ]
-      }
+    ...mapState('segmentSlidebar', ['slidebar']),
 
-      return false
+    pointData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
+      }
+    },
+
+    lineData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || []
+      }
+    },
+
+    polygonData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || []
+      }
     },
 
     heading () {
@@ -155,20 +167,10 @@ export default {
     },
 
     featuresObject () {
-      const mapData = {
+      return {
         type: 'FeatureCollection',
-        features: []
+        features: this.currentPolygons
       }
-
-      Object.values(this.drawingsData).forEach((data) => {
-        if (data) {
-          data.features.forEach((feature) => {
-            mapData.features.push(feature)
-          })
-        }
-      })
-
-      return mapData
     },
 
     segment () {
@@ -191,22 +193,23 @@ export default {
       saveSegmentAction: 'save'
     }),
 
-    checkForChanges () {
-      return JSON.stringify(diff(this.drawingsData, this.initData)) !== '{}'
-    },
-
-    closeSlidebar () {
-      // Trigger click event for SideNav.js
-      document.querySelector('[data-slidebar-hide]').click()
-    },
-
-    resetCurrentMap () {
+    clearTools () {
       this.$refs.drawPoint.clearAll()
       this.$refs.drawLine.clearAll()
       this.$refs.drawPolygon.clearAll()
+    },
+
+    closeSlidebar () {
+      this.$root.$emit('hide-slidebar')
+    },
+
+    resetCurrentMap () {
+      this.clearTools()
+      if (this.slidebar.isOpen) {
+        this.setInitDrawings()
+      }
 
       this.$nextTick(() => {
-        this.setInitDrawings()
         this.$refs.map.updateMapInstance()
       })
     },
@@ -224,7 +227,6 @@ export default {
         .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
-          this.initData = JSON.parse(JSON.stringify(this.drawingsData))
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
@@ -236,23 +238,13 @@ export default {
         return
       }
 
-      const initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{}')
-      if (initPolygons.features) {
-        ['Polygon', 'LineString', 'Point'].forEach(type => {
-          this.drawingsData[type.toLowerCase()] = {
-            type: 'FeatureCollection',
-            features: initPolygons.features.filter(f => f.geometry.type === type)
-          }
-        })
-      }
-
-      this.initData = JSON.parse(JSON.stringify(this.drawingsData))
-      this.hasChanges = this.checkForChanges()
+      this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
+      this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
     },
 
     updateDrawings (type, data) {
-      this.drawingsData[type] = JSON.parse(data)
-      this.hasChanges = this.checkForChanges()
+      this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
+      this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     }
   }
 }

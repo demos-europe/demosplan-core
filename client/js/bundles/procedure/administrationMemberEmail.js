@@ -10,12 +10,12 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
+import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
+import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import { DpLabel } from 'demosplan-ui/components'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
+import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
+import { DpLabel } from '@demos-europe/demosplan-ui/components'
+import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {

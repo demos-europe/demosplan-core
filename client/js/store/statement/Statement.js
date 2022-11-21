@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { hasOwnProp } from 'demosplan-utils'
+import { dpApi, handleResponseMessages } from '@demos-europe/demosplan-utils'
+import { hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
 
 /**
  * Adds empty title attribute for element/paragraph/document
@@ -462,9 +462,6 @@ export default {
         'elements',
         'paragraph',
         'document',
-        'counties',
-        'municipalities',
-        'priorityAreas',
         'tags',
         'assignee',
         'attachments',
@@ -472,8 +469,22 @@ export default {
         'files'
       ]
 
-      if (hasPermission('area_statement_fragments')) {
-        includes.push('fragmentsElements')
+      // isSubmittedByCitizen, priorityAreas, counties and municipalities are available and readable with one of the following permissions
+      const statementFields = []
+      if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
+        statementFields.push('isSubmittedByCitizen')
+      }
+      if (hasPermission('field_statement_priority_area') && data.hasPriorityArea === true) {
+        includes.push('priorityAreas')
+        statementFields.push('priorityAreas')
+      }
+      if (hasPermission('field_statement_county')) {
+        includes.push('counties')
+        statementFields.push('counties')
+      }
+      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+        includes.push('municipalities')
+        statementFields.push('municipalities')
       }
 
       return dpApi({
@@ -492,13 +503,12 @@ export default {
           // Size: data.pagination.size,
           fields: {
             Statement: [
+              ...statementFields,
               'anonymous',
               'assignee',
               'attachments',
               'authoredDate',
               'authorName',
-              'clusterName',
-              'counties',
               'document',
               'documentParentId',
               'elementId',
@@ -507,10 +517,8 @@ export default {
               'files',
               'filteredFragmentsCount',
               'formerExternId',
-              'fragments',
               'fragmentsCount',
               'fragmentsElements',
-              'isSubmittedByCitizen',
               'initialOrganisationDepartmentName',
               'initialOrganisationName',
               'isCluster',
@@ -520,25 +528,19 @@ export default {
               'movedFromProcedureName',
               'movedToProcedureId',
               'movedToProcedureName',
-              'municipalities',
               'name',
-              'organisationName',
-              'organisationDepartmentName',
               'originalId',
               'paragraph',
               'paragraphParentId',
               'parentId',
               'phase',
-              'placeholderStatementId',
               'polygon',
               'priority',
-              'priorityAreas',
               'procedureId',
               'publicVerified',
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
-              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
@@ -553,23 +555,22 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
+            ...(hasPermission('field_statement_county') && { County: 'name' }),
+            ...((hasPermission('field_statement_priority_area') && data.hasPriorityArea) && { PriorityArea: 'name' }),
+            ...(hasPermission('field_statement_municipality') && { Municipality: 'name' }),
             Claim: [
               'name',
               'orgaName'
             ].join(),
-            County: 'name',
             Elements: 'title',
             File: [
               'filename',
               'hash'
             ].join(),
-            FragmentElement: [
+            StatementFragmentsElements: [
               'elementTitle',
               'paragraphTitle'
             ].join(),
-            Municipality: 'name',
-            ParagraphVersion: 'title',
-            PriorityArea: 'name',
             SingleDocument: [
               'parentId',
               'title'

@@ -23,11 +23,13 @@ use EDT\Querying\PropertyPaths\PropertyPath;
 class ProcedureConditionDefinition extends ConditionDefinition
 {
     /**
+     * @param non-empty-list<non-empty-string> $properties
+     *
      * @return $this
      */
-    public function propertyHasValueBeforeNow(string $property, string ...$properties): ConditionDefinition
+    public function propertyHasValueBeforeNow(array $properties): ConditionDefinition
     {
-        $propertyPath = new PropertyPath(null, '', PropertyPathAccessInterface::DIRECT, $property, ...$properties);
+        $propertyPath = new PropertyPath(null, '', PropertyPathAccessInterface::DIRECT, $properties);
         $now = new Constant(Carbon::now(), 'CURRENT_TIMESTAMP()');
 
         $this->conditions[] = new Smaller(

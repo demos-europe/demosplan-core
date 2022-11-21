@@ -20,6 +20,7 @@ use EDT\DqlQuerying\Contracts\ClauseInterface;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderByInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
+use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use EDT\Querying\Pagination\OffsetPagination;
@@ -36,9 +37,9 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
      */
     private $properties;
 
-    public function __construct(string $className, EntityManager $entityManager, string $property, string ...$properties)
+    public function __construct(EntityManager $entityManager, QueryBuilderPreparer $builderPreparer, string $property, string ...$properties)
     {
-        parent::__construct($className, $entityManager);
+        parent::__construct($entityManager, $builderPreparer);
         array_unshift($properties, $property);
         $this->properties = $properties;
     }

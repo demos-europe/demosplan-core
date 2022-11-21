@@ -8,17 +8,19 @@
  */
 
 // Dp libs -> initialize on mount of vue instance
-import ActionMenu from './ActionMenu'
-import CharCount from './CharCount'
-import CheckableItem from './CheckableItem'
-import Confirm from './DpConfirm'
-import FloodControlField from './FloodControlField'
-import { FormActions } from './FormActions'
-import Pager from './Pager'
-import Sticky from './Sticky'
-import Tabs from './Tabs'
-import ToggleAnything from './ToggleAnything'
-import Tooltips from './Tooltips'
+import {
+  ActionMenu,
+  CharCount,
+  CheckableItem,
+  Confirm,
+  FloodControlField,
+  FormActions,
+  Pager,
+  Sticky,
+  Tabs,
+  ToggleAnything,
+  Tooltips
+} from '@demos-europe/demosplan-utils'
 
 /*
  * Libs to be invoked after vue mounted
