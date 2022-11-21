@@ -38,14 +38,13 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
 
     public function additionalStatementDataEvent(AdditionalDataEvent $event): void
     {
-        if (!$event->getEntity() instanceof Statement) {
+        if (self::ADDON_NAME !== $event->getAddon()) {
             return;
         }
-        if (self::ADDON_NAME === $event->getAddon()) {
+        if ($event->getEntity() instanceof Statement) {
             $statement = $event->getEntity();
             /** @var BthgKompassAnswer $bthgKompassAnswer */
             $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
-            $data = [];
             $data['bthgKompassAnswer'] = $bthgKompassAnswer;
             $event->setData($data);
         }
