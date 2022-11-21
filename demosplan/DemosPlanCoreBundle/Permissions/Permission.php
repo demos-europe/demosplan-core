@@ -11,9 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use function array_key_exists;
+
 use ArrayAccess;
+
 use const E_USER_DEPRECATED;
+
 use RuntimeException;
+
 use function trigger_error;
 
 /**
@@ -181,8 +185,6 @@ class Permission implements ArrayAccess
 
     /**
      * @param bool $enabled
-     *
-     * @return Permission
      */
     public function setEnabled($enabled): self
     {
@@ -209,8 +211,6 @@ class Permission implements ArrayAccess
 
     /**
      * @param bool $active
-     *
-     * @return Permission
      */
     public function setActive($active): self
     {
@@ -221,8 +221,6 @@ class Permission implements ArrayAccess
 
     /**
      * @param bool $loginRequired
-     *
-     * @return Permission
      */
     public function setLoginRequired($loginRequired): self
     {
