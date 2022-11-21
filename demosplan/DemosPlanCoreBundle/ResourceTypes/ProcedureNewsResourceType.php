@@ -95,7 +95,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin');
     }
 
     public function getAccessCondition(): PathsBasedInterface
