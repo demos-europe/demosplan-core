@@ -33,6 +33,7 @@ use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>
+ *
  * @template-implements DeletableDqlResourceTypeInterface<News>
  * @template-implements CreatableDqlResourceTypeInterface<News>
  *
