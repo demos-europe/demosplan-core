@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -74,7 +75,7 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
     public function isDirectlyAccessible(): bool
     {
-        return true;
+        return $this->currentUser->getUser()->hasRole(Role::ORGANISATION_ADMINISTRATION) && $this->isMemberOfPlanningOrga();
     }
 
     public function getAccessCondition(): PathsBasedInterface
@@ -101,19 +102,15 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
     protected function getProperties(): array
     {
-        $id = $this->createAttribute($this->id)->readable(true);
-        $name = $this->createAttribute($this->name)->readable(true);
-        $createdDate = $this->createAttribute($this->createdDate)->readable(true)->sortable();
-        $assignedTags = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
-
         $allowedProperties = [];
+        $allowedProperties[] = $this->createAttribute($this->id)->readable(true);
+
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
-            $allowedProperties[] = $id;
-            $allowedProperties[] = $name;
-            $allowedProperties[] = $createdDate;
-            $allowedProperties[] = $assignedTags;
+            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);;
+            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();;
+            $allowedProperties[] = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
         }
 
         return $allowedProperties;
@@ -168,5 +165,16 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
         }
 
         return new ResourceChange($institution, $this, $properties);
+    }
+
+    private function isMemberOfPlanningOrga(): bool
+    {
+        $orga = $this->currentUser->getUser()->getOrga();
+        $subdomain = $this->globalConfig->getSubdomain();
+        $isMunicipality = $orga->hasType(OrgaType::MUNICIPALITY, $subdomain);
+        $isPlanningAgency = $orga->hasType(OrgaType::PLANNING_AGENCY, $subdomain);
+        $isHearingAuthorityAgency = $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $subdomain);
+
+        return $isMunicipality || $isPlanningAgency || $isHearingAuthorityAgency;
     }
 }
