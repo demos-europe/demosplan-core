@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use function array_key_exists;
 use function data_get;
+
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -42,8 +43,10 @@ use EDT\Wrapping\Contracts\PropertyAccessException;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use InvalidArgumentException;
+
 use function is_array;
 use function is_string;
+
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\ResourceAbstract;
