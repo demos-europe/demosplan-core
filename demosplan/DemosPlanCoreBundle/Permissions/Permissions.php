@@ -114,7 +114,6 @@ class Permissions implements PermissionsInterface
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         PermissionCollectionInterface $permissionCollection,
-        PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureRepository $procedureRepository
     ) {
@@ -123,7 +122,6 @@ class Permissions implements PermissionsInterface
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
-        $this->permissionResolver = $permissionResolver;
     }
 
     /**

@@ -16,9 +16,9 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Instances represent a permission and provides all information necessary to determine if that
- * permission should be enabled in a specific context (current user, current customer, current
- * procedure).
+ * An instance of this class represents a permission and provides all information necessary to
+ * determine if that permission should be enabled in a specific context (current user, current
+ * customer, current procedure).
  *
  * Beside some basic permission information, instances of this class carry three filter array
  * properties:
@@ -32,8 +32,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Filters that are set to empty arrays will be handled as "there is no condition to be fulfilled
  * for the permission to be enabled". So if all filters are set to empty arrays,
- * the permission will always be enabled, regardless of the state of the application (current
- * customer, current user and current procedure).
+ * the permission will always be enabled, regardless of the state of the application (i.e. the
+ * current customer, current user and current procedure).
  *
  * @phpstan-import-type CustomizedDrupalFilter from PermissionResolver
  */
@@ -65,8 +65,6 @@ class ResolvablePermission
     private string $label;
 
     /**
-     * @var non-empty-string
-     *
      * @Assert\NotNull()
      * @Assert\Type(type="string")
      */
@@ -102,7 +100,6 @@ class ResolvablePermission
     /**
      * @param non-empty-string $name
      * @param non-empty-string $label
-     * @param non-empty-string $description
      */
     public function __construct(string $name, string $label, string $description)
     {
@@ -127,9 +124,6 @@ class ResolvablePermission
         return $this->label;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function getDescription(): string
     {
         return $this->description;

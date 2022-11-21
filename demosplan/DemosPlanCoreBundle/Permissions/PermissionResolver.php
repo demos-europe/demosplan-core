@@ -74,7 +74,7 @@ class PermissionResolver
     }
 
     /**
-     * FIXME: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination.
+     * TODO: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination.
      */
     public function isPermissionEnabled(
         ResolvablePermission $permission,
@@ -118,19 +118,20 @@ class PermissionResolver
     }
 
     /**
-     * Checks each condition if the list for `parameterCondition` entries. For each of them a new
+     * Checks each condition in the list for `parameterCondition` entries. For each of them a new
      * `condition` entry will be created with the same settings, except that the value in the
      * `parameter` field will be used to get the ID of the given {@link User}, {@link Procedure}
      * or {@link Customer}, which will be used for the `value` field in the added `condition`
      * entry.
      *
      * If a `parameterCondition` entry needs the ID of an instance which is set to `null`, then
+     * the special {@link PermissionDrupalConditionFactory::FALSE} condition will be used, which
+     * always evaluates to `false`. This does not necessarily mean that the whole filter list
+     * results in `false`, as the {@link PermissionDrupalConditionFactory::FALSE} condition may
+     * be in a `OR` conjunct group.
      *
-     *
-     *
-     * The value will then be replaced with ID of the corresponding instances that were given as parameters.
-     *
-     * The `parameter` field will be removed in the process.
+     * The `parameterCondition` entry will be removed (replaced with the created `condition` entry)
+     * in the process.
      *
      * @param array<non-empty-string, CustomizedDrupalFilter> $filterList
      *
