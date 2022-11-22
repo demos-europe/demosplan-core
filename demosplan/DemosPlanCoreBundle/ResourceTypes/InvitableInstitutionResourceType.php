@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -74,7 +75,8 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
     public function isDirectlyAccessible(): bool
     {
-        return $this->currentUser->getUser()->hasRole(Role::ORGANISATION_ADMINISTRATION) && $this->isMemberOfPlanningOrga();
+        return $this->currentUser->hasPermission('feature_institution_tag_assign')
+            || $this->currentUser->hasPermission('feature_institution_tag_read');
     }
 
     public function getAccessCondition(): PathsBasedInterface
@@ -83,7 +85,10 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
         return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue(true, ...$this->showlist),
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->statusInCustomers->status
+            ),
             $this->conditionFactory->propertyHasValue(
                 Role::GPSORG,
                 ...$this->users->roleInCustomers->role->groupCode
@@ -102,11 +107,11 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
     protected function getProperties(): array
     {
         $allowedProperties = [];
-        $allowedProperties[] = $this->createAttribute($this->id)->readable(true);
 
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
+            $allowedProperties[] = $this->createAttribute($this->id)->readable(true);
             $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
             $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
             $allowedProperties[] = $this->createToManyRelationship($this->assignedTags)->readable(true)->filterable();
