@@ -29,9 +29,6 @@ transpiledModules = transpiledModules.concat(
     '@mapbox', // Ol sub-dependency
     '@demos-europe/demosplan-ui',
     '@demos-europe/demosplan-utils',
-    'tiptap',
-    'tiptap-commands',
-    'tiptap-extensions',
     'vue-resize'
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )
