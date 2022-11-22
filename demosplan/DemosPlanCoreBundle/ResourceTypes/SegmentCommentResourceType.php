@@ -81,7 +81,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isCreatable(): bool
     {
-        return $this->currentUser->hasPermission('feature_segment_comment_create');
+        return $this->isDirectlyAccessible();
     }
 
     public function createObject(array $properties): ResourceChange
