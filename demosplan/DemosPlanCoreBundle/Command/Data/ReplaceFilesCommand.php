@@ -113,8 +113,8 @@ class ReplaceFilesCommand extends CoreCommand
         string $slot,
         SymfonyStyle $output,
         bool $dryRun,
-        string $directory): void
-    {
+        string $directory
+    ): void {
         $filename = $file->getFilename();
 
         if (strrpos($filename, 'â')) {

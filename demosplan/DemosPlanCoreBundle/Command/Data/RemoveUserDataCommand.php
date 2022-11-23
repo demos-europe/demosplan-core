@@ -486,7 +486,8 @@ class RemoveUserDataCommand extends CoreCommand
                 $user = $this->userService->getSingleUser($report->getUserId());
                 $reportEntryUsers[$report->getUserId()] = null === $user ? '' : $user->getName();
             }
-            $em->getConnection()->executeUpdate('UPDATE _report_entries re SET
+            $em->getConnection()->executeUpdate(
+                'UPDATE _report_entries re SET
                 re._u_name = :name,
                 re._re_message = :message,
                 re._re_incoming = :incoming

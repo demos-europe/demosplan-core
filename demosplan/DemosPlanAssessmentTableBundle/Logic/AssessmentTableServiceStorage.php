@@ -698,9 +698,8 @@ class AssessmentTableServiceStorage
                             $attachmentNames
                         );
                     }
-                }
-                // manuell eingegebene Stellungnahme
-                elseif ('' != $statement->getMeta()->getOrgaEmail()) {
+                  // manuell eingegebene Stellungnahme
+                } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
                         $statement->getMeta()->getOrgaEmail(),

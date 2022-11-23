@@ -714,7 +714,8 @@ class AssessmentTableServiceOutput
                     .$delimiter.$concatValue
                 ),
                 $fStyle,
-                $pStyle);
+                $pStyle
+            );
         };
     }
 
