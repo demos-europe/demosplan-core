@@ -18,4 +18,3 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class DemosPlanAdminBundle extends Bundle
 {
 }
-
