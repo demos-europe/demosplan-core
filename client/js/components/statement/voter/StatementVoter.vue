@@ -219,8 +219,8 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import { DpEditableList, DpRadio } from '@demos-europe/demosplan-ui/components/core'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { DpInput } from '@demos-europe/demosplan-ui'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'StatementVoter',

@@ -163,10 +163,8 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, formatDate } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpVersionHistoryItem',

@@ -72,8 +72,8 @@
 import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { debounce, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
-import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
-import { DpTableCardListHeader } from '@demos-europe/demosplan-ui/components/core'
+import { dpSelectAllMixin } from '@demos-europe/demosplan-utils'
+import { DpTableCardListHeader } from '@demos-europe/demosplan-ui'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
 export default {

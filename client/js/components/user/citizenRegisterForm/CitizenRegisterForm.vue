@@ -103,7 +103,7 @@
 <script>
 import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
 import { DpCheckbox, DpFormRow } from '@demos-europe/demosplan-ui/components/core'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CitizenRegisterForm',

@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@demos-europe/dp-consent": "^1.1.2",
-    "@demos-europe/demosplan-ui": "0.0.2",
+    "@demos-europe/demosplan-ui": "0.0.4",
     "@demos-europe/demosplan-utils": "0.0.2",
     "@efrane/vuex-json-api": "0.0.38",
     "@masterportal/masterportalapi": "^2.10.0",

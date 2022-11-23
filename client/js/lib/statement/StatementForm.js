@@ -12,7 +12,7 @@
  */
 
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default function StatementForm () {
   //  Statement Form Behavior

@@ -102,7 +102,7 @@
 import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { Base64 } from 'js-base64'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpHeightLimit } from '@demos-europe/demosplan-ui/components/core'
+import { DpHeightLimit } from '@demos-europe/demosplan-ui'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {

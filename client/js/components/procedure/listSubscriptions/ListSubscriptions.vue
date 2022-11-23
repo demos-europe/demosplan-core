@@ -96,7 +96,7 @@
 
 <script>
 import { DpAutocomplete, DpSelect } from '@demos-europe/demosplan-ui/components/core'
-import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {

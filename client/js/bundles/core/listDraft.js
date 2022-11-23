@@ -16,7 +16,7 @@ import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui/components/co
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 

@@ -82,7 +82,7 @@
 import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
 import { dpApi } from '@demos-europe/demosplan-utils'
 import { DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',

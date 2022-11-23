@@ -208,7 +208,7 @@
 <script>
 import { checkResponse, dpApi, handleResponseMessages } from '@demos-europe/demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'

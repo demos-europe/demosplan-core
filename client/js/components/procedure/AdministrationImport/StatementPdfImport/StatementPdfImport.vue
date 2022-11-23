@@ -41,7 +41,7 @@
 
 <script>
 import { dpApi, handleResponseMessages } from '@demos-europe/demosplan-utils'
-import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui/components/core'
 import StatementPdfImportList from './StatementPdfImportList'
 

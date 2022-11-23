@@ -237,7 +237,7 @@ import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPag
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
+import { tableSelectAllItems } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'SegmentsList',

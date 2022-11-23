@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpNotifyContainer } from '@demos-europe/demosplan-ui/components/core'
 import { initGlobalEventListener, initToggleSideMenu, initUserbox, NotificationStoreAdapter } from '@demos-europe/demosplan-utils'
+import { DpAccordion, DpNotifyContainer } from '@demos-europe/demosplan-ui'
 import { bootstrap } from '@DpJs/bootstrap'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'

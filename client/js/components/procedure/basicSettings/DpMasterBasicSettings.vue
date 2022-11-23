@@ -9,7 +9,7 @@
 
 <script>
 import DpEmailList from './DpEmailList'
-import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
+import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMasterBasicSettings',

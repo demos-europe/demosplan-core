@@ -223,7 +223,7 @@
 import { DpIcon, DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { DpButtonRow, DpDatepicker, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 

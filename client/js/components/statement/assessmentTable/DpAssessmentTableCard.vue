@@ -745,7 +745,7 @@ import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
 import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from '@demos-europe/demosplan-ui/directives'
+import { VPopover } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpAssessmentTableCard',

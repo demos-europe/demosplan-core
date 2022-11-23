@@ -90,7 +90,7 @@
 
 <script>
 import { DpCheckbox, DpDateRangePicker, DpDatetimePicker, DpSelect } from '@demos-europe/demosplan-ui/components/core'
-import { DpLabel } from '@demos-europe/demosplan-ui/components'
+import { DpLabel } from '@demos-europe/demosplan-ui'
 import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {

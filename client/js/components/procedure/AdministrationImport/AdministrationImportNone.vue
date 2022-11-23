@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
+import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationImportNone',

@@ -27,7 +27,7 @@
 
 <script>
 import { DpCheckbox, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
-import { DpLabel } from '@demos-europe/demosplan-ui/components'
+import { DpLabel } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementReplySelect',

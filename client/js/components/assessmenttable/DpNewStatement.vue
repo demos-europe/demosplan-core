@@ -14,7 +14,7 @@ import { DpAccordion, DpDatepicker, DpEditor, DpMultiselect, DpSelect, DpUploadF
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 

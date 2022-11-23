@@ -138,7 +138,7 @@
 
 <script>
 import { DpInput, DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { CleanHtml } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 import { DpCheckbox, DpFormRow, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'

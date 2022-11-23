@@ -155,7 +155,7 @@ import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { DpCheckboxGroup, DpSearchField, DpSkeletonBox, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
-import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpSelectAllMixin } from '@demos-europe/demosplan-utils'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {

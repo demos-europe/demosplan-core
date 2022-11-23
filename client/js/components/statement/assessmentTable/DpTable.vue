@@ -232,17 +232,13 @@
 </template>
 
 <script>
+import { changeUrlforPager, handleResponseMessages } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpLoading, DpPager, Stickier } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
-import { changeUrlforPager } from '@demos-europe/demosplan-utils'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpPager } from '@demos-europe/demosplan-ui/components/core'
-import { handleResponseMessages } from '@demos-europe/demosplan-utils'
 import { scrollTo } from 'vue-scrollto'
-import { Stickier } from '@demos-europe/demosplan-utils'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )

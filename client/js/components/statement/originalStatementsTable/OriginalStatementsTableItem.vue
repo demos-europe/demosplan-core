@@ -187,7 +187,7 @@
 <script>
 import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapGetters, mapState } from 'vuex'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { CleanHtml } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 import { DpFlyout, DpHeightLimit } from '@demos-europe/demosplan-ui/components/core'
 

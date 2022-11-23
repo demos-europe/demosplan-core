@@ -14,7 +14,7 @@
 import { dpApi } from '@demos-europe/demosplan-utils'
 import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 const stores = {}
 const components = { DpSearchProcedureMap }

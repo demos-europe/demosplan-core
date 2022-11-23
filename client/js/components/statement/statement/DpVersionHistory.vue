@@ -69,7 +69,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {

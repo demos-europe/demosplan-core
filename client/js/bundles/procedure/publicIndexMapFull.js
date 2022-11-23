@@ -15,7 +15,7 @@ import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import locationStore from '@DpJs/store/procedure/Location'
 import Procedures from '@DpJs/components/procedure/publicindex/Procedures'
 import procedureStore from '@DpJs/store/procedure/Procedure'
-import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
+import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
 
 const stores = {
   location: locationStore,

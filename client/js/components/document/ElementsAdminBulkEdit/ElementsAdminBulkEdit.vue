@@ -81,7 +81,7 @@ import { checkResponse, dpRpc, formatDate, hasOwnProp } from '@demos-europe/demo
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import { DpCheckbox, DpDatetimePicker, DpInlineNotification, DpSelect } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import lscache from 'lscache'
 
 export default {
