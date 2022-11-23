@@ -61,7 +61,8 @@ jobs:
 
       - name: Warmup cache
         run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
-      - test ls:
+
+      - name: test ls
         run: |
          ls -la /tmp/
 
