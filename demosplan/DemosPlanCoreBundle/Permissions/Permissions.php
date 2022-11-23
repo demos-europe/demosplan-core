@@ -112,10 +112,7 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
-    /**
-     * @var PermissionCollectionInterface
-     */
-    private $permissionCollection;
+    private PermissionCollectionInterface $permissionCollection;
 
     public function __construct(
         LoggerInterface $logger,
