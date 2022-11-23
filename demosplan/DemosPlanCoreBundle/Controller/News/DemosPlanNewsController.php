@@ -97,8 +97,8 @@ class DemosPlanNewsController extends BaseController
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         string $newsID,
-        string $procedure)
-    {
+        string $procedure
+    ) {
         // @improve T14613
         $procedureId = $procedure;
 
@@ -194,8 +194,8 @@ class DemosPlanNewsController extends BaseController
     public function newsListGlobalIndexAction(
         Breadcrumb $breadcrumb,
         CurrentUserService $currentUserService,
-        TranslatorInterface $translator)
-    {
+        TranslatorInterface $translator
+    ) {
         //Reichere die breadcrumb mit einem extraItem an
         $breadcrumb->addItem(
             [
@@ -506,8 +506,8 @@ class DemosPlanNewsController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         string $newsID,
-        string $procedure)
-    {
+        string $procedure
+    ) {
         //reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
             [

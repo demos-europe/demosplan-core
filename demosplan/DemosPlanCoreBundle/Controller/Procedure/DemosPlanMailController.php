@@ -229,7 +229,8 @@ class DemosPlanMailController extends BaseController
         $messageBag->add('confirm', 'procedure.mail.submitters.send.success');
 
         return $this->redirectToRoute(
-            'DemosPlan_procedure_dashboard', ['procedure' => $procedureId]
+            'DemosPlan_procedure_dashboard',
+            ['procedure' => $procedureId]
         );
     }
 }

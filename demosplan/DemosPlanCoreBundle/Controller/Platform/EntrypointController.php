@@ -165,7 +165,8 @@ class EntrypointController extends BaseController
             return $this->renderPublicIndexList(
                 $contentService,
                 $procedureLister,
-                $request);
+                $request
+            );
         }
 
         $entrypointRoute = $this->entryPointDecider->determinePublicEntrypoint();

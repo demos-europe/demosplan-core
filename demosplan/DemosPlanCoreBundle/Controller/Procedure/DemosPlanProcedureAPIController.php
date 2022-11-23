@@ -193,8 +193,8 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = '')
-    {
+        $filterHash = ''
+    ) {
         return $this->getStatementFilter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
@@ -230,8 +230,8 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = '')
-    {
+        $filterHash = ''
+    ) {
         return $this->getStatementFilter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
@@ -588,8 +588,12 @@ class DemosPlanProcedureAPIController extends APIController
     {
         array_unshift($paths, $path);
 
-        return implode(',', array_map(static function (PropertyPathInterface $path): string {
-            return $path->getAsNamesInDotNotation();
-        }, $paths));
+        return implode(
+            ',',
+            array_map(
+                static fn (PropertyPathInterface $path): string => $path->getAsNamesInDotNotation(),
+                $paths
+            )
+        );
     }
 }

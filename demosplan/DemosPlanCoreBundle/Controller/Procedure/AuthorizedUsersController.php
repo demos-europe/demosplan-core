@@ -62,8 +62,8 @@ class AuthorizedUsersController extends BaseController
         FileResponseGeneratorStrategy $responseGenerator,
         Request $request,
         TranslatorInterface $translator,
-        string $procedureId): Response
-    {
+        string $procedureId
+    ): Response {
         $tokenList = $consultationTokenService->getTokenListFromResourceType($procedureId, $request->query->get('sort'));
 
         try {

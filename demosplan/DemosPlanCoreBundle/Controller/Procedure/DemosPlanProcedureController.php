@@ -1424,7 +1424,9 @@ class DemosPlanProcedureController extends BaseController
             $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas();
             $templateVars['dataInputOrgas'] = $dataInputOrgas;
             // get current shortUrlPath
-            $templateVars['shortUrlPath'] = $this->generateUrl('core_procedure_slug', [],
+            $templateVars['shortUrlPath'] = $this->generateUrl(
+                'core_procedure_slug',
+                [],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
             $templateVars['inData']['r_shortUrl'] = $procedureAsArray['currentSlug']->getName();
@@ -1943,7 +1945,11 @@ class DemosPlanProcedureController extends BaseController
                 }
             } catch (Exception $e) {
                 $this->getLogger()->warning(
-                    'DraftStatement could not be found', ['id' => $request->query->get('r_draftStatementId'), $e]
+                    'DraftStatement could not be found',
+                    [
+                        'id' => $request->query->get('r_draftStatementId'),
+                        $e,
+                    ]
                 );
             }
         }
@@ -2185,10 +2191,12 @@ class DemosPlanProcedureController extends BaseController
             // generiere eine Erfolgsmeldung
             if (false !== $storageResult && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
                 $this->getMessageBag()->add(
-                        'confirm',
-                        $translator
-                            ->trans('confirm.invitation.saved', ['variable' => ''])
-                    );
+                    'confirm',
+                    $translator->trans(
+                        'confirm.invitation.saved',
+                        ['variable' => '']
+                    )
+                );
 
                 return new RedirectResponse(
                     $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure])
@@ -2309,10 +2317,8 @@ class DemosPlanProcedureController extends BaseController
         );
         if (is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
-                if (array_key_exists(
-                        'organisation',
-                        $invitedOrga
-                    ) && $invitedOrga['organisation'] instanceof Orga
+                if (array_key_exists('organisation', $invitedOrga) &&
+                    $invitedOrga['organisation'] instanceof Orga
                 ) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();
                 }
@@ -2360,14 +2366,14 @@ class DemosPlanProcedureController extends BaseController
 
             if (true === $storageResult) {
                 $messageBag->add(
-                        'confirm',
-                        $translator->trans('confirm.invitable_institutions.added')
-                    );
+                    'confirm',
+                    $translator->trans('confirm.invitable_institutions.added')
+                );
             } else {
                 $messageBag->add(
-                        'warning',
-                        $translator->trans('warning.invitable_institution.not.added')
-                    );
+                    'warning',
+                    $translator->trans('warning.invitable_institution.not.added')
+                );
             }
 
             return new RedirectResponse(
