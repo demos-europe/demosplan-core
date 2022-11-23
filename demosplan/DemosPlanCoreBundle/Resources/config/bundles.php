@@ -43,7 +43,6 @@ return [
     demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class => ['all' => true],
     demosplan\DemosPlanMiscContentBundle\DemosPlanMiscContentBundle::class => ['all' => true],
     demosplan\DemosPlanNewsBundle\DemosPlanNewsBundle::class => ['all' => true],
-    demosplan\DemosPlanPluginBundle\DemosPlanPluginBundle::class => ['all' => true],
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class => ['all' => true],
     demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class => ['all' => true],
     demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class => ['all' => true],

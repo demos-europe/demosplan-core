@@ -151,20 +151,6 @@
 
         {% endif %}
 
-        {% if hasPermission('feature_reply_statement') %}
-            {% if statement.replied == true %}
-                {% if statement.bthgKompassAnswer is not null and statement.bthgKompassAnswer.url is not null %}
-                    <div class="{{ 'o-badge o-badge--dezi o-badge--dark u-mr-0_5 max-width-100p'|prefixClass }}">
-                        {{ 'answered.in.kompass'|trans({ link: statement.bthgKompassAnswer.url })|wysiwyg }}
-                    </div>
-                {% else %}
-                    <div class="{{ 'o-badge o-badge--dezi o-badge--dark u-mr-0_5 max-width-100p'|prefixClass }}">
-                        {{ 'answered.in.kompass'|trans({ link: templateVars.fallbackStatementReplyUrl })|wysiwyg }}
-                    </div>
-                {% endif %}
-            {% endif %}
-        {% endif %}
-
     </header>
 
     <div class="{{ 'layout__item u-1-of-1'|prefixClass }}">

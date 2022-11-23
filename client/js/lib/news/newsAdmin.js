@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import CharCount from '@DpJs/lib/core/CharCount'
+import { CharCount } from '@demos-europe/demosplan-utils'
 
 /**
  * Toggle input fields for captions.

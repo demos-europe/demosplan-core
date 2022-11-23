@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -29,6 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @phpstan-import-type DrupalFilterGroup from DrupalFilterParser
  * @phpstan-import-type DrupalFilterCondition from DrupalFilterParser
+ *
  * @phpstan-type ParameterCondition = array{
  *            path: non-empty-string,
  *            parameter: value-of<ResolvablePermission::PARAMETER_VALUES>,

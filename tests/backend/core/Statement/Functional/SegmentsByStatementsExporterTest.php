@@ -15,7 +15,7 @@ namespace Tests\Core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use Tests\Base\FunctionalTestCase;
 
 class SegmentsByStatementsExporterTest extends FunctionalTestCase

@@ -682,10 +682,10 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpDetails } from 'demosplan-ui/components'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import { hasOwnProp } from 'demosplan-utils'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpDetails } from '@demos-europe/demosplan-ui/components'
+import { DpTextArea } from '@demos-europe/demosplan-ui/components/core'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpOrganisationFormFields',

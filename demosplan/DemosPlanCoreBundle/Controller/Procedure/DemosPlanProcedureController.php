@@ -105,6 +105,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
 use const FILTER_VALIDATE_BOOLEAN;
@@ -1968,12 +1969,7 @@ class DemosPlanProcedureController extends BaseController
                 $id = $templateVars['publicStatements']['statements'][$key]['id'];
                 $templateVars['publicStatements']['statements'][$key]['fileContainers'] = $statementService->getFileContainersForStatement($id);
 
-                //improve: use an enrichStatementDisplayDataEvent to enrich each statement with bthgKompassAnwers data
-                $currentStatementId = $templateVars['publicStatements']['statements'][$key]['id'];
-                $currentStatement = $statementService->getStatement($currentStatementId);
-                $answer = null === $currentStatement ? null : $currentStatement->getBthgKompassAnswer();
-                $url = null === $answer ? null : $answer->getUrl();
-                $templateVars['publicStatements']['statements'][$key]['bthgKompassAnswer']['url'] = $url;
+                //improve: use an event to enrich the data with additional data from addons
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2
@@ -2854,6 +2850,10 @@ class DemosPlanProcedureController extends BaseController
         // to pass the variable if it's a procedure template (Blaupause)
         if ($isProcedureTemplate) {
             return $templateVars;
+        }
+
+        if (!$this->procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
         $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);

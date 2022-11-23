@@ -68,15 +68,18 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpLoading } from 'demosplan-ui/components'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {
   name: 'DpVersionHistory',
 
   components: {
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpLoading,
     DpVersionHistoryDay
   },

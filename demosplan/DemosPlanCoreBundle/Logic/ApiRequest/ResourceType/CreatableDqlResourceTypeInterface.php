@@ -11,14 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\Types\CreatableTypeInterface;
 
 /**
  * @template T of object
  *
- * @template-extends ResourceTypeInterface<T>
- * @template-extends CreatableTypeInterface<T>
+ * @template-extends ResourceTypeInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
+ * @template-extends CreatableTypeInterface<ClauseFunctionInterface<bool>>
  */
 interface CreatableDqlResourceTypeInterface extends ResourceTypeInterface, CreatableTypeInterface
 {

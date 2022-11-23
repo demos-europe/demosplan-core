@@ -103,10 +103,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpButton } from 'demosplan-ui/components'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import qs from 'qs'
 
 export default {

@@ -6,11 +6,8 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
-    demosplan\plugins\FloodControl\Repository\FloodRepository:
-        $entityClass: 'demosplan\plugins\FloodControl\Entity\Flood'
-
-    demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository:
-        $entityClass: 'demosplan\plugins\workflow\SegmentsManager\Entity\Segment'
+    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
     demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
@@ -123,12 +120,6 @@ services:
     demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
 
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf'
-
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfPageRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage'
-
     demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
 
@@ -210,9 +201,6 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\StatementImportEmailRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail'
-
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
 
@@ -261,9 +249,6 @@ services:
     demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer'
-
     demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 
@@ -272,6 +257,3 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection'

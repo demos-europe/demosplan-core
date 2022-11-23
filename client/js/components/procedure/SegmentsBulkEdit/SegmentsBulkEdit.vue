@@ -195,15 +195,13 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import { hasOwnProp } from 'demosplan-utils'
+import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui/components/core'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
@@ -214,10 +212,16 @@ export default {
     ActionStepper,
     ActionStepperAction,
     ActionStepperResponse,
-    DpInlineNotification: () => import('@DpJs/components/core/DpInlineNotification'),
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpInlineNotification
+    },
     DpMultiselect,
     DpRadio,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    },
     SelectedTagsList
   },
 

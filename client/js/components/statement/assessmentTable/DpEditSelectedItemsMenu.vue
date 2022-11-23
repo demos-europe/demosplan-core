@@ -41,7 +41,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { DpButton } from 'demosplan-ui/components'
+import { DpButton } from '@demos-europe/demosplan-ui/components'
 
 export default {
   name: 'DpEditSelectedItemsMenu',

@@ -152,14 +152,12 @@ import {
   setRange,
   setRangeEditingState
 } from '@DpJs/lib/procedure/prosemirrorRanges/commands'
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import CardPane from '@DpJs/components/procedure/splitStatement/CardPane'
 import dayjs from 'dayjs'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
+import { dpApi } from '@demos-europe/demosplan-utils'
+import { DpFlyout, DpInlineNotification, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import { generateRangeChangeMap } from '@DpJs/lib/procedure/prosemirrorRanges/utilities'
 import ProcessingPage from '@DpJs/components/procedure/splitStatement/ProcessingPage'
 import SegmentationEditor from '@DpJs/components/procedure/splitStatement/SegmentationEditor'

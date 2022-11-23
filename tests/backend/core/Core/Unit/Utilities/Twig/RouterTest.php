@@ -142,11 +142,6 @@ class RouterTest extends FunctionalTestCase
                 $urlHttp,
                 'http',
             ],
-            [
-                'https://umsetzungsbegleitung-bthg.de/dialog/app.php/plan',
-                'https://umsetzungsbegleitung-bthg.de/dialog/app.php/plan',
-                'https',
-            ],
         ];
     }
 

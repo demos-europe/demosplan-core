@@ -239,14 +239,12 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { CleanHtml, VPopover } from 'demosplan-ui/directives'
-import { DpIcon, DpLabel } from 'demosplan-ui/components'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui/directives'
+import { DpIcon, DpLabel } from '@demos-europe/demosplan-ui/components'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import { DpButtonRow, DpCheckbox, DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 
 export default {
   name: 'StatementSegment',
@@ -260,7 +258,10 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      return DpEditor
+    },
     VPopover
   },
 
@@ -428,6 +429,10 @@ export default {
       this.toggleAssignableUsersSelect()
     },
 
+    checkIfToolIsActive (tool) {
+      return (this.segment.id === this.slidebar.segmentId && this.slidebar.showTab === tool)
+    },
+
     claimSegment () {
       const dataToUpdate = {
         ...this.segment,
@@ -531,6 +536,10 @@ export default {
     },
 
     showComments () {
+      if (this.checkIfToolIsActive('comments')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
 
       this.toggleSlidebarContent({
@@ -543,20 +552,28 @@ export default {
           show: true
         }
       })
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'comments' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('show-slidebar')
     },
 
     showMap () {
+      if (this.checkIfToolIsActive('map')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'map' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
     },
 
     showSegmentVersionHistory () {
+      if (this.checkIfToolIsActive('history')) {
+        return
+      }
+
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'history' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
     startEditing () {

@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-        -   uses: styfle/cancel-workflow-action@0.10.0
+        -   uses: styfle/cancel-workflow-action@0.11.0
             with:
                 workflow_id: "FE_headerWriter"
                 access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -32,7 +32,7 @@ jobs:
 
       - name: Run headerWriter
         run: |
-          python3 .github/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i  'client/js/legacy/*' 'client/js/generated/*' '*/node_modules/*' 'client/js/lib/SideNav.js' 'client/js/lib/Detabinator.js' 'demosplan/DemosPlanCoreBundle/Resources/client/js/lib/*' -a -v
+          python3 .github/headerWriter.py -p /home/runner/work/demosplan-core/demosplan-core -i  'client/js/legacy/*' 'client/js/generated/*' '*/node_modules/*' 'client/js/lib/core/SideNav.js' 'client/js/lib/core/Detabinator.js' 'demosplan/DemosPlanCoreBundle/Resources/client/js/lib/*' -a -v
         shell: bash
 
       - name: delete headerWriter

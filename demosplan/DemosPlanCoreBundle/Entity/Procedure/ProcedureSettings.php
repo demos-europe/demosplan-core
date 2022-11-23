@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -271,6 +271,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Contains an identifier for a specific planningArea getting from WFS.
      *
      * @var string|null
+     *
      * @ORM\Column(type="string", options={"default":"all"})
      */
     protected $planningArea = 'all';
@@ -279,6 +280,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Comma separated numbers as string.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=true)
      */
     protected $scales = '';
@@ -288,6 +290,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Legal notice to contains clause or other legal relevant information or references of this Procedure.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
     protected $legalNotice = '';
@@ -296,6 +299,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * T10133.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
     protected $copyright = '';
@@ -916,12 +920,12 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @return \DateTime|null date, which is set | null if date not set or there are no related settings
      */
-    public function getDesignatedSwitchDate(): ?DateTime
+    public function getDesignatedSwitchDate(): ?\DateTime
     {
         return $this->designatedSwitchDate;
     }
 
-    public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
+    public function setDesignatedSwitchDate(?\DateTime $designatedSwitchDate): self
     {
         $this->designatedSwitchDate = $designatedSwitchDate;
 
@@ -934,12 +938,12 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      *
      * @return \DateTime|null date, which is set | null if date not set or there are no related settings
      */
-    public function getDesignatedPublicSwitchDate(): ?DateTime
+    public function getDesignatedPublicSwitchDate(): ?\DateTime
     {
         return $this->designatedPublicSwitchDate;
     }
 
-    public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
+    public function setDesignatedPublicSwitchDate(?\DateTime $designatedPublicSwitchDate): self
     {
         $this->designatedPublicSwitchDate = $designatedPublicSwitchDate;
 
@@ -949,7 +953,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Returns the End Date to which will be switch, when the time(dateOfSwitchPhase) has come.
      */
-    public function getDesignatedEndDate(): ?DateTime
+    public function getDesignatedEndDate(): ?\DateTime
     {
         return $this->designatedEndDate;
     }
@@ -969,7 +973,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Returns the End Date to which will be switch, when the time(dateOfSwitchPhase) has come.
      */
-    public function getDesignatedPublicEndDate(): ?DateTime
+    public function getDesignatedPublicEndDate(): ?\DateTime
     {
         return $this->designatedPublicEndDate;
     }

@@ -232,13 +232,11 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
+import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpDatepicker, DpToggle } from '@demos-europe/demosplan-ui/components/core'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
-import DpToggle from '@DpJs/components/core/form/DpToggle'
 import { fromExtent } from 'ol/geom/Polygon'
-import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpMapSettingsPreview',

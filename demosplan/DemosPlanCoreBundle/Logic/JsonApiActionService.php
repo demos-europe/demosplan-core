@@ -40,6 +40,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\RequestHandling\AbstractApiService;
 use EDT\JsonApi\RequestHandling\ApiListResultInterface;
 use EDT\JsonApi\RequestHandling\FilterParserInterface;
@@ -99,11 +100,6 @@ class JsonApiActionService extends AbstractApiService
     private $paginationParser;
 
     /**
-     * @var PrefilledResourceTypeProvider
-     */
-    protected $typeProvider;
-
-    /**
      * @var JsonApiEsService
      */
     private $jsonApiEsService;
@@ -130,7 +126,6 @@ class JsonApiActionService extends AbstractApiService
             $propertyValuesGenerator,
             $typeProvider
         );
-        $this->typeProvider = $typeProvider;
         $this->eventDispatcher = $eventDispatcher;
         $this->resourceTypeService = $resourceTypeService;
         $this->entityFetcher = $entityFetcher;
@@ -142,8 +137,8 @@ class JsonApiActionService extends AbstractApiService
     }
 
     /**
-     * @param array<int, FunctionInterface<bool>> $conditions
-     * @param array<int,SortMethodInterface>      $sortMethods
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     * @param array<int, OrderBySortMethodInterface>    $sortMethods
      *
      * @throws QueryException
      * @throws UserNotFoundException
@@ -195,7 +190,7 @@ class JsonApiActionService extends AbstractApiService
     protected function updateObject(ResourceTypeInterface $resourceType, string $resourceId, array $properties): ?object
     {
         if (!$resourceType instanceof UpdatableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), UpdatableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not updatable: {$resourceType::getName()}");
         }
 
         $entity = $this->entityFetcher->getEntityAsUpdateTarget($resourceType, $resourceId);
@@ -219,7 +214,7 @@ class JsonApiActionService extends AbstractApiService
     public function createObject(ResourceTypeInterface $resourceType, array $properties): ?object
     {
         if (!$resourceType instanceof CreatableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), CreatableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not creatable: {$resourceType::getName()}");
         }
 
         if (!$resourceType->isCreatable()) {
@@ -326,7 +321,7 @@ class JsonApiActionService extends AbstractApiService
     protected function deleteObject(ResourceTypeInterface $resourceType, string $resourceId): void
     {
         if (!$resourceType instanceof DeletableDqlResourceTypeInterface) {
-            throw TypeRetrievalAccessException::noNameWithImplementation($resourceType::getName(), DeletableDqlResourceTypeInterface::class);
+            throw new TypeRetrievalAccessException("Resource type is not deletable: {$resourceType::getName()}");
         }
 
         $entity = $this->entityFetcher->getEntityAsDeletionTarget($resourceType, $resourceId);

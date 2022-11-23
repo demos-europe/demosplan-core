@@ -613,7 +613,7 @@
 
            --><div class="layout--flush layout__item c-at-item__row overflow-word-break">
                 <a
-                  v-if="hasOwnProp(statement.sourceAttachment, 'filename')"
+                  v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
                   :href="Routing.generate('core_file', { hash: statement.sourceAttachment.hash })"
                   rel="noopener"
@@ -735,17 +735,17 @@
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from 'demosplan-utils'
+import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@demos-europe/demosplan-utils'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
 import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from 'demosplan-ui/directives'
+import { VPopover } from '@demos-europe/demosplan-ui/directives'
 
 export default {
   name: 'DpAssessmentTableCard',

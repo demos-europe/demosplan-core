@@ -151,15 +151,12 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpCheckboxGroup, DpSearchField, DpSkeletonBox, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
 import { mapActions, mapState } from 'vuex'
-import DpCheckboxGroup from '@DpJs/components/core/DpCheckboxGroup'
 import DpOrganisationListItem from './DpOrganisationListItem'
-import DpSearchField from '@DpJs/components/core/form/DpSearchField'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
-import DpSkeletonBox from '@DpJs/components/core/DpSkeletonBox'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import { hasOwnProp } from 'demosplan-utils'
+import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpOrganisationList',

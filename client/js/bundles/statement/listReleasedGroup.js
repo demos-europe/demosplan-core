@@ -12,9 +12,8 @@
  */
 
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpModal from '@DpJs/components/core/DpModal'
+import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'

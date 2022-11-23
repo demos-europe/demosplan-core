@@ -84,7 +84,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->description)->readable()->initializable(),
-            $this->createAttribute($this->file)->readable()->initializable(),
+            $this->createToOneRelationship($this->file)->readable()->initializable(),
         ];
     }
 
@@ -108,10 +108,11 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange = new ResourceChange($video, $this, $properties);
 
         // until the FE supports multiple sign language videos we automatically remove the old one when a new one is created
-        $customer->getSignLanguageOverviewVideos()->forAll(static function (Video $oldVideo) use ($resourceChange, $customer): void {
+        /** @var Video $oldVideo */
+        foreach ($customer->getSignLanguageOverviewVideos() as $oldVideo) {
             $customer->removeSignLanguageOverviewVideo($oldVideo);
             $resourceChange->addEntityToDelete($oldVideo);
-        });
+        }
 
         $customer->addSignLanguageOverviewVideo($video);
 
