@@ -115,6 +115,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
             // user exists with email. Just update login to tie user to saml and at the same time
             // allow to login locally via email
             $user->setLogin($login);
+            $user->setProvidedByIdentityProvider(true);
 
             return $this->userService->updateUserObject($user);
         }
@@ -180,6 +181,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user->setNoPiwik(false);
         $user->setPassword('loginViaSAML');
         $user->setProfileCompleted(true);
+        $user->setProvidedByIdentityProvider(true);
 
         return $user;
     }
@@ -229,6 +231,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user = $orga->getUsers()->first();
         // set Orga Id as User login to be able to login as the default Orga user on login
         $user->setLogin($attributes['ID'][0] ?? '');
+        $user->setHasExternalIdentityProvider(true);
 
         return $this->userService->updateUserObject($user);
     }
