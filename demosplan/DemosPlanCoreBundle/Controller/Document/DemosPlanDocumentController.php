@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 use function array_key_exists;
 use function array_merge;
 use function compact;
+
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -55,13 +56,17 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
+
 use function explode;
 use function is_array;
+
 use Pagerfanta\Adapter\ArrayAdapter;
 use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
+
 use function set_time_limit;
+
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -120,7 +125,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_element",
      *     path="/verfahren/{procedure}/verwalten/element/{elementId}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -289,7 +293,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_edit",
      *     path="/verfahren/{procedure}/verwalten/paragraph/{documentID}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -364,7 +367,7 @@ class DemosPlanDocumentController extends BaseController
         // Falls das Bild alt Text hat, ersetze den HTML-Tag mit einem Editor-Tag
         $templateVars['document']['text'] = $editorService->replaceHtmlAltTextTagByAlternativeTextPlaceholder($templateVars['document']['text']);
 
-        //reichere die breadcrumb mit extraItem an (kategorie)
+        // reichere die breadcrumb mit extraItem an (kategorie)
 
         $breadcrumb->addItem(
             [
@@ -395,7 +398,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_new",
      *     path="/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -414,7 +416,7 @@ class DemosPlanDocumentController extends BaseController
         $procedure,
         $elementId
     ) {
-        //get Element -> get Title
+        // get Element -> get Title
         $elementService = $this->elementsService;
         $element = $elementService->getElement($elementId);
 
@@ -457,7 +459,7 @@ class DemosPlanDocumentController extends BaseController
 
         $templateVars['relatedDocuments'] = $documentHandler->getParaDocumentAdminList($procedure, $elementId);
 
-        //reichere die breadcrumb mit extraItem an (kategorie)
+        // reichere die breadcrumb mit extraItem an (kategorie)
         // da hier keine breadcrumb-Items, auch noch die element.list.admin transation hinzufügen:
         $breadcrumb->addItem(
             ['title'  => $translator->trans('element.list.admin', [], 'page-title'),
@@ -484,7 +486,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_singledocument_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}"
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -530,7 +531,7 @@ class DemosPlanDocumentController extends BaseController
                 }
             }
         }
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -563,7 +564,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -621,7 +621,7 @@ class DemosPlanDocumentController extends BaseController
             }
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -679,7 +679,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -763,7 +762,7 @@ class DemosPlanDocumentController extends BaseController
 
         $title = 'elements.dashboard';
 
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
         // @improve T14122
         $mapOptions = $mapService->getMapOptions($procedure);
@@ -791,7 +790,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_element_import",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/import"
      * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
      * @param string $procedure
@@ -1075,7 +1073,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @return Response
@@ -1155,7 +1152,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars = ['element' => $element];
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
-        //speicher die Ids der berechtigten Organisationen für Kategorien in einem array
+        // speicher die Ids der berechtigten Organisationen für Kategorien in einem array
         $authorisedOrgas = [];
         if (isset($templateVars['element']['organisation'])) {
             foreach ($templateVars['element']['organisation'] as $orga) {
@@ -1166,7 +1163,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['documents'] = [];
         $templateVars['documentEnable'] = false;
 
-        //wenn elementtyp == file:
+        // wenn elementtyp == file:
         if ('file' === $templateVars['element']['category']) {
             $templateVars['documentEnable'] = true;
             $templateVars['deleteEnable'] = true;
@@ -1175,7 +1172,7 @@ class DemosPlanDocumentController extends BaseController
             }
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -1183,7 +1180,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('element.admin.category');
 
         $view = '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig';
@@ -1235,7 +1232,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_elements_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/new"
      * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_edit"})
      *
      * @param string $procedure
@@ -1273,7 +1269,7 @@ class DemosPlanDocumentController extends BaseController
             if (array_key_exists('ident', $storageResult) && !array_key_exists(
                 'mandatoryfieldwarning',
                 $storageResult
-              )
+            )
             ) {
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
 
@@ -1290,7 +1286,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['parent'] = $requestGet['parentElement'];
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -1428,7 +1424,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['list']['documentlist']
         );
 
-        //get Element -> get Title
+        // get Element -> get Title
         $element = $elementService->getElement($elementId);
 
         $templateVars['element'] = $element;
@@ -1608,7 +1604,7 @@ class DemosPlanDocumentController extends BaseController
      */
     protected function replaceDocumentImagePlaceholdersImg(EditorService $editorService, $documentList)
     {
-        //Stelle importierte Bilder in den Kapiteln dar
+        // Stelle importierte Bilder in den Kapiteln dar
         $this->profilerStart('ImageReplacement');
         if (0 < count($documentList)) {
             // Ersetze das im Texte gespeicherte Pattern <!-- #Image-[filehash] -->
@@ -1656,8 +1652,8 @@ class DemosPlanDocumentController extends BaseController
                         $documentList[$docKey]['text']
                     );
 
-                    //second try to find by str_replace
-                    //should only find & replace in case of preg_replace() does not already found & replace
+                    // second try to find by str_replace
+                    // should only find & replace in case of preg_replace() does not already found & replace
                     $documentList[$docKey]['text'] = str_replace($matches[0][$matchKey], $currentImageHtml, $documentList[$docKey]['text']);
 
                     // setze die Größe
@@ -1668,7 +1664,7 @@ class DemosPlanDocumentController extends BaseController
                     );
 
                     if (isset($parts[3])) {
-                        //check if this part is really the alttext!?
+                        // check if this part is really the alttext!?
                         // setze den alternative Text
                         $documentList[$docKey]['text'] = preg_replace(
                             '|ALTTEXT|',
@@ -1857,7 +1853,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/zipfiles",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("feature_element_export")
      *
      * @return RedirectResponse|StreamedResponse

@@ -153,7 +153,7 @@ class AssessmentTableServiceStorage
         return $this->messageBag;
     }
 
-    //@improve T15851
+    // @improve T15851
 
     /**
      * @param array $statementArray
@@ -321,7 +321,7 @@ class AssessmentTableServiceStorage
                 $this->getMessageBag()->add('error', 'error.date.invalid');
             }
 
-            //On UPDATE: Ensure hour, minute and second will stay untouched, to avoid changing of order by submitDate.
+            // On UPDATE: Ensure hour, minute and second will stay untouched, to avoid changing of order by submitDate.
             $currentlySavedDate = Carbon::instance($currentStatement->getSubmitObject());
             $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']['submitted_date']);
             $incomingDate->setTime($currentlySavedDate->hour, $currentlySavedDate->minute, $currentlySavedDate->second);
@@ -369,7 +369,7 @@ class AssessmentTableServiceStorage
         try {
             $statementArray = $this->validateStatementData($statementArray);
             $updatedStatement = $statementService->updateStatement($statementArray, false, $ignoreCluster);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add('error', 'error.statement.update');
 
             return;
@@ -413,7 +413,7 @@ class AssessmentTableServiceStorage
      * T16244 T16250 If the publication status chances, send email.
      * Only send email in regular situations: pending and a decision is made, to prevent accidential emails.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function detectPublicationChangeAndSendEmail(string $oldStatus, string $newStatus, Statement $statement, string $reasonForRejection)
     {
@@ -473,9 +473,9 @@ class AssessmentTableServiceStorage
             $statementToUpdate['voteStk'] = $currentStatement->getVoteStk();
         }
 
-        //is not manual statement && not public allowed
+        // is not manual statement && not public allowed
         if (false === $currentStatement->isManual() && false === $currentStatement->getPublicAllowed()) {
-            //publish non manunal statement
+            // publish non manunal statement
             if (array_key_exists('publicVerified', $statementToUpdate)
                 && Statement::PUBLICATION_APPROVED === $statementToUpdate['publicVerified']
             ) {
@@ -617,7 +617,7 @@ class AssessmentTableServiceStorage
      *
      * @param array $rParams
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function sendStatementMail($rParams)
     {
@@ -644,21 +644,21 @@ class AssessmentTableServiceStorage
                 $emailcc[] = $rParams['emailCC'];
             }
 
-            //Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
+            // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
             $syntaxEmailErrors = [];
             if (array_key_exists('send_emailCC', $rParams['request']) && 0 !== strlen($rParams['request']['send_emailCC'])) {
-                //zerlege den string in die einzelnen E-Mail-Adressen
+                // zerlege den string in die einzelnen E-Mail-Adressen
                 $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $rParams['request']['send_emailCC']);
-                //überprüfe jede dieser mails
+                // überprüfe jede dieser mails
                 foreach ($mailsCC as $mail) {
-                    //lösche alle Freizeichen am Anfang und Ende
+                    // lösche alle Freizeichen am Anfang und Ende
                     $mailForCc = trim($mail);
-                    //Überprüfe, ob die E-Mail-Adresse korrekt ist
+                    // Überprüfe, ob die E-Mail-Adresse korrekt ist
                     if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
-                        //wenn ja, gebe sie weiter
+                        // wenn ja, gebe sie weiter
                         $emailcc[] = $mailForCc;
                     } else {
-                        //wennn nicht, gebe eine Fehlermeldung aus
+                        // wennn nicht, gebe eine Fehlermeldung aus
                         $syntaxEmailErrors[] = $mailForCc;
                     }
                 }
@@ -677,7 +677,7 @@ class AssessmentTableServiceStorage
             if (null !== $statement) {
                 $attachments = array_map([$this, 'createSendableAttachment'], $rParams['emailAttachments'] ?? []);
                 $attachmentNames = array_column($attachments, 'name');
-                //Bürger Stellungnahmen
+                // Bürger Stellungnahmen
                 if (Statement::EXTERNAL === $statement->getPublicStatement()) {
                     if ('email' === $statement->getFeedback()) {
                         $successMessageTranslationParams['sent_to'] = 'citizen_only';
@@ -690,7 +690,7 @@ class AssessmentTableServiceStorage
                         );
                         // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
                         $emailcc = [''];
-                        //speicher ab, wann die Schlussmitteilung verschickt wurde
+                        // speicher ab, wann die Schlussmitteilung verschickt wurde
                         $this->statementService->setSentAssessment($statement->getId());
                         $this->prepareReportFromProcedureService->addReportFinalMail(
                             $statement,
@@ -698,7 +698,7 @@ class AssessmentTableServiceStorage
                             $attachmentNames
                         );
                     }
-                  // manuell eingegebene Stellungnahme
+                // manuell eingegebene Stellungnahme
                 } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
@@ -710,7 +710,7 @@ class AssessmentTableServiceStorage
                     );
                     // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
                     $emailcc = [''];
-                    //speicher ab, wann die Schlussmitteilung verschickt
+                    // speicher ab, wann die Schlussmitteilung verschickt
                     $this->statementService->setSentAssessment($statement->getId());
                     $this->prepareReportFromProcedureService->addReportFinalMail(
                         $statement,
@@ -734,7 +734,7 @@ class AssessmentTableServiceStorage
                         if (0 < strlen($user->getOrga()->getEmail2())) {
                             $recipients[] = $user->getOrga()->getEmail2();
                         }
-                        //Gibt es auch noch eingetragenede BeteiligungsEmail in CC
+                        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
                         if (null !== $user->getOrga()->getCcEmail2()) {
                             $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
                             $recipients = array_merge($recipients, $ccUsersEmail);
@@ -746,7 +746,7 @@ class AssessmentTableServiceStorage
                             $vars,
                             $attachments
                         );
-                        //speicher ab, wann die Schlussmitteilung verschickt wurde
+                        // speicher ab, wann die Schlussmitteilung verschickt wurde
                         $this->statementService->setSentAssessment($statement->getId());
                         foreach ($recipients as $email) {
                             $this->prepareReportFromProcedureService->addReportFinalMail(
@@ -756,7 +756,7 @@ class AssessmentTableServiceStorage
                             );
                         }
                     }
-                    //Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
+                    // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
                     if (null !== $statement->getMeta()->getSubmitUId()) {
                         $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
                         $submitUserEmail = $submitUser->getEmail();
@@ -769,7 +769,7 @@ class AssessmentTableServiceStorage
                                 $vars,
                                 $attachments
                             );
-                            //speicher ab, wann die Schlussmitteilung verschickt wurde
+                            // speicher ab, wann die Schlussmitteilung verschickt wurde
                             $this->statementService->setSentAssessment($statement->getId());
                             $this->prepareReportFromProcedureService->addReportFinalMail(
                                 $statement,
@@ -793,7 +793,7 @@ class AssessmentTableServiceStorage
                             );
                             // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
                             $emailcc = '';
-                            //speicher ab, wann die Schlussmitteilung verschickt wurde
+                            // speicher ab, wann die Schlussmitteilung verschickt wurde
                             $this->statementService->setSentAssessment($statement->getId());
                             $this->prepareReportFromProcedureService->addReportFinalMail(
                                 $statement,
@@ -855,7 +855,7 @@ class AssessmentTableServiceStorage
             }
         } catch (CopyException $e) {
             // do nothing, as Message is already set
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = true;
         }
 
@@ -944,7 +944,7 @@ class AssessmentTableServiceStorage
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = true;
         }
         $result = new BulkDeleteResult($successful, $unsuccessful, $notfound, $error);

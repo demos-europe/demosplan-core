@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use Exception;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -139,7 +140,7 @@ class VendorlistUpdateCommand extends CoreCommand
             $fs->dumpFile($filename, $phpLicenses->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
             $this->io->success("Updated PHP vendor information to file {$filename}");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->error('An error occured: '.$e->getMessage());
         }
     }
@@ -162,7 +163,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                 return data_get($json, 'package.repository');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->warning('Could not fetch URL for package '.$package);
         }
 
@@ -235,7 +236,7 @@ class VendorlistUpdateCommand extends CoreCommand
             $this->io->success("Updated the js vendor information to file {$filename}");
 
             $this->dumpJsLicenseFile($fs, $jsLicenses);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->error('An error occured during the update: '.$e->getMessage());
         }
     }

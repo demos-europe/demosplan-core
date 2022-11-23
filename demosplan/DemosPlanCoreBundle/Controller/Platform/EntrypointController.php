@@ -11,7 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use function array_filter;
+
 use const ARRAY_FILTER_USE_KEY;
+
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
@@ -71,7 +73,6 @@ class EntrypointController extends BaseController
      * the platform's external start page.
      *
      * @Route(path="/loggedin", name="core_home_loggedin")
-     *
      * @DplanPermissions("area_demosplan")
      */
     public function loggedInIndexEntrypointAction(Request $request): Response
@@ -149,7 +150,6 @@ class EntrypointController extends BaseController
      * their designated logged-in index page.
      *
      * @Route(path="/", name="core_home", options={"expose": true})
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response

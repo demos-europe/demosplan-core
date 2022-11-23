@@ -18,13 +18,18 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Exception;
+
 use function fopen;
 use function fwrite;
 use function in_array;
 use function is_dir;
+
 use RuntimeException;
+
 use function strrpos;
 use function substr;
+
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -153,7 +158,7 @@ class ReplaceFilesCommand extends CoreCommand
             $output->success('Successful generation!');
         } catch (InvalidDataException $invalidDataException) {
             $output->error("Invalid data: {$invalidDataException->getMessage()}");
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $output->error($exception->getMessage());
         }
     }

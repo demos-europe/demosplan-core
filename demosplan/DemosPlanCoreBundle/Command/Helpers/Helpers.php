@@ -13,16 +13,19 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 
 use function collect;
+
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
+
+use function in_array;
+
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use function in_array;
 
 class Helpers
 {

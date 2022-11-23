@@ -65,7 +65,6 @@ class DemosPlanProcedureAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_procedure_"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      */
     public function listAction(Request $request): APIResponse
@@ -85,7 +84,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_mark_participated",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -113,7 +111,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_unmark_participated",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -143,7 +140,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_empty_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -161,7 +157,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_statement_empty_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -177,7 +172,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -214,7 +208,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -251,7 +244,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_filter_hash",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -270,7 +262,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_original_filter_hash",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -428,7 +419,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_delete_statement_filter",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $filterSetId
@@ -504,7 +494,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_add_invited_public_affairs_bodies",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_invitable_institution")
      */
     public function addInvitedPublicAffairsAgentsAction(Request $request, ResourceLinkageFactory $linkageFactory, string $procedureId): JsonResponse
@@ -532,7 +521,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     path="/verfahren/suche/ajax",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return JsonResponse
