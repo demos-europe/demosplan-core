@@ -32,10 +32,6 @@ jobs:
           extensions: gd soap sockets zip
           tools: composer:v2
 
-      - name: test ls
-        run: |
-         ls -la /tmp/
-
       - name: Cache php modules
         uses: actions/cache@v3.0.8
         with:
@@ -65,10 +61,6 @@ jobs:
 
       - name: Warmup cache
         run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
-
-      - name: test ls
-        run: |
-         ls -R /tmp/
 
       - name: Woof
         env:
