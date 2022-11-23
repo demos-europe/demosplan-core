@@ -7,6 +7,10 @@
  * All rights reserved
  */
 
+/**
+ * This is the entrypoint for customer_settings_update_mail.html.twig
+ */
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
@@ -17,6 +21,10 @@ const components = {
   }
 }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })

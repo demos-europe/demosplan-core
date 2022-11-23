@@ -10,6 +10,7 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
 import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
@@ -26,6 +27,10 @@ const components = {
   DpLabel
 }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })

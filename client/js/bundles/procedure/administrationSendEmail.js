@@ -12,11 +12,16 @@
  */
 
 import { DpCheckbox, DpEditor } from '@demos-europe/demosplan-ui/components/core'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpCheckbox, DpEditor }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })
