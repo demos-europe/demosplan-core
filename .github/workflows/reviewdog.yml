@@ -55,11 +55,12 @@ jobs:
         run: |
           composer --version
           composer install --no-interaction
+          composer dump-autoload
 
        # use bin/test
 
-    #  - name: Warmup cache
-    #    run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
+      - name: Warmup cache
+        run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
 
       - name: Woof
         env:
