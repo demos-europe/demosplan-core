@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
@@ -25,8 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -128,7 +125,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent(
             $this->assignedTags,
-            function (Collection $newAssignedTags) use ($institution, $violations): void {
+            function (Collection $newAssignedTags) use ($institution): void {
                 $currentlyAssignedTags = $institution->getAssignedTags();
 
                 // removed tags
