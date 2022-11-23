@@ -136,8 +136,12 @@ class PermissionResolver
      *
      * @return array<non-empty-string, DrupalFilter>
      */
-    private function replaceParameterConditions(array $filterList, ?User $user, ?Procedure $procedure, ?Customer $customer): array
-    {
+    private function replaceParameterConditions(
+        array $filterList,
+        ?User $user,
+        ?Procedure $procedure,
+        ?Customer $customer
+    ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {
                 switch ($conditionWrapper[self::PARAMETER_CONDITION][self::PARAMETER]) {
