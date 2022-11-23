@@ -40,15 +40,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
-class InvitableInstitutionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class InvitableInstitutionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
 {
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator)
-    {
-        $this->validator = $validator;
-    }
-
     public static function getName(): string
     {
         return 'InvitableInstitution';
@@ -132,7 +125,6 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
      */
     public function updateObject(object $institution, array $properties): ResourceChange
     {
-        $violations = new ConstraintViolationList([]);
         $updater = new PropertiesUpdater($properties);
         $updater->ifPresent(
             $this->assignedTags,
@@ -151,21 +143,17 @@ class InvitableInstitutionResourceType extends DplanResourceType implements Upda
 
                 foreach ($removedTags as $removedTag) {
                     $institution->removeAssignedTag($removedTag);
-                    $violations->addAll($this->validator->validate($removedTag));
+                    $this->resourceTypeService->validateObject($removedTag);
                 }
 
                 foreach ($newTags as $newTag) {
                     $institution->addAssignedTag($newTag);
-                    $violations->addAll($this->validator->validate($newTag));
+                    $this->resourceTypeService->validateObject($newTag);
                 }
 
-                $violations->addAll($this->validator->validate($institution));
+                $this->resourceTypeService->validateObject($institution);
             }
         );
-
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
-        }
 
         return new ResourceChange($institution, $this, $properties);
     }
