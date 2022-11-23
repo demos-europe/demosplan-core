@@ -68,7 +68,7 @@ jobs:
 
       - name: test ls
         run: |
-         ls -la /tmp/
+         ls -R /tmp/
 
       - name: Woof
         env:
