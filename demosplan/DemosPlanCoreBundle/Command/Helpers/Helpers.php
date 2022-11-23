@@ -47,8 +47,8 @@ class Helpers
     public function __construct(
         CustomerRepository $customerRepository,
         GlobalConfigInterface $globalConfig,
-        RoleRepository $roleRepository)
-    {
+        RoleRepository $roleRepository
+    ) {
         $this->roleRepository = $roleRepository;
         $this->helper = new QuestionHelper();
         $this->customerRepository = $customerRepository;

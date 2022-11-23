@@ -915,11 +915,13 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['statusHash'] = $statusHash;
         $templateVars['basePath'] = $request->getBasePath();
 
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/elements_admin_import.html.twig',
+        return $this->renderTemplate(
+            '@DemosPlanDocument/DemosPlanDocument/elements_admin_import.html.twig',
             [
                 'entries'      => $fileDir,
                 'templateVars' => $templateVars,
-            ]);
+            ]
+        );
     }
 
     /**
@@ -1256,7 +1258,8 @@ class DemosPlanDocumentController extends BaseController
             if (array_key_exists('r_title', $inData) && '' === trim($inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
-                return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+                return $this->renderTemplate(
+                    '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
                     [
                         'procedure' => $procedure,
                         'title'     => $title,
@@ -1297,12 +1300,12 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
         return $this->renderTemplate(
-          '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
-          [
+            '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+            [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => $title,
-          ]
+            ]
         );
     }
 
@@ -1743,7 +1746,9 @@ class DemosPlanDocumentController extends BaseController
                     'id'   => $singleDocument->getId(),
                     'path' => $elementsPath,
                 ];
-            }, $procedureSingleDocs);
+            },
+            $procedureSingleDocs
+        );
     }
 
     /**
@@ -1805,9 +1810,8 @@ class DemosPlanDocumentController extends BaseController
         // Validate that all files to be zipped belong to the procedure
         $singleDocumentService = $this->singleDocumentService;
         $filesToZipIds = array_map(
-            static function ($fileInfo) {
-                return $fileInfo['id'];
-            }, $filesInfo
+            static fn ($fileInfo) => $fileInfo['id'],
+            $filesInfo
         );
         $otherProcedureFileIds = $singleDocumentService->getSingleDocumentsNotInProcedure($filesToZipIds, $procedureId);
         if (!empty($otherProcedureFileIds)) {

@@ -106,9 +106,9 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getMessageBag()->add('confirm', 'confirm.release.created');
 
                 return $this->redirectToRoute(
-                'DemosPlan_forum_development_release_detail',
-                ['releaseId' => $storageResult['body']['ident']]
-            );
+                    'DemosPlan_forum_development_release_detail',
+                    ['releaseId' => $storageResult['body']['ident']]
+                );
             }
         }
         $releasePhases = $this->getReleasePhases();
@@ -201,9 +201,8 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getLogger()->warning($e);
                 $this->getMessageBag()->add('error', 'error.release.delete');
             }
-        }
         //Falls Berechtigung fehlt
-        else {
+        } else {
             $this->getMessageBag()->add('error', 'error.authorisation');
         }
 
@@ -333,8 +332,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             if (isset($requestPost['r_offlineVotes'])) {
                 //Phasenrechte überprüfen
                 if (!isset($permissions['vote_offline']) || false == $permissions['vote_offline']) {
-                    $messageBag->add('warning', $translator
-                            ->trans('warning.phase.voting.not.possible', ['points' => 'Punkte vor Ort']));
+                    $messageBag->add(
+                        'warning',
+                        $translator
+                        ->trans('warning.phase.voting.not.possible', ['points' => 'Punkte vor Ort'])
+                    );
 
                     return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
                 }
@@ -343,9 +345,8 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 if (isset($storageResult['status']) && true === $storageResult['status']) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.userStory.voting.offline');
-                }
-                //Fehlermeldungen
-                else {
+                } else {
+                    //Fehlermeldungen
                     $this->getMessageBag()->add('warning', 'error.userStory.voting.offline');
                 }
             }

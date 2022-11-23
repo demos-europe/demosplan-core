@@ -32,22 +32,23 @@ class PreflightCommand extends CoreCommand
     public function configure(): void
     {
         $this->addOption(
-                'branch',
-                'b',
-                InputOption::VALUE_REQUIRED,
-                'Branch to check out and update'
-            )
-            ->addOption(
-                'no-dev',
-                null,
-                InputOption::VALUE_NONE,
-                'Do not provide dev resources'
-            )
-            ->addOption(
-                'no-logging',
-                null,
-                InputOption::VALUE_NONE,
-                'Run this command without logging');
+            'branch',
+            'b',
+            InputOption::VALUE_REQUIRED,
+            'Branch to check out and update'
+        )
+        ->addOption(
+            'no-dev',
+            null,
+            InputOption::VALUE_NONE,
+            'Do not provide dev resources'
+        )
+        ->addOption(
+            'no-logging',
+            null,
+            InputOption::VALUE_NONE,
+            'Run this command without logging'
+        );
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
