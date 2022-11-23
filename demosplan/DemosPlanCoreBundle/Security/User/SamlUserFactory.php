@@ -231,7 +231,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user = $orga->getUsers()->first();
         // set Orga Id as User login to be able to login as the default Orga user on login
         $user->setLogin($attributes['ID'][0] ?? '');
-        $user->setHasExternalIdentityProvider(true);
+        $user->setProvidedByIdentityProvider(true);
 
         return $this->userService->updateUserObject($user);
     }
