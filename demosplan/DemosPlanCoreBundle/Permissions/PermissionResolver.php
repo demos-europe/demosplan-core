@@ -56,9 +56,6 @@ class PermissionResolver
      */
     private DrupalFilterParser $filterParser;
 
-    /**
-     * @param DrupalFilterParser<ClauseFunctionInterface<bool>> $filterParser
-     */
     public function __construct(
         ConditionEvaluator $conditionEvaluator,
         DqlConditionFactory $conditionFactory,
