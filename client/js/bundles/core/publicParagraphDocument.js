@@ -11,12 +11,11 @@
  * This is the entrypoint for public_paragraph_document.html.twig
  */
 
+import { prefixClass, TableWrapper } from '@demos-europe/demosplan-utils'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { prefixClass } from '@demos-europe/demosplan-ui'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import { TableWrapper } from '@demos-europe/demosplan-utils'
 import TocStateMemorizer from '@DemosPlanCoreBundle/lib/TocStateMemorizer'
 
 const components = {

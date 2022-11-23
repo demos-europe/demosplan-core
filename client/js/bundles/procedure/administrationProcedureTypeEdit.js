@@ -21,7 +21,7 @@ import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeS
 
 const components = {
   DpEditor: async () => {
-    const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+    const { DpEditor } = await import('@demos-europe/demosplan-ui')
     return DpEditor
   },
   ProcedureTypeSelect
