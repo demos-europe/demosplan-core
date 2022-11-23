@@ -12,10 +12,10 @@
         {% block content %}
             {%- if hasPermission('area_mydata') %}
                 {%- include '@DemosPlanUser/DemosPlanUser/portal_profile.html.twig' with {
-                    hasIdentityprovider: user.hasExternalIdentityProvider ?? false
+                    hasIdentityprovider: user.isProvidedByIdentityProvider ?? false
                 } -%}
 
-                {% if not user.hasExternalIdentityProvider  %}
+                {% if not user.isProvidedByIdentityProvider  %}
                     {%- if hasPermission('feature_change_own_email') %}
                         <hr>
                         <dp-accordion
