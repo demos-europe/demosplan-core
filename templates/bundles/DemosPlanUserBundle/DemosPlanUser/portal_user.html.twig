@@ -12,7 +12,7 @@
         {% block content %}
             {%- if hasPermission('area_mydata') %}
                 {%- include '@DemosPlanUser/DemosPlanUser/portal_profile.html.twig' with {
-                    hasIdentityprovider: user.isProvidedByIdentityProvider|default(false)
+                    hasIdentityprovider: user.isProvidedByIdentityProvider ?? false
                 } -%}
 
                 {% if not user.isProvidedByIdentityProvider  %}
