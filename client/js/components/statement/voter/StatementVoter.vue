@@ -217,9 +217,8 @@
 </template>
 
 <script>
+import { DpEditableList, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
-import { DpEditableList, DpRadio } from '@demos-europe/demosplan-ui'
-import { DpInput } from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {

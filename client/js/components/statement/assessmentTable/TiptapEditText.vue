@@ -99,11 +99,9 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpButton, DpHeightLimit, DpLoading } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpHeightLimit } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'TiptapEditText',

@@ -69,11 +69,9 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
-import { debounce, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { debounce, dpApi, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpButton, DpLoading, DpTableCardListHeader } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { dpSelectAllMixin } from '@demos-europe/demosplan-utils'
-import { DpTableCardListHeader } from '@demos-europe/demosplan-ui'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
 export default {

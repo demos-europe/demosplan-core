@@ -208,11 +208,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { DpButton, DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { v4 as uuid } from 'uuid'
 
 export default {

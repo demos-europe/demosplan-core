@@ -79,10 +79,8 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from '@demos-europe/demosplan-ui'
-import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
+import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
+import { DpButton, DpInput , DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',

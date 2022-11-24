@@ -162,9 +162,13 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from '@demos-europe/demosplan-ui'
-import { DpCheckbox, DpFormRow } from '@demos-europe/demosplan-ui'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import {
+  DpButton,
+  DpCheckbox,
+  DpFormRow,
+  DpInput,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrgaRegisterForm',

@@ -12,11 +12,10 @@
 </documentation>
 
 <script>
+import { DpAccordion, DpButton, DpDatepicker, DpMultiselect, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
-import { DpAccordion, DpDatepicker, DpMultiselect, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'

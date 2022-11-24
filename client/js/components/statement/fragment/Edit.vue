@@ -104,8 +104,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
 
 export default {

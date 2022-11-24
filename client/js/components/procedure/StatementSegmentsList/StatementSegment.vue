@@ -240,10 +240,8 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui'
-import { DpIcon, DpLabel } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { DpButtonRow, DpCheckbox, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, VPopover } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 
 export default {
