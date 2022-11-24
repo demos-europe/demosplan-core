@@ -29,11 +29,6 @@
   resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.20.1.tgz#f2e6ef7790d8c8dbf03d379502dcc246dcce0b30"
   integrity sha512-EWZ4mE2diW3QALKvDMiXnbZpRvlj+nayZ112nK93SnhqOtpdsbVD4W+2tEoT3YNBAG9RBR0ISY758ZkOgsn6pQ==
 
-"@babel/compat-data@^7.20.0":
-  version "7.20.1"
-  resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.20.1.tgz#f2e6ef7790d8c8dbf03d379502dcc246dcce0b30"
-  integrity sha512-EWZ4mE2diW3QALKvDMiXnbZpRvlj+nayZ112nK93SnhqOtpdsbVD4W+2tEoT3YNBAG9RBR0ISY758ZkOgsn6pQ==
-
 "@babel/core@^7.1.0", "@babel/core@^7.12.3", "@babel/core@^7.20.2", "@babel/core@^7.7.2", "@babel/core@^7.8.0":
   version "7.20.2"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.20.2.tgz#8dc9b1620a673f92d3624bd926dc49a52cf25b92"
@@ -1093,13 +1088,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
-"@demos-europe/demosplan-ui@0.0.2":
+"@demos-europe/demosplan-ui@file:demosplan-ui":
   version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.2.tgz#ba9733ffd6b8fa687f2d7c16baa6768af22ce068"
-  integrity sha512-ehcm52N6lcSqs8QRGQ9Ec6aw0aipBG4a4cZvv++Ux3ktTRBh9oPJx6LQsOB82OsuZRv3ANq0rXFbTNaXkuCKKg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
-    "@demos-europe/demosplan-utils" "^0.0.2"
+    "@demos-europe/demosplan-utils" "^0.0.3"
     "@uppy/core" "^3.0.1"
     "@uppy/drag-drop" "^3.0.0"
     "@uppy/progress-bar" "^3.0.0"
@@ -1109,6 +1102,7 @@
     dompurify "^2.4.0"
     ismobilejs "^1.1.1"
     lscache "^1.3.2"
+    path "^0.12.7"
     plyr "^3.7.2"
     style-dictionary "^3.7.1"
     tailwindcss "^3.2.1"
@@ -1123,12 +1117,19 @@
     vue-omnibox "^0.3.7"
     vue-sliding-pagination "^1.3.2"
     vuedraggable "^2.24.3"
-    vuex "^3.6.2"
 
-"@demos-europe/demosplan-utils@0.0.2", "@demos-europe/demosplan-utils@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-utils/-/demosplan-utils-0.0.2.tgz#d5b9a7085217092d6c01fcd545eaa5bed89d4e89"
-  integrity sha512-G2MIKAy7lK6XlAfolEPi/S6h4lGnb9WK/RV4WUCu8QudLOziYCCm5D7eirj6wxD4ucBDI0VrG7rjoqD9QOAWCg==
+"@demos-europe/demosplan-utils@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-utils/-/demosplan-utils-0.0.3.tgz#069413f73d54932669ee62eb995a5d13e3298a97"
+  integrity sha512-N+yWMK91g04RKEQs+rfkmYo7rkektXM3KOVO2GWSi3YGrUJOaABYcHBfOULeDxkqeamIES5t4mRotANf1Cl4gA==
+  dependencies:
+    axios "^0.27.2"
+    qs "^6.11.0"
+    uuid "^9.0.0"
+
+"@demos-europe/demosplan-utils@github:demos-europe/demosplan-js-utils#main":
+  version "0.0.3"
+  resolved "https://codeload.github.com/demos-europe/demosplan-js-utils/tar.gz/2ed5e645037d02c2b1f48830333ea269e4d677ce"
   dependencies:
     axios "^0.27.2"
     qs "^6.11.0"
@@ -4801,6 +4802,11 @@ inherits@2, inherits@^2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
+inherits@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
+  integrity sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==
+
 ini@^1.3.4, ini@^1.3.5:
   version "1.3.8"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
@@ -6515,6 +6521,14 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
+path@^0.12.7:
+  version "0.12.7"
+  resolved "https://registry.yarnpkg.com/path/-/path-0.12.7.tgz#d4dc2a506c4ce2197eb481ebfcd5b36c0140b10f"
+  integrity sha512-aXXC6s+1w7otVF9UletFkFcDsJeO7lSZBPUQhtb5O0xJe8LtYhj/GxldoL09bBj9+ZmE2hNoHqQSFMN5fikh4Q==
+  dependencies:
+    process "^0.11.1"
+    util "^0.10.3"
+
 pbf@3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/pbf/-/pbf-3.2.1.tgz#b4c1b9e72af966cd82c6531691115cc0409ffe2a"
@@ -7198,6 +7212,11 @@ pretty@^2.0.0:
     condense-newlines "^0.2.1"
     extend-shallow "^2.0.1"
     js-beautify "^1.6.12"
+
+process@^0.11.1:
+  version "0.11.10"
+  resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
+  integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
 progress@^2.0.0:
   version "2.0.3"
@@ -8665,6 +8684,13 @@ util-deprecate@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
+
+util@^0.10.3:
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/util/-/util-0.10.4.tgz#3aa0125bfe668a4672de58857d3ace27ecb76901"
+  integrity sha512-0Pm9hTQ3se5ll1XihRic3FDIku70C+iHUdT/W926rSgHV5QgXsYbKZN8MSC3tJtSkhuROzvsQjAaFENRXr+19A==
+  dependencies:
+    inherits "2.0.3"
 
 util@^0.12.4:
   version "0.12.4"

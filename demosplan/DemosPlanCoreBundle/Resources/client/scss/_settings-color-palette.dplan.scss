@@ -26,8 +26,96 @@
 
 // At the moment, only "neutral" and "data" colors are used from demosplan-ui.
 // For main, alt, highlight, and the system colors, the used scale and naming has to be decided.
-@import '@demos-europe/demosplan-ui/tokens/scss/color';
+// @import '@demos-europe/demosplan-ui/tokens/scss/color';
 
+// Do not edit directly
+// Generated on Thu, 24 Nov 2022 08:44:15 GMT
+
+$dp-color-data-11-11: #313695;
+$dp-color-data-11-10: #4575b4;
+$dp-color-data-11-9: #74add1;
+$dp-color-data-11-8: #abd9e9;
+$dp-color-data-11-7: #e0f3f8;
+$dp-color-data-11-6: #ffffbf;
+$dp-color-data-11-5: #fee090;
+$dp-color-data-11-4: #fdae61;
+$dp-color-data-11-3: #f46d43;
+$dp-color-data-11-2: #d73027;
+$dp-color-data-11-1: #a50026;
+$dp-color-data-8-8: #4575b4;
+$dp-color-data-8-7: #74add1;
+$dp-color-data-8-6: #abd9e9;
+$dp-color-data-8-5: #e0f3f8;
+$dp-color-data-8-4: #fee090;
+$dp-color-data-8-3: #fdae61;
+$dp-color-data-8-2: #f46d43;
+$dp-color-data-8-1: #d73027;
+$dp-color-data-6-6: #4575b4;
+$dp-color-data-6-5: #91bfdb;
+$dp-color-data-6-4: #e0f3f8;
+$dp-color-data-6-3: #fee090;
+$dp-color-data-6-2: #fc8d59;
+$dp-color-data-6-1: #d73027;
+$dp-color-data-3-3: #91bfdb;
+$dp-color-data-3-2: #f1f1a3;
+$dp-color-data-3-1: #fc8d59;
+$dp-color-magenta-dark-2: #600021 !default;
+$dp-color-magenta-dark-1: #84002e !default;
+$dp-color-magenta-base: #d4004b !default;
+$dp-color-magenta-light-1: #ff9fbd !default;
+$dp-color-magenta-light-2: #fbdbe5 !default;
+$dp-color-magenta-light-3: #f3ecf8 !default;
+$dp-color-purple-dark-2: #4b0085 !default;
+$dp-color-purple-dark-1: #5e00a6 !default;
+$dp-color-purple-base: #8f4fc0 !default;
+$dp-color-purple-light-1: #a572cd !default;
+$dp-color-purple-light-2: #bf99db !default;
+$dp-color-purple-light-3: #dfcced !default;
+$dp-color-purple-light-4: #f3ecf8 !default;
+$dp-color-yellow-dark-2: #845d01 !default;
+$dp-color-yellow-dark-1: #eea700 !default;
+$dp-color-yellow-base: #ffbe24 !default;
+$dp-color-yellow-light-1: #ffd87c !default;
+$dp-color-yellow-light-2: #ffe5a7 !default;
+$dp-color-yellow-light-3: #ffefca !default;
+$dp-color-yellow-light-4: #fff7e5 !default;
+$dp-color-green-dark-2: #064006 !default;
+$dp-color-green-dark-1: #186218 !default;
+$dp-color-green-base: #228b22 !default;
+$dp-color-green-light-1: #5cba5c !default;
+$dp-color-green-light-2: #93e293 !default;
+$dp-color-green-light-3: #def7de !default;
+$dp-color-green-light-4: #effbef !default;
+$dp-color-red-dark-2: #820000 !default;
+$dp-color-red-dark-1: #b20000 !default;
+$dp-color-red-base: #e81616 !default;
+$dp-color-red-light-1: #fc5e5e !default;
+$dp-color-red-light-2: #ffb3b3 !default;
+$dp-color-red-light-3: #fcdddd !default;
+$dp-color-red-light-4: #fff0f0 !default;
+$dp-color-blue-dark-2: #004078 !default;
+$dp-color-blue-dark-1: #005eb1 !default;
+$dp-color-blue-base: #006fd0 !default;
+$dp-color-blue-light-1: #44a8ff !default;
+$dp-color-blue-light-2: #82c5ff !default;
+$dp-color-blue-light-3: #cee6fb !default;
+$dp-color-blue-light-4: #ebf5ff !default;
+$dp-color-neutral-dark-2: #333333 !default;
+$dp-color-neutral-dark-1: #595959 !default;
+$dp-color-neutral-base: #757575 !default;
+$dp-color-neutral-light-1: #aeaeae !default;
+$dp-color-neutral-light-2: #d3d3d3 !default;
+$dp-color-neutral-light-3: #ebe9e9 !default;
+$dp-color-neutral-light-4: #f5f5f5 !default;
+$dp-color-black: #000000;
+$dp-color-white: #ffffff;
+$dp-color-brand-main-dark-2: $dp-color-blue-dark-2 !default;
+$dp-color-brand-main-dark-1: $dp-color-blue-dark-1 !default;
+$dp-color-brand-main-base: $dp-color-blue-base !default;
+$dp-color-brand-main-light-1: $dp-color-blue-light-1 !default;
+$dp-color-brand-main-light-2: $dp-color-blue-light-2 !default;
+$dp-color-brand-main-light-3: $dp-color-blue-light-3 !default;
+$dp-color-message-info-text: $dp-color-blue-dark-2;
 // Neutrals palette (from demosplan-ui tokens):
 // $dp-color-neutral-[dark-2|dark-1|base|light-1|light-2|light-3|light-4]
 // $dp-color-[black|white]

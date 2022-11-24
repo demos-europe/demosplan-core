@@ -17,10 +17,9 @@ import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import SamlLoginForm from '@DpJs/components/user/samlLoginForm/SamlLoginForm'
 
-console.log('xhxfklxbökl')
 debugger
+console.log('qwe')
 
-console.log('sdfgsdg')
 const components = {
   AlternativeLogin,
   DpDataTableExtended,

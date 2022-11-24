@@ -12,11 +12,12 @@
  * This is imported via infrastructure/frontend/config.webpack.babel.js:75.
  */
 import * as Sentry from '@sentry/browser'
-import { DpObscure, Tooltip } from '@demos-europe/demosplan-ui'
 import { BrowserTracing } from '@sentry/tracing'
+import DpObscure from '../../../../../demosplan-ui/src/components/core/DpObscure'
 import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
+import Tooltip from '../../../../../demosplan-ui/src/directives/Tooltip/Tooltip'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -26,7 +27,7 @@ Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
-Vue.component(DpObscure.name, DpObscure)
+Vue.component('DpObscure', DpObscure)
 
 // Register custom directives
 
