@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { initGlobalEventListener, initToggleSideMenu, initUserbox, NotificationStoreAdapter } from '@demos-europe/demosplan-utils'
 import { DpAccordion, DpNotifyContainer } from '@demos-europe/demosplan-ui'
+import { initGlobalEventListener, NotificationStoreAdapter, ToggleSideMenu, touchFriendlyUserbox } from '@demos-europe/demosplan-utils'
 import { bootstrap } from '@DpJs/bootstrap'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
@@ -35,8 +35,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()
         initGlobalEventListener()
-        initToggleSideMenu()
-        initUserbox()
+        ToggleSideMenu()
+        touchFriendlyUserbox()
 
         // This is a quickfix until https://yaits.demos-deutschland.de/T25443 arrives
         const flyoutMenuElement = document.querySelector('#jumpNavigation [data-actionmenu]')
