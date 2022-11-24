@@ -290,8 +290,8 @@
 
 <script>
 import { dpApi, dpRpc } from '@demos-europe/demosplan-utils'
-import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
-import { DpAccordion, DpButtonRow, DpDataTableExtended, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, DpDataTableExtended, DpTextArea } from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {

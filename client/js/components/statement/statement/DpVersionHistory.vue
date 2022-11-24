@@ -77,7 +77,7 @@ export default {
 
   components: {
     DpInlineNotification: async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     },
     DpLoading,

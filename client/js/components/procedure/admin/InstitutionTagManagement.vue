@@ -109,9 +109,8 @@
 </template>
 
 <script>
-import { DpButton, DpIcon, DpInput, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpButton, DpButtonRow, DpDataTable, DpIcon, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButtonRow, DpDataTable } from '@demos-europe/demosplan-ui/components/core'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {

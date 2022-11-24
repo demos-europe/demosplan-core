@@ -659,7 +659,7 @@ export default {
     DpModal,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
     DpUploadFiles,

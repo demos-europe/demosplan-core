@@ -220,9 +220,9 @@
 </template>
 
 <script>
-import { DpIcon, DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
+import { DpIcon, DpInput, DpLabel } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButtonRow, DpDatepicker, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui/components/core'
+import { DpButtonRow, DpDatepicker, DpSelect, DpTextArea } from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'

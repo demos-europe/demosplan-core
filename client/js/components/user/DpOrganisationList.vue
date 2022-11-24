@@ -151,8 +151,8 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpCheckboxGroup, DpSearchField, DpSkeletonBox, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpCheckboxGroup, DpSearchField, DpSkeletonBox, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 import { dpSelectAllMixin } from '@demos-europe/demosplan-utils'

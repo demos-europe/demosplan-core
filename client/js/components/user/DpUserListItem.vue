@@ -117,7 +117,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButtonRow, DpTableCard } from '@demos-europe/demosplan-ui/components/core'
+import { DpButtonRow, DpTableCard } from '@demos-europe/demosplan-ui'
 import { DpIcon } from '@demos-europe/demosplan-ui'
 import DpUserFormFields from './DpUserFormFields'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'

@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDataTable, DpInlineNotification, DpLoading } from '@demos-europe/demosplan-ui/components/core'
+import { CleanHtml, DpDataTable, DpInlineNotification, DpLoading } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 import EmailImportDate from './EmailImportDate'

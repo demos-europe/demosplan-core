@@ -273,10 +273,10 @@
 
 <script>
 import { checkResponse, dpApi, dpRpc } from '@demos-europe/demosplan-utils'
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { CleanHtml } from '@demos-europe/demosplan-ui'
-import { DpBulkEditHeader, DpDataTable, DpFlyout, DpInlineNotification, DpSelect, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
+import { DpBulkEditHeader, DpDataTable, DpFlyout, DpInlineNotification, DpSelect, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import { formatDate } from '@demos-europe/demosplan-utils'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'

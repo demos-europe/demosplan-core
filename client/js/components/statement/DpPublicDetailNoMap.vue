@@ -27,11 +27,11 @@ export default {
     DpPublicStatementList,
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpSelect: async () => {
-      const { DpSelect } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpSelect } = await import('@demos-europe/demosplan-ui')
       return DpSelect
     },
     DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     },
     ElementsList: () => import('@DpJs/components/document/ElementsList')

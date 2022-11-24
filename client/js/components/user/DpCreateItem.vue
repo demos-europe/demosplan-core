@@ -46,7 +46,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import { DpAccordion, DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
+import { DpAccordion, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {

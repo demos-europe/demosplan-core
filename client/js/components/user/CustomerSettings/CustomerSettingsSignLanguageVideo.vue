@@ -79,9 +79,9 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpButton, DpInput } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui/components/core'
+import { DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
@@ -93,7 +93,7 @@ export default {
     DpTextArea,
     DpUploadFiles,
     DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }
   },

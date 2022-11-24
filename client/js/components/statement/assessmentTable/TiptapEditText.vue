@@ -99,7 +99,7 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
 import { dpApi } from '@demos-europe/demosplan-utils'
 import { DpHeightLimit } from '@demos-europe/demosplan-ui'
@@ -113,7 +113,7 @@ export default {
     DpHeightLimit,
     DpLoading,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }
   },

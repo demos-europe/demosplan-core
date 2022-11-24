@@ -260,7 +260,7 @@ export default {
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
     DpSlidebar: async () => {
-      const { DpSlidebar } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
     },
     DpAssessmentTableCard,

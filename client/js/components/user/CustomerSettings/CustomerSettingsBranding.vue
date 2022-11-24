@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import { DpDetails, DpLabel } from '@demos-europe/demosplan-ui/components'
-import { DpCheckbox, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { DpDetails, DpLabel } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsBranding',

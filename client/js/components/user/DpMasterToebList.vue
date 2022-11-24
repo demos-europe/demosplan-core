@@ -198,7 +198,7 @@ import {
   toggleFullscreen,
   unbindFullScreenChange
 } from '@demos-europe/demosplan-utils'
-import { dataTableSearch, DpDataTable, DpSelectPageItemCount, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
+import { dataTableSearch, DpDataTable, DpSelectPageItemCount, DpStickyElement } from '@demos-europe/demosplan-ui'
 import { dpApi, makeFormPost } from '@demos-europe/demosplan-utils'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'

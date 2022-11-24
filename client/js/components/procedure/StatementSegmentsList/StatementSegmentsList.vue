@@ -164,7 +164,7 @@
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import { DpFlyout, DpSlidebar, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
+import { DpFlyout, DpSlidebar, DpStickyElement } from '@demos-europe/demosplan-ui'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'

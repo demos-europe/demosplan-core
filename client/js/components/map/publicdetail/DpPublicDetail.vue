@@ -31,7 +31,7 @@ export default {
     DpPublicSurvey,
     DpUnfoldToolbarControl,
     DpVideoPlayer: async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     },
     StatementModal
