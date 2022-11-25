@@ -86,8 +86,8 @@
 <script>
 import { hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpBulkEditHeader, DpTreeList } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpBulkEditHeader, DpTreeList } from '@demos-europe/demosplan-ui'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 import { dpRpc } from '@demos-europe/demosplan-utils'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'

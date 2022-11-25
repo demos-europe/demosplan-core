@@ -209,11 +209,8 @@
   </div>
 </template>
 <script>
-import { DpInput, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete } from '@demos-europe/demosplan-ui/components/core'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { dpApi, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpAutocomplete, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 import qs from 'qs'
 

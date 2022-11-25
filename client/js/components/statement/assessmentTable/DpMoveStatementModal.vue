@@ -118,9 +118,8 @@
 </template>
 
 <script>
+import { DpLoading, DpModal } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpModal } from '@demos-europe/demosplan-ui/components/core'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {

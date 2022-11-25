@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExcelImport',

@@ -225,8 +225,8 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { CleanHtml } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'StatementModalRecheck',

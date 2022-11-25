@@ -31,10 +31,9 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import DpTab from '@DpJs/components/core/DpTabs/DpTab'
-import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
+import { DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
 import InstitutionList from './InstitutionList'
+import { mapActions } from 'vuex'
 import TagList from './TagList'
 
 export default {
