@@ -12,6 +12,7 @@
 @demos-europe/dp-consent: MIT
 @efrane/vuex-json-api: MIT
 @fullhuman/postcss-purgecss: MIT
+@masterportal/masterportalapi: MIT
 @sentry/browser: BSD-3-Clause
 @sentry/integrations: BSD-3-Clause
 @sentry/tracing: MIT
@@ -97,10 +98,13 @@ sass: MIT
 sass-loader: MIT
 source-map-loader: MIT
 source-sans-pro: OFL-1.1
+stream: MIT
+string_decoder: MIT
 striptags: MIT
 stylelint: MIT
 stylelint-config-standard-scss: MIT
 swagger-ui-dist: Apache-2.0
+timers-browserify: MIT
 tippy.js: MIT
 tiptap: MIT
 tiptap-commands: MIT
@@ -128,4 +132,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 15.11.2022 20:21
+As of 25.11.2022 10:20
