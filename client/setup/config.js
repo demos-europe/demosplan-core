@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+const glob = require('glob')
 const path = require('path')
 
 class Config {
@@ -54,7 +55,8 @@ class Config {
         'demosplan/**/*.js',
         'demosplan/**/*.js.twig',
         'client/**/*.js',
-        'client/**/*.vue'
+        'client/**/*.vue',
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [
