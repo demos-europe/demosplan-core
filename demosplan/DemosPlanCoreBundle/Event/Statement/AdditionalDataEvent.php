@@ -19,8 +19,6 @@ class AdditionalDataEvent extends DPlanEvent
 {
     private CoreEntity $entity;
 
-    private string $addon;
-
     /**
      * The array containing all the data to update a given statement.
      * Subscribers need to check for the existence of relevant keys.
@@ -29,10 +27,10 @@ class AdditionalDataEvent extends DPlanEvent
      */
     private array $data;
 
-    public function __construct(CoreEntity $entity, string $addon)
+    public function __construct(CoreEntity $entity, array $data)
     {
         $this->entity = $entity;
-        $this->addon = $addon;
+        $this->data = $data;
     }
 
     public function getEntity(): CoreEntity
@@ -54,13 +52,5 @@ class AdditionalDataEvent extends DPlanEvent
     public function setData(array $data): void
     {
         $this->data = $data;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAddon(): string
-    {
-        return $this->addon;
     }
 }

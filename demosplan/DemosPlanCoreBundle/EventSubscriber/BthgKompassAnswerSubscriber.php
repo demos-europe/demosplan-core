@@ -12,17 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalDataEvent;
 use demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BthgKompassAnswerSubscriber implements EventSubscriberInterface
 {
-    private BthgKompassAnswerRepository $bthgKompassAnswerRepositor;
-
-    private const ADDON_NAME = 'bthgKompassAnswerAddon';
+    private BthgKompassAnswerRepository $bthgKompassAnswerRepository;
 
     public function __construct(BthgKompassAnswerRepository $bthgKompassAnswerRepository)
     {
@@ -38,15 +36,17 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
 
     public function additionalStatementDataEvent(AdditionalDataEvent $event): void
     {
-        if (self::ADDON_NAME !== $event->getAddon()) {
+        $statement = $event->getEntity();
+        if (!$statement instanceof Statement) {
             return;
         }
-        if ($event->getEntity() instanceof Statement) {
-            $statement = $event->getEntity();
-            /** @var BthgKompassAnswer $bthgKompassAnswer */
-            $bthgKompassAnswer = $this->bthgKompassAnswerRepository->getBthgKompassAnswerwithStatementId($statement->getId());
-            $data['bthgKompassAnswer'] = $bthgKompassAnswer;
-            $event->setData($data);
-        }
+        $data = $event->getData();
+        /** @var BthgKompassAnswer $bthgKompassAnswer **/
+        $bthgKompassAnswer = $this->bthgKompassAnswerRepository->findOneBy([
+            'statements' => $statement->getId(),
+        ]);
+        $url = null === $bthgKompassAnswer ? null : $bthgKompassAnswer->getUrl();
+        $data['bthgKompassAnswer']['url'] = $url;
+        $event->setData($data);
     }
 }

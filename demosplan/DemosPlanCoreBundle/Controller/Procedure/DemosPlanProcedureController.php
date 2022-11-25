@@ -1962,11 +1962,8 @@ class DemosPlanProcedureController extends BaseController
                 $currentStatement = $statementService->getStatement($currentStatementId);
                 if (null !== $currentStatement) {
                     /** @var AdditionalDataEvent $event * */
-                    $event = $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, 'bthgKompassAnswerAddon'));
-                    $answer = $event->getData()['bthgKompassAnswer'];
+                    $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, $templateVars['publicStatements']['statements'][$key]));
                 }
-                $url = null === $answer ? null : $answer->getUrl();
-                $templateVars['publicStatements']['statements'][$key]['bthgKompassAnswer']['url'] = $url;
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2
