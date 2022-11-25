@@ -12,9 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use function array_key_exists;
 use function array_merge;
+
 use Cocur\Slugify\Slugify;
+
 use function collect;
 use function compact;
+
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -108,14 +111,19 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
+
 use const FILTER_VALIDATE_BOOLEAN;
+
 use function filter_var;
 use function in_array;
+
 use InvalidArgumentException;
+
 use function is_array;
 use function is_bool;
 use function preg_replace;
 use function strlen;
+
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
