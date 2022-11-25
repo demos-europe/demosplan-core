@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -89,6 +90,10 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue(
                 $customer->getId(),
                 ...$this->statusInCustomers->customer->id
+            ),
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->statusInCustomers->status
             ),
             // avoid already invited organisations
             $this->conditionFactory->anyConditionApplies(
