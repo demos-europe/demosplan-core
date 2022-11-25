@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 use function array_key_exists;
 use function array_merge;
 use function compact;
-
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -56,17 +55,13 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
-
 use function explode;
 use function is_array;
-
 use Pagerfanta\Adapter\ArrayAdapter;
 use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
-
 use function set_time_limit;
-
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

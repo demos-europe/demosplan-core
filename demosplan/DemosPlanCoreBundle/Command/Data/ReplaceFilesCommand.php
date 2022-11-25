@@ -19,17 +19,13 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Exception;
-
 use function fopen;
 use function fwrite;
 use function in_array;
 use function is_dir;
-
 use RuntimeException;
-
 use function strrpos;
 use function substr;
-
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
