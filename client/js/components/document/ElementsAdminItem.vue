@@ -36,7 +36,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui/components/core'
+import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui'
 import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {

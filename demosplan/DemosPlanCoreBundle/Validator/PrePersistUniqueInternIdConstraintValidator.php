@@ -12,12 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
-use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -78,7 +77,7 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
 
         $identityMap = $this->entityManager->getUnitOfWork()->getIdentityMap();
 
-        if (array_key_exists(Statement::class, $identityMap)) {
+        if (\array_key_exists(Statement::class, $identityMap)) {
             $occupyingStatements = array_filter(
                 $identityMap[Statement::class],
                 static function (Statement $statement) use ($internId, $excludeStatement) {

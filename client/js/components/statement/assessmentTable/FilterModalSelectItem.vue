@@ -98,10 +98,8 @@
 </template>
 
 <script>
+import { CleanHtml, DpLoading, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpFilterModalSelectItem',

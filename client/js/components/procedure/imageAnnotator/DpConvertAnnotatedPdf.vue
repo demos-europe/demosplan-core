@@ -65,7 +65,7 @@
 
 <script>
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 

@@ -100,7 +100,8 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        id="map">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -120,17 +121,16 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, deepMerge, dpApi } from '@demos-europe/demosplan-utils'
-import { Map, View } from 'ol'
+import { checkResponse, deepMerge, dpApi, prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpAutocomplete, DpLoading } from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
-import { DpAutocomplete } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpOlMapLayer from './DpOlMapLayer'
 import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { Map } from 'ol'
+import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
 import { register } from 'ol/proj/proj4'
@@ -250,22 +250,27 @@ export default {
     },
 
     createMap () {
-      return new Map({
-        controls: this.options.controls ? this.options.controls : this._options.controls,
-        target: this.$refs.mapContainer,
-        view: new View({
-          center: [this.centerX, this.centerY],
-          projection: this.projection,
-          resolutions: this.resolutions,
-          extent: this.maxExtent,
-          minResolution: this.resolutions[(this.resolutions.length - 1)],
-          maxResolution: this.resolutions[0],
-          constrainOnlyCenter: true,
-          constrainResolution: true
-        }),
-        loadTilesWhileAnimating: true,
-        resolutions: this.resolutions
-      })
+      const namedProjections = [
+        [
+          this._options.projection.code,
+          this._options.projection.transform
+        ]
+      ]
+
+      // Put resolutions in correct format for masterportalapi
+      const resolutions = this.resolutions.map(resolution => ({ resolution }))
+
+      const config = {
+        epsg: this.projection.getCode(),
+        extent: this.maxExtent,
+        namedProjections,
+        options: resolutions,
+        startCenter: [this.centerX, this.centerY],
+        target: 'map',
+        units: 'm'
+      }
+
+      return MasterportalApi.createMap(config)
     },
 
     /**
@@ -433,7 +438,7 @@ export default {
     this.setProjection()
 
     /*
-     *  Create OpenLayers map instance and expose it to child components via `provide`.
+     *  Create OpenLayers map instance with masterportalapi and expose it to child components via `provide`.
      *  This also mounts child components that are wrapped inside v-if="Boolean(map)".
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */

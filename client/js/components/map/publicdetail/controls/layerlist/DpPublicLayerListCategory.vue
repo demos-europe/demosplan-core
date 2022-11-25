@@ -64,10 +64,9 @@
 </template>
 
 <script>
+import { hasOwnProp, prefixClass } from '@demos-europe/demosplan-utils'
 import DpPublicLayerList from './DpPublicLayerList'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapGetters } from 'vuex'
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
 
 export default {
   name: 'DpPublicLayerListCategory',

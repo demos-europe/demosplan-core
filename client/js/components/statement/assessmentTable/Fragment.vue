@@ -389,7 +389,7 @@ import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import TableCardFlyoutMenu from './TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from '@demos-europe/demosplan-ui/directives'
+import { VPopover } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpAssessmentFragment',

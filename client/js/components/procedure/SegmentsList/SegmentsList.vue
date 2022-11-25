@@ -228,16 +228,13 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui/directives'
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { checkResponse, dpApi, tableSelectAllItems } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpBulkEditHeader, DpButton, DpColumnSelector, DpLoading, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
-import { DpBulkEditHeader, DpColumnSelector, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement } from '@demos-europe/demosplan-ui/components/core'
 import FilterFlyout from './FilterFlyout'
 import lscache from 'lscache'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import { tableSelectAllItems } from '@demos-europe/demosplan-utils/mixins'
 
 export default {
   name: 'SegmentsList',
@@ -481,7 +478,7 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .then((data) => {
+        .then(data => {
           this.isLoading = false
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
@@ -489,6 +486,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter: filter,
+            search: payload.search,
             fields: {
               StatementSegment: ['id'].join()
             }

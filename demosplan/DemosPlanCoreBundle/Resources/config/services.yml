@@ -370,6 +370,24 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
+    # Drafts Info Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoTransformerPass:
+        arguments: [ !tagged dplan.drafts.info.transformer ]
+
+    # From DraftsInfo
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer:
+        tags:
+            - { name: "dplan.segment.transformer" }
+
+    # Segment Entities Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass:
+        arguments: [ !tagged dplan.segment.transformer ]
+
+    # From Statement
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer:
+        tags:
+            - { name: "dplan.drafts.info.transformer" }
+
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
@@ -406,6 +424,11 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator }
 
+    # Validate Drafts Info
+    demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator:
+        arguments:
+            $schemaFilePath: "%drafts_info_schema_path%"
+
     demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator }
@@ -421,6 +444,9 @@ services:
     demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
+
+    # Segmentable Statement Validator
+    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator: ~
 
     demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
         tags:
@@ -870,6 +896,36 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
         lazy: true
+
+    # Drafts Info Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\DraftsInfoService: ~
+
+    # Segment Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
+
+    # Drafts Info Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler: ~
+
+    # Segment Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler: ~
+
+    # Segment Handler Interface
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler'
+
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
+        lazy: true
+        arguments:
+            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+
+    demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
+        lazy: true
+        autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
         lazy: true

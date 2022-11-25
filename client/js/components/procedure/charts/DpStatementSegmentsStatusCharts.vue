@@ -48,8 +48,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { DpCard } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpCard, DpLoading } from '@demos-europe/demosplan-ui'
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 export default {

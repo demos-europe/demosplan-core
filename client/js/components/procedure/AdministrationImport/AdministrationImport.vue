@@ -29,8 +29,8 @@
 </template>
 
 <script>
+import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
-import { DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
 import ExcelImport from './ExcelImport/ExcelImport'
 import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'

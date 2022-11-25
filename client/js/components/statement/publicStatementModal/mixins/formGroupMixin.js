@@ -8,8 +8,8 @@
  */
 
 import { mapMutations, mapState } from 'vuex'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { DpInput } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   components: {

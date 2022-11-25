@@ -10,6 +10,3 @@ twig:
         sentry_dsn: '%sentry_dsn%'
     form_themes:
         - '@DemosPlanCore/form/styled_fields.html.twig'
-    paths:
-        '%kernel.project_dir%/demosplan/plugins': 'DemosPlugin'
-        '%kernel.project_dir%/addons/vendor/demos-europe': 'DemosAddon'

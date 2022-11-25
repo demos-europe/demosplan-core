@@ -12,7 +12,6 @@ parameters:
         - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Polygon.class.php
         - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
     scanDirectories:
-        - %rootDir%/../../../lib
 #    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4
 #    autoload_directories:
 #        - %rootDir%/../../../demosplan/DemosPlanCoreBundle/DoctrineMigrations
@@ -23,7 +22,6 @@ parameters:
 #        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
 
     excludes_analyse:
-        - %rootDir%/../../../demosplan/plugins
         - %rootDir%/../../../demosplan/vendor
         - %rootDir%/../../../vendor
     level: 1

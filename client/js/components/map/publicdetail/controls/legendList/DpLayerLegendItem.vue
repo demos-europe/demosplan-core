@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
+import { prefixClass } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpLayerLegendItem',

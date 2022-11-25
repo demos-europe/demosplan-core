@@ -69,8 +69,7 @@
 </template>
 
 <script>
-import { DpButtonRow } from '@demos-europe/demosplan-ui/components/core'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpButtonRow, DpInput } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ChangePassword',
