@@ -8,14 +8,12 @@
 </license>
 
 <script>
-import { DpButton, DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
+import { DpAccordion, DpButton, DpDatepicker, DpEditor, DpInput, DpLabel, DpMultiselect, DpSelect, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { dpValidateMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters } from 'vuex'
-import { DpAccordion, DpDatepicker, DpEditor, DpMultiselect, DpSelect, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {

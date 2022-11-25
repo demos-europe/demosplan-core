@@ -5130,16 +5130,16 @@
         },
         {
             "name": "hslavich/oneloginsaml-bundle",
-            "version": "v2.9.0",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hslavich/OneloginSamlBundle.git",
-                "reference": "7975fc8d1ed5a91be4a3c98c008d04c2907a5da2"
+                "reference": "aee3450bd36b750a2e61b4a0ca19a09ecab7a086"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hslavich/OneloginSamlBundle/zipball/7975fc8d1ed5a91be4a3c98c008d04c2907a5da2",
-                "reference": "7975fc8d1ed5a91be4a3c98c008d04c2907a5da2",
+                "url": "https://api.github.com/repos/hslavich/OneloginSamlBundle/zipball/aee3450bd36b750a2e61b4a0ca19a09ecab7a086",
+                "reference": "aee3450bd36b750a2e61b4a0ca19a09ecab7a086",
                 "shasum": ""
             },
             "require": {
@@ -5185,9 +5185,9 @@
             ],
             "support": {
                 "issues": "https://github.com/hslavich/OneloginSamlBundle/issues",
-                "source": "https://github.com/hslavich/OneloginSamlBundle/tree/v2.9.0"
+                "source": "https://github.com/hslavich/OneloginSamlBundle/tree/v2.10.0"
             },
-            "time": "2022-09-15T20:10:54+00:00"
+            "time": "2022-11-23T17:12:47+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -21621,5 +21621,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
