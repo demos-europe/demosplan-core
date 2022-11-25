@@ -109,12 +109,9 @@
 </template>
 
 <script>
-import { DpButton, DpIcon, DpInput, DpLoading } from 'demosplan-ui/components'
+import { DpButton, DpButtonRow, DpDataTable, DpIcon, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'TagList',
