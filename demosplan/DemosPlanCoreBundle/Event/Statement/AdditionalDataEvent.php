@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -8,44 +10,32 @@
  * All rights reserved
  */
 
-declare(strict_types=1);
-
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class AdditionalStatementDataEvent extends DPlanEvent
+class AdditionalDataEvent extends DPlanEvent
 {
-    private Statement $statement;
+    private CoreEntity $entity;
 
     /**
      * The array containing all the data to update a given statement.
      * Subscribers need to check for the existence of relevant keys.
+     *
      * @var array<string, mixed>
      */
     private array $data;
 
-    public function __construct(Statement $statement, array $data)
+    public function __construct(CoreEntity $entity, array $data)
     {
-        $this->statement = $statement;
+        $this->entity = $entity;
         $this->data = $data;
     }
 
-    /**
-     * @return Statement
-     */
-    public function getStatement(): Statement
+    public function getEntity(): CoreEntity
     {
-        return $this->statement;
-    }
-
-    /**
-     * @param Statement $statement
-     */
-    public function setStatement(Statement $statement): void
-    {
-        $this->statement = $statement;
+        return $this->entity;
     }
 
     /**

@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use Carbon\Carbon;
+use DateInterval;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -33,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
@@ -55,6 +56,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
+use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
@@ -88,7 +90,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($entityId)
     {
@@ -130,7 +132,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return statement - headStatement of the created statement-cluster
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addCluster(Statement $headStatement, array $statementIdsToCluster)
     {
@@ -155,7 +157,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
 
             return $headStatement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Statement failed Message: ', [$e]);
             throw $e;
         }
@@ -166,7 +168,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @param Statement $statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($statement): Statement
     {
@@ -180,7 +182,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $manager->flush();
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
         }
@@ -191,7 +193,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -205,7 +207,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement = $this->generateObjectValues($statement, $data);
 
             return $this->addObject($statement);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Statement failed Message: ', [$e]);
             throw $e;
         }
@@ -221,7 +223,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement|object
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function submitDraftStatement($draftStatement, $user, $notificationReceiver = null, bool $gdprConsentReceived = false)
     {
@@ -243,8 +245,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             if ($draftStatement->isPublicAllowed()) {
                 $statement->setPublicVerified(Statement::PUBLICATION_PENDING);
             }
-            $statement->setSubmit(new \DateTime());
-            $statement->setDeletedDate(new \DateTime());
+            $statement->setSubmit(new DateTime());
+            $statement->setDeletedDate(new DateTime());
             $statementMeta = $statement->getMeta();
             // speichere bei InstitutionStellungnahmen den Einreicher
             if (DraftStatement::INTERNAL === $draftStatement->getPublicDraftStatement()) {
@@ -259,7 +261,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statementMeta->setOrgaPostalCode($draftStatement->getUPostalCode());
             $statementMeta->setOrgaCity($draftStatement->getUCity());
             $statementMeta->setOrgaEmail($draftStatement->getUEmail());
-            $statementMeta->setAuthoredDate(new \DateTime());
+            $statementMeta->setAuthoredDate(new DateTime());
             $statementMeta->setHouseNumber($draftStatement->getHouseNumber());
             $statementMeta->setAuthorFeedback($draftStatement->getUFeedback());
             // Bundesteilhabegesetz
@@ -340,7 +342,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Statement failed Message: ', [$e]);
             throw $e;
         }
@@ -353,7 +355,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -367,7 +369,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $em->flush();
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Update Statement failed. Message: ', [$e, $e->getTraceAsString()]);
             throw $e;
@@ -380,7 +382,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement The updated statement. Always an object. Never null.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateObject($statement)
     {
@@ -392,7 +394,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $em->flush();
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Update Statement failed. Message: ', [$e]);
             throw $e;
@@ -403,7 +405,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * Unlike {@see updateObject()} this method allows the caller to be sure
      * what to expect as return type.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementObject(Statement $statement): Statement
     {
@@ -481,7 +483,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @param string $statementId Id of an statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($statementId): bool
     {
@@ -513,7 +515,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $em->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete Statement failed ', [$e]);
 
             return false;
@@ -525,7 +527,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @param array $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addRecommendationVersion($data): StatementVersionField
     {
@@ -548,7 +550,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $em->flush();
 
             return $statementVersionField;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Create StatementVersionField failed Message: ', [$e]);
             throw $e;
@@ -560,7 +562,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addLike(array $data)
     {
@@ -580,7 +582,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $em->flush();
 
             return $statementLike;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create StatementLike failed Message: ', [$e]);
             throw $e;
         }
@@ -596,7 +598,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @throws EntityNotFoundException
      * @throws ORMException
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateObjectValues($statement, array $data)
     {
@@ -784,7 +786,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         if (array_key_exists('submittedDate', $data)) {
             $date = Carbon::createFromTimestamp(strtotime($data['submittedDate']))->toDateTime();
-            if ($date instanceof \DateTime) {
+            if ($date instanceof DateTime) {
                 $statement->setSubmit($date);
             }
         }
@@ -870,9 +872,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->setSentAssessment($data['sentAssessment']);
         }
         if (array_key_exists('authoredDate', $data) && 0 < strlen($data['authoredDate'])) {
-            $dateTime = new \DateTime();
+            $dateTime = new DateTime();
             $date = $dateTime->createFromFormat('d.m.Y', $data['authoredDate']);
-            if ($date instanceof \DateTime) {
+            if ($date instanceof DateTime) {
                 $statement->getMeta()->setAuthoredDate($date);
             }
         }
@@ -935,7 +937,6 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
 
         // Throw an event to allow addons to handle specific keys in $data
-        $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($statement, $data));
 
         return $statement;
     }
@@ -952,7 +953,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * @return Collection<int, StatementVote>
      *
      * @throws EntityNotFoundException
-     * @throws \Exception
+     * @throws Exception
      */
     public function handleVotesOnStatement(Statement $statement, $votesToSet)
     {
@@ -1078,7 +1079,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function generateObjectValuesFromObject($copyToEntity, $copyFromEntity, $excludeProperties = [])
     {
@@ -1487,7 +1488,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @throws ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedure(string $procedureId): int
     {
@@ -1502,7 +1503,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             try {
                 $this->hardDelete($statementToDelete, true);
                 ++$deletedEntities;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->error('deleteByProcedure failed ', [$e, $statementToDelete->getId()]);
             }
         }
@@ -1538,7 +1539,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return bool|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function hardDelete(Statement $statementToDelete, $allowDeletionOfOriginal = false)
     {
@@ -1615,7 +1616,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      * If there are Statements in the cluster, which can not be detached from the cluster,
      * the cluster will not be deleted.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function resolveCluster(Statement $headStatement)
     {
@@ -1635,7 +1636,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $removedStatement = $this->updateObject($statement);
             if (!$removedStatement instanceof Statement) {
                 $notDetachedStatements->push($statement);
-                throw new \Exception('error.statement.cluster.resolve'.$headStatement->getId());
+                throw new Exception('error.statement.cluster.resolve'.$headStatement->getId());
             }
         }
 
@@ -1644,13 +1645,13 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             try {
                 $this->getEntityManager()->remove($headStatement);
                 $this->getEntityManager()->flush();
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->getLogger()->debug('11111 exeption on resolve cluster!');
             }
         } else {
             $headStatement->setCluster($notDetachedStatements->toArray());
             $this->updateObject($headStatement);
-            throw new \Exception('Some statements of Cluster {$headStatement->getId()} are not detached.');
+            throw new Exception('Some statements of Cluster {$headStatement->getId()} are not detached.');
         }
     }
 
@@ -1732,10 +1733,10 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         $newOriginalStatement->setId(null);
         $newOriginalStatement->setInternId($internIdToSet);
-        $newOriginalStatement->setCreated(new \DateTime());
-        $newOriginalStatement->setDeletedDate(new \DateTime());
-        $newOriginalStatement->setModified(new \DateTime());
-        $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new \DateInterval('PT1S')));
+        $newOriginalStatement->setCreated(new DateTime());
+        $newOriginalStatement->setDeletedDate(new DateTime());
+        $newOriginalStatement->setModified(new DateTime());
+        $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
 
