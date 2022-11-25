@@ -12,30 +12,26 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Exception;
-
-use function fopen;
-use function fwrite;
-use function in_array;
-use function is_dir;
-
 use RuntimeException;
-
-use function strrpos;
-use function substr;
-
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\FakeDataGeneratorFactory;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
+use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use function fopen;
+use function fwrite;
+use function in_array;
+use function is_dir;
+use function strrpos;
+use function substr;
 
 class ReplaceFilesCommand extends CoreCommand
 {

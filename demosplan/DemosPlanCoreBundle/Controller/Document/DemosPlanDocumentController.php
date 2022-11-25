@@ -10,20 +10,33 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
-use function array_key_exists;
-use function array_merge;
-use function compact;
-
+use DirectoryIterator;
+use Exception;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Patchwork\Utf8;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use ZipArchive;
+use ZipStream\Option\Archive;
+use ZipStream\ZipStream;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEvent;
-use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEvent;
+use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -54,30 +67,12 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use DirectoryIterator;
-use Exception;
-
+use function array_key_exists;
+use function array_merge;
+use function compact;
 use function explode;
 use function is_array;
-
-use Pagerfanta\Adapter\ArrayAdapter;
-use Patchwork\Utf8;
-use ReflectionException;
-use RuntimeException;
-
 use function set_time_limit;
-
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use ZipArchive;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 
 /**
  * Seitenausgabe Planunterlagen.
