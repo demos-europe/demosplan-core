@@ -89,13 +89,9 @@
 </template>
 
 <script>
+import { DpDataTable, DpIcon, DpInlineNotification, DpMultiselect, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpIcon } from 'demosplan-ui/components'
-import { formatDate } from 'demosplan-utils'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
+import { formatDate } from '@demos-europe/demosplan-utils'
 
 
 export default {
