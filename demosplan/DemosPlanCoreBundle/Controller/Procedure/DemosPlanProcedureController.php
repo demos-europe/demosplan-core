@@ -1961,7 +1961,6 @@ class DemosPlanProcedureController extends BaseController
                 $currentStatementId = $templateVars['publicStatements']['statements'][$key]['id'];
                 $currentStatement = $statementService->getStatement($currentStatementId);
                 if (null !== $currentStatement) {
-                    /* @var AdditionalDataEvent $event * */
                     $this->eventDispatcher->dispatch(new AdditionalDataEvent($currentStatement, $templateVars['publicStatements']['statements'][$key]));
                 }
             }
