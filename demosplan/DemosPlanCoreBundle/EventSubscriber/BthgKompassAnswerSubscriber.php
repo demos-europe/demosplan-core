@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\statement\AdditionalDataEvent;
 use demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class BthgKompassAnswerSubscriber implements EventSubscriberInterface
 {
@@ -41,7 +41,7 @@ class BthgKompassAnswerSubscriber implements EventSubscriberInterface
             return;
         }
         $data = $event->getData();
-        /** @var BthgKompassAnswer $bthgKompassAnswer **/
+        /** @var BthgKompassAnswer $bthgKompassAnswer * */
         $bthgKompassAnswer = $this->bthgKompassAnswerRepository->findOneBy([
             'statements' => $statement->getId(),
         ]);
