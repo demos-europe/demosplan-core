@@ -227,12 +227,8 @@ class VendorlistUpdateCommand extends CoreCommand
 
             $fs = new Filesystem();
             $filename = DemosPlanPath::getRootPath(self::JS_PATH_JSON);
-            $fs->dumpFile(
-                $filename,
-                $jsLicenses
-                ->values()
-                ->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-            );
+            $formattedJsLicenses = $jsLicenses->values()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            $fs->dumpFile($filename, $formattedJsLicenses);
             $this->io->success("Updated the js vendor information to file {$filename}");
 
             $this->dumpJsLicenseFile($fs, $jsLicenses);
