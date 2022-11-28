@@ -156,7 +156,7 @@
     "jest": "^27.3.1",
     "jest-junit": "^14.0.1",
     "jsdom": "^20.0.3",
-    "mini-css-extract-plugin": "^2.6.1",
+    "mini-css-extract-plugin": "^2.7.0",
     "node-notifier": "^10.0.1",
     "postcss": "^8.4.19",
     "postcss-flexbugs-fixes": "^5.0.2",
