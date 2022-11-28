@@ -8,7 +8,7 @@ on:
       - '**.vue'
 
 jobs:
-  FE_headerWriter:
+  call:
     uses: demos-europe/demosplan-workflows/.github/workflows/FE_headerWriter.yml@main
     with:
         project_path: /home/runner/work/demosplan-core/demosplan-core
