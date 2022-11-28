@@ -81,7 +81,7 @@ class PhpStanCommand extends CoreCommand
         $config = str_replace(
             '{{ container_path }}',
 
-               $this->parameterBag->get('debug.container.dump'),
+            $this->parameterBag->get('debug.container.dump'),
 
             file_get_contents(
                 DemosPlanPath::getRootPath($configLoadPath)
