@@ -7,12 +7,12 @@
  * All rights reserved
  */
 
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = {
   DpEditor: async () => {
-    const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+    const { DpEditor } = await import('@demos-europe/demosplan-ui')
     return DpEditor
   }
 }

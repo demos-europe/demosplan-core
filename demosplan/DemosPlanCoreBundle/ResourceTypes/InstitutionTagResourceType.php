@@ -32,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<InstitutionTag>
+ *
  * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
  *
  * @property-read End                     $label
@@ -56,7 +57,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             ->readable(true)
             ->filterable();
         $label = $this->createAttribute($this->label);
-        $taggedInstitutions = $this->createAttribute($this->taggedInstitutions);
+        $taggedInstitutions = $this->createToManyRelationship($this->taggedInstitutions);
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $label->readable()->filterable()->sortable();
             $taggedInstitutions->readable()->filterable()->sortable();
@@ -113,7 +114,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
-            ...$this->owningOrganisation
+            ...$this->owningOrganisation->id
         );
     }
 

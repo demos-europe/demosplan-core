@@ -11,7 +11,7 @@
  * This is the entrypoint for statistics.html.twig
  */
 
-import { DpDataTableExtended } from '@demos-europe/demosplan-ui/components/core'
+import { DpDataTableExtended } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatisticsCharts from '@DpJs/components/admin/StatisticsCharts'
 

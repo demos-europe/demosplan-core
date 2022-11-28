@@ -8,10 +8,10 @@
  */
 
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { DpRegisterFlyout } from '@demos-europe/demosplan-ui/components/core'
+import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
 
 const components = {
-  RegisterFlyout
+  DpRegisterFlyout
 }
 
 initialize(components).then(() => {

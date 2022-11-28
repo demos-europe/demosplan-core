@@ -86,8 +86,7 @@
 
 <script>
 import { checkResponse, dpApi, formatDate } from '@demos-europe/demosplan-utils'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { CleanHtml, DpLoading } from '@demos-europe/demosplan-ui'
 import FragmentStatus from './Status'
 
 export default {

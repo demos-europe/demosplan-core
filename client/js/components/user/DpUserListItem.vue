@@ -116,11 +116,10 @@
 </template>
 
 <script>
+import { DpButtonRow, DpIcon, DpTableCard } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButtonRow, DpTableCard } from '@demos-europe/demosplan-ui/components/core'
-import { DpIcon } from '@demos-europe/demosplan-ui/components'
 import DpUserFormFields from './DpUserFormFields'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpUserListItem',
