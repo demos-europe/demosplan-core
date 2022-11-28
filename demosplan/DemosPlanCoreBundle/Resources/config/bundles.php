@@ -58,4 +58,5 @@ return [
     Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle::class => ['all' => true],
     EFrane\TusBundle\Bundle\TusBundle::class => ['all' => true],
     Knp\Bundle\MenuBundle\KnpMenuBundle::class => ['all' => true],
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
 ];
