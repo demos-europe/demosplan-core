@@ -28,10 +28,8 @@
   </div>
 </template>
 <script>
-import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpInlineNotification, DpInput, length } from '@demos-europe/demosplan-ui'
 import { dpRpc } from '@demos-europe/demosplan-utils'
-import { length } from '@demos-europe/demosplan-ui/shared/props'
 
 export default {
   name: 'CoupleTokenInput',

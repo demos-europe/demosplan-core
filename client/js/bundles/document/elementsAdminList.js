@@ -12,8 +12,8 @@
  */
 
 import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
-import { DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 

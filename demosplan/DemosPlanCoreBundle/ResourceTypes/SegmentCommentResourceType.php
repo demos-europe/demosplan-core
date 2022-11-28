@@ -70,7 +70,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
     public function getAccessCondition(): PathsBasedInterface
@@ -81,7 +81,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isCreatable(): bool
     {
-        return $this->currentUser->hasPermission('feature_segment_comment_create');
+        return $this->isDirectlyAccessible();
     }
 
     public function createObject(array $properties): ResourceChange

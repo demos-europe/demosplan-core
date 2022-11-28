@@ -19,7 +19,7 @@ use Symfony\Component\Process\Process;
 
 class PhpStanCommand extends CoreCommand
 {
-    private const PHPSTAN_CONFIG_PATH = 'infrastructure/linters/phpstan.template.neon';
+    private const PHPSTAN_CONFIG_PATH = 'config/linters/phpstan.template.neon';
 
     protected static $defaultName = 'dplan:phpstan';
     protected static $defaultDescription = 'Run PHPStan';

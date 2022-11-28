@@ -359,7 +359,7 @@
 </template>
 
 <script>
-import { DpModal } from '@demos-europe/demosplan-ui/components/core'
+import { DpModal } from '@demos-europe/demosplan-ui'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {

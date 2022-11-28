@@ -55,9 +55,7 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpDataTable, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { CleanHtml, DpDataTable, DpLoading, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
