@@ -13,4 +13,3 @@ jobs:
         gpg_user_name: Demos-CI
     secrets:
         gpg_email: ${{ secrets.DEVOPS_GPG_EMAIL }}
-        
