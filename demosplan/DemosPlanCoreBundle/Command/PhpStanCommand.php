@@ -79,11 +79,10 @@ class PhpStanCommand extends CoreCommand
         $configLoadPath = self::PHPSTAN_CONFIG_PATH;
 
         $config = str_replace(
-            ['{{ project_prefix }}', '{{ project_folder }}'],
-            [
-                $this->parameterBag->get('project_prefix'),
-                $this->parameterBag->get('project_folder'),
-            ],
+            '{{ container_path }}',
+
+            $this->parameterBag->get('debug.container.dump'),
+
             file_get_contents(
                 DemosPlanPath::getRootPath($configLoadPath)
             )

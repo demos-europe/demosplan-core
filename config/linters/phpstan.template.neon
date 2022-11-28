@@ -2,4 +2,4 @@ includes:
     - ./phpstan.dist.neon
 parameters:
     symfony:
-        container_xml_path: /tmp/{{ project_folder }}/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml
+        container_xml_path: {{ container_path }}
