@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { DpFlyout } from '@demos-europe/demosplan-ui/components/core'
+import { DpFlyout } from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
 
 export default {

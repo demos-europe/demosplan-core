@@ -10,8 +10,10 @@
 /**
  * This is the entrypoint for statistics.html.twig
  */
+
 // adding comment fot test
 import { DpDataTableExtended } from '@demos-europe/demosplan-ui/components/core'
+
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatisticsCharts from '@DpJs/components/admin/StatisticsCharts'
 

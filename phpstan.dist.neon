@@ -22,7 +22,6 @@ parameters:
 #        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
 
     excludes_analyse:
-        - %rootDir%/../../../demosplan/plugins
         - %rootDir%/../../../demosplan/vendor
         - %rootDir%/../../../vendor
     level: 1

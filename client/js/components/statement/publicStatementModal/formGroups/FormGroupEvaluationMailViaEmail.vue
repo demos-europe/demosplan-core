@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { DpCheckbox } from '@demos-europe/demosplan-ui/components/core'
+import { DpCheckbox } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

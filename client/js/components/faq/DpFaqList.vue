@@ -47,11 +47,10 @@
 </template>
 
 <script>
+import { DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpFaqCategoryItem from './DpFaqCategoryItem'
 import DpFaqItem from './DpFaqItem'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpTreeList } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpFaqList',

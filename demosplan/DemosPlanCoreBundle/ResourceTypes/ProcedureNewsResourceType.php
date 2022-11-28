@@ -33,6 +33,7 @@ use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>
+ *
  * @template-implements DeletableDqlResourceTypeInterface<News>
  * @template-implements CreatableDqlResourceTypeInterface<News>
  *
@@ -95,7 +96,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_news');
     }
 
     public function getAccessCondition(): PathsBasedInterface

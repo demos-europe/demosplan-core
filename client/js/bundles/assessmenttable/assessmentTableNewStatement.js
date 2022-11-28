@@ -14,7 +14,7 @@
 import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpNewStatement from '@DpJs/components/assessmenttable/DpNewStatement'
-import { DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'

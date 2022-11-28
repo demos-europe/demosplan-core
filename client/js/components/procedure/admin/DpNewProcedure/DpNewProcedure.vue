@@ -8,10 +8,19 @@
 </license>
 
 <script>
-import { DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
+import {
+  DpDateRangePicker,
+  DpFormRow,
+  DpInlineNotification,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpSelect,
+  DpTextArea,
+  DpUploadFiles
+} from '@demos-europe/demosplan-ui'
 import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpDateRangePicker, DpFormRow, DpInlineNotification, DpMultiselect, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpNewProcedure',
