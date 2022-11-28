@@ -2,7 +2,7 @@ includes:
     - %rootDir%/../../../vendor/phpstan/phpstan-symfony/extension.neon
     - %rootDir%/../../../vendor/timeweb/phpstan-enum/extension.neon
 parameters:
-    tmpDir: %rootDir%/../../../infrastructure/.runtime
+    tmpDir: /tmp/phpstan
     scanFiles:
         - %rootDir%/../../../vendor/phayes/geophp/lib/adapters/GeoJSON.class.php
         - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Collection.class.php
