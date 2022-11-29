@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
@@ -48,14 +49,14 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
-                /** @var KeycloakResourceOwner $keycloakUser */
-                $keycloakUser = $client->fetchUserFromToken($accessToken);
 
-                $email = $keycloakUser->getEmail();
+                $keycloakResponseValues = new OzgKeycloakResponseValueObject(
+                    $client->fetchUserFromToken($accessToken)->toArray()
+                );
 
                 // 1) have they logged in with Keycloak before? Easy!
                 $existingUser = $this->entityManager->getRepository(User::class)
-                    ->findOneBy(['gwId' => $keycloakUser->getId()]);
+                      ->findOneBy(['gwId' => $keycloakResponseValues->getProviderId()]);
 
                 if ($existingUser) {
 
@@ -65,11 +66,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     return $existingUser;
                 }
 
-                // 2) do we have a matching user by email?
-                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-                // 3) Maybe you just want to "register" them by creating
+                // 2) do we have a matching user by login
+                $user = $this->entityManager->getRepository(User::class)->findOneBy(['login' => $keycloakResponseValues->getNutzerId()]);
+
+                // 3) do we have a matching user by email?
+//                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $keycloakResponseValues->getEmailAdresse()]);
+                // 4) Maybe you just want to "register" them by creating
                 // a User object
-                $user->setGwId($keycloakUser->getId());
+//                $user->setGwId($keycloakUser->getId());
+                $user->setGwId($keycloakResponseValues->getProviderId());
                 // TODO: Save user information from keycloak
 
                 $this->entityManager->persist($user);
