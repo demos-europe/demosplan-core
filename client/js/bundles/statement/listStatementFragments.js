@@ -12,6 +12,7 @@
  */
 
 import assessmentTableStore from '@DpJs/store/statement/AssessmentTable'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
 import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
 import fragmentStore from '@DpJs/store/statement/Fragment'
@@ -25,6 +26,7 @@ const components = {
 
 const stores = {
   assessmentTableStore,
+  boilerplates: BoilerplatesStore,
   fragmentStore
 }
 
