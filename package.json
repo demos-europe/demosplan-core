@@ -41,8 +41,8 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
-    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#53ff3ce",
-    "@demos-europe/demosplan-utils": "github:demos-europe/demosplan-js-utils#main",
+    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#d4c028d4156b9e924f76411c7a1a85e8a356ff37",
+    "@demos-europe/demosplan-utils": "github:demos-europe/demosplan-js-utils#86b11570ce9287cd62457c8071cf959b1674a8bf",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
     "@masterportal/masterportalapi": "^2.10.0",
