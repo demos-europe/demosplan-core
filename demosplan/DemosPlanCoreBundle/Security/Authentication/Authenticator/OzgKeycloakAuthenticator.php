@@ -54,40 +54,64 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $client->fetchUserFromToken($accessToken)->toArray()
                 );
 
-                // 1) have they logged in with Keycloak before? Easy!
-                $existingUser = $this->entityManager->getRepository(User::class)
-                      ->findOneBy(['gwId' => $keycloakResponseValues->getProviderId()]);
+                $existingUser = $this->tryLoginExistingUser($keycloakResponseValues);
 
                 if ($existingUser) {
 
                     // TODO: Update user information from keycloak
 
                     $request->getSession()->set('userId', $existingUser->getId());
+                    $existingUser->setGwId($keycloakResponseValues->getProviderId());
+
+                    $this->entityManager->persist($existingUser);
+                    $this->entityManager->flush();
+
                     return $existingUser;
                 }
 
-                // 2) do we have a matching user by login
-                $user = $this->entityManager->getRepository(User::class)->findOneBy(['login' => $keycloakResponseValues->getNutzerId()]);
-
-                // 3) do we have a matching user by email?
-//                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-                $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $keycloakResponseValues->getEmailAdresse()]);
-                // 4) Maybe you just want to "register" them by creating
-                // a User object
-//                $user->setGwId($keycloakUser->getId());
-                $user->setGwId($keycloakResponseValues->getProviderId());
+                // 4) Create new User using keycloak data
                 // TODO: Save user information from keycloak
+                $newUser = null;
 
-                $this->entityManager->persist($user);
-                $this->entityManager->flush();
+                // 5) Handle total garbage data
 
-
-                // register user in Session to keep login
-                $request->getSession()->set('userId', $user->getId());
-
-                return $user;
+                return $newUser;
             })
         );
+    }
+
+    private function tryLoginExistingUser(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    {
+        // 1) have they logged in with Keycloak before? Easy!
+        $existingUser = $this->tryLoginViaGatewayId($keycloakResponseValueObject);
+        if (null === $existingUser) {
+            // 2) do we have a matching user by login
+            $existingUser = $this->tryLoginViaLoginAttribute($keycloakResponseValueObject);
+        }
+        if (null === $existingUser) {
+            // 3) do we have a matching user by email?
+            $existingUser = $this->tryLoginViaEmail($keycloakResponseValueObject);
+        }
+
+        return $existingUser;
+    }
+
+    private function tryLoginViaGatewayId(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    {
+        return $this->entityManager->getRepository(User::class)
+            ->findOneBy(['gwId' => $keycloakResponseValueObject->getProviderId()]);
+    }
+
+    private function tryLoginViaLoginAttribute(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    {
+        return $this->entityManager->getRepository(User::class)
+            ->findOneBy(['login' => $keycloakResponseValueObject->getNutzerId()]);
+    }
+
+    private function tryLoginViaEmail(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    {
+        return $this->entityManager->getRepository(User::class)
+            ->findOneBy(['email' => $keycloakResponseValueObject->getEmailAdresse()]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
