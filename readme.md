@@ -1,7 +1,7 @@
 # demosplan
 
 This repository contains the demosplan core from [DEMOS](https://demos-deutschland.de).
-demosplan is a web-application to support participatory land use planning. Text-and map-based 
+demosplan is a web-application to support participatory land use planning. Text- and map-based 
 information can be displayed and participants can submit comments and annotations. 
 The system allows administrators to search, filter and analyze the received contributions. 
 Demosplan has a built in role and permission system and provides APIs to connect with add ons.
