@@ -45,6 +45,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $this->createOrgaType($manager, OrgaType::PUBLIC_AGENCY, 'Firmenkunde');
         $this->createOrgaType($manager, OrgaType::PLANNING_AGENCY, 'Planungsbüro');
         $this->createOrgaType($manager, OrgaType::HEARING_AUTHORITY_AGENCY, 'Anhörungsbehörde');
+        $this->createOrgaType($manager, OrgaType::DEFAULT, 'Sonstige');
 
         $orgaTypeOlauth = $this->createOrgaType($manager, OrgaType::MUNICIPALITY, 'Kommune');
 
