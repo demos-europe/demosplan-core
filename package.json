@@ -58,7 +58,7 @@
     "d3-sankey-diagram": "^0.7.3",
     "dayjs": "^1.11.5",
     "deep-object-diff": "^1.1.9",
-    "dompurify": "^2.4.0",
+    "dompurify": "^2.4.1",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",
     "intl-messageformat": "^10.2.1",
