@@ -13,7 +13,7 @@ for further details.
 
 # Setup
 
-demosplan is a php application based on the symfony framework that uses mostly vue.js
+demosplan is a PHP application based on the [Symfony Framework](https://symfony.org) that uses mostly [Vue.js](https://vuejs.org)
 as a frontend technology.
 
 demosplan core cannot be run as is. This is the base application that needs to be used by
