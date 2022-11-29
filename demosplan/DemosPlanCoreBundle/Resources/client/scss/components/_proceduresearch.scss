@@ -43,7 +43,7 @@
         &__search-field {
             flex-grow: 1;
             max-width: calc(100% - 24px);
-            min-width: calc(37.5% - 24px); // Does not solve the "jumpy" behavior of vue-omnibox, but diminishes it.
+            min-width: calc(37.5% - 24px); // Does not solve the "jumpy" behavior of DpAutocomplete/vue-omnibox, but diminishes it.
         }
 
         &__search-btn {
