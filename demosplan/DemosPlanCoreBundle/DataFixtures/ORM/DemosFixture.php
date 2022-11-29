@@ -57,7 +57,7 @@ abstract class DemosFixture extends AbstractFixture implements ContainerAwareInt
     ): void {
         $connection = $this->entityManager->getConnection();
 
-        if(!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
+        if (!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $connection->executeStatement('SET foreign_key_checks = 0');
         }
 
@@ -65,7 +65,7 @@ abstract class DemosFixture extends AbstractFixture implements ContainerAwareInt
             "UPDATE {$entity} SET {$idField} = \"{$id}\" WHERE {$whereField} = \"{$whereValue}\" LIMIT 1"
         );
 
-        if(!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
+        if (!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $connection->executeStatement('SET foreign_key_checks = 1');
         }
 
