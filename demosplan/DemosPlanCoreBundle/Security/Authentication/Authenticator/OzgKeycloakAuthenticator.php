@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -64,6 +65,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $client->fetchUserFromToken($accessToken)->toArray()
                 );
 
+                // 1 get Desired Roles
+                $requestedRoles =  $this->tryAssignRolesToDesiredRoleNames($keycloakResponseValues);
+                // 2 handle Organisation / just load it / update it / create it --- handle special case CITIZEN
+                $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($keycloakResponseValues, $requestedRoles);
+                // 3 handle user / just load it / update it / create it
+
                 $existingUser = $this->tryLoginExistingUser($keycloakResponseValues);
 
                 if ($existingUser) {
@@ -92,23 +99,81 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         );
     }
 
+    private function getOrgaAndHandleRequestedOrgaData(
+        OzgKeycloakResponseValueObject $keycloakResponseValueObject,
+        array $requestedRoles
+    ): Orga {
+        if ($this->isUserCitizen($requestedRoles)) {
+
+            // just return the CITIZEN organisation and do not update the orga in this case
+            return $this->getCitizenOrga();
+        }
+
+        $existingOrga = $this->tryLookupExistingOrga($keycloakResponseValueObject);
+        if ($existingOrga) {
+            $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles, $keycloakResponseValueObject);
+            $this->entityManager->persist($updatedOrga);
+            $this->entityManager->flush();
+
+            return $existingOrga;
+        }
+
+        return $this->createNewOrganisation($requestedRoles, $keycloakResponseValueObject);
+
+    }
+
+    /**
+     * @param array<int, Role> $requstedRoles
+     */
+    private function updateOrganisation(
+        Orga $existingOrga,
+        array $requstedRoles,
+        OzgKeycloakResponseValueObject $keycloakResponseValueObject
+    ): Orga {
+        $existingOrga->addCustomer($this->customerService->getCurrentCustomer());
+        $existingOrga->setGwId($keycloakResponseValueObject->getVerfahrenstraegerGatewayId());
+        $existingOrga->setName($keycloakResponseValueObject->getVerfahrenstraeger());
+        // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
+        $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupDesiredRoles($requstedRoles);
+        // are the desired OrgaTypes present and accepted for this organisation/customer
+        $currentOrgaStati = $existingOrga->getStatusInCustomers()->filter(
+            function (OrgaStatusInCustomer $orgaStatusInCustomer): bool {
+                return $orgaStatusInCustomer->getCustomer() === $this->customerService->getCurrentCustomer();
+            }
+        );
+        foreach ($orgaTypesNeededToBeAccepted as $neededOrgaType) {
+            $typeExists = false;
+            /** @var OrgaStatusInCustomer $orgaStatusInCurrentCustomer */
+            foreach ($currentOrgaStati as $orgaStatusInCurrentCustomer) {
+                if ($orgaStatusInCurrentCustomer->getOrgaType()->getName() === $neededOrgaType) {
+                    $orgaStatusInCurrentCustomer->setStatus(OrgaStatusInCustomer::STATUS_ACCEPTED);
+                    $this->entityManager->persist($orgaStatusInCurrentCustomer);
+                    $typeExists = true;
+                }
+            }
+            if (!$typeExists) {
+                $existingOrga->addCustomerAndOrgaType($this->customerService->getCurrentCustomer(), $neededOrgaType);
+            }
+        }
+        $this->entityManager->persist($existingOrga);
+        $this->entityManager->flush($existingOrga);
+
+        return $existingOrga;
+    }
+
+    /**
+     * @param array<int, Role> $requestedRoles
+     */
+    private function createNewOrganisation(
+        array $requestedRoles,
+        OzgKeycloakResponseValueObject $keycloakResponseValueObject
+    ): Orga {
+        // todo implement this
+    }
+
+
     private function tryCreateNewUser(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
     {
-        // what Roles are desired?
-        $desiredRoles = $this->tryAssignRolesToDesiredRoleNames($keycloakResponseValueObject);
-        // is CITIZEN the desired Role? If it is - the orga has to be the default one
-        if ($this->isUserCitizen($desiredRoles)) {
-            // todo skip the orga update completely
-            // the orga will be the defaultOrganisation for Citizens
-        }
-        // what OrgaTypes are needed to be set and accepted regarding the desired Roles?
-        $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupDesiredRoles($desiredRoles);
-
-        // is the target orga existent?
-        /** @var Orga $existingOrga */
-        $existingOrga = $this->tryLookupExistingOrga($keycloakResponseValueObject);
-        // are the desired OrgaTypes
-
 
         // accumulate new data
         $data = [
@@ -176,7 +241,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 }
             }
         }
-        // todo what about the other roles
+
         return $orgaTypesNeeded;
     }
 
@@ -256,6 +321,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         return $existingOrga;
+    }
+
+    private function getCitizenOrga(): ?Orga
+    {
+        return $this->entityManager->getRepository(Orga::class)
+            ->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
     }
 
     private function tryLookupOrgaByName(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?Orga
