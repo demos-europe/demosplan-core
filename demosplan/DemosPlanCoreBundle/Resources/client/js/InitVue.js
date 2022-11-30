@@ -7,11 +7,12 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpNotifyContainer } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpNotifyContainer, Tooltip } from '@demos-europe/demosplan-ui'
 import { initGlobalEventListener, NotificationStoreAdapter, ToggleSideMenu, touchFriendlyUserbox } from '@demos-europe/demosplan-utils'
 import { bootstrap } from '@DpJs/bootstrap'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
+import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -20,6 +21,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
   Vue.prototype.Translator = window.Translator
   Vue.prototype.hasPermission = window.hasPermission
   Vue.config.productionTip = false
+
+  Vue.directive('tooltip', Tooltip)
+  Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     /* eslint-disable no-new */
