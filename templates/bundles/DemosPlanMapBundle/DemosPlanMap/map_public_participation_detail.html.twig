@@ -5,7 +5,8 @@
 
     {% if hasPermission('feature_new_statement') %}
 
-        <div class="{{ 'c-actionbox'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-actionbox--rounding'|prefixClass }}{% endif %}">
+        {% block actionbox %}
+            <div class="{{ 'c-actionbox'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-actionbox--rounding'|prefixClass }}{% endif %}">
 
             <ul class="{{ 'layout--flush u-mb-0'|prefixClass }}">
 {#                <li#}
@@ -229,6 +230,7 @@
             </div>
 
         </div>
+        {% endblock actionbox %}
     {% else %}
 
         {% include '@DemosPlanDocument/DemosPlanDocument/includes/actionbox.html.twig' with {
@@ -241,109 +243,119 @@
 
 
     {# Statement tools #}
-    {% block map_toolbar_statement_tools %}
-        <ul class="{{ 'c-map__group'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-map__group--rounding'|prefixClass }}{% endif %}">
+    {%  block toolbar %}
+        {% block map_toolbar_statement_tools %}
+            <ul class="{{ 'c-map__group'|prefixClass }} {% if procedureStatementPriorityArea %}{{ 'c-map__group--rounding'|prefixClass }}{% endif %}">
 
-            {# Display getFeatureInfo Tool only if set #}
-            {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
-                    <button
-                        type="button"
-                        id="criteriaButton"
-                        class="{{ 'c-map__tool-simple btn--blank o-link--default font-size-medium'|prefixClass }}"
-                        aria-label="{{ 'map.getfeatureinfo.label'|trans }} {{ "map.getfeatureinfo.description"|trans }}">
-                        <i class="{{ 'fa fa-lg fa-lightbulb-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
-                        {{ 'map.getfeatureinfo.label'|trans }}
-                    </button>
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        cssClasses: 'o-tooltip--question-circle float--right u-mt-0_25',
-                        helpText: "map.getfeatureinfo.description"|trans,
-                        omitCssPrefix: false
-                    } %}
-                </li>
-            {% endif %}
-
-            {# Drawing of procedure #}
-            {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
-                <li class="{{ 'list-style-none'|prefixClass }}">
-                    <a
-                        class="{{ 'c-map__tool o-link--default'|prefixClass }}"
-                        target="_blank"
-                        rel="noopener"
-                        href="{{ path('core_file', { 'hash': procedureSettings.planDrawPDF|getFile('hash') }) }}"
-                        title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
-                        <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
-                        {{ "drawing.download"|trans }}
-                    </a>
-                </li>
-            {% endif %}
-
-        </ul>
-    {% endblock map_toolbar_statement_tools %}
-    {# / Statement tools #}
-
-
-    <div class="{{ 'layer-controls'|prefixClass }}">
-
-        {# Unfold handle #}
-        <dp-unfold-toolbar-control drag-target=".{{ 'c-map__toolbar'|prefixClass}}"></dp-unfold-toolbar-control>
-
-        <div class="{{ 'c-map__group--bottom bg-color--white'|prefixClass }}">
-
-            {# Layers #}
-            <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
-
-            {# Legends #}
-            {% block map_toolbar_legend %}
-
-                {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
-                {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
-                {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
-                {% if procedureSettings.planPDF|default|length > 0 %}
-                    {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
+                {# Display getFeatureInfo Tool only if set #}
+                {% if procedureSettings.featureInfoUrl|default|raw|length > 1 %}
+                    <li class="{{ 'list-style-none'|prefixClass }}">
+                        <button
+                            type="button"
+                            id="criteriaButton"
+                            class="{{ 'c-map__tool-simple btn--blank o-link--default font-size-medium'|prefixClass }}"
+                            aria-label="{{ 'map.getfeatureinfo.label'|trans }} {{ "map.getfeatureinfo.description"|trans }}">
+                            <i class="{{ 'fa fa-lg fa-lightbulb-o u-mr-0_5'|prefixClass }}" aria-hidden="true"></i>
+                            {{ 'map.getfeatureinfo.label'|trans }}
+                        </button>
+                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                            cssClasses: 'o-tooltip--question-circle float--right u-mt-0_25',
+                            helpText: "map.getfeatureinfo.description"|trans,
+                            omitCssPrefix: false
+                        } %}
+                    </li>
                 {% endif %}
 
-                {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
-                {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
-                {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
-                {% set layers_with_legend_files = [] %}
-                {% for layer in filtered_legends %}
-                    {# Transform object to be consumable by vue component #}
-                    {% set layers_with_legend_files = layers_with_legend_files|merge([{
-                        name: layer.name,
-                        legend: {
-                            hash: layer.legend|getFile('hash'),
-                            mimeType: layer.legend|getFile('mimeType'),
-                            fileSize: layer.legend|getFile('size')
-                        }
-                    }]) %}
-                {% endfor %}
-                {% if false == display_legend_box %}
-                    {% set display_legend_box = layers_with_legend_files|length > 0 %}
+                {# Drawing of procedure #}
+                {% if hasPermission('feature_map_use_plan_draw_pdf') and procedureSettings.planDrawPDF|default != '' %}
+                    {%  block drawing_of_procedure %}
+                        <li class="{{ 'list-style-none'|prefixClass }}">
+                            <a
+                                class="{{ 'c-map__tool o-link--default'|prefixClass }}"
+                                target="_blank"
+                                rel="noopener"
+                                href="{{ path('core_file', { 'hash': procedureSettings.planDrawPDF|getFile('hash') }) }}"
+                                title="{{ 'drawing.download'|trans }} ({{ procedureSettings.planDrawPDF|getFile('mimeType') }} {{ procedureSettings.planDrawPDF|getFile('size','MB') }})">
+                                <i class="{{ 'fa fa-download'|prefixClass }}" aria-hidden="true"></i>
+                                {{ "drawing.download"|trans }}
+                            </a>
+                        </li>
+                    {%  endblock drawing_of_procedure %}
                 {% endif %}
 
-                {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
-                {% if false == display_legend_box %}
-                    {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
-                {% endif %}
+            </ul>
+        {% endblock map_toolbar_statement_tools %}
+        {# / Statement tools #}
 
-                <dp-layer-legend
-                    v-show="Boolean({{ display_legend_box }})"
-                    :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
-                    :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
-                </dp-layer-legend>
 
-            {% endblock map_toolbar_legend %}
+        <div class="{{ 'layer-controls'|prefixClass }}">
 
-            {# Zoom to extend, measure length + area #}
-            <dp-map-tools></dp-map-tools>
+            {# Unfold handle #}
+            <dp-unfold-toolbar-control drag-target=".{{ 'c-map__toolbar'|prefixClass}}"></dp-unfold-toolbar-control>
 
-            {# Add custom layer on the fly #}
-            <dp-custom-layer
-                :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"></dp-custom-layer>
+            <div class="{{ 'c-map__group--bottom bg-color--white'|prefixClass }}">
 
+                {# Layers #}
+                <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
+
+                {# Legends #}
+                {% block map_toolbar_legend %}
+
+                    {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
+                    {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
+                    {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
+                    {% if procedureSettings.planPDF|default|length > 0 %}
+                        {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
+                    {% endif %}
+
+                    {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
+                    {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
+                    {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
+                    {% set layers_with_legend_files = [] %}
+                    {% for layer in filtered_legends %}
+                        {# Transform object to be consumable by vue component #}
+                        {% set layers_with_legend_files = layers_with_legend_files|merge([{
+                            name: layer.name,
+                            legend: {
+                                hash: layer.legend|getFile('hash'),
+                                mimeType: layer.legend|getFile('mimeType'),
+                                fileSize: layer.legend|getFile('size')
+                            }
+                        }]) %}
+                    {% endfor %}
+                    {% if false == display_legend_box %}
+                        {% set display_legend_box = layers_with_legend_files|length > 0 %}
+                    {% endif %}
+
+                    {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
+                    {% if false == display_legend_box %}
+                        {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
+                    {% endif %}
+
+                    <dp-layer-legend
+                        v-show="Boolean({{ display_legend_box }})"
+                        :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
+                        :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')">
+                    </dp-layer-legend>
+
+                {% endblock map_toolbar_legend %}
+
+                {# Zoom to extend, measure length + area #}
+                {% block map_tools %}
+                    <dp-map-tools></dp-map-tools>
+                {% endblock map_tools %}
+
+                {# Add custom layer on the fly #}
+                {% block custom_layer %}
+                    <dp-custom-layer
+                        :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')">
+                    </dp-custom-layer>
+                {% endblock custom_layer %}
+
+            </div>
         </div>
-    </div>
+
+    {% endblock toolbar %}
 
 </div>
 {% set draftStatement = templateVars.draftStatement|default('') %}
