@@ -2,7 +2,6 @@
 
 
 
-
 namespace demosplan\DemosPlanAdminBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
