@@ -67,7 +67,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 $existingUser = $this->tryLoginExistingUser($keycloakResponseValues);
 
                 if ($existingUser) {
-
                     // TODO: Update user information from keycloak
 
                     $request->getSession()->set('userId', $existingUser->getId());
@@ -283,6 +282,56 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         return $orga;
+    }
+
+    private function updateExistingDplanUser(User $dplanUser, OzgKeycloakResponseValueObject $keycloakUser): User
+    {
+        // How to update user roles?
+        if (null !== $keycloakUser->getRolleDiPlanBeteiligung()) {
+            //$dplanUser->setRoleInCustomers();
+            //$dplanUser->setRolesAllowed();
+        }
+
+        if (null !== $keycloakUser->getProviderId()) {
+            $dplanUser->setGwId($keycloakUser->getProviderId());
+        }
+
+        if (null !== $keycloakUser->getNutzerId()) {
+            $dplanUser->setLogin($keycloakUser->getNutzerId());
+        }
+
+        // Are getEmailVerified() correct here?
+        if (null !== $keycloakUser->getEmailAdresse() && $keycloakUser->getEmailVerified()) {
+            $dplanUser->setEmail($keycloakUser->getEmailAdresse());
+        }
+
+        if (null !== $keycloakUser->getVollerName()) {
+            $fullNameArray = explode(' ', $keycloakUser->getVollerName());
+            if (false !== $fullNameArray) {
+                $dplanUser->setFirstname($fullNameArray[0]);
+                1 < count($fullNameArray) ? $lastname = $fullNameArray[1] : $lastname = '';
+                $dplanUser->setLastname($lastname);
+                // Maybe set only firstname or lastname
+                // Add fullname to User entity
+            }
+        }
+
+        if (null !== $keycloakUser->getVerfahrenstraeger()) {
+            // Exist orgas which share the same name?
+            $existingOrga = $this->entityManager->getRepository(Orga::class)
+                ->findOneBy(['name' => $keycloakUser->getVerfahrenstraeger()]);
+            if (null === $existingOrga) {
+                // TODO: Create new Orga
+            }
+            $dplanUser->setOrga($existingOrga);
+        }
+
+        return $dplanUser;
+    }
+
+    private function CheckIfUserAttributeHasToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
+    {
+        return null !== $keycloakUserAttribute && $dplanUserAttribute === $keycloakUserAttribute;
     }
 
     private function tryLoginExistingUser(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
