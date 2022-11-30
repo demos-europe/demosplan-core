@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
 use Symfony\Component\HttpFoundation\Request;
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
 
-class CreateSimplifiedStatementEvent  extends DPlanEvent
+class CreateSimplifiedStatementEvent extends DPlanEvent
 {
-    private ?StatementFromEmailCreator $emailStatementCreator = null;
+    private ?ManualSimplifiedStatementCreator $emailStatementCreator = null;
 
     private Request $request;
 
@@ -31,12 +31,12 @@ class CreateSimplifiedStatementEvent  extends DPlanEvent
         return $this->request;
     }
 
-    public function getStatementFromEmailCreator (): ?StatementFromEmailCreator
+    public function getStatementFromEmailCreator (): ?ManualSimplifiedStatementCreator
     {
         return $this->emailStatementCreator;
     }
 
-    public function setStatementFromEmailCreator (?StatementFromEmailCreator $emailStatementCreator): void
+    public function setStatementFromEmailCreator (?ManualSimplifiedStatementCreator $emailStatementCreator): void
     {
        $this->emailStatementCreator = $emailStatementCreator;
     }
