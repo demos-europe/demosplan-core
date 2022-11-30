@@ -24,8 +24,11 @@ class ContainerInitCommand extends CoreCommand
     protected static $defaultDescription = 'Perform startup tasks as an init container in kubernetes setup';
     private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager, ParameterBagInterface $parameterBag, string $name = null)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ParameterBagInterface $parameterBag,
+        string $name = null
+    ) {
         parent::__construct($parameterBag, $name);
         $this->entityManager = $entityManager;
     }
