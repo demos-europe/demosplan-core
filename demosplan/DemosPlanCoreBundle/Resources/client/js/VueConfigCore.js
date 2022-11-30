@@ -12,9 +12,8 @@
  * This is imported via infrastructure/frontend/config.webpack.babel.js:75.
  */
 import * as Sentry from '@sentry/browser'
-import { DpObscure, Tooltip } from '@demos-europe/demosplan-ui'
+import { DpObscure } from '@demos-europe/demosplan-ui'
 import { BrowserTracing } from '@sentry/tracing'
-import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
 import Vue from 'vue'
@@ -28,14 +27,8 @@ Vue.use(DPVueCorePlugin)
 // Register components that are used globally
 Vue.component('DpObscure', DpObscure)
 
-// Register custom directives
-
 // Exposing Translator to the Vue prototype allows us to pass us Translator.trans() to v-tooltip
 Vue.prototype.Translator = window.Translator
-
-Vue.directive('tooltip', Tooltip)
-
-Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
 
 if (window.dplan.sentryDsn !== '') {
   Sentry.init({
