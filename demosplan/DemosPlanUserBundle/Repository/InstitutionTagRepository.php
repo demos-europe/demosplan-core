@@ -87,5 +87,7 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
         } catch (\Exception $e) {
             $this->logger->error('Delete statementVote failed: ', [$e]);
         }
+
+        return false;
     }
 }
