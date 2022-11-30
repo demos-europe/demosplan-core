@@ -93,7 +93,7 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll overflow-word-break max-height-500 width-600">
+                <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
                   <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     class="display--block whitespace--normal u-mr-0_75"
