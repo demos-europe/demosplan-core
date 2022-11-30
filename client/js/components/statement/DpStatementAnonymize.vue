@@ -235,9 +235,7 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpAnonymizeText, DpCheckbox, DpTooltipIcon } from '@demos-europe/demosplan-ui/components/core'
-import { DpButton } from '@demos-europe/demosplan-ui/components'
+import { CleanHtml, DpAnonymizeText, DpButton, DpCheckbox, DpTooltipIcon } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpStatementAnonymize',

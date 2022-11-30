@@ -682,9 +682,7 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpDetails } from '@demos-europe/demosplan-ui/components'
-import { DpTextArea } from '@demos-europe/demosplan-ui/components/core'
+import { CleanHtml, DpDetails, DpTextArea } from '@demos-europe/demosplan-ui'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {

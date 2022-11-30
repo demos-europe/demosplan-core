@@ -162,7 +162,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
     {
         if ($this->hasPermission('feature_public_consultation')) {
             $invitedProcedures = $session->get('invitedProcedures', []);
-            if (in_array($procedure->getId(), $invitedProcedures, true)) {
+            if (\in_array($procedure->getId(), $invitedProcedures, true)) {
                 $this->userInvitedInProcedure = true;
             }
         }
@@ -330,6 +330,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
             if ($this->isMemberOfPlanningOrganisation()) {
                 $this->enablePermissions([
                     'area_institution_tag_manage',
+                    'feature_institution_tag_assign',
                     'feature_institution_tag_create',
                     'feature_institution_tag_delete',
                     'feature_institution_tag_read',
@@ -625,7 +626,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
 
         if ($this->user->hasRole(Role::API_AI_COMMUNICATOR)) {
             // disable all permissions
-            $this->permissions = array_map(
+            $this->permissions = \array_map(
                 static function (Permission $permission) {
                     $permission->disable();
 
@@ -768,7 +769,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
     {
         $subdomain = $this->globalConfig->getSubdomain();
 
-        return in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+        return \in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
     }
 
     /**
@@ -847,7 +848,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
             return false;
         }
 
-        $isInvitedInstitution = in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
 
         if ($isInvitedInstitution) {
             $this->logger->debug('Orga is member');
@@ -892,7 +893,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
         foreach ($arrIt as $sub) {
             $subArray = $arrIt->getSubIterator();
             if ($subArray['key'] === $phase) {
-                $outputArray = iterator_to_array($subArray);
+                $outputArray = \iterator_to_array($subArray);
                 $permissionset = $outputArray['permissionset'];
                 $this->logger->debug('Initial Permissionset: ', [$permissionset]);
                 // during Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN user may participate
@@ -1023,7 +1024,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
     public function setMenuhighlighting($permission): void
     {
         // Nur "area_*"-Permissions bestimmen das Highlighting
-        if (false === stripos($permission, 'area_')) {
+        if (false === \stripos($permission, 'area_')) {
             return;
         }
 
@@ -1091,7 +1092,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
         } else {
             // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
             $this->logger->info('Dieser Bereich hat kein explizites Permission angegeben! '
-                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', debug_backtrace(0, 4));
+                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', \debug_backtrace(0, 4));
         }
     }
 
@@ -1209,7 +1210,7 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
         if (!isset($this->permissions[$permission]) || !$this->permissions[$permission] instanceof Permission) {
             $this->logger->warning(
                 'Permission ist nicht definiert: '.$permission.' Stacktrace: '.DemosPlanTools::varExport(
-                    debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
+                    \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
                     true
                 )
             );
@@ -1261,9 +1262,9 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
      */
     public function enablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
-                if (!array_key_exists($permissionName, $this->permissions)) {
+                if (!\array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return null;
@@ -1289,9 +1290,9 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
      */
     public function disablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
-                if (!array_key_exists($permissionName, $this->permissions)) {
+                if (!\array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return [];

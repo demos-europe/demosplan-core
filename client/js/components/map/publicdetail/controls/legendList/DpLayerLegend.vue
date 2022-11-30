@@ -65,7 +65,7 @@
 <script>
 import DpLayerLegendItem from './DpLayerLegendItem'
 import { mapGetters } from 'vuex'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpLayerLegend',

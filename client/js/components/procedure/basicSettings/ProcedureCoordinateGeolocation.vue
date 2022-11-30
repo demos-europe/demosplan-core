@@ -63,7 +63,7 @@
 
 <script>
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-utils'
-import { DpInput, DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpInput, DpLoading } from '@demos-europe/demosplan-ui'
 
 const LookupStatus = {
   NONE: 0,

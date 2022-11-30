@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
 
 export default {

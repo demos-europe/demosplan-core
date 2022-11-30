@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { addFormHiddenField } from '@demos-europe/demosplan-utils/lib/FormActions'
+import { addFormHiddenField } from '@demos-europe/demosplan-utils'
 
 const saveAndReturn = {
   inserted: function (el) {

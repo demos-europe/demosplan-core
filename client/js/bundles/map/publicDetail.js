@@ -11,13 +11,13 @@
  * This is the entrypoint for public_detail.html.twig  !! only loaded when a Map is enabled !!
  * See core-publicdetail.js for the entrypoint loaded when there is no Map
  */
+import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
-import { DpRegisterFlyout, DpUploadFiles, DpVideoPlayer } from '@demos-europe/demosplan-ui/components/core'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import layers from '@DpJs/store/map/Layers'
 import Map from '@DpJs/components/map/publicdetail/Map'

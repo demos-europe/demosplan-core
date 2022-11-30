@@ -96,11 +96,11 @@
 </template>
 
 <script>
-import { DpCheckbox, DpRadio } from '@demos-europe/demosplan-ui/components/core'
+import { DpCheckbox, DpRadio } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 import FormGroupPostalAndCity from './FormGroupPostalAndCity'
 import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'FormGroupEvaluationMailViaSnailMailOrEmail',
