@@ -34,6 +34,7 @@ use function in_array;
 
 use InvalidArgumentException;
 
+use function is_array;
 use function iterator_to_array;
 
 use Monolog\Logger;
@@ -51,7 +52,7 @@ use Tightenco\Collect\Support\Collection as IlluminateCollection;
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-class Permissions implements PermissionsInterface
+class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterface
 {
     public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
 
@@ -87,10 +88,6 @@ class Permissions implements PermissionsInterface
      * @var GlobalConfigInterface|GlobalConfig
      */
     protected $globalConfig;
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
     /**
      * @deprecated This variable is used to minimize changes in permission handling to keep it easier
@@ -112,16 +109,26 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
-    private PermissionCollectionInterface $permissionCollection;
+    private PermissionCollectionInterface $corePermissions;
 
+    /**
+     * @var list<ResolvablePermissionCollection>
+     */
+    private array $addonPermissions;
+
+    /**
+     * @param list<ResolvablePermissionCollection> $addonPermissions
+     */
     public function __construct(
+        array $addonPermissions,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
-        PermissionCollectionInterface $permissionCollection,
+        PermissionCollectionInterface $corePermissions,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureRepository $procedureRepository
     ) {
-        $this->permissionCollection = $permissionCollection;
+        $this->addonPermissions = $addonPermissions;
+        $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
@@ -1028,7 +1035,10 @@ class Permissions implements PermissionsInterface
      */
     protected function setInitialPermissions(): void
     {
-        $this->permissions = $this->permissionCollection->toArray();
+        $this->permissions = collect($this->addonPermissions)
+            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
+            ->merge($this->corePermissions->toArray())
+            ->all();
     }
 
     /**
@@ -1118,6 +1128,32 @@ class Permissions implements PermissionsInterface
         try {
             $this->evaluatePermission($permission);
         } catch (Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isPermissionEnabled(string $permissionName): bool
+    {
+        if (!$this->isPermissionKnown($permissionName)) {
+            return false;
+        }
+
+        return $this->hasPermission($permissionName);
+    }
+
+    public function isPermissionKnown(string $permissionName): bool
+    {
+        if (!is_array($this->permissions)) {
+            return false;
+        }
+
+        if (!isset($this->permissions[$permissionName])) {
+            return false;
+        }
+
+        if (!$this->permissions[$permissionName] instanceof Permission) {
             return false;
         }
 

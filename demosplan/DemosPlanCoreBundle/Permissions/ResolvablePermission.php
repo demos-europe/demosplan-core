@@ -12,7 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
+use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Constraint\PermissionFilterConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -70,12 +71,14 @@ class ResolvablePermission
      */
     private string $description;
 
+    private bool $exposed;
+
     /**
      * @var array<non-empty-string, CustomizedDrupalFilter>
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
-     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
+     * @PermissionFilterConstraint()
      */
     private array $customerFilters = [];
 
@@ -84,7 +87,7 @@ class ResolvablePermission
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
-     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
+     * @PermissionFilterConstraint()
      */
     private array $userFilters = [];
 
@@ -93,7 +96,7 @@ class ResolvablePermission
      *
      * @Assert\NotNull()
      * @Assert\Type(type="array")
-     * TODO: add format validation annotation (can be based on {@link DrupalFilterValidator})
+     * @PermissionFilterConstraint()
      */
     private array $procedureFilters = [];
 
@@ -101,11 +104,15 @@ class ResolvablePermission
      * @param non-empty-string $name
      * @param non-empty-string $label
      */
-    public function __construct(string $name, string $label, string $description)
+    public function __construct(string $name, string $label, string $description, bool $exposed)
     {
         $this->name = $name;
         $this->label = $label;
         $this->description = $description;
+        $this->exposed = $exposed;
+        $now = Carbon::now();
+        $this->setCreatedAt($now);
+        $this->setUpdatedAt($now);
     }
 
     /**
@@ -142,6 +149,7 @@ class ResolvablePermission
      */
     public function setCustomerFilters(array $customerFilters): void
     {
+        $this->update();
         $this->customerFilters = $customerFilters;
     }
 
@@ -158,6 +166,7 @@ class ResolvablePermission
      */
     public function setUserFilters(array $userFilters): void
     {
+        $this->update();
         $this->userFilters = $userFilters;
     }
 
@@ -174,6 +183,17 @@ class ResolvablePermission
      */
     public function setProcedureFilters(array $procedureFilters): void
     {
+        $this->update();
         $this->procedureFilters = $procedureFilters;
+    }
+
+    public function isExposed(): bool
+    {
+        return $this->exposed;
+    }
+
+    protected function update(): void
+    {
+        $this->setUpdatedAt(Carbon::now());
     }
 }

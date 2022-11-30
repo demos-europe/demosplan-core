@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
+use EDT\Querying\Contracts\FunctionInterface;
+use Ramsey\Uuid\Type\TypeInterface;
 use function array_key_exists;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -46,7 +49,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *          }
  * @phpstan-type DrupalFilter = array{condition: DrupalFilterCondition}|array{group: DrupalFilterGroup}
  */
-class PermissionResolver
+class PermissionResolver implements PermissionFilterValidator
 {
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
@@ -58,6 +61,8 @@ class PermissionResolver
      */
     private DrupalFilterParser $filterParser;
 
+    private DrupalFilterValidator $filterValidator;
+
     public function __construct(
         ConditionEvaluator $conditionEvaluator,
         DqlConditionFactory $conditionFactory,
@@ -65,15 +70,38 @@ class PermissionResolver
     ) {
         $this->conditionEvaluator = $conditionEvaluator;
         $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
+        $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
         $this->filterParser = new DrupalFilterParser(
             $conditionFactory,
             new DrupalConditionParser($drupalConditionFactory),
-            new DrupalFilterValidator($validator, $drupalConditionFactory)
+            $this->filterValidator
         );
     }
 
+    public function validateFilter($filter): void
+    {
+        try {
+            $this->filterValidator->validateFilter($filter);
+        } catch (DrupalFilterException $exception) {
+            throw new PermissionFilterException('Invalid filter format', 0, $exception);
+        }
+    }
+
     /**
-     * TODO: as we parse the Drupal filter on every call this method needs proper caching for each parameter combination.
+     * Currently this method parses and evaluates the filters in the given permission on every call,
+     * which may slow down the application.
+     * This needs to be done because the resulting {@link FunctionInterface} instances are not yet
+     * cacheable and even if it were, the de-serialization would need to be written noticeable more
+     * performant than the parsing currently done.
+     *
+     * The result this method (the evaluated boolean) can't be cached either, as the result may
+     * differ if any property of the given context (user/customer/procedure) or any property of
+     * their relationships (and the relationships of those) has been changed.
+     *
+     * As a future mitigation the addons may be limited to specific properties via
+     * {@link TypeInterface} implementations, instead of allowing to directly access the entities.
+     * This would allow to avoid the usage of performance heavy evaluations and may even allow to
+     * dynamically determine which entity changes are relevant to cache the evaluation result.
      */
     public function isPermissionEnabled(
         ResolvablePermission $permission,
