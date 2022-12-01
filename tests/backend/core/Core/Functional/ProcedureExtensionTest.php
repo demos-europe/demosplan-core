@@ -193,8 +193,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderProcedureName
-     *
-     * @param $providerData
      */
     public function testGetNameFunction($providerData)
     {
@@ -291,7 +289,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
                 'assertedPublicParticipationPhase' => $externalPhases[1]['name'],
             ]];
         }
-        //external phases
+        // external phases
         foreach ($externalPhases as $externalPhase) {
             $phasesDataProvider[] = [[
                 'phase'                            => $internalPhases[1]['key'],
@@ -380,8 +378,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderDaysLeft
-     *
-     * @param $providerData
      */
     public function testGetDaysLeft($providerData)
     {

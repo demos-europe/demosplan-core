@@ -10,10 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use function array_key_exists;
-use function array_map;
 use function collect;
-use function debug_backtrace;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
@@ -29,24 +26,16 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
-
-use function in_array;
-
 use InvalidArgumentException;
 
 use function is_array;
-use function iterator_to_array;
 
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-
-use function stripos;
-
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 /**

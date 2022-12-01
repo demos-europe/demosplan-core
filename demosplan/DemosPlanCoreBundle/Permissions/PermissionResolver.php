@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
-use EDT\Querying\Contracts\FunctionInterface;
-use Ramsey\Uuid\Type\TypeInterface;
 use function array_key_exists;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -24,10 +21,13 @@ use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator;
+use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use InvalidArgumentException;
+use Ramsey\Uuid\Type\TypeInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
