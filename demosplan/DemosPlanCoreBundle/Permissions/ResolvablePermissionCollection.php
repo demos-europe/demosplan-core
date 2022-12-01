@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_key_exists;
 
 /**
  * Every {@link AbstractPermissionEvaluator} will be provided with a **separate** instance of this
@@ -111,8 +111,7 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
     public function getPermissions(): array
     {
         return array_map(
-            static fn (ResolvablePermission $permission): Permission
-                => Permission::instanceFromArray($permission->getName(), [
+            static fn (ResolvablePermission $permission): Permission => Permission::instanceFromArray($permission->getName(), [
                     'label'         => $permission->getLabel(),
                     'expose'        => $permission->isExposed(),
                     'loginRequired' => false,
