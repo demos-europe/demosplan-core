@@ -17,7 +17,7 @@ use EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * Adds the `FALSE` operator to the usual Drupal filter operators. This operator is only needed
+ * Adds the `FALSE` operator to the usual Drupal filter operators. This operator is currently only needed
  * when evaluating permission filters and should not be exposed in the Web-API.
  */
 class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
