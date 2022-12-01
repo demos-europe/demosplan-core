@@ -69,7 +69,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 $requestedRoles =  $this->tryAssignRolesToDesiredRoleNames($keycloakResponseValues);
                 // 2 handle Organisation / just load it / update it / create it --- handle special case CITIZEN
                 $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($keycloakResponseValues, $requestedRoles);
-                // 3 handle user / just load it / update it / create it
+                // 3 handle user / just load it / update it / create it / and add User to Orga
 
                 $existingUser = $this->tryLoginExistingUser($keycloakResponseValues);
 
@@ -156,7 +156,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             }
         }
         $this->entityManager->persist($existingOrga);
-        $this->entityManager->flush($existingOrga);
+        $this->entityManager->flush();
 
         return $existingOrga;
     }
