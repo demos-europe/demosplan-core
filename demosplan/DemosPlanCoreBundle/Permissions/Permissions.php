@@ -1137,6 +1137,10 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
 
     public function isPermissionEnabled(string $permissionName): bool
     {
+        // The `hasPermission` below would return `false` too if the permission is not known, but
+        // it would internally create and catch an exception in the process. By checking
+        // `isPermissionKnown` first (which does not use exceptions) we may be able to improve the
+        // performance for checks that want to evaluate unknown permissions.
         if (!$this->isPermissionKnown($permissionName)) {
             return false;
         }
