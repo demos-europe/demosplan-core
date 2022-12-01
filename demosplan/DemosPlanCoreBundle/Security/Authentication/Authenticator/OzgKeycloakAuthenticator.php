@@ -80,10 +80,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 $existingUser = $this->tryLoginExistingUser();
 
                 if ($existingUser) {
-                    // TODO: Update user information from keycloak
-
+                    // Update user information from keycloak
                     $request->getSession()->set('userId', $existingUser->getId());
-                    $existingUser->setGwId($this->ozgKeycloakResponseValueObject->getProviderId());
+                    $existingUser = $this->updateExistingDplanUser($existingUser);
 
                     $this->entityManager->persist($existingUser);
                     $this->entityManager->flush();
