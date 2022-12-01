@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -134,7 +135,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $existingOrga->setGwId($keycloakResponseValueObject->getVerfahrenstraegerGatewayId());
         $existingOrga->setName($keycloakResponseValueObject->getVerfahrenstraeger());
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
-        $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupDesiredRoles($requstedRoles);
+        $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
         // are the desired OrgaTypes present and accepted for this organisation/customer
         $currentOrgaStati = $existingOrga->getStatusInCustomers()->filter(
             function (OrgaStatusInCustomer $orgaStatusInCustomer): bool {
@@ -168,6 +169,20 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         array $requestedRoles,
         OzgKeycloakResponseValueObject $keycloakResponseValueObject
     ): Orga {
+
+        $this->getOrgaTypesToSetupRequestedRoles($keycloakResponseValueObject);
+
+        $department = new Department();
+        $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
+        $this->em->persist($department);
+
+        $orgaData = [
+            'customer'                  => $this->customerService->getCurrentCustomer(),
+            'gwId'                      => $keycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
+            'name'                      => $keycloakResponseValueObject->getVerfahrenstraeger(),
+            'registrationStatuses'      =>
+        ];
+
         // todo implement this
     }
 
@@ -176,18 +191,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
 
         // accumulate new data
-        $data = [
-            'firstname'      => '', // there is no distinct firstname
-                                    // - this way at least the concatenation for our User::getFullName works.
-            'lastname'       => $keycloakResponseValueObject->getVollerName(),
-            'email'          => $keycloakResponseValueObject->getEmailAdresse(),
-            'login'          => $keycloakResponseValueObject->getNutzerId() ?? $keycloakResponseValueObject->getEmailAdresse(),
-            'gwId'           => $keycloakResponseValueObject->getProviderId(),
-            'customer'       => $this->customerService->getCurrentCustomer(),
-            'organisation'   => null,
-            'department'     => null,
-            'roles'          => null,
-        ];
+
     }
 
     private function isUserCitizen(array $desiredRoles): bool
@@ -207,37 +211,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      * @param array<int, Role> $desiredRoles
      * @return array<int, string>
      */
-    private function getOrgaTypesToSetupDesiredRoles(array $desiredRoles): array
+    private function getOrgaTypesToSetupRequestedRoles(array $requestedRoles): array
     {
         $orgaTypesNeeded = [];
-        /** @var Role $role */
-        foreach ($desiredRoles as $role) {
-            $roleCode = $role->getCode();
-            if (Role::HEARING_AUTHORITY_ADMIN === $roleCode
-                || Role::HEARING_AUTHORITY_WORKER === $roleCode
-            ) {
-                if (!in_array(OrgaType::HEARING_AUTHORITY_AGENCY, $orgaTypesNeeded)) {
-                    $orgaTypesNeeded[] = OrgaType::HEARING_AUTHORITY_AGENCY;
-                }
-            }
-            if (Role::PRIVATE_PLANNING_AGENCY === $roleCode) {
-                if (!in_array(OrgaType::PLANNING_AGENCY, $orgaTypesNeeded)) {
-                    $orgaTypesNeeded[] = OrgaType::PLANNING_AGENCY;
-                }
-            }
-            if (Role::PUBLIC_AGENCY_COORDINATION === $roleCode
-                || Role::PUBLIC_AGENCY_WORKER === $roleCode
-            ) {
-                if (!in_array(OrgaType::PUBLIC_AGENCY, $orgaTypesNeeded)) {
-                    $orgaTypesNeeded[] = OrgaType::PUBLIC_AGENCY;
-                }
-            }
-            if (Role::PLANNING_AGENCY_ADMIN === $roleCode
-                || Role::PLANNING_SUPPORTING_DEPARTMENT === $roleCode
-                || Role::PLANNING_AGENCY_WORKER === $roleCode
-            ) {
-                if (!in_array(OrgaType::MUNICIPALITY, $orgaTypesNeeded)) {
-                    $orgaTypesNeeded[] = OrgaType::MUNICIPALITY;
+        /** @var Role $requestedRole */
+        foreach ($requestedRoles as $requestedRole) {
+            foreach (OrgaType::ORGATYPE_ROLE as $orgaType => $type) {
+                if (in_array($requestedRole->getCode(), $type, true)
+                    && !in_array($orgaType, $orgaTypesNeeded, true)
+                ) {
+                    $orgaTypesNeeded[] = $orgaType;
                 }
             }
         }
