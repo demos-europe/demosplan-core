@@ -35,6 +35,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private CustomerService $customerService;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
     private GlobalConfig $globalConfig;
+    private OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject;
 
     public function __construct(
         ClientRegistry $clientRegistry,
@@ -66,23 +67,23 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
 
-                $keycloakResponseValues = new OzgKeycloakResponseValueObject(
+                $this->ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
                     $client->fetchUserFromToken($accessToken)->toArray()
                 );
 
                 // 1 get Desired Roles
-                $requestedRoles =  $this->tryAssignRolesToDesiredRoleNames($keycloakResponseValues);
+                $requestedRoles =  $this->tryAssignRolesToDesiredRoleNames();
                 // 2 handle Organisation / just load it / update it / create it --- handle special case CITIZEN
-                $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($keycloakResponseValues, $requestedRoles);
+                $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($requestedRoles);
                 // 3 handle user / just load it / update it / create it / and add User to Orga
 
-                $existingUser = $this->tryLoginExistingUser($keycloakResponseValues);
+                $existingUser = $this->tryLoginExistingUser();
 
                 if ($existingUser) {
                     // TODO: Update user information from keycloak
 
                     $request->getSession()->set('userId', $existingUser->getId());
-                    $existingUser->setGwId($keycloakResponseValues->getProviderId());
+                    $existingUser->setGwId($this->ozgKeycloakResponseValueObject->getProviderId());
 
                     $this->entityManager->persist($existingUser);
                     $this->entityManager->flush();
@@ -105,7 +106,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     }
 
     private function getOrgaAndHandleRequestedOrgaData(
-        OzgKeycloakResponseValueObject $keycloakResponseValueObject,
         array $requestedRoles
     ): Orga {
         if ($this->isUserCitizen($requestedRoles)) {
@@ -114,16 +114,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             return $this->getCitizenOrga();
         }
 
-        $existingOrga = $this->tryLookupExistingOrga($keycloakResponseValueObject);
+        $existingOrga = $this->tryLookupExistingOrga();
         if ($existingOrga) {
-            $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles, $keycloakResponseValueObject);
+            $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles);
             $this->entityManager->persist($updatedOrga);
             $this->entityManager->flush();
 
             return $existingOrga;
         }
 
-        return $this->createNewOrganisation($requestedRoles, $keycloakResponseValueObject);
+        return $this->createNewOrganisation($requestedRoles);
 
     }
 
@@ -132,19 +132,17 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      */
     private function updateOrganisation(
         Orga $existingOrga,
-        array $requstedRoles,
-        OzgKeycloakResponseValueObject $keycloakResponseValueObject
+        array $requstedRoles
     ): Orga {
         $existingOrga->addCustomer($this->customerService->getCurrentCustomer());
-        $existingOrga->setGwId($keycloakResponseValueObject->getVerfahrenstraegerGatewayId());
-        $existingOrga->setName($keycloakResponseValueObject->getVerfahrenstraeger());
+        $existingOrga->setGwId($this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId());
+        $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
         // are the desired OrgaTypes present and accepted for this organisation/customer
         $currentOrgaStati = $existingOrga->getStatusInCustomers()->filter(
-            function (OrgaStatusInCustomer $orgaStatusInCustomer): bool {
-                return $orgaStatusInCustomer->getCustomer() === $this->customerService->getCurrentCustomer();
-            }
+            fn (OrgaStatusInCustomer $orgaStatusInCustomer): bool =>
+                $orgaStatusInCustomer->getCustomer() === $this->customerService->getCurrentCustomer()
         );
         foreach ($orgaTypesNeededToBeAccepted as $neededOrgaType) {
             $typeExists = false;
@@ -170,11 +168,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      * @param array<int, Role> $requestedRoles
      */
     private function createNewOrganisation(
-        array $requestedRoles,
-        OzgKeycloakResponseValueObject $keycloakResponseValueObject
+        array $requestedRoles
     ): Orga {
 
-        $this->getOrgaTypesToSetupRequestedRoles($keycloakResponseValueObject);
+        $this->getOrgaTypesToSetupRequestedRoles($requestedRoles);
 
         $department = new Department();
         $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
@@ -182,8 +179,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
         $orgaData = [
             'customer'                  => $this->customerService->getCurrentCustomer(),
-            'gwId'                      => $keycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
-            'name'                      => $keycloakResponseValueObject->getVerfahrenstraeger(),
+            'gwId'                      => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
+            'name'                      => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
             'registrationStatuses'      => null,
         ];
 
@@ -191,10 +188,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     }
 
 
-    private function tryCreateNewUser(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    private function tryCreateNewUser(): ?User
     {
 
-        // accumulate new data
+        //TODO: accumulate new data
 
     }
 
@@ -235,9 +232,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     /**
      * @return array<int, Role>
      */
-    private function tryAssignRolesToDesiredRoleNames(OzgKeycloakResponseValueObject $keycloakResponseValueObject): array
+    private function tryAssignRolesToDesiredRoleNames(): array
     {
-        $desiredRoleNames = $keycloakResponseValueObject->getRolleDiPlanBeteiligung();
+        $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
         $allRoles = $this->entityManager->getRepository(Role::class)->findAll();
 
         // try to map the desired roleNames to a Role entity
@@ -300,11 +297,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $unavailableRoles;
     }
 
-    private function tryLookupExistingOrga(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?Orga
+    private function tryLookupExistingOrga(): ?Orga
     {
-        $existingOrga = $this->tryLookupOrgaByGwId($keycloakResponseValueObject);
+        $existingOrga = $this->tryLookupOrgaByGwId();
         if (null === $existingOrga) {
-            $existingOrga = $this->tryLookupOrgaByName($keycloakResponseValueObject);
+            $existingOrga = $this->tryLookupOrgaByName();
         }
 
         return $existingOrga;
@@ -316,13 +313,13 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             ->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
     }
 
-    private function tryLookupOrgaByName(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?Orga
+    private function tryLookupOrgaByName(): ?Orga
     {
         $orga = null;
-        if ('' !== $keycloakResponseValueObject->getVerfahrenstraeger()) {
+        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
             /** @var Orga $orga **/
             $orga = $this->entityManager->getRepository(Orga::class)
-                ->findOneBy(['gwId' => $keycloakResponseValueObject->getVerfahrenstraeger()]);
+                ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()]);
 //            if ($orga->getCustomers()->contains($this->customerService->getCurrentCustomer())) {
 //                return $orga;
 //            }
@@ -331,28 +328,28 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $orga;
     }
 
-    private function tryLookupOrgaByGwId(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?Orga
+    private function tryLookupOrgaByGwId(): ?Orga
     {
         $orga = null;
-        if ('' !== $keycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
+        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
             $orga = $this->entityManager->getRepository(Orga::class)
-                ->findOneBy(['gwId' => $keycloakResponseValueObject->getVerfahrenstraegerGatewayId()]);
+                ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()]);
         }
 
         return $orga;
     }
 
-    private function updateExistingDplanUser(User $dplanUser, OzgKeycloakResponseValueObject $keycloakUser): User
+    private function updateExistingDplanUser(User $dplanUser): User
     {
-        $requestedRoles = $this->tryAssignRolesToDesiredRoleNames($keycloakUser);
+        $requestedRoles = $this->tryAssignRolesToDesiredRoleNames();
         $existingOrga = $this->entityManager->getRepository(Orga::class)
-            ->findOneBy(['name' => $keycloakUser->getVerfahrenstraeger()]);
+            ->findOneBy(['name' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()]);
         // To update the user roles we clear them first and set the roles from keycloak.
-        if ($this->hasUserAttributeToUpdate($dplanUser->getGwId(), $keycloakUser->getProviderId())) {
-            $dplanUser->setGwId($keycloakUser->getProviderId());
+        if ($this->hasUserAttributeToUpdate($dplanUser->getGwId(), $this->ozgKeycloakResponseValueObject->getProviderId())) {
+            $dplanUser->setGwId($this->ozgKeycloakResponseValueObject->getProviderId());
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getRoles(), $keycloakUser->getRolleDiPlanBeteiligung())) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getRoles(), $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung())) {
             $customer = $this->customerService->getCurrentCustomer();
             $customerId = $customer->getId();
             $userId = $dplanUser->getId();
@@ -360,23 +357,23 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $dplanUser->setDplanroles($requestedRoles, $customer);
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getLogin(), $keycloakUser->getNutzerId())) {
-            $dplanUser->setLogin($keycloakUser->getNutzerId());
+        if ($this->hasUserAttributeToUpdate($dplanUser->getLogin(), $this->ozgKeycloakResponseValueObject->getNutzerId())) {
+            $dplanUser->setLogin($this->ozgKeycloakResponseValueObject->getNutzerId());
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getEmail(), $keycloakUser->getEmailAdresse())) {
-            $dplanUser->setEmail($keycloakUser->getEmailAdresse());
+        if ($this->hasUserAttributeToUpdate($dplanUser->getEmail(), $this->ozgKeycloakResponseValueObject->getEmailAdresse())) {
+            $dplanUser->setEmail($this->ozgKeycloakResponseValueObject->getEmailAdresse());
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getFullname(), $keycloakUser->getVollerName())) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getFullname(), $this->ozgKeycloakResponseValueObject->getVollerName())) {
             $dplanUser->setFirstname('');
-            $dplanUser->setLastname($keycloakUser->getVollerName());
+            $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getOrgaName(), $keycloakUser->getVerfahrenstraeger())) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getOrgaName(), $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger())) {
             // Exist orgas which share the same name? Technically possible, but in reality not.
             if (null === $existingOrga) {
-                $this->createNewOrganisation($requestedRoles, $keycloakUser);
+                $this->createNewOrganisation($requestedRoles);
             }
             $dplanUser->setOrga($existingOrga);
         }
@@ -385,8 +382,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
          * @var Orga $existingOrga
          */
         if (null !== $existingOrga &&
-            $this->hasUserAttributeToUpdate($existingOrga->getGwId(), $keycloakUser->getVerfahrenstraegerGatewayId())) {
-            $existingOrga->setGwId($keycloakUser->getVerfahrenstraegerGatewayId());
+            $this->hasUserAttributeToUpdate($existingOrga->getGwId(), $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId())) {
+            $existingOrga->setGwId($this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId());
         }
 
         return $dplanUser;
@@ -397,38 +394,38 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $dplanUserAttribute !== $keycloakUserAttribute;
     }
 
-    private function tryLoginExistingUser(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    private function tryLoginExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
-        $existingUser = $this->tryLoginViaGatewayId($keycloakResponseValueObject);
+        $existingUser = $this->tryLoginViaGatewayId();
         if (null === $existingUser) {
             // 2) do we have a matching user by login
-            $existingUser = $this->tryLoginViaLoginAttribute($keycloakResponseValueObject);
+            $existingUser = $this->tryLoginViaLoginAttribute();
         }
         if (null === $existingUser) {
             // 3) do we have a matching user by email?
-            $existingUser = $this->tryLoginViaEmail($keycloakResponseValueObject);
+            $existingUser = $this->tryLoginViaEmail();
         }
 
         return $existingUser;
     }
 
-    private function tryLoginViaGatewayId(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    private function tryLoginViaGatewayId(): ?User
     {
         return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['gwId' => $keycloakResponseValueObject->getProviderId()]);
+            ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
     }
 
-    private function tryLoginViaLoginAttribute(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    private function tryLoginViaLoginAttribute(): ?User
     {
         return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['login' => $keycloakResponseValueObject->getNutzerId()]);
+            ->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
     }
 
-    private function tryLoginViaEmail(OzgKeycloakResponseValueObject $keycloakResponseValueObject): ?User
+    private function tryLoginViaEmail(): ?User
     {
         return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['email' => $keycloakResponseValueObject->getEmailAdresse()]);
+            ->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
