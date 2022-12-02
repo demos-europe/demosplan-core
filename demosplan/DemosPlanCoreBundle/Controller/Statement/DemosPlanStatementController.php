@@ -69,7 +69,6 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\addons\FloodControl\Exception\CookieException;
 use const ENT_QUOTES;
 use Exception;
 use function explode;
@@ -965,7 +964,7 @@ class DemosPlanStatementController extends BaseController
 
         try {
             $eventDispatcherPost->post($event);
-        } catch (CookieException|Exception $e) {
+        } catch (Exception $e) {
             return $response;
         }
 
