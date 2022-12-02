@@ -313,8 +313,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionCollection:
         shared: false
-        tags:
-            - { name: "dplan.permission_collection" }
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
