@@ -21,21 +21,31 @@ use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\DBAL\DBALException;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ObjectManager;
 
 class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
+    private UserService $userService;
+    private UserHandler $userHandler;
+    private OrgaService $orgaService;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        OrgaService $orgaService,
+        UserHandler $userHandler,
+        UserService $userService
+    ) {
+        parent::__construct($entityManager);
+        $this->userService = $userService;
+        $this->userHandler = $userHandler;
+        $this->orgaService = $orgaService;
+    }
+
     public function load(ObjectManager $manager)
     {
-        /** @var UserHandler $userHandler */
-        $userHandler = $this->getContainer()->get(UserHandler::class);
-        /** @var UserService $userService */
-        $userService = $this->getContainer()->get(UserService::class);
-        /** @var OrgaService $orgaService */
-        $orgaService = $this->getContainer()->get(OrgaService::class);
 
         // create defaultcustomer
         $customer = new Customer('demos', 'demos');
@@ -45,13 +55,14 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $this->createOrgaType($manager, OrgaType::PUBLIC_AGENCY, 'Firmenkunde');
         $this->createOrgaType($manager, OrgaType::PLANNING_AGENCY, 'Planungsbüro');
         $this->createOrgaType($manager, OrgaType::HEARING_AUTHORITY_AGENCY, 'Anhörungsbehörde');
+        $this->createOrgaType($manager, OrgaType::DEFAULT, 'Sonstige');
 
         $orgaTypeOlauth = $this->createOrgaType($manager, OrgaType::MUNICIPALITY, 'Kommune');
 
         $this->createSuperUser($orgaTypeOlauth, $manager, $customer);
 
         // Citizen pseudo user suboptimal, but isso
-        $this->createAnonymousCitizenUser($manager, $userService, $orgaService, $orgaTypeOlauth, $userHandler, $customer);
+        $this->createAnonymousCitizenUser($manager, $orgaTypeOlauth, $customer);
     }
 
     public function getDependencies()
@@ -121,10 +132,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
      */
     public function createAnonymousCitizenUser(
         ObjectManager $manager,
-        UserService $userService,
-        OrgaService $orgaService,
         OrgaType $orgaTypeOlauth,
-        UserHandler $userHandler,
         Customer $customer
     ): void {
         // Create Department
@@ -142,7 +150,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
             User::ANONYMOUS_USER_DEPARTMENT_NAME
         );
 
-        $department = $userService->getDepartment(User::ANONYMOUS_USER_DEPARTMENT_ID);
+        $department = $this->userService->getDepartment(User::ANONYMOUS_USER_DEPARTMENT_ID);
 
         // Create Orga
         $orga = new Orga();
@@ -163,7 +171,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
             User::ANONYMOUS_USER_ORGA_NAME
         );
 
-        $orga = $orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID);
+        $orga = $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID);
 
         $orga->setDepartments([$department]);
 
@@ -192,7 +200,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         );
 
         // reload procedure as doctrine could not know that id changed
-        $citizenUser = $userHandler->getSingleUser(User::ANONYMOUS_USER_ID);
+        $citizenUser = $this->userHandler->getSingleUser(User::ANONYMOUS_USER_ID);
 
         $citizenUser->setDplanroles([
             $this->getReference('role_RGUEST'),
