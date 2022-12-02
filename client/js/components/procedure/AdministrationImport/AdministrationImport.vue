@@ -31,7 +31,6 @@
 <script>
 import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
-import EmailImport from '../../../../../demosplan-addon-maillane/client/src/addons/EmailImport/EmailImport'
 import ExcelImport from './ExcelImport/ExcelImport'
 import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
