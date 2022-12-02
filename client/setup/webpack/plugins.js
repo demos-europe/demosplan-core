@@ -89,10 +89,6 @@ const webpackDefaultPlugins = [
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/pdf`,
         to: `${config.projectRoot}/web/pdf`,
         noErrorOnMissing: true
-      },
-      {
-        from: resolveDir('node_modules/@demos-europe/demosplan-ui/dist'),
-        to: `${config.projectRoot}/web/js/bundles`
       }
     ]
   }),

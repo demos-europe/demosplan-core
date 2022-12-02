@@ -756,6 +756,7 @@ class DemosPlanProcedureController extends BaseController
         CurrentUserInterface $currentUser,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
+        MasterTemplateService $masterTemplateService,
         Request $request,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
@@ -831,6 +832,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.new');
         $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false, $wrapperFactory);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
+        $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_new.html.twig',
