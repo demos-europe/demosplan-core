@@ -43,7 +43,6 @@ export default {
     AdministrationImportNone,
     DpTab,
     DpTabs,
-    EmailImport,
     ExcelImport,
     StatementFormImport,
     StatementPdfImport
