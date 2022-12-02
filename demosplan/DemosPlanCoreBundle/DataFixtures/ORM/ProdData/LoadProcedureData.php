@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -36,11 +37,14 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
     protected $procedureHandler;
 
     public function __construct(
+        EntityManagerInterface $entityManager,
         GlobalConfigInterface $globalConfig,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
         TranslatorInterface $translator
     ) {
+
+        parent::__construct($entityManager);
         $this->translator = $translator;
         $this->globalConfig = $globalConfig;
         $this->permissions = $permissions;

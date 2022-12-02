@@ -10,9 +10,9 @@
 import { DpAccordion, DpNotifyContainer, Tooltip } from '@demos-europe/demosplan-ui'
 import { initGlobalEventListener, NotificationStoreAdapter, ToggleSideMenu, touchFriendlyUserbox } from '@demos-europe/demosplan-utils'
 import { bootstrap } from '@DpJs/bootstrap'
+import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
-import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
