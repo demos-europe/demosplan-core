@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use DemosEurope\DemosplanAddon\Permission\CorePermissionEvaluatorInterface;
 use function collect;
 
+use DemosEurope\DemosplanAddon\Permission\CorePermissionEvaluatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;

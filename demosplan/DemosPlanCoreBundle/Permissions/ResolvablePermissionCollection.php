@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function array_key_exists;
+
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionOverrideException;
 use DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface;
-use function array_key_exists;
-
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
