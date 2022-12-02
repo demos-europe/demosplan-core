@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
+use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use function array_key_exists;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -49,7 +51,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *          }
  * @phpstan-type DrupalFilter = array{condition: DrupalFilterCondition}|array{group: DrupalFilterGroup}
  */
-class PermissionResolver implements PermissionFilterValidator
+class PermissionResolver implements PermissionFilterValidatorInterface
 {
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';

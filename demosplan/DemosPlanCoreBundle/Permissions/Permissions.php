@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Permission\CorePermissionEvaluatorInterface;
 use function collect;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
