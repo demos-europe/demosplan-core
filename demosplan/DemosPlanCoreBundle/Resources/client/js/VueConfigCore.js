@@ -12,8 +12,8 @@
  * This is imported via infrastructure/frontend/config.webpack.babel.js:75.
  */
 import * as Sentry from '@sentry/browser'
-import { BrowserTracing } from '@sentry/tracing'
 import { DpObscure } from '@demos-europe/demosplan-ui'
+import { BrowserTracing } from '@sentry/tracing'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
 import Vue from 'vue'
