@@ -110,6 +110,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 }
 
                 // 5) Handle total garbage data
+                // Todo
 
                 return $newUser;
             })
