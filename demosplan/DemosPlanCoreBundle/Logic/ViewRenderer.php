@@ -10,13 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
-use demosplan\DemosPlanCoreBundle\Event\PreRenderEvent;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -30,6 +24,12 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Throwable;
+use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Event\PreRenderEvent;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 
 class ViewRenderer
 {

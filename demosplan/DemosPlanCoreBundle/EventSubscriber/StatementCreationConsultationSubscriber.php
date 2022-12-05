@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 

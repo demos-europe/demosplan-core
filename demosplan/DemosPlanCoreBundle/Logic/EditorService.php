@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 
 class EditorService extends CoreService
 {

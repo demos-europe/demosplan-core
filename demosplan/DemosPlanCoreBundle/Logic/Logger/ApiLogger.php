@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Logger;
 
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 
 class ApiLogger implements LoggerInterface
 {

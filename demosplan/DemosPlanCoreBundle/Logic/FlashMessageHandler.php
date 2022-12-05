@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 

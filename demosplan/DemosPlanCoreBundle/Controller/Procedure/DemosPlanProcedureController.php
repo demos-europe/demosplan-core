@@ -19,6 +19,7 @@ use function collect;
 use function compact;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
@@ -51,7 +52,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Message;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;

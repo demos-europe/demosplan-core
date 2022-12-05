@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -52,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;

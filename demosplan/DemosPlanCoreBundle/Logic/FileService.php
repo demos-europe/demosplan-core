@@ -11,25 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
-use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Faker\Provider\Uuid;
@@ -43,6 +25,24 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
+use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 
 class FileService extends CoreService
 {

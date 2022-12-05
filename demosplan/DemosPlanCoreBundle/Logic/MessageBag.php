@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -17,7 +18,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use function collect;
 
 class MessageBag implements MessageBagInterface

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
@@ -31,6 +32,9 @@ use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Twig_Error_Loader;
+use Twig_Error_Runtime;
+use Twig_Error_Syntax;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -49,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -72,9 +75,6 @@ use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
 use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use Twig_Error_Loader;
-use Twig_Error_Runtime;
-use Twig_Error_Syntax;
 
 class DraftStatementService extends CoreService
 {

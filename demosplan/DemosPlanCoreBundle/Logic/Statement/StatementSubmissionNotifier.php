@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;

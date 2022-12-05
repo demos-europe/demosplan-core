@@ -10,7 +10,20 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use function array_key_exists;
+use DOMDocument;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use LSS\XML2Array;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection as IlluminateCollection;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -26,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ProdLogger;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
@@ -49,20 +61,8 @@ use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
 use demosplan\DemosPlanUserBundle\ValueObject\OrgaUsersPair;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use DOMDocument;
-use Exception;
+use function array_key_exists;
 use function in_array;
-use LSS\XML2Array;
-use ReflectionException;
-use RuntimeException;
-use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 class UserService extends CoreService
 {

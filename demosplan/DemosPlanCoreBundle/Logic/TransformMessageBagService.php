@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Tightenco\Collect\Support\Collection;
