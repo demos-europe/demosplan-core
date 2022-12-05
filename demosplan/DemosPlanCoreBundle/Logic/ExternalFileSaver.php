@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use function file_put_contents;
+use DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use function file_put_contents;
 use function uniqid;
 
-class ExternalFileSaver
+class ExternalFileSaver implements ExternalFileSaverInterface
 {
     /**
      * @var FileService

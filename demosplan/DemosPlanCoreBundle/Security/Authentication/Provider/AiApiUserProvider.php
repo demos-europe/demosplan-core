@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 
 class AiApiUserProvider implements UserProviderInterface
 {

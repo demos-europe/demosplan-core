@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\AccessDeniedExceptionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 
-class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\AccessDeniedException
+class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\AccessDeniedException implements AccessDeniedExceptionInterface
 {
     /**
      * @param array<int, string> $permissions

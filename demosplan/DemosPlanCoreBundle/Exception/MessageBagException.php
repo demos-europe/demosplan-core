@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\MessageBagExceptionInterface;
 use Exception;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 
-class MessageBagException extends Exception
+class MessageBagException extends Exception implements MessageBagExceptionInterface
 {
     public static function severityNotSupportedException($severity)
     {

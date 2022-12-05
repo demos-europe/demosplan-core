@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\NotYetImplementedExceptionInterface;
 use LogicException;
 
-class NotYetImplementedException extends LogicException
+class NotYetImplementedException extends LogicException implements NotYetImplementedExceptionInterface
 {
     public static function wip()
     {
