@@ -121,7 +121,7 @@
 
 <script>
 import { dpApi, dpRpc, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpButton, DpButtonRow, DpDataTable, DpInlineNotification, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpDataTable, DpIcon, DpInlineNotification, DpInput, DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationPlaces',

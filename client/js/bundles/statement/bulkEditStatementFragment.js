@@ -12,15 +12,17 @@
  */
 
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
 import FragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
-  statement: StatementStore,
+  assessmentTable: AssessmentTableStore,
+  boilerplates: BoilerplatesStore,
   fragment: FragmentStore,
-  assessmentTable: AssessmentTableStore
+  statement: StatementStore
 }
 
 const components = {
