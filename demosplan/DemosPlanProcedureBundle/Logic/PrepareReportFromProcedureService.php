@@ -12,6 +12,11 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use ReflectionException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
@@ -31,11 +36,6 @@ use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Exception;
-use ReflectionException;
 
 class PrepareReportFromProcedureService extends CoreService
 {

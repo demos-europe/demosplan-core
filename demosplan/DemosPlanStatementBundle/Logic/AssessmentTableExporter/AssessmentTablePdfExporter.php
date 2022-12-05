@@ -12,6 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Exception;
+use Psr\Log\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tightenco\Collect\Support\Collection;
+use Twig\Environment;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -28,16 +38,6 @@ use demosplan\DemosPlanStatementBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanStatementBundle\Exception\ErroneousDoctrineResult;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
-use ReflectionException;
-use RuntimeException;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
-use Twig\Environment;
 
 class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 {

@@ -13,12 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
-use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -31,6 +26,11 @@ use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
+use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 
 class SegmentsExporter
 {

@@ -13,6 +13,15 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -27,16 +36,7 @@ use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
 use function in_array;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementSynchronizer
 {

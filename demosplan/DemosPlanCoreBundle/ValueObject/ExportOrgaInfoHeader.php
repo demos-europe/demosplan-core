@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Used in Statements and Segments export document.

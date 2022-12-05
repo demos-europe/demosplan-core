@@ -988,7 +988,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
     demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
 
     demosplan\DemosPlanUserBundle\Logic\AddressService:

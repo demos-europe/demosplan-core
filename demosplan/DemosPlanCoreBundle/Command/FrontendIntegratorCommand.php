@@ -10,8 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use cebe\openapi\spec\OpenApi;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
+use EFrane\ConsoleAdditions\Batch\Batch;
+use Exception;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Yaml\Yaml;
 use cebe\openapi\Writer;
+use cebe\openapi\spec\OpenApi;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
@@ -19,18 +29,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinition
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
-use EFrane\ConsoleAdditions\Batch\Batch;
-use Exception;
 use function file_put_contents;
 use function str_replace;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * This command fetches all required data and runs necessary sub commands to feed

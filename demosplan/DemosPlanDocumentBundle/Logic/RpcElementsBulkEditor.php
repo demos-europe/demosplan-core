@@ -13,6 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -20,10 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
-use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 /**

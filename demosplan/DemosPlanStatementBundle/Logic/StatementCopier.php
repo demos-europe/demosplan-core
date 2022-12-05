@@ -14,6 +14,14 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateInterval;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -39,14 +47,6 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class StatementCopier extends CoreService
 {

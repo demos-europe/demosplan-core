@@ -10,8 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
-use function array_key_exists;
-use function compact;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\Common\Collections\Collection;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use LogicException;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
@@ -19,8 +29,8 @@ use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
@@ -48,21 +58,11 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use Doctrine\Common\Collections\Collection;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use LogicException;
+use function array_key_exists;
+use function compact;
 use function nl2br;
 use function strlen;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Klasse fuer die Abwaegungstabelle.

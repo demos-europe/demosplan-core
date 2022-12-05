@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Exception;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -19,8 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanUserBundle\ValueObject\DataProtectionOrganisation;
 use demosplan\DemosPlanUserBundle\ValueObject\ImprintOrganisation;
-use Exception;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {

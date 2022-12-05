@@ -10,8 +10,29 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function collect;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Elastica\Exception\ClientException;
+use Elastica\Query;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\MatchAll;
+use Elastica\Query\Terms;
+use Elastica\ResultSet;
+use Elastica\Type;
+use Exception;
+use Pagerfanta\Exception\NotValidCurrentPageException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -56,34 +77,13 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Elastica\Exception\ClientException;
-use Elastica\Query;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\MatchAll;
-use Elastica\Query\Terms;
-use Elastica\ResultSet;
-use Elastica\Type;
-use Exception;
+use function collect;
 use function is_array;
-use Pagerfanta\Exception\NotValidCurrentPageException;
 use function str_replace;
 use function strlen;
 use function strpos;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService extends CoreService
 {

@@ -12,14 +12,23 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\Common\Collections\Collection;
+use Faker\Provider\Uuid;
+use Patchwork\Utf8;
+use PhpOffice\PhpWord\Settings;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use ZipStream\ZipStream;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -41,15 +50,6 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\Common\Collections\Collection;
-use Faker\Provider\Uuid;
-use Patchwork\Utf8;
-use PhpOffice\PhpWord\Settings;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use ZipStream\ZipStream;
 
 class ExportService
 {

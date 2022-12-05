@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Exception;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RoleResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
-use Exception;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanRoleAPIController extends APIController
 {

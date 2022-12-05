@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -19,9 +21,7 @@ use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use Exception;
 
 class ProcedureProposalService extends CoreService
 {

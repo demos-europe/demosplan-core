@@ -10,10 +10,10 @@
 
 namespace Tests\Project\Core\Unit\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Tests\Base\UnitTestCase;
 use demosplan\DemosPlanCoreBundle\Logic\ElasticSearchDefinitionProvider;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Tests\Base\UnitTestCase;
 
 class ElasticSearchDefinitionProviderTest extends UnitTestCase
 {

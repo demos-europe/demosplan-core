@@ -12,6 +12,13 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Exception;
+use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tests\Base\FunctionalTestCase;
+use Tests\Base\MockMethodDefinition;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -24,13 +31,6 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use Psr\Log\NullLogger;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Tests\Base\FunctionalTestCase;
-use Tests\Base\MockMethodDefinition;
 
 /**
  * @group UnitTest

@@ -10,28 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
-use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
-use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
-use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHAuthenticator;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use demosplan\DemosPlanUserBundle\Logic\UserHandler;
-use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,6 +20,27 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
+use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
+use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
+use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHAuthenticator;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
+use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
 
 class DemosPlanOrgaController extends BaseController
 {

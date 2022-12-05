@@ -10,8 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-use function date;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
+use Elastica\Exception\NotFoundException;
+use Exception;
+use ReflectionException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -30,29 +41,18 @@ use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureListService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Elastica\Exception\NotFoundException;
-use Exception;
+use function array_key_exists;
+use function date;
 use function explode;
 use function is_array;
 use function is_string;
-use proj4php\Point;
-use proj4php\Proj;
-use proj4php\Proj4php;
-use ReflectionException;
 use function strlen;
 use function substr;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use proj4php\Point;
+use proj4php\Proj4php;
+use proj4php\Proj;
 
 /**
  * Controller that contains methods regarding lists of procedures.
