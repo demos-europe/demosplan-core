@@ -475,9 +475,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $dplanUser->setEmail($this->ozgKeycloakResponseValueObject->getEmailAdresse());
         }
 
-        // todo looks ugly - but getFullName() applies an extra emptySpace in between those two strings... therefore
-        // hasUserAttributeToUpdate returns always true
-        if ($this->hasUserAttributeToUpdate($dplanUser->getFirstname().$dplanUser->getLastname(), $this->ozgKeycloakResponseValueObject->getVollerName())) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getFullname(), $this->ozgKeycloakResponseValueObject->getVollerName())) {
             $dplanUser->setFirstname('');
             $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
         }
