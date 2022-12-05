@@ -1294,7 +1294,7 @@
     "@babel/core" "^7.20.2"
     "@babel/preset-env" "^7.20.2"
     "@braintree/sanitize-url" "^6.0.1"
-    "@demos-europe/demosplan-utils" "github:demos-europe/demosplan-js-utils#main"
+    "@demos-europe/demosplan-utils" "github:demos-europe/demosplan-js-utils#86b11570ce9287cd62457c8071cf959b1674a8bf"
     "@storybook/addon-actions" "6.5.13"
     "@storybook/addon-docs" "6.5.13"
     "@storybook/addon-essentials" "6.5.12"
@@ -1388,6 +1388,9 @@
   version "1.14.2"
   resolved "https://registry.yarnpkg.com/@formatjs/ecma402-abstract/-/ecma402-abstract-1.14.2.tgz#4a038898d3e3d943376a3f3d7ea6652174264dd8"
   integrity sha512-tXDFpDperxDQ2GExcV8Gs5AWwLvaZZYCJ+kBDHhg4k3Ev6ig27BDG1AG2joR1VFX6sXZvC5+ohgcDkfBZPCOGg==
+  dependencies:
+    "@formatjs/intl-localematcher" "0.2.31"
+    tslib "2.4.0"
 
 "@formatjs/fast-memoize@1.2.6":
   version "1.2.6"
@@ -1395,7 +1398,7 @@
   integrity sha512-9CWZ3+wCkClKHX+i5j+NyoBVqGf0pIskTo6Xl6ihGokYM2yqSSS68JIgeo+99UIHc+7vi9L3/SDSz/dWI9SNlA==
   dependencies:
     tslib "2.4.0"
-    
+
 "@formatjs/icu-messageformat-parser@2.1.13":
   version "2.1.13"
   resolved "https://registry.yarnpkg.com/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-2.1.13.tgz#54f4d65924ee0447c50ceec4b75b5a1cd84ec607"
