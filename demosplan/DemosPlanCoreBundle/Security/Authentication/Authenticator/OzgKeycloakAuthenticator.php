@@ -248,7 +248,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         // set default OrgaType if no role matches to at least register orga in customer.
         // Otherwise even support could not manage orga afterwards
         if ([] === $registrationStati) {
-            $registrationStatuses[] = [
+            $registrationStati[] = [
                 'status'    => OrgaStatusInCustomer::STATUS_ACCEPTED,
                 'subdomain' => $customer->getSubdomain(),
                 'customer'  => $customer,
