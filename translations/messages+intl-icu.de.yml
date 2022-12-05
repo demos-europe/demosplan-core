@@ -1752,6 +1752,7 @@ import.process.finished: "Import abgeschlossen"
 import.statements.fromPdf: "Stellungnahmen aus PDF-Dokumenten importieren"
 import.statements.fromPdf.label: "Stellungnahmen aus PDF-Dokumenten importieren (maximal {maxFiles} Dateien gleichzeitig)"
 import.verb: "Importieren"
+imported.verb: "Importiert"
 imprint: "Impressum"
 in: "in"
 inaccessible: 'ohne Zugriff'
