@@ -115,6 +115,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
             // user exists with email. Just update login to tie user to saml and at the same time
             // allow to login locally via email
             $user->setLogin($login);
+            $user->setProvidedByIdentityProvider(true);
 
             return $this->userService->updateUserObject($user);
         }
@@ -180,6 +181,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user->setNoPiwik(false);
         $user->setPassword('loginViaSAML');
         $user->setProfileCompleted(true);
+        $user->setProvidedByIdentityProvider(true);
 
         return $user;
     }
