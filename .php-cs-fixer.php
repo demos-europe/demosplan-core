@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 require_once __DIR__.'/vendor/autoload.php';
 
 $finder = PhpCsFixer\Finder::create()
@@ -26,7 +34,7 @@ $config
                 ],
             ],
             'global_namespace_import' => true,
-            'phpdoc_no_alias_tag'    => [
+            'phpdoc_no_alias_tag'     => [
                 'replacements' => ['type' => 'var', 'link' => 'see'],
             ],
         ]
@@ -35,4 +43,3 @@ $config
     ->setFinder($finder);
 
 return $config;
-
