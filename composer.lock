@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d61ef9982c2f19ffe4d725021fcf8003",
+    "content-hash": "b0b724bc97b5159c2b0b9c61859e0f26",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1233,6 +1233,42 @@
                 }
             ],
             "time": "2022-02-25T21:32:43+00:00"
+        },
+        {
+            "name": "demos-europe/demosplan-addon",
+            "version": "v0.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/demos-europe/demosplan-addon.git",
+                "reference": "96f1b587c505bf3ba65eefd60580f020c1764c87"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/96f1b587c505bf3ba65eefd60580f020c1764c87",
+                "reference": "96f1b587c505bf3ba65eefd60580f020c1764c87",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0"
+            },
+            "require-dev": {
+                "composer/composer": "^2.1"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "DemosEurope\\DemosplanAddon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "This is the base package for all demosplan addons",
+            "support": {
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.0.2"
+            },
+            "time": "2022-11-25T15:26:06+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -21621,5 +21657,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }
