@@ -11,12 +11,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Psr\Log\LoggerInterface;
@@ -25,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -82,44 +85,54 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
+                try {
+                    $this->ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
+                        $client->fetchUserFromToken($accessToken)->toArray()
+                    );
+                    // 1 get Desired Roles
+                    $requestedRoles =  $this->mapKeycloakRoleNamesToDplanRoles();
+                    // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
+                    $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($requestedRoles);
+                    // 3 handle user / load it / update it / create it / and add User to Orga and Department
 
-                $this->ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
-                    $client->fetchUserFromToken($accessToken)->toArray()
-                );
+                    $existingUser = $this->tryLoginExistingUser();
 
-                // 1 get Desired Roles
-                $requestedRoles =  $this->tryAssignRolesToDesiredRoleNames();
-                // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
-                $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($requestedRoles);
-                // 3 handle user / load it / update it / create it / and add User to Orga and Department
+                    if ($existingUser) {
+                        // Update user information from keycloak
+                        $request->getSession()->set('userId', $existingUser->getId());
+                        $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrga, $requestedRoles);
 
-                $existingUser = $this->tryLoginExistingUser();
+                        return $existingUser;
+                    }
 
-                if ($existingUser) {
-                    // Update user information from keycloak
-                    $request->getSession()->set('userId', $existingUser->getId());
-                    $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrga);
+                    // 4) Create new User using keycloak data
+                    $newUser = $this->tryCreateNewUser($requestedOrga, $requestedRoles);
+                    if ($newUser) {
+                        $request->getSession()->set('userId', $newUser->getId());
+                    }
 
-                    return $existingUser;
+                    return $newUser;
+
+                } catch (Exception $e) {
+                    $this->logger->info('login failed',
+                        [
+                            'requestValues' => $this->ozgKeycloakResponseValueObject,
+                            'exception' => $e,
+                        ]
+                    );
+                    throw $e;
                 }
-
-                // 4) Create new User using keycloak data
-                $newUser = $this->tryCreateNewUser($requestedOrga, $requestedRoles);
-                if ($newUser) {
-                    $request->getSession()->set('userId', $newUser->getId());
-                }
-
-                // 5) Handle total garbage data
-                // Todo
-
-                return $newUser;
             })
         );
     }
 
-    private function getOrgaAndHandleRequestedOrgaData(
-        array $requestedRoles
-    ): Orga {
+    /**
+     * @param array<int, Role> $requestedRoles
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    private function getOrgaAndHandleRequestedOrgaData(array $requestedRoles): Orga
+    {
         $existingUser = $this->tryLoginExistingUser();
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupExistingOrga();
@@ -163,6 +176,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $this->createNewOrganisation($requestedRoles);
     }
 
+    /**
+     * @throws Exception
+     */
     private function detachUserFromOrgaAndDepartment(User $existingUser): void
     {
         $oldOrga = $existingUser->getOrga();
@@ -178,11 +194,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     /**
      * @param array<int, Role> $requstedRoles
+     * @throws CustomerNotFoundException
      */
-    private function updateOrganisation(
-        Orga $existingOrga,
-        array $requstedRoles
-    ): Orga {
+    private function updateOrganisation(Orga $existingOrga, array $requstedRoles): Orga
+    {
         $existingOrga->setDeleted(false);
         // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
@@ -286,6 +301,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     /**
      * @param array<int, Role> $requestedRoles
+     * @throws CustomerNotFoundException
+     * @throws Exception
      */
     private function tryCreateNewUser(Orga $userOrga, array $requestedRoles): ?User
     {
@@ -339,70 +356,73 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     /**
      * @return array<int, Role>
+     * @throws AuthenticationCredentialsNotFoundException
      */
-    private function tryAssignRolesToDesiredRoleNames(): array
+    private function mapKeycloakRoleNamesToDplanRoles(): array
     {
+        $roleToRoleCodes = [
+            'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
+            //'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
+            'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
+            //'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
+            'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
+            //'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
+            'Fachplanung-Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
+            //'Verfahrens-Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
+            'Institutions-Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
+            'Institutions-Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
+            'Support'                           => Role::PLATFORM_SUPPORT,
+            'Plattform-Administration'          => Role::CUSTOMER_MASTER_USER,
+            'Redaktion'                         => Role::CONTENT_EDITOR,
+            'Privatperson/Angemeldet'           => Role::CITIZEN,
+            'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
+        ];
         $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
-        $allRoles = $this->entityManager->getRepository(Role::class)->findAll();
 
-        // try to map the desired roleNames to a Role entity
-        $desiredRoles = [];
-        /** @var Role $role */
-        foreach ($allRoles as $role) {
-            if (in_array($role->getName(), $desiredRoleNames, true)) {
-                $desiredRoles[] = $role;
+        $recognizedRoleCodes = [];
+        $unIdentifiedRoles = [];
+        // If we received partially recognizable roles - we try to ignore the garbage data...
+        // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
+        foreach ($desiredRoleNames as $desiredRoleName) {
+            if (array_key_exists($desiredRoleName, $roleToRoleCodes)) {
+                $recognizedRoleCodes[] = $roleToRoleCodes[$desiredRoleName];
+            } else {
+                $unIdentifiedRoles[] = $desiredRoleName;
             }
         }
+        if (0 !== count($unIdentifiedRoles)) {
+            $this->logger->info('at least one non recognizable role was requested!', $unIdentifiedRoles);
+        }
+        $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
+        if (0 === count($requestedRoles)) {
 
-        $unavailableRoleNames = $this->findNonExistantRoles($desiredRoleNames, $desiredRoles);
-        // Todo -> User requested a RoleName that is unknown to us
-        $unavailableRolesInProject = $this->findNotAvailableRolesInProject($desiredRoles);
-        // Todo -> User requested a Role that is not available within this project
-
-        return $desiredRoles;
-    }
-
-
-    private function findNotAvailableRolesInProject(array $desiredRoles): array
-    {
-        $unavailableRoles = [];
-        /** @var Role $role */
-        foreach ($desiredRoles as $role) {
-            $roleCode = $role->getCode();
-            if (!in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
-                $unavailableRoles[] = $role;
-            }
+            throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
 
-        return $unavailableRoles;
+        return $requestedRoles;
     }
 
     /**
-     * @param array<int, string> $desiredRoleNames
-     * @param array<int, Role> $desiredRoles
-     * @return array<int, string>
+     * @param array<int, string> $requestedRoleCodes
+     * @return array<int, Role>
      */
-    private function findNonExistantRoles(array $desiredRoleNames, array $desiredRoles): array
+    private function filterNonAvailableRolesInProject(array $requestedRoleCodes): array
     {
+        $roleRepository = $this->entityManager->getRepository(Role::class);
         $unavailableRoles = [];
-        if (count($desiredRoles) !== count($desiredRoleNames)) {
-            $unavailableRoles = array_filter(
-                $desiredRoleNames,
-                static function (string $desiredRoleName) use ($desiredRoles): bool {
-                    /** @var Role $role */
-                    foreach ($desiredRoles as $role) {
-                        if ($role->getName() === $desiredRoleName) {
-
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
+        $availableRequestedRoles = [];
+        foreach ($requestedRoleCodes as $roleCode) {
+            if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
+                $availableRequestedRoles[] = $roleRepository->findOneBy(['code' => $roleCode]);
+            } else {
+                $unavailableRoles[] = $roleRepository->findOneBy(['code' => $roleCode]);
+            }
+        }
+        if (0 !== count($unavailableRoles)) {
+            $this->logger->info('the following requested roles are not available in project', $unavailableRoles);
         }
 
-        return $unavailableRoles;
+        return $availableRequestedRoles;
     }
 
     private function tryLookupExistingOrga(): ?Orga
@@ -428,9 +448,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             /** @var Orga $orga **/
             $orga = $this->entityManager->getRepository(Orga::class)
                 ->findOneBy(['name' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()]);
-//            if ($orga->getCustomers()->contains($this->customerService->getCurrentCustomer())) {
-//                return $orga;
-//            }
         }
 
         return $orga;
@@ -447,7 +464,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $orga;
     }
 
-    private function updateExistingDplanUser(User $dplanUser, Orga $orga): User
+    /**
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    private function updateExistingDplanUser(User $dplanUser, Orga $orga, array $requestedRoles): User
     {
         if ($this->hasUserAttributeToUpdate($dplanUser->getRoles(), $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung())) {
             $customer = $this->customerService->getCurrentCustomer();
@@ -459,7 +480,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             // refresh $user manually after tampering with relations
             $this->entityManager->refresh($dplanUser);
 
-            $requestedRoles = $this->tryAssignRolesToDesiredRoleNames();
             $dplanUser->setDplanroles($requestedRoles, $customer);
         }
 
