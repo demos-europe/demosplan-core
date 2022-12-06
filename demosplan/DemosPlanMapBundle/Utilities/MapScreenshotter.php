@@ -12,8 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanMapBundle\Utilities;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
+use Exception;
+use GeoJson\GeoJson;
+use Intervention\Image\ImageManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
@@ -30,13 +36,7 @@ use demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger;
 use demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
-use Exception;
-use GeoJson\GeoJson;
-use Intervention\Image\ImageManager;
-use Psr\Log\LoggerInterface;
 use stdClass;
-use Symfony\Component\Filesystem\Filesystem;
-use Tightenco\Collect\Support\Collection;
 
 class MapScreenshotter
 {
