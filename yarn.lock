@@ -1287,9 +1287,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#66208dca2fe1b7a37df25f42491163ea9f6fdf57":
+"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#95131b0f02b3533554d26259c6bb27a7b570e772":
   version "0.0.2"
-  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/66208dca2fe1b7a37df25f42491163ea9f6fdf57"
+  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/95131b0f02b3533554d26259c6bb27a7b570e772"
   dependencies:
     "@babel/core" "^7.20.2"
     "@babel/preset-env" "^7.20.2"
@@ -4399,11 +4399,6 @@ app-root-dir@^1.0.2:
   resolved "https://registry.yarnpkg.com/app-root-dir/-/app-root-dir-1.0.2.tgz#38187ec2dea7577fff033ffcb12172692ff6e118"
   integrity sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==
 
-app-root-path@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/app-root-path/-/app-root-path-3.1.0.tgz#5971a2fc12ba170369a7a1ef018c71e6e47c2e86"
-  integrity sha512-biN3PwB2gUtjaYy/isrU3aNWI5w+fAfvHkSvCKeQGxhmYpwKFUxudR3Yya+KqVRHBmEDYh+/lTozYCFbmzX4nA==
-
 "aproba@^1.0.3 || ^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-2.0.0.tgz#52520b8ae5b569215b354efc0caa3fe1e45a8adc"
@@ -7203,7 +7198,7 @@ enhanced-resolve@^4.0.0, enhanced-resolve@^4.5.0:
     memory-fs "^0.5.0"
     tapable "^1.0.0"
 
-enhanced-resolve@^5.10.0, enhanced-resolve@^5.7.0:
+enhanced-resolve@^5.10.0:
   version "5.12.0"
   resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.12.0.tgz#300e1c90228f5b570c4d35babf263f6da7155634"
   integrity sha512-QHTXI/sZQmko1cbDoNAa3mJ5qhWUUNAq3vR0/YiD379fWQrcfuoX1+HW2S0MTt7XmoPLapdaDKUtelUSPic7hQ==
@@ -7864,7 +7859,7 @@ fast-glob@^2.2.6:
     merge2 "^1.2.3"
     micromatch "^3.1.10"
 
-fast-glob@^3.2.11, fast-glob@^3.2.12, fast-glob@^3.2.2, fast-glob@^3.2.9:
+fast-glob@^3.2.11, fast-glob@^3.2.12, fast-glob@^3.2.9:
   version "3.2.12"
   resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-3.2.12.tgz#7f39ec99c2e6ab030337142da9e0c18f37afae80"
   integrity sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==
@@ -8010,11 +8005,6 @@ find-cache-dir@^3.3.1, find-cache-dir@^3.3.2:
     commondir "^1.0.1"
     make-dir "^3.0.2"
     pkg-dir "^4.1.0"
-
-find-package-json@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/find-package-json/-/find-package-json-1.2.0.tgz#4057d1b943f82d8445fe52dc9cf456f6b8b58083"
-  integrity sha512-+SOGcLGYDJHtyqHd87ysBhmaeQ95oWspDKnMXBrnQ9Eq4OkLNqejgoaD8xVWu6GPa0B6roa6KinCMEMcVeqONw==
 
 find-root@^1.1.0:
   version "1.1.0"
@@ -16579,18 +16569,6 @@ webpack-cli@^5.0.0:
     interpret "^3.1.1"
     rechoir "^0.8.0"
     webpack-merge "^5.7.3"
-
-webpack-deduplication-plugin@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/webpack-deduplication-plugin/-/webpack-deduplication-plugin-0.0.8.tgz#9b5903e422ab5615d40d74eb2feca914a898c2a2"
-  integrity sha512-4uiojhNeaxWlPlIfLh9jseh8vyqwyQZxy48zcwKWWO50uuqHD1d8qUllzyX1rHwDocVx2i2yNmNTYGi5RcicrA==
-  dependencies:
-    app-root-path "^3.0.0"
-    enhanced-resolve "^5.7.0"
-    fast-glob "^3.2.2"
-    find-package-json "^1.2.0"
-    lodash "^4.17.15"
-    mkdirp "^1.0.3"
 
 webpack-dev-middleware@^3.7.3:
   version "3.7.3"
