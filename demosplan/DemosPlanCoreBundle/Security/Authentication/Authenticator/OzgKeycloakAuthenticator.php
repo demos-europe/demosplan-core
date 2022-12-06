@@ -56,6 +56,24 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
     private UserService $userService;
 
+    private const ROLETITLE_TO_ROLECODE = [
+        'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
+        //'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
+        'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
+        //'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
+        'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
+        //'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
+        'Fachplanung-Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
+        //'Verfahrens-Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
+        'Institutions-Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
+        'Institutions-Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
+        'Support'                           => Role::PLATFORM_SUPPORT,
+        'Plattform-Administration'          => Role::CUSTOMER_MASTER_USER,
+        'Redaktion'                         => Role::CONTENT_EDITOR,
+        'Privatperson/Angemeldet'           => Role::CITIZEN,
+        'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
+    ];
+
     public function __construct(
         ClientRegistry               $clientRegistry,
         CustomerService              $customerService,
@@ -166,30 +184,42 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         // CITIZEN are special as they have to be put in their specific organisation
         if ($this->isUserCitizen($requestedRoles)) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
-            if ($existingUser && $existingOrga && $existingUser->getOrga()) {
+            // except it was the CITIZEN organisation already.
+            if ($existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
+
             return $this->getCitizenOrga();
         }
 
-        if (null === $existingOrga) {
+        if (null === $existingOrga && $existingUser) {
             // if no organisation could be found - we may optain an Organisation from the Userdata - if the user exists.
             // then update this one instead of removing the user from the organisation and crating a new one for him.
-            if ($existingUser) {
+            if ($this->isCurrentlyInCitizenOrga($existingUser)) {
+                // but only if it was not the CITIZEN organisation
+                // if the user instead was in the CITIZEN organisation beforehand
+                // - get him out of there before creating a new one for him.
+                $this->detachUserFromOrgaAndDepartment($existingUser);
+            } else {
                 $existingOrga = $existingUser->getOrga();
             }
         }
 
         if ($existingOrga) {
             $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles);
-            $this->entityManager->persist($updatedOrga);
-            $this->entityManager->flush();
 
-            return $existingOrga;
+            return $updatedOrga;
         }
 
         return $this->createNewOrganisation($requestedRoles);
+    }
+
+    private function isCurrentlyInCitizenOrga(User $user): bool
+    {
+        $orga = $user->getOrga();
+
+        return $orga && $orga->getId() === User::ANONYMOUS_USER_ORGA_ID;
     }
 
     /**
@@ -396,32 +426,14 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      */
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
-        $roleToRoleCodes = [
-            'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
-            //'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
-            'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
-            //'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
-            'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
-            //'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
-            'Fachplanung-Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
-            //'Verfahrens-Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
-            'Institutions-Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
-            'Institutions-Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
-            'Support'                           => Role::PLATFORM_SUPPORT,
-            'Plattform-Administration'          => Role::CUSTOMER_MASTER_USER,
-            'Redaktion'                         => Role::CONTENT_EDITOR,
-            'Privatperson/Angemeldet'           => Role::CITIZEN,
-            'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
-        ];
         $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
-
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
         foreach ($desiredRoleNames as $desiredRoleName) {
-            if (array_key_exists($desiredRoleName, $roleToRoleCodes)) {
-                $recognizedRoleCodes[] = $roleToRoleCodes[$desiredRoleName];
+            if (array_key_exists($desiredRoleName, self::ROLETITLE_TO_ROLECODE)) {
+                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$desiredRoleName];
             } else {
                 $unIdentifiedRoles[] = $desiredRoleName;
             }
@@ -534,13 +546,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
         }
 
+        if (!$orga->getUsers()->contains($dplanUser)) {
+            $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
+            $dplanUser->setOrga($orga);
+        }
         $departmentToSet = $this->getDepartmentToSetForUser($orga);
-        $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-        $dplanUser->setOrga($orga);
-        $dplanUser->setDepartment($departmentToSet);
+        if ($dplanUser->getDepartment() !== $departmentToSet) {
+            $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
+            $dplanUser->setDepartment($departmentToSet);
+        }
 
-        $this->entityManager->persist($orga);
         $this->entityManager->persist($dplanUser);
         $this->entityManager->flush();
 
