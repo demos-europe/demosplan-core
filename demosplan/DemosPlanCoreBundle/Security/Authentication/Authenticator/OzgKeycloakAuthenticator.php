@@ -18,6 +18,7 @@ use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,6 +48,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private LoggerInterface $logger;
     private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
+    private OrgaTypeRepository $orgaTypeRepository;
     private OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject;
     private RoleRepository $roleRepository;
     private RouterInterface $router;
@@ -63,6 +65,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         LoggerInterface              $logger,
         OrgaRepository               $orgaRepository,
         OrgaService                  $orgaService,
+        OrgaTypeRepository           $orgaTypeRepository,
         RoleRepository               $roleRepository,
         RouterInterface              $router,
         UserRepository               $userRepository,
@@ -77,6 +80,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $this->logger = $logger;
         $this->orgaRepository = $orgaRepository;
         $this->orgaService  = $orgaService;
+        $this->orgaTypeRepository = $orgaTypeRepository;
         $this->roleRepository = $roleRepository;
         $this->router = $router;
         $this->userRepository = $userRepository;
@@ -128,7 +132,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 } catch (Exception $e) {
                     $this->logger->info('login failed',
                         [
-                            'requestValues' => $this->ozgKeycloakResponseValueObject,
+                            'requestValues' => $this->ozgKeycloakResponseValueObject ?? null,
                             'exception' => $e,
                         ]
                     );
@@ -237,7 +241,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 }
             }
             if (!$typeExists) {
-                $existingOrga->addCustomerAndOrgaType($customer, $neededOrgaType);
+                $OrgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
+                $existingOrga->addCustomerAndOrgaType($customer, $OrgaTypeToAdd);
             }
         }
         $this->entityManager->persist($existingOrga);
