@@ -16,26 +16,27 @@
                 data-cy="currentUser">
 
                 {# if OrgaSwitcher user is a toeb, indicate with different color #}
-                <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight' : '' }}" data-extern-dataport="userMenuTrigger">
+                {% block loggedCurrentUser %}
+                    <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight' : '' }}" data-extern-dataport="userMenuTrigger">
 
-                    {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
+                        {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
 
-                        {# if OrgaSwitcher user is a toeb, additionally indicate with different user icon #}
-                        <i class="fa fa-user{{ hasPermission('role_participant') ? '-circle-o' : '' }} u-mr-0_125" aria-hidden="true"></i>
+                            {# if OrgaSwitcher user is a toeb, additionally indicate with different user icon #}
+                            <i class="fa fa-user{{ hasPermission('role_participant') ? '-circle-o' : '' }} u-mr-0_125" aria-hidden="true"></i>
 
-                        {{ currentUser.firstname }} {{ currentUser.lastname }}
-                        <i class="fa fa-exchange u-ml-0_125" aria-hidden="true"></i>
+                            {{ currentUser.firstname }} {{ currentUser.lastname }}
+                            <i class="fa fa-exchange u-ml-0_125" aria-hidden="true"></i>
 
-                    {% else %}
+                        {% else %}
 
-                        {# this is what normal users see #}
-                        <i class="fa fa-user u-mr-0_125" aria-hidden="true"></i>
-                        {{ currentUser.firstname }} {{ currentUser.lastname }}
+                            {# this is what normal users see #}
+                            <i class="fa fa-user u-mr-0_125" aria-hidden="true"></i>
+                            {{ currentUser.firstname }} {{ currentUser.lastname }}
 
-                    {% endif %}
+                        {% endif %}
 
-                </span>
-
+                    </span>
+                {% endblock loggedCurrentUser %}
             </a>
 
             {# flyout content #}
@@ -234,10 +235,12 @@
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
                     data-touch-flyout="loginLink"
                     id="loginLink">
-                    <span class="c-flyout__trigger-inner">
-                        <i class="fa fa-user" aria-hidden="true"></i>
-                        {{ "login"|trans }}
-                    </span>
+                    {% block loginbtnGateway %}
+                        <span class="c-flyout__trigger-inner">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                            {{ "login"|trans }}
+                        </span>
+                    {% endblock loginbtnGateway %}
                 </a>
 
                 {# flyout with information about gateway login #}
@@ -259,10 +262,12 @@
             {% elseif projectType == 'portal' %}
 
                 <a class="c-flyout__trigger" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
-                    <span class="c-flyout__trigger-inner">
-                        <i class="fa fa-user" aria-hidden="true"></i>
-                        {{ "login"|trans }}
-                    </span>
+                    {%  block loginbtn %}
+                        <span class="c-flyout__trigger-inner">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                            {{ "login"|trans }}
+                        </span>
+                    {%  endblock loginbtn %}
                 </a>
 
             {% endif %}
