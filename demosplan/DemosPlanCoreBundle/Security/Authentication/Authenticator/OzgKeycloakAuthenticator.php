@@ -9,12 +9,15 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
+use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -39,9 +42,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private EntityManagerInterface $entityManager;
     private GlobalConfig $globalConfig;
     private LoggerInterface $logger;
+    private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
     private OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject;
+    private RoleRepository $roleRepository;
     private RouterInterface $router;
+    private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
     private UserService $userService;
 
@@ -52,8 +58,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         EntityManagerInterface       $entityManager,
         GlobalConfig                 $globalConfig,
         LoggerInterface              $logger,
+        OrgaRepository               $orgaRepository,
         OrgaService                  $orgaService,
+        RoleRepository               $roleRepository,
         RouterInterface              $router,
+        UserRepository               $userRepository,
         UserRoleInCustomerRepository $userRoleInCustomerRepository,
         UserService                  $userService
     ) {
@@ -63,8 +72,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $this->entityManager = $entityManager;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
+        $this->orgaRepository = $orgaRepository;
         $this->orgaService  = $orgaService;
+        $this->roleRepository = $roleRepository;
         $this->router = $router;
+        $this->userRepository = $userRepository;
         $this->userRoleInCustomerRepository = $userRoleInCustomerRepository;
         $this->userService = $userService;
     }
@@ -343,7 +355,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private function tryAssignRolesToDesiredRoleNames(): array
     {
         $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
-        $allRoles = $this->entityManager->getRepository(Role::class)->findAll();
+        $allRoles = $this->roleRepository->findAll();
 
         // try to map the desired roleNames to a Role entity
         $desiredRoles = [];
@@ -417,8 +429,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     private function getCitizenOrga(): ?Orga
     {
-        return $this->entityManager->getRepository(Orga::class)
-            ->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
+        return $this->orgaRepository->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
     }
 
     private function tryLookupOrgaByName(): ?Orga
@@ -426,7 +437,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $orga = null;
         if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
             /** @var Orga $orga **/
-            $orga = $this->entityManager->getRepository(Orga::class)
+            $orga = $this->orgaRepository
                 ->findOneBy(['name' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()]);
 //            if ($orga->getCustomers()->contains($this->customerService->getCurrentCustomer())) {
 //                return $orga;
@@ -440,7 +451,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $orga = null;
         if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
-            $orga = $this->entityManager->getRepository(Orga::class)
+            $orga = $this->orgaRepository
                 ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()]);
         }
 
@@ -529,20 +540,17 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     private function tryLoginViaGatewayId(): ?User
     {
-        return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
+        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
     }
 
     private function tryLoginViaLoginAttribute(): ?User
     {
-        return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
+        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
     }
 
     private function tryLoginViaEmail(): ?User
     {
-        return $this->entityManager->getRepository(User::class)
-            ->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
+        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
