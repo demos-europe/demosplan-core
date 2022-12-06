@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utilities;
 
+use DemosEurope\DemosplanAddon\Contracts\JsonInterface;
+use const JSON_ERROR_NONE;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use function json_decode;
 use function json_encode;
-use const JSON_ERROR_NONE;
 use function json_last_error;
 
-final class Json
+final class Json implements JsonInterface
 {
     /**
      * Encode to Json with error checking.
