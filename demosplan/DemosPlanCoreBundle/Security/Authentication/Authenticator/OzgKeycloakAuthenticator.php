@@ -501,9 +501,13 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             )->first() ?? $userOrga->getDepartments()->first();
     }
 
-    // todo used to compare two arrays which are not sorted the same by guarantee (!= maybee) RolesArray comparison
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
     {
+        // Used to compare two arrays which are not sorted the same by guarantee (!= maybee) RolesArray comparison
+        if (is_array($dplanUserAttribute) && is_array($keycloakUserAttribute)) {
+            return $dplanUserAttribute != $keycloakUserAttribute;
+        }
+
         return $dplanUserAttribute !== $keycloakUserAttribute;
     }
 
