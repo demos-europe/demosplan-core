@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -116,7 +117,7 @@ use demosplan\DemosPlanUserBundle\Logic\UserService;
 use function array_key_exists;
 use function is_string;
 
-class StatementHandler extends CoreHandler
+class StatementHandler extends CoreHandler implements StatementHandlerInterface
 {
     use RefreshElasticsearchIndexTrait;
 
