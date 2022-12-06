@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\InvalidStatusTransitionExceptionInterface;
 use Exception;
 
-class InvalidStatusTransitionException extends Exception
+class InvalidStatusTransitionException extends Exception implements InvalidStatusTransitionExceptionInterface
 {
     /**
      * @return InvalidStatusTransitionException
