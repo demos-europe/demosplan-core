@@ -1287,9 +1287,9 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
-"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#95131b0f02b3533554d26259c6bb27a7b570e772":
+"@demos-europe/demosplan-ui@github:demos-europe/demosplan-ui#66208dca2fe1b7a37df25f42491163ea9f6fdf57":
   version "0.0.2"
-  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/95131b0f02b3533554d26259c6bb27a7b570e772"
+  resolved "https://codeload.github.com/demos-europe/demosplan-ui/tar.gz/66208dca2fe1b7a37df25f42491163ea9f6fdf57"
   dependencies:
     "@babel/core" "^7.20.2"
     "@babel/preset-env" "^7.20.2"
