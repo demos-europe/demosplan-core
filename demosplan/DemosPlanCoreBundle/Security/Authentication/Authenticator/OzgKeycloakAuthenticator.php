@@ -334,7 +334,26 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             'roles'         => $requestedRoles,
         ];
 
-        return $this->userService->addUser($userData);
+        $newUser = $this->userService->addUser($userData);
+
+        if (null !== $newUser) {
+            $this->logger->info(
+                'New user was created.',
+                [
+                    'id'           => $newUser->getId(),
+                    'userData'     => $newUser->getLastname(),
+                    'email'        => $newUser->getEmail(),
+                    'login'        => $newUser->getLogin(),
+                    'gwId'         => $newUser->getGwId(),
+                    'customer'     => $newUser->getCurrentCustomer(),
+                    'organisation' => $newUser->getOrga(),
+                    'department'   => $newUser->getDepartment(),
+                    'roles'        => $newUser->getRoles(),
+                ]
+            );
+        }
+
+        return $newUser;
     }
 
     private function isUserCitizen(array $desiredRoles): bool
@@ -515,7 +534,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
         }
 
-        //
         $departmentToSet = $this->getDepartmentToSetForUser($orga);
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
         $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
@@ -525,6 +543,21 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $this->entityManager->persist($orga);
         $this->entityManager->persist($dplanUser);
         $this->entityManager->flush();
+
+        $this->logger->info(
+            'Existing user was updated.',
+            [
+                'id'           => $dplanUser->getId(),
+                'lastname'     => $dplanUser->getLastname(),
+                'email'        => $dplanUser->getEmail(),
+                'login'        => $dplanUser->getLogin(),
+                'gwId'         => $dplanUser->getGwId(),
+                'customer'     => $dplanUser->getCurrentCustomer(),
+                'organisation' => $dplanUser->getOrga(),
+                'department'   => $dplanUser->getDepartment(),
+                'roles'        => $dplanUser->getRoles(),
+            ]
+        );
 
         return $dplanUser;
     }
