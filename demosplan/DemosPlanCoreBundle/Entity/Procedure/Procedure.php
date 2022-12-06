@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
@@ -31,10 +36,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanProcedureBundle\Constraint\ProcedureTypeConstraint;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_procedure")
@@ -54,7 +55,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ProcedureMasterTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  * @ProcedureAllowedSegmentsConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
-class Procedure extends SluggedEntity
+class Procedure extends SluggedEntity implements ProcedureInterface
 {
     public const VALIDATION_GROUP_MANDATORY_PROCEDURE = 'mandatory_procedure';
     public const VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE = 'mandatory_procedure_template';

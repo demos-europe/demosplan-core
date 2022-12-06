@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 
-class FileUploadService
+class FileUploadService implements FileUploadServiceInterface
 {
     /**
      * @var FileService

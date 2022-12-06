@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -44,7 +45,7 @@ use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 
-class FileService extends CoreService
+class FileService extends CoreService implements FileServiceInterface
 {
     protected $container;
     protected $baseGetURL;
