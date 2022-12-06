@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\User;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;

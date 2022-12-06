@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanUserBundle\Repository;
 
 use Closure;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -20,6 +19,7 @@ use Exception;
 use LogicException;
 use RuntimeException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;

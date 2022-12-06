@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
