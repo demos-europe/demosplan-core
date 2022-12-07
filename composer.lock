@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a2a31ff07ffb270f0d04abf98bc3940e",
+    "content-hash": "88753b81efe8d67686a9be286b043b9b",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -3370,33 +3370,32 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v6.8.2",
+            "version": "v7.17.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "619c78266999c6e431df9ca0f844e8f656ac145b"
+                "url": "git@github.com:elastic/elasticsearch-php.git",
+                "reference": "f1b8918f411b837ce5f6325e829a73518fd50367"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/619c78266999c6e431df9ca0f844e8f656ac145b",
-                "reference": "619c78266999c6e431df9ca0f844e8f656ac145b",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/f1b8918f411b837ce5f6325e829a73518fd50367",
+                "reference": "f1b8918f411b837ce5f6325e829a73518fd50367",
                 "shasum": ""
             },
             "require": {
                 "ext-json": ">=1.3.7",
                 "ezimuel/ringphp": "^1.1.2",
                 "php": "^7.3 || ^8.0",
-                "psr/log": "~1.0"
+                "psr/log": "^1|^2|^3"
             },
             "require-dev": {
-                "doctrine/inflector": "^1.3",
+                "ext-yaml": "*",
+                "ext-zip": "*",
                 "mockery/mockery": "^1.2",
                 "phpstan/phpstan": "^0.12",
                 "phpunit/phpunit": "^9.3",
                 "squizlabs/php_codesniffer": "^3.4",
-                "symfony/finder": "~4.0",
-                "symfony/yaml": "~4.0",
-                "symplify/git-wrapper": ">=9.0 <9.3.27"
+                "symfony/finder": "~4.0"
             },
             "suggest": {
                 "ext-curl": "*",
@@ -3413,7 +3412,8 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "Apache-2.0"
+                "Apache-2.0",
+                "LGPL-2.1-only"
             ],
             "authors": [
                 {
@@ -3429,11 +3429,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "support": {
-                "issues": "https://github.com/elastic/elasticsearch-php/issues",
-                "source": "https://github.com/elastic/elasticsearch-php/tree/v6.8.2"
-            },
-            "time": "2021-07-14T14:41:55+00:00"
+            "time": "2022-09-30T12:28:55+00:00"
         },
         {
             "name": "enqueue/dsn",
@@ -3490,23 +3486,26 @@
         },
         {
             "name": "enqueue/elastica-bundle",
-            "version": "0.10.0",
+            "version": "0.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue-elastica-bundle.git",
-                "reference": "c7a0cb5a0a6320ed024d19ef11b19ee769e49573"
+                "reference": "3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue-elastica-bundle/zipball/c7a0cb5a0a6320ed024d19ef11b19ee769e49573",
-                "reference": "c7a0cb5a0a6320ed024d19ef11b19ee769e49573",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue-elastica-bundle/zipball/3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2",
+                "reference": "3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2",
                 "shasum": ""
             },
             "require": {
                 "enqueue/enqueue-bundle": "^0.10",
-                "friendsofsymfony/elastica-bundle": "^5.0",
-                "php": "^7.1",
-                "symfony/framework-bundle": "^4.0|^5.0"
+                "friendsofsymfony/elastica-bundle": "^6.0",
+                "php": "^7.1|^8.0",
+                "symfony/framework-bundle": "^4.0|^5.0|^6.0"
+            },
+            "require-dev": {
+                "doctrine/orm": "^2.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -3531,9 +3530,9 @@
                 "performance"
             ],
             "support": {
-                "source": "https://github.com/php-enqueue/enqueue-elastica-bundle/tree/0.10.0"
+                "source": "https://github.com/php-enqueue/enqueue-elastica-bundle/tree/0.13.0"
             },
-            "time": "2020-10-05T11:08:32+00:00"
+            "time": "2022-10-27T16:30:48+00:00"
         },
         {
             "name": "enqueue/enqueue",
@@ -4270,52 +4269,62 @@
         },
         {
             "name": "friendsofsymfony/elastica-bundle",
-            "version": "v5.2.1",
+            "version": "v6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSElasticaBundle.git",
-                "reference": "9e8903aaa0644afc0dbb697e2156e28e5a88865c"
+                "reference": "4a3e03f79ae6688056c54eb516b6dc263feb329f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/9e8903aaa0644afc0dbb697e2156e28e5a88865c",
-                "reference": "9e8903aaa0644afc0dbb697e2156e28e5a88865c",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/4a3e03f79ae6688056c54eb516b6dc263feb329f",
+                "reference": "4a3e03f79ae6688056c54eb516b6dc263feb329f",
                 "shasum": ""
             },
             "require": {
-                "pagerfanta/pagerfanta": "^1.0.5|^2.0",
-                "php": "^7.1",
-                "psr/log": "^1.0",
-                "ruflin/elastica": "^5.3.5|^6.1.1",
-                "symfony/console": "^3.4|^4.3|^5",
-                "symfony/dependency-injection": "^3.4|^4.3|^5",
-                "symfony/framework-bundle": "^3.4|^4.3|^5",
-                "symfony/property-access": "^3.4|^4.3|^5"
+                "pagerfanta/pagerfanta": "^2.4 || ^3.0",
+                "php": "^7.4 || ^8.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "ruflin/elastica": "^7.1",
+                "symfony/console": "^4.4 || ^5.4 || ^6.0",
+                "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0",
+                "symfony/framework-bundle": "^4.4 || ^5.4 || ^6.0",
+                "symfony/property-access": "^4.4 || ^5.4 || ^6.0"
             },
             "require-dev": {
-                "doctrine/doctrine-bundle": "^1.6|^2",
-                "doctrine/orm": "^2.5",
-                "doctrine/persistence": "^1.3.4",
-                "doctrine/phpcr-bundle": "^1.3|^2.0",
+                "doctrine/doctrine-bundle": "^2.1.1",
+                "doctrine/mongodb-odm": "^2.2",
+                "doctrine/orm": "^2.8",
                 "doctrine/phpcr-odm": "^1.4",
-                "friendsofphp/php-cs-fixer": "^2.2",
+                "ergebnis/composer-normalize": "^2.28",
+                "friendsofphp/php-cs-fixer": "^3.0",
                 "jackalope/jackalope-doctrine-dbal": "^1.2",
-                "jms/serializer-bundle": "^2.4|^3.5",
-                "knplabs/knp-components": "^1.2|^2.3",
-                "phpunit/phpunit": "^6.5.14",
-                "symfony/expression-language": "^3.4|^4.3|^5",
-                "symfony/serializer": "^3.4|^4.3|^5",
-                "symfony/twig-bundle": "^3.4|^4.3|^5",
-                "symfony/web-profiler-bundle": "^3.4|^4.3|^5",
-                "symfony/yaml": "^3.4|^4.3|^5"
+                "jms/serializer": "^3.8",
+                "jms/serializer-bundle": "^3.5 || ^4.0",
+                "knplabs/knp-components": "^2.4 || ^3.0",
+                "pagerfanta/doctrine-mongodb-odm-adapter": "^2.4 || ^3.0",
+                "pagerfanta/doctrine-orm-adapter": "^2.4 || ^3.0",
+                "pagerfanta/doctrine-phpcr-odm-adapter": "^2.4 || ^3.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpstan/phpstan-symfony": "^1.2",
+                "phpunit/phpunit": "^9.5",
+                "symfony/expression-language": "^4.4 || ^5.4 || ^6.0",
+                "symfony/messenger": "^4.4 || ^5.4 || ^6.0",
+                "symfony/serializer": "^4.4 || ^5.4 || ^6.0",
+                "symfony/twig-bundle": "^4.4 || ^5.4 || ^6.0",
+                "symfony/web-profiler-bundle": "^4.4 || ^5.4 || ^6.0",
+                "symfony/yaml": "^4.4 || ^5.4 || ^6.0"
             },
             "suggest": {
-                "enqueue/elastica-bundle": "The bundle adds extra features to FOSElasticaBundle bundle. Aimed to improve performance."
+                "enqueue/elastica-bundle": "For populating Elasticsearch indexes asynchronously and using significanly less resources. Uses Enqueue.",
+                "symfony/messenger": "For populating Elasticsearch indexes asynchronously and using significanly less resources."
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.2.x-dev"
+                    "dev-master": "6.1.x-dev"
                 }
             },
             "autoload": {
@@ -4356,9 +4365,9 @@
             ],
             "support": {
                 "issues": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/issues",
-                "source": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/v5.2.1"
+                "source": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/v6.2.0"
             },
-            "time": "2020-11-30T20:16:38+00:00"
+            "time": "2022-08-31T11:16:01+00:00"
         },
         {
             "name": "friendsofsymfony/jsrouting-bundle",
@@ -7833,6 +7842,67 @@
             "time": "2022-11-12T15:38:23+00:00"
         },
         {
+            "name": "nyholm/dsn",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Nyholm/dsn.git",
+                "reference": "9445621b426bac8c0ca161db8cd700da00a4e618"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Nyholm/dsn/zipball/9445621b426bac8c0ca161db8cd700da00a4e618",
+                "reference": "9445621b426bac8c0ca161db8cd700da00a4e618",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "^5.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nyholm\\Dsn\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com"
+                }
+            ],
+            "description": "Parse your DSN strings in a powerful and flexible way",
+            "homepage": "http://tnyholm.se",
+            "keywords": [
+                "database",
+                "dsn",
+                "dsn parser",
+                "parser"
+            ],
+            "support": {
+                "issues": "https://github.com/Nyholm/dsn/issues",
+                "source": "https://github.com/Nyholm/dsn/tree/2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/Nyholm",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-11-18T09:23:29+00:00"
+        },
+        {
             "name": "onelogin/php-saml",
             "version": "3.6.1",
             "source": {
@@ -10492,48 +10562,49 @@
         },
         {
             "name": "ruflin/elastica",
-            "version": "6.2.1",
+            "version": "7.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ruflin/Elastica.git",
-                "reference": "f95cf646f884a8e7b73bd12eda3e5753994b24d3"
+                "reference": "75fca5bf2b6792d35dae6c5efeda2322bce914e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/f95cf646f884a8e7b73bd12eda3e5753994b24d3",
-                "reference": "f95cf646f884a8e7b73bd12eda3e5753994b24d3",
+                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/75fca5bf2b6792d35dae6c5efeda2322bce914e4",
+                "reference": "75fca5bf2b6792d35dae6c5efeda2322bce914e4",
                 "shasum": ""
             },
             "require": {
-                "elasticsearch/elasticsearch": "^6.0",
+                "elasticsearch/elasticsearch": "^7.10",
                 "ext-json": "*",
-                "php": "^7.0||^8.0",
-                "psr/log": "~1.0"
-            },
-            "conflict": {
-                "elasticsearch/elasticsearch": "6.8.0 || 6.8.1"
+                "nyholm/dsn": "^2.0.0",
+                "php": "^7.2 || ^8.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "symfony/deprecation-contracts": "^2.2 || ^3.0",
+                "symfony/polyfill-php73": "^1.19"
             },
             "require-dev": {
-                "aws/aws-sdk-php": "~3.0",
-                "guzzlehttp/guzzle": "~6.0",
-                "phpunit/phpunit": "^6.0||^8.5.20",
-                "yoast/phpunit-polyfills": "1.0.1"
+                "aws/aws-sdk-php": "^3.155",
+                "guzzlehttp/guzzle": "^6.3 || ^7.2",
+                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpunit/phpunit": "^8.5.8 || ^9.4",
+                "symfony/phpunit-bridge": "^6.0"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow using IAM authentication with Amazon ElasticSearch Service",
-                "egeloen/http-adapter": "Allow using httpadapter transport",
-                "guzzlehttp/guzzle": "Allow using guzzle 6 as the http transport",
+                "guzzlehttp/guzzle": "Allow using guzzle as transport",
                 "monolog/monolog": "Logging request"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.0.x-dev"
+                    "dev-master": "7.0.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Elastica\\": "lib/Elastica/"
+                    "Elastica\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -10554,9 +10625,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ruflin/Elastica/issues",
-                "source": "https://github.com/ruflin/Elastica/tree/6.2.1"
+                "source": "https://github.com/ruflin/Elastica/tree/7.3.0"
             },
-            "time": "2022-04-14T06:57:28+00:00"
+            "time": "2022-11-30T14:21:43+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
