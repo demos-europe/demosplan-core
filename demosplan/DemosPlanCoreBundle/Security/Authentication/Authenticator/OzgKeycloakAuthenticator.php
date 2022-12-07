@@ -182,7 +182,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         // CITIZEN are special as they have to be put in their specific organisation
-        if ($this->isUserCitizen($requestedRoles)) {
+        if ($this->isUserCitizen($requestedRoles)
+            || ($existingOrga && $existingOrga->getId() === User::ANONYMOUS_USER_ORGA_ID)
+        ) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
             if ($existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
@@ -193,23 +195,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             return $this->getCitizenOrga();
         }
 
-        if (null === $existingOrga && $existingUser) {
-            // if no organisation could be found - we may optain an Organisation from the Userdata - if the user exists.
-            // then update this one instead of removing the user from the organisation and crating a new one for him.
-            if ($this->isCurrentlyInCitizenOrga($existingUser)) {
-                // but only if it was not the CITIZEN organisation
-                // if the user instead was in the CITIZEN organisation beforehand
-                // - get him out of there before creating a new one for him.
-                $this->detachUserFromOrgaAndDepartment($existingUser);
-            } else {
-                $existingOrga = $existingUser->getOrga();
-            }
-        }
-
         if ($existingOrga) {
             $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles);
 
             return $updatedOrga;
+        }
+
+        // if no organisation was found - a new organisation will be created for this user.
+        // if the user does exist already, disconnect him from his orga/department
+        if ($existingUser && $existingUser->getOrga()) {
+            $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
         return $this->createNewOrganisation($requestedRoles);
@@ -353,6 +348,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      */
     private function tryCreateNewUser(Orga $userOrga, array $requestedRoles): ?User
     {
+        // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
+        if ($userOrga->getId() === User::ANONYMOUS_USER_ORGA_ID) {
+            $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
+        }
+
+
         $userData = [
             'lastname'      => $this->ozgKeycloakResponseValueObject->getVollerName(),
             'email'         => $this->ozgKeycloakResponseValueObject->getEmailAdresse(),
@@ -516,7 +517,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      */
     private function updateExistingDplanUser(User $dplanUser, Orga $orga, array $requestedRoles): User
     {
-        if ($this->hasUserAttributeToUpdate($dplanUser->getRoles(), $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung())) {
+        // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
+        if ($orga->getId() === User::ANONYMOUS_USER_ORGA_ID) {
+            $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
+        }
+
+        if ($this->hasUserAttributeToUpdate($dplanUser->getDplanroles(), $requestedRoles)) {
             $customer = $this->customerService->getCurrentCustomer();
             $customerId = $customer->getId();
             $userId = $dplanUser->getId();
