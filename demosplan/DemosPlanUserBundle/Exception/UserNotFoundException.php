@@ -10,10 +10,9 @@
 
 namespace demosplan\DemosPlanUserBundle\Exception;
 
-use DemosEurope\DemosplanAddon\Contracts\Exceptions\UserNotFoundExceptionInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 
-class UserNotFoundException extends ResourceNotFoundException implements UserNotFoundExceptionInterface
+class UserNotFoundException extends ResourceNotFoundException
 {
     /**
      * @var string|null
