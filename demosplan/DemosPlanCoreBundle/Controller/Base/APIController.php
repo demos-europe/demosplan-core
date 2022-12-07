@@ -57,8 +57,9 @@ use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
+use DemosEurope\DemosplanAddon\Contracts\ApiControllerInterface;
 
-abstract class APIController extends BaseController
+abstract class APIController extends BaseController implements ApiControllerInterface
 {
     /**
      * @var Manager
