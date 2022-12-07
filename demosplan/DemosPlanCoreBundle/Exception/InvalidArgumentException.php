@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use DemosEurope\DemosplanAddon\Contracts\InvalidArgumentExceptionInterface;
-
-class InvalidArgumentException extends \InvalidArgumentException implements InvalidArgumentExceptionInterface
+class InvalidArgumentException extends \InvalidArgumentException
 {
 }
