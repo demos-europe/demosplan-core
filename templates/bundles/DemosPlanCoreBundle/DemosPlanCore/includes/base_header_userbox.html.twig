@@ -16,7 +16,7 @@
                 data-cy="currentUser">
 
                 {# if OrgaSwitcher user is a toeb, indicate with different color #}
-                {% block loggedCurrentUser %}
+                {% block loggedInCurrentUser %}
                     <span class="c-flyout__trigger-inner {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight' : '' }}" data-extern-dataport="userMenuTrigger">
 
                         {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
@@ -36,7 +36,7 @@
                         {% endif %}
 
                     </span>
-                {% endblock loggedCurrentUser %}
+                {% endblock loggedInCurrentUser %}
             </a>
 
             {# flyout content #}
@@ -208,7 +208,7 @@
                 {% endif %}
 
                 {# logout button #}
-                {% block logoutbtn %}
+                {% block logoutButton %}
                     <a
                         class="c-flyout__item c-flyout__item--btn cf {{ hasOrgaSwitcher ? '' : ' u-mt-0_5' }}"
                         data-actionmenu-menuitem
@@ -216,7 +216,7 @@
                         <i class="fa fa-sign-out" aria-hidden="true"></i>
                         {{ "logout"|trans }}
                     </a>
-                {% endblock %}
+                {% endblock logoutButton %}
 
             </span>
 
@@ -235,12 +235,12 @@
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
                     data-touch-flyout="loginLink"
                     id="loginLink">
-                    {% block loginbtnGateway %}
+                    {% block loginButtonGateway %}
                         <span class="c-flyout__trigger-inner">
                             <i class="fa fa-user" aria-hidden="true"></i>
                             {{ "login"|trans }}
                         </span>
-                    {% endblock loginbtnGateway %}
+                    {% endblock loginButtonGateway %}
                 </a>
 
                 {# flyout with information about gateway login #}
@@ -262,12 +262,12 @@
             {% elseif projectType == 'portal' %}
 
                 <a class="c-flyout__trigger" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
-                    {%  block loginbtn %}
+                    {%  block loginButton %}
                         <span class="c-flyout__trigger-inner">
                             <i class="fa fa-user" aria-hidden="true"></i>
                             {{ "login"|trans }}
                         </span>
-                    {%  endblock loginbtn %}
+                    {%  endblock loginButton %}
                 </a>
 
             {% endif %}
