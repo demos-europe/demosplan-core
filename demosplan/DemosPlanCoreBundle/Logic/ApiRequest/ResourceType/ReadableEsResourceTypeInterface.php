@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use Elastica\Type;
+use Elastica\Index;
 
 /**
  * @template T of object
@@ -29,7 +29,7 @@ interface ReadableEsResourceTypeInterface extends ResourceTypeInterface
      */
     public function getScopes(): array;
 
-    public function getSearchType(): Type;
+    public function getSearchType(): Index;
 
     /**
      * Returns the mapping from the key identifying the aggregation as it is set in the

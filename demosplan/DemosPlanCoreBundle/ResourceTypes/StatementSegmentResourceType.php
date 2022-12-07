@@ -29,7 +29,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
-use Elastica\Type;
+use Elastica\Index;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Segment>
@@ -57,7 +57,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
      */
     private $esQuery;
     /**
-     * @var Type
+     * @var Index
      */
     private $esType;
 
@@ -219,7 +219,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         return [AbstractQuery::SCOPE_PLANNER];
     }
 
-    public function getSearchType(): Type
+    public function getSearchType(): Index
     {
         return $this->esType;
     }

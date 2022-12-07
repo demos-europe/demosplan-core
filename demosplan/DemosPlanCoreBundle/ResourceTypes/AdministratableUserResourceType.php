@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use Elastica\Index;
 use Elastica\Type;
 
 /**
@@ -126,7 +127,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-    public function getSearchType(): Type
+    public function getSearchType(): Index
     {
         return $this->jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }

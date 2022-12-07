@@ -101,9 +101,8 @@ services:
     demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
 
-    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-        $fragmentSearchType: '@fos_elastica.index.statementFragments.statementFragment'
+#    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
+#        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
@@ -203,9 +202,6 @@ services:
 
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
-
-    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
     demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'

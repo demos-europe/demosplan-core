@@ -31,6 +31,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
+use Elastica\Index;
 use Elastica\Type;
 
 /**
@@ -187,7 +188,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return $this->esQuery->getScopes();
     }
 
-    public function getSearchType(): Type
+    public function getSearchType(): Index
     {
         return $this->jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }

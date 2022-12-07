@@ -22,7 +22,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
-            $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
+            $objectPersister: '@fos_elastica.object_persister.procedures'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -232,10 +232,10 @@ services:
         lazy: true
         arguments:
             $searchTypes:
-                Statement: "@fos_elastica.index.statements.statement"
-                Procedures: "@fos_elastica.index.procedures.procedure"
-                StatementSegment: "@fos_elastica.index.statementSegments.statementSegment"
-                AdministratableUser: "@fos_elastica.index.users.user"
+                Statement: "@fos_elastica.index.statements"
+                Procedures: "@fos_elastica.index.procedures"
+                StatementSegment: "@fos_elastica.index.statementSegments"
+                AdministratableUser: "@fos_elastica.index.users"
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider:
         lazy: true
@@ -606,7 +606,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         arguments:
-            $esProcedurePersister: '@fos_elastica.object_persister.procedures.procedure'
+            $esProcedurePersister: '@fos_elastica.object_persister.procedures'
             $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
             $environment: '%kernel.environment%'
 
@@ -633,16 +633,16 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $procedureSearchType: "@fos_elastica.index.procedures.procedure"
+        $procedureSearchType: "@fos_elastica.index.procedures"
 
     demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         public: true
         lazy: true
         arguments:
-            $statementPersister: '@fos_elastica.object_persister.statements.statement'
-            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments.statementFragment'
-            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments.statementSegment'
+            $statementPersister: '@fos_elastica.object_persister.statements'
+            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments'
+            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments'
             $environment: '%kernel.environment%'
 
     demosplan\DemosPlanProcedureBundle\Logic\ExportService:
@@ -706,7 +706,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
-            - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements.draftStatement' ]]
+            - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
 
     demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
         lazy: true
@@ -714,11 +714,15 @@ services:
     demosplan\DemosPlanStatementBundle\Logic\AssignService:
         lazy: true
 
+    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
+        $fragmentSearchType: '@fos_elastica.index.statementFragments'
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
+
     demosplan\DemosPlanStatementBundle\Logic\StatementService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
-            - [ 'setEsStatementType', [ '@fos_elastica.index.statements.statement' ]]
+            - [ 'setEsStatementType', [ '@fos_elastica.index.statements' ]]
 
     demosplan\DemosPlanStatementBundle\Logic\StatementCopyAndMoveService:
         lazy: true
@@ -735,7 +739,7 @@ services:
     demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService:
         lazy: true
         calls:
-            - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments.statementFragment' ]]
+            - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 

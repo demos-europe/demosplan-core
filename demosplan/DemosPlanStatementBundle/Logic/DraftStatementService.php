@@ -62,6 +62,7 @@ use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodInterface;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
@@ -83,7 +84,7 @@ class DraftStatementService extends CoreService
      */
     protected $currentUser;
 
-    /** @var Type */
+    /** @var Index */
     protected $esDraftStatementIndex;
 
     /** @var ElementsService */
@@ -1692,7 +1693,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @return Type
+     * @return Index
      */
     protected function getEsDraftStatementIndex()
     {
@@ -1700,7 +1701,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @param Type $esDraftStatementIndex
+     * @param Index $esDraftStatementIndex
      */
     public function setEsDraftStatementIndex($esDraftStatementIndex)
     {
