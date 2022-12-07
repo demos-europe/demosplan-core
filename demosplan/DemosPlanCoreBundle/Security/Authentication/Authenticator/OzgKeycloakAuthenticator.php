@@ -9,6 +9,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
@@ -37,6 +38,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
@@ -55,6 +58,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
     private UserService $userService;
+    private ValidatorInterface $validator;
 
     private const ROLETITLE_TO_ROLECODE = [
         'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
@@ -88,7 +92,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         RouterInterface              $router,
         UserRepository               $userRepository,
         UserRoleInCustomerRepository $userRoleInCustomerRepository,
-        UserService                  $userService
+        UserService                  $userService,
+        ValidatorInterface           $validator
     ) {
         $this->clientRegistry = $clientRegistry;
         $this->customerService = $customerService;
@@ -104,6 +109,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $this->userRepository = $userRepository;
         $this->userRoleInCustomerRepository = $userRoleInCustomerRepository;
         $this->userService = $userService;
+        $this->validator = $validator;
     }
 
     public function supports(Request $request): ?bool
@@ -120,6 +126,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
                 try {
+                    $this->entityManager->getConnection()->beginTransaction();
                     $this->ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
                         $client->fetchUserFromToken($accessToken)->toArray()
                     );
@@ -135,6 +142,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                         // Update user information from keycloak
                         $request->getSession()->set('userId', $existingUser->getId());
                         $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrga, $requestedRoles);
+                        $this->entityManager->getConnection()->commit();
 
                         return $existingUser;
                     }
@@ -144,17 +152,19 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     if ($newUser) {
                         $request->getSession()->set('userId', $newUser->getId());
                     }
+                    $this->entityManager->getConnection()->commit();
 
                     return $newUser;
 
                 } catch (Exception $e) {
+                    $this->entityManager->getConnection()->rollBack();
                     $this->logger->info('login failed',
                         [
                             'requestValues' => $this->ozgKeycloakResponseValueObject ?? null,
                             'exception' => $e,
                         ]
                     );
-                    throw $e;
+                    throw new AuthenticationException('You shall not pass!');
                 }
             })
         );
@@ -171,16 +181,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupExistingOrga();
 
-        // in case an organisation could be found using the given organisation attributes
-        // and an existing user could be found using the given user attributes:
-        // If the organisations are different - the assumption is that the user wants to change the orga.
-        $moveUserToAnotherOrganisation = $existingUser && $existingOrga && $existingUser->getOrga()
-            && $existingUser->getOrga() !== $existingOrga;
-
-        if ($moveUserToAnotherOrganisation) {
-            $this->detachUserFromOrgaAndDepartment($existingUser);
-        }
-
         // CITIZEN are special as they have to be put in their specific organisation
         if ($this->isUserCitizen($requestedRoles)
             || ($existingOrga && $existingOrga->getId() === User::ANONYMOUS_USER_ORGA_ID)
@@ -193,6 +193,16 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             // just return the CITIZEN organisation and do not update the orga in this case
 
             return $this->getCitizenOrga();
+        }
+
+        // in case an organisation could be found using the given organisation attributes
+        // and an existing user could be found using the given user attributes:
+        // If the organisations are different - the assumption is that the user wants to change the orga.
+        $moveUserToAnotherOrganisation = $existingUser && $existingOrga && $existingUser->getOrga()
+            && $existingUser->getOrga() !== $existingOrga;
+
+        if ($moveUserToAnotherOrganisation) {
+            $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
         if ($existingOrga) {
@@ -226,9 +236,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         if ($oldOrga) {
             // get user out of his old organisation
             $oldOrga->removeUser($existingUser);
+            $this->entityManager->persist($oldOrga);
+            $this->entityManager->persist($existingUser);
         }
-        $this->entityManager->persist($existingUser);
-        $this->entityManager->persist($oldOrga);
         // and his old department
         $this->departmentRepository->removeUser($existingUser->getDepartmentId(), $existingUser);
     }
@@ -522,7 +532,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
         }
 
-        if ($this->hasUserAttributeToUpdate($dplanUser->getDplanroles(), $requestedRoles)) {
+        if ($this->hasUserAttributeToUpdate($dplanUser->getDplanroles()->toArray(), $requestedRoles)) {
             $customer = $this->customerService->getCurrentCustomer();
             $customerId = $customer->getId();
             $userId = $dplanUser->getId();
@@ -561,6 +571,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
             $dplanUser->setDepartment($departmentToSet);
         }
+        $violations = new ConstraintViolationList([]);
+        $violations->addAll($this->validator->validate($dplanUser));
+        $violations->addAll($this->validator->validate($orga));
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
 
         $this->entityManager->persist($dplanUser);
         $this->entityManager->flush();
@@ -594,7 +610,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         // Used to compare two arrays which are not sorted the same by guarantee (!= maybee) RolesArray comparison
         if (is_array($dplanUserAttribute) && is_array($keycloakUserAttribute)) {
-            return $dplanUserAttribute != $keycloakUserAttribute;
+            if (count($dplanUserAttribute) !== count($keycloakUserAttribute)) {
+                return count($dplanUserAttribute) !== count($keycloakUserAttribute);
+            }
+
+            return !empty(array_diff($keycloakUserAttribute, $dplanUserAttribute));
         }
 
         return $dplanUserAttribute !== $keycloakUserAttribute;
