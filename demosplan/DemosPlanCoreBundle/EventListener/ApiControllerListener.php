@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 
 class ApiControllerListener
 {

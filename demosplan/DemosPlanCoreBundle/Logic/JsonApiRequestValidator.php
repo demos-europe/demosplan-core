@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Exception\ContentTypeInspectorException;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use Exception;
-use function in_array;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ContentTypeInspectorException;
+use function in_array;
 
 class JsonApiRequestValidator
 {

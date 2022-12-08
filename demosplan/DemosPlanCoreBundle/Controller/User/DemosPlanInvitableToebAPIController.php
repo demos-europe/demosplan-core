@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
-use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
+use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 
 class DemosPlanInvitableToebAPIController extends APIController
 {

@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use Exception;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
-use Exception;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanMapApiController extends APIController
 {

@@ -10,8 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\RequestHandling\UrlParameter;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use Exception;
+use League\Fractal\Resource\Collection;
+use LogicException;
+use Pagerfanta\Adapter\ArrayAdapter;
+use RuntimeException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -35,19 +48,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\JsonApi\RequestHandling\UrlParameter;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use Exception;
-use League\Fractal\Resource\Collection;
-use LogicException;
-use Pagerfanta\Adapter\ArrayAdapter;
-use RuntimeException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanUserAPIController extends APIController
 {

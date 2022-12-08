@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
+use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 
 class FaqApiController extends APIController
 {

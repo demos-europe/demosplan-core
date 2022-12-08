@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 
 class SegmentRpcController extends APIController
 {

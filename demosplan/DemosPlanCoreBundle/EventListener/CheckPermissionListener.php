@@ -10,10 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use Doctrine\Common\Annotations\Reader;
 use Exception;
 use ReflectionClass;
@@ -21,6 +18,9 @@ use ReflectionException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\Routing\RouterInterface;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 
 /**
  * Perform initial Permissionchecks (former initialize()).

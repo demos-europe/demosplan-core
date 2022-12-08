@@ -10,8 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
+use Exception;
+use League\Fractal\Resource\Collection;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
@@ -22,12 +28,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryRes
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
-use EDT\Wrapping\Contracts\AccessException;
-use Exception;
-use League\Fractal\Resource\Collection;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanReportAPIController extends APIController
 {
