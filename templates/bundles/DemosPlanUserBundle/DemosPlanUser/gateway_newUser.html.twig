@@ -60,7 +60,7 @@
                         <input type="text" class="layout__item" value="{% if user is defined %}{{- user.email|default("-") -}}{% endif %}" disabled>
                     </label>
 
-                    {% if hasAnyOfPermissions('feature_original_newsletter', 'feature_alternative_newsletter') %}
+                    {% if hasOneOfPermissions('feature_original_newsletter', 'feature_alternative_newsletter') %}
                         {% block newsletter %}
                             <label>
                                 {{ "newsletter"|trans }}<br>
