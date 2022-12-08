@@ -78,7 +78,7 @@ use demosplan\DemosPlanUserBundle\Exception\DepartmentNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\DuplicateSlugException;
 use demosplan\DemosPlanUserBundle\Exception\UserModificationException;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 
 class UserHandler extends CoreHandler implements UserHandlerInterface
 {
@@ -1237,8 +1237,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     private function validateCssVars(array $data): void
     {
-        if (array_key_exists(CustomerInterface::STYLING, $data)) {
-            $constraintViolationList = $this->validator->validate($data[CustomerInterface::STYLING], new ValidCssVarsConstraint());
+        if (array_key_exists(CustomerResourceInterface::STYLING, $data)) {
+            $constraintViolationList = $this->validator->validate($data[CustomerResourceInterface::STYLING], new ValidCssVarsConstraint());
             if (0 !== $constraintViolationList->count()) {
                 throw ViolationsException::fromConstraintViolationList($constraintViolationList);
             }
