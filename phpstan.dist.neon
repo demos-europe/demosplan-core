@@ -21,7 +21,8 @@ parameters:
 #        - %rootDir%/../../../vendor/autoload.php
 #        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
 
-    excludes_analyse:
+    excludePaths:
         - %rootDir%/../../../demosplan/vendor
         - %rootDir%/../../../vendor
+        - %rootDir%/../../../demosplan/plugins
     level: 1

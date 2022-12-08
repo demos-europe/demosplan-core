@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "31d6315980043e31cbf6128abd1bea01",
+    "content-hash": "e48772fb48e4aad87bebb5a88df5342f",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -19197,20 +19197,20 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.99",
+            "version": "1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "b4d40f1d759942f523be267a1bab6884f46ca3f7"
+                "reference": "d6fdf01c53978b6429f1393ba4afeca39cc68afa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b4d40f1d759942f523be267a1bab6884f46ca3f7",
-                "reference": "b4d40f1d759942f523be267a1bab6884f46ca3f7",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d6fdf01c53978b6429f1393ba4afeca39cc68afa",
+                "reference": "d6fdf01c53978b6429f1393ba4afeca39cc68afa",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1|^8.0"
+                "php": "^7.2|^8.0"
             },
             "conflict": {
                 "phpstan/phpstan-shim": "*"
@@ -19220,11 +19220,6 @@
                 "phpstan.phar"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.12-dev"
-                }
-            },
             "autoload": {
                 "files": [
                     "bootstrap.php"
@@ -19235,9 +19230,13 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.99"
+                "source": "https://github.com/phpstan/phpstan/tree/1.9.2"
             },
             "funding": [
                 {
@@ -19249,55 +19248,53 @@
                     "type": "github"
                 },
                 {
-                    "url": "https://www.patreon.com/phpstan",
-                    "type": "patreon"
-                },
-                {
                     "url": "https://tidelift.com/funding/github/packagist/phpstan/phpstan",
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-12T20:09:55+00:00"
+            "time": "2022-11-10T09:56:11+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
-            "version": "0.12.44",
+            "version": "1.2.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-symfony.git",
-                "reference": "c1627fce5b505b3f53d9d4fbd4d7963603305f98"
+                "reference": "d6ea16206b1b645ded5b43736d8ef5ae1168eb55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/c1627fce5b505b3f53d9d4fbd4d7963603305f98",
-                "reference": "c1627fce5b505b3f53d9d4fbd4d7963603305f98",
+                "url": "https://api.github.com/repos/phpstan/phpstan-symfony/zipball/d6ea16206b1b645ded5b43736d8ef5ae1168eb55",
+                "reference": "d6ea16206b1b645ded5b43736d8ef5ae1168eb55",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
-                "php": "^7.1 || ^8.0",
-                "phpstan/phpstan": "^0.12.98"
+                "php": "^7.2 || ^8.0",
+                "phpstan/phpstan": "^1.9.1"
             },
             "conflict": {
                 "symfony/framework-bundle": "<3.0"
             },
             "require-dev": {
+                "nikic/php-parser": "^4.13.0",
                 "php-parallel-lint/php-parallel-lint": "^1.2",
-                "phpstan/phpstan-phpunit": "^0.12.16",
-                "phpstan/phpstan-strict-rules": "^0.12.5",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpstan/phpstan-strict-rules": "^1.0",
                 "phpunit/phpunit": "^9.5",
-                "symfony/config": "^4.2 || ^5.0",
-                "symfony/console": "^4.0 || ^5.0",
-                "symfony/framework-bundle": "^4.4 || ^5.0",
-                "symfony/http-foundation": "^4.0 || ^5.0",
-                "symfony/messenger": "^4.2 || ^5.0",
-                "symfony/serializer": "^4.0 || ^5.0"
+                "psr/container": "1.0 || 1.1.1",
+                "symfony/config": "^5.4 || ^6.1",
+                "symfony/console": "^5.4 || ^6.1",
+                "symfony/dependency-injection": "^5.4 || ^6.1",
+                "symfony/form": "^5.4 || ^6.1",
+                "symfony/framework-bundle": "^5.4 || ^6.1",
+                "symfony/http-foundation": "^5.4 || ^6.1",
+                "symfony/messenger": "^5.4",
+                "symfony/polyfill-php80": "^1.24",
+                "symfony/serializer": "^5.4"
             },
             "type": "phpstan-extension",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "0.12-dev"
-                },
                 "phpstan": {
                     "includes": [
                         "extension.neon",
@@ -19324,9 +19321,9 @@
             "description": "Symfony Framework extensions and rules for PHPStan",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-symfony/issues",
-                "source": "https://github.com/phpstan/phpstan-symfony/tree/0.12.44"
+                "source": "https://github.com/phpstan/phpstan-symfony/tree/1.2.16"
             },
-            "time": "2021-09-02T12:14:11+00:00"
+            "time": "2022-11-04T13:16:15+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -19815,32 +19812,27 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.11.60",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "428f593818f8c50fe12c543e8c0a107f9bd899ae"
+                "reference": "fbfbe499d0fedfac7fe2fed1a55a00bd08f19c91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/428f593818f8c50fe12c543e8c0a107f9bd899ae",
-                "reference": "428f593818f8c50fe12c543e8c0a107f9bd899ae",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/fbfbe499d0fedfac7fe2fed1a55a00bd08f19c91",
+                "reference": "fbfbe499d0fedfac7fe2fed1a55a00bd08f19c91",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1|^8.0",
-                "phpstan/phpstan": "0.12.99"
+                "php": "^7.2|^8.0",
+                "phpstan/phpstan": "^1.9.2"
             },
             "conflict": {
-                "phpstan/phpdoc-parser": "<=0.5.3",
-                "phpstan/phpstan": "<=0.12.82",
-                "rector/rector-cakephp": "*",
                 "rector/rector-doctrine": "*",
-                "rector/rector-laravel": "*",
-                "rector/rector-nette": "*",
-                "rector/rector-phpoffice": "*",
+                "rector/rector-downgrade-php": "*",
+                "rector/rector-php-parser": "*",
                 "rector/rector-phpunit": "*",
-                "rector/rector-prefixed": "*",
                 "rector/rector-symfony": "*"
             },
             "bin": [
@@ -19849,7 +19841,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.11-dev"
+                    "dev-main": "0.14-dev"
                 }
             },
             "autoload": {
@@ -19861,10 +19853,10 @@
             "license": [
                 "MIT"
             ],
-            "description": "Prefixed and PHP 7.1 downgraded version of rector/rector",
+            "description": "Instant Upgrade and Automated Refactoring of any PHP code",
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.11.60"
+                "source": "https://github.com/rectorphp/rector/tree/0.15.0"
             },
             "funding": [
                 {
@@ -19872,7 +19864,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-10-20T13:08:22+00:00"
+            "time": "2022-12-04T22:40:18+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -21351,22 +21343,22 @@
         },
         {
             "name": "timeweb/phpstan-enum",
-            "version": "v2.3.1",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/timeweb/phpstan-enum.git",
-                "reference": "2c7a3d55aa96192fb0ff92e9e1e7966d61ac734d"
+                "reference": "72f54c981431039ee194ffdf46e8340fea49195a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/timeweb/phpstan-enum/zipball/2c7a3d55aa96192fb0ff92e9e1e7966d61ac734d",
-                "reference": "2c7a3d55aa96192fb0ff92e9e1e7966d61ac734d",
+                "url": "https://api.github.com/repos/timeweb/phpstan-enum/zipball/72f54c981431039ee194ffdf46e8340fea49195a",
+                "reference": "72f54c981431039ee194ffdf46e8340fea49195a",
                 "shasum": ""
             },
             "require": {
                 "myclabs/php-enum": "^1.2",
-                "php": "~7.1|^8.0",
-                "phpstan/phpstan": "^0.12.84"
+                "php": "^7.1|^8.0",
+                "phpstan/phpstan": "^1.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^7.0|^9.0"
@@ -21375,7 +21367,8 @@
             "extra": {
                 "phpstan": {
                     "includes": [
-                        "extension.neon"
+                        "extension.neon",
+                        "rules.neon"
                     ]
                 }
             },
@@ -21395,9 +21388,9 @@
             ],
             "support": {
                 "issues": "https://github.com/timeweb/phpstan-enum/issues",
-                "source": "https://github.com/timeweb/phpstan-enum/tree/v2.3.1"
+                "source": "https://github.com/timeweb/phpstan-enum/tree/v3.1.1"
             },
-            "time": "2021-05-11T16:39:56+00:00"
+            "time": "2022-10-17T05:55:05+00:00"
         },
         {
             "name": "vimeo/psalm",
@@ -21670,5 +21663,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
