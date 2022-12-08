@@ -22,6 +22,10 @@ use Tightenco\Collect\Support\Collection;
  */
 class AddonRegistry
 {
+    public const ADDON_DIRECTORY = '/addons/';
+    public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
+    public const ADDON_TYPE = 'dplan-addon';
+
     private Collection $addons;
 
     public function __construct()
@@ -69,5 +73,49 @@ class AddonRegistry
         return $this->addons->filter(function ($addon) {
             return !$addon['enabled'];
         });
+    }
+
+    /**
+     * Checks if a given composer definition is a correct representation of an addon.
+     * If so and if that addon is not yet installed, it will be added to the list of installed addons.
+     */
+    public function addAddonToRegistry(array $addonComposerDefinition): void
+    {
+        // only do anything if it is an dplan addon
+        $isEntrypointDefined = array_key_exists('entrypoint', $addonComposerDefinition['extra'][self::ADDON_TYPE]);
+        $isAddon = self::ADDON_TYPE === $addonComposerDefinition['type'];
+        if ($isAddon && $isEntrypointDefined) {
+            $entrypoint = $addonComposerDefinition['extra'][self::ADDON_TYPE]['entrypoint'];
+            $isAddonInRegistry = $this->addons->has($entrypoint);
+
+            // if addon is not in registry, then add it
+            if (!$isAddonInRegistry) {
+                $this->addAddon($entrypoint);
+            }
+
+            $this->refreshAddonsYaml();
+        }
+    }
+
+    /**
+     * Adds addon to the currently installed pool of addons
+     */
+    private function addAddon(string $namespacedPathToAddon): void
+    {
+        $addon = [
+            $namespacedPathToAddon => ['enabled' => false],
+        ];
+        $this->addons->add($addon);
+    }
+
+    /**
+     * Writes the current collection of addons back into the addons.yaml
+     */
+    private function refreshAddonsYaml(): void
+    {
+        $yamlContent = [
+            'addons' => $this->addons->collapse()->all(),
+        ];
+        file_put_contents(DemosPlanPath::getRootPath('addons/addons.yaml'), Yaml::dump($yamlContent, 4));
     }
 }
