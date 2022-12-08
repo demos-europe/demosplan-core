@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface;
@@ -75,7 +76,6 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;

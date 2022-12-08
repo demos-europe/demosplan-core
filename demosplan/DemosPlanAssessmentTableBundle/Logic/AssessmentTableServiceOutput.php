@@ -15,6 +15,7 @@ use Closure;
 use function collect;
 use function date;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;

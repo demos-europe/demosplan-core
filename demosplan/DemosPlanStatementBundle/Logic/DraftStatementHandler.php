@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -31,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;

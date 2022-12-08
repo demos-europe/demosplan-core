@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,7 +37,6 @@ use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;

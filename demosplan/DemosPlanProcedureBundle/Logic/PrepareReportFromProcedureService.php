@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\ORMException;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanMapBundle\Logic\MapService;

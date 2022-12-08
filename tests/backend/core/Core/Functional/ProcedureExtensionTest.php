@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Exception;
 use Psr\Log\NullLogger;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;

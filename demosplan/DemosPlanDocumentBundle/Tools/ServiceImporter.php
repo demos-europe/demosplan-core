@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Tools;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;

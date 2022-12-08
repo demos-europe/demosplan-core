@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Psr\Log\LoggerInterface;
 use Seld\JsonLint\JsonParser;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanReportBundle\ValueObject\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\RegisteredInvitationReportEntryData;

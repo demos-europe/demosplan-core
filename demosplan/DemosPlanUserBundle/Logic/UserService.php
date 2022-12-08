@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DOMDocument;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\NoResultException;
@@ -42,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ProdLogger;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;

@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class HttpCall
 {

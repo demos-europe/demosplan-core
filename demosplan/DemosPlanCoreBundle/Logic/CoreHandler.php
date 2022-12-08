@@ -10,10 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
-use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Monolog\Logger;
 use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
@@ -21,6 +18,9 @@ use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Stopwatch\Stopwatch;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
+use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 
 /**
  * Enthält die Handlerfunktionalitäten, die alle Handler nutzen können

@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\RouterInterface;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
+use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 
 /**
  * Custom Eventlistener.

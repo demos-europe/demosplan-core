@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -18,7 +19,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 
 class GuzzleApiClient implements ApiClientInterface

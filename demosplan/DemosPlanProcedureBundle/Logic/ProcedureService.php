@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -82,7 +83,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;

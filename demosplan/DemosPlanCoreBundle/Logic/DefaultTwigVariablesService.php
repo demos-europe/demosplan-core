@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
@@ -18,7 +19,6 @@ use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;

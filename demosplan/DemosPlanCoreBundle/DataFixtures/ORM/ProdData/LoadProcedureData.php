@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 
 class LoadProcedureData extends ProdFixture implements DependentFixtureInterface

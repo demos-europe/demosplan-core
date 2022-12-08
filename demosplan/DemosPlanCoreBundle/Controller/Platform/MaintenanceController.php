@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;

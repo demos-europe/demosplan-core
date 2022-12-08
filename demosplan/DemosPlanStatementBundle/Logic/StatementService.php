@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use Carbon\Carbon;
 use Closure;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -103,7 +104,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;

@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\MailSend;
-use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Exception;
 use Symfony\Component\Filesystem\Filesystem;
+use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 
 class BounceChecker extends CoreService
 {

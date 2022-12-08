@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -17,11 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
+use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Exception\StatementOrDraftStatementNotFoundException;
@@ -32,8 +34,6 @@ use demosplan\DemosPlanMapBundle\ValueObject\MapOptions;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use Doctrine\ORM\EntityNotFoundException;
-use Exception;
 
 class MapService extends CoreService
 {

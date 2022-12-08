@@ -10,32 +10,32 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Carbon\Carbon;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Util\ClassUtils;
+use Exception;
+use InvalidArgumentException;
+use Jfcherng\Diff\DiffHelper;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
-use function array_key_exists;
-use Carbon\Carbon;
-use DateTime;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Util\ClassUtils;
-use Exception;
-use InvalidArgumentException;
-use Jfcherng\Diff\DiffHelper;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
+use function array_key_exists;
 
 /**
  * Class EntityContentChangeService.

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use EDT\JsonApi\OutputTransformation\DynamicTransformer;
 use EDT\JsonApi\OutputTransformation\IncludeDefinition;
@@ -36,7 +37,6 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use stdClass;
 
 class DynamicTransformerTest extends JsonApiTest

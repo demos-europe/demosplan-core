@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -56,7 +57,6 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;

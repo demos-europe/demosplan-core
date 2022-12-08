@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -18,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use proj4php\Proj4php;
 use proj4php\Proj;
 

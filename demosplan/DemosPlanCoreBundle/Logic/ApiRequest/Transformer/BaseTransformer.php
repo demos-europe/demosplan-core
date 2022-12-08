@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\TransformerAbstract;
 use LogicException;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 
 abstract class BaseTransformer extends TransformerAbstract

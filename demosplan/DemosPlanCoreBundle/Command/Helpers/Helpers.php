@@ -14,10 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 
 use function collect;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 
 use function in_array;

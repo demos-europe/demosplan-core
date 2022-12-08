@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -34,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;

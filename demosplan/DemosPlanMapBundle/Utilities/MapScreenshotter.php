@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanMapBundle\Utilities;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Exception;
 use GeoJson\GeoJson;
 use Intervention\Image\ImageManager;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter;

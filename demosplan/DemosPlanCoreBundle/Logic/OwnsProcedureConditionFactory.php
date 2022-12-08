@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 
 class OwnsProcedureConditionFactory
 {

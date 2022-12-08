@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\NoResultException;
@@ -44,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;

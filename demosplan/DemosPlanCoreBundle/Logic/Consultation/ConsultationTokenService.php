@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ConsultationTokenResourceType;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;

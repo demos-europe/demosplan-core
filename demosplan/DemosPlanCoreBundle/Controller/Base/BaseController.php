@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Exception;
 use Monolog\Logger;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;

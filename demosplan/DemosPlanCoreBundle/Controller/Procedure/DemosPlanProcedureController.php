@@ -18,6 +18,7 @@ use Cocur\Slugify\Slugify;
 use function collect;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -63,7 +64,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;

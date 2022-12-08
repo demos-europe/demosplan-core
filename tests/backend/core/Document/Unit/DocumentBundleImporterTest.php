@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Unit;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -18,7 +19,6 @@ use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;

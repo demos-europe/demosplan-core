@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -41,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use function collect;
