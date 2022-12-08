@@ -99,10 +99,8 @@ services:
         arguments:
             $indexManager: '@fos_elastica.index_manager'
         tags:
-            - { name: kernel.event_listener, event: elastica.index.index_pre_populate, method: preIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.type_pre_populate, method: preIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.index_post_populate, method: postIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.type_post_populate, method: postIndexPopulate }
+            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PreIndexPopulateEvent, method: preIndexPopulate }
+            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PostIndexPopulateEvent, method: postIndexPopulate }
 
     demosplan\DemosPlanCoreBundle\EventListener\RoleEntityListener:
         lazy: true
