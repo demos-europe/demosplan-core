@@ -44,7 +44,7 @@ class TransformMessageBagService
     {
         $this->messageBag->get()->each(function (Collection $messages, $severity) {
             $messages->each(function ($message) use ($severity) {
-                if ($message instanceof LinkMessage) {
+                if ($message instanceof LinkMessageSerializable) {
                     $message->prepareUrl($this->router);
                 }
                 $this->flashBag->add($severity, $message);
@@ -60,8 +60,8 @@ class TransformMessageBagService
         return $this->messageBag->get()->mapWithKeys(
             function (Collection $messages, string $severity) {
                 $convertedMessages = $messages->map(
-                    function (Message $message) {
-                        if ($message instanceof LinkMessage) {
+                    function (MessageSerializable $message) {
+                        if ($message instanceof LinkMessageSerializable) {
                             $message->prepareUrl($this->router);
                         }
 

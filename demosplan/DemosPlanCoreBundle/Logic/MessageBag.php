@@ -171,10 +171,10 @@ class MessageBag implements MessageBagInterface
         string $linkText = ''
     ): void {
         if ('' === $routeName) {
-            $this->addObject(Message::createMessage($severity, $message, $params));
+            $this->addObject(MessageSerializable::createMessage($severity, $message, $params));
         } else {
             $this->addObject(
-                LinkMessage::createLinkMessage(
+                LinkMessageSerializable::createLinkMessage(
                     $severity,
                     $message,
                     $params,
@@ -191,7 +191,7 @@ class MessageBag implements MessageBagInterface
      *
      * @throws MessageBagException will not add a message if it already exists
      */
-    public function addObject(Message $message, bool $toStart = false): void
+    public function addObject(MessageSerializable $message, bool $toStart = false): void
     {
         $this->validateMessageInputData($message->getSeverity(), $message->getText());
 
@@ -291,7 +291,7 @@ class MessageBag implements MessageBagInterface
     {
         $this->initializeMessageBagForSeverity($severity);
 
-        $this->messages[$severity]->push(new Message($severity, $message));
+        $this->messages[$severity]->push(new MessageSerializable($severity, $message));
     }
 
     protected function initializeMessageBagForSeverity(string $severity)

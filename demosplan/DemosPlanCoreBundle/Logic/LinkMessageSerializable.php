@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-class LinkMessage extends Message
+class LinkMessageSerializable extends MessageSerializable
 {
     protected $routeName = '';
     protected $routeParameters = [];
@@ -44,7 +44,7 @@ class LinkMessage extends Message
      * @param array  $routeParameters
      * @param string $linkText
      *
-     * @return LinkMessage
+     * @return LinkMessageSerializable
      */
     public static function createLinkMessage($severity, $text, $textParameters = [], $routeName, $routeParameters = [], $linkText)
     {
@@ -76,7 +76,7 @@ class LinkMessage extends Message
     /**
      * @param string $routeName
      *
-     * @return LinkMessage
+     * @return LinkMessageSerializable
      */
     public function setRouteName($routeName)
     {
@@ -96,7 +96,7 @@ class LinkMessage extends Message
     /**
      * @param array $routeParameters
      *
-     * @return LinkMessage
+     * @return LinkMessageSerializable
      */
     public function setRouteParameters($routeParameters)
     {
@@ -116,7 +116,7 @@ class LinkMessage extends Message
     /**
      * @param string $linkText
      *
-     * @return LinkMessage
+     * @return LinkMessageSerializable
      */
     public function setLinkText($linkText)
     {

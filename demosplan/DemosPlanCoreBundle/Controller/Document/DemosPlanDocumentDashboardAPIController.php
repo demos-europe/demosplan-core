@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Logic\Message;
+use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
@@ -143,14 +143,14 @@ class DemosPlanDocumentDashboardAPIController extends APIController
 
         if ($documentDashboardData->isPresent('planText')) {
             $procedureSettings->setPlanText($documentDashboardData->get('planText'));
-            $successMessages[] = new Message('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planstand']);
+            $successMessages[] = new MessageSerializable('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planstand']);
         }
 
         if ($documentDashboardData->isPresent('planningArea') && $permissions->hasPermission(
                 'feature_procedure_planning_area_match'
             )) {
             $procedureSettings->setPlanningArea($documentDashboardData['planningArea']);
-            $successMessages[] = new Message('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planungsbereich']);
+            $successMessages[] = new MessageSerializable('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planungsbereich']);
         }
 
         /** @var ProcedureRepository $procedureRepository */

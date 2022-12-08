@@ -37,7 +37,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -125,7 +125,7 @@ class DemosPlanStatementAPIController extends APIController
 
                 if ($ownsRemoteProcedure) {
                     $this->getMessageBag()->addObject(
-                        LinkMessage::createLinkMessage(
+                        LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
                             $messageParameters,
@@ -234,7 +234,7 @@ class DemosPlanStatementAPIController extends APIController
                 ];
                 if ($ownsRemoteProcedure) {
                     $this->getMessageBag()->addObject(
-                        LinkMessage::createLinkMessage(
+                        LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
                             $messageParameters,
