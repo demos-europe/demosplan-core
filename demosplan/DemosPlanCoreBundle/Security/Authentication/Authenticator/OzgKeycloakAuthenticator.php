@@ -1,6 +1,14 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -611,7 +619,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         // Used to compare two arrays which are not sorted the same by guarantee (!= maybee) RolesArray comparison
         if (is_array($dplanUserAttribute) && is_array($keycloakUserAttribute)) {
             if (count($dplanUserAttribute) !== count($keycloakUserAttribute)) {
-                return count($dplanUserAttribute) !== count($keycloakUserAttribute);
+                return true;
             }
 
             return !empty(array_diff($keycloakUserAttribute, $dplanUserAttribute));
