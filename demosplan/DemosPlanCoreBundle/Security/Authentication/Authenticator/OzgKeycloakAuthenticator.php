@@ -419,7 +419,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     }
 
     /**
-     * @param array<int, Role> $desiredRoles
+     * @param array<int, Role> $requestedRoles
      * @return array<int, string>
      */
     private function getOrgaTypesToSetupRequestedRoles(array $requestedRoles): array
