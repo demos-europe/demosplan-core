@@ -1258,6 +1258,12 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_original_newsletter:
+    description: |-
+        enables the internal newsletter - gets overruled by feature_alternative_newsletter in case both permissions
+        are active.
+    label: 'shows checkbox to register for newsletter and a description what the newsletter is about'
+    loginRequired: false
 feature_original_statements_export:
     label: 'Gibt an ob aus den Originalstellungnahmen exportiert (Word, PDF, Drucken, ...) werden kann, oder nicht'
     loginRequired: true
@@ -2336,6 +2342,17 @@ field_news_pdf:
 field_organisation_agreement_showname:
     expose: true
     label: 'Zustimmung zur Veröffentlichung des Namens'
+    loginRequired: false
+    parent: field_organisation
+field_organisation_agreement_showname_on_welcomePage:
+    description: |-
+        enables option to publicly show this organisation within a list of project-organisations.
+        This option is shown on the welcome-Page (Route /willkommen).
+        this permission seems to be doubled - maybee tripled regarding these permissions:
+        field_organisation_agreement_showname, feature_organisation_set_showlist
+        Since the welcome-page offered this option without any permission - those 2 listed can not be used here without
+        changing the behaviour. Instead this extra permission needs to be used in context of the welcome page.
+    label: 'enables option to publicly show this organisation within a list of project-organisations'
     loginRequired: false
     parent: field_organisation
 field_organisation_competence:

@@ -60,26 +60,28 @@
                         <input type="text" class="layout__item" value="{% if user is defined %}{{- user.email|default("-") -}}{% endif %}" disabled>
                     </label>
 
-                    {% block newsletter %}
-                        <label>
-                            {{ "newsletter"|trans }}<br>
+                    {% if hasAnyOfPermissions('feature_original_newsletter', 'feature_alternative_newsletter') %}
+                        {% block newsletter %}
+                            <label>
+                                {{ "newsletter"|trans }}<br>
 
-                            {% if hasPermission('feature_alternative_newsletter') %}
-                                <p>
-                                    Mit unserem Newsletter BOB-SH Bauleitplanung erhalten Sie regelmäßig Informationen zu Neuigkeiten und
-                                    Schulungen unserer Beteiligungsplattform. Sie können diesen Service in jedem Newsletter wieder abbestellen.
-                                </p>
+                                {% if hasPermission('feature_alternative_newsletter') %}
+                                    <p>
+                                        Mit unserem Newsletter BOB-SH Bauleitplanung erhalten Sie regelmäßig Informationen zu Neuigkeiten und
+                                        Schulungen unserer Beteiligungsplattform. Sie können diesen Service in jedem Newsletter wieder abbestellen.
+                                    </p>
 
-                                <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
-                            {% else %}
-                                <input type="checkbox" name="newsletter" {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
-                                <p class="lbl--text display--inline">
-                                    {{ "explanation.newsletter"|trans({ projectName:projectName })|wysiwyg }}
-                                </p>
-                            {% endif %}
+                                    <a class="o-link--external" target="_blank" href="https://seu2.cleverreach.com/f/265969-264771/" rel="noopener noreferrer">{{ 'newsletter.subscribe'|trans }}</a>
+                                {% else %}
+                                    <input type="checkbox" name="newsletter" {{ user.wantsNewsletter is defined and user.wantsNewsletter == true? 'checked="true"' : '' }}>
+                                    <p class="lbl--text display--inline">
+                                        {{ "explanation.newsletter"|trans({ projectName:projectName })|wysiwyg }}
+                                    </p>
+                                {% endif %}
 
-                        </label>
-                    {% endblock newsletter %}
+                            </label>
+                        {% endblock newsletter %}
+                    {% endif %}
 
                     {% set alreadyDisplayed = "false" %}
                     {% set isFP = user.isPlanner %}
@@ -171,18 +173,19 @@
 
                                 {% endblock papercopy %}
 
+                                {% if hasPermission('field_organisation_agreement_showname_on_welcomePage') %}
+                                    {% block showname %}
 
-                                {% block showname %}
+                                        <label>
+                                            Zustimmung zur Veröffentlichung
+                                            <p class="lbl__hint u-mb-0_25">
+                                                Um allen Anwendern und Interessenten einen Überblick der Nutzergruppe von {{ projectName }} zu ermöglichen, werden öffentlich auf unserer Seite die Namen der teilnehmenden Organisationen aufgelistet. Auch Ihre Organisation wird aufgenommen, wenn Sie hier ein Häkchen setzen.
+                                            </p>
+                                            <input type="checkbox" name="showname" value="1" {% if orga.showname == true %}checked="checked"{%  endif %}> <span class="lbl--text">Ich stimme der Veröffentlichung zu.</span>
+                                        </label>
 
-                                    <label>
-                                        Zustimmung zur Veröffentlichung
-                                        <p class="lbl__hint u-mb-0_25">
-                                            Um allen Anwendern und Interessenten einen Überblick der Nutzergruppe von {{ projectName }} zu ermöglichen, werden öffentlich auf unserer Seite die Namen der teilnehmenden Organisationen aufgelistet. Auch Ihre Organisation wird aufgenommen, wenn Sie hier ein Häkchen setzen.
-                                        </p>
-                                        <input type="checkbox" name="showname" value="1" {% if orga.showname == true %}checked="checked"{%  endif %}> <span class="lbl--text">Ich stimme der Veröffentlichung zu.</span>
-                                    </label>
-
-                                {% endblock %}
+                                    {% endblock %}
+                                {% endif %}
 
                                 <input type="hidden" name="oident" value="{{ orga.ident|default("") }}">
                             {% endif %}
