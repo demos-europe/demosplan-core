@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanUserBundle\ValueObject;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use Symfony\Component\HttpFoundation\Request;
 
-class CustomerFormInput implements CustomerInterface
+class CustomerResourceFormInput implements CustomerResourceInterface
 {
     /** @var string|null */
     private $id;

@@ -12,7 +12,7 @@ namespace Tests\Project\Branding\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 use Tests\Base\UnitTestCase;
 
 class BrandingRepositoryTest extends UnitTestCase
@@ -29,11 +29,11 @@ class BrandingRepositoryTest extends UnitTestCase
     public function testCreateFromData(): void
     {
         $testData1 = [
-            CustomerInterface::STYLING => 'main: "#5678b"',
+            CustomerResourceInterface::STYLING => 'main: "#5678b"',
         ];
         $result1 = $this->sut->createFromData($testData1);
         self::assertInstanceOf(Branding::class, $result1);
-        self::assertEquals($testData1[CustomerInterface::STYLING], $result1->getCssvars());
+        self::assertEquals($testData1[CustomerResourceInterface::STYLING], $result1->getCssvars());
 
         $testData2 = [
             'mistake' => 'main: "#5678b"',

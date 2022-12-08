@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-interface CustomerInterface extends ResourceInterface
+interface CustomerResourceInterface extends ResourceInterface
 {
     public const DATA_PROTECTION = 'dataProtection';
     public const IMPRINT = 'imprint';

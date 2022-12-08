@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
@@ -111,7 +111,7 @@ class DemosPlanCustomerController extends BaseController
                 $logoFile = $fileService->getFileById($logoId);
             }
 
-            $customerFormInput = CustomerFormInput::createFromFormRequest($request, $logoFile);
+            $customerFormInput = CustomerResourceFormInput::createFromFormRequest($request, $logoFile);
             $customerHandler->updateCustomer($customerFormInput);
             $messageBag->add('confirm', 'confirm.saved');
 
