@@ -47,7 +47,7 @@ use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 use demosplan\DemosPlanUserBundle\ValueObject\OrgaUsersPair;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -614,7 +614,7 @@ class UserService extends CoreService
             }
 
             // handle Branding
-            if (array_key_exists(CustomerInterface::STYLING, $data)) {
+            if (array_key_exists(CustomerResourceInterface::STYLING, $data)) {
                 $data['branding'] = $this->handleBrandingByUpdate($orgaBefore, $data);
             }
             // delete logo file
@@ -677,7 +677,7 @@ class UserService extends CoreService
             return $this->brandingRepository->createFromData($data);
         }
 
-        return $orgaBranding->setCssvars($data[CustomerInterface::STYLING]);
+        return $orgaBranding->setCssvars($data[CustomerResourceInterface::STYLING]);
     }
 
     public function handleBrandingByCreate(array $data): array
