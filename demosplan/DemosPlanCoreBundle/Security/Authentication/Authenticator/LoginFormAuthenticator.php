@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -71,7 +71,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         $violations = $this->passwordValidator->validate($credentials->getPassword());
         if (0 < $violations->count()) {
             $linkChangeText = $this->translator->trans('password.change');
-            $this->messageBag->addObject(LinkMessage::createLinkMessage(
+            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
                 'warning',
                 'warning.password.weak',
                 [],
