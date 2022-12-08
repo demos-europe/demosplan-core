@@ -10,6 +10,12 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use Patchwork\Utf8;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Yaml\Parser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -18,17 +24,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use Exception;
-use Patchwork\Utf8;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Yaml\Parser;
 
 class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 {

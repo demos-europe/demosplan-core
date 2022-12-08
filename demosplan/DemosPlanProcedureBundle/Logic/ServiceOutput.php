@@ -10,8 +10,15 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use function array_key_exists;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\NonUniqueResultException;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -19,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -29,17 +35,11 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\NonUniqueResultException;
-use Exception;
+use function array_key_exists;
 use function is_array;
-use Psr\Log\LoggerInterface;
-use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 
 /**
  * Ausgabe von Planverfahrenslisten und Editformularen dazu.

@@ -12,18 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use Symfony\Component\Routing\Annotation\Route;
 
 class TagTopicAPIController extends APIController
 {

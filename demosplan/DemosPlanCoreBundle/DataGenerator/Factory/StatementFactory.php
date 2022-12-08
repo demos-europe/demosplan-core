@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Tightenco\Collect\Support\Collection;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;

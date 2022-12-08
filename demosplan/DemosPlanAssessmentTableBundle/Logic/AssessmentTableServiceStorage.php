@@ -13,12 +13,17 @@ namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 use BadMethodCallException;
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Container;
 use demosplan\DemosPlanCoreBundle\Controller\AssessmentTable\DemosPlanAssessmentTableController;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -26,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\BulkDeleteResult;
@@ -41,10 +45,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use InvalidArgumentException;
-use Symfony\Component\DependencyInjection\Container;
 
 class AssessmentTableServiceStorage
 {

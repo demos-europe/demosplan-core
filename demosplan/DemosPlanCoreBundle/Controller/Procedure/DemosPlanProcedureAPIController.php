@@ -10,6 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use EDT\PathBuilding\PathBuildException;
+use EDT\Querying\Contracts\PropertyPathInterface;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -20,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
@@ -34,14 +42,6 @@ use demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer;
 use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
-use EDT\PathBuilding\PathBuildException;
-use EDT\Querying\Contracts\PropertyPathInterface;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanProcedureAPIController extends APIController
 {

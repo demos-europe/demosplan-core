@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
 use Elastica\Exception\NotFoundException;
@@ -30,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;

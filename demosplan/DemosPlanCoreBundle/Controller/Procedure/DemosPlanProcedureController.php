@@ -20,6 +20,7 @@ use function compact;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
@@ -59,7 +60,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;

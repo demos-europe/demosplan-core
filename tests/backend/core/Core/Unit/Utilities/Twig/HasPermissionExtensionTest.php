@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\HasPermissionExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\UnitTestCase;

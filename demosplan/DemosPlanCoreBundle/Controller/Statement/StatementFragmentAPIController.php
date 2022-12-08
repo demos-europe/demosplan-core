@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFragmentResourceType;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Handles changes to {@link StatementFragment} resources.

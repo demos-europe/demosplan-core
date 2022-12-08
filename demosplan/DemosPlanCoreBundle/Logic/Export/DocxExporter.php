@@ -12,28 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
-use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
@@ -52,6 +31,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
+use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
+use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 
 class DocxExporter
 {

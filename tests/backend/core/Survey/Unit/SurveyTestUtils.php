@@ -11,16 +11,16 @@
 namespace Tests\Core\Survey\Unit;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use Symfony\Bridge\Monolog\Logger;
+use Tests\Base\UnitTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
-use Exception;
-use Symfony\Bridge\Monolog\Logger;
-use Tests\Base\UnitTestCase;
 
 class SurveyTestUtils extends UnitTestCase
 {

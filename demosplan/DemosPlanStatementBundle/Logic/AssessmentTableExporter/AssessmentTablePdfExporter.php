@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -29,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanMapBundle\Logic\MapService;

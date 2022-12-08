@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 

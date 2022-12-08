@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -58,7 +59,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;

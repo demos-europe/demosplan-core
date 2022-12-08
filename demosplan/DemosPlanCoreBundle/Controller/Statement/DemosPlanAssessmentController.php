@@ -10,8 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -23,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
@@ -36,14 +41,9 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Exception;
+use function array_key_exists;
+use function array_merge;
 use function strcmp;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use function usort;
 
 /**

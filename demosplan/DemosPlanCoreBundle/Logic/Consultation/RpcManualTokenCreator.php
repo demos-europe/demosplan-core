@@ -12,18 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use Exception;
-use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 class RpcManualTokenCreator implements RpcMethodSolverInterface

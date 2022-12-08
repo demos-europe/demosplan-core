@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;

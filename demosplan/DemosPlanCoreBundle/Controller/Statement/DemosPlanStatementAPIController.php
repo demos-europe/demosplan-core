@@ -10,8 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_keys;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use Exception;
+use League\Fractal\Resource\Collection;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\Constraints\Uuid;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer;
@@ -30,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
@@ -46,17 +54,9 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use Exception;
+use function array_key_exists;
+use function array_keys;
 use function is_int;
-use League\Fractal\Resource\Collection;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Uuid;
-use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanStatementAPIController extends APIController
 {

@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Platform;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
-use Psr\Log\LoggerInterface;
 
 class EntryPointDecider implements EntryPointDeciderInterface
 {

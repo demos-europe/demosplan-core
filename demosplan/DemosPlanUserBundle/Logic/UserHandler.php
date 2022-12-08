@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
@@ -60,7 +61,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;

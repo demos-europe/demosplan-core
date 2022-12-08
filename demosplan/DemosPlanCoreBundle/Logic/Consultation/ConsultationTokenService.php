@@ -13,6 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\SortMethodInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
@@ -23,20 +30,13 @@ use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ConsultationTokenResourceType;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use Doctrine\ORM\EntityNotFoundException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ConsultationTokenService
 {

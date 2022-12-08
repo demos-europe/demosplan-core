@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanElementsAPIController extends APIController
 {

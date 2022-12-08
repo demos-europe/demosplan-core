@@ -12,12 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,6 +20,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 
 /**
  * Seitenausgabe Protokolldaten.

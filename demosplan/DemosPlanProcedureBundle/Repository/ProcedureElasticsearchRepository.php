@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;

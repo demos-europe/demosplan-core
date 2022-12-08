@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;

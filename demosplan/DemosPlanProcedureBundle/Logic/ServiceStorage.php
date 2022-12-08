@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -30,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;

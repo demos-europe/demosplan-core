@@ -10,21 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
-use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
-use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -33,6 +19,20 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
+use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 
 class MaintenanceController extends BaseController
 {

@@ -11,6 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -20,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\Message;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
@@ -30,11 +35,6 @@ use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use Exception;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanDocumentDashboardAPIController extends APIController
 {

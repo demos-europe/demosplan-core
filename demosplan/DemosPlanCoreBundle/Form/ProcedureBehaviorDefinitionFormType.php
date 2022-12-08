@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
 
 class ProcedureBehaviorDefinitionFormType extends AbstractBaseResourceFormType
 {

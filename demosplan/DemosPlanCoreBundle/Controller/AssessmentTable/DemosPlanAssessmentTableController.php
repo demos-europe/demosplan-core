@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
@@ -34,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;

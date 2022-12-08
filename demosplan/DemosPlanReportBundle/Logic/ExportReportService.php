@@ -10,10 +10,7 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -21,6 +18,9 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
 
 class ExportReportService extends CoreService
 {

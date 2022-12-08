@@ -10,11 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Faker\Factory;
 use Faker\Generator;
@@ -22,6 +18,10 @@ use ReflectionException;
 use ReflectionFunction;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 
 abstract class FactoryBase implements FactoryInterface
 {
