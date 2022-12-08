@@ -170,4 +170,70 @@ class NonAuthorizedAssignRemover
             ]
         );
     }
+
+    public function removeNonAuthorizedCaseWorkers(string $procedureId): void
+    {
+        $procedure = $this->procedureService->getProcedureWithCertainty($procedureId);
+        $statementsToUnsetCaseworker = $this->getStatementsToUnsetCaseworker($procedure);
+
+        if ([] !== $statementsToUnsetCaseworker) {
+            $removedCaseWorkers = $this->unsetCaseWorkers($statementsToUnsetCaseworker);
+            $this->messageBag->add(
+                'confirm',
+                'procedure_update.caseworker_autoremove',
+                [
+                    'removedUsers' => count($removedCaseWorkers),
+                ]
+            );
+
+        }
+    }
+
+    private function getStatementsToUnsetCaseworker(Procedure $procedure): array
+    {
+        $authorizedUserNames = $this->getAuthorizedUserNames($procedure);
+
+        return $this->entityFetcher->listEntitiesUnrestricted(
+            Statement::class,
+            [
+                $this->conditionFactory->propertyHasNotValue('', 'meta', 'caseWorkerName'),
+                $this->conditionFactory->propertyHasNotAnyOfValues($authorizedUserNames,
+                    'meta', 'caseWorkerName'
+                ),
+                $this->conditionFactory->propertyHasValue($procedure->getId(), 'procedure', 'id')
+            ]
+        );
+    }
+
+    private function getAuthorizedUserNames(Procedure $procedure): array
+    {
+        $ownsProcedureCondition = $this->procedureAccessEvaluator->getOwnsProcedureCondition($procedure);
+        $authorizedUsers = $this->procedureService->getAuthorizedUsers($procedure->getId());
+        $owningUsers = $this->entityFetcher->listEntitiesUnrestricted(User::class, [$ownsProcedureCondition]);
+
+        return $authorizedUsers
+            ->merge($owningUsers)
+            ->map(static function (User $user): string {
+                return $user->getName();
+            })
+            ->unique()
+            ->all();
+    }
+
+    private function unsetCaseWorkers(array $statementsWithSetCaseWorker): array
+    {
+        $unsetCaseWorkerNames = array_map(function (Statement $statementWithSetCaseWorker): string {
+            $caseWorkerName = $statementWithSetCaseWorker->getMeta()->getCaseWorkerName();
+
+            $statementWithSetCaseWorker->getMeta()->setCaseWorkerName('');
+            $this->entityContentChangeService->saveEntityChanges(
+                $statementWithSetCaseWorker,
+                get_class($statementWithSetCaseWorker)
+            );
+
+            return $caseWorkerName;
+        }, $statementsWithSetCaseWorker);
+
+        return array_unique($unsetCaseWorkerNames);
+    }
 }

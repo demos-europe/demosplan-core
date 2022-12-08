@@ -32,11 +32,17 @@ class NonAuthorizedAssignRemoveSubscriber implements EventSubscriberInterface
     {
         return [
             ProcedureEditedEvent::class => 'removeNonAuthorizedAssignees',
+            ProcedureEditedEvent::class => 'removeNonAuthorizedCaseWorkers',
         ];
     }
 
     public function removeNonAuthorizedAssignees(ProcedureEditedEvent $event): void
     {
         $this->assignRemover->removeNonAuthorizedAssignees($event->getProcedureId());
+    }
+
+    public function removeNonAuthorizedCaseWorkers(ProcedureEditedEvent $event): void
+    {
+        $this->assignRemover->removeNonAuthorizedCaseWorkers($event->getProcedureId());
     }
 }
