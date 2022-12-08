@@ -30,7 +30,7 @@ use Elastica\Query\Prefix;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
 use Exception;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Traversable;
 

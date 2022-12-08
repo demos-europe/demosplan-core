@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use Pagerfanta\Elastica\ElasticaAdapter;
 use function array_key_exists;
 use Elastica\Index;
 use function array_map;
@@ -142,7 +143,6 @@ use FOS\ElasticaBundle\Index\IndexManager;
 use function in_array;
 use function is_array;
 use function is_string;
-use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use const PHP_INT_MAX;
 use RuntimeException;
