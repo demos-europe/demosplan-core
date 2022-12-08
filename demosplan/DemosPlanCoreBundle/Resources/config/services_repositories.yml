@@ -101,9 +101,6 @@ services:
     demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
 
-#    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
-#        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
 
