@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use demosplan\addons\FloodControl\Exception\CookieException;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -52,7 +51,7 @@ class ConsultationController extends BaseController
         try {
             $eventDispatcherPost->post($event);
             $response = $event->getResponse();
-        } catch (CookieException|Exception $e) {
+        } catch (Exception $e) {
             return $response;
         }
 

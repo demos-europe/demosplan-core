@@ -93,17 +93,21 @@
                 </span>
               </template>
               <template v-if="statement">
-                <span class="weight--bold">{{ Translator.trans('original.pdf') }}</span>
-                <statement-meta-attachments-link
-                  v-if="originalAttachment.hash"
-                  :attachment="originalAttachment" />
-                <span
-                  v-if="additionalAttachments.length > 0"
-                  class="weight--bold">{{ Translator.trans('more.attachments') }}</span>
-                <statement-meta-attachments-link
-                  v-for="attachment in additionalAttachments"
-                  :key="attachment.hash"
-                  :attachment="attachment" />
+                <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
+                  <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                  <statement-meta-attachments-link
+                    class="display--block whitespace--normal u-mr-0_75"
+                    v-if="originalAttachment.hash"
+                    :attachment="originalAttachment" />
+                  <span
+                    v-if="additionalAttachments.length > 0"
+                    class="display--block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                  <statement-meta-attachments-link
+                    class="display--block whitespace--normal u-mr-0_75"
+                    v-for="attachment in additionalAttachments"
+                    :key="attachment.hash"
+                    :attachment="attachment" />
+                </div>
               </template>
             </dp-flyout>
           </li>

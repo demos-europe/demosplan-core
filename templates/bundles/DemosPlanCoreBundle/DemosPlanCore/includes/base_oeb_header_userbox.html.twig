@@ -16,26 +16,27 @@
                 data-cy="currentUser">
 
                 {# if OrgaSwitcher user is a toeb, indicate with different color #}
-                <span class="{{ 'c-flyout__trigger-inner'|prefixClass }} {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight'|prefixClass : '' }}" data-extern-dataport="userMenuTrigger">
+                {%  block loggedInCurrentUser %}
+                    <span class="{{ 'c-flyout__trigger-inner'|prefixClass }} {{ hasOrgaSwitcher and hasPermission('role_participant') ? 'color--highlight'|prefixClass : '' }}" data-extern-dataport="userMenuTrigger">
 
-                    {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
+                        {% if hasOrgaSwitcher %} {# if there are two sessions, indicate this by appending another icon to trigger. #}
 
-                        {# if OrgaSwitcher user is a toeb, additionally indicate with different user icon #}
-                        <i class="{{ 'fa u-mr-0_125'|prefixClass }} {{ hasPermission('role_participant') ? 'fa-user-circle-o'|prefixClass : 'fa-user'|prefixClass }}" aria-hidden="true"></i>
+                            {# if OrgaSwitcher user is a toeb, additionally indicate with different user icon #}
+                            <i class="{{ 'fa u-mr-0_125'|prefixClass }} {{ hasPermission('role_participant') ? 'fa-user-circle-o'|prefixClass : 'fa-user'|prefixClass }}" aria-hidden="true"></i>
 
-                        {{ currentUser.firstname }} {{ currentUser.lastname }}
-                        <i class="{{ 'fa fa-exchange u-ml-0_125'|prefixClass }}" aria-hidden="true"></i>
+                            {{ currentUser.firstname }} {{ currentUser.lastname }}
+                            <i class="{{ 'fa fa-exchange u-ml-0_125'|prefixClass }}" aria-hidden="true"></i>
 
-                    {% else %}
+                        {% else %}
 
-                        {# this is what normal users see #}
-                        <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                        {{ currentUser.firstname }} {{ currentUser.lastname }}
+                            {# this is what normal users see #}
+                            <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                            {{ currentUser.firstname }} {{ currentUser.lastname }}
 
-                    {% endif %}
+                        {% endif %}
 
-                </span>
-
+                    </span>
+                {%  endblock loggedInCurrentUser %}
             </a>
 
             {# flyout content #}
@@ -197,7 +198,7 @@
                 {% endif %}
 
                 {# logout button #}
-                {% block logoutbtn %}
+                {% block logoutButton %}
                     <a
                         class="{{ 'c-flyout__item c-flyout__item--btn cf'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
                         data-actionmenu-menuitem
@@ -206,7 +207,7 @@
                         <i class="{{ 'fa fa-sign-out float--left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         {{ "logout"|trans }}
                     </a>
-                {% endblock %}
+                {% endblock logoutButton %}
 
             </span>
 
@@ -225,10 +226,14 @@
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
                     data-touch-flyout="loginLink"
                     id="loginLink">
-                    <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
-                        <i class="{{ 'fa fa-user'|prefixClass }}" aria-hidden="true"></i>
-                        {{ "login"|trans }}
-                    </span>
+
+                    {% block loginButtonGateway %}
+                        <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
+                            <i class="{{ 'fa fa-user'|prefixClass }}" aria-hidden="true"></i>
+                            {{ "login"|trans }}
+                        </span>
+                    {% endblock loginButtonGateway %}
+
                 </a>
 
                 {# flyout with information about gateway login #}
@@ -250,10 +255,13 @@
             {% elseif projectType == 'portal' %}
 
                 <a class="{{ 'c-flyout__trigger'|prefixClass }}" href="{{ getStaticVariable('login_path') }}" id="loginLink">
-                    <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
-                        <i class="{{ 'fa fa-user'|prefixClass }}" aria-hidden="true"></i>
-                        {{ "login"|trans }}
-                    </span>
+
+                    {%  block loginButton %}
+                        <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
+                            <i class="{{ 'fa fa-user'|prefixClass }}" aria-hidden="true"></i>
+                            {{ "login"|trans }}
+                        </span>
+                    {%  endblock loginButton %}
                 </a>
 
             {% endif %}
