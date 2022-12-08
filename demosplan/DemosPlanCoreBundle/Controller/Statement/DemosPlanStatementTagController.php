@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
@@ -27,6 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
+    use CanTransformRequestVariablesTrait;
     /**
      * Renders the admin view of a single tag.
      *

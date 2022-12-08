@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -58,6 +59,7 @@ use function strpos;
  */
 class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessmentController
 {
+    use CanTransformRequestVariablesTrait;
     /**
      * @var StatementHandler
      */
