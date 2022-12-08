@@ -1505,11 +1505,7 @@ class DraftStatementService extends CoreService
             $this->profilerStart('ES');
 
             // Base Filters to apply always
-            $boolMustFilter = [
-                new Terms('_id', $ids),
-            ];
-
-            $boolQuery->addMust($boolMustFilter);
+            $boolQuery->addMust(new Terms('_id', $ids));
 
             // generate Query
             $query = new Query();
@@ -1628,7 +1624,8 @@ class DraftStatementService extends CoreService
                 $boolMustFilter[] = new Terms('showToAll', $showToAll);
             }
 
-            $boolQuery->addMust($boolMustFilter);
+            array_map([$boolQuery,'addMust'], $boolMustFilter);
+
 
             $boolMustNotFilter = [];
 
@@ -1639,7 +1636,7 @@ class DraftStatementService extends CoreService
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query

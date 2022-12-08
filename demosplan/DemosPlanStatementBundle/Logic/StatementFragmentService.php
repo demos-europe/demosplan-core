@@ -1343,16 +1343,16 @@ class StatementFragmentService extends CoreService
 
             if (array_key_exists('modifiedOrArchivedByDepartmentId', $userFilters)) {
                 // custom query to find fragments with the departmentId
-                $boolQuery->addShould([
+                $boolQuery->addShould(
                     $this->searchService->getElasticaTermsInstance(
                         'departmentId',
                         $userFilters['modifiedOrArchivedByDepartmentId']
-                    ),
+                    ));
+                $boolQuery->addShould(
                     $this->searchService->getElasticaTermsInstance(
                         'archivedDepartmentId',
                         $userFilters['modifiedOrArchivedByDepartmentId']
-                    ),
-                ]);
+                    ));
                 $boolQuery = $this->searchService->setMinimumShouldMatch(
                     $boolQuery,
                     1
@@ -1402,10 +1402,10 @@ class StatementFragmentService extends CoreService
                         // user wants to see not existent query as well as some filter
                         if (0 < count($shouldNotFilter)) {
                             $shouldNotBool = new BoolQuery();
-                            $shouldNotBool->addMustNot($shouldNotFilter);
+                            array_map([$shouldNotBool,'addMustNot'], $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
                         }
-                        $shouldQuery->addShould($shouldFilter);
+                        array_map([$shouldQuery,'addShould'], $shouldFilter);
                         $shouldQuery = $this->searchService->setMinimumShouldMatch(
                             $shouldQuery,
                             1
@@ -1431,12 +1431,12 @@ class StatementFragmentService extends CoreService
             }
 
             if (0 < count($boolMustFilter)) {
-                $boolQuery->addMust($boolMustFilter);
+                array_map([$boolQuery,'addMust'], $boolMustFilter);
             }
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query

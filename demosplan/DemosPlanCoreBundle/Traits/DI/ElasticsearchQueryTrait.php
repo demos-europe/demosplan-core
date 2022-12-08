@@ -287,35 +287,35 @@ trait ElasticsearchQueryTrait
     }
 
     /**
-     * @param BoolQuery $boolQuery
+     * @param BoolQuery     $boolQuery
      * @param AbstractQuery $esQuery
-     * @param array $boolMustFilter
-     * @param array $boolMustNotFilter
+     * @param array         $boolMustFilters
+     * @param array         $boolMustNotFilters
      */
-    public function buildFilterMust($boolQuery, $esQuery, $boolMustFilter = [], $boolMustNotFilter = []): BoolQuery
+    public function buildFilterMust($boolQuery, $esQuery, $boolMustFilters = [], $boolMustNotFilters = []): BoolQuery
     {
         foreach ($esQuery->getFiltersMust() as $filter) {
             if ($filter instanceof FilterMissing) {
-                $boolMustNotFilter[] = $this->getExistsQuery($filter);
+                $boolMustNotFilters[] = $this->getExistsQuery($filter);
             }
             if ($filter instanceof Filter) {
-                $boolMustFilter[] = $this->getTermsQuery($filter);
+                $boolMustFilters[] = $this->getTermsQuery($filter);
             }
             if ($filter instanceof FilterPrefix) {
-                $boolMustFilter[] = $this->getPrefixQuery($filter);
+                $boolMustFilters[] = $this->getPrefixQuery($filter);
             }
         }
-        if (0 < count($boolMustFilter)) {
-            $boolQuery->addMust($boolMustFilter);
+        if (0 < count($boolMustFilters)) {
+            array_map([$boolQuery,'addMust'], $boolMustFilters);
         }
-        if (0 < count($boolMustNotFilter)) {
-            $boolQuery->addMustNot($boolMustNotFilter);
+        if (0 < count($boolMustNotFilters)) {
+            array_map([$boolQuery,'addMustNot'], $boolMustNotFilters);
         }
         if (0 < count($esQuery->getFilterMustNotQueries())) {
-            $boolQuery->addMustNot($esQuery->getFilterMustNotQueries());
+            array_map([$boolQuery,'addMustNot'], $esQuery->getFilterMustNotQueries());
         }
         if (0 < count($esQuery->getFilterMustQueries())) {
-            $boolQuery->addMust($esQuery->getFilterMustQueries());
+            array_map([$boolQuery,'addMust'], $esQuery->getFilterMustQueries());
         }
 
         return $boolQuery;
@@ -340,7 +340,7 @@ trait ElasticsearchQueryTrait
         }
 
         if (0 < count($boolShouldFilter)) {
-            $boolQuery->addShould($boolShouldFilter);
+            array_map([$boolQuery,'addShould'], $boolShouldFilter);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);
         }
 

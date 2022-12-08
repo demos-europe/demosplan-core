@@ -3210,11 +3210,11 @@ class StatementService extends CoreService
                             );
                         }
                     }
-                    $shouldQuery->addShould($shouldFilter);
+                    array_map([$shouldQuery,'addShould'], $shouldFilter);
                     // user wants to see not existent query as well as some filter
                     if (0 < count($shouldNotFilter)) {
                         $shouldNotBool = new BoolQuery();
-                        $shouldNotBool->addMustNot($shouldNotFilter);
+                        array_map([$shouldNotBool,'addMustNot'], $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
                     }
                     $shouldQuery = $this->searchService->setMinimumShouldMatch(
@@ -3236,11 +3236,11 @@ class StatementService extends CoreService
             }
 
             if (0 < count($boolMustFilter)) {
-                $boolQuery->addMust($boolMustFilter);
+                array_map([$boolQuery,'addMust'], $boolMustFilter);
             }
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query
@@ -4391,10 +4391,8 @@ class StatementService extends CoreService
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
-            $boolQuery->addMust([
-                $this->searchService->getElasticaTermsInstance('deleted', [false]),
-                $this->searchService->getElasticaTermsInstance('pId', [$procedure->getId()]),
-            ]);
+            $boolQuery->addMust($this->searchService->getElasticaTermsInstance('deleted', [false]));
+            $boolQuery->addMust($this->searchService->getElasticaTermsInstance('pId', [$procedure->getId()]));
 
             foreach ($filters as $key => $values) {
                 $boolQuery->addMust(
@@ -4445,11 +4443,9 @@ class StatementService extends CoreService
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
-            $boolQuery->addMust([
-                $this->searchService->getElasticaTermsInstance('deleted', [false]),
-                $this->searchService->getElasticaTermsInstance('pId', [$procedure->getId()]),
-                $this->searchService->getElasticaTermsInstance('isPlaceholder', [true]),
-            ]);
+            $boolQuery->addMust($this->searchService->getElasticaTermsInstance('deleted', [false]));
+            $boolQuery->addMust($this->searchService->getElasticaTermsInstance('pId', [$procedure->getId()]));
+            $boolQuery->addMust($this->searchService->getElasticaTermsInstance('isPlaceholder', [true]));
 
             foreach ($filters as $key => $values) {
                 $boolQuery->addMust(
