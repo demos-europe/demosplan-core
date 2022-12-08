@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex u-mb')">
+    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex u-mb-0_5')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
         data-cy="procedureSearch"
@@ -19,7 +19,7 @@
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
         route="DemosPlan_procedure_public_suggest_procedure_location_json"
-        :height="'34px'"
+        :height="'40px'"
         :additional-route-params="{ maxResults: 12 }"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
@@ -46,16 +46,19 @@
       <button
         type="button"
         data-cy="procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
+        :class="prefixClass('c-proceduresearch__search-btn btn weight--bold')"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
+    </div>
 
+    <div :class="prefixClass('layout__item u-mb-0_75')">
       <button
         type="reset"
         :disabled="form.search === '' && isDefaultFilter"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--secondary weight--bold')"
+        :class="prefixClass('c-proceduresearch__reset-btn')"
         @click.prevent="resetAndSubmit">
+        <i class="fa fa-close u-mr-0_25" />
         {{ Translator.trans('reset.to.default') }}
       </button>
     </div>
@@ -75,71 +78,71 @@
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')">
           {{ Translator.trans('sortation') }}
         </label><!--
-     --><div :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')">
-          <select
-            id="sort"
-            name="sort"
-            :class="prefixClass('o-form__control-select')"
-            @change="setValueAndSubmitForm($event, 'sort')"
-            :value="form.sort">
-            <option
-              :key="'sort_' + option.value"
-              v-for="option in sortOptions"
-              :selected="option.selected"
-              :value="option.value">
-              {{ option.title }}
-            </option>
-          </select>
-        </div>
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
+        <select
+          id="sort"
+          name="sort"
+          :class="prefixClass('o-form__control-select')"
+          @change="setValueAndSubmitForm($event, 'sort')"
+          :value="form.sort">
+          <option
+            :key="'sort_' + option.value"
+            v-for="option in sortOptions"
+            :selected="option.selected"
+            :value="option.value">
+            {{ option.title }}
+          </option>
+        </select>
+      </div>
       </template>
 
       <!-- Filter: Municipal code -->
       <label
         for="municipalCode"
-        :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')"
+        :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')"
         v-if="hasPermission('feature_procedures_show_municipal_filter')">
         Kreis:
       </label><!--
    --><div
-        :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')"
-        v-if="hasPermission('feature_procedures_show_municipal_filter')">
-        <select
-          id="municipalCode"
-          name="municipalCode"
-          :class="prefixClass('o-form__control-select')"
-          @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroups in municipalities">
-            <optgroup
-              :key="'group_' + municipalityGroups.label"
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :label="municipalityGroups.label">
-              <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
-                :selected="county.value === form.municipalCode"
-                :value="county.value">
-                {{ county.title }}
-              </option>
-            </optgroup>
+      :class="prefixClass('layout__item u-1-of-1 u-mb')"
+      v-if="hasPermission('feature_procedures_show_municipal_filter')">
+      <select
+        id="municipalCode"
+        name="municipalCode"
+        :class="prefixClass('o-form__control-select')"
+        @change="setValueAndSubmitForm($event, 'municipalCode')">
+        <template v-for="municipalityGroups in municipalities">
+          <optgroup
+            :key="'group_' + municipalityGroups.label"
+            v-if="hasOwnProp(municipalityGroups,'options')"
+            :label="municipalityGroups.label">
             <option
-              v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              v-for="county in municipalityGroups.options"
+              :key="'group_opt_' + county.value"
+              :selected="county.value === form.municipalCode"
+              :value="county.value">
+              {{ county.title }}
             </option>
-          </template>
-        </select>
-      </div>
+          </optgroup>
+          <option
+            v-else
+            :key="'opt_' + municipalityGroups.value"
+            :value="municipalityGroups.value">
+            {{ municipalityGroups.label }}
+          </option>
+        </template>
+      </select>
+    </div>
 
       <!-- All other filters -->
       <template v-for="(filter, idx) in filters">
         <label
           :key="'label_' + idx"
           :for="filter.name"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')">
           {{ filter.title }}
           <i
             v-if="filter.contextHelp !== ''"
@@ -149,25 +152,25 @@
             v-tooltip="{ content: filter.contextHelp }" />
         </label><!--
      --><div
-          :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')">
-          <select
-            :ref="'filter_' + idx"
-            :id="filter.name"
-            :name="filter.name"
-            :class="prefixClass('o-form__control-select')"
-            @change="setValueAndSubmitForm($event, filter.name)">
-            <option value="">
-              {{ Translator.trans('all') }}
-            </option>
-            <option
-              v-for="(filterOption, index) in filter.options"
-              :key="'filter_opt_' + index"
-              :value="filterOption.value">
-              {{ filterOption.label }}
-            </option>
-          </select>
-        </div>
+        :key="'select_' + filter.name"
+        :class="prefixClass('layout__item u-1-of-1 u-mb')">
+        <select
+          :ref="'filter_' + idx"
+          :id="filter.name"
+          :name="filter.name"
+          :class="prefixClass('o-form__control-select')"
+          @change="setValueAndSubmitForm($event, filter.name)">
+          <option value="">
+            {{ Translator.trans('all') }}
+          </option>
+          <option
+            v-for="(filterOption, index) in filter.options"
+            :key="'filter_opt_' + index"
+            :value="filterOption.value">
+            {{ filterOption.label }}
+          </option>
+        </select>
+      </div>
       </template>
     </div>
 
