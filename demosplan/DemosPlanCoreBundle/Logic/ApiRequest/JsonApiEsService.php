@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Utilities\Iterables;
 use Elastica\Index;
-use Elastica\Type;
 
 class JsonApiEsService
 {

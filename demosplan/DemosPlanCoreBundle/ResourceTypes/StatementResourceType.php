@@ -32,7 +32,6 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
-use Elastica\Type;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<Statement>

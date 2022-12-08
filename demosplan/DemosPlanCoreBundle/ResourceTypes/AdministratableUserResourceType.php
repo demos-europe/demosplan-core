@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use Elastica\Index;
-use Elastica\Type;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>

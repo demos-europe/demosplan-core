@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use Elastica\Index;
 use function collect;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -76,7 +77,6 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
-use Elastica\Type;
 use Exception;
 use function is_array;
 use Pagerfanta\Exception\NotValidCurrentPageException;
@@ -108,7 +108,7 @@ class StatementFragmentService extends CoreService
     /** @var ParagraphService */
     protected $paragraphService;
 
-    /** @var Type */
+    /** @var Index */
     protected $esStatementFragmentType;
 
     /** @var EntityContentChangeService */
@@ -237,7 +237,7 @@ class StatementFragmentService extends CoreService
         $this->userService = $userService;
     }
 
-    public function setEsStatementFragmentType(Type $esStatementFragmentType)
+    public function setEsStatementFragmentType(Index $esStatementFragmentType)
     {
         $this->esStatementFragmentType = $esStatementFragmentType;
     }

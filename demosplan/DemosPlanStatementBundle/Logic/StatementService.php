@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use function array_key_exists;
+use Elastica\Index;
 use function array_map;
 use function array_merge;
 use function array_unique;
@@ -136,7 +137,6 @@ use Elastica\Exception\ClientException;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
-use Elastica\Type;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use function in_array;
@@ -173,7 +173,7 @@ class StatementService extends CoreService
     /** @var AssignService */
     protected $assignService;
 
-    /** @var Type */
+    /** @var Index */
     protected $esStatementType;
 
     /** @var array */
@@ -2533,7 +2533,7 @@ class StatementService extends CoreService
     }
 
     /**
-     * @param Type $esStatementType
+     * @param Index $esStatementType
      */
     public function setEsStatementType($esStatementType)
     {

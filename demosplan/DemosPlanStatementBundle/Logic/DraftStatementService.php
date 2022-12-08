@@ -67,7 +67,6 @@ use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;

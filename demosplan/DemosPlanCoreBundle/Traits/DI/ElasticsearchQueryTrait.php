@@ -29,7 +29,6 @@ use Elastica\Query\Exists;
 use Elastica\Query\Prefix;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Exception;
 use Pagerfanta\Adapter\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
