@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
-use DemosEurope\DemosplanAddon\Contracts\ApiResourceServiceInterface;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use League\Fractal\Manager;
