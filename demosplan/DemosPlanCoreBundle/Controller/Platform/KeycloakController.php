@@ -21,7 +21,7 @@ class KeycloakController extends AbstractController
         // will redirect to keycloak!
         return $clientRegistry
             ->getClient('keycloak_ozg') // key used in config/packages/knpu_oauth2_client.yaml
-            ->redirect(['openid']);
+            ->redirect(['openid'], []);
     }
 
     /**
