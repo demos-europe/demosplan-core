@@ -98,7 +98,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // composer update
         try {
-            $this->runComposerProcess($output, ['composer', 'update', $composerDefinition['name'], '--no-progress']);
+            $this->runComposerProcess($output, ['composer', 'bin', 'addons', 'update', '--no-progress']);
 
             // If composer update went well, add the addon to the registry
             $addonRegistry = new AddonRegistry();
@@ -131,7 +131,14 @@ class AddonInstallFromZipCommand extends CoreCommand
         // If composer.json does not exist, create it
         if (!file_exists($this->addonsDirectory.'composer.json')) {
             $content = [
+                "minimum-stability" => "dev",
                 "require" => [],
+                "config" => [
+                    "sort-packages" => true,
+                    "allow-plugins" => [
+                        "demos-europe/demosplan-addon-installer" => true,
+                    ],
+                ],
                 "repositories" => [
                     [
                         "type" => "path",
