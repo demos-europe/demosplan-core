@@ -5,7 +5,7 @@
     "license": "EUPL-1.2",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.4,<8",
+        "php": ">=7.4,<8.2",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -35,6 +35,7 @@
         "demos-europe/edt-extra": "^0.14.0",
         "demos-europe/edt-jsonapi": "^0.14.0",
         "demos-europe/edt-paths": "^0.14.0",
+        "demos-europe/demosplan-addon": "dev-main",
         "doctrine/annotations": "^1.13",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
