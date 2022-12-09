@@ -33,39 +33,39 @@ interface CustomerResourceInterface extends ResourceInterface
     public const SIMPLE_LANGUAGE_OVERVIEW_DESCRIPTION = 'overviewDescriptionInSimpleLanguage';
 
     /**
-     * @Assert\Length(max=65000, groups={CustomerInterface::DATA_PROTECTION})
+     * @Assert\Length(max=65000, groups={CustomerResourceInterface::DATA_PROTECTION})
      */
     public function getDataProtection(): ?string;
 
     /**
-     * @Assert\Length(max=65000, groups={CustomerInterface::IMPRINT})
+     * @Assert\Length(max=65000, groups={CustomerResourceInterface::IMPRINT})
      */
     public function getImprint(): ?string;
 
     /**
-     * @Assert\Length(max=65000, groups={CustomerInterface::TERMS_OF_USE})
+     * @Assert\Length(max=65000, groups={CustomerResourceInterface::TERMS_OF_USE})
      */
     public function getTermsOfUse(): ?string;
 
     /**
-     * @Assert\Length(max=65000, groups={CustomerInterface::XPLANNING})
+     * @Assert\Length(max=65000, groups={CustomerResourceInterface::XPLANNING})
      */
     public function getXplanning(): string;
 
     public function getLogo(): ?File;
 
     /**
-     * @Assert\Length(min=0, max=4096, groups={CustomerInterface::MAP_ATTRIBUTION})
+     * @Assert\Length(min=0, max=4096, groups={CustomerResourceInterface::MAP_ATTRIBUTION})
      */
     public function getMapAttribution(): ?string;
 
     /**
-     * @Assert\Length(min=5, max=4096, groups={CustomerInterface::BASE_LAYER_URL})
+     * @Assert\Length(min=5, max=4096, groups={CustomerResourceInterface::BASE_LAYER_URL})
      */
     public function getBaseLayerUrl(): ?string;
 
     /**
-     * @Assert\Length(min=5, max=4096, groups={CustomerInterface::BASE_LAYER_LAYERS})
+     * @Assert\Length(min=5, max=4096, groups={CustomerResourceInterface::BASE_LAYER_LAYERS})
      */
     public function getBaseLayerLayers(): ?string;
 
@@ -75,7 +75,7 @@ interface CustomerResourceInterface extends ResourceInterface
     public function getCssVars(): ?string;
 
     /**
-     * @Assert\Length(max=65000, groups={CustomerInterface::ACCESSIBILITY_EXPLANATION})
+     * @Assert\Length(max=65000, groups={CustomerResourceInterface::ACCESSIBILITY_EXPLANATION})
      */
     public function getAccessibilityExplanation(): string;
 

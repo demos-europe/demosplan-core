@@ -89,7 +89,7 @@ class ProxyInstanceSubscriberTest extends FunctionalTestCase
     {
         $request = Request::create('any', 'GET', ['Token' => $token]);
 
-        return new RequestEvent(self::$kernel, $request, HttpKernelInterface::MASTER_REQUEST);
+        return new RequestEvent(self::$kernel, $request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     private function assertToken(string $expectedToken, Response $response): void

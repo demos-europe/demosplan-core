@@ -55,7 +55,7 @@ class DemosPlanRequestListener
      */
     public function onKernelRequest(RequestEvent $event)
     {
-        if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
+        if (HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) {
             $event->getRequest()->attributes->set('_request_type', 'master');
         } elseif (HttpKernelInterface::SUB_REQUEST === $event->getRequestType()) {
             $event->getRequest()->attributes->set('_request_type', 'sub');
@@ -74,7 +74,8 @@ class DemosPlanRequestListener
         }
 
         // API-Requests are always master requests
-        if ((HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) && $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
+        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
+            $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
             if (null !== $response) {
                 $event->setResponse($response);
