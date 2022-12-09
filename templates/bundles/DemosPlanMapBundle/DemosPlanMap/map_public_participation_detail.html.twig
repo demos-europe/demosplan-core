@@ -218,7 +218,7 @@
                         <p class="{{ 'c-actionbox__hint show-lap-up'|prefixClass }}">
                             {{ 'statement.map.require_login'|trans({
                                 class: 'c-actionbox__link'|prefixClass,
-                                href: path(projectType == 'gateway' ? 'DemosPlan_misccontent_static_how_to_login' : 'DemosPlan_user_login_alternative')
+                                href: getStaticVariable('login_path')
                             })|wysiwyg }}
                         </p>
                     {% endblock login_link %}
