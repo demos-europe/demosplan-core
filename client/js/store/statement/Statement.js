@@ -151,7 +151,7 @@ function transformStatementStructure ({ el, includes, meta }) {
           const type = relation.data[0].type
 
           statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(st => Object.assign(st.attributes, { id: st.id }))
+          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
 
           if (type === 'StatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
             const attachment = includes
@@ -162,7 +162,7 @@ function transformStatementStructure ({ el, includes, meta }) {
               const sourceAttachment = includes
                 .filter(incl => incl.type === 'File')
                 .filter(incl => attachment[0].relationships.file.data.id === incl.id)
-                .map(sa => Object.assign(sa.attributes, { id: sa.id }))
+                .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
 
               statement.sourceAttachment = sourceAttachment[0]
             } else {
