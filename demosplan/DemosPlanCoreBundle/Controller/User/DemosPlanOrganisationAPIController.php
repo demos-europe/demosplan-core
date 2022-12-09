@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
@@ -45,6 +46,7 @@ use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
+    use CanTransformRequestVariablesTrait;
     /**
      * Get organisation by ID.
      *
