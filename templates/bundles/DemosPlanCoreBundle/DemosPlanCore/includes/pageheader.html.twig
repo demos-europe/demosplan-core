@@ -16,7 +16,6 @@
 
 {%- apply spaceless %}
 
-    {% block header %}
         <header class="{{ 'c-pageheader o-page__padded'|prefixClass }} {{ cssClasses|default|prefixClass }}">
 
             {% if full_width|default(false) != true %}
@@ -102,6 +101,5 @@
             {% endblock heading %}
 
         </header>
-    {% endblock header %}
 
 {% endapply -%}
