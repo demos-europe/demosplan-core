@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\ConcurrentEditionExceptionInterface;
 use Exception;
 
-class ConcurrentEditionException extends Exception
+class ConcurrentEditionException extends Exception implements ConcurrentEditionExceptionInterface
 {
 }
