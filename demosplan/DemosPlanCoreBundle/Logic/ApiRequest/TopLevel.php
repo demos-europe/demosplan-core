@@ -10,16 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use function array_key_exists;
 use ArrayAccess;
-use function is_array;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface;
 use LogicException;
+use function array_key_exists;
+use function is_array;
 use function reset;
 
 /**
  * @see https://jsonapi.org/format/#document-top-level
  */
-class TopLevel implements ArrayAccess
+class TopLevel implements ArrayAccess, TopLevelInterface
 {
     /**
      * @var array

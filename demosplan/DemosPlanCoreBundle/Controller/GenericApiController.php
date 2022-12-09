@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 
 class GenericApiController extends APIController
 {
