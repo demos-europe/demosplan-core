@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\PublicPhaseReportEntryResourceTy
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 
 class DemosPlanReportAPIController extends APIController
 {
