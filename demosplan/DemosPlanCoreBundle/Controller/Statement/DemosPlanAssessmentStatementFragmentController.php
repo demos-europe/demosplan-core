@@ -59,7 +59,6 @@ use function strpos;
  */
 class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessmentController
 {
-    use CanTransformRequestVariablesTrait;
     /**
      * @var StatementHandler
      */
