@@ -26,6 +26,7 @@
         "ext-zip": "*",
         "ext-zlib": "*",
         "babdev/pagerfanta-bundle": "^2.0",
+        "bamarni/composer-bin-plugin": "^1.8",
         "beberlei/doctrineextensions": "^1.0",
         "cebe/php-openapi": "^1.5",
         "cocur/slugify": "^4.0",
@@ -169,6 +170,10 @@
         }
     },
     "extra": {
+      "bamarni-bin": {
+        "bin-links": false,
+        "target-directory": "."
+      },
       "config-dir": "demosplan/DemosPlanCoreBundle/Resources/config",
       "src-dir": "demosplan",
       "symfony": {
@@ -184,7 +189,9 @@
         "sort-packages": true,
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "demos-europe/demosplan-addon-installer": true,
+            "bamarni/composer-bin-plugin": true
         }
     },
     "conflict": {
