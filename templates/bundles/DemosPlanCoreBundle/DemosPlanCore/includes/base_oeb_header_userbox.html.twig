@@ -254,7 +254,7 @@
 
             {% elseif projectType == 'portal' %}
 
-                <a class="{{ 'c-flyout__trigger'|prefixClass }}" href="{{ getStaticVariable('login_path') }}" id="loginLink">
+                <a class="{{ 'c-flyout__trigger'|prefixClass }}" href="{{ path('DemosPlan_user_login_alternative') }}" id="loginLink">
 
                     {%  block loginButton %}
                         <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
