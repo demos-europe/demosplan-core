@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
-use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityChangeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
 
 /**
  * This implementation is used in the {@link GenericApiController generic API implementation}, which
