@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class UserFilterSet.

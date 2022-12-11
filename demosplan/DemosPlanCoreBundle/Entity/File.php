@@ -11,12 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileInUseChecker;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * IMPORTANT: All files not listed in {@link FileInUseChecker::isFileInUse} are deleted as orphans. Make sure to register new
@@ -25,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_files")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
-class File extends CoreEntity implements UuidEntityInterface
+class File extends CoreEntity implements UuidEntityInterface, FileInterface
 {
     /**
      * @var int

@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository")

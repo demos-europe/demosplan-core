@@ -13,12 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTimeInterface;
-use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\VideoRepository")

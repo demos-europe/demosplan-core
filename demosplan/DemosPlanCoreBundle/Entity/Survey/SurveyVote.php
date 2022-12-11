@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Survey;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey

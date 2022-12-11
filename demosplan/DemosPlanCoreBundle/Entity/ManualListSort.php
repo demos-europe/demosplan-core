@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use function is_string;
 
 /**

@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTimeInterface;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 
 /**
  * @ORM\Entity()

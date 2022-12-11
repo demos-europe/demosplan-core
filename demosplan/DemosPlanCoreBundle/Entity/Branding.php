@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 
 /**
  * @ORM\Entity(repositoryClass=BrandingRepository::class)

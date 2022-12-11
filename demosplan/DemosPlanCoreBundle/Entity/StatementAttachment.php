@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Constraint\IsValidStatementAttachmentType;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Some kind of file connected to a {@link Statement} or original {@link Statement}.

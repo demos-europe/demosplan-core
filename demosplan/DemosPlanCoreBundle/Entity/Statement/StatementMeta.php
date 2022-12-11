@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table(name="_statement_meta")

@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table(name="_statement_attribute")

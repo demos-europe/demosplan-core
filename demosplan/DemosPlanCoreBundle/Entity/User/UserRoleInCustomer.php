@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).

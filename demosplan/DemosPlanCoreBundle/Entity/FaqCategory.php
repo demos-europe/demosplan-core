@@ -11,10 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository")
