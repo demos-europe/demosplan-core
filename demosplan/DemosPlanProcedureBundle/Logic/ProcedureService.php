@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -125,7 +126,7 @@ use function stripos;
 use function strlen;
 use function var_export;
 
-class ProcedureService extends CoreService
+class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
     /**
      * @var ObjectPersisterInterface

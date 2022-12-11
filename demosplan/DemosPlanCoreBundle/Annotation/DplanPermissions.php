@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Annotation;
 
+use DemosEurope\DemosplanAddon\Contracts\Permission\DplanPermissionsInterface;
 use Doctrine\Common\Annotations\Annotation\Attribute;
 use Doctrine\Common\Annotations\Annotation\Attributes;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\Common\Annotations\Annotation\Target;
+use RuntimeException;
 use function is_array;
 use function is_string;
-use RuntimeException;
 
 /**
  * @Annotation
@@ -25,7 +26,7 @@ use RuntimeException;
  *  @Attribute("permissions", type="mixed")
  * )
  */
-class DplanPermissions
+class DplanPermissions implements DplanPermissionsInterface
 {
     /**
      * The permissions that must be enabled for the annotated route to be available.

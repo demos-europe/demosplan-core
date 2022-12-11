@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\ConnectionException;
@@ -154,7 +155,7 @@ use function is_string;
 use function strcmp;
 use function strlen;
 
-class StatementService extends CoreService
+class StatementService extends CoreService implements StatementServiceInterface
 {
     /**
      * @var ProcedureService

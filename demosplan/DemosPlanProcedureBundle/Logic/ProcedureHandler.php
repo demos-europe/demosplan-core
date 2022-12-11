@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
@@ -43,7 +44,7 @@ use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\PublicAffairsAgentHandler;
 use function array_key_exists;
 
-class ProcedureHandler extends CoreHandler
+class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 {
     /**
      * @var ServiceStorage
