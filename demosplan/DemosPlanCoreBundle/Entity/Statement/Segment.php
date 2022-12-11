@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
