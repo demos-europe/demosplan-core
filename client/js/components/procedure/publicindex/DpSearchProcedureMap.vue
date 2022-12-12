@@ -19,7 +19,7 @@
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
         route="DemosPlan_procedure_public_suggest_procedure_location_json"
-        :height="'40px'"
+        :height="'34px'"
         :additional-route-params="{ maxResults: 12 }"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
