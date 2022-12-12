@@ -12,10 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Doctrine\ORM\EntityNotFoundException;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -25,6 +21,10 @@ use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTran
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
+use Doctrine\ORM\EntityNotFoundException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class DemosPlanEntityContentChangeAPIController extends APIController
 {
@@ -35,7 +35,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      *        name="dplan_api_history_of_all_fields_of_specific_datetime",
      *        methods={"GET"},
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_content_changes_view")
      *
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
@@ -61,7 +60,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      *     name="dplan_api_statement_fragment_history",
      *     methods={"GET"},
      *     options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_fragment_content_changes_view")
      *
      * @return APIResponse|JsonResponse
@@ -96,7 +94,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
      * Then the combination of ABC is a change instance.
-     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     public function getSegmentContentChangeAction(

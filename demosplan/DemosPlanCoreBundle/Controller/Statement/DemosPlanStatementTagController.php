@@ -29,6 +29,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
     use CanTransformRequestVariablesTrait;
+
     /**
      * Renders the admin view of a single tag.
      *
@@ -37,7 +38,6 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/tag/{tag}",
      *     defaults={"master": false}
      * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -113,7 +113,6 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     defaults={"master": false},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -150,7 +149,6 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/schlagworte/edit",
      *     defaults={"master": false},
      * )
-     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -340,7 +338,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         return $this->redirect($this->generateUrl('DemosPlan_statement_administration_tags',
-                ['procedure' => $procedure]
-            ).'#'.$anchor);
+            ['procedure' => $procedure]
+        ).'#'.$anchor);
     }
 }

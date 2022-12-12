@@ -12,10 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Survey;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Doctrine\ORM\Mapping as ORM;
+use Exception;
+use UnexpectedValueException;
 
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
@@ -70,6 +71,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="created_date", type="date", nullable=false)
      */
     protected $createdDate;
@@ -129,7 +131,7 @@ class SurveyVote extends CoreEntity implements UuidEntityInterface
     public function setTextReview(string $textReview): void
     {
         if (!in_array($textReview, self::getTextReviewAllowedValues(), true)) {
-            throw new \UnexpectedValueException(sprintf('Tried to set field $textReview with value: "%s"', $textReview));
+            throw new UnexpectedValueException(sprintf('Tried to set field $textReview with value: "%s"', $textReview));
         }
 
         $this->textReview = $textReview;

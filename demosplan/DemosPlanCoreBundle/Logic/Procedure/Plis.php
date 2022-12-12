@@ -12,11 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use Exception;
 use Psr\Log\LoggerInterface;
+use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
-use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 
 class Plis
 {
@@ -69,7 +71,7 @@ class Plis
      *
      * @return array<int, array{procedureName: string, uuid: string}>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getLgvPlisProcedureList(): array
     {
@@ -79,7 +81,7 @@ class Plis
         // Prüfung, ob ein WFS-Fehler aufgetreten ist
         if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
             $procedureList = [];
-            $xml = new \SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
+            $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');
 
             // Parse das Ergebnis nach den Verfahrensnamen
@@ -98,7 +100,7 @@ class Plis
         $plisError = $this->translator->trans('error.plis.connection');
         $this->messageBag->add('error', $plisError);
 
-        throw new \Exception('Liste der Verfahren aus der PLIS-Datenbank nicht verfügbar');
+        throw new Exception('Liste der Verfahren aus der PLIS-Datenbank nicht verfügbar');
     }
 
     /**
@@ -108,7 +110,7 @@ class Plis
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getLgvPlisPlanningcause($uuid)
     {
@@ -118,7 +120,7 @@ class Plis
         // Prüfung, ob ein WFS-Fehler aufgetreten ist
         if (Response::HTTP_OK === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
             $procedure = [];
-            $xml = new \SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
+            $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
             $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');
 
             foreach ($xml->xpath('//app:plis_planungsanlass') as $xpathPlanungsanlass) {
@@ -138,7 +140,7 @@ class Plis
         $plisError = $this->translator->trans('error.plis.connection');
         $this->messageBag->add('error', $plisError);
 
-        throw new \Exception('Liste der Verfahren aus der PLIS-Datenbank nicht verfügbar');
+        throw new Exception('Liste der Verfahren aus der PLIS-Datenbank nicht verfügbar');
     }
 
     /**
@@ -146,7 +148,7 @@ class Plis
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function getPlisProcedureList()
     {

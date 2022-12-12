@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 /**
  * @ORM\Table(name="statement_likes")
@@ -55,7 +56,7 @@ class StatementLike implements UuidEntityInterface
     protected $uId;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -132,7 +133,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -140,7 +141,7 @@ class StatementLike implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return StatementLike
      */

@@ -13,19 +13,19 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use JsonException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
+use JsonException;
 use stdClass;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class GetCapabilitesRpcMethodSolver implements RpcMethodSolverInterface
 {
-    const METHOD = 'map.get_capabilities';
+    public const METHOD = 'map.get_capabilities';
 
     /**
      * @var MapCapabilitiesLoader

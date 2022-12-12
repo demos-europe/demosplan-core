@@ -10,14 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use function array_key_exists;
+use function array_merge;
+
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -40,10 +36,17 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
-use function array_key_exists;
-use function array_merge;
+use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
+
 use function strcmp;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function usort;
 
 /**
@@ -70,7 +73,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_assessment_set_statement_assignment",
      *     path="/assignment/statement/{entityId}/{assignOrUnassign}",
      * )
-     *
      * @DplanPermissions("feature_statement_assignment")
      *
      * @throws Exception
@@ -98,7 +100,7 @@ class DemosPlanAssessmentController extends BaseController
             $user = $userService->getSingleUser($user->getIdent());
         }
 
-        //without report!:
+        // without report!:
         $statementHandler->setAssigneeOfStatement($statementToUpdate, $user);
 
         $assignee = $statementToUpdate->getAssignee();
@@ -124,7 +126,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_orga_list",
      *     path="/statement/manual/list/{procedureId}",
      * )
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -162,7 +163,6 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/statement/new/manual/{procedureId}",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -239,7 +239,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_single_view",
      *     path="procedure/{procedureId}/statement/{statementId}/dataInput"
      * )
-     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -287,19 +286,19 @@ class DemosPlanAssessmentController extends BaseController
 
         $title = 'statement.view';
         $breadcrumb->addItem(
-                [
-                    'title' => $translator->trans('procedure.admin.list', [], 'page-title'),
-                    'url'   => $this->generateUrl('DemosPlan_procedure_list_data_input_orga_procedures'),
-                ]
-            )->addItem(
-                [
-                    'title' => $procedure->getName(),
-                    'url'   => $this->generateUrl(
-                        'DemosPlan_statement_orga_list',
-                        ['procedureId' => $procedureId]
-                    ),
-                ]
-            );
+            [
+                'title' => $translator->trans('procedure.admin.list', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_procedure_list_data_input_orga_procedures'),
+            ]
+        )->addItem(
+            [
+                'title' => $procedure->getName(),
+                'url'   => $this->generateUrl(
+                    'DemosPlan_statement_orga_list',
+                    ['procedureId' => $procedureId]
+                ),
+            ]
+        );
 
         return $this->renderTemplate(
             '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
@@ -314,7 +313,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_single_statement_view",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}"
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -342,7 +340,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_detach_statement",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}/detach",
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -372,7 +369,6 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_resolve",
      *     path="/verfahren/{procedure}/cluster/resolve/{headStatementId}",
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -402,7 +398,6 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/_ajax/assessment/{procedureId}",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_procedure_get_base_data")
      */
     public function assessmentBaseAjaxAction(
@@ -447,7 +442,7 @@ class DemosPlanAssessmentController extends BaseController
             $data['fragmentStatus'] = $this->getFormParameter('fragment_status');
         }
 
-        //Verfahrensschritte
+        // Verfahrensschritte
         $data['internalPhases'] = $this->globalConfig->getInternalPhases();
         $data['externalPhases'] = $this->globalConfig->getExternalPhases();
 

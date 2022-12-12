@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_entries")
@@ -75,14 +76,16 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     protected $initialEntry = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_fe_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_fe_modified_date", type="datetime", nullable=false)
      */
@@ -311,7 +314,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return ForumEntry
      */
@@ -325,7 +328,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -335,7 +338,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifyDate.
      *
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      *
      * @return ForumEntry
      */
@@ -349,7 +352,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifyDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {

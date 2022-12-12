@@ -11,12 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class DemosPlanProcedureLayerCategoryAPIController.
@@ -35,7 +36,6 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      *     path="/{layerCategoryId}",
      *     methods={"DELETE"},
      *     name="dplan_api_procedure_layer_category_delete")
-     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @return $this|JsonResponse
@@ -57,7 +57,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
             );
 
             return $this->handleApiError($e);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add('error', 'error.gislayerCategory.delete');
 
             return $this->handleApiError($e);

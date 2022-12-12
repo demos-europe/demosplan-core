@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class FaqApiController extends APIController
 {
@@ -26,7 +26,6 @@ class FaqApiController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_admin_faq_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_faq")
      *
      * @deprecated use `api_resource_update` route instead
@@ -53,7 +52,6 @@ class FaqApiController extends APIController
      *        methods={"DELETE"},
      *        name="dp_api_admin_faq_delete",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_faq")
      */
     public function deleteAction(string $faqId, FaqHandler $faqHandler): APIResponse

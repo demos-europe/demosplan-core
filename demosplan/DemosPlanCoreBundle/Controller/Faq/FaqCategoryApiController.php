@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Transformers\FaqCategoryTransformer;
+use Exception;
+use Symfony\Component\Routing\Annotation\Route;
 
 class FaqCategoryApiController extends APIController
 {
@@ -26,7 +26,6 @@ class FaqCategoryApiController extends APIController
      *        methods={"GET"},
      *        name="dp_api_faq_category_list",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_faq")
      */
     public function listAction(FaqHandler $faqHandler): APIResponse

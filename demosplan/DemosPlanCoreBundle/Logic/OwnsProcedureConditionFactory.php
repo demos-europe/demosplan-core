@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\Querying\Contracts\FunctionInterface;
-use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\Querying\Contracts\FunctionInterface;
+use Psr\Log\LoggerInterface;
 
 class OwnsProcedureConditionFactory
 {
@@ -86,7 +86,7 @@ class OwnsProcedureConditionFactory
             'orga', 'id'
         );
 
-        //T8427: allow access by manually configured users, overwriting the organisation-based access
+        // T8427: allow access by manually configured users, overwriting the organisation-based access
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $planningAgencyIsAuthorized = $this->isAuthorizedViaPlanningAgency();
             $userIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
@@ -116,7 +116,7 @@ class OwnsProcedureConditionFactory
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             // Fachplaner-Admin GLAUTH Kommune oder Fachplaner SB
 
-            //Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
+            // Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
 
             $ownsOrgaRoleCondition = $this->conditionFactory->propertyHasAnyOfValues(
                 [

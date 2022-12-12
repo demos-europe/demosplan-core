@@ -10,13 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
+use function compact;
+
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use function compact;
+use Throwable;
 
 class UserInfoDataCollector extends DataCollector
 {
@@ -30,7 +32,7 @@ class UserInfoDataCollector extends DataCollector
         $this->currentUser = $currentUser;
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, Throwable $exception = null): void
     {
         $permissions = [];
         $permissionStats = null;

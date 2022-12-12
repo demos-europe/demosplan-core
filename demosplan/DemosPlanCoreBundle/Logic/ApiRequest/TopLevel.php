@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use function array_key_exists;
+
 use ArrayAccess;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface;
-use LogicException;
-use function array_key_exists;
+
 use function is_array;
+
+use LogicException;
+
 use function reset;
 
 /**

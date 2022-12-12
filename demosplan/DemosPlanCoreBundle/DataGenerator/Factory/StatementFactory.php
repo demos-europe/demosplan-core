@@ -12,9 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -26,6 +23,9 @@ use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use Tightenco\Collect\Support\Collection;
 
 class StatementFactory extends FactoryBase
 {
@@ -216,9 +216,9 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
-     * @throws InvalidUserDataException on invalid user value
-     *
      * @return mixed
+     *
+     * @throws InvalidUserDataException on invalid user value
      */
     protected function determineUserInfo($baseData)
     {

@@ -12,19 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\JsonApi\RequestHandling\UrlParameter;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use Exception;
-use League\Fractal\Resource\Collection;
-use LogicException;
-use Pagerfanta\Adapter\ArrayAdapter;
-use RuntimeException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -48,6 +35,19 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\RequestHandling\UrlParameter;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use Exception;
+use League\Fractal\Resource\Collection;
+use LogicException;
+use Pagerfanta\Adapter\ArrayAdapter;
+use RuntimeException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanUserAPIController extends APIController
 {
@@ -72,7 +72,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_user_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
@@ -107,7 +106,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_users_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
@@ -170,7 +168,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_user_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
@@ -230,7 +227,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"DELETE"},
      *        name="dplan_api_user_delete",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
@@ -247,7 +243,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_api_user_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_edit")
      */
     public function updateAction(string $id, UserHandler $userHandler): APIResponse

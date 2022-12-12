@@ -12,13 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerCategoryResourceType;
 use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanMapBundle\Logic\MapHandler;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class DemosPlanProcedureLayersAPIController.
@@ -47,7 +48,6 @@ class DemosPlanProcedureLayersAPIController extends APIController
 
     /**
      * @Route(methods={"POST", "PATCH"}, name="update")
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @throws MessageBagException
@@ -69,7 +69,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
                 'error.gislayerCategory.treedepth',
                 ['max_depth' => $maxDepth]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $messageBag->add('error', 'error.gislayers.updated');
         }
 
@@ -80,7 +80,6 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * Delete a specific GisLayer.
      *
      * @Route(path="{layerId}", methods={"DELETE"}, name="delete")
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse
@@ -94,7 +93,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
             $this->getMessageBag()->add('confirm', 'confirm.gislayer.delete');
 
             return $this->renderDelete();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add('error', 'error.gislayer.delete');
 
             return $this->handleApiError($e);

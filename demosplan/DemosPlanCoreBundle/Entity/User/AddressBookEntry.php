@@ -14,9 +14,9 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table
@@ -26,6 +26,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -35,6 +36,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", nullable=true)
      */
     protected $name;
@@ -52,6 +54,7 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false)
      */
     protected $emailAddress;

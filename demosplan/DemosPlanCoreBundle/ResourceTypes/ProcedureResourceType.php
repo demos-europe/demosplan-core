@@ -13,9 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
@@ -23,6 +20,10 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
+
 use function is_array;
 
 /**
@@ -159,10 +160,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
     {
         // procedure resources can never be blueprints
         $noBlueprintCondition = $this->conditionFactory->anyConditionApplies(
-        /*
-         * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
-         * until the property is migrated the following condition ensures to handle the int correcly.
-         */
+            /*
+             * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
+             * until the property is migrated the following condition ensures to handle the int correcly.
+             */
             $this->conditionFactory->propertyHasValue(0, ...$this->master),
             $this->conditionFactory->propertyHasValue(false, ...$this->master)
         );
@@ -281,9 +282,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             });
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
-            //T18749
+            // T18749
             $properties[] = $this->createAttribute($this->daysLeft)->readable(false, function (Procedure $procedure): string {
-                return $this->procedureExtension->getDaysLeftFromProcedureObject($procedure, 'auto'); //type?
+                return $this->procedureExtension->getDaysLeftFromProcedureObject($procedure, 'auto'); // type?
             });
 
             $properties[] = $this->createAttribute($this->internalPhasePermissionset)

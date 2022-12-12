@@ -14,6 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
+use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
+use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -31,12 +37,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
-use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
-use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
 
 abstract class DplanAuthenticator extends AbstractAuthenticator
 {
@@ -177,7 +177,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
             $this->logger->info('User has multiple users');
 
             if (false === $publicAgencyUser->isProfileCompleted() || true === $publicAgencyUser->isNewUser()) {
-                //Set user with incomplete profile first to be filled out
+                // Set user with incomplete profile first to be filled out
                 $user = $publicAgencyUser;
             }
         }

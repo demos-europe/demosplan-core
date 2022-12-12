@@ -15,14 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DateInterval;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -36,7 +28,17 @@ use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
+
 use function in_array;
+
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class StatementSynchronizer
 {
@@ -207,7 +209,7 @@ class StatementSynchronizer
             throw new InvalidArgumentException('Given statement is deleted.');
         }
 
-        //persist statement here to create an uuid which is needed for copying files
+        // persist statement here to create an uuid which is needed for copying files
         $newOriginalStatement = new Statement();
         $this->statementRepository->persistEntities([$newOriginalStatement]);
 

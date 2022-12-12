@@ -12,15 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use Exception;
+use proj4php\Proj;
+use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
-use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use proj4php\Proj4php;
-use proj4php\Proj;
 
 class Xplanbox
 {

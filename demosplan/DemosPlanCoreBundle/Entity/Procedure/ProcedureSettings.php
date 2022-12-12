@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_procedure_settings", indexes={@ORM\Index(name="_procedure_settings_ibfk_1", columns={"_p_id"})})
@@ -217,14 +217,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPublicPhase = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_switch_date", type="datetime", nullable=true)
      */
     protected $designatedSwitchDate = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_switch_date", type="datetime", nullable=true)
      */
@@ -247,14 +247,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPublicPhaseChangeUser = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_end_date", type="datetime", nullable=true)
      */
     protected $designatedEndDate = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_end_date", type="datetime", nullable=true)
      */
@@ -918,14 +918,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Returns the date which is defined for switching the current phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *
-     * @return \DateTime|null date, which is set | null if date not set or there are no related settings
+     * @return DateTime|null date, which is set | null if date not set or there are no related settings
      */
-    public function getDesignatedSwitchDate(): ?\DateTime
+    public function getDesignatedSwitchDate(): ?DateTime
     {
         return $this->designatedSwitchDate;
     }
 
-    public function setDesignatedSwitchDate(?\DateTime $designatedSwitchDate): self
+    public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
     {
         $this->designatedSwitchDate = $designatedSwitchDate;
 
@@ -936,14 +936,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Returns the date which is defined for switching the current public phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *
-     * @return \DateTime|null date, which is set | null if date not set or there are no related settings
+     * @return DateTime|null date, which is set | null if date not set or there are no related settings
      */
-    public function getDesignatedPublicSwitchDate(): ?\DateTime
+    public function getDesignatedPublicSwitchDate(): ?DateTime
     {
         return $this->designatedPublicSwitchDate;
     }
 
-    public function setDesignatedPublicSwitchDate(?\DateTime $designatedPublicSwitchDate): self
+    public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
     {
         $this->designatedPublicSwitchDate = $designatedPublicSwitchDate;
 
@@ -953,13 +953,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Returns the End Date to which will be switch, when the time(dateOfSwitchPhase) has come.
      */
-    public function getDesignatedEndDate(): ?\DateTime
+    public function getDesignatedEndDate(): ?DateTime
     {
         return $this->designatedEndDate;
     }
 
     /**
-     * @param \DateTime $designatedEndDate
+     * @param DateTime $designatedEndDate
      *
      * @return $this
      */
@@ -973,7 +973,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     /**
      * Returns the End Date to which will be switch, when the time(dateOfSwitchPhase) has come.
      */
-    public function getDesignatedPublicEndDate(): ?\DateTime
+    public function getDesignatedPublicEndDate(): ?DateTime
     {
         return $this->designatedPublicEndDate;
     }

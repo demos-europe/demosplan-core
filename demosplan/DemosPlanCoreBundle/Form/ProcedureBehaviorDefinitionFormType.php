@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Form;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
 
 class ProcedureBehaviorDefinitionFormType extends AbstractBaseResourceFormType
 {
@@ -30,36 +30,36 @@ class ProcedureBehaviorDefinitionFormType extends AbstractBaseResourceFormType
     {
         $procedureBehaviorDefinitionPath = ProcedureBehaviorDefinitionResourceType::startPath();
         $builder->add(
-                $procedureBehaviorDefinitionPath->allowedToEnableMap->getAsNamesInDotNotation(),
+            $procedureBehaviorDefinitionPath->allowedToEnableMap->getAsNamesInDotNotation(),
+            CheckboxType::class,
+            [
+                'label'    => $this->translator->trans('map.allow.procedure.type.activate'),
+                'required' => false,
+                'attr'     => [],
+            ]
+        );
+        if ($this->permissions->hasPermission('field_statement_priority_area')) {
+            $builder->add(
+                $procedureBehaviorDefinitionPath->hasPriorityArea->getAsNamesInDotNotation(),
                 CheckboxType::class,
                 [
-                    'label'    => $this->translator->trans('map.allow.procedure.type.activate'),
+                    'label'    => $this->translator->trans('potential.areas.activate'),
                     'required' => false,
                     'attr'     => [],
                 ]
             );
-        if ($this->permissions->hasPermission('field_statement_priority_area')) {
-            $builder->add(
-                    $procedureBehaviorDefinitionPath->hasPriorityArea->getAsNamesInDotNotation(),
-                    CheckboxType::class,
-                    [
-                        'label'    => $this->translator->trans('potential.areas.activate'),
-                        'required' => false,
-                        'attr'     => [],
-                    ]
-                );
         }
         $builder->add(
-                $procedureBehaviorDefinitionPath->participationGuestOnly->getAsNamesInDotNotation(),
-                CheckboxType::class,
-                [
-                    'label'    => $this->translator->trans('text.procedure.types.guests.only'),
-                    'required' => false,
-                    'attr'     => [
-                        'disabled' => true,
-                    ],
-                ]
-            )
+            $procedureBehaviorDefinitionPath->participationGuestOnly->getAsNamesInDotNotation(),
+            CheckboxType::class,
+            [
+                'label'    => $this->translator->trans('text.procedure.types.guests.only'),
+                'required' => false,
+                'attr'     => [
+                    'disabled' => true,
+                ],
+            ]
+        )
             ->setDataMapper($this);
     }
 }

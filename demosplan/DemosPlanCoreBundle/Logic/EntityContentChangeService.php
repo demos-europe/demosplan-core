@@ -10,9 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use function array_key_exists;
+
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
+use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
+use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Exception;
@@ -24,18 +36,8 @@ use ReflectionProperty;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 use Twig\Environment;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use function array_key_exists;
 
 /**
  * Class EntityContentChangeService.
@@ -125,7 +127,7 @@ class EntityContentChangeService extends CoreService
             return $this->fieldMapping;
         }
 
-        //convert Proxy-class (for tests)
+        // convert Proxy-class (for tests)
         $class = str_replace('Proxies\\__CG__\\', '', $class);
         $this->loadFieldMapping();
 
@@ -236,8 +238,8 @@ class EntityContentChangeService extends CoreService
             $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
             $postUpdateValue = $incomingUpdatedObject->$methodName();
             if ($preUpdateValue instanceof Collection) {
-                //getOriginalEntityData() seems to be ignore n:m association.
-                //use getSnapshot() to get "pre update" data
+                // getOriginalEntityData() seems to be ignore n:m association.
+                // use getSnapshot() to get "pre update" data
                 $preUpdateValue->initialize();
                 $preUpdateValue = $preUpdateValue->getSnapshot();
             }
@@ -298,7 +300,7 @@ class EntityContentChangeService extends CoreService
                 $postUpdateIdentifier = $postUpdateValue;
             }
 
-            //ensure defined values:
+            // ensure defined values:
             $preUpdateValue = $preUpdateValue ?? '';
             $postUpdateValue = $postUpdateValue ?? '';
             $preUpdateIdentifier = $preUpdateIdentifier ?? $preUpdateValue;
@@ -306,7 +308,7 @@ class EntityContentChangeService extends CoreService
             $preUpdateIdentifiers = $preUpdateIdentifiers ?? $preUpdateValue;
             $postUpdateIdentifiers = $postUpdateIdentifiers ?? $postUpdateValue;
 
-            //use IDs to determine change, instead of using identifier because identifier may not be unique
+            // use IDs to determine change, instead of using identifier because identifier may not be unique
             if ($preUpdateValue !== $postUpdateValue) {
                 if (is_array($preUpdateValue) && is_array($postUpdateValue)) {
                     $preUpdateValue = $this->convertToVersionString($preUpdateIdentifiers);
@@ -319,7 +321,7 @@ class EntityContentChangeService extends CoreService
                     return $this->getUnifiedDiffOfTwoStrings($preUpdateIdentifier, $postUpdateIdentifier, $propertyName, $entityType);
                 }
 
-                //change detected, but not arrays or strings?
+                // change detected, but not arrays or strings?
                 throw new NotYetImplementedException('should have been string or array.');
             }
         }
@@ -952,13 +954,12 @@ class EntityContentChangeService extends CoreService
             );
 
             return ++$mailCounter;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Assigned tasks notification mail could not be send.', [$user]);
 
             return $mailCounter;
         }
     }
-
 
     /**
      * By given attribute name.
@@ -977,7 +978,7 @@ class EntityContentChangeService extends CoreService
                 return $methodName;
             }
 
-            //part of T13084: because of difference between attribute name "submit"
+            // part of T13084: because of difference between attribute name "submit"
             // and incoming field name "submittedDate", there is a special logic necessary to create the
             // correct method Name.
             $methodName = 'get'.ucfirst($attributeName).'tedDate';
@@ -990,7 +991,6 @@ class EntityContentChangeService extends CoreService
 
         throw new InvalidDataException('Unable to map incoming field '.$attributeName.' name to getter-method of a property');
     }
-
 
     /**
      * By given object.
@@ -1018,6 +1018,4 @@ class EntityContentChangeService extends CoreService
 
         return $methodNames;
     }
-
-
 }

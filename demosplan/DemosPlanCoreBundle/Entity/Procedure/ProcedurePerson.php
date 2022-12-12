@@ -43,7 +43,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
     private $fullName;
@@ -52,7 +51,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetName;
@@ -61,7 +59,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $streetNumber;
@@ -70,7 +67,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $city;
@@ -79,7 +75,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      */
     private $postalCode;
@@ -88,7 +83,6 @@ class ProcedurePerson implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
-     *
      * @Assert\NotBlank(allowNull=true, normalizer="trim")
      * @Assert\Email()
      */

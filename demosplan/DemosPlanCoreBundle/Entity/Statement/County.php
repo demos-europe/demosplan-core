@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty;
 use demosplan\DemosPlanCoreBundle\EventListener\CountyEntityListener;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_county")
@@ -51,7 +51,7 @@ class County extends CoreEntity implements UuidEntityInterface
 
     /**
      * This is an unmapped property that has no strict connection to anything in the database.
-     * Instead, it is filled via a lifecycle event listener {@link CountyEntityListener }.
+     * Instead, it is filled via a lifecycle event listener {@link CountyEntityListener}.
      * It always contains the counties e-mail address for the current customer.
      *
      * @var string

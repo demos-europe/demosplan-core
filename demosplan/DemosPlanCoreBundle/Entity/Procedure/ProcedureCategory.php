@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Procedure category.
@@ -63,8 +63,6 @@ class ProcedureCategory extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set name.
-     *
-     * @return ProcedureCategory
      */
     public function setName(string $name): self
     {

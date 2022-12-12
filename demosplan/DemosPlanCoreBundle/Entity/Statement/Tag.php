@@ -10,15 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
  * @ORM\Table(
@@ -49,7 +50,6 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\ManyToOne(targetEntity="TagTopic", inversedBy="tags", cascade={"persist"})
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
-     *
      * @Assert\NotNull(groups={"Default", "segments_import"})
      * @Assert\Type(groups={"segments_import"}, type="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic")
      */
@@ -59,13 +59,12 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var string
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
-     *
      * @Assert\NotBlank(groups={"Default", "segments_import"}, message="Tag title may not be empty.");
      */
     protected $title = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_t_create_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -182,7 +181,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -263,7 +262,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     }
 
     /**
-     * @param \DateTime $date
+     * @param DateTime $date
      */
     public function setCreateDate($date)
     {

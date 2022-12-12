@@ -13,16 +13,15 @@ namespace demosplan\DemosPlanCoreBundle\Controller;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\SlugDraftValueObject;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class SlugDraftApiController.
@@ -39,7 +38,6 @@ class SlugDraftApiController extends APIController
      * However, that changes if the route starts to support an
      * "is-slug-already-taken"-functionality, in this case adjust the permissions
      * accordingly.
-     *
      * @DplanPermissions("feature_short_url")
      *
      * @return APIResponse|JsonResponse
@@ -71,6 +69,5 @@ class SlugDraftApiController extends APIController
         $slugDraft->lock();
 
         return $this->renderItem($slugDraft, SlugDraftTransformer::class, Response::HTTP_CREATED);
-
     }
 }

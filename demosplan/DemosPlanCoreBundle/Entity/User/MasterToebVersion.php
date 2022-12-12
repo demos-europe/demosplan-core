@@ -14,9 +14,9 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table(name="_master_toeb_versions")
@@ -228,18 +228,21 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="_mt_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="_mt_modified_date",type="datetime", nullable=false)
      */
     protected $modifiedDate;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_mtv_version_date", type="datetime", nullable=false)
      */

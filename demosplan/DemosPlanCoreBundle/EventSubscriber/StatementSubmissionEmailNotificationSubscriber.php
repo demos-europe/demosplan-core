@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Event\GuestStatementSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
 use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
+use Exception;
 
 class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
 {
@@ -56,16 +57,16 @@ class StatementSubmissionEmailNotificationSubscriber extends BaseEventSubscriber
     {
         if (0 < count($event->getSubmittedStatements())) {
             if (!$event->isPublic()) {
-                //Use Statements instead of DraftStatements because ConsultationToken is required later,
+                // Use Statements instead of DraftStatements because ConsultationToken is required later,
                 // which cant be found with information of the DraftStatements
                 $this->statementSubmissionNotifier->sendConfirmationMails($event->getSubmittedStatements());
             }
 
             if ($this->permissions->hasPermission('feature_notification_statement_new')) {
                 try {
-                    //Benachrichtigung für Fachplaner
+                    // Benachrichtigung für Fachplaner
                     $this->statementSubmissionNotifier->sendNotificationEmailForAdmins($event->getSubmittedStatements());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getLogger()->warning('Get Sending Notification Email failed: ', [$e]);
                 }
             }

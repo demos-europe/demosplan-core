@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureInCoupleAlreadyUsedConstraint;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository")
@@ -43,7 +43,6 @@ class ProcedureCoupleToken implements UuidEntityInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, unique=true)
-     *
      * @Assert\NotNull(message="procedureCoupleToken.sourceProceudre.not.null")
      */
     protected $sourceProcedure;
@@ -63,7 +62,6 @@ class ProcedureCoupleToken implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=12, nullable=false, unique=true, options={"fixed":true})
-     *
      * @Assert\Length(max=ProcedureCoupleToken::TOKEN_LENGTH, min=ProcedureCoupleToken::TOKEN_LENGTH, normalizer="trim")
      * @Assert\NotBlank(message="procedureCoupleToken.token.invalid", allowNull=false, normalizer="trim")
      */

@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 /** @ORM\MappedSuperclass */
 abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface

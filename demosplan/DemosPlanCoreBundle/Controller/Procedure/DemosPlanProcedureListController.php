@@ -10,20 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use function array_key_exists;
+use function date;
+
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Elastica\Exception\NotFoundException;
-use Exception;
-use ReflectionException;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -43,16 +34,30 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use function array_key_exists;
-use function date;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Elastica\Exception\NotFoundException;
+use Exception;
+
 use function explode;
 use function is_array;
 use function is_string;
+
+use proj4php\Point;
+use proj4php\Proj;
+use proj4php\Proj4php;
+use ReflectionException;
+
 use function strlen;
 use function substr;
-use proj4php\Point;
-use proj4php\Proj4php;
-use proj4php\Proj;
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Controller that contains methods regarding lists of procedures.
@@ -66,7 +71,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_list_search",
      *     path="/verfahren/suche",
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $title Must be empty instead of null to allow
@@ -140,7 +144,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_public_orga_index",
      *     path="/plaene/{orgaSlug}"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $title Must be empty instead of null to allow
@@ -214,7 +217,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     path="/verfahren/suche/stellungnahmen",
      *     methods={"GET"},
      *     name="DemosPlan_procedure_search_statements")
-     *
      * @DplanPermissions("area_admin_procedures", "area_search_submitter_in_procedures")
      *
      * @return RedirectResponse|Response
@@ -242,7 +244,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     methods={"POST"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @throws Exception
@@ -261,7 +262,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     methods={"POST"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @throws Exception
@@ -280,7 +280,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     methods={"GET"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @return StreamedResponse|RedirectResponse
@@ -307,13 +306,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     path="/verfahren/verwalten",
      *     methods={"POST"},
      * )
-     *
      * @Route(
      *     name="DemosPlan_procedure_administration_get",
      *     path="/verfahren/verwalten",
      *     methods={"GET"},
      * )
-     *
      * @DplanPermissions("area_admin_procedures")
      *
      * @throws Exception
@@ -341,7 +338,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     methods={"GET"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_procedure_templates")
      *
      * @throws Exception
@@ -382,7 +378,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     path="/list/json",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return Response
@@ -493,7 +488,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 'procedureCount' => count($serviceOutput['list']['procedurelist']),
             ];
 
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         } catch (Exception $e) {
             return $this->handleAjaxError($e);
@@ -508,7 +503,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     path="/suggest/procedureLocation/json",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return Response
@@ -591,7 +585,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 'suggestions' => $filteredSuggestions,
             ];
 
-            //return result as JSON
+            // return result as JSON
             return $this->renderJson($response);
         } catch (Exception $e) {
             return $this->handleAjaxError($e);
@@ -605,7 +599,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_public_orga_id_index",
      *     path="/oid/{orgaId}"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return RedirectResponse|Response

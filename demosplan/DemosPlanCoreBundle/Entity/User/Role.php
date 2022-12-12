@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/

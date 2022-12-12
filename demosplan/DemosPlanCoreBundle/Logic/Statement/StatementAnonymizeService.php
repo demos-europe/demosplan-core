@@ -12,9 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Exception;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -27,6 +24,9 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementAnonymizeService extends CoreService
 {
@@ -253,11 +253,11 @@ class StatementAnonymizeService extends CoreService
             $anonymizeSubmitterData = $statement->isSubmitter($userId);
             $anonymizeAuthorData = $statement->isAuthor($userId);
 
-            //anonymize data of user is more or less deprecated
-            //instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
+            // anonymize data of user is more or less deprecated
+            // instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
             if ($statement->isSubmitter($userId)
                 && $statement->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator()) {
-                //Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
+                // Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
                 $anonymizeAuthorData = true;
             }
         }

@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table(name="_orga_type")
@@ -23,7 +23,8 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 class OrgaType extends CoreEntity implements UuidEntityInterface
 {
     /**
-     * AHB = Anhörungsbehörde = hearing authority
+     * AHB = Anhörungsbehörde = hearing authority.
+     *
      * @const string Denotes a hearing authority agency
      */
     public const HEARING_AUTHORITY_AGENCY = 'OHAUTH';
@@ -63,7 +64,7 @@ class OrgaType extends CoreEntity implements UuidEntityInterface
         self::HEARING_AUTHORITY_AGENCY => [
             Role::HEARING_AUTHORITY_ADMIN,
             Role::HEARING_AUTHORITY_WORKER,
-        ]
+        ],
     ];
 
     /**

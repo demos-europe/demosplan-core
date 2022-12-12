@@ -12,10 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/filterhash/ Wiki: Filterhash
@@ -27,6 +27,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -36,18 +37,21 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, length=12, unique=true)
      */
     protected $hash;
 
     /**
      * @var StoredQueryInterface
+     *
      * @ORM\Column(type="dplan.stored_query", nullable=false)
      */
     protected $storedQuery;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -55,6 +59,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -62,6 +67,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Procedure
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="NO ACTION")
      */

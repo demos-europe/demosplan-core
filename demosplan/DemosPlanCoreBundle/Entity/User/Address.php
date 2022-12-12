@@ -13,10 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * @ORM\Table(name="_address")
@@ -38,7 +38,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_code", type="string", length=10, nullable=true)
-     *
      * @Assert\Length(min=0, max=10)
      */
     protected $code;
@@ -47,7 +46,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_street", type="string", length=100, nullable=true)
-     *
      * @Assert\Length(min=1, max=100)
      */
     protected $street;
@@ -56,7 +54,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_street_1", type="string", length=100, nullable=true)
-     *
      * @Assert\Length(min=1, max=100)
      */
     protected $street1;
@@ -65,7 +62,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_postalcode", type="string", length=10, nullable=true)
-     *
      * @Assert\Length(min=5, max=5)
      */
     protected $postalcode;
@@ -74,7 +70,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_city", type="string", length=100, nullable=true)
-     *
      * @Assert\Length(min=1, max=100)
      */
     protected $city = '';
@@ -118,7 +113,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_email", type="string", length=364, nullable=true)
-     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $email;
@@ -127,7 +121,6 @@ class Address extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_a_url", type="string", length=364, nullable=true)
-     *
      * @Assert\Url
      */
     protected $url;

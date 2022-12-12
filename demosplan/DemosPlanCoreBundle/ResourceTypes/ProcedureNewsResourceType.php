@@ -16,10 +16,6 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use Doctrine\Common\Collections\Collection;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
@@ -30,6 +26,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlReso
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
+use Doctrine\Common\Collections\Collection;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>

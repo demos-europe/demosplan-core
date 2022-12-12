@@ -12,10 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_single_doc_version")
@@ -141,6 +141,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="_sdv_version_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
      */
@@ -155,12 +156,14 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;

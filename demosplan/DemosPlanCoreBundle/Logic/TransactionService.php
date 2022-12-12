@@ -15,9 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\ORMInvalidArgumentException;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
@@ -39,6 +39,7 @@ class TransactionService
      * and the received exception will be rethrown.
      *
      * @template T
+     *
      * @phpstan-param callable(EntityManager): T $task
      *
      * @phpstan-return T

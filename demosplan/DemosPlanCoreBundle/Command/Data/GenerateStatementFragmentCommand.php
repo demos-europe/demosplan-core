@@ -11,6 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFragmentFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -19,12 +25,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFragmentFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 
 class GenerateStatementFragmentCommand extends DataProviderCommand
 {

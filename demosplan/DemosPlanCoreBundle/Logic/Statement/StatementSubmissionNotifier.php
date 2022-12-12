@@ -14,11 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Exception;
-use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
@@ -32,6 +27,11 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Twig\Environment;
 
 class StatementSubmissionNotifier
 {
@@ -171,7 +171,7 @@ class StatementSubmissionNotifier
             return;
         }
 
-        //On successfully sent email, set the destinationAddress to the Token, which was used in the sent mail.
+        // On successfully sent email, set the destinationAddress to the Token, which was used in the sent mail.
         if ($consultationToken instanceof ConsultationToken) {
             $this->consultationTokenService->updateEmailOfToken($consultationToken, $mailSend);
         }
@@ -196,8 +196,8 @@ class StatementSubmissionNotifier
     {
         $procedure = $this->currentProcedureService->getProcedureWithCertainty();
 
-        //New statements
-        //Fetch  infos about the statements
+        // New statements
+        // Fetch  infos about the statements
         foreach ($submittedStatements as $statement) {
             if ($statement->getPublicAllowed()) {
                 // notifications for statements to be published should always be sent
@@ -259,7 +259,7 @@ class StatementSubmissionNotifier
         foreach ($submittedStatements as $submittedStatement) {
             $consultationToken = $this->consultationTokenService->getTokenForStatement($submittedStatement);
             if ($consultationToken instanceof ConsultationToken) {
-                $tokenString = $consultationToken->getToken(); //this overwrite is intended: only one token is necessary for the user.
+                $tokenString = $consultationToken->getToken(); // this overwrite is intended: only one token is necessary for the user.
             }
 
             $draftStatement = $submittedStatement->getDraftStatement();
@@ -279,7 +279,7 @@ class StatementSubmissionNotifier
             throw new Exception('Could not find any ToebOrga for submitted statements');
         }
 
-        //If current user a logged in user, use their email instead of institution email:
+        // If current user a logged in user, use their email instead of institution email:
         $orga = $this->orgaService->getOrga($toebOrgaId);
         $destinationAddress = $orga->getEmail2();
 
@@ -362,7 +362,7 @@ class StatementSubmissionNotifier
         $orga = $this->orgaService->getOrga($procedure->getOrgaId());
         $wantsNotification = false;
 
-        //Do they want to have a notification email? ->Info saved in Settings
+        // Do they want to have a notification email? ->Info saved in Settings
         try {
             $settingForKeyStatement = $this->contentService->getSettings('emailNotificationNewStatement');
             foreach ($settingForKeyStatement as $settingStatement) {
@@ -515,7 +515,7 @@ class StatementSubmissionNotifier
             $attachments
         );
 
-        //On successfully sent email, set the destinationAddress to the Token, which was used in the sent mail.
+        // On successfully sent email, set the destinationAddress to the Token, which was used in the sent mail.
         if ($consultationToken instanceof ConsultationToken) {
             $this->consultationTokenService->updateEmailOfToken($consultationToken, $mailSend);
         }

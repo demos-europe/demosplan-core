@@ -12,14 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
+use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 
 /**
  * ProcedureType - Defines a specific type of a Procedure,
@@ -33,6 +33,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -42,6 +43,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
      */
@@ -49,6 +51,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
      */
@@ -60,7 +63,6 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=255, options={"fixed":true}, nullable=false, unique=true)
-     *
      * @Assert\NotBlank()
      */
     private $name;
@@ -68,6 +70,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
     /**
      * @var Collection<int, Procedure>
      *                                 One procedureType has many procedures. This is the inverse side.
+     *
      * @ORM\OneToMany(targetEntity="Procedure", mappedBy="procedureType", cascade={"persist"})
      * @ORM\OrderBy({"name" = "ASC"})
      */
@@ -83,6 +86,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var ProcedureBehaviorDefinition
+     *
      * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
@@ -90,6 +94,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var ProcedureUiDefinition
+     *
      * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */

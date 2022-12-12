@@ -10,15 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use function collect;
+
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use function collect;
 
 class MessageBag implements MessageBagInterface
 {
@@ -195,7 +196,7 @@ class MessageBag implements MessageBagInterface
     {
         $this->validateMessageInputData($message->getSeverity(), $message->getText());
 
-        //translate text of message:
+        // translate text of message:
         $translatedText = $this->getTranslator()->trans(
             $message->getText(),
             $message->getTextParameters()
@@ -256,10 +257,10 @@ class MessageBag implements MessageBagInterface
         $severity = strtolower(trim($severity));
 
         return null !== $severity && is_string($severity) && in_array(
-                $severity,
-                self::$definedSeverities,
-                true
-            );
+            $severity,
+            self::$definedSeverities,
+            true
+        );
     }
 
     /**

@@ -12,10 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Survey;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
@@ -32,12 +28,15 @@ use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
-     *
      * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
      *        methods={"GET"},
      *        name="dplan_surveyvote_list",
@@ -67,7 +66,6 @@ class SurveyVoteAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_surveyvote_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -103,7 +101,6 @@ class SurveyVoteAPIController extends APIController
      *     methods="POST",
      *     path="/api/1.0/surveyVote",
      *     options={"expose": true})
-     *
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException
@@ -208,7 +205,7 @@ class SurveyVoteAPIController extends APIController
 
         // validate that SurveyVote
         if ($procedureId !== $surveyVote->getSurvey()->getProcedure()->getId()) {
-            throw new \Exception('SurveyVote is not part of Survey or Procedure.');
+            throw new Exception('SurveyVote is not part of Survey or Procedure.');
         }
     }
 }

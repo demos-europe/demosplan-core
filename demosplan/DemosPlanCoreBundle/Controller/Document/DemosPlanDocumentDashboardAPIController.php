@@ -15,11 +15,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -35,6 +30,11 @@ use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanDocumentDashboardAPIController extends APIController
 {
@@ -58,7 +58,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"GET"},
      *        name="dp_api_documents_dashboard_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      *
      * Manages the display of the dashboard on load.
@@ -96,7 +95,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
             }
         }
 
-        //T13708: workaround to handle invalid date string in DB:
+        // T13708: workaround to handle invalid date string in DB:
         $dateString = str_replace('Planstand ', '', $procedureSettings->getPlanText());
         try {
             $validDateString = Carbon::createFromFormat('d.m.Y', $dateString)->format('d.m.Y');
@@ -123,7 +122,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_dashboard_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      *
      * Manages some updates performed from the dashboard.
@@ -147,8 +145,8 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         if ($documentDashboardData->isPresent('planningArea') && $permissions->hasPermission(
-                'feature_procedure_planning_area_match'
-            )) {
+            'feature_procedure_planning_area_match'
+        )) {
             $procedureSettings->setPlanningArea($documentDashboardData['planningArea']);
             $successMessages[] = new MessageSerializable('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planungsbereich']);
         }

@@ -35,8 +35,8 @@ class ProxyInstanceSubscriber implements EventSubscriberInterface
 
         if ($this->isProxyInstance($request)) {
             $redirectUrl = sprintf(
-              '%sredirect/?',
-              $this->globalConfig->getGatewayRedirectURL(),
+                '%sredirect/?',
+                $this->globalConfig->getGatewayRedirectURL(),
             );
             $redirectUrl .= http_build_query(['Token' => $this->sanitizeToken($request->query->get('Token'))]);
 

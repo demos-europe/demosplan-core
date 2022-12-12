@@ -11,24 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use Exception;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -41,6 +32,15 @@ use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
+use Exception;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class DemosPlanOrgaController extends BaseController
 {
@@ -65,7 +65,6 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_user_verify_orga_switch_or_update",
      *     path="/organisation/verifychanges"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -103,7 +102,7 @@ class DemosPlanOrgaController extends BaseController
      */
     public function adminOrgasAction(Request $request)
     {
-        //wenn der request gefüllt ist, bearbeite ihn
+        // wenn der request gefüllt ist, bearbeite ihn
         if (0 < $request->request->count()) {
             $requestPost = $request->request;
             $orgaIdent = $this->userHandler->adminOrgasHandler($requestPost);
@@ -123,7 +122,6 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/edit/{orgaId}",
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
@@ -156,7 +154,6 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/edit/{orgaId}",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
@@ -216,7 +213,6 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/branding/edit/{orgaId}",
      *     options={"expose": true}
      * )
-     *
      *  @DplanPermissions({"area_manage_orgadata","feature_orga_logo_edit"})
      *
      * @param string $orgaId
@@ -229,7 +225,7 @@ class DemosPlanOrgaController extends BaseController
     {
         $requestPost = $request->request;
 
-        if (0 < count($requestPost)) { //always true
+        if (0 < count($requestPost)) { // always true
             $deleteLogo = ($requestPost->has('r_logoDelete') && 'deleteLogo' === $requestPost->get('r_logoDelete'));
             $data = $this->handleRequestForSingleOrga($requestPost);
             $data['logo'] = $fileUploadService->prepareFilesUpload($request, 'r_orgaLogo');
@@ -332,7 +328,6 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_orga_list",
      *     path="/organisation/list"
      * )
-     *
      * @DplanPermissions("area_organisations")
      *
      * @return RedirectResponse|Response
@@ -365,7 +360,6 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_user_switch_orga",
      *     path="/organisation/switch"
      * )
-     *
      * @DplanPermissions("feature_switchorga")
      *
      * @throws Exception
@@ -375,8 +369,7 @@ class DemosPlanOrgaController extends BaseController
         OsiHHAuthenticator $osiHHAuthenticator,
         Request $request,
         UserAuthenticatorInterface $userAuthenticator
-    ): Response
-    {
+    ): Response {
         // Wenn es zwei Organisationen zu dem User gibt, tausche die aktive Session aus
         if ($currentUser->getUser()->hasTwinUser()) {
             $this->logger->info('Switch user Orga');
@@ -438,7 +431,6 @@ class DemosPlanOrgaController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      *  @DplanPermissions("feature_orga_registration")
      *
      * @throws CustomerNotFoundException
@@ -466,7 +458,6 @@ class DemosPlanOrgaController extends BaseController
      *     methods={"POST"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_orga_registration")
      *
      * @throws MessageBagException
@@ -482,7 +473,7 @@ class DemosPlanOrgaController extends BaseController
             $event = new RequestValidationWeakEvent($request);
             try {
                 $eventDispatcherPost->post($event);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Could not successfully verify orga register form ', [$e]);
                 $this->getMessageBag()->add('error', 'user.registration.fail');
 
@@ -511,7 +502,7 @@ class DemosPlanOrgaController extends BaseController
                     $orgaName
                 );
                 $eventDispatcherPost->post($newOrgaRegisteredEvent);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Could not successfully perform orga registered event', [$e]);
             }
 

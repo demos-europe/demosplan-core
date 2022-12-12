@@ -13,17 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use Exception;
-use League\Fractal\Resource\Collection;
-use Pagerfanta\Adapter\ArrayAdapter;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use UnexpectedValueException;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -36,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
@@ -43,10 +33,21 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use Exception;
+use League\Fractal\Resource\Collection;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use UnexpectedValueException;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
     use CanTransformRequestVariablesTrait;
+
     /**
      * Get organisation by ID.
      *
@@ -56,7 +57,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("feature_orga_get")
      */
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
@@ -95,7 +95,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
@@ -275,10 +274,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"DELETE"},
      *     name="organisation_delete"
      * )
-     *
      * @DplanPermissions("feature_orga_delete")
-     *
-     * @return APIResponse
      */
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
     {
@@ -312,7 +308,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"POST"},
      *     name="organisation_create"
      * )
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
@@ -336,7 +331,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $newOrga = $userHandler->addOrga($orgaDataArray);
 
-            //Fehlermeldung, Pflichtfelder
+            // Fehlermeldung, Pflichtfelder
             if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
                 $this->getMessageBag()->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
@@ -361,7 +356,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"PATCH"},
      *     name="organisation_update"
      * )
-     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse

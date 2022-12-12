@@ -15,11 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublicIndexProcedureLister
 {
@@ -152,7 +152,7 @@ class PublicIndexProcedureLister
         $this->procedureHandler->setRequestValues($requestPost);
         $procedures = $this->procedureHandler->getProcedureList();
 
-        //projektspezfische Anpassung der Variablen ermöglichen
+        // projektspezfische Anpassung der Variablen ermöglichen
         $procedures = $this->procedureHandler->transformVariables($procedures);
         $procedures['definition'] = $this->procedureHandler->getEsQueryProcedure();
         $procedures = $this->procedureHandler->markSelectedElementInSortByField($procedures);
@@ -184,9 +184,9 @@ class PublicIndexProcedureLister
         $procedures['externalPhases'] = $this->globalConfig->getExternalPhases('read||write', $includePreviewed);
         $procedures['internalPhases'] = $this->globalConfig->getInternalPhases('read||write', $includePreviewed);
         $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(
-                Role::CITIZEN);
+            Role::CITIZEN);
 
-        //Wenn es Verfahren gibt, dann ersetze die Label der Phasen aus der Config
+        // Wenn es Verfahren gibt, dann ersetze die Label der Phasen aus der Config
         $procedures['filterName'] = [
             'phase'    => $this->translator->trans('procedure.public.phase'),
             'orgaName' => $this->translator->trans('procedure.agency'),

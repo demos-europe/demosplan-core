@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\Persistence\ManagerRegistry;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use Doctrine\Persistence\ManagerRegistry;
+use Tightenco\Collect\Support\Collection;
 
 class StatementFragmentFactory extends FactoryBase
 {

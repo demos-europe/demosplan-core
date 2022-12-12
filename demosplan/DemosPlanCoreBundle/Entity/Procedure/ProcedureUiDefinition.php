@@ -12,13 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 
 /**
  * ProcedureUiDefinition - Defines the customizable parts of the Form/UI of a Procedure.
@@ -26,7 +26,6 @@ use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTy
  *
  * @ORM\Table
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository")
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
@@ -39,6 +38,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -48,6 +48,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -55,6 +56,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -68,6 +70,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
+     *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureUiDefinition")
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -79,6 +82,7 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      * Therefore a ProcedureUiDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
+     *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureUiDefinition")
      * @JoinColumn()
      */
@@ -118,9 +122,9 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface
      * replaced by the actual external ID when the text is shown.
      *
      * @var string
+     *
      * @Assert\Length(min=0,max=500,maxMessage="procedureUiDefinition.statementPublicSubmitConfirmationText.maxLength",allowEmptyString=true)
      * @Assert\NotNull
-     *
      * @ORM\Column(type="string", length=500, nullable=false, options={"default":""})
      */
     private $statementPublicSubmitConfirmationText = '';

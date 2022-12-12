@@ -13,15 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Finder\SplFileInfo;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
@@ -30,6 +26,11 @@ use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class XlsxSegmentImport
 {
@@ -110,7 +111,7 @@ class XlsxSegmentImport
      *
      * @param FileInfo $file Hands over basic information about the file
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws RowAwareViolationsException
      * @throws ConnectionException
      */
@@ -137,7 +138,7 @@ class XlsxSegmentImport
                 try {
                     $statementArray = $this->statementService->convertToLegacy($statement);
                     $this->statementService->addReportNewStatement($statementArray);
-                } catch (\Exception $exception) {
+                } catch (Exception $exception) {
                     $doctrineConnection->rollBack();
 
                     $this->logger->warning('Add Report on importFromFile() failed Message: ', [$exception]);
@@ -157,7 +158,7 @@ class XlsxSegmentImport
             $doctrineConnection->commit();
 
             return $importResult;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $doctrineConnection->rollBack();
 
             throw $exception;

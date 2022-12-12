@@ -33,6 +33,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -40,6 +41,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -49,6 +51,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
      * No relation, to avoid difficulties on deleting user.
      *
      * @var string
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
      */
     protected $userId;
@@ -57,42 +60,49 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
      * Name of User of userId, for simple access and rendering.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=true)
      */
     protected $userName;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false)
      */
     protected $entityType;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=false)
      */
     protected $entityId;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false)
      */
     protected $entityField;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="text", nullable=true, length=15000000)
      */
     protected $preUpdate;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="text", nullable=true, length=15000000)
      */
     protected $postUpdate;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="text", nullable=true, length=15000000)
      */
     protected $contentChange;

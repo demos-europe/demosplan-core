@@ -15,14 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
-use PhpOffice\PhpSpreadsheet\Writer\IWriter;
-use PhpOffice\PhpWord\Element\Section;
-use PhpOffice\PhpWord\Exception\Exception;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\Settings;
-use PhpOffice\PhpWord\Writer\WriterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -31,6 +23,15 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use PhpOffice\PhpSpreadsheet\Writer\IWriter;
+use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\Exception\Exception;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Settings;
+use PhpOffice\PhpWord\Writer\WriterInterface;
+use ReflectionException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
 {
@@ -79,7 +80,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws HandlerException
      */
     public function exportAllXlsx(Statement ...$statements): IWriter
@@ -268,7 +269,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @return array<string, mixed>
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function covertIntoExportableArray(SegmentInterface $segmentOrStatement): array
     {

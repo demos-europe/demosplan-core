@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 
 /**
  * StatementFieldDefinition - A part of a StatementFormDefinition.
@@ -26,13 +26,13 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
  *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
  *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
  * })
- *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFieldDefinitionRepository")
  */
 class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -42,6 +42,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -49,6 +50,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -77,6 +79,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var StatementFormDefinition
+     *
      * @ORM\ManyToOne(targetEntity="StatementFormDefinition", inversedBy="fieldDefinitions")
      * @JoinColumn(referencedColumnName="id", nullable=false)
      */

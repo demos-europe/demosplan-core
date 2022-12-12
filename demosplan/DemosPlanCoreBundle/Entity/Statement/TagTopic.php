@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
  * @ORM\Table(
@@ -52,7 +53,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     protected $title = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_tt_create_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -147,7 +148,6 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     *
      * @param string|null $id
      */
     public function setId($id): self
@@ -163,7 +163,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {

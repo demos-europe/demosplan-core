@@ -12,10 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use Exception;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
@@ -24,6 +20,10 @@ use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * This controller is responsible for direct changes to {@link StatementFragmentUpdate} resources.
@@ -40,7 +40,6 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_assessment_table_statement_fragment_update_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"})
      *
      * Action to update multiple Fragments.

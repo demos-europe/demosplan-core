@@ -10,19 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Exception;
-use RuntimeException;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Component\Validator\Validation;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use const FILTER_VALIDATE_BOOLEAN;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use function array_key_exists;
 use function array_map;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Exception;
+
 use function explode;
+
+use const FILTER_VALIDATE_BOOLEAN;
+
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -30,9 +29,17 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
+
+use RuntimeException;
+
 use function strncasecmp;
 use function strpos;
 use function substr;
+
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function trim;
 
 class GlobalConfig implements GlobalConfigInterface
@@ -303,7 +310,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $entrypointRouteRtedit;
 
-    //aus ServiceLayer/Resources/config
+    // aus ServiceLayer/Resources/config
     /**
      * @var array
      */
@@ -584,10 +591,10 @@ class GlobalConfig implements GlobalConfigInterface
          */
         $this->projectType = $parameterBag->get('project_type');
 
-        //set platform service mode (default: true)
+        // set platform service mode (default: true)
         $this->platformServiceMode = $parameterBag->get('service_mode');
 
-        //set project name and prefix
+        // set project name and prefix
         $this->projectName = $parameterBag->get('project_name');
         $this->projectPrefix = $parameterBag->get('project_prefix');
         $this->projectPagetitle = $parameterBag->get('project_pagetitle');
@@ -599,7 +606,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->isMessageQueueRoutingDisabled = $parameterBag->get('rabbitmq_routing_disabled');
 
-        //set Emailsettings
+        // set Emailsettings
         $this->emailSystem = $parameterBag->get('email_system');
         $this->emailIsLiveSystem = $parameterBag->get('email_is_live_system');
         $this->emailTestFrom = $parameterBag->get('email_test_from');
@@ -665,15 +672,15 @@ class GlobalConfig implements GlobalConfigInterface
         $this->elementsNegativeReportCategoryTitle = $parameterBag->get('elements_title_negative_report');
         $this->elementsStatementCategoryTitle = $parameterBag->get('elements_title_statement');
 
-        //piwik enable;
+        // piwik enable;
         $this->piwikEnable = $parameterBag->get('piwik_enable');
 
-        //piwik url;
+        // piwik url;
         $this->piwikUrl = $parameterBag->get('piwik_url');
 
-        //piwik site id;
+        // piwik site id;
         $this->piwikSiteID = $parameterBag->get('piwik_site_id');
-        //external proxy
+        // external proxy
         $this->proxyDsn = $parameterBag->get('proxy_dsn');
         $this->proxyTrusted = $parameterBag->get('proxy_trusted');
 
@@ -681,7 +688,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->urlScheme = trim($parameterBag->get('url_scheme'));
         $this->urlPathPrefix = trim($parameterBag->get('url_path_prefix'));
 
-        //Programmversion
+        // Programmversion
         $this->projectVersion = $parameterBag->get('project_version');
 
         $this->gatewayURL = $parameterBag->get('gateway_url');
@@ -705,16 +712,16 @@ class GlobalConfig implements GlobalConfigInterface
         $this->fileServiceFilePath = $parameterBag->get('fileservice_filepath');
         $this->allowedMimeTypes = $parameterBag->get('allowed_mimetypes');
 
-        //Honeypot-Zeitbegrenzung
+        // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
 
-        //alternatives Login ermöglichen
+        // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
 
-        //Art des Stellungnahmeabgabeprozesses
+        // Art des Stellungnahmeabgabeprozesses
         $this->projectSubmissionType = $parameterBag->get('project_submission_type');
 
-        //Verfahrensschritte
+        // Verfahrensschritte
         $this->internalPhases = $parameterBag->get('internalPhases');
         $this->externalPhases = $parameterBag->get('externalPhases');
 
@@ -738,7 +745,7 @@ class GlobalConfig implements GlobalConfigInterface
             $this->externalPhasesAssoc[$externalPhase['key']] = $externalPhase;
         }
 
-        //Key für MaintenanceTasks (CronJob)
+        // Key für MaintenanceTasks (CronJob)
         $this->maintenanceKey = $parameterBag->get('maintenance_key');
 
         // @todo we should get rid of this

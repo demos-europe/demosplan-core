@@ -11,7 +11,20 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanStatementBundle\Logic\CountyService;
+use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
+use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
+use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository;
 use Exception;
+use geoPHP;
 use LineString;
 use Point;
 use Polygon;
@@ -21,20 +34,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository;
-use geoPHP;
 
 class StatementGeoService extends CoreService
 {
@@ -168,8 +167,6 @@ class StatementGeoService extends CoreService
     /**
      * Schedule Geodata to be fetched later.
      *
-     * @param $statementId
-     *
      * @throws Exception
      */
     public function scheduleFetchGeoData($statementId)
@@ -180,8 +177,6 @@ class StatementGeoService extends CoreService
 
     /**
      * UnSchedule Geodata to be fetched later.
-     *
-     * @param $statementId
      *
      * @throws Exception
      */
@@ -628,5 +623,4 @@ class StatementGeoService extends CoreService
             '.pdf'
         );
     }
-
 }

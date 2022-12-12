@@ -119,7 +119,7 @@ class EditorService extends CoreService
      */
     public function getAlternativeTextPositionsArrayFromHtmlTag(string $text)
     {
-        //return null in case of text without image
+        // return null in case of text without image
         if (false === strpos($text, $this::HTML_ALTERNATIVE_TEXT_TAG_OPEN)) {
             return null;
         }
@@ -247,7 +247,7 @@ class EditorService extends CoreService
                 $customAlternativeText = $this->extractAlternativeTextFromEditorText($textImageElementArray[$i]);
                 $textImageElementArray[$i] = $this->removeEditorAlternativeTextPlaceholder($textImageElementArray[$i], $customAlternativeText);
 
-                //remove unwanted characters
+                // remove unwanted characters
                 if (false !== strpos($customAlternativeText, '&amp')) {
                     $customAlternativeText = str_replace('&amp', '', $customAlternativeText);
                     $this->messageBag->add('warning', 'warning.char.removed', ['character' => '&']);
@@ -257,7 +257,7 @@ class EditorService extends CoreService
                     $this->messageBag->add('warning', 'warning.char.replaced.by', ['character' => '"', 'replacement' => '\'']);
                 }
 
-                //stored alternative text: $customAlternativeText
+                // stored alternative text: $customAlternativeText
                 $this->messageBag->add('confirm', 'confirm.alternative.text', ['alternativeText' => $customAlternativeText]);
 
                 // Don't store placeholders in the database
@@ -293,7 +293,7 @@ class EditorService extends CoreService
 
         if (0 < count($imageComments)) {
             foreach ($imageComments as $imageComment) {
-                //if image existing
+                // if image existing
                 if (strpos($imageComment, $this::IMAGE_ID_CLOSING_TAG)) {
                     $imageId = substr($imageComment, 0, 36);
 
@@ -362,7 +362,7 @@ class EditorService extends CoreService
         );
 
         if (2 !== count($imageMatch)) { // Keep in mind that preg_match finds n+1 elements for n matched patterns, so 2 ~ 1 matches.
-            throw new InvalidArgumentException('Given string has to contain exactly one image tag '.'(pattern: |'.$this::IMAGE_ID_OPENING_TAG.'([a-z0-9&=\-]*)|). '.'Contains '.(count($imageMatch) - 1).': '.$text);
+            throw new InvalidArgumentException('Given string has to contain exactly one image tag (pattern: |'.$this::IMAGE_ID_OPENING_TAG.'([a-z0-9&=\-]*)|). Contains '.(count($imageMatch) - 1).': '.$text);
         }
 
         $replacement = $imageMatch[0].

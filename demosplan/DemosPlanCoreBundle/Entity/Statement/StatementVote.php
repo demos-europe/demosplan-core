@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 /**
  * @ORM\Table(name="_statement_votes")
@@ -84,7 +85,7 @@ class StatementVote implements UuidEntityInterface
     protected $deleted = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -92,7 +93,7 @@ class StatementVote implements UuidEntityInterface
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_v_modified_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
@@ -100,7 +101,7 @@ class StatementVote implements UuidEntityInterface
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_v_deleted_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
@@ -311,7 +312,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -319,7 +320,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return StatementVote
      */
@@ -331,7 +332,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -339,7 +340,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return StatementVote
      */
@@ -351,7 +352,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {
@@ -359,7 +360,7 @@ class StatementVote implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      *
      * @return StatementVote
      */

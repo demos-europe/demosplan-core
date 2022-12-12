@@ -12,6 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Application\Header;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -23,14 +31,6 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use demosplan\DemosPlanCoreBundle\Application\Header;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 
 class SessionHandler extends PdoSessionHandler
 {
@@ -124,7 +124,7 @@ class SessionHandler extends PdoSessionHandler
             $this->handleProcedure();
             $this->permissions->checkProcedurePermission();
 
-            //prüfe die Rechte für den Bereich
+            // prüfe die Rechte für den Bereich
             $this->permissions->checkPermissions($context);
         } catch (AccessDeniedException $e) {
             // Wenn der User vorher keine Session hatte, ist eher die Session abgelaufen,
@@ -178,7 +178,7 @@ class SessionHandler extends PdoSessionHandler
             }
         }
 
-        //save current procedure
+        // save current procedure
         $this->permissions->setProcedure($procedure ?? null);
     }
 

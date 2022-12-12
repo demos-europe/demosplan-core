@@ -11,18 +11,18 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
+use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
+use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
-use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
-use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 
 class StatementAnonymizeRpcController extends RpcController
 {
@@ -30,6 +30,7 @@ class StatementAnonymizeRpcController extends RpcController
      * @DplanPermissions("area_statement_anonymize")
      *
      * @return RedirectResponse|Response
+     *
      * @Route(
      *     path="/rpc/1.0/statement/anonymize",
      *     name="dplan_rpc_statement_anonymize",

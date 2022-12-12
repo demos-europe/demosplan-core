@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_statement_attribute")

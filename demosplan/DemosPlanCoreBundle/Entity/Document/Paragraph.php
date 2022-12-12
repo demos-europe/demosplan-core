@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
  * @ORM\Table(name="_para_doc")
@@ -128,6 +128,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
@@ -135,6 +136,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
@@ -142,6 +144,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
@@ -234,8 +237,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set procedure.
-     *
-     * @return Paragraph
      */
     public function setProcedure(Procedure $procedure): self
     {
@@ -293,8 +294,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCategory.
-     *
-     * @return Paragraph
      */
     public function setCategory(string $category): self
     {
@@ -313,8 +312,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eTitle.
-     *
-     * @return Paragraph
      */
     public function setTitle(string $title): self
     {
@@ -333,8 +330,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eText.
-     *
-     * @return Paragraph
      */
     public function setText(string $text): self
     {
@@ -353,8 +348,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eOrder.
-     *
-     * @return Paragraph
      */
     public function setOrder(int $order): self
     {
@@ -373,8 +366,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eEnabled.
-     *
-     * @return Paragraph
      */
     public function setVisible(int $visible): self
     {
@@ -393,8 +384,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleted.
-     *
-     * @return Paragraph
      */
     public function setDeleted(bool $deleted): self
     {
@@ -413,8 +402,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set lockReason.
-     *
-     * @return Paragraph
      */
     public function setLockReason(string $lockReason): self
     {
@@ -433,8 +420,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCreateDate.
-     *
-     * @return Paragraph
      */
     public function setCreateDate(DateTime $createDate): self
     {
@@ -453,8 +438,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eModifyDate.
-     *
-     * @return Paragraph
      */
     public function setModifyDate(DateTime $modifyDate): self
     {
@@ -473,8 +456,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleteDate.
-     *
-     * @return Paragraph
      */
     public function setDeleteDate(DateTime $deleteDate): self
     {

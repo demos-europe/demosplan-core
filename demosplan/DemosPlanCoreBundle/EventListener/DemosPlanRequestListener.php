@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
+use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\RouterInterface;
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
-use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 
 /**
  * Custom Eventlistener.
@@ -63,7 +63,7 @@ class DemosPlanRequestListener
 
         $request = $event->getRequest();
 
-        //check whether Platform is in service mode
+        // check whether Platform is in service mode
         if ($this->globalConfig->getPlatformServiceMode()
             && 'core_service_mode' !== $request->attributes->get('_route')) {
             $event->setResponse(
@@ -82,5 +82,4 @@ class DemosPlanRequestListener
             }
         }
     }
-
 }

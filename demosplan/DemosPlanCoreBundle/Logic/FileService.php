@@ -14,19 +14,6 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use Faker\Provider\Uuid;
-use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
-use PhpAmqpLib\Exception\AMQPTimeoutException;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -44,6 +31,19 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Faker\Provider\Uuid;
+use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
+use PhpAmqpLib\Exception\AMQPTimeoutException;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 class FileService extends CoreService implements FileServiceInterface
 {
@@ -787,7 +787,7 @@ class FileService extends CoreService implements FileServiceInterface
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
             @unlink($temporaryFilePath);
             $this->logger->warning(
-              'MimeType is not allowed. Given MimeType: '.$mimeType
+                'MimeType is not allowed. Given MimeType: '.$mimeType
             );
             throw new FileException('MimeType "'.$mimeType.'" is not allowed', 20);
         }
@@ -854,14 +854,14 @@ class FileService extends CoreService implements FileServiceInterface
 
         $msg = Json::encode($payload);
 
-        //Füge Message zum Request hinzu
+        // Füge Message zum Request hinzu
         try {
             $routingKey = $this->globalConfig->getProjectPrefix();
             if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
                 $routingKey = '';
             }
 
-            //Anfrage absenden
+            // Anfrage absenden
             $this->logger->info('Path of file for virusCheck: '.$file->getRealPath().', with routingKey: '.$routingKey);
             $this->client->addRequest($msg, 'virusCheckDemosPlanLocal', 'virusCheck', $routingKey, 300);
 
@@ -1097,10 +1097,10 @@ class FileService extends CoreService implements FileServiceInterface
     public function getFilesFromSingleDocuments(array $singleDocuments)
     {
         return array_map(
-                function ($singleDocument) {
-                    return $this->getFileIdFromSingleDocument($singleDocument);
-                },
-                $singleDocuments);
+            function ($singleDocument) {
+                return $this->getFileIdFromSingleDocument($singleDocument);
+            },
+            $singleDocuments);
     }
 
     /**
@@ -1215,6 +1215,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function sanitizeFileName(string $filename): string
     {
         $filename = str_ireplace(self::INVALID_FILENAME_CHARS, '', $filename);
+
         return str_ireplace(' ', '_', $filename);
     }
 }

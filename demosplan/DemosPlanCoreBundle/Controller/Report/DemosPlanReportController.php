@@ -13,6 +13,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -20,11 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 
 /**
  * Seitenausgabe Protokolldaten.
@@ -38,14 +38,13 @@ class DemosPlanReportController extends BaseController
      *     name="dm_plan_report_table_view",
      *     path="/report/view/{procedureId}"
      * )
-     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $procedureId
      *
      * @return Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function viewReportAction(Request $request, $procedureId)
     {
@@ -67,7 +66,6 @@ class DemosPlanReportController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
      * @param string $procedureId

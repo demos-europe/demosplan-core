@@ -14,11 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use Doctrine\Common\Collections\Collection;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -28,10 +23,17 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Doctrine\Common\Collections\Collection;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\PathsBasedInterface;
+
 use function in_array;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
+ *
  * @template-extends DplanResourceType<Elements>
  *
  * @property-read End $category
@@ -94,8 +96,8 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
     {
         return $this->currentUser->hasAnyPermissions(
             'feature_admin_element_edit',
-                // used within the procedure detail view (project specific)
-               'area_documents')
+            // used within the procedure detail view (project specific)
+            'area_documents')
             || $this->isBulkEditAllowed();
     }
 
@@ -139,7 +141,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         $publicConditions = $adminConditions;
 
-        if ($this->currentUser->hasPermission('feature_admin_element_invitable_institution_or_public_authorisations')) { //einschränkung der elements erlaubt?
+        if ($this->currentUser->hasPermission('feature_admin_element_invitable_institution_or_public_authorisations')) { // einschränkung der elements erlaubt?
             if (!$this->currentUser->hasPermission('feature_admin_element_public_access')) {
                 $publicConditions[] = $this->conditionFactory->propertyHasNotValue('feature_admin_element_public_access', ...$this->permission);
             }

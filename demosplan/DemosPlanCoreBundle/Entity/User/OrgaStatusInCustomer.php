@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).

@@ -12,10 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -30,6 +26,11 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SegmentController extends BaseController
 {
@@ -63,7 +64,7 @@ class SegmentController extends BaseController
      *
      * @throws ProcedureNotFoundException
      * @throws StatementNotFoundException
-     * @throws \Exception
+     * @throws Exception
      */
     public function statementSpecificListAction(
         CurrentUserInterface $currentUser,
@@ -114,7 +115,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException
-     * @throws \Exception
+     * @throws Exception
      */
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
@@ -174,7 +175,7 @@ class SegmentController extends BaseController
             } catch (MissingDataException $exception) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

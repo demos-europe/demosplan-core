@@ -14,6 +14,26 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
+use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
+use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Exception;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
@@ -32,26 +52,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
-use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 
 class DocxExporter
 {
@@ -326,12 +326,12 @@ class DocxExporter
                                 $styles['cellStyleStatementDetails']
                             );
 
-                            //SN von Töbs
+                            // SN von Töbs
                             $statementMeta = $item->getStatement()->getMeta();
                             $publicStatementString = $item->getStatement()->getPublicStatement();
                             switch ($publicStatementString) {
                                 case Statement::EXTERNAL:
-                                    //SN von Bürgern
+                                    // SN von Bürgern
                                     $metaInfoCell->addText(
                                         $translator->trans('public'),
                                         $styles['textStyleStatementDetails'],
@@ -364,7 +364,7 @@ class DocxExporter
                                         ? $translator->trans('not.specified')
                                         : $orgaName;
 
-                                    //Abteilung
+                                    // Abteilung
                                     $orgaDepartmentName = $statementMeta->getOrgaDepartmentName();
                                     if (0 < strlen($orgaDepartmentName)) {
                                         $orgaName .= ', '.$orgaDepartmentName;
@@ -443,7 +443,7 @@ class DocxExporter
             $statementEntities = $this->statementService->getStatementsByIds(array_keys($statements));
 
             // keep sorting
-            foreach($statementEntities as $statementEntity) {
+            foreach ($statementEntities as $statementEntity) {
                 $statements[$statementEntity->getId()] = $statementEntity;
             }
 
@@ -541,9 +541,9 @@ class DocxExporter
      */
     protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
-        //Benutze das ausgewählte Format
+        // Benutze das ausgewählte Format
         $styles['orientation'] = [];
-        //im Hochformat werden für LibreOffice anderen Breiten benötigt
+        // im Hochformat werden für LibreOffice anderen Breiten benötigt
         $styles['cellWidthTotal'] = 10000;
         $styles['firstCellWidth'] = 1500;
         $styles['cellWidth'] = 3850;
@@ -596,15 +596,15 @@ class DocxExporter
      *
      * @return array - formatted fragment
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function formatFragmentObject(StatementFragment $fragment): array
     {
         $item = $this->formatStatementObject($fragment->getStatement());
 
-        //override selected item fields with fragment content:
+        // override selected item fields with fragment content:
         $item['type'] = 'fragment';
-        $item['created'] = $fragment->getCreated(); //todo: check format
+        $item['created'] = $fragment->getCreated(); // todo: check format
         $item['recommendation'] = $fragment->getConsideration();
         $item['text'] = $fragment->getText();
         $item['elementId'] = $fragment->getElementId();
@@ -757,13 +757,13 @@ class DocxExporter
             $isCluster = $item['isClusterStatement'];
         }
 
-        //SN von Töbs
+        // SN von Töbs
         if (!$isCluster && !$fragmentShort && isset($item['publicStatement'])) {
             if (Statement::INTERNAL === $item['publicStatement']) {
                 $orgaName = ('' == $item['orgaName']) ? $translator->trans('not.specified') : $item['orgaName'];
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
-                //Abteilung
+                // Abteilung
                 if (0 < strlen($item['orgaDepartmentName'])) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
@@ -776,14 +776,14 @@ class DocxExporter
                     $styles['textStyleStatementDetailsParagraphStyles']
                 );
             } elseif (Statement::EXTERNAL === $item['publicStatement']) {
-                //SN von Bürgern
+                // SN von Bürgern
                 $orgaName = ('' == $item['orgaName']) ? $translator->trans('not.specified') : $item['orgaName'];
                 $citizenData = $translator->trans('public').': '.$orgaName;
 
                 if (false == $anonymous) {
-                    //Name
+                    // Name
                     $citizenData .= ', '.$item['authorName'];
-                    //T454 address should not be exported
+                    // T454 address should not be exported
                 }
                 $metaInfoCell->addText(
                     $citizenData,
@@ -861,7 +861,7 @@ class DocxExporter
         }
 
         // add former externID in case of statement was moved from another procedure
-        //was moved?
+        // was moved?
         $placeholderStatement = $statement->getPlaceholderStatement();
         if (null !== $statement->getFormerExternId()) {
             $formerExternId = $statement->getFormerExternId();
@@ -873,7 +873,7 @@ class DocxExporter
             $externIdString .= $this->createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure);
         }
 
-        //if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
+        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
         return $externIdString;
     }
 
@@ -902,7 +902,7 @@ class DocxExporter
 
         // add former externID in case of statement was moved from another procedure
 
-        //was moved?
+        // was moved?
         if (array_key_exists('formerExternId', $statementArray) && false === is_null($statementArray['formerExternId'])) {
             $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$statementArray['formerExternId'].' '.$this->translator->trans('from').' '.$statementArray['movedFromProcedureName'].')';
         } else {
@@ -920,7 +920,7 @@ class DocxExporter
             }
         }
 
-        //if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
+        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
         return $externIdString;
     }
 
@@ -987,7 +987,7 @@ class DocxExporter
         try {
             $text = $this->replaceTags($text);
             Html::addHtml($cell, $text, false);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
             $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
@@ -1029,16 +1029,16 @@ class DocxExporter
         $coverParagraphStyle = ['align' => 'center'];
         $coverStyle = ['name' => 'Arial', 'size' => 14];
 
-        //format FrontPage:
+        // format FrontPage:
         $frontPageSection = $phpWord->addSection($styles['orientation']);
         $frontPageSection->addText($translator->trans('synopsis'), $coverHeadingStyle, $coverParagraphStyle);
         $frontPageSection->addText($translator->trans('of.Statement.belonging.to.Procedure'), $coverHeadingStyle, $coverParagraphStyle);
         $frontPageSection->addTextBreak(3);
 
-        //Verfahrensname
+        // Verfahrensname
         $frontPageSection->addText(htmlspecialchars($procedure->getName()), $coverHeadingStyle, $coverParagraphStyle);
 
-        //Verfahrensschritt
+        // Verfahrensschritt
         $phaseName = $procedure->getPhaseName();
         if (null !== $phaseName) {
             $frontPageSection->addText(htmlspecialchars($phaseName), $coverHeadingStyle, $coverParagraphStyle);
@@ -1103,9 +1103,9 @@ class DocxExporter
             ->map(function (array $statement) use ($exportType, $requestPost): array {
                 $item = $this->formatStatementArray($statement);
 
-                //if there are fragments and fragment export was selected
+                // if there are fragments and fragment export was selected
                 if ('statementsAndFragments' === $exportType && 0 < count($statement['fragments'])) {
-                    //change type of entry (used for name of column)
+                    // change type of entry (used for name of column)
                     $item['type'] = 'fragments';
                     $item['fragments'] = collect($statement['fragments'])
                         ->filter(static function (array $fragment) use ($statement, $requestPost): bool {
@@ -1131,7 +1131,7 @@ class DocxExporter
      *
      * @return array - formatted fragment
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Use {@link formatFragmentObject} instead
      */
@@ -1143,7 +1143,7 @@ class DocxExporter
         $item = $this->formatStatementArray($statement);
         $item['sortIndex'] = $fragment['sortIndex'];
 
-        //override selected item fields with fragment content:
+        // override selected item fields with fragment content:
         $item['type'] = 'fragment';
         $item['created'] = $fragment['created'] ?? null;
 
@@ -1257,7 +1257,7 @@ class DocxExporter
 
         if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_CREATION_DATE, $exportConfig, $statement)) {
             $cell1->addText('');
-            //Einreichungsdatum
+            // Einreichungsdatum
             $cell1AddText('submitted.date', date('d.m.Y', $statement->getSubmit()));
         }
 
@@ -1271,12 +1271,12 @@ class DocxExporter
                 $cellHCentered
             );
         } else {
-            //Verfahrensname
+            // Verfahrensname
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_NAME, $exportConfig, $statement)) {
                 $cell2AddText('procedure.name', $statement->getProcedure()->getName());
             }
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
-                //Verfahrensschritt
+                // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
                 $phaseName = $this->statementService->getInternalOrExternalPhaseNameFromObject($statement);
                 $cell2AddText('procedure.public.phase', $phaseName);
@@ -1303,7 +1303,7 @@ class DocxExporter
                 $cell2AddText('position', $statement->getMeta()->getUserPosition());
             }
             $permissions = $this->permissions;
-            //SN von Töbs
+            // SN von Töbs
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_ORGA_INFO, $exportConfig, $statement)) {
                 $organisationData = $this->getCellsForOrganisation($statement, $anonym);
 
@@ -1315,7 +1315,7 @@ class DocxExporter
                     );
                 }
 
-                //Abteilung
+                // Abteilung
                 if ($this->exportFieldDecider->isExportable(
                     FieldDecider::FIELD_ORGA_DEPARTMENT,
                     $exportConfig,
@@ -1329,7 +1329,7 @@ class DocxExporter
                     );
                 }
 
-                //Address
+                // Address
                 if ($this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
                     $cell2->addText(
                         htmlspecialchars($organisationData['postalAddressPartsOfAuthor']),
@@ -1377,7 +1377,7 @@ class DocxExporter
                     );
                 }
             }
-            //SN von Bürgern
+            // SN von Bürgern
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_CITIZEN_INFO, $exportConfig, $statement)) {
                 $citizenDetails = $this->getCellsForCitizen($statement, $anonym);
 
@@ -1396,7 +1396,7 @@ class DocxExporter
                     $citizenDetails,
                     $anonym
                 )) {
-                    //Name
+                    // Name
                     $cell2->addText(
                         htmlspecialchars($citizenDetails['submitName']),
                         null,
@@ -1405,7 +1405,7 @@ class DocxExporter
                 }
 
                 if ($this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
-                    //Adresse
+                    // Adresse
                     $cell2->addText(
                         htmlspecialchars($citizenDetails['postalAddressPartsOfAuthor']),
                         null,
@@ -1433,7 +1433,7 @@ class DocxExporter
                     $citizenDetails,
                     $anonym
                 )) {
-                    //Adresse
+                    // Adresse
                     $cell2->addText(
                         htmlspecialchars($citizenDetails['phoneNumber']),
                         null,
@@ -1467,7 +1467,7 @@ class DocxExporter
                 }
                 $cell2->addText($text);
             }
-            //Planungsdokument
+            // Planungsdokument
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_DOCUMENT, $exportConfig, $statement)) {
                 $textrun1 = $cell2->addTextRun($cellHCentered);
                 $textRun1AddText = $this->containerAddTextFunctionConstructor($textrun1, null, null);
@@ -1480,11 +1480,11 @@ class DocxExporter
                     );
                 }
             }
-            //Kapitel
+            // Kapitel
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PARAGRAPH, $exportConfig, $statement)) {
                 $cell2AddText('paragraph', $statement->getParagraph()->getTitle());
             }
-            //Dateien
+            // Dateien
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_FILES, $exportConfig, $statement)) {
                 foreach ($statement->getFiles() as $fileString) {
                     $file = explode(':', $fileString);
@@ -1509,7 +1509,7 @@ class DocxExporter
                     });
             }
 
-            //Priorität
+            // Priorität
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
                 $textRun2 = $cell2->addTextRun($cellHCentered);
                 $textRun2AddText = $this->containerAddTextFunctionConstructor($textRun2, null, null);
@@ -1554,14 +1554,14 @@ class DocxExporter
                 $this->addHtml($cell2, $statementText, $styles);
                 $cell3 = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
                 if (true === $permissions->hasPermission(
-                        'field_vote_advice_docx'
-                    ) && null !== $statement->getVotePla()) {
+                    'field_vote_advice_docx'
+                ) && null !== $statement->getVotePla()) {
                     try {
                         $votePla = $statement->getVotePla();
                         $translationKey = $statementAdviceValues[$votePla];
                         $voteTextShort = $this->translator->trans($translationKey);
                         Html::addHtml($cell3, '<p><strong>'.$voteTextShort.'</strong></p><br />');
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // log in case of invalid $votePla values (will not be found in the $statementAdviceValues array, hence the ContextErrorException exception)
                         $this->getLogger()->warning('statement with invalid \'votePla\' value given to export', [$e]);
                     }
@@ -1569,7 +1569,7 @@ class DocxExporter
                 // no obscured texts in recommendation, so no need to handle obscure tags
                 $this->addHtml($cell3, $statement->getRecommendation(), $styles);
             }
-            //Verortung-Screenshot
+            // Verortung-Screenshot
             $this->addLocationScreenshotIfPresent(
                 $statement,
                 $rowStyleLocation,
@@ -1605,7 +1605,6 @@ class DocxExporter
                 .': '.$this->translator->trans('anonymous');
         }
 
-
         // T14612 / T15489:
         $houseNumber = '';
         if ($permissions->hasPermission('feature_statement_meta_house_number_export')) {
@@ -1614,7 +1613,7 @@ class DocxExporter
 
         $result['postalAddressPartsOfAuthor'] = $this->getFormattedAddressCell($statement, $anonym);
 
-        //in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
+        // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
             if (0 < strlen($statement->getMeta()->getOrgaStreet())) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
@@ -1676,7 +1675,7 @@ class DocxExporter
             $city = $meta->getOrgaCity();
         }
 
-        if ('' === $street && '' === $postalCode && '' === $city){
+        if ('' === $street && '' === $postalCode && '' === $city) {
             return $this->translator->trans('address').': '.$this->translator->trans('notgiven');
         }
 
@@ -1773,13 +1772,13 @@ class DocxExporter
     public function getScreenshot(string $mapFile): ?string
     {
         if ('' !== $mapFile && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
-            //Hole den Screenshot-Hash
+            // Hole den Screenshot-Hash
             $parts = explode(':', $mapFile);
             $hash = $parts[1] ?? '';
-            //Lege den Screenshot in den Tmp-Ordner
+            // Lege den Screenshot in den Tmp-Ordner
             try {
                 $file = $this->fileService->getFileInfo($hash);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->warning('Could not find file for hash');
 
                 return '';
@@ -1948,10 +1947,10 @@ class DocxExporter
             $typeHeader = $this->translator->trans('statement');
         }
 
-        //format Table:
+        // format Table:
         $tableSection = $phpWord->addSection($styles['orientation']);
 
-        //Header
+        // Header
         $header = $tableSection->addHeader();
         $header->addText($this->getExportPageHeader($procedure));
         $assessmentTable = $tableSection->addTable($styles['tableStyle']);
@@ -2044,17 +2043,14 @@ class DocxExporter
      * In case of (parts of) address should be exported, but no address data is given (on this statement),
      * something like "address: not given" should be rendered.
      * exported.
-     *
-     * @return bool
      */
     private function isAddressExportable(
         array $data,
         ExportFieldsConfiguration $exportConfig,
         Statement $statement,
         bool $anonym
-    ): bool
-    {
-        return (
+    ): bool {
+        return
             array_key_exists('postalAddressPartsOfAuthor', $data)
             && '' !== $data['postalAddressPartsOfAuthor']
             && (
@@ -2080,6 +2076,6 @@ class DocxExporter
                     $anonym
                 )
             )
-        );
+        ;
     }
 }

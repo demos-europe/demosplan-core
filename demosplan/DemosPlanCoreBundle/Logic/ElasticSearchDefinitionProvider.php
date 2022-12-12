@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use InvalidArgumentException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use InvalidArgumentException;
 
 class ElasticSearchDefinitionProvider
 {
@@ -31,17 +31,16 @@ class ElasticSearchDefinitionProvider
     public function __construct(
         CurrentUserInterface $currentUser,
         GlobalConfigInterface $globalConfig
-    )
-    {
+    ) {
         $this->currentUser = $currentUser;
         $this->globalConfig = $globalConfig;
     }
 
     /**
-     * @param string $entity i.e. 'statementSegment'
-     * @param string $function allowed values: filter, sort, sort_default, search
+     * @param string $entity      i.e. 'statementSegment'
+     * @param string $function    allowed values: filter, sort, sort_default, search
      * @param string $accessGroup allowed values: all, intern, extern, planner
-     * @return array
+     *
      * @throws UserNotFoundException
      */
     public function getAvailableFields(string $entity, string $function, string $accessGroup): array
@@ -53,6 +52,7 @@ class ElasticSearchDefinitionProvider
 
     /**
      * @return array<string, array>
+     *
      * @throws InvalidArgumentException
      */
     private function getFields(string $entity, string $function, string $accessGroup): array
@@ -68,8 +68,9 @@ class ElasticSearchDefinitionProvider
 
     /**
      * @param array<string, array> $fieldsList
-     * @param string $keyPrefix
+     *
      * @return array<string, string>
+     *
      * @throws UserNotFoundException
      */
     private function filterAvailableFields(array $fieldsList, string $keyPrefix = ''): array

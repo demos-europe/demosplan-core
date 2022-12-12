@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Survey;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
@@ -57,12 +57,14 @@ class Survey extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="start_date", type="date", nullable=false)
      */
     protected $startDate;
 
     /**
      * @var DateTime
+     *
      * @ORM\Column(name="end_date", type="date")
      */
     protected $endDate;
@@ -86,6 +88,7 @@ class Survey extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Collection<int, SurveyVote>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
      *      mappedBy="survey", cascade={"persist", "remove"})
      */

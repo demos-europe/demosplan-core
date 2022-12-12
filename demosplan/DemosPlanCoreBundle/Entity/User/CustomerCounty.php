@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -12,13 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Links the Customer to their counties and vice-versa
+ * Links the Customer to their counties and vice-versa.
  *
  * @ORM\Table(
  *     name="customer_county",
@@ -29,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
  *         )
  *     }
  * )
- *
  * @ORM\Entity
  */
 class CustomerCounty extends CoreEntity implements UuidEntityInterface
@@ -45,7 +45,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     * Foreign key, Customer object
+     * Foreign key, Customer object.
      *
      * @var Customer
      *
@@ -55,7 +55,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
     protected $customer;
 
     /**
-     * Foreign key, County object
+     * Foreign key, County object.
      *
      * @var County
      *
@@ -69,7 +69,6 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
      *
      * @Assert\NotNull()
      * @Assert\Email()
-     *
      * @ORM\Column(type="text", length=255, options={"default":""}, nullable=false)
      */
     protected $eMailAddress;

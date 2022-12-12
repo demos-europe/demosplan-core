@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use Exception;
 
 class MessageBagException extends Exception
 {

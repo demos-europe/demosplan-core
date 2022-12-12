@@ -12,10 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ObjectManager;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -24,6 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectManager;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
 {
@@ -43,7 +43,6 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         ProcedureHandler $procedureHandler,
         TranslatorInterface $translator
     ) {
-
         parent::__construct($entityManager);
         $this->translator = $translator;
         $this->globalConfig = $globalConfig;
@@ -77,7 +76,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($procedureMaster);
         $manager->flush();
 
-        //create GisLayerCategory for MasterBlueprint
+        // create GisLayerCategory for MasterBlueprint
         $gisLayerCategoryMaster = new GisLayerCategory();
         $gisLayerCategoryMaster->setName('rootGisLayer');
         $gisLayerCategoryMaster->setProcedure($procedureMaster);

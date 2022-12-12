@@ -10,11 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -23,6 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement_versions", indexes={@ORM\Index(name="_ds_id", columns={"_ds_id"})})
@@ -367,7 +368,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     protected $phase = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_version_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -375,42 +376,42 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     protected $versionDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_deleted_date", type="datetime", nullable=false)
      */
     protected $deletedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
      */
     protected $lastModifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_submited_date", type="datetime", nullable=false)
      */
     protected $submittedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_released_date", type="datetime", nullable=false)
      */
     protected $releasedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_rejected_date", type="datetime", nullable=false)
      */
@@ -1366,7 +1367,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getVersionDate()
     {
@@ -1374,7 +1375,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $versionDate
+     * @param DateTime $versionDate
      *
      * @return DraftStatementVersion
      */
@@ -1388,7 +1389,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set createdDate.
      *
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return DraftStatementVersion
      */
@@ -1402,7 +1403,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get createdDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -1412,7 +1413,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set deletedDate.
      *
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      *
      * @return DraftStatementVersion
      */
@@ -1426,7 +1427,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get deletedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {
@@ -1436,7 +1437,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set lastModifiedDate.
      *
-     * @param \DateTime $lastModifiedDate
+     * @param DateTime $lastModifiedDate
      *
      * @return DraftStatementVersion
      */
@@ -1450,7 +1451,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get lastModifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getLastModifiedDate()
     {
@@ -1460,7 +1461,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set submittedDate.
      *
-     * @param \DateTime $submittedDate
+     * @param DateTime $submittedDate
      *
      * @return DraftStatementVersion
      */
@@ -1474,7 +1475,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get submittedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getSubmittedDate()
     {
@@ -1484,7 +1485,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set releasedDate.
      *
-     * @param \DateTime $releasedDate
+     * @param DateTime $releasedDate
      *
      * @return DraftStatementVersion
      */
@@ -1498,7 +1499,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get releasedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getReleasedDate()
     {
@@ -1508,7 +1509,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Set rejectedDate.
      *
-     * @param \DateTime $rejectedDate
+     * @param DateTime $rejectedDate
      *
      * @return DraftStatementVersion
      */
@@ -1522,7 +1523,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
     /**
      * Get rejectedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getRejectedDate()
     {

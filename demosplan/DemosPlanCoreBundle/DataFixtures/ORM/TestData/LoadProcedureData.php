@@ -13,15 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\Persistence\ObjectManager;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -41,6 +38,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 {
@@ -282,7 +281,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('');
         $manager->persist($procedureSettings);
 
-        //create GisLayerCategory for MasterBlueprint
+        // create GisLayerCategory for MasterBlueprint
         $gisLayerCategoryMaster = new GisLayerCategory();
         $gisLayerCategoryMaster->setName('testGisLayerCategoryOfMaster');
         $gisLayerCategoryMaster->setProcedure($this->getReference('masterBlaupause'));
