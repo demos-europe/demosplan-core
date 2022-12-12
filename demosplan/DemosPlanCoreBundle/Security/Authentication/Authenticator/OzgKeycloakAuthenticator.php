@@ -633,30 +633,30 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private function fetchExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
-        $existingUser = $this->tryLoginViaGatewayId();
+        $existingUser = $this->fetchExistingUserViaGatewayId();
         if (null === $existingUser) {
             // 2) do we have a matching user by login
-            $existingUser = $this->tryLoginViaLoginAttribute();
+            $existingUser = $this->fetchExistingUserViaLoginAttribute();
         }
         if (null === $existingUser) {
             // 3) do we have a matching user by email?
-            $existingUser = $this->tryLoginViaEmail();
+            $existingUser = $this->fetchExistingUserViaEmail();
         }
 
         return $existingUser;
     }
 
-    private function tryLoginViaGatewayId(): ?User
+    private function fetchExistingUserViaGatewayId(): ?User
     {
         return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
     }
 
-    private function tryLoginViaLoginAttribute(): ?User
+    private function fetchExistingUserViaLoginAttribute(): ?User
     {
         return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
     }
 
-    private function tryLoginViaEmail(): ?User
+    private function fetchExistingUserViaEmail(): ?User
     {
         return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
     }
