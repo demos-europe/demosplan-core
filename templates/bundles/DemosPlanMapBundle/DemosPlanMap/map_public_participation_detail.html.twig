@@ -241,6 +241,36 @@
 
     {% endif %}
 
+    {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
+    {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
+    {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
+    {% if procedureSettings.planPDF|default|length > 0 %}
+        {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
+    {% endif %}
+
+    {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
+    {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
+    {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
+    {% set layers_with_legend_files = [] %}
+    {% for layer in filtered_legends %}
+        {# Transform object to be consumable by vue component #}
+        {% set layers_with_legend_files = layers_with_legend_files|merge([{
+            name: layer.name,
+            legend: {
+                hash: layer.legend|getFile('hash'),
+                mimeType: layer.legend|getFile('mimeType'),
+                fileSize: layer.legend|getFile('size')
+            }
+        }]) %}
+    {% endfor %}
+    {% if false == display_legend_box %}
+        {% set display_legend_box = layers_with_legend_files|length > 0 %}
+    {% endif %}
+
+    {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
+    {% if false == display_legend_box %}
+        {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
+    {% endif %}
 
     {# Statement tools #}
     {%  block toolbar %}
@@ -294,38 +324,6 @@
                 <dp-public-layer-list-wrapper :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"></dp-public-layer-list-wrapper>
 
                 {# Legends #}
-
-                {# Are there any global layer pdfs defined (feature_map_use_plan_pdf)? #}
-                {% set display_legend_box = procedureSettings.planPDF|default|length > 0 %}
-                {% set planPdf = { pdf: procedureSettings.planPDF|default, hash: '', mimeType: '', size: '' } %}
-                {% if procedureSettings.planPDF|default|length > 0 %}
-                    {% set planPdf = { pdf: procedureSettings.planPDF, hash: procedureSettings.planPDF|getFile('hash'), mimeType: procedureSettings.planPDF|getFile('mimeType'), size: procedureSettings.planPDF|getFile('size','MB') } %}
-                {% endif %}
-
-                {# Check whether there are layers with attached legend pdf files (feature_map_layer_legend_file) #}
-                {% set all_layers = templateVars.baselayers.gislayerlist|default([])|merge(templateVars.overlays.gislayerlist|default([])) %}
-                {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
-                {% set layers_with_legend_files = [] %}
-                {% for layer in filtered_legends %}
-                    {# Transform object to be consumable by vue component #}
-                    {% set layers_with_legend_files = layers_with_legend_files|merge([{
-                        name: layer.name,
-                        legend: {
-                            hash: layer.legend|getFile('hash'),
-                            mimeType: layer.legend|getFile('mimeType'),
-                            fileSize: layer.legend|getFile('size')
-                        }
-                    }]) %}
-                {% endfor %}
-                {% if false == display_legend_box %}
-                    {% set display_legend_box = layers_with_legend_files|length > 0 %}
-                {% endif %}
-
-                {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
-                {% if false == display_legend_box %}
-                    {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
-                {% endif %}
-
                 <dp-layer-legend
                     v-show="Boolean({{ display_legend_box }})"
                     :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
