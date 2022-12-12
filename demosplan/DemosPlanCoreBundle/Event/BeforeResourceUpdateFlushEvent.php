@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 
 /**
  * @template O of \demosplan\DemosPlanCoreBundle\Entity\EntityInterface
