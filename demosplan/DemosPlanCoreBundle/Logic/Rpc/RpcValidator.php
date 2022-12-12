@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 
 class RpcValidator
 {

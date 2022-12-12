@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanSurveyBundle\Validator;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use Exception;
 use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 
 class SurveyValidator
 {
