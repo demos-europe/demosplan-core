@@ -32,6 +32,8 @@ abstract class DemosFixture extends AbstractFixture implements ContainerAwareInt
         $this->entityManager = $entityManager;
     }
 
+    abstract public static function getGroups(): array;
+
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
