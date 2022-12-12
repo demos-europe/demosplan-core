@@ -12,15 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use function array_key_exists;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
+use function array_key_exists;
 
-class ResourceTypeService
+class ResourceTypeService implements ResourceTypeServiceInterface
 {
     public const VALIDATION_GROUP_DEFAULT = 'Default';
 

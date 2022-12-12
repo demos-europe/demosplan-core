@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<File>
@@ -29,7 +30,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $created
  * @property-read End $mimetype
  */
-final class FileResourceType extends DplanResourceType
+final class FileResourceType extends DplanResourceType implements FileResourceTypeInterface
 {
     public function getEntityClass(): string
     {

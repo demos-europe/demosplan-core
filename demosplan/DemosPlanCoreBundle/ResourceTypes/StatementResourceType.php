@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use Elastica\Type;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -28,11 +33,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use Elastica\Type;
-
 /**
  * @template-implements ReadableEsResourceTypeInterface<Statement>
  * @template-implements UpdatableDqlResourceTypeInterface<Statement>
@@ -51,7 +51,7 @@ use Elastica\Type;
  * @property-read End $segmentDraftList
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
-final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface
+final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, StatementResourceTypeInterface
 {
     /**
      * @var QueryStatement

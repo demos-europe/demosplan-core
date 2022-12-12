@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
@@ -19,9 +23,6 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
 use function is_array;
 
 /**
@@ -62,7 +63,7 @@ use function is_array;
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
  */
-final class ProcedureResourceType extends DplanResourceType
+final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
     /**
      * @var ProcedureAccessEvaluator
