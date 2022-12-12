@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Exception;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -21,8 +23,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 
 class VendorlistUpdateCommand extends CoreCommand
 {

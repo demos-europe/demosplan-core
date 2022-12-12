@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Deployment;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use Exception;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
-use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 
 abstract class Strategy implements StrategyInterface
 {

@@ -10,8 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use function array_merge;
+
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use Exception;
+
+use function file_exists;
+
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -21,16 +34,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
-use function array_merge;
-use function file_exists;
 
 /**
  * This class loads all classes used by DPlan core and may be

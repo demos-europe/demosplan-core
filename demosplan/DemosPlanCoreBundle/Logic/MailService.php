@@ -13,6 +13,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
+use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityNotFoundException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -22,21 +30,13 @@ use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
+use stdClass;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
-use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\MailSend;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use stdClass;
 
 class MailService extends CoreService
 {

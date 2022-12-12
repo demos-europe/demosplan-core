@@ -10,12 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use ArrayAccess;
-use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ResourceObjectInterface;
-use LogicException;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use function array_key_exists;
+
+use ArrayAccess;
+
 use function data_get;
+
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ResourceObjectInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use LogicException;
 
 class ResourceObject implements ArrayAccess, ResourceObjectInterface
 {

@@ -13,17 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\FormOptionsTreeBuilder;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\ProcedurePhasesTreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\FormOptionsTreeBuilder;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\ProcedurePhasesTreeBuilder;
 
 class OptionsLoaderPass implements CompilerPassInterface
 {
-    const OVERRIDABLE_CONFIGS = [
+    public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
     ];

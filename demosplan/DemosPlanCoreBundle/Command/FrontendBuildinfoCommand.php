@@ -11,12 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Exception\JsonException;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 
 /**
  * This command fetches all required data and runs necessary sub commands to feed
@@ -33,7 +34,7 @@ class FrontendBuildinfoCommand extends CoreCommand
 
         try {
             $this->exportAdditionalData(new NullOutput());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln('Error: Additional data load failed');
             $output->writeln($e->getMessage());
 

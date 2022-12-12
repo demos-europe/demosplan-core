@@ -14,12 +14,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface;
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+
+use function file_put_contents;
+
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use function file_put_contents;
+
 use function uniqid;
 
 class ExternalFileSaver implements ExternalFileSaverInterface
