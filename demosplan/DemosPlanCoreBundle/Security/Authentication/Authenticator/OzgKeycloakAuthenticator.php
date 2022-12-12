@@ -144,7 +144,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($requestedRoles);
                     // 3 handle user / load it / update it / create it / and add User to Orga and Department
 
-                    $existingUser = $this->tryLoginExistingUser();
+                    $existingUser = $this->fetchExistingUser();
 
                     if ($existingUser) {
                         // Update user information from keycloak
@@ -185,7 +185,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      */
     private function getOrgaAndHandleRequestedOrgaData(array $requestedRoles): Orga
     {
-        $existingUser = $this->tryLoginExistingUser();
+        $existingUser = $this->fetchExistingUser();
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupExistingOrga();
 
@@ -626,7 +626,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $dplanUserAttribute !== $keycloakUserAttribute;
     }
 
-    private function tryLoginExistingUser(): ?User
+    private function fetchExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
         $existingUser = $this->tryLoginViaGatewayId();
