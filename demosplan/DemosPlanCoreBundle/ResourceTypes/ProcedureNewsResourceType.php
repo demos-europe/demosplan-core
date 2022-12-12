@@ -14,22 +14,22 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use Doctrine\Common\Collections\Collection;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
-use Doctrine\Common\Collections\Collection;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>

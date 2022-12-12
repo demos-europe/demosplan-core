@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<Place>
