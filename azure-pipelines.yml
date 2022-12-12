@@ -12,3 +12,13 @@ steps:
    git checkout -b release
   displayName: 'Run OpenCode mirror'
   workingDirectory: $(System.DefaultWorkingDirectory)
+
+- script: |
+   git checkout -b release
+  displayName: 'Run OpenCode mirror'
+  workingDirectory: $(System.DefaultWorkingDirectory)
+
+- script: |
+   git fetch https://$OPENCODE_PAT@gitlab.opencode.de/diplanung/diplanbeteiligung/diplanbeteiligung.git
+  displayName: 'Run OpenCode mirror'
+  workingDirectory: $(System.DefaultWorkingDirectory)
