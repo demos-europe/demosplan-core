@@ -43,7 +43,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\Message;
+use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
@@ -796,7 +796,7 @@ class DemosPlanProcedureController extends BaseController
                 $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
 
                 $this->messageBag->addObject(
-                    Message::createMessage(
+                    MessageSerializable::createMessage(
                         'confirm',
                         'confirm.procedure.created',
                         ['name' => $procedure->getName()]
@@ -901,7 +901,7 @@ class DemosPlanProcedureController extends BaseController
                 $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
 
                 $this->messageBag->addObject(
-                    Message::createMessage(
+                    MessageSerializable::createMessage(
                         'confirm',
                         'confirm.procedure_template.created',
                         ['name' => $procedure->getName()]

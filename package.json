@@ -41,7 +41,7 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
-    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#66208dca2fe1b7a37df25f42491163ea9f6fdf57",
+    "@demos-europe/demosplan-ui": "github:demos-europe/demosplan-ui#95131b0f02b3533554d26259c6bb27a7b570e772",
     "@demos-europe/demosplan-utils": "github:demos-europe/demosplan-js-utils#86b11570ce9287cd62457c8071cf959b1674a8bf",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
@@ -131,7 +131,7 @@
     "babel-loader": "^8.2.5",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
-    "caniuse-lite": "^1.0.30001419",
+    "caniuse-lite": "^1.0.30001436",
     "chalk": "4.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cli-progress": "^3.11.2",

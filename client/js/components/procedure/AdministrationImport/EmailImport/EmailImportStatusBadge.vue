@@ -38,7 +38,7 @@ export default {
     },
 
     text () {
-      return Translator.trans(this.imported ? 'Importiert' : 'Neu')
+      return Translator.trans(this.imported ? 'imported.verb' : 'new')
     }
   }
 }

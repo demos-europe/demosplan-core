@@ -1295,6 +1295,7 @@ feature_platform_public_index_map_settings:
     description: 'User is allowed to modify map settings for public index page'
     label: 'Enables permission to edit public index map settings.'
     loginRequired: true
+    expose: true
     parent: area_customer_settings
 feature_procedure_agency_email_addresses:
     description:  |-

@@ -882,29 +882,9 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
-        lazy: true
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\PdfToStatementCreator:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
         lazy: true
 
     # Drafts Info Service
