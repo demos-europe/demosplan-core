@@ -11,22 +11,20 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use Exception;
-use JsonSchema\Exception\InvalidSchemaException;
-use stdClass;
 
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {

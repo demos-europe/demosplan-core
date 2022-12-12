@@ -13,10 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\Contracts\AccessException;
+use Exception;
+use JsonException;
+use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -26,16 +36,6 @@ use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\PathException;
-use EDT\Wrapping\Contracts\AccessException;
-use Exception;
-use JsonException;
-use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface

@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * A place to store all service container tags to be registered for autoconfiguration.
