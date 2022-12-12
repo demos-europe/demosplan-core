@@ -283,6 +283,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             }
             if (!$typeExists) {
                 $orgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
+                if (!$orgaTypeToAdd instanceof OrgaType) {
+                    throw new AuthenticationException('needed OrgaType could not be loaded and therefore cant be added');
+                }
                 $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
             }
         }
@@ -304,6 +307,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     /**
      * @param array<int, Role> $requestedRoles
+     * @throws Exception
      */
     private function createNewOrganisation(
         array $requestedRoles
