@@ -2,7 +2,7 @@ trigger: none
 
 
 pool:
-  name: Default
+  name: Azure
 
 steps:
 - checkout: self
