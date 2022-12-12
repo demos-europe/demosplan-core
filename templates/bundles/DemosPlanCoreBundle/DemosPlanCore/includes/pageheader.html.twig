@@ -86,14 +86,14 @@
 
                 {# subheading #}
                 {% if content_subheading|default != '' %}
-                    <div class="{{ 'c-pageheader__subtitle display--inline-block u-mt-0_25'|prefixClass }}">
+                    <div class="{{ 'c-pageheader__subtitle'|prefixClass }}">
                         {{ content_subheading|wysiwyg }}
                     </div>
                 {% endif %}
 
                 {# introduction #}
                 {% if content_introduction|default != '' %}
-                    <div class="{{ 'c-pageheader__introduction display--inline-block u-mt-0_25'|prefixClass }}">
+                    <div class="{{ 'c-pageheader__introduction'|prefixClass }}">
                         {{ content_introduction|wysiwyg }}
                     </div>
                 {% endif %}
