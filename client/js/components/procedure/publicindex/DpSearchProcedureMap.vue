@@ -46,7 +46,7 @@
       <button
         type="button"
         data-cy="procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn weight--bold')"
+        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
@@ -56,7 +56,7 @@
       <button
         type="reset"
         :disabled="form.search === '' && isDefaultFilter"
-        :class="prefixClass('c-proceduresearch__reset-btn')"
+        :class="prefixClass('c-proceduresearch__reset-btn btn--secondary')"
         @click.prevent="resetAndSubmit">
         <i class="fa fa-close u-mr-0_25" />
         {{ Translator.trans('reset.to.default') }}
@@ -78,7 +78,7 @@
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')">
           {{ Translator.trans('sortation') }}
         </label><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
@@ -102,9 +102,9 @@
       <!-- Filter: Municipal code -->
       <label
         for="municipalCode"
-        :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')"
+        :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
         v-if="hasPermission('feature_procedures_show_municipal_filter')">
-        Kreis:
+        Kreis
       </label><!--
    --><div
       :class="prefixClass('layout__item u-1-of-1 u-mb')"
@@ -142,7 +142,7 @@
         <label
           :key="'label_' + idx"
           :for="filter.name"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
           <i
             v-if="filter.contextHelp !== ''"
