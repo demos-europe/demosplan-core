@@ -60,8 +60,8 @@ EOT
 
         try {
         $this->checkDatabase($input, $output);
-        $this->elasticsearchPopulate($output);
         $this->migrateDatabase($output);
+        $this->elasticsearchPopulate($output);
         } catch (\Throwable $throwable) {
             $output->writeln($throwable->getMessage());
         }
