@@ -232,8 +232,8 @@
 </template>
 
 <script>
-import { changeUrlforPager, handleResponseMessages } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpLoading, DpPager, Stickier } from '@demos-europe/demosplan-ui'
+import { changeUrlforPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
