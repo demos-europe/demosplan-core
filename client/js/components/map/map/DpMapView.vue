@@ -41,17 +41,17 @@
             class="fa fa-map u-ml-0_25 color--grey-light"
             aria-hidden="true" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({field: 'mapExtend_of_project_epsg25832', extent: data})"
+            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })"
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({field: 'bbox_of_project_epsg25832', extent: data})"
+            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })"
             data-cy="boundsApply"
             translation-key="bounds.apply" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('text.mapsection'), container: '#DpOlMap'}" />
+            v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }" />
         </div>
 
         <div
@@ -65,17 +65,31 @@
             render-control
             type="Polygon"
             data-cy="defineMapTerritory"
-            :draw-style="{fillColor: 'rgba(0,0,0,0.1)', strokeColor: '#000', imageColor: '#d4004b', strokeLineDash: [4,4], strokeLineWidth: 3}"
-            :features="JSON.parse(procedureTerritory)"
+            :draw-style="{
+              fillColor: 'rgba(0,0,0,0.1)',
+              strokeColor: '#000',
+              imageColor: '#d4004b',
+              strokeLineDash: [4,4],
+              strokeLineWidth: 3
+            }"
+            :features="initTerritory"
             :label="Translator.trans('map.territory.define')"
-            v-tooltip="{content:Translator.trans('explanation.territory.help.draw', {drawTool: Translator.trans('map.territory.define') }), container: '#DpOlMap'}"
+            v-tooltip="{
+              content: Translator.trans('explanation.territory.help.draw', {
+                drawTool: Translator.trans('map.territory.define')
+              }),
+              container: '#DpOlMap'
+            }"
             icon-class="fa fa-pencil-square-o"
             @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('explanation.territory.desc'), container: '#DpOlMap'}" />
+            v-tooltip="{
+              content: Translator.trans('explanation.territory.desc'),
+              container: '#DpOlMap'
+            }" />
         </div>
 
         <div
@@ -95,7 +109,10 @@
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('text.mapsection.hint'), container: '#DpOlMap'}" />
+            v-tooltip="{
+              content: Translator.trans('text.mapsection.hint'),
+              container: '#DpOlMap'
+            }" />
         </div>
         <template v-else>
           <dp-ol-map-draw-feature
@@ -119,6 +136,7 @@ import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
+import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpMapView',
@@ -153,8 +171,9 @@ export default {
 
   data () {
     return {
+      initTerritory: {},
       isActive: '',
-      territory: this.procedureTerritory ? JSON.parse(this.procedureTerritory) : {},
+      territory: JSON.parse(this.procedureTerritory),
       coordinate: this.procedureCoordinates.split(',')
     }
   },
@@ -205,7 +224,28 @@ export default {
     setExtent (data) {
       document.querySelector('p[data-coordinates="' + data.field + '"]').innerText = data.extent
       document.querySelector('input[data-coordinates="' + data.field + '"]').setAttribute('value', data.extent)
+    },
+
+    setInitTerritory () {
+      const initValue = JSON.parse(this.procedureTerritory)
+
+      if (hasOwnProp(initValue, 'features') && initValue.features.length > 0) {
+        this.initTerritory = initValue.features.map((feature, idx) => {
+          return {
+            ...feature,
+            properties: {
+              id: `feature${idx}`
+            }
+          }
+        })
+      }
+
+      this.initTerritory = initValue
     }
+  },
+
+  created () {
+    this.setInitTerritory()
   }
 }
 </script>
