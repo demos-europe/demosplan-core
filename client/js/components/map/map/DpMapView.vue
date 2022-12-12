@@ -66,7 +66,7 @@
             type="Polygon"
             data-cy="defineMapTerritory"
             :draw-style="{fillColor: 'rgba(0,0,0,0.1)', strokeColor: '#000', imageColor: '#d4004b', strokeLineDash: [4,4], strokeLineWidth: 3}"
-            :features="territory"
+            :features="JSON.parse(procedureTerritory)"
             :label="Translator.trans('map.territory.define')"
             v-tooltip="{content:Translator.trans('explanation.territory.help.draw', {drawTool: Translator.trans('map.territory.define') }), container: '#DpOlMap'}"
             icon-class="fa fa-pencil-square-o"
@@ -147,7 +147,7 @@ export default {
     procedureTerritory: {
       required: false,
       type: String,
-      default: ''
+      default: '{}'
     }
   },
 
