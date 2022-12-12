@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\MenusTreeBuilder;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\MenusTreeBuilder;
 
 class MenusLoaderPass implements CompilerPassInterface
 {

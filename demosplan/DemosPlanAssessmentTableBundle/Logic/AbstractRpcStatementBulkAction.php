@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -30,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;

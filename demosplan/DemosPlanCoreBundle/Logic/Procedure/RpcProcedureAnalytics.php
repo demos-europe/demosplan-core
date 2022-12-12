@@ -14,13 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statistics\MatomoApi;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use stdClass;

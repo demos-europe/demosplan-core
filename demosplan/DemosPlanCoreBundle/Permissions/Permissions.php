@@ -12,20 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
-use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
@@ -38,6 +25,19 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.

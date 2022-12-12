@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;

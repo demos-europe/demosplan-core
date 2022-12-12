@@ -11,9 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
-use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Action;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\ShellAction;
@@ -22,6 +20,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
+use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use function register_shutdown_function;
 
 /**

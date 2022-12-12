@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

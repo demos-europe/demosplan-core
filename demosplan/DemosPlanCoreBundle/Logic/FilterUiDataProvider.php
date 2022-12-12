@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilter;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use Symfony\Component\Config\Definition\Processor;

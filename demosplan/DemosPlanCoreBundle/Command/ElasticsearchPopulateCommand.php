@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;

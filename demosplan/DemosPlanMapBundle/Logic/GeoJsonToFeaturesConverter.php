@@ -12,23 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use Exception;
+use Faker\Provider\Uuid;
+use Intervention\Image\ImageManager;
+use Psr\Log\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
-use Exception;
-use Faker\Provider\Uuid;
 use geoPHP;
-use Intervention\Image\ImageManager;
-use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
-use Tightenco\Collect\Support\Collection;
 
 class GeoJsonToFeaturesConverter
 {

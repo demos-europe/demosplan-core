@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
-use function set_time_limit;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
+use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
+use function set_time_limit;
 
 /**
  * Centralized front controller entrypoints.

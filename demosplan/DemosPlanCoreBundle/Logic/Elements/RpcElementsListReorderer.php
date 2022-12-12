@@ -14,10 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Elements;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;

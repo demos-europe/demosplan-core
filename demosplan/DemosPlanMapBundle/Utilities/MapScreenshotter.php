@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanMapBundle\Utilities;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use GeoJson\GeoJson;
 use Intervention\Image\ImageManager;
@@ -24,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter;
 use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;

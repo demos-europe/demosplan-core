@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Map\Unit;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Geometry;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;
+use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
+use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {

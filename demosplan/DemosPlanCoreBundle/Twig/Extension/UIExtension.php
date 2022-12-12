@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;

@@ -11,6 +11,7 @@
 namespace Tests\Base;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -46,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class FunctionalTestCase extends WebTestCase
 {

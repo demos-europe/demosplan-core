@@ -11,6 +11,9 @@
 namespace Tests\Core\News\Functional;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use Exception;
+use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadNewsData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
@@ -18,10 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
-use Exception;
-use Tests\Base\FunctionalTestCase;
 
 class ProcedureNewsServiceTest extends FunctionalTestCase
 {

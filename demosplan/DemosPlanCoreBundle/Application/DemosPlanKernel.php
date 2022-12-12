@@ -10,15 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -29,6 +21,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use function array_merge;
 use function file_exists;
 

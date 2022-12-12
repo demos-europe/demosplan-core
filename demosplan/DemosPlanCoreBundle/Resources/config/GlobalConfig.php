@@ -10,18 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use Exception;
+use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validation;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use const FILTER_VALIDATE_BOOLEAN;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use function array_key_exists;
 use function array_map;
-
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Exception;
-
 use function explode;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -29,17 +30,9 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
-
-use RuntimeException;
-
 use function strncasecmp;
 use function strpos;
 use function substr;
-
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function trim;
 
 class GlobalConfig implements GlobalConfigInterface

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
 
