@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
+use DemosEurope\DemosplanAddon\Contracts\PlaceServiceInterface;
+use Doctrine\ORM\NoResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use Doctrine\ORM\NoResultException;
 
-class PlaceService extends CoreService
+class PlaceService extends CoreService implements PlaceServiceInterface
 {
     /**
      * @var PlaceRepository
