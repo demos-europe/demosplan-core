@@ -284,8 +284,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 }
             }
             if (!$typeExists) {
-                $OrgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
-                $existingOrga->addCustomerAndOrgaType($customer, $OrgaTypeToAdd);
+                $orgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
+                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
             }
         }
         $this->entityManager->persist($existingOrga);
