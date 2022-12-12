@@ -214,9 +214,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         if ($existingOrga) {
-            $updatedOrga = $this->updateOrganisation($existingOrga, $requestedRoles);
-
-            return $updatedOrga;
+            return $this->updateOrganisation($existingOrga, $requestedRoles);
         }
 
         // if no organisation was found - a new organisation will be created for this user.
