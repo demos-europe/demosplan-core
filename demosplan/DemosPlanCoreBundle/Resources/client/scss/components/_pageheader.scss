@@ -61,5 +61,13 @@
 
     &__subtitle {
         color: $pageheader-color;
+        display: inline-block;
+        margin-top: 6px;
+    }
+
+    &__introduction {
+        font-size: $dp-font-size-4;
+        display: inline-block;
+        margin-top: 6px;
     }
 }
