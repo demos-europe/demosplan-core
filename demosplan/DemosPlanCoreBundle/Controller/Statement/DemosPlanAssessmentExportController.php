@@ -10,12 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use function array_key_exists;
+
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use Psr\Log\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -27,7 +24,11 @@ use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGenera
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableExporterStrategy;
-use function array_key_exists;
+use Exception;
+use Psr\Log\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Assessment Table export.
@@ -51,14 +52,12 @@ class DemosPlanAssessmentExportController extends BaseController
      *     methods={"POST", "GET"},
      *     path="/verfahren/abwaegung/export/{procedureId}",
      *        options={"expose": true})
-     *
      * @Route(
      *     name="DemosPlan_assessment_table_original_export",
      *     path="/verfahren/abwaegung/original/export/{procedureId}",
      *     defaults={"original": true},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return Response

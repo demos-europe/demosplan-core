@@ -13,10 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Survey;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
@@ -32,6 +28,10 @@ use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteService;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
+use Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class SurveyVoteAPIController extends APIController
 {

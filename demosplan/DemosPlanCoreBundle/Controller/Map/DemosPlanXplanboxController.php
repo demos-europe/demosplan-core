@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\Xplanbox;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DemosPlanXplanboxController extends BaseController
 {
@@ -31,7 +31,6 @@ class DemosPlanXplanboxController extends BaseController
      *     requirements={"procedureName"=".+"},
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("feature_use_xplanbox")
      *
      * @param string $procedureName
@@ -49,7 +48,7 @@ class DemosPlanXplanboxController extends BaseController
             ];
 
             if (0 < count($procedure)) {
-                //prepare the response
+                // prepare the response
                 $response = [
                     'code'      => 100,
                     'success'   => true,
@@ -57,7 +56,7 @@ class DemosPlanXplanboxController extends BaseController
                 ];
             }
 
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         } catch (Exception $e) {
             return $this->handleAjaxError($e);

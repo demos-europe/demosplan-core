@@ -17,8 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use Exception;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer;
@@ -49,6 +47,8 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use Exception;
 
 use function is_int;
 

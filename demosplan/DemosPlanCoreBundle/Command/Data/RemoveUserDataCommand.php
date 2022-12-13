@@ -11,10 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use Faker\Factory;
-use Faker\Generator;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
@@ -41,6 +37,10 @@ use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use Faker\Factory;
+use Faker\Generator;
 
 use function strlen;
 

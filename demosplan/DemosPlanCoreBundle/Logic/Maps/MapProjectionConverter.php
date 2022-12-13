@@ -13,11 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
+use Exception;
 use proj4php\Point;
-use proj4php\Proj4php;
 use proj4php\Proj;
+use proj4php\Proj4php;
+use Psr\Log\LoggerInterface;
 
 class MapProjectionConverter
 {
@@ -126,7 +127,7 @@ class MapProjectionConverter
                         $newProjection
                     )
                 );
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->logger->warning('Could not convert viewport', [$viewport]);
             }
         }

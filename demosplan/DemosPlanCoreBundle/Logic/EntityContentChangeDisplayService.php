@@ -11,8 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
-use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
 use ReflectionException;
@@ -20,11 +24,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 
 /**
  * Class EntityContentChangeDisplayService.
@@ -64,13 +63,11 @@ class EntityContentChangeDisplayService extends CoreService
         $this->twig = $twig;
     }
 
-    /** @return EntityContentChangeService */
     public function getEntityContentChangeService(): EntityContentChangeService
     {
         return $this->entityContentChangeService;
     }
 
-    /** @return EntityContentChangeRollbackVersionService */
     public function getEntityContentChangeRollbackVersionService(): EntityContentChangeRollbackVersionService
     {
         return $this->entityContentChangeRollbackVersionService;
