@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\Utilities;
 
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Tests\Base\UnitTestCase;
 use const NAN;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use stdClass;
 
 class JsonTest extends UnitTestCase

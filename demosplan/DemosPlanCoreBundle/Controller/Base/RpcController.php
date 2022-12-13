@@ -11,14 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use Carbon\Exceptions\InvalidFormatException;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\ValueObject\RpcRequestData;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Validation;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\ValueObject\RpcRequestData;
 
 class RpcController extends BaseController
 {
