@@ -153,7 +153,7 @@
                     <dp-map-view
                         procedure-id="{{ procedure }}"
                         procedure-coordinates="{{ templateVars.mapglobals.procedure.settings.coordinate }}"
-                        procedure-territory="{{ templateVars.territory }}"
+                        procedure-territory="{{ templateVars.territory|default('{}') }}"
                     >
                     </dp-map-view>
                 </div>
