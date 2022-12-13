@@ -58,7 +58,9 @@
         :disabled="form.search === '' && isDefaultFilter"
         :class="prefixClass('c-proceduresearch__reset-btn')"
         @click.prevent="resetAndSubmit">
-        <i :class="prefixClass('fa fa-close u-mr-0_25')" />
+        <i
+          :class="prefixClass('fa fa-close u-mr-0_25')"
+          aria-hidden="true" />
         {{ Translator.trans('reset.to.default') }}
       </button>
     </div>
