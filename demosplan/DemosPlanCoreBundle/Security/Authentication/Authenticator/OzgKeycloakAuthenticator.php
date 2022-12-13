@@ -572,9 +572,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
         }
 
-        if (!$orga->getUsers()->contains($dplanUser)) {
-            $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        }
+        $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
         $departmentToSet = $this->getDepartmentToSetForUser($orga);
         if ($dplanUser->getDepartment() !== $departmentToSet) {
             $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
