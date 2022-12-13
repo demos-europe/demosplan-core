@@ -270,7 +270,9 @@ export default {
         units: 'm'
       }
 
-      return MasterportalApi.createMap(config)
+      const controls = this.options.controls ? this.options.controls : this._options.controls
+
+      return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
 
     /**
@@ -443,13 +445,13 @@ export default {
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
     this.olMapState.map = this.createMap()
-
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));
      */
 
     //  After child components have added their stuff to the map instance, it needs to update accordingly
+
     this.$nextTick(() => {
       this.updateMapInstance()
 
