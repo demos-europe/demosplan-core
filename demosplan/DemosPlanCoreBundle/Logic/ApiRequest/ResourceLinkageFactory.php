@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use EDT\JsonApi\Schema\ContentField;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class ResourceLinkageFactory
 {

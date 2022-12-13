@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,7 +20,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 
 /**

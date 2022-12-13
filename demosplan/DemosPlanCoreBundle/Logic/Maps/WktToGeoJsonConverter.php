@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use geoPHP;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Exception\JsonException;
+use geoPHP;
 use stdClass;
 
 class WktToGeoJsonConverter

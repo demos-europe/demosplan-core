@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanMapBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Exception;
 use Faker\Provider\Uuid;
 use Intervention\Image\ImageManager;
@@ -22,7 +23,6 @@ use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;

@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Tests\Base\UnitTestCase;
 use function data_get;
 

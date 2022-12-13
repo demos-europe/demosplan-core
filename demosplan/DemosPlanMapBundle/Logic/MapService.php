@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanMapBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Exception\StatementOrDraftStatementNotFoundException;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanMapBundle\Repository\MapRepository;

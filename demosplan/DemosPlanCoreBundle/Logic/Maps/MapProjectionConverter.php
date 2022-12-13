@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use proj4php\Point;
-use proj4php\Proj;
 use proj4php\Proj4php;
-use Psr\Log\LoggerInterface;
+use proj4php\Proj;
 
 class MapProjectionConverter
 {

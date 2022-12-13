@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use cebe\openapi\spec\OpenApi;
-use cebe\openapi\Writer;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
+use EFrane\ConsoleAdditions\Batch\Batch;
+use Exception;
+use cebe\openapi\Writer;
+use cebe\openapi\spec\OpenApi;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
-use EFrane\ConsoleAdditions\Batch\Batch;
-use Exception;
 
 use function file_put_contents;
 use function str_replace;

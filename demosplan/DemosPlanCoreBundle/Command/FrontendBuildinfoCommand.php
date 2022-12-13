@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 
 /**
  * This command fetches all required data and runs necessary sub commands to feed

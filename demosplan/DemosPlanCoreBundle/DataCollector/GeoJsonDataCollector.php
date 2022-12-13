@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 
 class GeoJsonDataCollector extends DataCollector
 {
