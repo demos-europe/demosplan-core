@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Logic\SimplifiedStatementCreator;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
