@@ -9,7 +9,7 @@ steps:
 
 
 - script: |
-   git checkout -b release
+   git checkout release
   displayName: 'Run OpenCode mirror'
   workingDirectory: $(System.DefaultWorkingDirectory)
 
