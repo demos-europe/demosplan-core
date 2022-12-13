@@ -441,7 +441,9 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      */
     public function getFullname()
     {
-        return $this->getFirstname().' '.$this->getLastname();
+        // In case of an empty string in firstname the trailing empty space gets trimmed.
+
+        return trim($this->getFirstname().' '.$this->getLastname());
     }
 
     /**

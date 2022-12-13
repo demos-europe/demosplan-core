@@ -331,9 +331,9 @@ class OrgaService extends CoreService
      *
      * @param string $entityId
      *
-     * @throws Exception
-     *
      * @return bool
+     *
+     * @throws Exception
      */
     public function deleteOrga($entityId)
     {
@@ -360,14 +360,14 @@ class OrgaService extends CoreService
             $organisation = $this->orgaRepository->get($entityId);
 
             foreach ($organisation->getAddresses() as $address) {
-                //remove addresses form organisation, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form organisation, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $organisation->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
 
-            //remove addresses form organisation, to avoid undefined index
-            //doctrine will not do this, because there are no address sited relation, to use annotations
+            // remove addresses form organisation, to avoid undefined index
+            // doctrine will not do this, because there are no address sited relation, to use annotations
             $organisation->setAddresses([]);
         } catch (Exception $e) {
             $this->logger->error('Fehler beim Löschen der Adressen: ', [$e]);
@@ -541,7 +541,7 @@ class OrgaService extends CoreService
     {
         $notifications = [];
 
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $settingNewStatement = $this->contentService->getSettings(
                 'emailNotificationNewStatement',
@@ -552,7 +552,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $settingEndingPhase = $this->contentService->getSettings(
                 'emailNotificationEndingPhase',
@@ -679,7 +679,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaNotifications($orga, $data)
     {
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationNewStatement');
             if (array_key_exists('emailNotificationNewStatement', $data)) {
@@ -691,7 +691,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationEndingPhase');
 
@@ -722,7 +722,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaSubmissionType($orga, $data)
     {
-        //Update Orga Submission Type
+        // Update Orga Submission Type
         if (!$this->permissions->hasPermission('feature_change_submission_type')) {
             return $orga;
         }

@@ -95,6 +95,10 @@ class CurrentUserService implements CurrentUserInterface
     private function getToken(): DemosToken
     {
         $token = $this->tokenStorage->getToken();
+        // convert PostAuthenticationToken generated during symfony login to DemosToken
+        if ($token instanceof PostAuthenticationToken) {
+            $token = new DemosToken($token->getUser());
+        }
         if (!$token instanceof DemosToken) {
             $this->logger->error('invalid user', [$token, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 30)]);
             throw new UserNotFoundException('Token could not be found');
