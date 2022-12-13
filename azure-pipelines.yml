@@ -15,5 +15,5 @@ steps:
 
 - script: |
    git fetch https://$OPENCODE_PAT@gitlab.opencode.de/diplanung/diplanbeteiligung/diplanbeteiligung.git
-  displayName: 'Run OpenCode mirror'
+  displayName: 'fetch opencode repository'
   workingDirectory: $(System.DefaultWorkingDirectory)
