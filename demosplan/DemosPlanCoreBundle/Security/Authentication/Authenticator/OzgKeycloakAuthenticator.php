@@ -69,8 +69,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private ValidatorInterface $validator;
 
     private const ROLETITLE_TO_ROLECODE = [
-        'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
         //'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
+        'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
         'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
         //'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
         'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
@@ -189,6 +189,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupExistingOrga();
 
+        //At this point we handle users that have the role CITIZEN within their requested roles.
+        // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
         if ($this->isUserCitizen($requestedRoles)
             || ($existingOrga && $existingOrga->getId() === User::ANONYMOUS_USER_ORGA_ID)
@@ -199,6 +201,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
+            // - regardless of other requested roles or an desired update of the orgaName....
 
             return $this->getCitizenOrga();
         }
