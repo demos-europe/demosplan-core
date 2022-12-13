@@ -296,7 +296,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             [
                 'OrgaName'           => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
                 'gwId'               => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
-                'customer'           => $customer,
+                'customer'           => $customer->getName(),
                 'requestedOrgaTypes' => $orgaTypesNeededToBeAccepted,
                 'newOrgaId'          => $existingOrga->getId(),
             ]
