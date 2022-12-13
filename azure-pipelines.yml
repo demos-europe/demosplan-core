@@ -10,10 +10,10 @@ steps:
 
 - script: |
    git checkout release
-  displayName: 'Run OpenCode mirror'
+  displayName: 'checkout release'
   workingDirectory: $(System.DefaultWorkingDirectory)
 
 - script: |
-   git fetch https://$OPENCODE_PAT@gitlab.opencode.de/diplanung/diplanbeteiligung/diplanbeteiligung.git
-  displayName: 'fetch opencode repository'
+   git push --dry-run -v https://gitlab-ci-token:$OPENCODE_PAT@gitlab.opencode.de/diplanung/diplanbeteiligung/diplanbeteiligung.git
+  displayName: 'push to opencode'
   workingDirectory: $(System.DefaultWorkingDirectory)
