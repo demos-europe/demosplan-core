@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 
 /**
  * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
  */
-class AfterResourceCreationEvent extends DPlanEvent
+class AfterResourceCreationEvent extends DPlanEvent implements AfterResourceCreationEventInterface
 {
     /**
      * @var ResourceChange<O>
