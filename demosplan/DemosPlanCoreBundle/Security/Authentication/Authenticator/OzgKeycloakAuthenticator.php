@@ -574,12 +574,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
         if (!$orga->getUsers()->contains($dplanUser)) {
             $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-            $dplanUser->setOrga($orga);
         }
         $departmentToSet = $this->getDepartmentToSetForUser($orga);
         if ($dplanUser->getDepartment() !== $departmentToSet) {
             $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-            $dplanUser->setDepartment($departmentToSet);
         }
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
