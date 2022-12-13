@@ -383,6 +383,7 @@
           </button>
           <button
             type="submit"
+            data-cy="statementFormSubmit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
             form-name="statementForm"
@@ -489,6 +490,7 @@
         <div :class="prefixClass('text--right u-mt-0_5')">
           <button
             type="button"
+            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
@@ -556,6 +558,7 @@
             hide-label />
           <button
             type="button"
+            data-cy="sendStatementNow"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
