@@ -40,6 +40,13 @@
             margin-top: 24px;
         }
 
+        &__reset-btn {
+            background-color: transparent;
+            border: none;
+            color: $dp-color-main;
+            cursor: pointer;
+        }
+
         &__search-field {
             flex-grow: 1;
             max-width: calc(100% - 24px);
