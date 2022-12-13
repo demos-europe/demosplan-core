@@ -201,7 +201,7 @@ export default {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
-              if (layer instanceof VectorLayer && this.target.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
+              if (layer instanceof VectorLayer && this.targets.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
                 layer.getSource().removeFeature(feature)
               }
             })
@@ -218,7 +218,7 @@ export default {
       }
 
       this.map.getLayers().forEach(layer => {
-        if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
+        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
           this.selectInteraction.getFeatures().clear()
           layer.getSource().clear()
         }
@@ -230,7 +230,9 @@ export default {
     resetSelection () {
       this.selectedFeatureId = []
       this.selectInteraction.getFeatures().clear()
-      this.$nextTick(() => this.map.render())
+      this.$nextTick(() => {
+        this.map.render()
+      })
     }
   },
 
