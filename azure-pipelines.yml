@@ -9,7 +9,6 @@ steps:
 
 
 - script: |
-   git switch release
    git log
   displayName: 'checkout release'
   workingDirectory: $(System.DefaultWorkingDirectory)
