@@ -263,7 +263,13 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             // if we get this value set it
             $existingOrga->setGwId($this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId());
         }
-        $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
+        /**
+         * This check prevents the case that someone tries to change the orga name to
+         * @link User::ANONYMOUS_USER_ORGA_NAME. This name has to stay unique for the Citizen Orga.
+         */
+        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
+            $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
+        }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
         // are the desired OrgaTypes present and accepted for this organisation/customer
