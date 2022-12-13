@@ -202,10 +202,12 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             if (!$orgaEntity instanceof Orga) {
                 throw OrgaNotFoundException::createFromId($orgaId);
             }
-            // add User
-            $orgaEntity->addUser($user);
-            $em->persist($orgaEntity);
-            $em->flush();
+            if (!$orgaEntity->getUsers()->contains($user)) {
+                // add User
+                $orgaEntity->addUser($user);
+                $em->persist($orgaEntity);
+                $em->flush();
+            }
 
             return $orgaEntity;
         } catch (Exception $e) {

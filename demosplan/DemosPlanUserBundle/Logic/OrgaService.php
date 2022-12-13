@@ -406,14 +406,9 @@ class OrgaService extends CoreService
     public function orgaAddUser($orgaId, User $user)
     {
         try {
-            $orga = $this->orgaRepository->get($orgaId);
-            if (!$orga instanceof Orga) {
-                throw OrgaNotFoundException::createFromId($orgaId);
-            }
-            if (!$orga->getUsers()->contains($user)) {
-                $orga = $this->orgaRepository->addUser($orgaId, $user);
-                $this->logger->info('Added User '.$user->getLogin().' to Orga '.$orgaId);
-            }
+            $orga = $this->orgaRepository->addUser($orgaId, $user);
+            $this->logger->info('Added User '.$user->getLogin().' to Orga '.$orgaId);
+
             return $orga;
         } catch (Exception $e) {
             $this->logger->error('Fehler bem Update der Orga: ', [$e]);
