@@ -10,7 +10,6 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-
 namespace demosplan\DemosPlanCoreBundle\Event;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;

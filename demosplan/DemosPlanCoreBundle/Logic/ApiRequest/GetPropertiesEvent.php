@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
+use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
-use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 /**
  * @template O of \demosplan\DemosPlanCoreBundle\Entity\EntityInterface
