@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method array getRolleDiPlanBeteiligung()
+ * @method array  getRolleDiPlanBeteiligung()
  * @method string getEmailAdresse()
  * @method string getNutzerId()
  * @method string getProviderId()
@@ -21,11 +21,10 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getVerfahrenstraegerGatewayId()
  * @method string getVollerName()
  */
-
 class OzgKeycloakResponseValueObject extends ValueObject
 {
     /**
-     * @var array<int,string> $rolleDiPlanBeteiligung
+     * @var array<int,string>
      */
     protected array $rolleDiPlanBeteiligung;
     protected string $emailAdresse;
@@ -53,7 +52,8 @@ class OzgKeycloakResponseValueObject extends ValueObject
         $this->checkMandatoryValuesExist();
     }
 
-    private function checkMandatoryValuesExist() {
+    private function checkMandatoryValuesExist()
+    {
         if ('' === $this->nutzerId
             || '' === $this->providerId
             || '' === $this->emailAdresse

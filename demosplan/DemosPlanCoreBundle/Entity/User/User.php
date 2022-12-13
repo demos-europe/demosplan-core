@@ -25,8 +25,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
 use function in_array;
+
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
@@ -37,7 +39,6 @@ use UnexpectedValueException;
  *     uniqueConstraints={@ORM\UniqueConstraint(name="_u_gw_id", columns={"_u_gw_id"}),
  *     @ORM\UniqueConstraint(name="_u_login", columns={"_u_login"})})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\UserRepository")
- *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
 class User implements UserInterface, SamlUserInterface, UuidEntityInterface, PasswordAuthenticatedUserInterface
@@ -189,6 +190,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     /**
      * @var array
+     *
      * @ORM\Column(type="array", nullable=false)
      */
     protected $flags;
@@ -277,7 +279,6 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
      *     @Assert\NotNull(),
      *     @RoleAllowedConstraint()
      * })
-     *
      * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     protected $roleInCustomers;
@@ -299,6 +300,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     /**
      * @var Collection<int, SurveyVote>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
      *      mappedBy="user", cascade={"persist", "remove"})
      */

@@ -380,7 +380,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         if (array_key_exists('copySpec', $data)) {
             $entity->setPaperCopySpec($data['copySpec']);
         }
-        //## Addressdata (if address already exists) ###
+        // ## Addressdata (if address already exists) ###
         if (array_key_exists('address_street', $data)) {
             $entity->setStreet($data['address_street']);
         }

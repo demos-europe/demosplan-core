@@ -1,8 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
-namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
+namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class KeycloakController extends AbstractController
 {
     /**
-     * Link to this controller to start the "connect" process
+     * Link to this controller to start the "connect" process.
      *
      * @Route("/connect/keycloak_ozg", name="connect_keycloak_ozg_start")
      */
@@ -27,7 +35,7 @@ class KeycloakController extends AbstractController
     /**
      * After going to keycloak, you're redirected back here
      * because this is the "redirect_route" you configured
-     * in config/packages/knpu_oauth2_client.yaml
+     * in config/packages/knpu_oauth2_client.yaml.
      *
      * @Route("/connect/keycloak_ozg/check", name="connect_keycloak_ozg_check")
      */
@@ -35,6 +43,5 @@ class KeycloakController extends AbstractController
     {
         // ** if you want to *authenticate* the user, then
         // leave this method blank and create a Guard authenticator
-
     }
 }
