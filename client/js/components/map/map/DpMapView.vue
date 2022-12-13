@@ -136,7 +136,6 @@ import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpMapView',
@@ -171,7 +170,7 @@ export default {
 
   data () {
     return {
-      initTerritory: {},
+      initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
       territory: JSON.parse(this.procedureTerritory),
       coordinate: this.procedureCoordinates.split(',')
@@ -224,28 +223,7 @@ export default {
     setExtent (data) {
       document.querySelector('p[data-coordinates="' + data.field + '"]').innerText = data.extent
       document.querySelector('input[data-coordinates="' + data.field + '"]').setAttribute('value', data.extent)
-    },
-
-    setInitTerritory () {
-      const initValue = JSON.parse(this.procedureTerritory)
-
-      if (hasOwnProp(initValue, 'features') && initValue.features.length > 0) {
-        this.initTerritory = initValue.features.map((feature, idx) => {
-          return {
-            ...feature,
-            properties: {
-              id: `feature${idx}`
-            }
-          }
-        })
-      }
-
-      this.initTerritory = initValue
     }
-  },
-
-  created () {
-    this.setInitTerritory()
   }
 }
 </script>
