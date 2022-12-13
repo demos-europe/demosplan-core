@@ -9,8 +9,8 @@ steps:
 
 
 - script: |
-   git fetch --all
    git switch release
+   git log
   displayName: 'checkout release'
   workingDirectory: $(System.DefaultWorkingDirectory)
 
