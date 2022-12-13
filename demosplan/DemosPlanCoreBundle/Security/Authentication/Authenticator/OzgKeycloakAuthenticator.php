@@ -618,7 +618,12 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
     {
-        // Used to compare two arrays which are not sorted the same by guarantee (!= maybee) RolesArray comparison
+        /*
+         * At this point, two arrays should be checked for the same content.
+         * The order of the content should be irrelevant, because it cannot
+         * be guaranteed that the roles coming from Keycloak are in the same
+         * order as those from Dplan.
+         */
         if (is_array($dplanUserAttribute) && is_array($keycloakUserAttribute)) {
             if (count($dplanUserAttribute) !== count($keycloakUserAttribute)) {
                 return true;
