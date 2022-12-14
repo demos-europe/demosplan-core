@@ -263,6 +263,7 @@ export default {
       const config = {
         epsg: this.projection.getCode(),
         extent: this.maxExtent,
+        layerConf: [], // We need to pass an empty config here, so the api doesn't use its default
         namedProjections,
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
