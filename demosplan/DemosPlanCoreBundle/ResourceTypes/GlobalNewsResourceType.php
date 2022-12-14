@@ -85,7 +85,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return true;
     }
 
     /**

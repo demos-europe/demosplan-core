@@ -19,18 +19,19 @@
     <header class="{{ 'c-pageheader o-page__padded'|prefixClass }} {{ cssClasses|default|prefixClass }}">
 
         {% if full_width|default(false) != true %}
+
             {# link in left corner of pageheader #}
-            <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 cf u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+                <div class="{{ (width_css.col1|default('u-1-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down show-desk-up-ib-empty u-mv-0_25 cf u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
                 {# additional link to be inserted via link_caption / link #}
-                {% if link_caption|default != '' %}
-                    <a
-                        class="{{ 'c-pageheader__link'|prefixClass }}"
-                        data-cy="backTo"
-                        href="{{ link }}">
-                        <i class="{{ 'fa fa-lg fa-angle-left'|prefixClass }}" aria-hidden="true"></i> {{ link_caption|default }}
-                    </a>
-                {% endif %}
+                    {% if link_caption|default != '' %}
+                        <a
+                            class="{{ 'c-pageheader__link'|prefixClass }}"
+                            data-cy="backTo"
+                            href="{{ link }}">
+                            <i class="{{ 'fa fa-lg fa-angle-left'|prefixClass }}" aria-hidden="true"></i> {{ link_caption|default }}
+                        </a>
+                    {% endif %}
 
                 {% if hasMetaMenu %}
 
@@ -74,22 +75,30 @@
             {% set classes = 'u-mv-0_5' %}
         {% endif %}
 
-        <div class="{{ (classes ~ ' ' ~ width_css.col2|default('u-3-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down u-pr u-pl-lap-up u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
+        {% block heading %}
+            <div class="{{ (classes ~ ' ' ~ width_css.col2|default('u-3-of-4'|prefixClass) ~ ' layout__item u-1-of-1-lap-down u-pr u-pl-lap-up u-pl-0_5-palm u-pr-0_5-palm')|prefixClass }}">
 
-            {# heading #}
-            <h1 class="{{ 'c-pageheader__title o-hellip display--block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
-            >
-                {{ content_heading|wysiwyg }}
-            </h1>
+                {# heading #}
+                <h1 class="{{ 'c-pageheader__title o-hellip display--block'|prefixClass }}" {% if aria_heading is defined and aria_heading != '' %}aria-label="{{ aria_heading }}"{% endif %}
+                >
+                    {{ content_heading|wysiwyg }}
+                </h1>
 
-            {# subheading #}
-            {% if content_subheading|default != '' %}
-                <div class="{{ 'display--inline-block u-mt-0_25'|prefixClass }}">
-                    {{ content_subheading|wysiwyg }}
-                </div>
-            {% endif %}
+                {# subheading #}
+                {% if content_subheading|default != '' %}
+                    <div class="{{ 'c-pageheader__subtitle'|prefixClass }}">
+                        {{ content_subheading|wysiwyg }}
+                    </div>
+                {% endif %}
 
-        </div>
+                {# introduction #}
+                {% if content_introduction|default != '' %}
+                    <div class="{{ 'c-pageheader__introduction'|prefixClass }}">
+                        {{ content_introduction|wysiwyg }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endblock heading %}
 
     </header>
 
