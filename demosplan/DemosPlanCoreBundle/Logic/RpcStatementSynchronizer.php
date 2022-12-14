@@ -14,8 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use EDT\Querying\Contracts\PathException;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
@@ -24,15 +28,11 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
-use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use EDT\Querying\Contracts\PathException;
-use Exception;
 
 use function is_object;
 
