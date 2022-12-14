@@ -11,12 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use FOS\ElasticaBundle\Persister\ObjectPersister;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\SearchIndexTask;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -29,6 +23,12 @@ use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use FOS\ElasticaBundle\Persister\ObjectPersister;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Index Entities by using a Queue to improve application performance.

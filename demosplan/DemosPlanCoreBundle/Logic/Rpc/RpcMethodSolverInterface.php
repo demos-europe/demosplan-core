@@ -2,11 +2,19 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
-use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use JsonSchema\Exception\InvalidSchemaException;
 
 /**
  * Interface to be implemented by the classes that execute/solve RPC Methods.
@@ -34,4 +42,3 @@ interface RpcMethodSolverInterface
      */
     public function validateRpcRequest(object $rpcRequest): void;
 }
-
