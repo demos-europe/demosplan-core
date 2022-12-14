@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
+use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * dplan:migrate.

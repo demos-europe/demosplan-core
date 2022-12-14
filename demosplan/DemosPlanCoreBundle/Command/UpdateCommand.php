@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
+use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Action;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\ShellAction;
 use Exception;
-use demosplan\DemosPlanCoreBundle\Exception\UpdateException;
-use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 use function register_shutdown_function;
 

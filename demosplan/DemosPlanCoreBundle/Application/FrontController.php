@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use Exception;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Exception;
 
 use function set_time_limit;
 

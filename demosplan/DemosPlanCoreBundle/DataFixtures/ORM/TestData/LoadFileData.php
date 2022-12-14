@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
 use DateTime;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\Filesystem\Filesystem;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Filesystem\Filesystem;
 
 class LoadFileData extends TestFixture implements DependentFixtureInterface
 {

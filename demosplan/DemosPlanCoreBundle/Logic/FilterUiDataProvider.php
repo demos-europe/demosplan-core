@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilter;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class FilterUiDataProvider
 {
