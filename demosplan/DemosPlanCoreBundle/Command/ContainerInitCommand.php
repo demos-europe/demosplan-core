@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Throwable;
 
 class ContainerInitCommand extends CoreCommand
 {
@@ -43,11 +44,11 @@ class ContainerInitCommand extends CoreCommand
             'If this is set, the existing database will be overridden. Use with care.'
         )
            ->setHelp(
-                <<<EOT
+               <<<EOT
 Perform startup tasks as an init container in kubernetes setup. Usage:
     php bin/<project> dplan:container:init
 EOT
-            );
+           );
     }
 
     /**
@@ -57,12 +58,11 @@ EOT
      */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-
         try {
-        $this->checkDatabase($input, $output);
-        $this->migrateDatabase($output);
-        $this->elasticsearchPopulate($output);
-        } catch (\Throwable $throwable) {
+            $this->checkDatabase($input, $output);
+            $this->migrateDatabase($output);
+            $this->elasticsearchPopulate($output);
+        } catch (Throwable $throwable) {
             $output->writeln($throwable->getMessage());
         }
 
@@ -82,7 +82,6 @@ EOT
         } catch (ConnectionException $throwable) {
             // create database, if it does not exist yet
             $this->createDatabase($output);
-
         }
     }
 
@@ -109,5 +108,4 @@ EOT
             ->run();
         $output->writeln('DB created');
     }
-
 }
