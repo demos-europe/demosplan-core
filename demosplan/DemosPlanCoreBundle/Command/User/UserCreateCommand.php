@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use Exception;
 use RuntimeException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -53,8 +54,8 @@ class UserCreateCommand extends CoreCommand
         OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         UserRepository $userRepository,
-        string $name = null)
-    {
+        string $name = null
+    ) {
         parent::__construct($parameterBag, $name);
         $this->orgaRepository = $orgaRepository;
         $this->helper = new QuestionHelper();
@@ -94,7 +95,7 @@ class UserCreateCommand extends CoreCommand
             );
 
             return 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Print Exception
             $output->writeln(
                 'Something went wrong with the exception: '.$e->getMessage(),
@@ -178,5 +179,4 @@ class UserCreateCommand extends CoreCommand
             return $answer === $department->getName();
         });
     }
-
 }

@@ -15,7 +15,7 @@ use JsonSerializable;
 /**
  * ViewObject for Messages.
  */
-class Message implements JsonSerializable
+class MessageSerializable implements JsonSerializable
 {
     protected $severity = '';
     protected $text = '';
@@ -38,7 +38,7 @@ class Message implements JsonSerializable
      * @param string $text           #TranslationKey
      * @param array  $textParameters
      *
-     * @return Message
+     * @return MessageSerializable
      */
     public static function createMessage($severity, $text, $textParameters = [])
     {
@@ -56,7 +56,7 @@ class Message implements JsonSerializable
     /**
      * @param string $severity
      *
-     * @return Message
+     * @return MessageSerializable
      */
     public function setSeverity($severity)
     {
@@ -76,7 +76,7 @@ class Message implements JsonSerializable
     /**
      * @param string $text
      *
-     * @return Message
+     * @return MessageSerializable
      */
     public function setText($text)
     {

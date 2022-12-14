@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\ILogic;
 
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\Message;
+use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Tightenco\Collect\Support\Collection;
 
@@ -75,7 +75,7 @@ interface MessageBagInterface
      *
      * @param bool $toStart if to add the parameter to the start of the list of messages
      */
-    public function addObject(Message $message, bool $toStart = false): void;
+    public function addObject(MessageSerializable $message, bool $toStart = false): void;
 
     /**
      * Generate error messages from a Symfony violation list.

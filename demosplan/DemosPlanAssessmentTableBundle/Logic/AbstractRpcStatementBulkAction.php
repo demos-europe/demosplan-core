@@ -183,10 +183,12 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $idCondition = $this->conditionFactory->propertyHasAnyOfValues(
             $statementIds,
-            ...$this->statementResourceType->id);
+            ...$this->statementResourceType->id
+        );
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id);
+            ...$this->statementResourceType->procedure->id
+        );
 
         return $this->entityFetcher->listEntities($this->statementResourceType, [$idCondition, $procedureCondition]);
     }
