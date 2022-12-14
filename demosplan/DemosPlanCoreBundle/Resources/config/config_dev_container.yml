@@ -44,6 +44,7 @@ parameters:
     gateway_url: '/app_dev.php/dplan/login'
 
     demosplan_user_authenticator_service:
+        - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHStaticAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHStaticAuthenticator'
