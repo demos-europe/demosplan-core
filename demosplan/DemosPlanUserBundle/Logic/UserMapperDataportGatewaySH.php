@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Parser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 
 class UserMapperDataportGatewaySH extends UserMapperDataportGateway

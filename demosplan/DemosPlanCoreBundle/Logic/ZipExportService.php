@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -24,6 +23,7 @@ use ZipStream\Option\Method;
 use ZipStream\ZipStream;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use function get_class;
 

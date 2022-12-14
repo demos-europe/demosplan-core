@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use EFrane\ConsoleAdditions\Output\FileOutputInterface;
 use EFrane\ConsoleAdditions\Output\MultiplexedOutput;
 use EFrane\ConsoleAdditions\Output\NativeFileOutput;
@@ -21,6 +19,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 abstract class CoreCommand extends Command
 {

@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;

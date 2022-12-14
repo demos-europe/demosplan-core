@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\ExternalFileSaver\Functional;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Intervention\Image\Exception\NotReadableException;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Tests\Base\FunctionalTestCase;
@@ -20,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver;
 use demosplan\DemosPlanCoreBundle\Logic\Router;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 
 class ExternalFileSaverTest extends FunctionalTestCase

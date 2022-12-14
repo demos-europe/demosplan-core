@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -20,6 +19,7 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use const FILTER_VALIDATE_BOOLEAN;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use function array_key_exists;
 use function array_map;
 use function explode;

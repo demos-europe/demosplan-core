@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
@@ -36,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 

@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Wrep\Daemonizable\Command\EndlessContainerAwareCommand;
+use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * SearchIndexCommand runs as a daemon. Beware of memory leaks.

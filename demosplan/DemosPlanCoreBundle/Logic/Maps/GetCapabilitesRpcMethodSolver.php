@@ -14,14 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
+use JsonException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
-use JsonException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use stdClass;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class GetCapabilitesRpcMethodSolver implements RpcMethodSolverInterface
 {

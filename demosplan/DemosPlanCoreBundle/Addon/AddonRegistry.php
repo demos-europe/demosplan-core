@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.

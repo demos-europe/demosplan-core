@@ -18,11 +18,11 @@ use function array_key_exists;
 use function array_pop;
 use function array_reduce;
 
+use EDT\JsonApi\Schema\ContentField;
+use cebe\openapi\SpecObjectInterface;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Reference;
-use cebe\openapi\SpecObjectInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
-use EDT\JsonApi\Schema\ContentField;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * Generate a JS File with resource definitions for demosplans' {json:api}.

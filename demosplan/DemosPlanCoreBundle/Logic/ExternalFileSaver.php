@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 use function file_put_contents;
 

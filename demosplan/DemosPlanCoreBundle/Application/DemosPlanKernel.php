@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Application;
 
 use function array_merge;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
-use Exception;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 use function file_exists;
 

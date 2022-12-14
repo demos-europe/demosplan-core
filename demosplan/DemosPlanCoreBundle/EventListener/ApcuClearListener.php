@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 /**
  * Check whether apcu cache needs to be cleared.

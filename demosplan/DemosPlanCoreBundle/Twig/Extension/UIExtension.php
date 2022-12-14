@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Environment;
 use Twig\Error\Error;
 use Twig\TwigFunction;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * twig files rendered by this extension can be found in DemosPlanCoreBundle/Resources/views/UI.

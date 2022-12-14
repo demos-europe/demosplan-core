@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -36,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 
 /**

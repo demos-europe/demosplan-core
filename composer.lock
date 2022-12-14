@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "31d6315980043e31cbf6128abd1bea01",
+    "content-hash": "3abc32e62d222be77d56efeec0af1769",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1236,28 +1236,35 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-main",
+            "version": "dev-Feat_ref_T30254_add_contracts_part2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "7846a3b36d5bdad7f4ac55a48ee2ce7eb0e9bb60"
+                "reference": "9759b3bbf0a9d8bb54c6f816765bbb13f69f2a26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/7846a3b36d5bdad7f4ac55a48ee2ce7eb0e9bb60",
-                "reference": "7846a3b36d5bdad7f4ac55a48ee2ce7eb0e9bb60",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/9759b3bbf0a9d8bb54c6f816765bbb13f69f2a26",
+                "reference": "9759b3bbf0a9d8bb54c6f816765bbb13f69f2a26",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
-                "php": "^7.4 || ^8.0"
+                "demos-europe/edt-jsonapi": "^0.14.0",
+                "demos-europe/edt-paths": "^0.14.0",
+                "league/fractal": "^0.19",
+                "php": "^7.4 || ^8.0",
+                "sensio/framework-extra-bundle": "^6.1",
+                "symfony/http-foundation": "5.*.*",
+                "symfony/security-core": "^5.4",
+                "symfony/yaml": "5.*.*",
+                "tightenco/collect": "~8.83.0"
             },
             "require-dev": {
                 "composer/composer": "^2.1",
                 "symfony/dependency-injection": "^5.0",
                 "symfony/validator": "^5.0"
             },
-            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1270,9 +1277,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/Feat_ref_T30254_add_contracts_part2"
             },
-            "time": "2022-12-02T13:34:02+00:00"
+            "time": "2022-12-14T08:19:52+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -1578,31 +1585,34 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "1.13.3",
+            "version": "1.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "648b0343343565c4a056bfc8392201385e8d89f0"
+                "reference": "9e034d7a70032d422169f27d8759e8d84abb4f51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/648b0343343565c4a056bfc8392201385e8d89f0",
-                "reference": "648b0343343565c4a056bfc8392201385e8d89f0",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/9e034d7a70032d422169f27d8759e8d84abb4f51",
+                "reference": "9e034d7a70032d422169f27d8759e8d84abb4f51",
                 "shasum": ""
             },
             "require": {
-                "doctrine/lexer": "1.*",
+                "doctrine/lexer": "^1 || ^2",
                 "ext-tokenizer": "*",
                 "php": "^7.1 || ^8.0",
                 "psr/cache": "^1 || ^2 || ^3"
             },
             "require-dev": {
                 "doctrine/cache": "^1.11 || ^2.0",
-                "doctrine/coding-standard": "^6.0 || ^8.1",
-                "phpstan/phpstan": "^1.4.10 || ^1.8.0",
-                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.1.5",
-                "symfony/cache": "^4.4 || ^5.2",
+                "doctrine/coding-standard": "^9 || ^10",
+                "phpstan/phpstan": "~1.4.10 || ^1.8.0",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+                "symfony/cache": "^4.4 || ^5.4 || ^6",
                 "vimeo/psalm": "^4.10"
+            },
+            "suggest": {
+                "php": "PHP 8.0 or higher comes with attributes, a native replacement for annotations"
             },
             "type": "library",
             "autoload": {
@@ -1645,9 +1655,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/annotations/issues",
-                "source": "https://github.com/doctrine/annotations/tree/1.13.3"
+                "source": "https://github.com/doctrine/annotations/tree/1.14.1"
             },
-            "time": "2022-07-02T10:48:51+00:00"
+            "time": "2022-12-12T12:46:12+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -21917,5 +21927,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }

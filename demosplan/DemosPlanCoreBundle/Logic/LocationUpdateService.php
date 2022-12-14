@@ -10,11 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Entity\Location;
-use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Goodby\CSV\Import\Standard\Interpreter;
@@ -25,6 +22,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use demosplan\DemosPlanCoreBundle\Entity\Location;
+use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class LocationUpdateService
 {

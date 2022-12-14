@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -19,6 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
  * Populate elasticsearch index with multiple Workers.

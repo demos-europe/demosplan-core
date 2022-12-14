@@ -13,9 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -26,6 +24,8 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class PermissionListCommand extends CoreCommand
 {

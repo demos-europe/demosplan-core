@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\CoreApplication\Application;
 
-use DemosEurope\DemosplanAddon\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class DemosPlanTestKernel extends DemosPlanKernel
 {
