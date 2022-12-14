@@ -245,10 +245,6 @@ export default {
   },
 
   methods: {
-    setAutoCompleteOptions (response) {
-      this.autoCompleteOptions = response.data.data.suggestions
-    },
-
     createMap () {
       const namedProjections = [
         [
@@ -274,6 +270,21 @@ export default {
       const controls = this.options.controls ? this.options.controls : this._options.controls
 
       return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
+    },
+
+    /**
+     * Define extent for map
+     * @param mapOptions
+     * @return void
+     */
+    defineExtent (mapOptions) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length !== 0) {
+        this.maxExtent = mapOptions.procedureMaxExtent
+      } else if (mapOptions.procedureDefaultMaxExtent.length !== 0) {
+        this.maxExtent = mapOptions.procedureDefaultMaxExtent
+      } else {
+        this.maxExtent = mapOptions.defaultMapExtent
+      }
     },
 
     /**
@@ -311,6 +322,15 @@ export default {
         .catch(error => checkResponse(error.response))
     },
 
+    panToCoordinate (coordinate) {
+      this.map.getView().animate({
+        center: coordinate,
+        duration: 800,
+        easing: easeOut,
+        resolution: this.panToResolution
+      })
+    },
+
     registerFullscreenChangeHandler () {
       const html = document.getElementsByTagName('html')[0]
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
@@ -321,6 +341,10 @@ export default {
           this.updateMapInstance()
         }, false)
       })
+    },
+
+    setAutoCompleteOptions (response) {
+      this.autoCompleteOptions = response.data.data.suggestions
     },
 
     setProjection () {
@@ -361,15 +385,6 @@ export default {
       view.setCenter(center)
     },
 
-    panToCoordinate (coordinate) {
-      this.map.getView().animate({
-        center: coordinate,
-        duration: 800,
-        easing: easeOut,
-        resolution: this.panToResolution
-      })
-    },
-
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
@@ -405,23 +420,7 @@ export default {
     this.publicSearchAutozoom = mapOptions.publicSearchAutoZoom || 8
 
     //  Define extent & center
-    if (!mapOptions.procedureMaxExtent && !mapOptions.procedureDefaultMaxExtent) {
-      this.maxExtent = mapOptions.defaultMapExtent
-    } else {
-      if (mapOptions.procedureMaxExtent.length === 0 && mapOptions.procedureDefaultMaxExtent.length === 0) {
-        this.maxExtent = mapOptions.defaultMapExtent // Fallback if no other extent is set
-      } else {
-        if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length !== 0) {
-          this.maxExtent = mapOptions.procedureMaxExtent
-        } else {
-          if (mapOptions.procedureDefaultMaxExtent.length !== 0) {
-            this.maxExtent = mapOptions.procedureDefaultMaxExtent
-          } else {
-            this.maxExtent = mapOptions.defaultMapExtent
-          }
-        }
-      }
-    }
+    this.defineExtent(mapOptions)
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2
