@@ -349,7 +349,7 @@ submenu_procedures:
     considerationtable:
         label: 'considerationtable'
         path: 'dplan_assessmenttable_view_table'
-        child_paths: ['dplan_assessmenttable_view_original_table']
+        child_paths: ['dplan_assessmenttable_view_original_table', 'dm_plan_assessment_single_view']
         path_params: ['procedureId', 'filterHash']
         permission: 'area_admin_assessmenttable'
         link_attributes:
