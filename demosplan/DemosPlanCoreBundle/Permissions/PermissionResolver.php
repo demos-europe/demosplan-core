@@ -111,9 +111,19 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?Procedure $procedure,
         ?Customer $customer
     ): bool {
-        return $this->evaluate($permission->getUserFilters(), $user, $user, $procedure, $customer)
-            && $this->evaluate($permission->getProcedureFilters(), $procedure, $user, $procedure, $customer)
-            && $this->evaluate($permission->getCustomerFilters(), $customer, $user, $procedure, $customer);
+        foreach ($permission->getConditions() as $permissionCondition) {
+            $userConditions = $permissionCondition->getUserConditions();
+            $procedureConditions = $permissionCondition->getProcedureConditions();
+            $customerConditions = $permissionCondition->getCustomerConditions();
+
+            if ($this->evaluate($userConditions, $user, $user, $procedure, $customer)
+                && $this->evaluate($procedureConditions, $procedure, $user, $procedure, $customer)
+                && $this->evaluate($customerConditions, $customer, $user, $procedure, $customer)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

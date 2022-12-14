@@ -13,7 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Constraint\PermissionFilterConstraint;
+use DemosEurope\DemosplanAddon\Permission\PermissionCondition;
+use Gedmo\Timestampable\Traits\Timestampable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -35,11 +36,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  * for the permission to be enabled". So if all filters are set to empty arrays,
  * the permission will always be enabled, regardless of the state of the application (i.e. the
  * current customer, current user and current procedure).
- *
- * @phpstan-import-type CustomizedDrupalFilter from PermissionResolver
  */
 class ResolvablePermission
 {
+    use Timestampable;
+
     public const CURRENT_USER_ID = '$currentUserId';
 
     public const CURRENT_CUSTOMER_ID = '$currentCustomerId';
@@ -74,31 +75,9 @@ class ResolvablePermission
     private bool $exposed;
 
     /**
-     * @var array<non-empty-string, CustomizedDrupalFilter>
-     *
-     * @Assert\NotNull()
-     * @Assert\Type(type="array")
-     * @PermissionFilterConstraint()
+     * @var list<PermissionCondition>
      */
-    private array $customerFilters = [];
-
-    /**
-     * @var array<non-empty-string, CustomizedDrupalFilter>
-     *
-     * @Assert\NotNull()
-     * @Assert\Type(type="array")
-     * @PermissionFilterConstraint()
-     */
-    private array $userFilters = [];
-
-    /**
-     * @var array<non-empty-string, CustomizedDrupalFilter>
-     *
-     * @Assert\NotNull()
-     * @Assert\Type(type="array")
-     * @PermissionFilterConstraint()
-     */
-    private array $procedureFilters = [];
+    private array $conditions;
 
     /**
      * @param non-empty-string $name
@@ -137,54 +116,20 @@ class ResolvablePermission
     }
 
     /**
-     * @return array<non-empty-string, CustomizedDrupalFilter>
+     * @return list<PermissionCondition>
      */
-    public function getCustomerFilters(): array
+    public function getConditions(): array
     {
-        return $this->customerFilters;
+        return $this->conditions;
     }
 
     /**
-     * @param array<non-empty-string, CustomizedDrupalFilter> $customerFilters
+     * @param list<PermissionCondition>
      */
-    public function setCustomerFilters(array $customerFilters): void
+    public function setConditions(array $conditions): void
     {
         $this->update();
-        $this->customerFilters = $customerFilters;
-    }
-
-    /**
-     * @return array<non-empty-string, CustomizedDrupalFilter>
-     */
-    public function getUserFilters(): array
-    {
-        return $this->userFilters;
-    }
-
-    /**
-     * @param array<non-empty-string, CustomizedDrupalFilter> $userFilters
-     */
-    public function setUserFilters(array $userFilters): void
-    {
-        $this->update();
-        $this->userFilters = $userFilters;
-    }
-
-    /**
-     * @return array<non-empty-string, CustomizedDrupalFilter>
-     */
-    public function getProcedureFilters(): array
-    {
-        return $this->procedureFilters;
-    }
-
-    /**
-     * @param array<non-empty-string, CustomizedDrupalFilter> $procedureFilters
-     */
-    public function setProcedureFilters(array $procedureFilters): void
-    {
-        $this->update();
-        $this->procedureFilters = $procedureFilters;
+        $this->conditions = $conditions;
     }
 
     public function isExposed(): bool

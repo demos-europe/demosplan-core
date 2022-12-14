@@ -33,7 +33,7 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
     /**
      * @var array<non-empty-string, ResolvablePermission>
      */
-    protected $permissions = [];
+    protected array $permissions = [];
 
     private CurrentUserInterface $currentUserProvider;
 
@@ -82,23 +82,19 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
         return array_key_exists($permissionName, $this->permissions);
     }
 
-    public function setPermission(
+    public function configurePermission(
         string $name,
         string $label,
         string $description,
         bool $exposed,
-        array $customerFilters,
-        array $userFilters,
-        array $procedureFilters
+        array $permissionConditions
     ): void {
         if (false !== $this->corePermissionEvaluator->getPermission($name)) {
             throw new PermissionOverrideException("A permission with the name '$name' is already defined by the core.");
         }
 
         $permission = new ResolvablePermission($name, $label, $description, $exposed);
-        $permission->setProcedureFilters($procedureFilters);
-        $permission->setUserFilters($userFilters);
-        $permission->setCustomerFilters($customerFilters);
+        $permission->setConditions($permissionConditions);
 
         $violations = $this->validator->validate($permission);
         if (0 !== $violations->count()) {
@@ -114,12 +110,14 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
     public function getPermissions(): array
     {
         return array_map(
-            static fn (ResolvablePermission $permission): Permission => Permission::instanceFromArray($permission->getName(), [
-                    'label'         => $permission->getLabel(),
-                    'expose'        => $permission->isExposed(),
-                    'loginRequired' => false,
-                    'description'   => $permission->getDescription(),
-                ]),
+            static fn (
+                ResolvablePermission $permission
+            ): Permission => Permission::instanceFromArray($permission->getName(), [
+                'label'         => $permission->getLabel(),
+                'expose'        => $permission->isExposed(),
+                'loginRequired' => false,
+                'description'   => $permission->getDescription(),
+            ]),
             $this->permissions
         );
     }
