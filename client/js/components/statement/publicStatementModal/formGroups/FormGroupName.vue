@@ -13,6 +13,7 @@
       <dp-input
         id="r_firstname"
         autocomplete="given-name"
+        data-cy="firstName"
         :class="prefixClass('layout__item')"
         :label="{
           text: Translator.trans('name.first')
@@ -25,6 +26,7 @@
    --><dp-input
         id="r_lastname"
         autocomplete="family-name"
+        data-cy="familyName"
         :class="prefixClass('layout__item')"
         :label="{
           text: Translator.trans('name.last')
