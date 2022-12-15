@@ -12,18 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\PackageInterface;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use EFrane\ConsoleAdditions\Batch\Batch;
+use Exception;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use ZipArchive;
@@ -71,50 +76,57 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $this->copyAndUnzipFileIfNecessary();
+        $this->copyAndUnzipFileIfNecessary($output);
 
         try {
-            $composerDefinition = $this->getComposerDefinition($this->zipCachePath.'composer.json');
-            $this->addAddonToComposerRequire($composerDefinition);
+            $packageDefinition = $this->loadPackageDefinition();
+
+            $this->addAddonToComposerRequire($packageDefinition);
         } catch (JsonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
         }
 
-        // Composer clearcache
         try {
-            $this->runComposerProcess($output, ['composer', 'clearcache']);
-        } catch (ProcessFailedException $e) {
-            $output->error($e->getMessage());
-        }
-
-        // composer dump-autoload
-        try {
-            $this->runComposerProcess($output, ['composer', 'dump-autoload']);
-        } catch (ProcessFailedException $e) {
-            $output->error($e->getMessage());
-        }
-
-        // composer update
-        try {
-            $this->runComposerProcess($output, ['composer', 'bin', 'addons', 'update', '--no-progress']);
-
-            // If composer update went well, add the addon to the registry
-            $addonRegistry = new AddonRegistry();
-            $addonRegistry->addAddonToRegistry($composerDefinition);
-
-            return Command::SUCCESS;
-        } catch (ProcessFailedException $e) {
+            Batch::create($this->getApplication(), $output)
+                ->addShell(['composer', 'clearcache'])
+                ->addShell(['composer', 'dump-autoload'])
+                ->addShell(['composer', 'bin', 'addons', 'update', '-a'])
+                ->run();
+        } catch (Exception $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
         }
+
+        // If composer update went well, add the addon to the registry
+        $addonRegistry = new AddonRegistry();
+        $addonRegistry->register($packageDefinition);
+
+        try {
+            $packageMeta = $addonRegistry->get($packageDefinition->getName());
+;
+            if (array_key_exists('ui', $packageMeta['manifest'])) {
+                // TODO: fix frontend build
+                /*
+                Batch::create($this->getApplication(), $output)
+                    ->addShell(['yarn', 'install', '--frozen-lockfile'], $packageMeta['install_path'])
+                    ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $packageMeta['install_path'])
+                    ->run();*/
+            }
+        } catch (Exception $e) {
+            $output->error($e->getMessage());
+
+            return Command::FAILURE;
+        }
+
+        return Command::SUCCESS;
     }
 
     /**
      * This method checks if everything necessary for Addons already exists and creates the missing pieces
-     * with a default configuration
+     * with a default configuration.
      *
      * @throws RuntimeException|JsonException
      */
@@ -131,20 +143,20 @@ class AddonInstallFromZipCommand extends CoreCommand
         // If composer.json does not exist, create it
         if (!file_exists($this->addonsDirectory.'composer.json')) {
             $content = [
-                "minimum-stability" => "dev",
-                "require" => [],
-                "config" => [
-                    "sort-packages" => true,
-                    "allow-plugins" => [
-                        "demos-europe/demosplan-addon-installer" => true,
+                'minimum-stability' => 'dev',
+                'require'           => [],
+                'config'            => [
+                    'sort-packages' => true,
+                    'allow-plugins' => [
+                        'demos-europe/demosplan-addon-installer' => true,
                     ],
                 ],
-                "repositories" => [
+                'repositories' => [
                     [
-                        "type" => "path",
-                        "url" => "cache/*",
-                        "options" => [
-                            "symlink" => true,
+                        'type'    => 'path',
+                        'url'     => 'cache/*',
+                        'options' => [
+                            'symlink' => true,
                         ],
                     ],
                 ],
@@ -154,7 +166,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * Creates a new directory with the given path if it does not yet exist
+     * Creates a new directory with the given path if it does not yet exist.
      *
      * @throws RuntimeException
      */
@@ -168,24 +180,26 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * Sets all necessary paths for the command
+     * Sets all necessary paths for the command.
      */
     private function setPaths(string $path): void
     {
         $this->addonsDirectory = DemosPlanPath::getRootPath(AddonRegistry::ADDON_DIRECTORY);
         $this->addonsCacheDirectory = DemosPlanPath::getRootPath(AddonRegistry::ADDON_CACHE_DIRECTORY);
-        $this->zipSourcePath = DemosPlanPath::getRootPath($path);
+        $this->zipSourcePath = realpath($path);
 
-        $pathParts = explode('/', $path);
-        $fileNameParts = explode('.', $pathParts[count($pathParts)-1]);
-        $this->zipCachePath = DemosPlanPath::getRootPath(AddonRegistry::ADDON_CACHE_DIRECTORY.$fileNameParts[0].'/');
+        $pathInfo = new SplFileInfo($path);
+
+        $this->zipCachePath = DemosPlanPath::getRootPath(AddonRegistry::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
     }
 
     /**
-     * This will try to copy and unzip the Repo if the path is correct and the repo is not already present in the cache
+     * This will try to copy and unzip the Repo if the path is correct and the repo is not already present in the cache.
      */
-    private function copyAndUnzipFileIfNecessary(): void
+    private function copyAndUnzipFileIfNecessary(OutputInterface $output): void
     {
+        $output->writeln('Checking if the addon needs to be unpacked');
+
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
 
@@ -193,57 +207,57 @@ class AddonInstallFromZipCommand extends CoreCommand
             $zipArchive = new ZipArchive();
             $open = $zipArchive->open($this->zipSourcePath);
             if ($open) {
+                $output->writeln('Unpacking addon');
                 $zipArchive->extractTo($this->addonsCacheDirectory);
             }
         }
     }
 
     /**
-     * Returns the composer.json from the addons cache as an array
-     *
-     * @return array<string, mixed>
+     * @return \Composer\Package\BasePackage|\Composer\Package\CompleteAliasPackage|\Composer\Package\CompletePackage|\Composer\Package\RootAliasPackage|\Composer\Package\RootPackage|\Symfony\Component\Console\Input\InputDefinition
      *
      * @throws JsonException
      */
-    private function getComposerDefinition(string $filePath): array
+    public function loadPackageDefinition()
     {
-        $composerDefinition = file_get_contents($filePath);
+        $loader = new ArrayLoader();
+        $composerJsonArray = Json::decodeToArray(file_get_contents($this->zipCachePath.'composer.json'));
 
-        return Json::decodeToArray($composerDefinition);
+        /*
+         * Regular composer.json files are not a reliable source for version information
+         * since the version field is not required on the schema. Thus, if it's missing
+         * we set it to a bogus version as it is never used internally.
+         */
+        if (!array_key_exists('version', $composerJsonArray)) {
+            $composerJsonArray['version'] = PackageInformation::UNDEFINED_VERSION;
+        }
+
+        return $loader->load($composerJsonArray);
     }
 
     /**
      * Adds the addon name and version to the required part of the composer.json in case
      * the addon is not already present there.
      *
-     * @param array $addonComposerDefinition
-     *
      * @throws JsonException
      */
-    private function addAddonToComposerRequire(array $addonComposerDefinition): void
+    private function addAddonToComposerRequire(PackageInterface $addonComposerDefinition): void
     {
-        $addonName = $addonComposerDefinition['name'];
-        $addonVersion = $addonComposerDefinition['version'];
+        $addonName = $addonComposerDefinition->getName();
+        $addonVersion = $addonComposerDefinition->getVersion();
 
-        $composerContent = $this->getComposerDefinition($this->addonsDirectory.'composer.json');
+        if (PackageInformation::UNDEFINED_VERSION === $addonVersion) {
+            $addonVersion = '*';
+        }
+
+        $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
         if (!array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
-            file_put_contents($this->addonsDirectory.'composer.json', Json::encode($composerContent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            file_put_contents(
+                $this->addonsDirectory.'composer.json',
+                Json::encode($composerContent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+            );
         }
-    }
-
-    /**
-     * Runs the given array as a process
-     *
-     * @param array<int, string> $command
-     */
-    private function runComposerProcess(OutputInterface $output, array $command): void
-    {
-        $composerProcess = new Process($command);
-        $output->writeln('Starting composer '.$command[1]);
-
-        $composerProcess->mustRun();
-        echo $composerProcess->getOutput();
     }
 }
