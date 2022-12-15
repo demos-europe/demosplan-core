@@ -13,6 +13,7 @@
       <dp-input
         id="r_postalCode"
         autocomplete="postal-code"
+        data-cy="postalCode"
         :class="prefixClass('layout__item')"
         data-dp-validate-if="#r_useName_1"
         :disabled="disabled"
@@ -28,6 +29,7 @@
    --><dp-input
         id="r_city"
         autocomplete="address-level2"
+        data-cy="city"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
