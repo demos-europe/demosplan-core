@@ -34,7 +34,7 @@ class LoadAddressBookEntryData extends TestFixture implements DependentFixtureIn
     public function getDependencies(): array
     {
         return [
-          LoadUserData::class
+          LoadUserData::class,
         ];
     }
 }
