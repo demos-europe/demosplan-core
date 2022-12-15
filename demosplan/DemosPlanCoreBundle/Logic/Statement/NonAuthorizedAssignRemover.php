@@ -185,7 +185,6 @@ class NonAuthorizedAssignRemover
                     'removedUsers' => count($removedCaseWorkers),
                 ]
             );
-
         }
     }
 
@@ -200,7 +199,7 @@ class NonAuthorizedAssignRemover
                 $this->conditionFactory->propertyHasNotAnyOfValues($authorizedUserNames,
                     'meta', 'caseWorkerName'
                 ),
-                $this->conditionFactory->propertyHasValue($procedure->getId(), 'procedure', 'id')
+                $this->conditionFactory->propertyHasValue($procedure->getId(), 'procedure', 'id'),
             ]
         );
     }

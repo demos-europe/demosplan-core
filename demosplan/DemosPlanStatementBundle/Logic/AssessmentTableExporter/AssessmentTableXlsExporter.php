@@ -101,10 +101,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $procedureId = $parameters['procedureId'];
         $original = $parameters['original'];
         $outputResult = $this->assessmentHandler->prepareOutputResult(
-                $procedureId,
-                $original,
-                $parameters
-            );
+            $procedureId,
+            $original,
+            $parameters
+        );
 
         $statements = $outputResult->getStatements();
         $columnsDefinition = $this->selectFormat($parameters['exportType']);
@@ -162,20 +162,20 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $title = $this->translator->trans('considerationtable');
         $excelDocument = $this->simpleSpreadsheetService->createExcelDocument($title);
 
-        //extract titles and keys
+        // extract titles and keys
         foreach ($columnDefinitions as $columnDefinition) {
             $columnTitles[] = $columnDefinition['title'];
             $attributesToExport[] = $columnDefinition['key'];
         }
 
-        //prepare Data for export:
+        // prepare Data for export:
         $formattedData = $this->prepareDataForExcelExport($statements, $anonymous, $attributesToExport);
 
-        //add Worksheet with prepared data
+        // add Worksheet with prepared data
         $filledExcelDocument =
             $this->simpleSpreadsheetService->addWorksheet($excelDocument, $formattedData, $columnTitles, $title);
 
-        //set specific column width:
+        // set specific column width:
         $worksheet = $filledExcelDocument->getWorksheetIterator()->current();
         $dimensions = $worksheet->getColumnDimensions();
 
@@ -223,7 +223,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with default column definitions.
      */
-    protected function createColumnsDefinitionDefault(): array {
+    protected function createColumnsDefinitionDefault(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'statement.id'),
             $this->createColumnDefinition('name', 'statement.name'),
@@ -234,7 +235,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with column definitions for topics and tags.
      */
-    private function createColumnsDefinitionForTopicsAndTags(): array {
+    private function createColumnsDefinitionForTopicsAndTags(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('name', 'name'),
@@ -247,7 +249,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with column definitions for potential areas.
      */
-    private function createColumnsDefinitionForPotentialAreas(): array {
+    private function createColumnsDefinitionForPotentialAreas(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('name', 'name'),
@@ -367,11 +370,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds a definition for a column depending on the given permission.
      *
-     * @param array       $columnsDefinition Array of resulting column-definitions.
-     * @param string      $key               Key to get value from statement array (elasticsearch result) later on.
-     * @param string|null $permission        Permission to determine if column will be added.
-     * @param string|null $columnTitle       Translation-key used as title for column in resulting document.
-     * @param int         $width             Width of column in resulting document.
+     * @param array       $columnsDefinition array of resulting column-definitions
+     * @param string      $key               key to get value from statement array (elasticsearch result) later on
+     * @param string|null $permission        permission to determine if column will be added
+     * @param string|null $columnTitle       translation-key used as title for column in resulting document
+     * @param int         $width             width of column in resulting document
      */
     private function addColumnDefinition(
         array &$columnsDefinition,
@@ -395,10 +398,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         bool $anonymous,
         array $keysOfAttributesToExport
     ): array {
-        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames',]);
+        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
 
-        //has permission to READ obscure text? else obscure text
+        // has permission to READ obscure text? else obscure text
         $anonymous = $this->permissions->hasPermission('feature_obscure_text') ? $anonymous : true;
 
         // collect Statements in unified data format
@@ -406,7 +409,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $pushed = false;
             $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
 
-            //loop again through the attributes
+            // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
                 $isUsingDotNotation = str_contains($attributeKey, '.');
                 $isSortable = false;
@@ -415,26 +418,26 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     $isCausingNewLine = $attributeKeysWhichCauseNewLine->contains($attributeKey);
                     $isSortable = $isNotEmptyArray && $isCausingNewLine;
                 }
-                //make it sortable in exported excel table:
-                //is current attribute value an array and should it be sortable and therefore be split in many single rows
+                // make it sortable in exported excel table:
+                // is current attribute value an array and should it be sortable and therefore be split in many single rows
                 if ($isSortable) {
-                    //new table row foreach attributevalue:
+                    // new table row foreach attributevalue:
                     foreach ($statement[$attributeKey] as $singleAttributeValue) {
                         $formattedStatement[$attributeKey] = $singleAttributeValue;
 
-                        //get Related TopicName of current single Tag to show only related topic to current tag in current row
+                        // get Related TopicName of current single Tag to show only related topic to current tag in current row
                         if ('tagNames' === $attributeKey) {
-                            //set value as key
+                            // set value as key
                             foreach ($statement['tags'] as $tag) {
                                 $statement['tags'][$tag['title']] = $tag;
                                 if ($singleAttributeValue === $tag['title']) {
-                                    //set only the topic name related to the current tag:
+                                    // set only the topic name related to the current tag:
                                     $formattedStatement['topicNames'] = $tag['topicTitle'] ?? '';
                                 }
                             }
                         }
 
-                        //new formattedStatement to force new line in table
+                        // new formattedStatement to force new line in table
                         $formattedStatements->push($formattedStatement);
                         $pushed = true;
                     }
@@ -464,7 +467,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $explodedParts = explode('.', $attributeKey);
             switch (count($explodedParts)) {
                 case 2:
-                    if ($explodedParts[1] === 'authoredDate') {
+                    if ('authoredDate' === $explodedParts[1]) {
                         $timestamp = $statementArray[$explodedParts[0]][$explodedParts[1]];
                         $statementArray[$explodedParts[0]][$explodedParts[1]] = date('d-m-Y', $timestamp);
                     }
@@ -477,7 +480,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     break;
             }
 
-            //simplify every attribute which is an array (to stirng)
+            // simplify every attribute which is an array (to stirng)
             if (is_array($formattedStatement[$attributeKey])) {
                 $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
             }
@@ -510,9 +513,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // in xlsx export, the information about moved Statement, have to be in the field of the externID
         if (isset($statementArray['movedToProcedureName'])) {
             $formattedStatement['externId'] .= ' '.$this->translator->trans(
-                    'statement.moved',
-                    ['name' => $statementArray['movedToProcedureName']]
-                );
+                'statement.moved',
+                ['name' => $statementArray['movedToProcedureName']]
+            );
         }
 
         return $formattedStatement;
