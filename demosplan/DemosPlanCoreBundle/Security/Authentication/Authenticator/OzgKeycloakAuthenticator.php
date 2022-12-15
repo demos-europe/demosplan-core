@@ -270,9 +270,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
         /*
          * This check prevents the case that someone tries to change the orga name to
-         * @link User::ANONYMOUS_USER_ORGA_NAME. This name has to stay unique for the Citizen Orga.
+         * an already existing one. The name has to stay unique for the Orga.
          */
-        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
+        if (null !== $this->tryLookupOrgaByName()) {
             $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
