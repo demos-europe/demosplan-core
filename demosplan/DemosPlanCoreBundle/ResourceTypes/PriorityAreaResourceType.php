@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<PriorityArea>
@@ -52,14 +52,15 @@ final class PriorityAreaResourceType extends DplanResourceType
         if (!$behaviorDefinition->hasPriorityArea()) {
             return false;
         }
+        if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
+            $formDefinition = $procedure->getStatementFormDefinition();
+            if (null === $formDefinition) {
+                return false;
+            }
 
-        $formDefinition = $procedure->getStatementFormDefinition();
-        if (null === $formDefinition) {
-            return false;
-        }
-
-        if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
-            return false;
+            if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
+                return false;
+            }
         }
 
         return $this->currentUser->hasPermission('field_statement_priority_area');
@@ -75,7 +76,7 @@ final class PriorityAreaResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->true();
     }

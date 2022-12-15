@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use function array_key_exists;
 use function array_map;
 use function array_merge;
@@ -31,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
@@ -46,9 +44,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -83,6 +79,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
@@ -132,8 +129,8 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Exception\ClientException;
 use Elastica\Query;
@@ -831,12 +828,16 @@ class StatementService extends CoreService
 
         $updater = new PropertiesUpdater($properties);
         $this->updatePersonEditableProperties($updater, $submitter);
-        $updater->ifPresent($this->similarStatementSubmitterResourceType->similarStatements, static function (Collection $similarStatements) use ($change, $submitter): void {
-            $similarStatements->forAll(static function (int $index, Statement $statement) use ($change, $submitter): void {
-                $statement->getSimilarStatementSubmitters()->add($submitter);
-                $change->addEntityToPersist($statement);
-            });
-        });
+        $updater->ifPresent(
+            $this->similarStatementSubmitterResourceType->similarStatements,
+            static function (Collection $similarStatements) use ($change, $submitter): void {
+                /** @var Statement $statement */
+                foreach ($similarStatements as $statement){
+                    $statement->getSimilarStatementSubmitters()->add($submitter);
+                    $change->addEntitiesToPersist($statement);
+                }
+            }
+        );
 
         return $change;
     }
@@ -3478,6 +3479,10 @@ class StatementService extends CoreService
             }
 
             $aggregations = $resultSet->getAggregations();
+            if (0 === $result['hits']['total']) {
+                $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
+            }
+
             $aggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
             $elementMap = collect($elementsAdminList)
@@ -4689,8 +4694,13 @@ class StatementService extends CoreService
             // set default value if not set e.g. in manual statement
             if ('' === $data['r_submitted_date']) {
                 $data['r_submitted_date'] = Carbon::now()->format('d.m.Y H:i:s');
+            } else {
+                $incomingDate = Carbon::createFromTimestamp(strtotime($data['r_submitted_date']));
+                $now = Carbon::now();
+                //On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
+                $incomingDate->setTime($now->hour, $now->minute, $now->second);
+                $statement['submittedDate'] = $incomingDate->format('d.m.Y H:i:s');
             }
-            $statement['submittedDate'] = $data['r_submitted_date'];
         }
 
         if (array_key_exists('r_ident', $data)) {
@@ -4968,5 +4978,22 @@ class StatementService extends CoreService
         }
 
         return ToBy::create($propertyName, $direction);
+    }
+
+    private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
+    {
+        foreach ($userfilters as $label => $value) {
+            if (array_key_exists($label, $aggregations)
+                    && is_array($aggregations[$label])
+                    && array_key_exists('buckets', $aggregations[$label])
+                    && empty($aggregations[$label]['buckets'])
+                ) {
+                // A filter was set by the user that caused an empty search result - therefore the filter ist not
+                // set within the aggregations by default - add those filters manually to let the FE know we used a filter
+                $aggregations[$label]['buckets'] = [['key' => $value[0], 'doc_count' => 0]];
+            }
+        }
+
+        return $aggregations;
     }
 }

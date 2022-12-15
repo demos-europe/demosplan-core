@@ -12,21 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\SegmentCommentFactory;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\Contracts\AccessException;
 
 /**
  * @template-implements CreatableDqlResourceTypeInterface<SegmentComment>
+ *
  * @template-extends DplanResourceType<SegmentComment>
  *
  * @property-read UserResourceType             $submitter
@@ -69,10 +70,10 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('feature_segment_comment_create');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         // if a segment can be accessed then all its comments can be read
         return $this->conditionFactory->true();
@@ -80,7 +81,7 @@ final class SegmentCommentResourceType extends DplanResourceType implements Crea
 
     public function isCreatable(): bool
     {
-        return $this->currentUser->hasPermission('feature_segment_comment_create');
+        return $this->isDirectlyAccessible();
     }
 
     public function createObject(array $properties): ResourceChange

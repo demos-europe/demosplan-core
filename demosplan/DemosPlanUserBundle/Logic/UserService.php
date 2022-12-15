@@ -47,7 +47,7 @@ use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 use demosplan\DemosPlanUserBundle\ValueObject\OrgaUsersPair;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -614,7 +614,7 @@ class UserService extends CoreService
             }
 
             // handle Branding
-            if (array_key_exists(CustomerInterface::STYLING, $data)) {
+            if (array_key_exists(CustomerResourceInterface::STYLING, $data)) {
                 $data['branding'] = $this->handleBrandingByUpdate($orgaBefore, $data);
             }
             // delete logo file
@@ -677,7 +677,7 @@ class UserService extends CoreService
             return $this->brandingRepository->createFromData($data);
         }
 
-        return $orgaBranding->setCssvars($data[CustomerInterface::STYLING]);
+        return $orgaBranding->setCssvars($data[CustomerResourceInterface::STYLING]);
     }
 
     public function handleBrandingByCreate(array $data): array
@@ -1000,64 +1000,6 @@ class UserService extends CoreService
         arsort($roles);
 
         return $roles;
-    }
-
-    /**
-     * @param array<int, User> $users
-     *
-     * @return array<string, int> mapping from the "kind" of role group to their corresponding occurrences count;
-     *                            grouping is done into the three translations of `procedure.agency`, `planningagency` and `publicagency`
-     */
-    public function collectOrgaStatistics(array $users): array
-    {
-        $orgaIds = [];
-        $procedureAgencyKey = $this->translator->trans('procedure.agency');
-        $planningAgencyKey = $this->translator->trans('planningagency');
-        $publicAgencyKey = $this->translator->trans('invitable_institution');
-        $fpaRole = $this->translator->trans('role.fpa');
-        $fpsbRole = $this->translator->trans('role.fpsb');
-        $fppbRole = $this->translator->trans('role.fppb');
-        $tbspRole = $this->translator->trans('role.tbsb');
-        $tbkoRole = $this->translator->trans('role.tbko');
-        $orgas = [
-            $procedureAgencyKey => 0,
-            $planningAgencyKey  => 0,
-            $publicAgencyKey    => 0,
-        ];
-
-        foreach ($users as $user) {
-            $userRoleNames = $this->getRoleNames($user);
-
-            // @improve T12336: wrong statistics shown (only 2 of 3 planning offices)
-            $orga = $user->getOrga();
-            if (null !== $orga && !in_array($orga->getId(), $orgaIds, true)) {
-                $orgaIds[] = $orga->getId();
-                $isPlanningAgencyAdmin = in_array($fpaRole, $userRoleNames, true);
-                $isPlanningAgencyWorker = in_array($fpsbRole, $userRoleNames, true);
-                $isPrivatePlanningAgency = in_array($fppbRole, $userRoleNames, true);
-                $isPublicAgencyWorker = in_array($tbspRole, $userRoleNames, true);
-                $isPublicAgencyCoordination = in_array($tbkoRole, $userRoleNames, true);
-                $isNonPrivatePlanningAgency = $isPlanningAgencyAdmin || $isPlanningAgencyWorker;
-
-                if ($isNonPrivatePlanningAgency) {
-                    ++$orgas[$procedureAgencyKey];
-
-                    continue;
-                }
-
-                if ($isPrivatePlanningAgency) {
-                    ++$orgas[$planningAgencyKey];
-                }
-                if ($isPublicAgencyWorker || $isPublicAgencyCoordination) {
-                    ++$orgas[$publicAgencyKey];
-                }
-            }
-        }
-
-        // sort by count descending
-        arsort($orgas);
-
-        return $orgas;
     }
 
     /**

@@ -173,7 +173,7 @@ area_demosplan:
     loginRequired: false
 area_development:
     description: 'Enables the area where users can write Featurerequests and Ideas for the dPlan-software and sort of organise the release planning'
-    label: 'shows the userStory / development forum area'
+    label: 'shows the userStory / development forum area (the default setup if used in project is: enabled for all except GUEST, PROSPECT, CITIZEN)'
     loginRequired: true
     parent: area_demosplan
 area_documents:
@@ -211,6 +211,14 @@ area_imprint_text:
         access to it, it actually serves more as a parent and structural permission than one with an actual purpose.
     label: 'Basic ability to see imprint text of the website'
     loginRequired: false
+area_institution_tag_manage:
+    description: |-
+        Allows to access the management area of institution tags, to create, update, delete and use tags.
+        Please note that there are more fine grained permissions for the individual tasks.
+    expose: true
+    label: 'Manage (change and use) institution tags.'
+    loginRequired: true
+    parent: feature_institution_participation
 area_invite_unregistered_public_agencies:
     description: 'Invite institutions from addressbook by email to participate in procedure'
     expose: false
@@ -632,10 +640,6 @@ feature_alternative_newsletter:
     expose: false
     label: 'Usage of an external service to provide newsletters instead of the internal one.'
     loginRequired: false
-feature_annotated_statement_pdf_rollback_review_status:
-    description: 'Allows running the task to bring all AnnotatedStatements which are in BOX_REVIEW status back to READY_TO_REVIEW and those in TEXT_REVIEW back to READY_TO_CONVERT'
-    label: 'Access to bring AnnotatedStatementPDfs from box- and text-review back to their previous statuses'
-    loginRequired: false
 feature_assessmenttable_special_sorting:
     description: 'Introduces a special (nested) sort type of assessment table for HH to be used for presentations/discussions with authorities (politicians).'
     label: 'Special sort type for HH'
@@ -861,29 +865,6 @@ feature_identity_broker_login:
     label: 'Enables/disables account login and registration by identity broker'
     expose: true
     loginRequired: false
-feature_import_statement_pdf:
-    description: |-
-        When enabled users are able to upload PDF files which are then automatically
-        processed to annotate relevant information in the pages. After the processing
-        is done the user can review and adjust the annotations. When the review is done
-        a statement can be created from the data annotated in the PDF file with the PDF
-        file attached to the statement.
-    expose: true
-    label: 'Upload and annotate PDF files to create statements from it.'
-    loginRequired: true
-feature_import_statement_via_email:
-    description: |
-        Planners may receive e-mails containing statements and want to forward them into the application into a
-        specific procedure. This permission will enable the general functionality and adds a section to the
-        procedure settings where allowed email addresses can be configured as well as enabling a tab in the
-        import center to view and further process incoming emails. A list of these forwarded
-        e-mails will be shown in the import area in the target procedure. From there statements can be
-        created from the e-mail. Both the list as well as the creation from e-mail items are only
-        possible if this permission is enabled.
-    expose: true
-    label: 'Allow the statement import via e-mails.'
-    parent: area_admin_import
-    loginRequired: true
 feature_imprint_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
@@ -901,9 +882,15 @@ feature_institution_participation:
     expose: true
     label: Institutionsbeteiligung
     loginRequired: true
+feature_institution_tag_assign:
+    description: |-
+        allows to tag an institution with an existing InstitutionTag.
+        The InstitutionTag used to tag others with, has to have its owningOrganisation be the same
+        as the current users organisation.
+    label: 'allows to tag an Institution with a InstitutionTag'
 feature_institution_tag_create:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows creating a tag
         setting the owningOrganisation to the current organisation.
@@ -911,7 +898,7 @@ feature_institution_tag_create:
     loginRequired: true
 feature_institution_tag_delete:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows deleting tags
         given by the current organisation.
@@ -919,7 +906,7 @@ feature_institution_tag_delete:
     loginRequired: true
 feature_institution_tag_read:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows reading the tags
         given by the current organisation.
@@ -927,7 +914,7 @@ feature_institution_tag_read:
     loginRequired: true
 feature_institution_tag_update:
     descriptions: |-
-        Within a procedure institutions can be tagged in order to 
+        Within a procedure institutions can be tagged in order to
         group them by a custom category/label.
         When enabled this permission allows to alter the tags
         that belong to the current organisation.
@@ -1271,6 +1258,12 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_original_newsletter:
+    description: |-
+        enables the internal newsletter - gets overruled by feature_alternative_newsletter in case both permissions
+        are active.
+    label: 'shows checkbox to register for newsletter and a description what the newsletter is about'
+    loginRequired: false
 feature_original_statements_export:
     label: 'Gibt an ob aus den Originalstellungnahmen exportiert (Word, PDF, Drucken, ...) werden kann, oder nicht'
     loginRequired: true
@@ -1308,6 +1301,7 @@ feature_platform_public_index_map_settings:
     description: 'User is allowed to modify map settings for public index page'
     label: 'Enables permission to edit public index map settings.'
     loginRequired: true
+    expose: true
     parent: area_customer_settings
 feature_procedure_agency_email_addresses:
     description:  |-
@@ -1697,6 +1691,19 @@ feature_segment_content_changes_view:
         When enabled allows the user access to the history of changes in a Segment
     expose: true
     label: 'Allows access to Segment`s change history.'
+    loginRequired: true
+feature_segment_polygon_read:
+    description: |-
+        Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
+    expose: true
+    label: 'allows read-access to the statementSegment polygon property used in the StatementSegmentResourceType'
+    loginRequired: true
+feature_segment_polygon_set:
+    description: |-
+        Allow adding/modifying the statementSegment-polygon property. Used on statementSegment
+        updates via the StatementSegmentResourceType
+    expose: true
+    label: 'used for editing statementSegment polygons'
     loginRequired: true
 feature_segment_recommendation_edit:
     description: |
@@ -2338,6 +2345,17 @@ field_organisation_agreement_showname:
     label: 'Zustimmung zur Veröffentlichung des Namens'
     loginRequired: false
     parent: field_organisation
+field_organisation_agreement_showname_on_welcomePage:
+    description: |-
+        enables option to publicly show this organisation within a list of project-organisations.
+        This option is shown on the welcome-Page (Route /willkommen).
+        this permission seems to be doubled - maybee tripled regarding these permissions:
+        field_organisation_agreement_showname, feature_organisation_set_showlist
+        Since the welcome-page offered this option without any permission - those 2 listed can not be used here without
+        changing the behaviour. Instead this extra permission needs to be used in context of the welcome page.
+    label: 'enables option to publicly show this organisation within a list of project-organisations'
+    loginRequired: false
+    parent: field_organisation
 field_organisation_competence:
     expose: true
     label: 'Zuständigkeiten in der Organisation'
@@ -2644,25 +2662,25 @@ field_statement_text:
 field_statement_user_group:
     description: 'Show usergroup field in statement form and save its value.'
     expose: true
-    label: 'Input field for usergroup (BTHG)'
+    label: 'Input field for usergroup'
     loginRequired: false
     parent: field_statement
 field_statement_user_organisation:
     description: 'Show organisation field in statement form and save its value.'
     expose: true
-    label: "Field for user's organisation (BTHG)"
+    label: "Field for user's organisation"
     loginRequired: false
     parent: field_statement
 field_statement_user_position:
     description: 'Show user position in organisation field in statement form and save its value.'
     expose: true
-    label: 'Field for the position in organisation (BTHG)'
+    label: 'Field for the position in organisation'
     loginRequired: false
     parent: field_statement
 field_statement_user_state:
     description: 'Show Bundesland field in statement form and save its value.'
     expose: true
-    label: "Field input for user's Bundlesland (BTHG)"
+    label: "Field input for user's Bundlesland"
     loginRequired: false
     parent: field_statement
 field_statement_vote_pla:
@@ -2695,5 +2713,14 @@ feature_create_procedure_from_XBauleitplanungMessage:
         Allows creating new procedures without being logged in.
     label: 'Verfahren verwalten'
     loginRequired: false
+feature_read_source_statement_via_api:
+    description: |
+        Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
+        because that permission is addon-specific and cannot be used for additional non addon related checks within the core.
+        Access to the source-statement without this addon is necessary, so this permission substitutes the old one.
+    label: ' used in : Statement list and segment list '
+    expose: true
+    loginRequired: true
+
 
 

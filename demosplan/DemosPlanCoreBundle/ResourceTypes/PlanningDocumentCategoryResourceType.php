@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
@@ -27,6 +27,8 @@ use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use function in_array;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
@@ -108,7 +110,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
      */
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -224,12 +226,16 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentId->readable(true);
             $title->readable(true);
             $documents->readable(true);
-            $properties = array_merge($properties, [
-                 $fileInfo,
-                 $filePathWithHash,
-                 $children,
-                 $index
-             ]);
+            if (!in_array($fileInfo, $properties, true)) {
+                $properties[] = $fileInfo;
+            }
+            if (!in_array($filePathWithHash, $properties, true)) {
+                $properties[] = $filePathWithHash;
+            }
+            if (!in_array($children, $properties, true)) {
+                $properties[] = $children;
+            }
+            $properties[] = $index;
         }
 
         if ($this->isBulkEditAllowed()) {
@@ -239,8 +245,10 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         if ($this->currentUser->hasPermission('feature_admin_element_edit')) {
             $id->filterable();
+            if (!in_array($index, $properties, true)) {
+                $properties[] = $index;
+            }
             $properties = array_merge($properties, [
-                $index,
                 $this->createAttribute($this->designatedSwitchDate)->readable(false, function (Elements $category): ?string {
                     return $this->formatDate($category->getDesignatedSwitchDate());
                 }),

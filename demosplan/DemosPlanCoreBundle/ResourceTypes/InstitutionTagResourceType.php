@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -9,7 +11,6 @@
  */
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -31,12 +32,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<InstitutionTag>
+ *
  * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
  *
  * @property-read End                     $label
  * @property-read OrgaResourceType        $taggedInstitutions
  * @property-read OrgaResourceType        $owningOrganisation
- *
  */
 class InstitutionTagResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, CreatableDqlResourceTypeInterface
 {
@@ -56,7 +57,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             ->readable(true)
             ->filterable();
         $label = $this->createAttribute($this->label);
-        $taggedInstitutions = $this->createAttribute($this->taggedInstitutions);
+        $taggedInstitutions = $this->createToManyRelationship($this->taggedInstitutions);
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $label->readable()->filterable()->sortable();
             $taggedInstitutions->readable()->filterable()->sortable();
@@ -113,7 +114,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
-            ...$this->owningOrganisation
+            ...$this->owningOrganisation->id
         );
     }
 
@@ -176,9 +177,10 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             $this->taggedInstitutions,
             static function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
                 $tag->setTaggedInstitutions($institutions);
-                $institutions->forAll(function (int $key, Orga $institutionToBeTagged) use ($tag, &$institutionViolationLists) : bool {
+                $institutions->forAll(function (int $key, Orga $institutionToBeTagged) use ($tag, &$institutionViolationLists): bool {
                     $institutionToBeTagged->addAssignedTag($tag);
                     $institutionViolationLists[] = $this->validator->validate($institutionToBeTagged);
+
                     return true;
                 });
             }
@@ -217,6 +219,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
                 $taggedInstitution->removeAssignedTag($tag);
                 $institutionViolations = $this->validator->validate($taggedInstitution);
                 $violations->addAll($institutionViolations);
+
                 return true;
             }
         );
@@ -233,11 +236,10 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     /**
      * @param Collection<int, Orga> $currentTaggedInstitutions
-     *
      * @param Collection<int, Orga> $newTaggedInstitutions
      *
      * @return Collection<int, Orga>
-    */
+     */
     private function getAddedTaggedInstitutions(
         Collection $currentTaggedInstitutions,
         Collection $newTaggedInstitutions
@@ -249,7 +251,6 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
     /**
      * @param Collection<int, Orga> $currentTaggedInstitutions
-     *
      * @param Collection<int, Orga> $newTaggedInstitutions
      *
      * @return Collection<int, Orga>
@@ -282,6 +283,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             function (int $key, Orga $orga) use ($tag, $violations): bool {
                 $orga->addAssignedTag($tag);
                 $violations->addAll($this->validator->validate($orga));
+
                 return true;
             }
         );
@@ -294,6 +296,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             function (int $key, Orga $orga) use ($tag, $violations): bool {
                 $orga->removeAssignedTag($tag);
                 $violations->addAll($this->validator->validate($orga));
+
                 return true;
             }
         );

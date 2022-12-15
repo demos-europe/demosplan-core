@@ -28,7 +28,7 @@ use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
@@ -460,7 +460,7 @@ class DemosPlanUserController extends BaseController
             // as the email-address is used as login name the handling for both exceptions is the same
         } catch (UserAlreadyExistsException $e) {
             $emailAddress = $e->getValue();
-            $this->getMessageBag()->addObject(LinkMessage::createLinkMessage(
+            $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
                 'warning',
                 'warning.user.emailaddress.in_use',
                 ['emailAddress' => $emailAddress],

@@ -60,6 +60,7 @@ const baseConfig = {
   },
   resolve: {
     fallback: {
+      timers: require.resolve('timers-browserify'),
       /*
        * Prevent webpack from injecting useless setImmediate polyfill because Vue
        * source contains it (although only uses it if it's native).
@@ -87,7 +88,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       css: config.stylesEntryPoint,
       publiccss: config.publicStylesEntryPoint,
-      ...bundleEntryPoints(config.bundleEntryPointsGlob),
+      ...bundleEntryPoints(config.clientBundleGlob)
     }
   },
   output: {

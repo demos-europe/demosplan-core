@@ -16,7 +16,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\QueryBuilder;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
-use EDT\Querying\Contracts\SliceException;
+use EDT\Querying\Contracts\ObjectProviderInterface;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\FluentQueries\SliceDefinition;
@@ -31,7 +32,7 @@ class DqlFluentQuery extends FluentQuery
     /**
      * @var DoctrineOrmEntityProvider<T>
      */
-    protected $objectProvider;
+    protected ObjectProviderInterface $objectProvider;
 
     /**
      * @param DoctrineOrmEntityProvider<T> $objectProvider
@@ -58,7 +59,7 @@ class DqlFluentQuery extends FluentQuery
      * store the entity identifier but something like `ident` instead.
      *
      * @throws MappingException
-     * @throws SliceException
+     * @throws PaginationException
      */
     public function getCount(string $idAttributeName = 'id'): int
     {

@@ -922,31 +922,6 @@
                     </div>
                 {% endif %}
 
-                {# Statement reply #}
-                {% if hasPermission('feature_reply_statement') %}
-                    {% set bthgKompassAnswers = [] %}
-                    {% for answer in templateVars.bthgKompassAnswers %}
-                    {% set bthgKompassAnswers = bthgKompassAnswers|merge([{
-                        id: answer.id,
-                        breadcrumbTrail: answer.breadcrumbTrail,
-                        title: answer.title,
-                    }]) %}
-                    {% endfor %}
-                    {% set bthgKompassAnswer = {
-                        id: templateVars.table.statement.bthgKompassAnswer.id|default,
-                        breadcrumbTrail: templateVars.table.statement.bthgKompassAnswer.breadcrumbTrail|default,
-                        title: templateVars.table.statement.bthgKompassAnswer.title|default,
-                        url: templateVars.table.statement.bthgKompassAnswer.url|default
-                    } %}
-
-                    <statement-reply-select
-                        :initial-answer="JSON.parse('{{ bthgKompassAnswer|default({})|json_encode|e('js', 'utf-8') }}')"
-                        :is-statement-replied="Boolean({{ statement.replied }})"
-                        :readonly="Boolean({{ readonly }})"
-                        :reply-options="JSON.parse('{{ bthgKompassAnswers|default([])|json_encode|e('js', 'utf-8') }}')">
-                    </statement-reply-select>
-                {% endif %}
-
                 {# Documents #}
                 {# Editable for all statements, not just manual ones #}
                 {% if hasPermission('field_procedure_elements') %}

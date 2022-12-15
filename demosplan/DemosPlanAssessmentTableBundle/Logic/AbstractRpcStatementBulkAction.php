@@ -29,8 +29,8 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
@@ -183,10 +183,12 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
     {
         $idCondition = $this->conditionFactory->propertyHasAnyOfValues(
             $statementIds,
-            ...$this->statementResourceType->id);
+            ...$this->statementResourceType->id
+        );
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id);
+            ...$this->statementResourceType->procedure->id
+        );
 
         return $this->entityFetcher->listEntities($this->statementResourceType, [$idCondition, $procedureCondition]);
     }

@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Event\PluginMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
@@ -237,7 +237,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->checkMailBounces($output);
             $this->fetchStatementGeoData($output);
             $this->purgeDeletedProcedures($output);
-            $this->pluginMaintenance($output);
+            $this->addonMaintenance($output);
             // async localization not needed any more, will be deleted
             // after merging into main, to avoid merge problems
             //$this->getProcedureLocations($output);
@@ -370,18 +370,18 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     }
 
     /**
-     * Tells plugins to trigger their respective cleanup actions.
+     * Tells addons to trigger their respective cleanup actions.
      *
      * @param OutputInterface $output
      */
-    protected function pluginMaintenance($output)
+    protected function addonMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new PluginMaintenanceEvent());
+            $this->eventDispatcher->dispatch(new AddonMaintenanceEvent());
         } catch (Exception $e) {
-            $this->logger->error('Plugin Maintenance failed', [$e]);
+            $this->logger->error('Addon Maintenance failed', [$e]);
         }
-        $output->writeln('Finished Plugin Maintenance.');
+        $output->writeln('Finished Addon Maintenance.');
     }
 
     /**

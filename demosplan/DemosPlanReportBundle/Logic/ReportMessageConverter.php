@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanReportBundle\ValueObject\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\RegisteredInvitationReportEntryData;
 use demosplan\DemosPlanReportBundle\ValueObject\StatementFinalMailReportEntryData;
@@ -112,6 +112,12 @@ class ReportMessageConverter
                     $statementFinalMailReportEntry = StatementFinalMailReportEntryData::createFromArray($reportEntryMessage);
                     $message = $this->getStatementFinalMailMessage($statementFinalMailReportEntry);
                 }
+                if (ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE === $category) {
+                    $message = $this->getStatementSynchronizedSourceProcedureMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET === $category) {
+                    $message = $this->getStatementSynchronizedTargeProcedureMessage($reportEntryMessage);
+                }
                 if (ReportEntry::CATEGORY_MOVE === $category) {
                     $message = $this->getStatementMoveMessage($reportEntryMessage);
                 }
@@ -137,6 +143,28 @@ class ReportMessageConverter
         }
 
         return $message ?? '';
+    }
+
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.synchronized.target'
+     * 'confirm.statement.id.synchronized.target.nolink'.
+     */
+    protected function getStatementSynchronizedTargeProcedureMessage(array $message): string
+    {
+        return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.target');
+    }
+
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.synchronized.source'
+     * 'confirm.statement.id.synchronized.source.nolink'.
+     */
+    protected function getStatementSynchronizedSourceProcedureMessage(array $message): string
+    {
+        return $this->getStatementMessage($message, 'confirm.statement.id.synchronized.source');
     }
 
     protected function getStatementMessage(array $message, string $transKey): string
@@ -190,16 +218,34 @@ class ReportMessageConverter
         ]);
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.submitted'
+     * 'confirm.statement.submitted.nolink'.
+     */
     protected function getStatementAddMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.submitted');
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.copied'
+     * 'confirm.statement.id.copied.nolink'.
+     */
     protected function getStatementCopyMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.copied');
     }
 
+    /**
+     * This translation key can be modified by getStatementMessage()
+     * possible variations are:
+     * 'confirm.statement.id.updated'
+     * 'confirm.statement.id.updated.nolink'.
+     */
     protected function getStatementUpdateMessage(array $message): string
     {
         return $this->getStatementMessage($message, 'confirm.statement.id.updated');
@@ -377,13 +423,13 @@ class ReportMessageConverter
         }
         if (array_key_exists('targetProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.coupled.targetProcedure', [
-                'targetProcedure' => $message['targetProcedure'],
+                'targetProcedure'        => $message['targetProcedure'],
                 'relatedInstitutionName' => $message['relatedInstitutionName'],
             ]);
         }
         if (array_key_exists('sourceProcedure', $message) && array_key_exists('relatedInstitutionName', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.coupled.sourceProcedure', [
-                'sourceProcedure' => $message['sourceProcedure'],
+                'sourceProcedure'        => $message['sourceProcedure'],
                 'relatedInstitutionName' => $message['relatedInstitutionName'],
             ]);
         }

@@ -47,9 +47,9 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
@@ -331,9 +331,9 @@ class OrgaService extends CoreService
      *
      * @param string $entityId
      *
-     * @throws Exception
-     *
      * @return bool
+     *
+     * @throws Exception
      */
     public function deleteOrga($entityId)
     {
@@ -360,14 +360,14 @@ class OrgaService extends CoreService
             $organisation = $this->orgaRepository->get($entityId);
 
             foreach ($organisation->getAddresses() as $address) {
-                //remove addresses form organisation, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form organisation, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $organisation->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
 
-            //remove addresses form organisation, to avoid undefined index
-            //doctrine will not do this, because there are no address sited relation, to use annotations
+            // remove addresses form organisation, to avoid undefined index
+            // doctrine will not do this, because there are no address sited relation, to use annotations
             $organisation->setAddresses([]);
         } catch (Exception $e) {
             $this->logger->error('Fehler beim Löschen der Adressen: ', [$e]);
@@ -427,6 +427,29 @@ class OrgaService extends CoreService
     }
 
     /**
+     * Determines the count of organisation instances accepted in the given customer and returns
+     * them sorted by the count value.
+     *
+     * The keys used are the translation keys corresponding to the logical meaning of each
+     * organisation type:
+     *
+     * * `invitable_institution`: Institutionen
+     * * `planningagency`: Planungsbüros
+     * * `procedure.agency`: Verfahrensträger
+     *
+     * @return array<string, int<0, max>>
+     */
+    public function getOrgaCountByTypeTranslated(Customer $customerContext): array
+    {
+        return collect($this->getAcceptedOrgaCountByType($customerContext))
+            ->mapWithKeys(function (int $count, string $translationKey): array {
+                return [$this->translator->trans($translationKey) => $count];
+            })
+            ->sort()
+            ->all();
+    }
+
+    /**
      * Fetch **undeleted** {@link Orga} entities connected to the **current customer** sorted by their {@link Orga::$name}.
      *
      * The special {@link Orga} instance for citizens will **not** be included in the output.
@@ -459,6 +482,57 @@ class OrgaService extends CoreService
     }
 
     /**
+     * Get Count of accepted orga types for given customer.
+     *
+     * The keys correspond to the following german meanings:
+     *
+     * * `invitable_institution`: Institutionen
+     * * `planningagency`: Planungsbüros
+     * * `procedure.agency`: Verfahrensträger
+     *
+     * @return array{'procedure.agency': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
+     */
+    protected function getAcceptedOrgaCountByType(Customer $customerContext): array
+    {
+        $municipalityCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::MUNICIPALITY);
+        $planningAgencyCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::PLANNING_AGENCY);
+        $institutionCount = $this->getAcceptedOrgaCount($customerContext, OrgaType::PUBLIC_AGENCY);
+
+        return [
+            'invitable_institution' => $institutionCount,
+            'planningagency'        => $planningAgencyCount,
+            'procedure.agency'      => $municipalityCount,
+        ];
+    }
+
+    /**
+     * @param key-of<OrgaType::ORGATYPE_ROLE> $orgaTypeName
+     *
+     * @return int<0, max>
+     */
+    protected function getAcceptedOrgaCount(Customer $customerContext, string $orgaTypeName): int
+    {
+        $conditions = [
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->orgaResourceType->statusInCustomers->status
+            ),
+            $this->conditionFactory->propertyHasValue(
+                $orgaTypeName,
+                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+            ),
+            // The resource type will already contain this restriction,
+            // but we add it here too for clarity.
+            $this->conditionFactory->propertyHasValue(
+                $customerContext->getId(),
+                ...$this->orgaResourceType->statusInCustomers->customer->id
+            ),
+        ];
+
+        return $this->entityFetcher->getEntityCount($this->orgaResourceType, $conditions);
+    }
+
+    /**
      * Load existing notifications for the Organisation.
      *
      * @throws Exception
@@ -467,7 +541,7 @@ class OrgaService extends CoreService
     {
         $notifications = [];
 
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $settingNewStatement = $this->contentService->getSettings(
                 'emailNotificationNewStatement',
@@ -478,7 +552,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $settingEndingPhase = $this->contentService->getSettings(
                 'emailNotificationEndingPhase',
@@ -605,7 +679,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaNotifications($orga, $data)
     {
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationNewStatement');
             if (array_key_exists('emailNotificationNewStatement', $data)) {
@@ -617,7 +691,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationEndingPhase');
 
@@ -648,7 +722,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaSubmissionType($orga, $data)
     {
-        //Update Orga Submission Type
+        // Update Orga Submission Type
         if (!$this->permissions->hasPermission('feature_change_submission_type')) {
             return $orga;
         }

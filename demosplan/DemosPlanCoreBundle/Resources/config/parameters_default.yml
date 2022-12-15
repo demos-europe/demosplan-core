@@ -119,6 +119,10 @@ parameters:
     # define whether local container setup is used
     is_shared_folder: false
 
+    # Is current project deployed in production environment? May be used to
+    # block specific test or development features
+    prod_deployment: false
+
     # #refactor: This could perhaps be defined as params for ModifyUserCommand
     organisationIds_user_to_modify: []
 
@@ -152,8 +156,8 @@ parameters:
 
     email_enabled: false
     email_is_live_system: false
-    email_test_from: ""
-    email_test_to: ""
+    email_test_from: "testMailSender@localhost.de"
+    email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
     email_bounce_check: false
     # #refactor: path and file could be used as one
@@ -235,7 +239,7 @@ parameters:
 
     # Globaler Layer, z.B. für die Planzeichnungseinstellungen
     map_admin_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_admin_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_admin_baselayer_layers: "de_basemapde_web_raster_farbe"
 
     # Define available projections. Order will be respected in dropdown for new layers
     map_available_projections:
@@ -262,12 +266,12 @@ parameters:
     map_global_available_scales: "[250,500,1000,2000,4000,5000,15000,35000,70000,150000,250000,500000,1000000]"
 
     map_print_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_print_baselayer_name: "de_basemapde_web_raster_grau"
-    map_print_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_print_baselayer_name: "de_basemapde_web_raster_farbe"
+    map_print_baselayer_layers: "de_basemapde_web_raster_farbe"
 
     # Extent und Scales für die Öffentlichkeitsbeteiligung. Hier SH
     map_public_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_public_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_public_baselayer_layers: "de_basemapde_web_raster_farbe"
     map_public_extent: "[903770.62,6879897.96,1285358.32,7368034.89]"
     map_public_available_scales: "[920000,500000,250000,150000,70000,35000,15000,5000,4000,2000,1000,500,250]"
 
@@ -345,6 +349,8 @@ parameters:
         - 'fonts.google.com'
         - 'fonts.gstatic.com'
         - 'data:'
+    demosplan_csp_form_action:
+        - 'self'
     demosplan_csp_frame_src: []
     demosplan_csp_frame_ancestors:
         - 'none'
@@ -456,23 +462,10 @@ parameters:
     survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-update.json"
     surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/surveyvote-schema-create.json"
 
-    # Maximum number of times we will retry a call to PI when an error in their servers happen
-    max_pi_retries: 3
-    pipeline.max.waiting.seconds: 400
-
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
-
-    pipeline.ai.url: ""
-    pipeline.ai.annotated.statement.pdf.created.id: ""
-    pipeline.ai.annotated.statement.pdf.reviewed.id: ""
-    pipeline.ai.authorization: ""
-    # deprecated. use htaccess_user and htaccess_password instead
-    pipeline.demos.authorization: ""
-    pi.pipeline.segment.recognition.id: ""
-    pi.pipeline.confirmed.segments.id: ""
 
     # JSON Web Tokens configuration
     jwt_passphrase: "demosplan_jwt_secret"
@@ -482,15 +475,3 @@ parameters:
     # This can be a relative or an absolute path, relative paths
     # will use DemosPlanPath::getRootDir() as base.
     deployment_sync_dir: '../htdocs'
-
-    # Configuration for Maillane connection
-
-    # Expects the API endpoint base URL for the used maillane instance
-    # Example: 172.0.0.1:9999
-    maillane_api_baseurl: ""
-    # Auth token used for verifying the import request originated from
-    # the expected Maillane instance
-    maillane_api_token: ""
-    # Domain for generated recipient email addresses. (The part after the '@')
-    # Example: maillane.com
-    maillane_email_domain: ""

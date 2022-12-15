@@ -23,6 +23,7 @@ use demosplan\DemosPlanUserBundle\Logic\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use Tightenco\Collect\Support\Collection as TightencoCollection;
 
 /**
@@ -56,7 +57,6 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $houseNumber @deprecated Use a {@link Address} relationships instead
  * @property-read End                              $submissionType
  * @property-read End                              $types @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
- * @property-read End                              $url
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
@@ -101,7 +101,7 @@ final class OrgaResourceType extends DplanResourceType
         return 'Orga';
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $extendedOrgaAccess = $this->currentUser->hasAnyPermissions(
             'area_manage_orgadata',
@@ -167,6 +167,7 @@ final class OrgaResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
+        $statusInCustomers = $this->createToManyRelationship($this->statusInCustomers);
         $properties = [
             $this->createAttribute($this->id)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
@@ -206,7 +207,6 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->types)->readable(true, function (Orga $orga): array {
                 return $orga->getTypes($this->globalConfig->getSubdomain());
             }),
-            $this->createAttribute($this->url)->readable(true),
             $this->createAttribute($this->registrationStatuses)->readable(true, [$this, 'getRegistrationStatuses']),
             $this->createToOneRelationship($this->currentSlug, true)->readable(true),
             $this->createToManyRelationship($this->customers)->readable(false, static function (Orga $orga): Collection {
@@ -215,7 +215,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
                 return $orga->getDepartments();
             }),
-            $this->createToManyRelationship($this->statusInCustomers)->readable(false, [$this, 'getRegistration']),
+            $statusInCustomers,
         ];
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
@@ -232,7 +232,9 @@ final class OrgaResourceType extends DplanResourceType
 
         // OrgaStatusInCustomer @organisation-list filtering for orga
         if ($this->currentUser->hasPermission('area_organisations')) {
-            $properties[] = $this->createToManyRelationship($this->statusInCustomers)->sortable()->filterable();
+            $statusInCustomers->sortable()->filterable();
+        } else {
+            $statusInCustomers->readable(false, [$this, 'getRegistration']);
         }
 
         if ($this->currentUser->hasPermission('area_manage_users')) {

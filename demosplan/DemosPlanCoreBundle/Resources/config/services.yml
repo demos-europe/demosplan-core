@@ -182,8 +182,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
+            $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
+            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
         lazy: true
@@ -222,6 +224,10 @@ services:
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor:
+        arguments:
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
         lazy: true
         arguments:
@@ -238,7 +244,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
+            $entityManager: '@doctrine.orm.entity_manager'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -362,6 +370,24 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
+    # Drafts Info Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoTransformerPass:
+        arguments: [ !tagged dplan.drafts.info.transformer ]
+
+    # From DraftsInfo
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer:
+        tags:
+            - { name: "dplan.segment.transformer" }
+
+    # Segment Entities Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass:
+        arguments: [ !tagged dplan.segment.transformer ]
+
+    # From Statement
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer:
+        tags:
+            - { name: "dplan.drafts.info.transformer" }
+
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
@@ -398,6 +424,11 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator }
 
+    # Validate Drafts Info
+    demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator:
+        arguments:
+            $schemaFilePath: "%drafts_info_schema_path%"
+
     demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator }
@@ -413,6 +444,9 @@ services:
     demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
+
+    # Segmentable Statement Validator
+    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator: ~
 
     demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
         tags:
@@ -537,24 +571,6 @@ services:
     demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-
-    demosplan\DemosPlanPluginBundle\Logic\Plugin:
-        abstract: true
-        calls:
-            - [ 'setLogger', [ '@monolog.logger.dplan_plugin' ]]
-
-    demosplan\DemosPlanPluginBundle\EventListener\PluginEventListener:
-        lazy: true
-        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
-
-    demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber:
-        arguments: [ '@demosplan\DemosPlanCoreBundle\Context\PluginContext' ]
-        tags:
-            - { name: kernel.event_subscriber }
-
-    demosplan\DemosPlanPluginBundle\Logic\PluginList: ~
-
-    demosplan\DemosPlanPluginBundle\Twig\Extension\ExecutePluginExtension: ~
 
     demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
         autowire: true
@@ -856,49 +872,40 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
-        arguments:
-            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
-        tags: [kernel.event_subscriber]
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\PdfToStatementCreator:
+    # Drafts Info Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\DraftsInfoService: ~
+
+    # Segment Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
+
+    # Drafts Info Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler: ~
+
+    # Segment Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler: ~
+
+    # Segment Handler Interface
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler'
+
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
         arguments:
-            $maxPiRetries: '%max_pi_retries%'
-        lazy: true
+            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
 
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
+    demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
         lazy: true
+        autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
         lazy: true
@@ -1051,6 +1058,10 @@ services:
 
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
+    EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
+        arguments:
+            $objectManager: '@doctrine.orm.entity_manager'
+
     EDT\DqlQuerying\SortMethodFactories\SortMethodFactory: ~
 
     EDT\JsonApi\ApiDocumentation\AttributeTypeResolver: ~
@@ -1058,7 +1069,7 @@ services:
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 
@@ -1077,8 +1088,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
-            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1089,11 +1099,29 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $operatorProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedOperatorProvider:
+    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+
+    EDT\Querying\Utilities\ConditionEvaluator:
+        arguments:
+            $tableJoiner: '@EDT\Querying\Utilities\TableJoiner'
+
+    EDT\Querying\Utilities\Sorter:
+        arguments:
+            $tableJoiner: '@EDT\Querying\Utilities\TableJoiner'
+
+    EDT\Querying\Utilities\TableJoiner:
+        arguments:
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
+
+    EDT\Wrapping\Utilities\CachingPropertyReader:
+        arguments:
+            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
+            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
+            $sorter: '@EDT\Querying\Utilities\Sorter'
 
     EDT\Wrapping\Utilities\SchemaPathProcessor:
         arguments:

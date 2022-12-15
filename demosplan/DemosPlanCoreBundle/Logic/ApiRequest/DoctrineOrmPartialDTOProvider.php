@@ -20,9 +20,10 @@ use EDT\DqlQuerying\Contracts\ClauseInterface;
 use EDT\DqlQuerying\Contracts\MappingException;
 use EDT\DqlQuerying\Contracts\OrderByInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
-use EDT\Querying\Contracts\SliceException;
+use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\SortMethodInterface;
-use EDT\Querying\Pagination\OffsetBasedPagination;
+use EDT\Querying\Pagination\OffsetPagination;
 
 /**
  * Instances of this class will load specific properties only and wrap them in a {@link PartialDTO}.
@@ -36,9 +37,9 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
      */
     private $properties;
 
-    public function __construct(string $className, EntityManager $entityManager, string $property, string ...$properties)
+    public function __construct(EntityManager $entityManager, QueryBuilderPreparer $builderPreparer, string $property, string ...$properties)
     {
-        parent::__construct($className, $entityManager);
+        parent::__construct($entityManager, $builderPreparer);
         array_unshift($properties, $property);
         $this->properties = $properties;
     }
@@ -63,14 +64,14 @@ class DoctrineOrmPartialDTOProvider extends DoctrineOrmEntityProvider
     }
 
     /**
-     * @param list<ClauseInterface>      $conditions
-     * @param list<OrderByInterface>     $sortMethods
-     * @param OffsetBasedPagination|null $pagination
+     * @param list<ClauseInterface>  $conditions
+     * @param list<OrderByInterface> $sortMethods
+     * @param OffsetPagination|null  $pagination
      *
      * @return iterable<PartialDTO>
      *
      * @throws MappingException
-     * @throws SliceException
+     * @throws PaginationException
      */
     public function getEntities(array $conditions, array $sortMethods, ?object $pagination): iterable
     {

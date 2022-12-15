@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Municipality>
@@ -42,13 +42,15 @@ final class MunicipalityResourceType extends DplanResourceType
             return false;
         }
 
-        $formDefinition = $procedure->getStatementFormDefinition();
-        if (null === $formDefinition) {
-            return false;
-        }
+        if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
+            $formDefinition = $procedure->getStatementFormDefinition();
+            if (null === $formDefinition) {
+                return false;
+            }
 
-        if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
-            return false;
+            if (!$formDefinition->isFieldDefinitionEnabled(StatementFormDefinition::MAP_AND_COUNTY_REFERENCE)) {
+                return false;
+            }
         }
 
         return $this->currentUser->hasPermission('field_statement_municipality');
@@ -64,7 +66,7 @@ final class MunicipalityResourceType extends DplanResourceType
         return false;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->true();
     }

@@ -13,11 +13,9 @@
  */
 import * as Sentry from '@sentry/browser'
 import { BrowserTracing } from '@sentry/tracing'
-import DpObscure from '@DpJs/components/core/Obscure'
-import dpValidateMultiselectDirective from '@DpJs/lib/validation/dpValidateMultiselectDirective'
+import { DpObscure } from '@demos-europe/demosplan-ui'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
-import { Tooltip } from 'demosplan-ui/directives'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -27,16 +25,10 @@ Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
-Vue.component(DpObscure.name, DpObscure)
-
-// Register custom directives
+Vue.component('DpObscure', DpObscure)
 
 // Exposing Translator to the Vue prototype allows us to pass us Translator.trans() to v-tooltip
 Vue.prototype.Translator = window.Translator
-
-Vue.directive('tooltip', Tooltip)
-
-Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
 
 if (window.dplan.sentryDsn !== '') {
   Sentry.init({

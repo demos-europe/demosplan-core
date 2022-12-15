@@ -1,0 +1,251 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <h2
+      class="u-mb-0_75"
+      v-text="heading" />
+
+    <div class="c-slidebar__content overflow-y-auto u-mr">
+      <dp-ol-map
+        ref="map"
+        :procedure-id="procedureId"
+        :options="{
+          autoSuggest: false
+        }">
+        <template v-if="hasPermission('feature_segment_polygon_set')">
+          <dp-ol-map-draw-feature
+            ref="drawPoint"
+            data-cy="setMapRelation"
+            :features="pointData"
+            icon
+            icon-class="fa-map-marker u-mb-0_25 font-size-h2"
+            name="Point"
+            :options="{ multiplePoints: true }"
+            render-control
+            :title="Translator.trans('map.relation.set')"
+            type="Point"
+            @layerFeatures:changed="data => updateDrawings('Point', data)" />
+          <dp-ol-map-draw-feature
+            data-cy="setMapLine"
+            ref="drawLine"
+            :features="lineData"
+            icon
+            icon-class="fa-minus u-mb-0_25 font-size-h2"
+            name="Line"
+            render-control
+            :title="Translator.trans('statement.map.draw.mark_line')"
+            type="LineString"
+            @layerFeatures:changed="data => updateDrawings('LineString', data)" />
+          <dp-ol-map-draw-feature
+            ref="drawPolygon"
+            data-cy="setMapTerritory"
+            :features="polygonData"
+            icon
+            icon-class="fa-square-o u-mb-0_25 font-size-h2"
+            name="Polygon"
+            render-control
+            :title="Translator.trans('statement.map.draw.mark_polygon')"
+            type="Polygon"
+            @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
+          <dp-ol-map-edit-feature
+            class="border--left u-ml-0_25"
+            :target="['Polygon', 'Line', 'Point']">
+            <template v-slot:editButtonDesc>
+              <i
+                :title="Translator.trans('map.territory.tools.edit')"
+                class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+            <template v-slot:removeButtonDesc>
+              <i
+                :title="Translator.trans('map.territory.tools.removeSelected')"
+                class="fa fa-eraser u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+            <template v-slot:removeAllButtonDesc>
+              <i
+                :title="Translator.trans('map.territory.tools.removeAll')"
+                class="fa fa-trash u-mb-0_25 font-size-h2"
+                aria-hidden="true" />
+            </template>
+          </dp-ol-map-edit-feature>
+        </template>
+      </dp-ol-map>
+      <dp-button-row
+        class="u-mt"
+        :disabled="!hasChanges"
+        primary
+        secondary
+        @primary-action="save"
+        @secondary-action="closeSlidebar" />
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { checkResponse } from '@demos-europe/demosplan-utils'
+import { DpButtonRow } from '@demos-europe/demosplan-ui'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
+import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+
+export default {
+  name: 'SegmentLocationMap',
+
+  components: {
+    DpButtonRow,
+    DpOlMap,
+    DpOlMapDrawFeature,
+    DpOlMapEditFeature
+  },
+
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    },
+
+    segmentId: {
+      type: String,
+      required: true
+    },
+
+    statementId: {
+      type: String,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      currentPolygons: [],
+      hasChanges: true,
+      initPolygons: [],
+      mapData: null
+    }
+  },
+
+  computed: {
+    ...mapState('statementSegment', {
+      segments: 'items'
+    }),
+
+    ...mapState('segmentSlidebar', ['slidebar']),
+
+    pointData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
+      }
+    },
+
+    lineData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || []
+      }
+    },
+
+    polygonData () {
+      return {
+        type: 'FeatureCollection',
+        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || []
+      }
+    },
+
+    heading () {
+      return `${Translator.trans('segment')} ${this.segment?.attributes.externId} - ${Translator.trans('public.participation.relation')}`
+    },
+
+    featuresObject () {
+      return {
+        type: 'FeatureCollection',
+        features: this.currentPolygons
+      }
+    },
+
+    segment () {
+      return this.segments[this.segmentId] || null
+    }
+  },
+
+  watch: {
+    segmentId (newVal) {
+      if (newVal) {
+        this.setInitDrawings()
+      }
+    }
+  },
+
+  methods: {
+    ...mapMutations('statementSegment', ['setItem']),
+
+    ...mapActions('statementSegment', {
+      saveSegmentAction: 'save'
+    }),
+
+    clearTools () {
+      this.$refs.drawPoint.clearAll()
+      this.$refs.drawLine.clearAll()
+      this.$refs.drawPolygon.clearAll()
+    },
+
+    closeSlidebar () {
+      this.$root.$emit('hide-slidebar')
+    },
+
+    resetCurrentMap () {
+      this.clearTools()
+      if (this.slidebar.isOpen) {
+        this.setInitDrawings()
+      }
+
+      this.$nextTick(() => {
+        this.$refs.map.updateMapInstance()
+      })
+    },
+
+    save () {
+      this.setItem({
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          polygon: JSON.stringify(this.featuresObject)
+        }
+      })
+
+      return this.saveSegmentAction(this.segmentId)
+        .then(checkResponse)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
+    },
+
+    setInitDrawings () {
+      if (this.segmentId === '') {
+        return
+      }
+
+      this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
+      this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
+    },
+
+    updateDrawings (type, data) {
+      this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
+      this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
+    }
+  }
+}
+</script>

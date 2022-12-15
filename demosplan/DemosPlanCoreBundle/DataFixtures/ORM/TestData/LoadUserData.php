@@ -1152,12 +1152,12 @@ class LoadUserData extends TestFixture
         $this->setReference(self::TEST_ORGA_WITH_REJECTED_ORGA_TYPE, $orga12);
 
         $anonymousUser = new User();
-        $anonymousUser->setId('73830656-3e48-11e4-a6a8-005056ae0004');
+        $anonymousUser->setId(User::ANONYMOUS_USER_ID);
         $anonymousUser->setGender('male');
         $anonymousUser->setFirstname('Bürger');
         $anonymousUser->setLastname('Bürger');
-        $anonymousUser->setEmail('anonym@bobsh.de');
-        $anonymousUser->setLogin('anonym@bobsh.de');
+        $anonymousUser->setEmail(User::ANONYMOUS_USER_LOGIN);
+        $anonymousUser->setLogin(User::ANONYMOUS_USER_LOGIN);
         $anonymousUser->setLogin(md5('$anonymousUser'));
         $anonymousUser->setAlternativeLoginPassword(md5('$anonymousUser'));
         $anonymousUser->setNewsletter(false);
@@ -1170,6 +1170,9 @@ class LoadUserData extends TestFixture
         $anonymousUser->setCurrentCustomer($customer);
 
         $manager->persist($anonymousUser);
+
+        $orgaBuerger->addUser($anonymousUser);
+        $manager->persist($orgaBuerger);
 
         $manager->flush();
     }

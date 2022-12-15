@@ -1282,15 +1282,15 @@ class DocxExporter
                 $cell2AddText('procedure.public.phase', $phaseName);
             }
 
-            // BTHG state
+            // EXTERNAL state
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_USER_STATE, $exportConfig, $statement)) {
                 $cell2AddText('state', $statement->getMeta()->getUserState());
             }
-            // BTHG group
+            // EXTERNAL group
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_USER_GROUP, $exportConfig, $statement)) {
                 $cell2AddText('organisation', $statement->getMeta()->getUserGroup());
             }
-            // BTHG organisation
+            // EXTERNAL organisation
             if ($this->exportFieldDecider->isExportable(
                 FieldDecider::FIELD_USER_ORGANISATION,
                 $exportConfig,
@@ -1298,7 +1298,7 @@ class DocxExporter
             )) {
                 $cell2AddText('organisation.name', $statement->getMeta()->getUserOrganisation());
             }
-            // BTHG position
+            // EXTERNAL position
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_USER_POSITION, $exportConfig, $statement)) {
                 $cell2AddText('position', $statement->getMeta()->getUserPosition());
             }

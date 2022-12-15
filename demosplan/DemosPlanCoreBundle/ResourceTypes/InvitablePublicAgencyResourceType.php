@@ -13,13 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -67,7 +68,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
      * @throws PathException
      * @throws CustomerNotFoundException
      */
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
         $procedure = $this->currentProcedureService->getProcedure();
@@ -90,10 +91,17 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 $customer->getId(),
                 ...$this->statusInCustomers->customer->id
             ),
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->statusInCustomers->status
+            ),
             // avoid already invited organisations
-            $this->conditionFactory->propertyHasNotValue(
-                $procedure->getId(),
-                ...$this->procedureInvitations->id
+            $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasNotValue(
+                    $procedure->getId(),
+                    ...$this->procedureInvitations->id
+                ),
+                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations)
             )
         );
     }

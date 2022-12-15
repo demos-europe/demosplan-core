@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -46,7 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
@@ -85,7 +86,6 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\TagTopicNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\CountyNotificationData;
@@ -119,11 +119,6 @@ use Twig\Environment;
 class StatementHandler extends CoreHandler
 {
     use RefreshElasticsearchIndexTrait;
-
-    /**
-     * @var AnnotatedStatementPdfHandler
-     */
-    protected $annotatedStatementHandler;
 
     /** @var DraftStatementService */
     protected $draftStatementService;
@@ -283,7 +278,6 @@ class StatementHandler extends CoreHandler
     private $globalConfig;
 
     public function __construct(
-        AnnotatedStatementPdfHandler $annotatedStatementHandler,
         ArrayHelper $arrayHelper,
         AssignService $assignService,
         CountyService $countyService,
@@ -328,7 +322,6 @@ class StatementHandler extends CoreHandler
     ) {
         parent::__construct($messageBag);
 
-        $this->annotatedStatementHandler = $annotatedStatementHandler;
         $this->arrayHelper = $arrayHelper;
         $this->assignService = $assignService;
         $this->countyService = $countyService;
@@ -3086,7 +3079,7 @@ class StatementHandler extends CoreHandler
                     || $this->permissions->hasPermission('feature_segments_of_statement_list')
                     || $this->permissions->hasPermission('feature_statement_data_input_orga')) {
                     //success messages with link to created statement
-                    $this->getMessageBag()->addObject(LinkMessage::createLinkMessage(
+                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
                         'confirm',
                         'confirm.statement.new',
                         ['externId' => $assessableStatement->getExternId()],
@@ -4597,7 +4590,7 @@ class StatementHandler extends CoreHandler
             }
 
             $this->getMessageBag()->addObject(
-                LinkMessage::createLinkMessage(
+                LinkMessageSerializable::createLinkMessage(
                     'confirm',
                     'confirm.statement.cluster.created',
                     ['clusterId' => $newClusterStatement->getExternId()],
@@ -4763,12 +4756,10 @@ class StatementHandler extends CoreHandler
      */
     public function getOriginalFile(Statement $statement): ?File
     {
-        $originalDocument = $this
-            ->annotatedStatementHandler
-            ->findByStatement($statement);
-
-        if (null !== $originalDocument) {
-            return $originalDocument->getFile();
+        /** @var GetOriginalFileFromAnnotatedStatementEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new GetOriginalFileFromAnnotatedStatementEvent($statement));
+        if (null !== $event->getFile()) {
+            return $event->getFile();
         }
 
         return $statement->getOriginalFile();

@@ -26,7 +26,7 @@
  * }
  */
 
-import throttle from '@DpJs/lib/utils/throttle'
+import { throttle } from '@demos-europe/demosplan-utils'
 
 const updateElement = function (element) {
   const innerHeight = window.innerHeight || document.documentElement.clientHeight

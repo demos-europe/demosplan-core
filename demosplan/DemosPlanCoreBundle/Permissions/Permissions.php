@@ -10,13 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use Symfony\Component\HttpFoundation\Session\Session;
-use function array_key_exists;
-use function array_map;
-use function collect;
-use function debug_backtrace;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -30,14 +26,12 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
-use function in_array;
 use InvalidArgumentException;
-use function iterator_to_array;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-use function stripos;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -133,7 +127,7 @@ class Permissions implements PermissionsInterface
 
         $this->initMenuhightlighting($context);
 
-        //set Permissions which are user independent
+        // set Permissions which are user independent
         $this->setPlatformPermissions();
 
         // set Permissions which are dependent on role but independent of procedure
@@ -149,7 +143,7 @@ class Permissions implements PermissionsInterface
     {
         if ($this->hasPermission('feature_public_consultation')) {
             $invitedProcedures = $session->get('invitedProcedures', []);
-            if (in_array($procedure->getId(), $invitedProcedures, true)) {
+            if (\in_array($procedure->getId(), $invitedProcedures, true)) {
                 $this->userInvitedInProcedure = true;
             }
         }
@@ -164,12 +158,9 @@ class Permissions implements PermissionsInterface
             'area_combined_participation_area',
             'area_data_protection_text',
             'area_demosplan',
-            'area_development',
             'area_documents',
             'area_globalnews',
             'area_imprint_text',
-            'area_login_dialog',
-            'area_main_contact',
             'area_main_file',
             'area_main_procedures',
             'area_map_participation_area',
@@ -301,6 +292,10 @@ class Permissions implements PermissionsInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
+                'feature_json_api_create',
+                'feature_json_api_delete',
+                'feature_json_api_list',
+                'feature_json_api_update',
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
@@ -311,6 +306,17 @@ class Permissions implements PermissionsInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
+
+            if ($this->isMemberOfPlanningOrganisation()) {
+                $this->enablePermissions([
+                    'area_institution_tag_manage',
+                    'feature_institution_tag_assign',
+                    'feature_institution_tag_create',
+                    'feature_institution_tag_delete',
+                    'feature_institution_tag_read',
+                    'feature_institution_tag_update',
+                ]);
+            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
@@ -363,7 +369,7 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                //Planungsbüro kann kein Vote abgeben!
+                // Planungsbüro kann kein Vote abgeben!
                 //  @TODO AM 'feature_statements_fragment_vote' is disabled via permissions.yml; why is it set to false here again?
                 'feature_statements_fragment_update_complete',  // Bearbeitung abschliessen
                 'feature_statements_fragment_vote',  // Vote zu Datensatz abgeben
@@ -374,13 +380,13 @@ class Permissions implements PermissionsInterface
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_statement_fragments_department',  //Edit StatementFragments
-                'area_statement_fragments_department_archive',  //Edit StatementFragments
-                'area_statements_fragment',  //Area StatementFragments
+                'area_statement_fragments_department',  // Edit StatementFragments
+                'area_statement_fragments_department_archive',  // Edit StatementFragments
+                'area_statements_fragment',  // Area StatementFragments
                 'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
                 'feature_statements_fragment_consideration_advice',  // Empfehlungstext zu Datensatz abgeben
-                'feature_statements_fragment_edit',  //Edit StatementFragments
-                'feature_statements_fragment_list',  //List StatementFragments
+                'feature_statements_fragment_edit',  // Edit StatementFragments
+                'feature_statements_fragment_list',  // List StatementFragments
                 'feature_statements_fragment_update_complete',  // Bearbeitung eines Datensatzes abschliessen
                 'field_statement_recommendation',
                 'field_organisation_email_reviewer_admin',  // Email for notifications for reviwer admin
@@ -467,7 +473,6 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                'area_development',
                 'area_main_procedures',  // Menüitem Planverfahren
                 'area_mydata',  // Meine Daten
                 'area_participants_internal',  // Übersicht Teilnehmende intern
@@ -497,7 +502,7 @@ class Permissions implements PermissionsInterface
             $this->enablePermissions([
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
                 'area_admin_gislayer_global_edit',  // Globale Gis Layer bearbeiten
-                'area_manage_orgadata',  //Abteilungenverwalten
+                'area_manage_orgadata',  // Abteilungenverwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations',
                 'area_organisations_view',
@@ -547,15 +552,14 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                'area_development',
                 'feature_procedure_single_document_upload_zip',  // citizens are not allowed to upload documents into procedures at all, hence do not allow for zip upload
             ]);
         }
 
         if ($this->user->hasRole(Role::BOARD_MODERATOR)) { // Moderator
             $this->enablePermissions([
-                'feature_forum_dev_release_edit',  //Release für Weiterentwicklung bearbeiten
-                'feature_forum_dev_story_edit', //UserStory für Weiterentwicklung bearbeiten
+                'feature_forum_dev_release_edit',  // Release für Weiterentwicklung bearbeiten
+                'feature_forum_dev_story_edit', // UserStory für Weiterentwicklung bearbeiten
                 'feature_forum_thread_edit',  // einen Thread im Forum bearbeiten
                 'field_statement_recommendation',
             ]);
@@ -577,7 +581,7 @@ class Permissions implements PermissionsInterface
         if ($this->user->hasRole(Role::PROCEDURE_DATA_INPUT)) { // Datenerfassung
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
-                'feature_procedure_get_base_data',  //receive basic procedure data
+                'feature_procedure_get_base_data',  // receive basic procedure data
                 'field_statement_public_allowed',  // Publish statements
             ]);
 
@@ -594,7 +598,7 @@ class Permissions implements PermissionsInterface
 
             // Alle Bürger und Gäste dürfen Stellungnahmen abgeben, wenn Öffentlichkeitsbeteiligung aktiviert
             if ($this->user->isPublicUser()) {
-                //feature_new_statement depends on procedurephase
+                // feature_new_statement depends on procedurephase
                 $this->permissions['feature_new_statement']->setLoginRequired(false);
                 $this->permissions['area_statements_public_published']->enable(); // Stellungnahmen anderer Bürger*innen Institutions-Ebene
             }
@@ -602,7 +606,7 @@ class Permissions implements PermissionsInterface
 
         if ($this->user->hasRole(Role::API_AI_COMMUNICATOR)) {
             // disable all permissions
-            $this->permissions = array_map(
+            $this->permissions = \array_map(
                 static function (Permission $permission) {
                     $permission->disable();
 
@@ -613,7 +617,7 @@ class Permissions implements PermissionsInterface
             $this->enablePermissions([
                 'feature_ai_create_annotated_statement_pdf_pages',
                 'feature_ai_generated_draft_segments',
-                'feature_import_statement_pdf',
+                'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
         }
@@ -639,7 +643,7 @@ class Permissions implements PermissionsInterface
                 'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
                 'area_admin_protocol',  // Verwalten Protokoll
                 'area_admin_single_document',  // Verwalten Planungsdokumente
-                'feature_admin_assessmenttable_export_docx',  //Abwägungstabelle Word-Export
+                'feature_admin_assessmenttable_export_docx',  // Abwägungstabelle Word-Export
                 'feature_export_protocol',
                 'feature_json_api_create',
                 'feature_json_api_delete',
@@ -699,7 +703,7 @@ class Permissions implements PermissionsInterface
                 $this->permissions['area_statements_released_group']->enable(); // Stellungnahmen der Gruppe (Freigaben)
                 if (self::PROCEDURE_PERMISSIONSET_HIDDEN !== $permissionset) {
                     $this->enablePermissions([
-                        'feature_statements_public',  //Stellungnahme für andere Institutionen sichtbar schalten
+                        'feature_statements_public',  // Stellungnahme für andere Institutionen sichtbar schalten
                         'feature_statements_released_group_delete',  // Stellungnahmen der Gruppe (Freigaben) Loeschen
                         'feature_statements_released_group_edit',  // Stellungnahmen der Gruppe (Freigaben) Bearbeiten
                         'feature_statements_released_group_reject',  // Stellungnahmen der Gruppe (Freigaben) Zurueckweisen
@@ -745,7 +749,19 @@ class Permissions implements PermissionsInterface
     {
         $subdomain = $this->globalConfig->getSubdomain();
 
-        return in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+        return \in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+    }
+
+    /**
+     * Checks if the user is Member of a planning organisation.
+     */
+    protected function isMemberOfPlanningOrganisation(): bool
+    {
+        $isAcceptedMunicipality = $this->isMemberOfMunicipality();
+        $isAcceptedPlanningAgency = $this->isMemberOfPlanningoffice();
+        $isAcceptedHearingAuthorityAgency = $this->isMemberOfHearingAuthority();
+
+        return $isAcceptedMunicipality || $isAcceptedPlanningAgency || $isAcceptedHearingAuthorityAgency;
     }
 
     /**
@@ -812,7 +828,7 @@ class Permissions implements PermissionsInterface
             return false;
         }
 
-        $isInvitedInstitution = in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
 
         if ($isInvitedInstitution) {
             $this->logger->debug('Orga is member');
@@ -857,7 +873,7 @@ class Permissions implements PermissionsInterface
         foreach ($arrIt as $sub) {
             $subArray = $arrIt->getSubIterator();
             if ($subArray['key'] === $phase) {
-                $outputArray = iterator_to_array($subArray);
+                $outputArray = \iterator_to_array($subArray);
                 $permissionset = $outputArray['permissionset'];
                 $this->logger->debug('Initial Permissionset: ', [$permissionset]);
                 // during Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN user may participate
@@ -988,7 +1004,7 @@ class Permissions implements PermissionsInterface
     public function setMenuhighlighting($permission): void
     {
         // Nur "area_*"-Permissions bestimmen das Highlighting
-        if (false === stripos($permission, 'area_')) {
+        if (false === \stripos($permission, 'area_')) {
             return;
         }
 
@@ -1003,7 +1019,7 @@ class Permissions implements PermissionsInterface
         // cache parsing of permissions.yml, saves ~200ms
         $permissions = $this->cache->get('permissionsYml', function (ItemInterface $item) {
             $this->logger->info('Read Permissions from yml');
-            $permissions = collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
+            $permissions = \collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
                 ->map(
                     static function ($permissionsArray, $permissionName) {
                         return Permission::instanceFromArray($permissionName, $permissionsArray);
@@ -1072,7 +1088,7 @@ class Permissions implements PermissionsInterface
         } else {
             // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
             $this->logger->info('Dieser Bereich hat kein explizites Permission angegeben! '
-                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', debug_backtrace(0, 4));
+                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', \debug_backtrace(0, 4));
         }
     }
 
@@ -1164,7 +1180,7 @@ class Permissions implements PermissionsInterface
         if (!isset($this->permissions[$permission]) || !$this->permissions[$permission] instanceof Permission) {
             $this->logger->warning(
                 'Permission ist nicht definiert: '.$permission.' Stacktrace: '.DemosPlanTools::varExport(
-                    debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
+                    \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
                     true
                 )
             );
@@ -1216,9 +1232,9 @@ class Permissions implements PermissionsInterface
      */
     public function enablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
-                if (!array_key_exists($permissionName, $this->permissions)) {
+                if (!\array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return null;
@@ -1244,9 +1260,9 @@ class Permissions implements PermissionsInterface
      */
     public function disablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
-                if (!array_key_exists($permissionName, $this->permissions)) {
+                if (!\array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return [];

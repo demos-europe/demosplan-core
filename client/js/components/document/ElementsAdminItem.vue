@@ -1,0 +1,108 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div
+    v-if="element"
+    class="flex space-inline-xs">
+    <a
+      class="weight--bold u-mr-auto"
+      data-cy="documentCategoryName"
+      :href="Routing.generate('DemosPlan_elements_administration_edit', {
+        procedure: dplan.procedureId,
+        elementId: elementId
+      })">
+      {{ element.attributes.title }}
+    </a>
+    <dp-tooltip-icon
+      v-if="hasPermission('feature_auto_switch_element_state') && element.attributes.designatedSwitchDate !== null"
+      icon="fa-clock-o"
+      large
+      :text="designatedSwitchDate" />
+    <dp-toggle
+      class="u-mt-0_125"
+      data-cy="categoryStatusSwitcher"
+      :disabled="element.attributes.designatedSwitchDate !== null"
+      v-model="itemEnabled"
+      v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')" />
+  </div>
+</template>
+
+<script>
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import { formatDate } from '@demos-europe/demosplan-utils'
+
+export default {
+  name: 'ElementsAdminItem',
+
+  components: {
+    DpToggle,
+    DpTooltipIcon
+  },
+
+  props: {
+    elementId: {
+      type: String,
+      required: true
+    }
+  },
+
+  computed: {
+    ...mapState('elements', {
+      elements: 'items'
+    }),
+
+    designatedSwitchDate () {
+      return `${Translator.trans('phase.autoswitch.datetime')}: ${formatDate(this.element.attributes.designatedSwitchDate, 'long')}`
+    },
+
+    element () {
+      return this.elements[this.elementId] || null
+    },
+
+    itemEnabled: {
+      get () {
+        return this.element.attributes.enabled
+      },
+
+      set (val) {
+        if (val !== this.itemEnabled) {
+          this.updateToggleElement({
+            id: this.element.id,
+            type: this.element.type,
+            attributes: {
+              ...this.element.attributes,
+              enabled: val
+            }
+          })
+
+          this.saveToggleElement(this.elementId)
+            .then(() => {
+              dplan.notify.confirm(Translator.trans('confirm.saved'))
+            })
+            .catch(() => {
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
+        }
+      }
+    }
+  },
+
+  methods: {
+    ...mapActions('elements', {
+      saveToggleElement: 'save'
+    }),
+
+    ...mapMutations('elements', {
+      updateToggleElement: 'setItem'
+    })
+  }
+}
+</script>

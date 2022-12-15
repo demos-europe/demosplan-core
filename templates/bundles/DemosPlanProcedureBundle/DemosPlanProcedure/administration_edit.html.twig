@@ -135,9 +135,6 @@
                     - help.procedures.adjustments.public.postalCode
                 @TODO now that their contents are splitted across the fields + hardcoded into messages.de.yml, they could be deleted in the database. #}
 
-            {# bobhh special permission #}
-            {% block import_plis_data %}{% endblock import_plis_data %}
-
             {# This block can be used to place a more simple form here. #}
             {% block wizard_content %}
 
@@ -279,6 +276,7 @@
                                     <dp-multiselect
                                         multiple
                                         id="r_authorizedUsers"
+                                        data-cy="selectedAuthUsers"
                                         :options="authUsersOptions"
                                         v-model="selectedAuthUsers"
                                         selection-controls

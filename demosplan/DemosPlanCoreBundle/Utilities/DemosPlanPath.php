@@ -88,14 +88,6 @@ class DemosPlanPath
     }
 
     /**
-     * Get Path to plugin folder.
-     */
-    public static function getPluginPath(string $path = ''): string
-    {
-        return self::getRootPath('demosplan/plugins/'.$path);
-    }
-
-    /**
      * Gets the path to the tests folder.
      * If a path is send as a parameter it will be concatenated to the tests folder's path.
      * In no case will there be a trailing slash.

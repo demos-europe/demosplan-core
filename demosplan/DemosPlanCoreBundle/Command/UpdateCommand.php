@@ -18,11 +18,11 @@ use EFrane\ConsoleAdditions\Batch\Action;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\ShellAction;
 use Exception;
-use function register_shutdown_function;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function register_shutdown_function;
 
 /**
  * dplan:update.
@@ -63,6 +63,10 @@ EOT
         $fs = new DemosFilesystem();
 
         $isDeployment = $input->getOption('deploy');
+        // enforce deployment environment when deployed on production
+        if (!$isDeployment && $this->parameterBag->get('prod_deployment')) {
+            $isDeployment = true;
+        }
         $updateLockFile = DemosPlanPath::getRootPath('update.lock');
         $env = $isDeployment ? 'prod' : 'dev';
         $rootPath = DemosPlanPath::getRootPath();
@@ -117,6 +121,7 @@ EOT
                 // load yarn dependencies
                 ->addShell(['yarn', 'install', '--frozen-lockfile'], $rootPath)
                 ->addShell(['yarn', 'add', 'file:client/ui'], $rootPath)
+                ->addShell(['yarn', 'add', 'file:client/js-utils'], $rootPath)
                 ->run();
         }
 

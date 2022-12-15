@@ -12,17 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\PhasePermissionsetLoader;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use function is_array;
 
 /**
@@ -112,7 +111,7 @@ final class ProcedureResourceType extends DplanResourceType
         return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $user = $this->currentUser->getUser();
         $userOrganisation = $user->getOrga();
@@ -140,7 +139,7 @@ final class ProcedureResourceType extends DplanResourceType
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
             // users only get access to a procedure if they are either in the organisation owning the procedure
-            // or if they are in an organisation that was invited to the procedure (eg. public interest bodies).
+            // or if they are in an organisation that was invited to the procedure (e.g. public interest bodies).
             $this->conditionFactory->anyConditionApplies(
                 $owningOrgaCondition,
                 $invitedOrgaCondition,

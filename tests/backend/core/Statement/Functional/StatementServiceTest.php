@@ -1133,7 +1133,6 @@ class StatementServiceTest extends FunctionalTestCase
         $testStatement = $this->getStatementReference('testStatement');
         static::assertFalse($testStatement->isReplied());
 
-        //use statement.bthgKompassAnswer instead
         $testStatement->setReplied(true);
         static::assertTrue($testStatement->isReplied());
 
@@ -1148,7 +1147,7 @@ class StatementServiceTest extends FunctionalTestCase
         $testStatement = $this->getStatementReference('testStatement');
         static::assertFalse($testStatement->isReplied());
 
-        $statementData = [ //use statement.bthgKompassAnswer instead
+        $statementData = [
             'ident'   => $testStatement->getId(),
             'replied' => true,
         ];
