@@ -31,11 +31,11 @@ class LocationUpdateCommand extends CoreCommand
     public function configure(): void
     {
         $this->addOption(
-                'includeOnly',
-                'i',
-                InputOption::VALUE_OPTIONAL,
-                'Comma separated list of Bundeslandcodes to include exclusively'
-            );
+            'includeOnly',
+            'i',
+            InputOption::VALUE_OPTIONAL,
+            'Comma separated list of Bundeslandcodes to include exclusively'
+        );
     }
 
     public function __construct(LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, string $name = null)

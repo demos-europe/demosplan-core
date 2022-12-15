@@ -1,13 +1,13 @@
 # this file keeps specific params used
 # during development with DEMOS Containers
 parameters:
-    database_host: "172.22.255.3"
+    database_host: "db"
     database_user: "root"
     database_password: ""
 
     elasticsearch_populate_workers: 4
     elasticsearch_urls:
-        -   url: "http://172.22.255.6:9200"
+        -   url: "http://search6:9200"
 
     fileservice_filepath: "/opt/uploads"
 
@@ -38,12 +38,13 @@ parameters:
         - '*.demos-europe.eu'
         - 'cdnjs.cloudflare.com'
 
-    rabbitmq_host: "172.22.255.5"
+    rabbitmq_host: "mq"
     rabbitmq_routing_disabled: true
 
     gateway_url: '/app_dev.php/dplan/login'
 
     demosplan_user_authenticator_service:
+        - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHStaticAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiSHStaticAuthenticator'

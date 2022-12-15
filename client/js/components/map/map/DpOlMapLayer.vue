@@ -1,0 +1,146 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<script>
+import { getTopLeft } from 'ol/extent'
+import TileGrid from 'ol/tilegrid/TileGrid'
+import TileLayer from 'ol/layer/Tile'
+import TileWMS from 'ol/source/TileWMS'
+
+export default {
+  name: 'DpOlMapLayer',
+
+  inject: ['olMapState'],
+
+  props: {
+    attributions: {
+      required: false,
+      type: String,
+      default: () => {
+        return Translator.trans('map.attribution.default', { link: Routing.generate('DemosPlan_misccontent_static_imprint') })
+      }
+    },
+
+    layers: {
+      required: true,
+      type: String
+    },
+
+    name: {
+      required: false,
+      type: String,
+      default: 'baselayer_global'
+    },
+
+    projection: {
+      required: false,
+      type: String,
+      default: window.dplan.defaultProjectionLabel
+    },
+
+    title: {
+      required: false,
+      type: String,
+      default: 'Global Baselayer'
+    },
+
+    url: {
+      required: true,
+      type: String
+    }
+  },
+
+  computed: {
+    map () {
+      return this.olMapState.map
+    }
+  },
+
+  methods: {
+    addLayer () {
+      if (this.map === null) {
+        return
+      }
+
+      const source = createSourceTileWMS(this.url, this.layers, this.projection, this.attributions, this.map)
+      const layer = createTileLayer(this.title, this.name, source)
+
+      //  Insert layer at pos 0, making it the background layer
+      this.map.getLayers().insertAt(0, layer)
+    }
+  },
+
+  mounted () {
+    this.addLayer()
+  },
+
+  render: () => null
+}
+
+/**
+ * Create layer source for tile data from WMS servers.
+ * @param {string}  url     URL of map service to query
+ * @param {string}  layers  Comma separated string of layers to create source from
+ * @param {string}  projection  String projection that should be used for the layer
+ * @param {string}  attributions  Attributions for this layer
+ * @param {object}  map     OpenLayers Map instance
+ * @return {object} ol/source/TileWMS instance
+ */
+const createSourceTileWMS = (url, layers, projection, attributions, map) => {
+  // Extent needs to be retrieved from the map, therefore use map projection, not layer projection
+  const extent = map.getView().getProjection().getExtent()
+  const origin = getTopLeft(extent)
+  const resolutions = map.getView().getResolutions()
+
+  return new TileWMS({
+    url: url,
+    params: {
+      LAYERS: layers || '',
+      FORMAT: 'image/png'
+    },
+    projection: projection,
+    tileGrid: new TileGrid({
+      origin: origin,
+      resolutions: resolutions,
+      matrixIds: getMatrixIds(resolutions)
+    }),
+    attributions: attributions
+  })
+}
+
+/**
+ * Creates a layer from tiled image source.
+ * @param {string}  title   URL of map service to query
+ * @param {string}  name    The name of the layer serves as an identifier in OpenLayers
+ * @param {object}  source  ol/source/TileWMS instance
+ * @return {object} ol/layer/Tile instance
+ * @see https://openlayers.org/en/latest/apidoc/module-ol_layer_Tile-TileLayer.html
+ */
+const createTileLayer = (title, name, source) => {
+  return new TileLayer({
+    title: title,
+    name: name,
+    preload: 10,
+    type: 'base',
+    visible: true,
+    source: source
+  })
+}
+
+/**
+ * Return numeric array that matches resolutions
+ * @param resolutions
+ * @return {number[]}
+ */
+const getMatrixIds = (resolutions) => {
+  return Array.apply(null, new Array(resolutions.length)).map(function (_, i) {
+    return i
+  })
+}
+</script>

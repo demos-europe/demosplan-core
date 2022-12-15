@@ -41,7 +41,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+
 use function strlen;
+
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -123,7 +125,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->faker = Factory::create('de_DE');
         $this->faker->addProvider(new ApproximateLengthText($this->faker));
 
-        //define static anonymous data:
+        // define static anonymous data:
         $this->map(User::ANONYMOUS_USER_ID, User::ANONYMOUS_USER_ID);
         $this->map(User::ANONYMOUS_USER_DEPARTMENT_ID, User::ANONYMOUS_USER_DEPARTMENT_ID);
         $this->map(User::ANONYMOUS_USER_DEPARTMENT_NAME, User::ANONYMOUS_USER_DEPARTMENT_NAME);
@@ -154,13 +156,13 @@ class RemoveUserDataCommand extends CoreCommand
         $projectName = strtoupper($this->parameterBag->get('project_name'));
         if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
             $this->output->writeln('This command is not supported for the current project');
-            //in case of this command should be workable for HH too.
-            //_master_toeb
-            //_master_toeb_versions
+            // in case of this command should be workable for HH too.
+            // _master_toeb
+            // _master_toeb_versions
             return 1;
         }
 
-        //#1: independent::
+        // #1: independent::
         $this->removeUserDataFromUsers();
         $this->removeUserDataFromDepartments();
         $this->removeUserDataFromOrganisations();
@@ -175,24 +177,24 @@ class RemoveUserDataCommand extends CoreCommand
         $this->removeUserDataFromStatementFragmentVersions();
         $this->removeUserDataFromStatements();
 
-        //#2: depended on users:
+        // #2: depended on users:
         $this->removeUserDataFromStatementVotes();
         $this->removeUserDataFromReportEntries();
         $this->removeUserDataFromEntityContentChanges();
 
-        //depended on address + users:
+        // depended on address + users:
         $this->removeUserDataFromProcedureSubscriptions();
 
-        //depended on orgas:
+        // depended on orgas:
         $this->removeUserDataFromProcedures();
 
-        //depended on departments:
+        // depended on departments:
         $this->removeUserDataFromStatementFragments();
 
-        //depended on users + orgas + departments:
+        // depended on users + orgas + departments:
         $this->removeUserDataFromDraftStatements();
 
-        //depended on draftstatements:
+        // depended on draftstatements:
         $this->removeUserDataFromDraftStatementVersions();
 
         return 0;
@@ -261,14 +263,13 @@ class RemoveUserDataCommand extends CoreCommand
                 $organisation->setCode($this->map($organisation->getCode(), $organisation->getName()));
                 $organisation->setEmail2($this->map($organisation->getEmail2(), $this->faker->companyEmail));
                 $organisation->setCcEmail2($this->map($organisation->getCcEmail2(), $this->faker->email));
-                $organisation->setUrl(null === $organisation->getUrl() ? null : $this->faker->url);
                 $organisation->setGwId(null === $organisation->getGwId() ? null : $this->getNextUniqueGwId());
-                $organisation->setCompetence($this->faker->text(99)); //?
+                $organisation->setCompetence($this->faker->text(99)); // ?
                 $organisation->setContactPerson($this->map($organisation->getContactPerson(), $this->faker->name));
                 $organisation->setEmailReviewerAdmin($this->map($organisation->getEmailReviewerAdmin(), $this->faker->email));
-                $organisation->setLogo(null); //??
-                $organisation->setDataProtection(''); //?
-                $organisation->setImprint(''); //?
+                $organisation->setLogo(null); // ??
+                $organisation->setDataProtection(''); // ?
+                $organisation->setImprint(''); // ?
             }
             $this->currentProgressBar->advance();
         }
@@ -287,7 +288,7 @@ class RemoveUserDataCommand extends CoreCommand
         foreach ($allProcedures as $procedure) {
             $procedure->setShortUrl($this->map($procedure->getShortUrl(), $this->faker->url));
             $procedure->setOrgaName($procedure->getOrga()->getName());
-            $procedure->setPublicParticipationContact(''); //?
+            $procedure->setPublicParticipationContact(''); // ?
             $procedure->setAgencyMainEmailAddress($this->map($procedure->getAgencyMainEmailAddress(), $this->faker->freeEmail));
 
             $this->currentProgressBar->advance();
@@ -302,13 +303,13 @@ class RemoveUserDataCommand extends CoreCommand
         /** @var Address[] $allAddresses */
         $allAddresses = $this->initializeRemovingDataForEntity(Address::class);
         foreach ($allAddresses as $address) {
-            $address->setCode(null); //?
+            $address->setCode(null); // ?
             $address->setStreet($this->map($address->getStreet(), $this->faker->streetName));
             $address->setStreet1($this->map($address->getStreet1(), $this->faker->streetName));
             $address->setState($this->map($address->getState(), $this->faker->state));
             $address->setPostalcode($this->map($address->getPostalcode(), $this->faker->postcode));
             $address->setCity($this->map($address->getCity(), $this->faker->city));
-            $address->setRegion(''); //this->faker->domainWord
+            $address->setRegion(''); // this->faker->domainWord
             $address->setPostofficebox($this->map($address->getPostofficebox(), $this->faker->numberBetween(1, 999)));
             $address->setPhone($this->map($address->getPhone(), $this->faker->phoneNumber));
             $address->setFax($this->map($address->getFax(), $this->faker->phoneNumber));
@@ -487,7 +488,8 @@ class RemoveUserDataCommand extends CoreCommand
                 $user = $this->userService->getSingleUser($report->getUserId());
                 $reportEntryUsers[$report->getUserId()] = null === $user ? '' : $user->getName();
             }
-            $em->getConnection()->executeUpdate('UPDATE _report_entries re SET
+            $em->getConnection()->executeUpdate(
+                'UPDATE _report_entries re SET
                 re._u_name = :name,
                 re._re_message = :message,
                 re._re_incoming = :incoming
@@ -681,7 +683,7 @@ class RemoveUserDataCommand extends CoreCommand
         $allAddressBookEntries = $this->initializeRemovingDataForEntity(AddressBookEntry::class);
 
         foreach ($allAddressBookEntries as $addressBookEntry) {
-            $addressBookEntry->setName($this->map($addressBookEntry->getName(), $this->faker->name)); //use just some unrelated faker name + address
+            $addressBookEntry->setName($this->map($addressBookEntry->getName(), $this->faker->name)); // use just some unrelated faker name + address
             $addressBookEntry->setEmailAddress($this->map($addressBookEntry->getEmailAddress(), $this->faker->freeEmail));
 
             $this->currentProgressBar->advance();
@@ -767,10 +769,10 @@ class RemoveUserDataCommand extends CoreCommand
                     $statementFragment->setArchivedDepartmentName($this->map($statementFragment->getArchivedDepartmentName(), $this->faker->colorName));
                 }
             } catch (Exception $e) {
-                $relatedDepartment = null; //related Department is not existing getDepartment() leads to exception
+                $relatedDepartment = null; // related Department is not existing getDepartment() leads to exception
             }
 
-            $statementFragment->setArchivedVoteUserName(null); //this may be effect the testability
+            $statementFragment->setArchivedVoteUserName(null); // this may be effect the testability
             $this->currentProgressBar->advance();
         }
 
@@ -863,7 +865,7 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function checkForAlreadyProcessedStatementMetas(): void
     {
-        //because of statement meta will be cascading-updated via statement!
+        // because of statement meta will be cascading-updated via statement!
 
         if (!$this->removedUserDataFromStatementMetas) {
             $this->output->writeln('Userdata of StatementMetas are not removed.');
@@ -923,7 +925,7 @@ class RemoveUserDataCommand extends CoreCommand
             $messageEncoded = false;
         }
 
-        //use list of keys to overwrite to map to methodNames of faker:
+        // use list of keys to overwrite to map to methodNames of faker:
         $keysToOverwrite = [
             'address_city'                => 'city',
             'address_fax'                 => 'phoneNumber',
@@ -931,26 +933,25 @@ class RemoveUserDataCommand extends CoreCommand
             'address_phone'               => 'phoneNumber',
             'address_postalcode'          => 'postcode',
             'address_street'              => 'streetName',
-            'addressBookEntries'          => '-', //??
-            'addresses'                   => '-', //??
-            'agencyExtraEmailAddresses'   => '-', //??
-            'allowedSenderEmailAddresses' => '-', //??
+            'addressBookEntries'          => '-', // ??
+            'addresses'                   => '-', // ??
+            'agencyExtraEmailAddresses'   => '-', // ??
             'agencyMainEmailAddress'      => 'companyEmail',
             'assignee'                    => 'name',
-            'authorizedUsers'             => '-', //??
+            'authorizedUsers'             => '-', // ??
             'authorName'                  => 'name',
             'caseWorkerName'              => 'name',
             'ccEmail2'                    => 'email',
             'city'                        => 'city',
             'competence'                  => 'name',
             'contactPerson'               => 'name',
-            'county'                      => 'city', //??
+            'county'                      => 'city', // ??
             'currentSlug'                 => 'url',
-            'customer'                    => '-', //?? //company??
-            'customers'                   => '-', //??
-            'dataInputOrganisations'      => '-', //??
-            'dataProtection'              => '-', //??
-            'departments'                 => '-', //??
+            'customer'                    => '-', // ?? //company??
+            'customers'                   => '-', // ??
+            'dataInputOrganisations'      => '-', // ??
+            'dataProtection'              => '-', // ??
+            'departments'                 => '-', // ??
             'desc'                        => 'sentence',
             'dName'                       => 'colorName',
             'email'                       => 'email',
@@ -958,42 +959,42 @@ class RemoveUserDataCommand extends CoreCommand
             'emailCc'                     => 'email',
             'emailReviewerAdmin'          => 'email',
             'emailText'                   => 'text',
-            'emailTitle'                  => 'text', //??
+            'emailTitle'                  => 'text', // ??
             'externalDesc'                => 'sentence',
-            'externalName'                => '-', //??
+            'externalName'                => '-', // ??
             'feedback'                    => 'text',
-            'gatewayName'                 => '-', //??
+            'gatewayName'                 => '-', // ??
             'houseNumber'                 => 'buildingNumber',
             'informationUrl'              => 'url',
-            'legalNotice'                 => '-', //??
+            'legalNotice'                 => '-', // ??
             'locationName'                => 'city',
             'locationPostCode'            => 'postcode',
             'lockReason'                  => 'sentence',
             'mailBody'                    => 'text',
             'mailSubject'                 => 'text',
             'memo'                        => 'text',
-            'meta'                        => '-', //??
-            'municipalCode'               => '-', //??
+            'meta'                        => '-', // ??
+            'municipalCode'               => '-', // ??
             'name'                        => 'name',
-            'newAuthorizedUsers'          => '-', //comma separated string (names) //??
-            'newName'                     => '-', //??
-            'newPublicName'               => '-', //??
-            'notificationReceivers'       => '-', //??
-            'notifications'               => '-', //??
-            'oldAuthorizedUsers'          => '-', //comma separated string (names)//??
-            'oldName'                     => '-', //??
-            'oldPublicName'               => '-', //??
+            'newAuthorizedUsers'          => '-', // comma separated string (names) //??
+            'newName'                     => '-', // ??
+            'newPublicName'               => '-', // ??
+            'notificationReceivers'       => '-', // ??
+            'notifications'               => '-', // ??
+            'oldAuthorizedUsers'          => '-', // comma separated string (names)//??
+            'oldName'                     => '-', // ??
+            'oldPublicName'               => '-', // ??
             'oName'                       => 'company',
             'orgaCity'                    => 'city',
             'orgaDepartmentName'          => 'colorName',
             'orgaEmail'                   => 'companyEmail',
             'orgaName'                    => 'company',
-            'organisations'               => '-', //??
+            'organisations'               => '-', // ??
             'orgaPostalCode'              => 'postcode',
             'orgaStreet'                  => 'streetName',
             'phone'                       => 'phoneNumber',
             'planDrawText'                => 'text',
-            'planningOffices'             => '-', //??
+            'planningOffices'             => '-', // ??
             'planText'                    => 'text',
             'postalcode'                  => 'postcode',
             'publicParticipationContact'  => 'name',
@@ -1001,22 +1002,22 @@ class RemoveUserDataCommand extends CoreCommand
             'recommendationShort'         => 'text',
             'represents'                  => 'company',
             'shortUrl'                    => 'url',
-            'slugs'                       => '-', //??
+            'slugs'                       => '-', // ??
             'street'                      => 'streetName',
-            'subDomain'                   => '-', //??
-            'submit'                      => '-', //??
+            'subDomain'                   => '-', // ??
+            'submit'                      => '-', // ??
             'submitName'                  => 'name',
             'submitterEmailAddress'       => 'email',
-            'sumbmit'                     => '-', //??
+            'sumbmit'                     => '-', // ??
             'text'                        => 'text',
             'textShort'                   => 'text',
             'title'                       => 'text',
             'uName'                       => 'name',
             'url'                         => 'url',
             'user'                        => 'name',
-            'users'                       => '-', //??
-            'version'                     => '-', //??
-            'versions'                    => '-', //??
+            'users'                       => '-', // ??
+            'version'                     => '-', // ??
+            'versions'                    => '-', // ??
         ];
 
         if (is_array($message) && !empty($message)) {

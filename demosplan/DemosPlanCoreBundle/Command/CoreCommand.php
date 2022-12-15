@@ -63,10 +63,11 @@ abstract class CoreCommand extends Command
                 [
                 $output,
                     new NativeFileOutput(
-                    DemosPlanPath::getRootPath("logs/{$logFilename}"),
+                        DemosPlanPath::getRootPath("logs/{$logFilename}"),
                         FileOutputInterface::WRITE_MODE_RESET
-                ),
-            ]);
+                    ),
+                ]
+            );
         } catch (Exception $e) {
             $output->writeln('<warning>Output might not be logged!</warning>');
         }

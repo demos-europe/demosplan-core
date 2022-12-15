@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\SegmentService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -29,7 +29,6 @@ class SegmentHistoryAPIController extends APIController
      *     name="dplan_api_segment_history_get",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     public function getAction(
@@ -43,7 +42,7 @@ class SegmentHistoryAPIController extends APIController
 
             $procedureId = $currentProcedureService->getProcedureIdWithCertainty();
             if ($procedureId !== $segment->getProcedureId()) {
-                //otherwise user can access to any statement history by url modification
+                // otherwise user can access to any statement history by url modification
                 throw new AccessDeniedException();
             }
 

@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -22,10 +24,8 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use Exception;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,7 +33,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Throwable;
 
 class MaintenanceController extends BaseController
 {
@@ -71,10 +70,12 @@ class MaintenanceController extends BaseController
      * @var PermissionsInterface
      */
     private $permissions;
+
     /**
      * @var MailService
      */
     private $mailService;
+
     /**
      * @var ParameterBagInterface
      */
@@ -110,7 +111,7 @@ class MaintenanceController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function serviceModeAction(GlobalConfigInterface $globalConfig)
     {
@@ -148,15 +149,14 @@ class MaintenanceController extends BaseController
      * why they are currently managed in this action
      *
      * @Route(path="/maintenance/{key}", name="core_maintenance")
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function maintenanceTasksAction(
-        AnnotatedStatementPdfHandler $annotatedStatementPdfHandler,
+        EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         Request $request,
@@ -165,7 +165,7 @@ class MaintenanceController extends BaseController
         // @improve T17071
 
         /** @var GlobalConfig $globalConfig */
-        //Überprüfen des Maintenance Keys (parameters.yml)
+        // Überprüfen des Maintenance Keys (parameters.yml)
         if ($key !== $globalConfig->getMaintenanceKey()) {
             $logger->warning('Maintenance key is NOT valid');
 
@@ -183,13 +183,14 @@ class MaintenanceController extends BaseController
         switch ($frequency) {
             case 'daily':
                 $logger->info('Starting daily maintenance Tasks');
+                $eventDispatcher->dispatch(new DailyMaintenanceEvent());
 
-                //Notfication-Email for public agencies regarding soon ending  phases
+                // Notfication-Email for public agencies regarding soon ending  phases
                 $logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');
                 $this->procedureHandler->sendNotificationEmailOfDeadlineForPublicAgencies();
 
                 if ($this->permissions->hasPermission('feature_send_email_on_procedure_ending_phase_send_mails')) {
-                    //Create Mails for all unsubmitted draftstatemetns of soon ending procedures.
+                    // Create Mails for all unsubmitted draftstatemetns of soon ending procedures.
                     $logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()');
                     $numberOfCreatedMails = $this->createMailsForUnsubmittedDraftsInSoonEndingProcedures(7);
                     $logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures(). Number of created mail_send entries:', [$numberOfCreatedMails]);
@@ -232,25 +233,13 @@ class MaintenanceController extends BaseController
                     $logger->info('Maintenance: check for deleted Files');
                     $this->fileService->checkDeletedFiles();
                 }
-
-                // Rollback AnnotatedStatementPdf in box- or text-review status
-                if ($this->permissions->hasPermission('feature_annotated_statement_pdf_rollback_review_status')) {
-                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in boxes_review status back to ready_to_review');
-                    $boxReviewCount = $annotatedStatementPdfHandler->rollbackBoxReviewStatus();
-                    $logger->info("Maintenance: $boxReviewCount AnnotatedStatementPdfs in boxes_review status brought back to ready_to_review");
-
-                    $logger->info('Maintenance: Bringing all AnnotatedStatementPdf which are in text_review status back to ready_to_convert');
-                    $textReviewCount = $annotatedStatementPdfHandler->rollbackTextReviewStatus();
-                    $logger->info("Maintenance: $textReviewCount AnnotatedStatementPdfs in text_review status brought back to ready_to_convert");
-                }
-                $logger->info('Daily Maintenance Tasks completed');
                 break;
 
             default:
                 break;
         }
 
-        //return result as JSON
+        // return result as JSON
         return new JsonResponse(
             [
                 'code'    => 100,
@@ -267,14 +256,14 @@ class MaintenanceController extends BaseController
         try {
             $numberOfDeletedEmailAddresses = $this->emailAddressService->deleteOrphanEmailAddresses();
             $logger->info("Deleted $numberOfDeletedEmailAddresses orphan email addresses");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $logger->warning('Exception while removing orphan email addresses.', [$e]);
         }
     }
 
     /**
-     * @throws Exception
-     * @throws Throwable
+     * @throws \Exception
+     * @throws \Throwable
      */
     protected function createMailsForUnsubmittedDraftsInSoonEndingProcedures(int $exactlyDaysToGo): int
     {
@@ -292,7 +281,7 @@ class MaintenanceController extends BaseController
     /**
      * Set the state of all news, which are "prepared" to set state today, to the determined state.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function setStateOfNewsOfToday(): void
     {
@@ -306,26 +295,24 @@ class MaintenanceController extends BaseController
                     ++$successfulSwitches;
                 } catch (NoDesignatedStateException $e) {
                     $this->getLogger()->error('Set state of news failed, because designated state is not defined.', [$e]);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->getLogger()->error("Set state of the news with ID {$news->getId()} failed", [$e]);
                 }
             }
 
             $this->getLogger()->info("Set states of {$successfulSwitches} news.");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->error('switching of news state failed', [$e]);
         }
     }
-
 
     private function purgeSentEmails(): void
     {
         try {
             $deleted = $this->mailService->deleteAfterDays((int) $this->parameterBag->get('email_delete_after_days'));
             $this->logger->info("Deleted $deleted old emails");
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Delete old emails failed', [$e]);
         }
-
     }
 }

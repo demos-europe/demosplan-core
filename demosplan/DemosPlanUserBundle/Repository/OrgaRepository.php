@@ -139,6 +139,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         try {
             $em = $this->getEntityManager();
 
+            $this->validate($orga);
+
             $em->persist($orga);
             // use orga ID as initial slug value
             $this->handleSlugUpdate($orga, $orga->getId());
@@ -171,6 +173,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             }
             $entity = $this->generateObjectValues($entity, $data);
 
+            $this->validate($entity);
+
             $em->persist($entity);
             $em->flush();
 
@@ -198,10 +202,12 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             if (!$orgaEntity instanceof Orga) {
                 throw OrgaNotFoundException::createFromId($orgaId);
             }
-            // add User
-            $orgaEntity->addUser($user);
-            $em->persist($orgaEntity);
-            $em->flush();
+            if (!$orgaEntity->getUsers()->contains($user)) {
+                // add User
+                $orgaEntity->addUser($user);
+                $em->persist($orgaEntity);
+                $em->flush();
+            }
 
             return $orgaEntity;
         } catch (Exception $e) {
@@ -331,7 +337,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 'paperCopy',
                 'paperCopySpec',
                 'showname',
-                'url',
                 'name',
                 'street',
                 'houseNumber',
@@ -375,7 +380,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         if (array_key_exists('copySpec', $data)) {
             $entity->setPaperCopySpec($data['copySpec']);
         }
-        //## Addressdata (if address already exists) ###
+        // ## Addressdata (if address already exists) ###
         if (array_key_exists('address_street', $data)) {
             $entity->setStreet($data['address_street']);
         }
@@ -573,7 +578,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation->setCode(null);
             $organisation->setEmail2(null);
             $organisation->setCcEmail2(null);
-            $organisation->setUrl(null);
             $organisation->setGwId(null);
             $organisation->setCompetence(null);
             $organisation->setContactPerson(null);
@@ -756,6 +760,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
      */
     public function updateObject($organisation): Orga
     {
+        $this->validate($organisation);
+
         $this->getEntityManager()->persist($organisation);
         $this->getEntityManager()->flush();
 

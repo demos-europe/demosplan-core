@@ -28,11 +28,12 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>
+ *
  * @template-implements DeletableDqlResourceTypeInterface<News>
  * @template-implements CreatableDqlResourceTypeInterface<News>
  *
@@ -95,10 +96,10 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_news');
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

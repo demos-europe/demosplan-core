@@ -50,6 +50,16 @@
         "website": "https://babel.dev/docs/en/next/babel-runtime"
     },
     {
+        "package": "@demos-europe/demosplan-utils",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "@demos-europe/dp-consent",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
         "package": "@efrane/vuex-json-api",
         "license": "MIT",
         "website": "https://vuex-json-api.efrane.com/"
@@ -58,6 +68,11 @@
         "package": "@fullhuman/postcss-purgecss",
         "license": "MIT",
         "website": "https://purgecss.com/"
+    },
+    {
+        "package": "@masterportal/masterportalapi",
+        "license": "MIT",
+        "website": "https://bitbucket.org/geowerkstatt-hamburg/masterportalapi#readme"
     },
     {
         "package": "@sentry/browser",
@@ -125,11 +140,6 @@
         "website": "Unknown"
     },
     {
-        "package": "axios",
-        "license": "MIT",
-        "website": "https://axios-http.com/"
-    },
-    {
         "package": "babel-core",
         "license": "MIT",
         "website": "Unknown"
@@ -192,7 +202,7 @@
     {
         "package": "core-js",
         "license": "MIT",
-        "website": "Unknown"
+        "website": "http://zloirock.ru"
     },
     {
         "package": "cross-env",
@@ -233,11 +243,6 @@
         "package": "dompurify",
         "license": "(MPL-2.0 OR Apache-2.0)",
         "website": "https://github.com/cure53/DOMPurify"
-    },
-    {
-        "package": "dp-consent",
-        "license": "ISC",
-        "website": "Unknown"
     },
     {
         "package": "eslint",
@@ -293,6 +298,11 @@
         "package": "eslint-plugin-vue",
         "license": "MIT",
         "website": "https://eslint.vuejs.org/"
+    },
+    {
+        "package": "eslint-plugin-vuejs-accessibility",
+        "license": "MIT",
+        "website": "https://github.com/vue-a11y/eslint-plugin-vuejs-accessibility#readme"
     },
     {
         "package": "eslint-webpack-plugin",
@@ -390,6 +400,11 @@
         "website": "https://github.com/mikaelbr/node-notifier#readme"
     },
     {
+        "package": "normalize.css",
+        "license": "MIT",
+        "website": "https://necolas.github.io/normalize.css"
+    },
+    {
         "package": "ol",
         "license": "BSD-2-Clause",
         "website": "https://openlayers.org/"
@@ -460,10 +475,6 @@
         "website": "Unknown"
     },
     {
-        "package": "rate-it",
-        "license": "MIT"
-    },
-    {
         "package": "regenerator-runtime",
         "license": "MIT",
         "website": "Unknown"
@@ -489,6 +500,16 @@
         "website": "https://adobe-fonts.github.io/source-sans-pro"
     },
     {
+        "package": "stream",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "string_decoder",
+        "license": "MIT",
+        "website": "https://github.com/nodejs/string_decoder"
+    },
+    {
         "package": "striptags",
         "license": "MIT",
         "website": "https://github.com/ericnorris/striptags"
@@ -507,6 +528,11 @@
         "package": "swagger-ui-dist",
         "license": "Apache-2.0",
         "website": "Unknown"
+    },
+    {
+        "package": "timers-browserify",
+        "license": "MIT",
+        "website": "https://github.com/jryans/timers-browserify"
     },
     {
         "package": "tippy.js",

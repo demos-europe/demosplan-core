@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+const glob = require('glob')
 const path = require('path')
 
 class Config {
@@ -33,8 +34,11 @@ class Config {
     this.mode = (mode === 'production') ? 'production' : mode
 
     this.absoluteRoot = path.resolve(__dirname, this.relativeRoot) + '/'
-    this.bundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
-    this.bundleEntryPointsGlob = this.bundlesPath + 'DemosPlan*/Resources/client/js/bundles/*.js'
+    this.oldBundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
+
+    // Yes, technically this is not needed but it's here to document the possible use in `resolveAliases`
+    const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
+    this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
     this.cssPurge = {
       /**
@@ -51,7 +55,8 @@ class Config {
         'demosplan/**/*.js',
         'demosplan/**/*.js.twig',
         'client/**/*.js',
-        'client/**/*.vue'
+        'client/**/*.vue',
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [

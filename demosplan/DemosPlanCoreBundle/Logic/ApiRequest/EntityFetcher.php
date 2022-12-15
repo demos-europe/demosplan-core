@@ -20,71 +20,62 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\MappingException;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
-use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
-use EDT\DqlQuerying\Utilities\QueryGenerator;
+use EDT\DqlQuerying\Utilities\JoinFinder;
+use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\JsonApi\RequestHandling\EntityFetcherInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\ObjectProviderInterface;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SliceException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Contracts\SortMethodInterface;
+use EDT\Querying\EntityProviders\EntityProviderInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
+use EDT\Querying\Utilities\ConditionEvaluator;
+use EDT\Querying\Utilities\Iterables;
+use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\AccessException;
-use EDT\Wrapping\Contracts\TypeProviderInterface;
+use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
 use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
+use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
-use EDT\Wrapping\Utilities\GenericEntityFetcher;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use function is_array;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
 {
-    /**
-     * @var EntityManager
-     */
-    private $managerRegistry;
+    private EntityManager $entityManager;
 
-    /**
-     * @var WrapperFactoryInterface
-     */
-    private $wrapperFactory;
+    private DqlConditionFactory $conditionFactory;
 
-    /**
-     * @var DqlConditionFactory
-     */
-    private $conditionFactory;
+    private SchemaPathProcessor $schemaPathProcessor;
 
-    /**
-     * @var QueryGenerator
-     */
-    private $queryGenerator;
+    private ConditionEvaluator $conditionEvaluator;
 
-    /**
-     * @var SchemaPathProcessor
-     */
-    private $schemaPathProcessor;
+    private Sorter $sorter;
 
-    public function __construct(ManagerRegistry $managerRegistry, SchemaPathProcessor $schemaPathProcessor)
-    {
-        $this->managerRegistry = $managerRegistry->getManager();
-        $this->conditionFactory = new DqlConditionFactory();
-        $this->wrapperFactory = new class() implements WrapperFactoryInterface {
-            public function createWrapper(object $object, ReadableTypeInterface $type): object
-            {
-                return $object;
-            }
-        };
-        $this->queryGenerator = new QueryGenerator($this->managerRegistry);
+    private JoinFinder $joinFinder;
+
+    public function __construct(
+        ConditionEvaluator $conditionEvaluator,
+        DqlConditionFactory $conditionFactory,
+        EntityManager $entityManager,
+        SchemaPathProcessor $schemaPathProcessor,
+        Sorter $sorter
+    ) {
+        $this->entityManager = $entityManager;
+        $this->conditionFactory = $conditionFactory;
         $this->schemaPathProcessor = $schemaPathProcessor;
+        $this->conditionEvaluator = $conditionEvaluator;
+        $this->sorter = $sorter;
+        $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
     }
 
     /**
@@ -116,13 +107,9 @@ class EntityFetcher implements EntityFetcherInterface
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
-        $entityProvider = new DoctrineOrmEntityProvider(
-            $type->getEntityClass(),
-            $this->managerRegistry
-        );
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
+        $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
 
-        return $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        return $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
     }
 
     /**
@@ -132,11 +119,11 @@ class EntityFetcher implements EntityFetcherInterface
      * It will automatically check access rights and apply aliases before creating a
      * {@link QueryBuilder} and using it to create the returned {@link DemosPlanPaginator}.
      *
-     * @param array<int, FunctionInterface<bool>> $conditions
-     * @param array<int, SortMethodInterface>     $sortMethods
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     * @param array<int, OrderBySortMethodInterface>    $sortMethods
      *
      * @throws MappingException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws PathException
      */
     public function getEntityPaginator(ReadableTypeInterface $type, APIPagination $pagination, array $conditions, array $sortMethods = []): DemosPlanPaginator
@@ -149,9 +136,11 @@ class EntityFetcher implements EntityFetcherInterface
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
-        $conditions = $this->schemaPathProcessor->mapConditions($type, ...$conditions);
-        $sortMethods = $this->schemaPathProcessor->mapSortMethods($type, ...$sortMethods);
-        $queryBuilder = $this->queryGenerator->generateQueryBuilder($type->getEntityClass(), $conditions, $sortMethods);
+        $conditions = $this->mapConditions($type, $conditions);
+        $sortMethods = $this->mapSortMethods($type, $sortMethods);
+
+        $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
+        $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
 
         $queryAdapter = new QueryAdapter($queryBuilder);
         $paginator = new DemosPlanPaginator($queryAdapter);
@@ -192,10 +181,9 @@ class EntityFetcher implements EntityFetcherInterface
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
-        $entityProvider = new PrefilledObjectProvider(new ProxyPropertyAccessor($this->managerRegistry), $dataObjects);
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
+        $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
 
-        return $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        return $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
     }
 
     /**
@@ -212,12 +200,12 @@ class EntityFetcher implements EntityFetcherInterface
      * @return array<int, O>
      *
      * @throws PathException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws SortException
      */
     public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
-        $entityProvider = new PrefilledObjectProvider(new ProxyPropertyAccessor($this->managerRegistry), $dataObjects);
+        $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
         $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
 
         return is_array($entities) ? $entities : iterator_to_array($entities);
@@ -241,10 +229,7 @@ class EntityFetcher implements EntityFetcherInterface
      */
     public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
     {
-        $entityProvider = new DoctrineOrmEntityProvider(
-            $entityClass,
-            $this->managerRegistry
-        );
+        $entityProvider = $this->createOrmEntityProvider($entityClass);
 
         $entities = $entityProvider->getObjects($conditions, $sortMethods, $offset, $limit);
 
@@ -260,9 +245,9 @@ class EntityFetcher implements EntityFetcherInterface
      *
      * The type of the entities will be of the type of the given entity class.
      *
-     * @param class-string<object>               $entityClass
-     * @param array<int,FunctionInterface<bool>> $conditions  will be applied in an `AND` conjunction
-     * @param array<int,SortMethodInterface>     $sortMethods will be applied in the given order
+     * @param class-string<object>                     $entityClass
+     * @param array<int,ClauseFunctionInterface<bool>> $conditions  will be applied in an `AND` conjunction
+     * @param array<int,OrderBySortMethodInterface>    $sortMethods will be applied in the given order
      */
     public function listPaginatedEntitiesUnrestricted(
         string $entityClass,
@@ -271,11 +256,7 @@ class EntityFetcher implements EntityFetcherInterface
         int $pageSize,
         array $sortMethods = []
     ): DemosPlanPaginator {
-        $entityProvider = new DoctrineOrmEntityProvider(
-            $entityClass,
-            $this->managerRegistry
-        );
-
+        $entityProvider = $this->createOrmEntityProvider($entityClass);
         $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
 
         $queryAdapter = new QueryAdapter($queryBuilder);
@@ -339,7 +320,7 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @param array<int, FunctionInterface<bool>> $conditions
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
      */
     public function getEntityCount(ReadableTypeInterface $type, array $conditions): int
     {
@@ -348,24 +329,31 @@ class EntityFetcher implements EntityFetcherInterface
         $pagination->setNumber(1);
         $pagination->lock();
 
-        $paginator = $this->getEntityPaginator($type, $pagination, $conditions);
+        $paginator = $this->getEntityPaginator($type, $pagination, $conditions, []);
 
         return $paginator->getAdapter()->getNbResults();
     }
 
     public function getEntityByTypeIdentifier(IdentifiableTypeInterface $type, string $id): object
     {
-        $entityProvider = new DoctrineOrmEntityProvider(
-            $type->getEntityClass(),
-            $this->managerRegistry
-        );
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
+        $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
 
         try {
-            return $entityFetcher->getEntityByIdentifier($type, $id);
+            $identifierPath = $type->getIdentifierPropertyPath();
+            $identifierCondition = $this->conditionFactory->propertyHasValue($id, ...$identifierPath);
+            $entities = $this->listTypeEntities($entityProvider, $type, [$identifierCondition], []);
+
+            switch (count($entities)) {
+                case 0:
+                    throw AccessException::noEntityByIdentifier($type);
+                case 1:
+                    return array_pop($entities);
+                default:
+                    throw AccessException::multipleEntitiesByIdentifier($type);
+            }
         } catch (AccessException $e) {
             $typeName = $type::getName();
-            throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException("Could not retrieve entity for type '$typeName' with ID '$id'.", 0, $e);
+            throw new InvalidArgumentException("Could not retrieve entity for type '$typeName' with ID '$id'.", 0, $e);
         }
     }
 
@@ -395,13 +383,12 @@ class EntityFetcher implements EntityFetcherInterface
         $entityIdProperty = $this->getEntityIdentifierProperty($type);
 
         $entityProvider = new DoctrineOrmPartialDTOProvider(
-            $type->getEntityClass(),
-            $this->managerRegistry,
+            $this->entityManager,
+            $this->createQueryBuilderPreparer($type->getEntityClass()),
             $entityIdProperty
         );
 
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
-        $partialDtos = $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        $partialDtos = $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
 
         return array_map(static function (PartialDTO $dto) use ($entityIdProperty): string {
             return $dto->getProperty($entityIdProperty);
@@ -411,7 +398,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * Check if the given object matches any of the given conditions.
      *
-     * @param array<int, FunctionInterface<bool>> $conditions at least one condition must match for `true`
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions at least one condition must match for `true`
      *                                                        to be returned; must not be empty
      */
     public function objectMatchesAny(object $object, array $conditions): bool
@@ -480,14 +467,26 @@ class EntityFetcher implements EntityFetcherInterface
         return array_pop($entityIdPath);
     }
 
-    protected function createGenericEntityFetcher(ObjectProviderInterface $objectProvider): GenericEntityFetcher
-    {
-        return new GenericEntityFetcher(
-            $objectProvider,
-            $this->conditionFactory,
-            $this->schemaPathProcessor,
-            $this->wrapperFactory
-        );
+    private function listTypeEntities(
+        EntityProviderInterface $entityProvider,
+        TypeInterface $type,
+        array $conditions,
+        array $sortMethods
+    ): array {
+        if (!$type->isAvailable()) {
+            throw AccessException::typeNotAvailable($type);
+        }
+
+        $conditions = $this->mapConditions($type, $conditions);
+        $sortMethods = $this->mapSortMethods($type, $sortMethods);
+
+        // get the actual entities
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
+
+        // get and map the actual entities
+        $entities = Iterables::asArray($entities);
+
+        return array_values($entities);
     }
 
     /**
@@ -511,5 +510,61 @@ class EntityFetcher implements EntityFetcherInterface
         }
 
         return array_pop($entities);
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function createOrmEntityProvider(string $entityClass): DoctrineOrmEntityProvider
+    {
+        $builderPreparer = $this->createQueryBuilderPreparer($entityClass);
+
+        return new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer);
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function createQueryBuilderPreparer(string $entityClass): QueryBuilderPreparer
+    {
+        return new QueryBuilderPreparer(
+            $entityClass,
+            $this->entityManager->getMetadataFactory(),
+            $this->joinFinder
+        );
+    }
+
+    /**
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
+     */
+    private function mapConditions(TypeInterface $type, array $conditions): array
+    {
+        if ([] !== $conditions && $type instanceof FilterableTypeInterface) {
+            $this->schemaPathProcessor->mapFilterConditions($type, $conditions);
+        }
+        $conditions[] = $this->schemaPathProcessor->processAccessCondition($type);
+
+        return $conditions;
+    }
+
+    /**
+     * @param list<OrderBySortMethodInterface> $sortMethods
+     *
+     * @return list<OrderBySortMethodInterface>
+     *
+     * @throws PathException
+     */
+    private function mapSortMethods(TypeInterface $type, array $sortMethods): array
+    {
+        if ([] !== $sortMethods && $type instanceof SortableTypeInterface) {
+            $this->schemaPathProcessor->mapSorting($type, $sortMethods);
+        }
+        $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($type);
+
+        return array_merge($sortMethods, $defaultSortMethods);
     }
 }

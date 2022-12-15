@@ -29,7 +29,7 @@ fos_elastica:
                             country: DE
                         min_length_filter:
                             type: length
-                            min: 3
+                            min: 2
                     tokenizer:
                         split_word_separators:
                             type: pattern
@@ -108,11 +108,11 @@ fos_elastica:
                     indexable_callback: 'shouldBeIndexed'
                     persistence:
                         driver: orm
-                        model: demosplan\plugins\workflow\SegmentsManager\Entity\Segment
+                        model: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
                         model_to_elastica_transformer:
                             service: path_based_model_to_elastica_transformer
                         provider: ~
-                        listener: ~
+                        listener: { enabled: false }
                         finder: ~
 
         procedures:
@@ -244,7 +244,7 @@ fos_elastica:
                             country: DE
                         min_length_filter:
                             type: length
-                            min: 3
+                            min: 2
                     analyzer:
                         customHTMLGerman:
                             type: custom
@@ -315,7 +315,7 @@ fos_elastica:
                             country: DE
                         min_length_filter:
                             type: length
-                            min: 3
+                            min: 2
                     tokenizer:
                         split_word_separators:
                             type: pattern
@@ -688,7 +688,7 @@ fos_elastica:
                             country: DE
                         min_length_filter:
                             type: length
-                            min: 3
+                            min: 2
                     tokenizer:
                         split_word_separators:
                             type: pattern

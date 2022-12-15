@@ -74,8 +74,10 @@ class FileController extends BaseController
 
         // ensure that procedure access check matches file procedure
         if (!$this->isValidProcedure($procedureId, $file)) {
-            $this->getLogger()->info('Tried to access file from different Procedure: ',
-                    [$file->getProcedure()->getId(), $procedureId]);
+            $this->getLogger()->info(
+                'Tried to access file from different Procedure: ',
+                [$file->getProcedure()->getId(), $procedureId]
+            );
             throw new NotFoundHttpException();
         }
 

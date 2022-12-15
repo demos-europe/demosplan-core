@@ -1,0 +1,8 @@
+filterNames:
+    tags:
+        labelTranslationKey: tags
+        comparisonOperator: 'ARRAY_CONTAINS_VALUE'
+        rootPath: tags
+        grouping:
+            labelTranslationKey: topic
+            targetPath: tags.topic.label

@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationFloodEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
-use demosplan\plugins\FloodControl\Exception\CookieException;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -32,13 +31,13 @@ class ConsultationController extends BaseController
      *     name="core_auth_procedure_consultation",
      *     path="/consultation/auth/{procedureId}"
      * )
-     *
      * @DplanPermissions("feature_public_consultation")
      */
     public function procedureConsultationAuthorizeAction(
         ConsultationTokenService $consultationTokenService,
         EventDispatcherPostInterface $eventDispatcherPost,
-        Request $request, string $procedureId
+        Request $request,
+        string $procedureId
     ): RedirectResponse {
         $response = $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedure' => $procedureId]);
 
@@ -52,7 +51,7 @@ class ConsultationController extends BaseController
         try {
             $eventDispatcherPost->post($event);
             $response = $event->getResponse();
-        } catch (CookieException|Exception $e) {
+        } catch (Exception $e) {
             return $response;
         }
 

@@ -14,23 +14,22 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyAccessorInterface;
-use EDT\Querying\Contracts\SliceException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use EDT\Wrapping\Utilities\PropertyReader;
 use EDT\Wrapping\Utilities\TypeAccessor;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
+use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
+use function strlen;
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 class TwigableWrapperObject extends WrapperObject
 {
-    /**
-     * @var object
-     */
-    protected $backingObject;
+    protected object $backingObject;
 
     public function __construct(
         object $object,
@@ -39,7 +38,7 @@ class TwigableWrapperObject extends WrapperObject
         TypeAccessor $typeAccessor,
         PropertyAccessorInterface $propertyAccessor,
         ConditionEvaluator $conditionEvaluator,
-        WrapperFactoryInterface $wrapperFactory
+        WrapperObjectFactory $wrapperFactory
     ) {
         parent::__construct(
             $object,
@@ -54,11 +53,10 @@ class TwigableWrapperObject extends WrapperObject
     }
 
     /**
-     * @param string $methodName
-     * @param array $arguments
      * @return mixed|void|null
+     *
      * @throws PathException
-     * @throws SliceException
+     * @throws PaginationException
      * @throws SortException
      */
     public function __call(string $methodName, array $arguments = [])

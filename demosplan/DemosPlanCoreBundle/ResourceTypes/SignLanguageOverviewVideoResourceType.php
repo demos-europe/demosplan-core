@@ -14,13 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Video>
@@ -60,7 +60,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         return true;
     }
 
-    public function getAccessCondition(): FunctionInterface
+    public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->allConditionsApply(
             // for now the access to SignLanguageOverviewVideos is limited to the ones uploaded
@@ -84,7 +84,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             $this->createAttribute($this->id)->readable(true),
             $this->createAttribute($this->title)->readable()->initializable(),
             $this->createAttribute($this->description)->readable()->initializable(),
-            $this->createAttribute($this->file)->readable()->initializable(),
+            $this->createToOneRelationship($this->file)->readable()->initializable(),
         ];
     }
 
@@ -108,10 +108,11 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
         $resourceChange = new ResourceChange($video, $this, $properties);
 
         // until the FE supports multiple sign language videos we automatically remove the old one when a new one is created
-        $customer->getSignLanguageOverviewVideos()->forAll(static function (Video $oldVideo) use ($resourceChange, $customer): void {
+        /** @var Video $oldVideo */
+        foreach ($customer->getSignLanguageOverviewVideos() as $oldVideo) {
             $customer->removeSignLanguageOverviewVideo($oldVideo);
             $resourceChange->addEntityToDelete($oldVideo);
-        });
+        }
 
         $customer->addSignLanguageOverviewVideo($video);
 

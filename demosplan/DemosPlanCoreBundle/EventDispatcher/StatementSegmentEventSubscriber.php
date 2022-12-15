@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateFlushEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 
 class StatementSegmentEventSubscriber extends BaseEventSubscriber
 {

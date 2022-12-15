@@ -1,0 +1,18 @@
+name: Run FE_headerWriter
+
+on:
+  pull_request:
+    paths:
+      - '**.scss'
+      - '**.js'
+      - '**.vue'
+
+jobs:
+  call:
+    uses: demos-europe/demosplan-workflows/.github/workflows/FE_headerWriter.yml@main
+    with:
+        ignore_path: "'client/js/legacy/*' 'client/js/generated/*' '*/node_modules/*' 'client/js/lib/core/SideNav.js' 'client/js/lib/core/Detabinator.js' 'demosplan/DemosPlanCoreBundle/Resources/client/js/lib/*'"
+        gpg_user_name: Demos-CI
+    secrets:
+        gpg_email: ${{ secrets.DEVOPS_GPG_EMAIL }}
+

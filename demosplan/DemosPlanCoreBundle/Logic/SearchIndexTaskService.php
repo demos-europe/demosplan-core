@@ -12,17 +12,17 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\SearchIndexTask;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\SearchIndexTaskRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
@@ -137,7 +137,7 @@ class SearchIndexTaskService extends CoreService
             }
 
             $this->searchIndexTaskRepository->addEntries($entityClass, $entityIds, $userId);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->warning('Could not create SearchIndexTask', [$e, $e->getTraceAsString()]);
         }
     }
@@ -164,7 +164,7 @@ class SearchIndexTaskService extends CoreService
                     $this->deleteStatementFragmentsFromIndex($entityIds);
                     break;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->warning('Could not delete from Index SearchIndexTask', [$e]);
         }
     }
@@ -182,7 +182,7 @@ class SearchIndexTaskService extends CoreService
             if (0 < count($itemsToIndex)) {
                 $this->indexItems($itemsToIndex);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->warning('Could index Search Items', [$e]);
         }
 
@@ -210,7 +210,7 @@ class SearchIndexTaskService extends CoreService
             if (0 < count($pendingIndexTasks)) {
                 return true;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getLogger()->warning('Could get pending user Search Items', [$e]);
         }
 
@@ -271,7 +271,7 @@ class SearchIndexTaskService extends CoreService
     /**
      * @param Collection $items
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function indexStatementItems($items)
     {
@@ -295,7 +295,7 @@ class SearchIndexTaskService extends CoreService
 
             // delete Search index tasks
             $this->searchIndexTaskRepository->deleteItems($items);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // catch exception here to not interfere with other indexing tasks
             // save tasks to be added to queue again
             $this->addFailedIndexTasks($items);
@@ -325,7 +325,7 @@ class SearchIndexTaskService extends CoreService
 
             // delete Search index tasks
             $this->searchIndexTaskRepository->deleteItems($items);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // catch exception here to not interfere with other indexing tasks
             // save tasks to be added to queue again
             $this->addFailedIndexTasks($items);
@@ -353,8 +353,8 @@ class SearchIndexTaskService extends CoreService
 
             // delete Search index tasks
             $this->searchIndexTaskRepository->deleteItems($items);
-        } catch (Exception $e) {
-            //catch exception here to not interfere with other indexing tasks
+        } catch (\Exception $e) {
+            // catch exception here to not interfere with other indexing tasks
             // save tasks to be added to queue again
             $this->addFailedIndexTasks($items);
             $this->getLogger()->warning('Could not index Search StatementFragment Items', [$e]);

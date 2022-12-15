@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace Tests\Core\DraftStatement;
+
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
+use Tests\Base\FunctionalTestCase;
+
+class DraftStatementHandlerTest extends FunctionalTestCase
+{
+    /** @var DraftStatementHandler */
+    protected $sut;
+
+    /** @var DraftStatement */
+    protected $testDraftStatement;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->sut = self::$container->get(DraftStatementHandler::class);
+        $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
+    }
+
+    public function testDetUnsubmittedDraftStatementsOfSoonEndingProcedures()
+    {
+        self::markSkippedForCIIntervention();
+        $djkafh = $this->sut->getUnsubmittedDraftStatementsOfSoonEndingProcedures();
+    }
+}

@@ -1,0 +1,82 @@
+<license>
+  (c) 2010-present DEMOS E-Partizipation GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <assessment-table-toc-group :group="getToc" />
+
+    <!-- Update button -->
+    <transition
+      name="slide-fade"
+      mode="out-in">
+      <dp-button
+        v-show="isRefreshButtonVisible"
+        class="u-ml-0_5 u-mb-0_5"
+        variant="outline"
+        @click="triggerUpdate">
+        <i
+          class="fa fa-refresh"
+          aria-hidden="true" />
+        {{ Translator.trans("refresh") }}
+      </dp-button>
+    </transition>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapMutations } from 'vuex'
+import AssessmentTableTocGroup from './AssessmentTableTocGroup'
+import { DpButton } from '@demos-europe/demosplan-ui'
+
+export default {
+  name: 'AssessmentTableToc',
+
+  components: {
+    AssessmentTableTocGroup,
+    DpButton
+  },
+
+  props: {
+    filterHash: {
+      type: String,
+      required: true
+    },
+
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
+
+  computed: {
+    ...mapGetters('assessmentTable', [
+      'isRefreshButtonVisible'
+    ]),
+
+    ...mapGetters('statement', [
+      'getToc'
+    ])
+  },
+
+  methods: {
+    ...mapMutations('assessmentTable', [
+      'setRefreshButtonVisibility'
+    ]),
+
+    triggerUpdate () {
+      this.setRefreshButtonVisibility(false)
+      /*
+       *  Update-assessment-table is defined in mounted() of DpTable.vue.
+       *  Otherwise triggerApiCallForStatements() would not be accessible in AssessmentTableToc which refreshes the assessment list without page reload
+       */
+      this.$root.$emit('update-assessment-table')
+    }
+  }
+}
+</script>

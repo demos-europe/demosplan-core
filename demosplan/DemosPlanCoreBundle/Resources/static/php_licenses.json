@@ -137,7 +137,7 @@
     {
         "license": "MIT",
         "package": "friendsofphp/php-cs-fixer",
-        "website": "https://github.com/FriendsOfPHP/PHP-CS-Fixer"
+        "website": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer"
     },
     {
         "license": "MIT",
@@ -198,6 +198,16 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "knplabs/knp-menu-bundle",
+        "website": "https://github.com/KnpLabs/KnpMenuBundle"
+    },
+    {
+        "license": "BSD-3-Clause",
+        "package": "lcobucci/jwt",
+        "website": "https://github.com/lcobucci/jwt"
     },
     {
         "license": "MIT",

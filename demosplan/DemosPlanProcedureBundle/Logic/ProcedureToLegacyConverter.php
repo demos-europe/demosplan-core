@@ -140,7 +140,6 @@ class ProcedureToLegacyConverter extends CoreService
         return [
             'agencyExtraEmailAddresses'             => $procedure->getAgencyExtraEmailAddresses(),
             'agencyMainEmailAddress'                => $procedure->getAgencyMainEmailAddress(),
-            'annotatedStatementPdfs'                => $procedure->getAnnotatedStatementPdfs(),
             'ars'                                   => $procedure->getArs(),
             'authorizedUsers'                       => $procedure->getAuthorizedUsers(),
             'authorizedUserIds'                     => $authorizedUserIds,
