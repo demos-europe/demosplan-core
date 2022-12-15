@@ -11,9 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class LoadAddressBookEntryData extends TestFixture
+class LoadAddressBookEntryData extends TestFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager)
     {
@@ -28,5 +29,12 @@ class LoadAddressBookEntryData extends TestFixture
         $this->setReference('testAddressBookEntry2', $addressBookEntry2);
 
         $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+          LoadUserData::class
+        ];
     }
 }
