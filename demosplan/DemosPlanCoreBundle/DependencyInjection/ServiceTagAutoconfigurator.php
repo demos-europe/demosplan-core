@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
+use DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
@@ -36,6 +37,8 @@ final class ServiceTagAutoconfigurator
      */
     public const RPC_METHOD_SOLVERS = 'dplan.rpc.method.solver';
 
+    public const PERMISSION_COLLECTION = 'dplan.permission_collection';
+
     /**
      * Generators for faked contents of several file formats.
      *
@@ -47,6 +50,7 @@ final class ServiceTagAutoconfigurator
         self::DEPLOYMENT_STRATEGIES => StrategyInterface::class,
         self::FAKE_DATA_GENERATOR   => DataGeneratorInterface::class,
         self::RPC_METHOD_SOLVERS    => RpcMethodSolverInterface::class,
+        self::PERMISSION_COLLECTION => ResolvablePermissionCollectionInterface::class,
     ];
 
     public static function configure(ContainerBuilder $containerBuilder): void
