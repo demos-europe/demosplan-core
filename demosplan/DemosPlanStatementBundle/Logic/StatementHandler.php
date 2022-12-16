@@ -10,9 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -20,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
@@ -105,7 +106,9 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
+
 use function is_string;
+
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -438,8 +441,8 @@ class StatementHandler extends CoreHandler
         // prüfe die spezifischen Anforderungen
         $statement = $this->getStatementPublicData($data, $statement);
 
-        //Kennzeichnet, dass Stellungnahme aus der Beteiligungsebene eingereicht wurde. Nötig um eventuelle
-        //Daten zur Organisation aus der Session zu entfernen (z.B. bei eingeloggten Fachplaner)
+        // Kennzeichnet, dass Stellungnahme aus der Beteiligungsebene eingereicht wurde. Nötig um eventuelle
+        // Daten zur Organisation aus der Session zu entfernen (z.B. bei eingeloggten Fachplaner)
         $statement['anonym'] = true;
 
         return $this->draftStatementService->addDraftStatement($statement);
@@ -596,13 +599,13 @@ class StatementHandler extends CoreHandler
     {
         $formerDepartmentId = $fragmentToUpdate->getDepartmentId();
 
-        //T12218 T12304:text has changed && has obscured text? -> infrom user, that related statement, are not obscured automatically
+        // T12218 T12304:text has changed && has obscured text? -> infrom user, that related statement, are not obscured automatically
         if (array_key_exists('text', $statementFragmentData)
             && $this->editorService->hasObscuredText($statementFragmentData['text'])) {
             $this->getMessageBag()->add('warning', 'warning.not.obscured.text.in.statement');
         }
 
-        //get areaInformation which will be deleted
+        // get areaInformation which will be deleted
         $areaInformationIDsToDelete = $this->calculateParentPropertyIdsToDelete($statementFragmentData, $fragmentToUpdate);
 
         // this needs to be done before the fragment is updated
@@ -618,14 +621,14 @@ class StatementHandler extends CoreHandler
         $statementFragmentData['id'] = $fragmentId;
         $result = $this->statementFragmentService->updateStatementFragment($statementFragmentData, false, $isReviewer);
 
-        //on successfully update only:
+        // on successfully update only:
         if ($result instanceof StatementFragment) {
             $relatedFragments = $this->getStatementFragmentsStatement($result->getStatementId());
 
-            //get areaInformation which are now on the related Statement only
+            // get areaInformation which are now on the related Statement only
             $isolatedAreaInformation = $this->getIsolatedInformationIds($areaInformationIDsToDelete, $relatedFragments);
 
-            //generate warning for user
+            // generate warning for user
             $this->generateIsolatedCountyMessage($isolatedAreaInformation->get('counties'), $result->getStatement());
             $this->generateIsolatedPriorityAreaMessage($isolatedAreaInformation->get('priorityAreas'), $result->getStatement());
             $this->generateIsolatedMunicipalityMessage($isolatedAreaInformation->get('municipalities'), $result->getStatement());
@@ -775,7 +778,7 @@ class StatementHandler extends CoreHandler
         $statement = $fragmentToDelete->getStatement();
         $deleted = $this->statementFragmentService->deleteStatementFragment($fragmentId, $ignoreAssignment);
 
-        //on successful deletion only:
+        // on successful deletion only:
         if (true === $deleted) {
             // reindex corresponding statement
             $statementService->reindexStatement($statement);
@@ -971,7 +974,7 @@ class StatementHandler extends CoreHandler
                 return $pdfFile->toArray();
             }, $attachments);
 
-            //schicke E-Mail ab
+            // schicke E-Mail ab
             $this->mailService->sendMail(
                 'dm_subscription',
                 'de_DE',
@@ -1013,9 +1016,9 @@ class StatementHandler extends CoreHandler
      * @param array $data
      * @param array $statement
      *
-     * @throws ValidatorException
-     *
      * @return array $statement
+     *
+     * @throws ValidatorException
      */
     protected function getStatementPublicData($data, $statement)
     {
@@ -1055,8 +1058,8 @@ class StatementHandler extends CoreHandler
 
             // Vorranggebiet
             if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen(
-                    $data['r_location_priority_area_key']
-                )
+                $data['r_location_priority_area_key']
+            )
             ) {
                 $statement['statementAttributes']['priorityAreaKey'] = $data['r_location_priority_area_key'];
             }
@@ -1096,7 +1099,7 @@ class StatementHandler extends CoreHandler
         }
         $statement['uName'] = implode(' ', $userName);
 
-        //Prüfen, ob Name übergeben werden soll
+        // Prüfen, ob Name übergeben werden soll
         if (array_key_exists('r_useName', $data)) {
             if (0 == $data['r_useName']) {
                 $statement['useName'] = false;
@@ -1119,12 +1122,12 @@ class StatementHandler extends CoreHandler
             }
         }
 
-        //Wenn Rückmeldung gewünscht, dann speicher die Rückmeldungsvariante ab
+        // Wenn Rückmeldung gewünscht, dann speicher die Rückmeldungsvariante ab
         $statement['feedback'] = '';
         $statement['uFeedback'] = false;
-        //r_email: stores email address: probably stored in draftstatement::umail
-        //feedback: type of email: snailmail, email; filled from r_getEvaluation; stored in draftstatement in 'feedback'
-        //r_getFeedback: 1 or not present, indicating if feedback of any kind is desired; stored in DraftStatement::uFeedback as boolean
+        // r_email: stores email address: probably stored in draftstatement::umail
+        // feedback: type of email: snailmail, email; filled from r_getEvaluation; stored in draftstatement in 'feedback'
+        // r_getFeedback: 1 or not present, indicating if feedback of any kind is desired; stored in DraftStatement::uFeedback as boolean
         // @improve T20546 Validation
         if (array_key_exists('r_getFeedback', $data) && array_key_exists('r_getEvaluation', $data)) {
             $statement['uFeedback'] = true;
@@ -1325,7 +1328,7 @@ class StatementHandler extends CoreHandler
         $vars = $this->getRequestValues();
         $statementFragmentService = $this->statementFragmentService;
 
-        //if there are selected items, select only them:
+        // if there are selected items, select only them:
         if (is_array($fragmentIds) && 0 < count($fragmentIds)) {
             $esQuery->addFilterMust('id', $fragmentIds);
         }
@@ -1362,7 +1365,7 @@ class StatementHandler extends CoreHandler
                         ? $formOptions['statement_fragment_advice_values'][$fragment['voteAdvice']] : '';
                 $fragment['voteAdvice'] = $voteAdviceLabel;
             }
-            //get Statement of Fragment to set fragment.statement.element.title and fragment.statement.paragraph.title
+            // get Statement of Fragment to set fragment.statement.element.title and fragment.statement.paragraph.title
             $fragment['statement'] = $this->getStatement($fragment['statement']['id']);
             $templateVars['fragments'][] = $fragment;
 
@@ -1380,7 +1383,7 @@ class StatementHandler extends CoreHandler
             ]
         );
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $this->profilerStart('Rabbit_PDF');
         try {
             $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content));
@@ -1549,7 +1552,7 @@ class StatementHandler extends CoreHandler
                 $statementFragmentData['status'] = 'fragment.status.assignedToFB';
             }
         }
-        //add Tags and their boilerplate texts if defined
+        // add Tags and their boilerplate texts if defined
         if (array_key_exists('r_tags', $data)) {
             $statementFragmentData['tags'] = $data['r_tags'];
             $statementFragmentData['consideration'] = $this->addBoilerplatesOfTags($statementFragmentData['tags']);
@@ -1588,7 +1591,7 @@ class StatementHandler extends CoreHandler
             // add all tags from the new fragment to the related statement if propagation is enabled
             $tagsToAdd = collect($propagateTags ? $result->getTags() : []);
             $relatedStatementUpdated = $this->addAdditionalAreaInformationToStatement($result, $tagsToAdd);
-            //reindex all statementFragments of related statement to make the changes visible:
+            // reindex all statementFragments of related statement to make the changes visible:
             if ($relatedStatementUpdated) {
                 $this->statementFragmentService->reindexStatementFragment($result);
             }
@@ -1882,9 +1885,9 @@ class StatementHandler extends CoreHandler
      *
      * @param string $id
      *
-     * @throws InvalidArgumentException
-     *
      * @return bool
+     *
+     * @throws InvalidArgumentException
      */
     public function deleteTag($id)
     {
@@ -2200,8 +2203,8 @@ class StatementHandler extends CoreHandler
      */
     protected function handleReviewerChangeAndSideEffects(array $data, StatementFragment $fragmentToUpdate, array $statementFragmentData): array
     {
-        //If voteAdvice already set, its not longer possible to edit the reviewer
-        //T5920 deny set of reviewer and voteAdvice at the same time, but not if voteAdvice set to "" (empty)
+        // If voteAdvice already set, its not longer possible to edit the reviewer
+        // T5920 deny set of reviewer and voteAdvice at the same time, but not if voteAdvice set to "" (empty)
         if (array_key_exists('r_reviewer', $data)
             && $this->permissions->hasPermission('feature_statements_fragment_add_reviewer')) {
             if ('' !== $data['r_reviewer']) { // department is to be set
@@ -2294,21 +2297,21 @@ class StatementHandler extends CoreHandler
         if ($mayChangeMetaData && $this->permissions->hasPermission('field_statement_county')) {
             $statementFragmentData = $this->arrayHelper->addToArrayIfKeyExists($statementFragmentData, $data, 'counties');
         } else {
-            //if no permission, reset data
+            // if no permission, reset data
             $statementFragmentData['counties'] = $fragmentToUpdate->getCountyIds();
         }
 
         if ($mayChangeMetaData && $this->permissions->hasPermission('field_statement_municipality')) {
             $statementFragmentData = $this->arrayHelper->addToArrayIfKeyExists($statementFragmentData, $data, 'municipalities');
         } else {
-            //if no permission, reset data
+            // if no permission, reset data
             $statementFragmentData['municipalities'] = $fragmentToUpdate->getMunicipalityIds();
         }
 
         if ($mayChangeMetaData && $this->permissions->hasPermission('field_statement_priority_area')) {
             $statementFragmentData = $this->arrayHelper->addToArrayIfKeyExists($statementFragmentData, $data, 'priorityAreas');
         } else {
-            //if no permission, reset data
+            // if no permission, reset data
             $statementFragmentData['priorityAreas'] = $fragmentToUpdate->getPriorityAreaIds();
         }
 
@@ -2329,7 +2332,7 @@ class StatementHandler extends CoreHandler
             $statementFragmentData['voteAdvice'] = $data['r_vote_advice'];
         }
 
-        //Bearbeitung des Datensatzes abschliessen:
+        // Bearbeitung des Datensatzes abschliessen:
         // r_notify is an action that the user invokes. the field is not needed
         // for actual data of the statementFragment object.
         // we need to unassign the organisation when it is trying to push the
@@ -2342,7 +2345,7 @@ class StatementHandler extends CoreHandler
         if ($this->permissions->hasPermission('feature_statements_fragment_add')) {
             if (array_key_exists('r_tags', $data)) {
                 $statementFragmentData['tags'] = $data['r_tags'];
-                //get diff of tags, which already used by the fragment
+                // get diff of tags, which already used by the fragment
                 $newTags = $this->getNewAttachedTags($fragmentToUpdate, $data['r_tags']);
                 if (array_key_exists('consideration', $statementFragmentData)) {
                     $statementFragmentData['consideration'] = $this->addBoilerplatesOfTags($newTags, $statementFragmentData['consideration']);
@@ -2352,7 +2355,7 @@ class StatementHandler extends CoreHandler
                 $statementFragmentData['tags'] = $fragmentToUpdate->getTagIds();
             }
         } else {
-            //if no permission, reset data to avoid deletion of all tags
+            // if no permission, reset data to avoid deletion of all tags
             $statementFragmentData['tags'] = $fragmentToUpdate->getTagIds();
         }
 
@@ -2704,26 +2707,26 @@ class StatementHandler extends CoreHandler
             $areaInformationIdsToCheck['tagIds'] = [];
         }
 
-        //remove every element which is not "isolated":
-        //if(isPriorityAreaInFragments()) {do nothing}
+        // remove every element which is not "isolated":
+        // if(isPriorityAreaInFragments()) {do nothing}
         $isolatedPriorityAreaIds = collect($areaInformationIdsToCheck['priorityAreaIds'])
             ->filter(function ($id) use ($fragments) {
                 return !$this->isPriorityAreaInFragments($id, $fragments);
             });
 
-        //remove every element which is not "isolated":
+        // remove every element which is not "isolated":
         $isolatedMunicipalityIds = collect($areaInformationIdsToCheck['municipalityIds'])
             ->filter(function ($id) use ($fragments) {
                 return !$this->isMunicipalityInFragments($id, $fragments);
             });
 
-        //remove every element which is not "isolated":
+        // remove every element which is not "isolated":
         $isolatedCountyIds = collect($areaInformationIdsToCheck['countyIds'])
             ->filter(function ($id) use ($fragments) {
                 return !$this->isCountyInFragments($id, $fragments);
             });
 
-        //remove every element which is not "isolated":
+        // remove every element which is not "isolated":
         $isolatedTagIds = collect($areaInformationIdsToCheck['tagIds'])
             ->filter(function ($id) use ($fragments) {
                 return !$this->isTagInFragments($id, $fragments);
@@ -3041,12 +3044,12 @@ class StatementHandler extends CoreHandler
         $newOriginalStatement = null;
         try {
             $statementService = $this->statementService;
-            //create original Statement
+            // create original Statement
             $originalStatement = $statementService->fillNewStatementArray($data, true);
             $newOriginalStatement = $statementService->newStatement($originalStatement);
 
-            //create (non original) statement
-            //Some given Statement Data should not be on original Statement:
+            // create (non original) statement
+            // Some given Statement Data should not be on original Statement:
             if ($newOriginalStatement instanceof Statement) {
                 $assessableStatement = $this->createNonOriginalStatement($originalStatement, $newOriginalStatement);
 
@@ -3080,7 +3083,7 @@ class StatementHandler extends CoreHandler
                 if ($this->permissions->hasPermission('area_admin_assessmenttable')
                     || $this->permissions->hasPermission('feature_segments_of_statement_list')
                     || $this->permissions->hasPermission('feature_statement_data_input_orga')) {
-                    //success messages with link to created statement
+                    // success messages with link to created statement
                     $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
                         'confirm',
                         'confirm.statement.new',
@@ -3162,7 +3165,7 @@ class StatementHandler extends CoreHandler
         $fieldsForUpdateStatement = $this->extractFieldsForUpdateStatement($originalStatementData);
         $copyOfStatement = $this->statementCopier->copyStatementObjectWithinProcedure($newOriginalStatement, false, true);
 
-        //Some values should only be set on copied statement instead of OriginalStatement itself:
+        // Some values should only be set on copied statement instead of OriginalStatement itself:
         $this->createVotesOnCreateStatement(
             $copyOfStatement,
             $fieldsForUpdateStatement['votes'],
@@ -3171,7 +3174,7 @@ class StatementHandler extends CoreHandler
 
         if (null !== $fieldsForUpdateStatement['headStatementId']) {
             $headStatement = $this->getStatement($fieldsForUpdateStatement['headStatementId']);
-            //ignore assignment because of new created Statement is not assigned to anyone
+            // ignore assignment because of new created Statement is not assigned to anyone
             $this->addStatementToCluster($headStatement, $copyOfStatement, true, true);
         }
 
@@ -3342,7 +3345,7 @@ class StatementHandler extends CoreHandler
             $result[] = $resolved;
         }
 
-        //return result as JSON
+        // return result as JSON
         return $result;
     }
 
@@ -3396,19 +3399,19 @@ class StatementHandler extends CoreHandler
         $cluster = $statement->getCluster();
         $elementsInCluster = count($cluster);
 
-        //if the given Statement is a headStatement, there will be a cluster:
+        // if the given Statement is a headStatement, there will be a cluster:
         foreach ($cluster as $clusterElement) {
             $result = $this->setAssigneeOfStatement($clusterElement, $user, true);
 
             if (true === $result) {
                 ++$assignedStatementOfCluster;
             } else {
-                //break and return externId of statement for message
+                // break and return externId of statement for message
                 return $result;
             }
         }
 
-        //update only if all statements of cluster are successfully assigned:
+        // update only if all statements of cluster are successfully assigned:
         if ($assignedStatementOfCluster === $elementsInCluster) {
             $statement->setAssignee($user);
             $updatedStatement = $this->statementService->updateStatementFromObject($statement, true, $ignoreCluster);
@@ -3474,7 +3477,7 @@ class StatementHandler extends CoreHandler
      */
     protected function hasValidStatementAssignments(Statement $statementToCheck): bool
     {
-        //this function are only used in cluster actions atm ...
+        // this function are only used in cluster actions atm ...
         // check for assigment of statement and his fragments
         if ($this->permissions->hasPermission('feature_statement_assignment')) {
             if (!$this->areAllFragmentsClaimedByCurrentUser($statementToCheck->getId())) {
@@ -3602,7 +3605,7 @@ class StatementHandler extends CoreHandler
     {
         $headStatement = new Statement();
         try {
-            //do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
+            // do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
             if (null === $headStatement) {
                 $this->getLogger()->error('Could not choose Statement to create Cluster');
                 throw new InvalidArgumentException('Could not choose Statement to create Cluster');
@@ -3644,20 +3647,20 @@ class StatementHandler extends CoreHandler
             $headStatement->setRepresentationCheck($representativeStatement->getRepresentationCheck());
             $headStatement->setRepresents($representativeStatement->getRepresents());
 
-            //To enable the Email-textfield in the detailClusterView for the planer.
-            //Set Feedback to email, to ensure there is a field to save a emailText in the headStatement.
-            //Otherwise in the end of the the procedure there is no emailtext to set for each statement in the cluster
-            //which has actually set feedback to 'email'.
+            // To enable the Email-textfield in the detailClusterView for the planer.
+            // Set Feedback to email, to ensure there is a field to save a emailText in the headStatement.
+            // Otherwise in the end of the the procedure there is no emailtext to set for each statement in the cluster
+            // which has actually set feedback to 'email'.
             $headStatement->setFeedback('email');
 
-            //not nullable but initialized with null:
+            // not nullable but initialized with null:
             $votePla = $representativeStatement->getVotePla();
             if (null !== $votePla) {
                 $headStatement->setVotePla($votePla);
             }
             $voteStk = $representativeStatement->getVoteStk();
             if (null !== $voteStk) {
-                //not nullable but initialized with null:
+                // not nullable but initialized with null:
                 $headStatement->setVoteStk($voteStk);
             }
 
@@ -3712,7 +3715,7 @@ class StatementHandler extends CoreHandler
     ) {
         try {
             if (!$headStatement->isClusterStatement()) {
-                //easy possible solution would be to use createStatementCluster instead
+                // easy possible solution would be to use createStatementCluster instead
                 $this->getLogger()->error('Given Statement is not a Cluster/HeadStatement');
 
                 return false;
@@ -3736,7 +3739,7 @@ class StatementHandler extends CoreHandler
                 return false;
             }
 
-            //check for placeholderStatement
+            // check for placeholderStatement
             if ($statementToAdd->isPlaceholder()) {
                 $this->getLogger()->warning('On create statement cluster: removed Statement '.$statementToAdd->getId().' because it is a placeholder statement.');
                 $this->getMessageBag()->add('warning',
@@ -3748,10 +3751,10 @@ class StatementHandler extends CoreHandler
 
             $headStatement->addStatement($statementToAdd);
 
-            //T12692: first update statement object to ensure version entry will be created:
+            // T12692: first update statement object to ensure version entry will be created:
             $successfullyUpdatedHeadStatement = $this->updateStatementObject($headStatement);
             if ($successfullyUpdatedHeadStatement instanceof Statement) {
-                //will also check 'feature_statement_assignment':
+                // will also check 'feature_statement_assignment':
                 $successfulAddedStatement =
                     $this->statementService->updateStatementFromObject($statementToAdd, $ignoreAssignmentOfStatement, true);
                 if ($successfulAddedStatement instanceof Statement) {
@@ -3836,18 +3839,18 @@ class StatementHandler extends CoreHandler
                 return false;
             }
 
-            //will check for assignment and cluster:
+            // will check for assignment and cluster:
             $headStatement = $statementService->updateStatementFromObject($headStatement, false, false);
 
-            //todo: workaround to solve versioning problem for cluster<->headstatement
+            // todo: workaround to solve versioning problem for cluster<->headstatement
             $statementToDetach->setHeadStatement(null);
 
-            //only on success:
+            // only on success:
             if ($headStatement instanceof Statement) {
-                //disable check for assignment and cluster:
+                // disable check for assignment and cluster:
                 $removedStatement = $statementService->updateStatementFromObject($statementToDetach, true, true);
             } else {
-                //failed detach $statementToDetach from $headStatement:
+                // failed detach $statementToDetach from $headStatement:
                 $this->getMessageBag()->add(
                     'error', 'error.statement.detach.cluster.element',
                     ['statementId' => $statementToDetach->getExternId()]
@@ -3868,7 +3871,7 @@ class StatementHandler extends CoreHandler
                 if (0 === $headStatement->getCluster()->count()) {
                     $headStatementId = $headStatement->getExternId();
 
-                    //will also check for 'feature_statement_assignment' & 'feature_statement_cluster':
+                    // will also check for 'feature_statement_assignment' & 'feature_statement_cluster':
                     $status = $this->statementService->deleteStatementObject($headStatement);
 
                     if ($status) {
@@ -3931,7 +3934,7 @@ class StatementHandler extends CoreHandler
 
         foreach ($statementsOfCluster as $statement) {
             $statement->setHeadStatement(null);
-            //will also check for 'feature_statement_assignment':
+            // will also check for 'feature_statement_assignment':
             $removedStatement = $statementService->updateStatementFromObject($statement, true, true);
 
             if (!$removedStatement instanceof Statement) {
@@ -3946,7 +3949,7 @@ class StatementHandler extends CoreHandler
 
         if (0 === $notDetachedStatements->count()) {
             $this->getLogger()->info("All statements of Cluster {$headStatement->getId()} are successfully detached.");
-            //will also check for assignment but not for clustered!
+            // will also check for assignment but not for clustered!
             $successful = $statementService->deleteStatementObject($headStatement, true);
         } else {
             $this->getLogger()->error("Some statements of Cluster {$headStatement->getId()} are not detached.");
@@ -4034,16 +4037,16 @@ class StatementHandler extends CoreHandler
                 $keysToRemove[2] = 'vote';
             }
 
-            //only if voteAdvice is set and has a value, it has to be removed, to ensure data security
+            // only if voteAdvice is set and has a value, it has to be removed, to ensure data security
             if (!$this->permissions->hasPermission('feature_statements_fragment_advice')
                 && array_key_exists('voteAdvice', $fragment)
                 && null != $fragment['voteAdvice']) {
                 $keysToRemove[3] = 'voteAdvice';
             }
 
-            //fragment is currently not assigned to a department (to set advice)
-            //and current user has permission to set vote -> voteAdvice needed
-            //(the one who set set vote, shall not see voteAdvice until it is completed)
+            // fragment is currently not assigned to a department (to set advice)
+            // and current user has permission to set vote -> voteAdvice needed
+            // (the one who set set vote, shall not see voteAdvice until it is completed)
             if (null === $fragment['departmentId'] &&
                 $this->permissions->hasPermission('feature_statements_fragment_vote')
             ) {
@@ -4071,7 +4074,7 @@ class StatementHandler extends CoreHandler
      */
     protected function determineStateOfFragment(StatementFragment $statementFragmentToUpdate, array $updateData): array
     {
-        //for definition of states: StatementHandlerTests.php
+        // for definition of states: StatementHandlerTests.php
 
         /* StatementFragment States:
          *
@@ -4093,7 +4096,7 @@ class StatementHandler extends CoreHandler
 
         // set Automatic, if not verified manually yet
         if ('fragment.status.verified' !== $currentState) {
-            //If Department set => 'assigned'
+            // If Department set => 'assigned'
             if (array_key_exists('departmentId', $updateData)) {
                 $updateData['status'] = null === $updateData['departmentId'] ? 'fragment.status.new' : 'fragment.status.assignedToFB';
             }
@@ -4106,7 +4109,7 @@ class StatementHandler extends CoreHandler
                 $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartment();
             }
 
-            //manually unset State?
+            // manually unset State?
             if (array_key_exists('status', $updateData) && null == $updateData['status']) {
                 $updateData['status'] = 'fragment.status.new';
                 if (null != $currentArchivedOrgaName) {
@@ -4115,7 +4118,7 @@ class StatementHandler extends CoreHandler
                 }
             }
         } else {
-            //unverify manually:
+            // unverify manually:
 
             if (array_key_exists('departmentId', $updateData) && null !== $updateData['departmentId']) {
                 $updateData['status'] = 'fragment.status.assignedToFB';
@@ -4218,7 +4221,7 @@ class StatementHandler extends CoreHandler
 
             $copyOfStatement->setVotes($voteObjects->toArray());
 
-            //use this update method to enable ignoring assignment
+            // use this update method to enable ignoring assignment
             $this->statementService->updateStatementFromObject($copyOfStatement, true);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not create votes on create statement', [$e]);
@@ -4275,12 +4278,12 @@ class StatementHandler extends CoreHandler
      */
     public function copyStatementToProcedure(Statement $statementToCopy, Procedure $targetProcedure)
     {
-        //In case of copy statement to current procedure, simply using already existing "copy statement" logic
+        // In case of copy statement to current procedure, simply using already existing "copy statement" logic
         if ($statementToCopy->getProcedureId() === $targetProcedure->getId()) {
             return $this->statementCopier->copyStatementObjectWithinProcedure($statementToCopy);
         }
 
-        //isCopyStatementToProcedureAllowed will create messages on its own:
+        // isCopyStatementToProcedureAllowed will create messages on its own:
         if ($this->statementCopier->isCopyStatementToProcedureAllowed($statementToCopy, $targetProcedure, true, true)) {
             if ($statementToCopy->isClusterStatement()) {
                 return $this->statementClusterService->copyClusterToProcedure($statementToCopy, $targetProcedure);
@@ -4583,7 +4586,7 @@ class StatementHandler extends CoreHandler
                 array_merge([$clusterStatement->getId(), $newClusterStatement->getId()], $statementIds)
             );
 
-            //copy fragments in the end, to avoid fragments get copied in newStatementCluster()
+            // copy fragments in the end, to avoid fragments get copied in newStatementCluster()
             if (0 < $headStatement->getFragments()->count()) {
                 $this->statementFragmentService->copyStatementFragments(
                     $headStatement->getFragments(),
@@ -4650,7 +4653,7 @@ class StatementHandler extends CoreHandler
     protected function areStatementsAndFragmentsClaimedByUser(array $statements): bool
     {
         $areAllElementsClaimedByUser = true;
-        //get all statements, assigned to the current this->user
+        // get all statements, assigned to the current this->user
         if ($this->permissions->hasPermission('feature_statement_assignment')) {
             $userStatements = $this->statementService->getAssignedStatements($this->currentUser->getUser());
             $statementsNotClaimedByUser = [];
