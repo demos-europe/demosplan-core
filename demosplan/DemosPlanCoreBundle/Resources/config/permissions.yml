@@ -2489,7 +2489,7 @@ field_sign_language_overview_video_edit:
     loginRequired: true
     parent: area_customer_settings
 field_simple_language_overview_description_edit:
-    description:
+    description: ''
     expose: true
     label: ''
     loginRequired: true
