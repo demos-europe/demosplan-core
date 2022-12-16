@@ -14,6 +14,7 @@
 import AssessmentTable from '@DpJs/lib/statement/AssessmentTable'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import AssessmentTableToc from '@DpJs/components/statement/assessmentTable/TocView/AssessmentTableToc'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpTable from '@DpJs/components/statement/assessmentTable/DpTable'
 import FilterStore from '@DpJs/store/statement/Filter'
 import FragmentStore from '@DpJs/store/statement/Fragment'
@@ -22,6 +23,7 @@ import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
   AssessmentTableStore,
+  boilerplates: BoilerplatesStore,
   FilterStore,
   FragmentStore,
   StatementStore
