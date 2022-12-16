@@ -80,7 +80,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             throw OrgaNotFoundException::createFromId($id);
         } catch (Exception $e) {
-            $this->getLogger()->warning('', [$e]);
+            $this->logger->warning('', [$e]);
 
             return $this->handleApiError($e);
         }
@@ -282,7 +282,7 @@ class DemosPlanOrganisationAPIController extends APIController
         try {
             $isOrgaDeleted = $userHandler->wipeOrganisationData($orgaId);
             if ($isOrgaDeleted) {
-                $this->getMessageBag()->addChoice(
+                $this->messageBag->addChoice(
                     'confirm',
                     'confirm.orga.deleted',
                     ['count' => 1]
@@ -291,7 +291,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 return $this->renderEmpty();
             }
 
-            $this->getMessageBag()->add('error', 'error.organisation.not.deleted');
+            $this->messageBag->add('error', 'error.organisation.not.deleted');
 
             return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
         } catch (Exception $e) {
@@ -333,7 +333,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             // Fehlermeldung, Pflichtfelder
             if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
-                $this->getMessageBag()->add('error', 'error.mandatoryfields');
+                $this->messageBag->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
@@ -341,7 +341,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             return $this->renderResource($item);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.organisation.not.created');
+            $this->messageBag->add('error', 'error.organisation.not.created');
             $this->logger->error('Unable to create Orga: ', [$e]);
 
             return $this->handleApiError($e);
@@ -395,7 +395,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($updatedOrga instanceof Orga) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'confirm',
                     'confirm.orga.updated',
                     ['orgaName' => $updatedOrga->getName()]
