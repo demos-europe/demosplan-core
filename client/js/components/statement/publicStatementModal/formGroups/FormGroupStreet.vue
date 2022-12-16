@@ -11,6 +11,7 @@
   <dp-input
     id="r_street"
     autocomplete="street-address"
+    data-cy="streetAddress"
     :class="prefixClass('layout__item')"
     :label="{
       text: Translator.trans('street')
