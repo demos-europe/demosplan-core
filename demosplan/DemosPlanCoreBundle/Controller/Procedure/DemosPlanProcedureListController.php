@@ -14,7 +14,7 @@ use function array_key_exists;
 use function date;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;

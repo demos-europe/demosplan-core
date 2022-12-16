@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanReportBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Psr\Log\LoggerInterface;
 use Seld\JsonLint\JsonParser;
 use Symfony\Component\Routing\RouterInterface;

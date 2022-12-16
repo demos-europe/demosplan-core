@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Core\Unit\Logic\Platform;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;

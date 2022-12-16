@@ -14,7 +14,7 @@ use function array_key_exists;
 use function compact;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;

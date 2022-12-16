@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
 use Elastica\Type;

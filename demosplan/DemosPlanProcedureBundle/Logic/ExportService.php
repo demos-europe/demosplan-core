@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\Common\Collections\Collection;
 use Faker\Provider\Uuid;
 use Patchwork\Utf8;

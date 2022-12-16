@@ -15,7 +15,7 @@ use function array_merge;
 use function collect;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;

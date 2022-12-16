@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;

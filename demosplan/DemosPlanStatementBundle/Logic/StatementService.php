@@ -15,7 +15,7 @@ use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use Doctrine\Common\Collections\ArrayCollection;

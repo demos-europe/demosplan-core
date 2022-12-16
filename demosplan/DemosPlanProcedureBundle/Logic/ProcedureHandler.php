@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;

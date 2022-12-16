@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;

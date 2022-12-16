@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Transformers;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use League\Fractal\Resource\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;

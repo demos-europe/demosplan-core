@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;

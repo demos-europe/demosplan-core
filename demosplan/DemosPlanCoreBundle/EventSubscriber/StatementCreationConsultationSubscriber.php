@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;

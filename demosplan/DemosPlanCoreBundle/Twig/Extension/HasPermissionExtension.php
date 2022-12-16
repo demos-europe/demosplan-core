@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFunction;
 

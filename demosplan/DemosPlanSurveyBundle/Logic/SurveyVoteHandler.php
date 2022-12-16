@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanSurveyBundle\Logic;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;

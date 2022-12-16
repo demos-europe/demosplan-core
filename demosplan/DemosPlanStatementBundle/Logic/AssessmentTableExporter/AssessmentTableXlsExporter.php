@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;

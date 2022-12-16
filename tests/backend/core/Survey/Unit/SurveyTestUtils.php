@@ -11,7 +11,7 @@
 namespace Tests\Core\Survey\Unit;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Exception;
 use Symfony\Bridge\Monolog\Logger;

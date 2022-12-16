@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

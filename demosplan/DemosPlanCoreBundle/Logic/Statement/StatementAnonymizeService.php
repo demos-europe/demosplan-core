@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;

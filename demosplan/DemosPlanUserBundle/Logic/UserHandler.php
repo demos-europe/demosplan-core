@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Doctrine\ORM\NoResultException;

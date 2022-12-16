@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;

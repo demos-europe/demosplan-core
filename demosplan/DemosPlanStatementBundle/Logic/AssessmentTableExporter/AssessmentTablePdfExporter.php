@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;

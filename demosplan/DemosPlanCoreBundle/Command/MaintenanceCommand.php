@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;

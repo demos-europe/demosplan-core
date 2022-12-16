@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use function array_key_exists;
 use function array_merge;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;

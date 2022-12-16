@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;

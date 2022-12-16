@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Doctrine\Common\Collections\ArrayCollection;

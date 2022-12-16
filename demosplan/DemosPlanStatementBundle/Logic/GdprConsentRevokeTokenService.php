@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
