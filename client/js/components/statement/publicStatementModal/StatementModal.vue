@@ -383,6 +383,7 @@
           </button>
           <button
             type="submit"
+            data-cy="statementFormSubmit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
             form-name="statementForm"
@@ -446,6 +447,7 @@
             <dp-radio
               id="r_useName_1"
               name="r_useName"
+              data-cy="submitPublicly"
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
@@ -489,6 +491,7 @@
         <div :class="prefixClass('text--right u-mt-0_5')">
           <button
             type="button"
+            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
@@ -556,6 +559,7 @@
             hide-label />
           <button
             type="button"
+            data-cy="sendStatementNow"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">

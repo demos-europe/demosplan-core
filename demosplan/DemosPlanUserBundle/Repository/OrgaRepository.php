@@ -202,10 +202,12 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             if (!$orgaEntity instanceof Orga) {
                 throw OrgaNotFoundException::createFromId($orgaId);
             }
-            // add User
-            $orgaEntity->addUser($user);
-            $em->persist($orgaEntity);
-            $em->flush();
+            if (!$orgaEntity->getUsers()->contains($user)) {
+                // add User
+                $orgaEntity->addUser($user);
+                $em->persist($orgaEntity);
+                $em->flush();
+            }
 
             return $orgaEntity;
         } catch (Exception $e) {
@@ -378,7 +380,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         if (array_key_exists('copySpec', $data)) {
             $entity->setPaperCopySpec($data['copySpec']);
         }
-        //## Addressdata (if address already exists) ###
+        // ## Addressdata (if address already exists) ###
         if (array_key_exists('address_street', $data)) {
             $entity->setStreet($data['address_street']);
         }

@@ -47,7 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
@@ -3079,7 +3079,7 @@ class StatementHandler extends CoreHandler
                     || $this->permissions->hasPermission('feature_segments_of_statement_list')
                     || $this->permissions->hasPermission('feature_statement_data_input_orga')) {
                     //success messages with link to created statement
-                    $this->getMessageBag()->addObject(LinkMessage::createLinkMessage(
+                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
                         'confirm',
                         'confirm.statement.new',
                         ['externId' => $assessableStatement->getExternId()],
@@ -4590,7 +4590,7 @@ class StatementHandler extends CoreHandler
             }
 
             $this->getMessageBag()->addObject(
-                LinkMessage::createLinkMessage(
+                LinkMessageSerializable::createLinkMessage(
                     'confirm',
                     'confirm.statement.cluster.created',
                     ['clusterId' => $newClusterStatement->getExternId()],

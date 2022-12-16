@@ -43,7 +43,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\Message;
+use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
@@ -756,6 +756,7 @@ class DemosPlanProcedureController extends BaseController
         CurrentUserInterface $currentUser,
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
+        MasterTemplateService $masterTemplateService,
         Request $request,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator
@@ -795,7 +796,7 @@ class DemosPlanProcedureController extends BaseController
                 $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
 
                 $this->messageBag->addObject(
-                    Message::createMessage(
+                    MessageSerializable::createMessage(
                         'confirm',
                         'confirm.procedure.created',
                         ['name' => $procedure->getName()]
@@ -831,6 +832,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.new');
         $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, false, $wrapperFactory);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
+        $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_new.html.twig',
@@ -899,7 +901,7 @@ class DemosPlanProcedureController extends BaseController
                 $procedure = $serviceStorage->administrationNewHandler($inData, $currentUser->getUser()->getId());
 
                 $this->messageBag->addObject(
-                    Message::createMessage(
+                    MessageSerializable::createMessage(
                         'confirm',
                         'confirm.procedure_template.created',
                         ['name' => $procedure->getName()]

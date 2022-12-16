@@ -27,9 +27,8 @@ transpiledModules = transpiledModules.concat(
   [
     '@efrane/vuex-json-api',
     '@mapbox', // Ol sub-dependency
-    'tiptap',
-    'tiptap-commands',
-    'tiptap-extensions',
+    '@demos-europe/demosplan-ui',
+    '@demos-europe/demosplan-utils',
     'vue-resize'
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )

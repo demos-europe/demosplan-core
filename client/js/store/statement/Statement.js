@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi, handleResponseMessages } from '@demos-europe/demosplan-utils'
-import { hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
 
 /**
  * Adds empty title attribute for element/paragraph/document
@@ -152,20 +151,22 @@ function transformStatementStructure ({ el, includes, meta }) {
           const type = relation.data[0].type
 
           statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(el => Object.assign(el.attributes, { id: el.id }))
+          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
 
-          if (type === 'StatementAttachment') {
-            if (hasOwnProp(statement[relationKey][0], 'id')) {
-              const attachment = includes
-                .filter(incl => incl.type === 'StatementAttachment')
-                .filter(incl => statement[relationKey][0].id === incl.id)
+          if (type === 'StatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
+            const attachment = includes
+              .filter(incl => incl.type === 'StatementAttachment')
+              .filter(incl => statement[relationKey][0].id === incl.id)
 
+            if (hasOwnProp(attachment[0], 'relationship')) {
               const sourceAttachment = includes
                 .filter(incl => incl.type === 'File')
                 .filter(incl => attachment[0].relationships.file.data.id === incl.id)
-                .map(el => Object.assign(el.attributes, { id: el.id }))
+                .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
 
               statement.sourceAttachment = sourceAttachment[0]
+            } else {
+              statement.sourceAttachment = undefined
             }
           }
         } else {
@@ -627,7 +628,7 @@ export default {
      *
      * @param {Object} data
      */
-    moveStatementAction ({ commit, state }, data) {
+    moveStatementAction ({ state }, data) {
       return dpApi({
         method: 'POST',
         responseType: 'json',
@@ -805,7 +806,7 @@ export default {
      *
      * @param {Object} data
      */
-    updateStatementAction ({ commit, state, rootState }, data) {
+    updateStatementAction ({ commit, state }, data) {
       const payload = JSON.parse(JSON.stringify(data))
 
       //  Reject if no statement id is found in data
