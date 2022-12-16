@@ -12,13 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -39,10 +32,17 @@ use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRoleInCustomerRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Supposed to handle the request from @link OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @link OzgKeycloakResponseValueObject.
+ * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
+ * keycloak will be passed by @see OzgKeycloakResponseValueObject.
  */
 class OzgKeycloakUserLogin
 {
@@ -251,9 +251,7 @@ class OzgKeycloakUserLogin
             if (!$typeExists) {
                 $orgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
                 if (!$orgaTypeToAdd instanceof OrgaType) {
-                    throw new AuthenticationException(
-                        'needed OrgaType could not be loaded and therefore cant be added'
-                    );
+                    throw new AuthenticationException('needed OrgaType could not be loaded and therefore cant be added');
                 }
                 $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
             }
