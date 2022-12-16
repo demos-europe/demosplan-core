@@ -459,7 +459,7 @@ confirm.fragment.assignment.unassigned: "Der Datensatz wurde erfolgreich freigeg
 confirm.fragment.deleted: "Der Datensatz wurde gelöscht."
 confirm.fragment.edit: "Die Änderungen am Datensatz {id} wurden gespeichert."
 confirm.fragment.update.complete: "Die Bearbeitung des Datensatzes {id} wurde von Ihnen abgeschlossen."
-confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--default\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
+confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--external\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
 confirm.gdpr.consent.registration: "Hiermit bestätige ich, dass ich die <a class=\"o-link--default\" href=\"{gdpr}\" target=\"_blank\" aria-label=\"Hinweise zum Datenschutz\">Hinweise zum Datenschutz</a> gelesen habe und erkläre mich mit der Speicherung und Verarbeitung meiner personenbezogenen Daten einverstanden."
 confirm.gislayer.delete: "Die Kartenebene wurde gelöscht."
 confirm.gislayerCategory.delete: "Die Kartenebenen-Kategorie wurde gelöscht."
