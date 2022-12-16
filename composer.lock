@@ -1240,12 +1240,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "f2bb1f6356df9cd8b94ef78ff1f7dd5e1320e2f0"
+                "reference": "5e8376fb583d2adaa4e99d5daa526639ad087794"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f2bb1f6356df9cd8b94ef78ff1f7dd5e1320e2f0",
-                "reference": "f2bb1f6356df9cd8b94ef78ff1f7dd5e1320e2f0",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/5e8376fb583d2adaa4e99d5daa526639ad087794",
+                "reference": "5e8376fb583d2adaa4e99d5daa526639ad087794",
                 "shasum": ""
             },
             "require": {
@@ -1254,16 +1254,17 @@
                 "demos-europe/edt-paths": "^0.14.0",
                 "league/fractal": "^0.19",
                 "php": "^7.4 || ^8.0",
+                "ramsey/uuid": "^4",
                 "sensio/framework-extra-bundle": "^6.1",
+                "symfony/dependency-injection": "^5.0",
                 "symfony/http-foundation": "5.*.*",
                 "symfony/security-core": "^5.4",
+                "symfony/validator": "^5.0",
                 "symfony/yaml": "5.*.*",
                 "tightenco/collect": "~8.83.0"
             },
             "require-dev": {
-                "composer/composer": "^2.1",
-                "symfony/dependency-injection": "^5.0",
-                "symfony/validator": "^5.0"
+                "composer/composer": "^2.1"
             },
             "type": "package",
             "autoload": {
@@ -1279,7 +1280,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/Feat_ref_T30254_add_contracts_part2"
             },
-            "time": "2022-12-16T09:27:53+00:00"
+            "time": "2022-12-16T13:36:28+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

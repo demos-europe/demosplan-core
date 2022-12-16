@@ -306,7 +306,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
-    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
+    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
 

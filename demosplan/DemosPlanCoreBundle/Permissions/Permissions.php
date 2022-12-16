@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use InvalidArgumentException;
@@ -20,7 +21,6 @@ use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -120,7 +120,7 @@ class Permissions implements PermissionsInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(UserInterface $user, array $context = null): self
+    public function initPermissions(User $user, array $context = null): self
     {
         $this->user = $user;
 
