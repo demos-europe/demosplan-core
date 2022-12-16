@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Logic\SimplifiedStatementCreator;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +19,7 @@ use Symfony\Component\Routing\RouterInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 
 /**
