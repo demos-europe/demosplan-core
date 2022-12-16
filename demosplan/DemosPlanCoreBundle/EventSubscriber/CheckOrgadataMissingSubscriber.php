@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

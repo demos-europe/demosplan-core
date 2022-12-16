@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Psr\Container\ContainerInterface;

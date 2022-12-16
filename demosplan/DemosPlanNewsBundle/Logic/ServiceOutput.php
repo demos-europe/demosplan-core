@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanNewsBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\RequestStack;

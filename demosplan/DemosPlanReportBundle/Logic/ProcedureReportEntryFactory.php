@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanReportBundle\Logic;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Symfony\Contracts\Translation\TranslatorInterface;

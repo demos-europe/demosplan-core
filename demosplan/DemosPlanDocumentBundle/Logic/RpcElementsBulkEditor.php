@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;

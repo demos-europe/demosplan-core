@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;

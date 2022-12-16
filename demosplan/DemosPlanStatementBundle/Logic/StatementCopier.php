@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateInterval;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\ORM\EntityNotFoundException;

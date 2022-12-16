@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
