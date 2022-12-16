@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use function array_key_exists;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -3121,13 +3123,15 @@ class StatementHandler extends CoreHandler
         }
 
         foreach ($data['r_similarStatementSubmitters'] as $similarStatementSubmitter) {
-            $similarStatementSubmitter['similarStatements'] = new ArrayCollection([$statementToAttachTo]);
-            $similarStatementSubmitter['procedure'] = $statementToAttachTo->getProcedure();
+            $procedure = $statementToAttachTo->getProcedure();
             $similarStatementSubmitter = $this->replaceEmptyWithNull(
                 $similarStatementSubmitter,
                 ['city', 'streetName', 'streetNumber', 'postalCode', 'emailAddress']
             );
-            $this->statementService->createPersonAndAddToStatementWithResourceType($similarStatementSubmitter);
+            $submitter = new ProcedurePerson($similarStatementSubmitter['fullName'], $procedure);
+            $updater = new PropertiesUpdater($similarStatementSubmitter);
+            $this->statementService->updatePersonEditableProperties($updater, $submitter);
+            $statementToAttachTo->getSimilarStatementSubmitters()->add($submitter);
         }
         // Validate similarSubmitter on statement
         $violations = $this->validator->validate($statementToAttachTo, null, 'manual_create');
