@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use function collect;
 
-use DemosEurope\DemosplanAddon\Contracts\ILogic\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;

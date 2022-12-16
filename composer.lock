@@ -1240,12 +1240,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "5e8376fb583d2adaa4e99d5daa526639ad087794"
+                "reference": "f79ffb200c4c2be3d9e3361403a1a28aa280aa37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/5e8376fb583d2adaa4e99d5daa526639ad087794",
-                "reference": "5e8376fb583d2adaa4e99d5daa526639ad087794",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f79ffb200c4c2be3d9e3361403a1a28aa280aa37",
+                "reference": "f79ffb200c4c2be3d9e3361403a1a28aa280aa37",
                 "shasum": ""
             },
             "require": {
@@ -1264,7 +1264,8 @@
                 "tightenco/collect": "~8.83.0"
             },
             "require-dev": {
-                "composer/composer": "^2.1"
+                "composer/composer": "^2.1",
+                "phpstan/phpstan": "^1.9"
             },
             "type": "package",
             "autoload": {
@@ -1280,7 +1281,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/Feat_ref_T30254_add_contracts_part2"
             },
-            "time": "2022-12-16T13:36:28+00:00"
+            "time": "2022-12-16T15:08:31+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
