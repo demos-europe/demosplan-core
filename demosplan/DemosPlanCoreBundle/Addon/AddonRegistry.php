@@ -166,7 +166,7 @@ class AddonRegistry
 
         $classmap = include_once $classMapPath;
 
-        spl_autoload_register(function (string $class) use ($classmap): void {
+        spl_autoload_register(static function (string $class) use ($classmap): void {
             if (array_key_exists($class, $classmap)) {
                 include $classmap[$class];
             }
