@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFragmentResourceType;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;

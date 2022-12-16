@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\GuestStatementSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
 use Exception;
 

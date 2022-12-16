@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\Persistence\ManagerRegistry;

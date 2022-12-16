@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
@@ -25,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ConsultationTokenResourceType;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;

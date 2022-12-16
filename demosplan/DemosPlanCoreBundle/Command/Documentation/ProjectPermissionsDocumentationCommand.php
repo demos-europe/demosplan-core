@@ -14,12 +14,12 @@ use function array_flip;
 use function array_map;
 use function collect;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 use Symfony\Component\Console\Helper\Table;

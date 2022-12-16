@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use function array_key_exists;
 use function array_merge;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;

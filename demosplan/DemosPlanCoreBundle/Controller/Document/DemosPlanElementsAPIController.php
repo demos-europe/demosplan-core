@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;

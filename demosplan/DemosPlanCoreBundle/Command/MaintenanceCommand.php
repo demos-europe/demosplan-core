@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
@@ -21,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;

@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\GdprConsentRevokeTokenService;
