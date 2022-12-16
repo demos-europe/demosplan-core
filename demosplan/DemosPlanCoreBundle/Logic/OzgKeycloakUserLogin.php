@@ -126,14 +126,12 @@ class OzgKeycloakUserLogin
         if ($existingUser) {
             // Update user information from keycloak
             $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrga, $requestedRoles);
-            $this->entityManager->getConnection()->commit();
 
             return $existingUser;
         }
 
         // 4) Create new User using keycloak data
         $newUser = $this->tryCreateNewUser($requestedOrga, $requestedRoles);
-        $this->entityManager->getConnection()->commit();
 
         return $newUser;
     }
