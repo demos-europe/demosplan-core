@@ -147,7 +147,6 @@ class AddonRegistry
         }
     }
 
-
     /**
      * Configure autoloading for addons.
      *

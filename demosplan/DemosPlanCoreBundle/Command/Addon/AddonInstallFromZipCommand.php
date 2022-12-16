@@ -106,7 +106,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         try {
             $packageMeta = $addonRegistry->get($packageDefinition->getName());
-;
+
             if (array_key_exists('ui', $packageMeta['manifest'])) {
                 // TODO: fix frontend build
                 /*
