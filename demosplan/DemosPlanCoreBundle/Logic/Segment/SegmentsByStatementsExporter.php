@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -23,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;

@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Console\Helper\ProgressBar;

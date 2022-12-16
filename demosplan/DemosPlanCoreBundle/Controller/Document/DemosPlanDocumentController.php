@@ -14,8 +14,6 @@ use function array_key_exists;
 use function array_merge;
 use function compact;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -35,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -54,6 +53,7 @@ use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
 

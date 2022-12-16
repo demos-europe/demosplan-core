@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class StatementAnonymizeRpcEvent extends RpcEvent
 {

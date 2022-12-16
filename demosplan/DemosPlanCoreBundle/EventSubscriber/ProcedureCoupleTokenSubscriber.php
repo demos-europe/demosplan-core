@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -34,6 +33,7 @@ use demosplan\DemosPlanProcedureBundle\Exception\ProcedureCoupleTokenAlreadyUsed
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\PrepareReportFromProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\PathBuilding\End;
 use Exception;

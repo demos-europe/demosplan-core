@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
@@ -18,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

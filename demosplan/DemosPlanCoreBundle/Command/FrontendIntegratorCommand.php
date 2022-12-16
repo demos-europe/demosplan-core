@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
@@ -20,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;

@@ -14,7 +14,6 @@ use function array_filter;
 
 use const ARRAY_FILTER_USE_KEY;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
@@ -25,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
