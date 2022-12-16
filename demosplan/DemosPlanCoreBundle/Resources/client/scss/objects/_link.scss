@@ -99,8 +99,7 @@
         &::before {
             @extend .fa;
 
-            padding-left: .2em;
-            padding-right: .2em;
+            padding-left: .5em;
             content: $fa-var-external-link;
             font-size: .85em;
         }
