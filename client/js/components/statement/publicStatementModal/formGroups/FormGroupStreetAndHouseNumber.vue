@@ -13,6 +13,7 @@
       <dp-input
         id="r_street"
         autocomplete="address-line1"
+        data-cy="streetName"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
@@ -26,6 +27,7 @@
    --><dp-input
         id="r_houseNumber"
         autocomplete="address-line2"
+        data-cy="houseNumber"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{

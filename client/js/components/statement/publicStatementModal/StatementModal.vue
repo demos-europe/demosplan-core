@@ -447,6 +447,7 @@
             <dp-radio
               id="r_useName_1"
               name="r_useName"
+              data-cy="submitPublicly"
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
