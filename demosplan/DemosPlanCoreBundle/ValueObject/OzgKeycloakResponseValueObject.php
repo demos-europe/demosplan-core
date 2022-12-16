@@ -57,6 +57,7 @@ class OzgKeycloakResponseValueObject extends ValueObject
         if ('' === $this->nutzerId
             || '' === $this->providerId
             || '' === $this->emailAdresse
+            || '' === $this->verfahrenstraegerGatewayId
             || '' === $this->verfahrenstraeger
             || '' === $this->vollerName
         ) {
