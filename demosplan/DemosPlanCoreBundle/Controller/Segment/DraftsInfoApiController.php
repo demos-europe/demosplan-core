@@ -66,13 +66,13 @@ class DraftsInfoApiController extends APIController
 
             return $jsonResponse;
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }
@@ -102,17 +102,17 @@ class DraftsInfoApiController extends APIController
         try {
             $data = $request->getContent();
             $draftsInfoHandler->save($data);
-            $this->getMessageBag()->add('confirm', 'confirm.saved');
+            $this->messageBag->add('confirm', 'confirm.saved');
 
             return new JsonResponse();
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }
@@ -158,7 +158,7 @@ class DraftsInfoApiController extends APIController
             );
 
             if (0 === count($segments)) {
-                $this->getMessageBag()->add('error', 'statement.has.no.segments');
+                $this->messageBag->add('error', 'statement.has.no.segments');
 
                 return $this->handleApiError();
             }
@@ -179,13 +179,13 @@ class DraftsInfoApiController extends APIController
                 $data
             );
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }

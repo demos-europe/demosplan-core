@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
+use Psr\Log\LoggerInterface;
 use function array_key_exists;
 use function array_keys;
 
@@ -69,12 +73,24 @@ class DemosPlanStatementAPIController extends APIController
     private $permissions;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         PermissionsInterface $permissions,
         PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        AbstractProcessorConfig $processorConfig
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $processorConfig
+        );
         $this->permissions = $permissions;
     }
     // @improve T12984
@@ -126,7 +142,7 @@ class DemosPlanStatementAPIController extends APIController
                 ];
 
                 if ($ownsRemoteProcedure) {
-                    $this->getMessageBag()->addObject(
+                    $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
@@ -137,7 +153,7 @@ class DemosPlanStatementAPIController extends APIController
                         )
                     );
                 } else {
-                    $this->getMessageBag()->add('confirm', $message, $messageParameters);
+                    $this->messageBag->add('confirm', $message, $messageParameters);
                 }
 
                 $response = [
@@ -158,17 +174,17 @@ class DemosPlanStatementAPIController extends APIController
                     ],
                 ];
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error',
                     'error.statement.copy.to.procedure',
                     ['externId' => $statementToCopy->getExternId(), 'procedureName' => $targetProcedure->getName()]
                 );
-                $this->getLogger()->error('Not an Statement instance');
+                $this->logger->error('Not an Statement instance');
             }
 
             return $this->createResponse($response, 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.statement.move');
+            $this->messageBag->add('error', 'error.statement.move');
 
             return $this->handleApiError($e);
         }
@@ -234,7 +250,7 @@ class DemosPlanStatementAPIController extends APIController
                     'newExternId'     => $movedStatement->getExternId(),
                 ];
                 if ($ownsRemoteProcedure) {
-                    $this->getMessageBag()->addObject(
+                    $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
@@ -245,7 +261,7 @@ class DemosPlanStatementAPIController extends APIController
                         )
                     );
                 } else {
-                    $this->getMessageBag()->add('confirm', $message, $messageParameters);
+                    $this->messageBag->add('confirm', $message, $messageParameters);
                 }
                 $response = [
                     'code'    => 200,
@@ -262,13 +278,13 @@ class DemosPlanStatementAPIController extends APIController
                     'success' => false,
                     'data'    => ['movedStatementId' => ''],
                 ];
-                $this->getMessageBag()->add('error', 'error.statement.move');
+                $this->messageBag->add('error', 'error.statement.move');
                 $this->logger->error('Not an Statement instance');
             }
 
             return $this->createResponse($response, 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.statement.move');
+            $this->messageBag->add('error', 'error.statement.move');
 
             return $this->handleApiError($e);
         }
@@ -372,10 +388,10 @@ class DemosPlanStatementAPIController extends APIController
 
             $successfullyUpdated = $statement instanceof Statement;
             if ($successfullyUpdated) {
-                $this->getMessageBag()->add('confirm', 'confirm.saved');
+                $this->messageBag->add('confirm', 'confirm.saved');
             } else {
                 $statement = $statementService->getStatement($statementId);
-                $this->getMessageBag()->add('error', 'error.save');
+                $this->messageBag->add('error', 'error.save');
             }
 
             $item = $this->resourceService->makeItemOfResource($statement, StatementResourceType::getName());
@@ -514,7 +530,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->renderResource($item);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.statements.cluster.not.created');
+            $this->messageBag->add('error', 'warning.statements.cluster.not.created');
 
             return $this->handleApiError($e);
         }
@@ -555,7 +571,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->renderEmpty();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.statements.cluster.not.created');
+            $this->messageBag->add('error', 'warning.statements.cluster.not.created');
 
             return $this->handleApiError($e);
         }
@@ -617,7 +633,7 @@ class DemosPlanStatementAPIController extends APIController
 
             // show warning if moved statements were selected
             if (0 !== $movedStatementCount) {
-                $this->getMessageBag()->addChoice(
+                $this->messageBag->addChoice(
                     'warning',
                     'bulk.edit.warning.placeholder',
                     ['count' => $movedStatementCount]
@@ -649,7 +665,7 @@ class DemosPlanStatementAPIController extends APIController
                     $violations = $validator->validate($statementBulkEditVo);
                     if (0 === count($violations)) {
                         $statementService->bulkEditStatementsAddData($statementBulkEditVo);
-                        $this->getMessageBag()->addChoice(
+                        $this->messageBag->addChoice(
                             'confirm',
                             'bulk.edit.success',
                             ['count' => $unmovedStatementTargetIdsCount]
@@ -660,17 +676,17 @@ class DemosPlanStatementAPIController extends APIController
 
                     /** @var ConstraintViolationInterface $violation */
                     foreach ($violations as $violation) {
-                        $this->getMessageBag()->add('error', $violation->getMessage());
+                        $this->messageBag->add('error', $violation->getMessage());
                     }
 
                     return $this->handleApiError(new InvalidDataException());
                 } catch (Exception $e) {
-                    $this->getMessageBag()->addChoice(
+                    $this->messageBag->addChoice(
                         'error',
                         'bulk.edit.failure.targets',
                         ['count' => $targetStatementCount]
                     );
-                    $this->getMessageBag()->addChoice(
+                    $this->messageBag->addChoice(
                         'warning',
                         'bulk.edit.failure.marked',
                         ['count' => $markedStatementsCount]
@@ -682,7 +698,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->handleApiError(new InvalidDataException());
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'bulk.edit.assign.failure');
+            $this->messageBag->add('error', 'bulk.edit.assign.failure');
 
             return $this->handleApiError($e);
         }

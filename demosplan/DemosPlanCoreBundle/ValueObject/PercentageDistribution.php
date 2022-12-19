@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use DemosEurope\DemosplanAddon\Contracts\ValueObject\PercentageDistributionInterface;
 
 /**
  * @method int   getTotal()
  * @method array getPercentages()
  * @method array getAbsolutes()
  */
-class PercentageDistribution extends ValueObject implements PercentageDistributionInterface
+class PercentageDistribution extends ValueObject
 {
     /** @var array<string,float> */
     protected $percentages;

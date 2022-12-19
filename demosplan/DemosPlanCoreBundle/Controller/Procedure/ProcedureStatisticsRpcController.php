@@ -42,7 +42,7 @@ class ProcedureStatisticsRpcController extends APIController
 
             return $this->renderItem($distribution, PercentageDistributionTransformer::class);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Could not retrieve procedure statistics.', [$e]);
+            $this->logger->warning('Could not retrieve procedure statistics.', [$e]);
 
             return new Response(null, Response::HTTP_BAD_REQUEST, []);
         }

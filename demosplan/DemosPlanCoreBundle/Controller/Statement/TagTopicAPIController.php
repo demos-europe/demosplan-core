@@ -62,7 +62,7 @@ class TagTopicAPIController extends APIController
 
         try {
             $tag = $statementHandler->createTopic($title, $procedureId);
-            $this->getMessageBag()->add('confirm', 'confirm.topic.created');
+            $this->messageBag->add('confirm', 'confirm.topic.created');
 
             return $this->renderItemOfResource($tag, $tagTopicResourceType);
         } catch (DuplicatedTagTopicTitleException $e) {

@@ -73,7 +73,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     {
         $statementFragment = $statementFragmentService->getStatementFragment($statementFragmentId);
         if (null === $statementFragment) {
-            $this->getMessageBag()->add('error', 'error.statementFragment.not.found');
+            $this->messageBag->add('error', 'error.statementFragment.not.found');
             throw new EntityNotFoundException(sprintf('Statement Fragment not found %s', $statementFragmentId));
         }
         if ($currentProcedureService->getProcedureIdWithCertainty() !== $statementFragment->getProcedureId()) {

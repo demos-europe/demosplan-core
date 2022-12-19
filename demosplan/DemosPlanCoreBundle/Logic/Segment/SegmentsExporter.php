@@ -234,7 +234,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text, $cellExportStyle), false, false);
+        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
     }
 
     private function getHtmlValidText(string $text): string

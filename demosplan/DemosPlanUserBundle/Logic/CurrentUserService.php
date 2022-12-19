@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInterface
 {
