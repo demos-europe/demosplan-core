@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -65,6 +66,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $procedureMaster->setMaster(true);
         $procedureMaster->setMasterTemplate(true);
         $procedureMaster->setAgencyMainEmailAddress('ihre@emailadresse.de');
+        $procedureMaster->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureMaster));
         $slug = new Slug('master');
         $procedureMaster->addSlug($slug);
         $procedureMaster->setCurrentSlug($slug);
