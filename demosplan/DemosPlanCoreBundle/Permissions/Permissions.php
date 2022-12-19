@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use EDT\Wrapping\Contracts\Types\TypeInterface;
 use function collect;
 
 use DemosEurope\DemosplanAddon\Permission\CorePermissionEvaluatorInterface;
@@ -104,13 +105,13 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
     /**
      * @var list<ResolvablePermissionCollection>
      */
-    private array $addonPermissions;
+    private iterable $addonPermissions;
 
     /**
-     * @param list<ResolvablePermissionCollection> $addonPermissions
+     * @param iterable<ResolvablePermissionCollection> $addonPermissions
      */
     public function __construct(
-        array $addonPermissions,
+        iterable $addonPermissions,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         PermissionCollectionInterface $corePermissions,

@@ -18,7 +18,7 @@ use EDT\JsonApi\ResourceTypes\PropertyBuilder;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\EntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface
  */
 class GetPropertiesEvent extends DPlanEvent implements GetPropertiesEventInterface
 {

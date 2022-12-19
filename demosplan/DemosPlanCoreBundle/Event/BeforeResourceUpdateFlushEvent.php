@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 
 /**
- * @template O of \demosplan\DemosPlanCoreBundle\Entity\EntityInterface
+ * @template O of \DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface
  */
 class BeforeResourceUpdateFlushEvent extends DPlanEvent
 {
