@@ -17,6 +17,7 @@ use function array_key_exists;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionOverrideException;
 use DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -61,6 +62,13 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
         $this->permissionResolver = $permissionResolver;
         $this->corePermissionEvaluator = $corePermissionEvaluator;
         $this->validator = $validator;
+    }
+
+    public function requirePermission(string $permissionName): void
+    {
+        if (!$this->isPermissionEnabled($permissionName)) {
+            throw AccessDeniedException::missingPermission($permissionName);
+        }
     }
 
     public function isPermissionEnabled(string $permissionName): bool
