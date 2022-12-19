@@ -151,7 +151,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                         'demos-europe/demosplan-addon-installer' => true,
                     ],
                 ],
-                'repositories' => [
+                'repositories'      => [
                     [
                         'type'    => 'path',
                         'url'     => 'cache/*',
