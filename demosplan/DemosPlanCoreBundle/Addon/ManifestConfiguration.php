@@ -19,7 +19,7 @@ class ManifestConfiguration implements ConfigurationInterface
 
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $tree = new TreeBuilder('demosplan_addon');
+        $tree = new TreeBuilder(self::MANIFEST_ROOT);
         $rootChildren = $tree->getRootNode()->children();
 
         $rootChildren->scalarNode('humanName')->defaultValue('');

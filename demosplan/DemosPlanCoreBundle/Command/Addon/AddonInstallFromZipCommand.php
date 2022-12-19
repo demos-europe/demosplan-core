@@ -29,7 +29,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use ZipArchive;
 
@@ -89,6 +88,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         try {
+            // The '-a' flag for the composer update is strictly necessary as it generates the authorative
+            // classmap with all classes which we then use for our own extended autoloading.
             Batch::create($this->getApplication(), $output)
                 ->addShell(['composer', 'clearcache'])
                 ->addShell(['composer', 'dump-autoload'])
@@ -105,7 +106,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $addonRegistry->register($packageDefinition);
 
         try {
-            $packageMeta = $addonRegistry->get($packageDefinition->getName());
+            $packageMeta = $addonRegistry->getAddon($packageDefinition->getName());
 
             if (array_key_exists('ui', $packageMeta['manifest'])) {
                 // TODO: fix frontend build
@@ -218,7 +219,7 @@ class AddonInstallFromZipCommand extends CoreCommand
      *
      * @throws JsonException
      */
-    public function loadPackageDefinition()
+    public function loadPackageDefinition(): PackageInterface
     {
         $loader = new ArrayLoader();
         $composerJsonArray = Json::decodeToArray(file_get_contents($this->zipCachePath.'composer.json'));

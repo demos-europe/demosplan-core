@@ -94,7 +94,10 @@ class AddonRegistry
         $this->refreshAddonsYaml();
     }
 
-    public function get($addonName): array
+    /**
+     * @return array<string, mixed>
+     */
+    public function getAddon(string $addonName): array
     {
         return $this->addons[$addonName];
     }
@@ -131,6 +134,9 @@ class AddonRegistry
         ];
     }
 
+    /**
+     * @return array<string, array<string, string>>
+     */
     private function loadManifest(string $addonName): array
     {
         try {
