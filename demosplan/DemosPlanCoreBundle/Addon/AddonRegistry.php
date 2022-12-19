@@ -114,9 +114,9 @@ class AddonRegistry
         );
     }
 
-    private function isRegistered(string $name): bool
+    private function isRegistered(string $addonName): bool
     {
-        return $this->addons->has($name);
+        return $this->addons->has($addonName);
     }
 
     private function doRegister(PackageInterface $addonComposerDefinition): void
