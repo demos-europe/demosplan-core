@@ -45,6 +45,8 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+    demosplan\DemosPlanCoreBundle\Entity\EntityInterface: ~
+
 
 
 
