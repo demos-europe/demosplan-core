@@ -129,7 +129,8 @@
         "willdurand/js-translation-bundle": "~5.0",
         "wrep/daemonizable-command": "^3.0",
         "wsdltophp/packagegenerator": "^3.0",
-        "yectep/phpspreadsheet-bundle": "^1.0.0"
+        "yectep/phpspreadsheet-bundle": "^1.0.0",
+        "demos-europe/demosplan-addon": "dev-main"
     },
     "require-dev": {
         "escapestudios/symfony2-coding-standard": "^3.4",

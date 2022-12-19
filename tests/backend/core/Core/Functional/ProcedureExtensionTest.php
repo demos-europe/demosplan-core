@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Psr\Log\NullLogger;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
@@ -38,7 +38,7 @@ use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 class ProcedureExtensionTest extends FunctionalTestCase
 {
     /**
-     * @var GlobalConfig
+     * @var GlobalConfigInterface
      */
     protected $globalConfig;
 
@@ -62,19 +62,23 @@ class ProcedureExtensionTest extends FunctionalTestCase
     public function setUp(): void
     {
         parent::setUp();
-
+        /** @var  GlobalConfigInterface globalConfig */
         $this->globalConfig = self::$container->get(GlobalConfigInterface::class);
         $this->procedureService = self::$container->get(ProcedureService::class);
+        /** @var ProcedureRepository $procedureRepository */
         $procedureRepository = self::$container->get(ProcedureRepository::class);
 
         $this->translator = self::$container->get(TranslatorInterface::class);
         /** @var ProcedureAccessEvaluator $procedureAccessEvaluator */
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
+        /** @var PermissionCollectionInterface $permissionCollection */
+        $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
 
         $this->permissionsStub = new Permissions(
-            new FilesystemAdapter(),
+            [],
             new NullLogger(),
             $this->globalConfig,
+            $permissionCollection,
             $procedureAccessEvaluator,
             $procedureRepository
         );
@@ -189,8 +193,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderProcedureName
-     *
-     * @param $providerData
      */
     public function testGetNameFunction($providerData)
     {
@@ -287,7 +289,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
                 'assertedPublicParticipationPhase' => $externalPhases[1]['name'],
             ]];
         }
-        //external phases
+        // external phases
         foreach ($externalPhases as $externalPhase) {
             $phasesDataProvider[] = [[
                 'phase'                            => $internalPhases[1]['key'],
@@ -376,8 +378,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderDaysLeft
-     *
-     * @param $providerData
      */
     public function testGetDaysLeft($providerData)
     {
