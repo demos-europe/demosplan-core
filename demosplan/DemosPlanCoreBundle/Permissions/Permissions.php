@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function collect;
+
+use DemosEurope\DemosplanAddon\Permission\CorePermissionEvaluatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,26 +24,25 @@ use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
 use InvalidArgumentException;
+
+use function is_array;
+
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-class Permissions implements PermissionsInterface
+class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterface
 {
     public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
 
@@ -77,10 +78,6 @@ class Permissions implements PermissionsInterface
      * @var GlobalConfigInterface|GlobalConfig
      */
     protected $globalConfig;
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
     /**
      * @deprecated This variable is used to minimize changes in permission handling to keep it easier
@@ -102,14 +99,26 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
+    private PermissionCollectionInterface $corePermissions;
+
+    /**
+     * @var list<ResolvablePermissionCollection>
+     */
+    private array $addonPermissions;
+
+    /**
+     * @param list<ResolvablePermissionCollection> $addonPermissions
+     */
     public function __construct(
-        CacheInterface $cache,
+        array $addonPermissions,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
+        PermissionCollectionInterface $corePermissions,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureRepository $procedureRepository
     ) {
-        $this->cache = $cache;
+        $this->addonPermissions = $addonPermissions;
+        $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
@@ -1016,26 +1025,10 @@ class Permissions implements PermissionsInterface
      */
     protected function setInitialPermissions(): void
     {
-        // cache parsing of permissions.yml, saves ~200ms
-        $permissions = $this->cache->get('permissionsYml', function (ItemInterface $item) {
-            $this->logger->info('Read Permissions from yml');
-            $permissions = \collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
-                ->map(
-                    static function ($permissionsArray, $permissionName) {
-                        return Permission::instanceFromArray($permissionName, $permissionsArray);
-                    }
-                )->toArray();
-
-            // set long ttl only in prod mode to improve DX in dev mode when working with permissions
-            $ttl = $this->globalConfig->isProdMode() ? 3600 : 10;
-
-            $this->logger->info('Save Permissions into cache with ttl '.$ttl);
-            $item->expiresAfter($ttl);
-
-            return $permissions;
-        });
-
-        $this->permissions = $permissions;
+        $this->permissions = collect($this->addonPermissions)
+            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
+            ->merge($this->corePermissions->toArray())
+            ->all();
     }
 
     /**
@@ -1125,6 +1118,41 @@ class Permissions implements PermissionsInterface
         try {
             $this->evaluatePermission($permission);
         } catch (Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function requirePermission(string $permissionName): void
+    {
+        $this->evaluatePermission($permissionName);
+    }
+
+    public function isPermissionEnabled(string $permissionName): bool
+    {
+        // The `hasPermission` below would return `false` too if the permission is not known, but
+        // it would internally create and catch an exception in the process. By checking
+        // `isPermissionKnown` first (which does not use exceptions) we may be able to improve the
+        // performance for checks that want to evaluate unknown permissions.
+        if (!$this->isPermissionKnown($permissionName)) {
+            return false;
+        }
+
+        return $this->hasPermission($permissionName);
+    }
+
+    public function isPermissionKnown(string $permissionName): bool
+    {
+        if (!is_array($this->permissions)) {
+            return false;
+        }
+
+        if (!isset($this->permissions[$permissionName])) {
+            return false;
+        }
+
+        if (!$this->permissions[$permissionName] instanceof Permission) {
             return false;
         }
 
