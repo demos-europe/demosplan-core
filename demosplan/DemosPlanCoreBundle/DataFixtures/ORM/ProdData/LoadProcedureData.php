@@ -44,7 +44,6 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         ProcedureHandler $procedureHandler,
         TranslatorInterface $translator
     ) {
-
         parent::__construct($entityManager);
         $this->translator = $translator;
         $this->globalConfig = $globalConfig;
@@ -79,7 +78,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($procedureMaster);
         $manager->flush();
 
-        //create GisLayerCategory for MasterBlueprint
+        // create GisLayerCategory for MasterBlueprint
         $gisLayerCategoryMaster = new GisLayerCategory();
         $gisLayerCategoryMaster->setName('rootGisLayer');
         $gisLayerCategoryMaster->setProcedure($procedureMaster);
