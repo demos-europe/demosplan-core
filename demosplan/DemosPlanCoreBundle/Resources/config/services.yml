@@ -326,7 +326,7 @@ services:
     demosplan\DemosPlanCoreBundle\Permissions\Permissions:
         arguments:
             $addonPermissions: !tagged_iterator dplan.permission_collection
-            $corePermissions: demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection
+            $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionCollection:
@@ -1113,6 +1113,10 @@ services:
         arguments:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
+
+    EDT\JsonApi\Validation\FieldsValidator:
+        arguments:
+            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
