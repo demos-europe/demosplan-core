@@ -27,11 +27,16 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
     private PermissionsInterface $permissions;
     private RpcErrorGenerator $errorGenerator;
+    private AddonRegistry $addonRegistry;
 
-    public function __construct(PermissionsInterface $permissions, RpcErrorGenerator $errorGenerator)
+    public function __construct(
+        AddonRegistry $addonRegistry,
+        PermissionsInterface $permissions,
+        RpcErrorGenerator $errorGenerator)
     {
         $this->permissions = $permissions;
         $this->errorGenerator = $errorGenerator;
+        $this->addonRegistry = $addonRegistry;
     }
 
     public function supports(string $method): bool
@@ -52,9 +57,22 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
 
                 // Here comes the real logic
-                // But I need the content of the Install Command PR first
+                $hookName = $rpcRequest->params->hookName;
+                $addonsAssetsData = $this->addonRegistry->getFrontendClassesForHook($hookName);
 
-                $resultResponse[] = $this->generateMethodResult($rpcRequest);
+                $loadedAssetsData = [];
+                foreach ($addonsAssetsData as $addon => $assetsData) {
+                    if (file_exists($assetsData['manifest'])) {
+
+                    }
+                }
+
+                // Now it's time to match the files to the paths from the manifest
+
+                // Grab the content of the files and add it to an array with all information
+                $assets = [];
+
+                $resultResponse[] = $this->generateMethodResult($rpcRequest, $assets);
             } catch (InvalidArgumentException | InvalidSchemaException $e) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
             } catch (AccessDeniedException | UserNotFoundException $e) {
@@ -79,12 +97,13 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
         }
     }
 
-    private function generateMethodResult(object $rpcRequest): object
+    private function generateMethodResult(object $rpcRequest, array $assets): object
     {
         $result = new stdClass();
         $result->jsonrpc = '2.0';
         $result->result = 'ok';
         $result->id = $rpcRequest->id;
+        $result->assets = $assets;
 
         return $result;
     }

@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use RuntimeException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
@@ -179,5 +180,60 @@ class AddonRegistry
         });
 
         self::$autoloadingConfigured = true;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>>
+     */
+    public function getFrontendClassesForHook(string $hookName): array
+    {
+        return $this->addons->map(function ($item, $key) use ($hookName) {
+            if (!array_key_exists('ui', $item['manifest'])) {
+                return [];
+            }
+            $uiData = $item['manifest']['ui'];
+            if ($item['enabled'] && array_key_exists($hookName, $uiData['hooks'])) {
+                $hookData = $uiData['hooks'][$hookName];
+                $manifestPath = DemosPlanPath::getRootPath($item['install_path'].$uiData['manifest']);
+
+                try {
+                    $entryFileName = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
+                    // Try to get the content of the actual asset
+                } catch (RuntimeException $e) {
+                    return [];
+                }
+
+                return [
+                    $key => [
+                        'entry' => $hookData['entry'],
+                        'options' => $hookData['options'],
+                        'manifest' => $manifestPath,
+                        'install_path' => $item['install_path'],
+                    ],
+                ];
+            }
+
+            return [];
+        })->reject(function ($value) {
+            return $value === [];
+        })->all();
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    private function getAssetPathFromManifest(string $manifestPath, string $entryName): string
+    {
+        if (!file_exists($manifestPath)) {
+            throw new RuntimeException('Manifest could not be found for: '.$manifestPath);
+        }
+
+        $manifestContent = Yaml::parseFile($manifestPath);
+
+        if (!array_key_exists($entryName, $manifestContent)) {
+            throw new RuntimeException('No entry found in manifest with name: '.$entryName);
+        }
+
+        return $manifestPath[$entryName];
     }
 }
