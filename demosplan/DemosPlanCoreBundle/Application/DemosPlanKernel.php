@@ -73,10 +73,7 @@ class DemosPlanKernel extends Kernel
      */
     public const ENVIRONMENT_PROD = 'prod';
 
-    /**
-     * @var string
-     */
-    private $activeProject;
+    private string $activeProject;
 
     public function __construct(
         string $activeProject,
@@ -107,8 +104,10 @@ class DemosPlanKernel extends Kernel
 
         // Register all addons
         $addonRegistry = new AddonRegistry();
-        foreach ($addonRegistry->getAllAddons() as $addonName => $addonData) {
-            yield new $addonName($addonData['enabled']);
+        $addonRegistry->configureAutoloading();
+
+        foreach ($addonRegistry->getAllAddons() as $addonData) {
+            yield new $addonData['manifest']['entry']($addonData['enabled']);
         }
     }
 

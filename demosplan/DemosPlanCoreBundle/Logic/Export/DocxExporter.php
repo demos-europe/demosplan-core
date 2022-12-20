@@ -1001,10 +1001,10 @@ class DocxExporter
         $replacements = [
             // phpword breaks when self closing tags are not closed
             // as only br as "void-elememt" is allowed use specific regex
-            '/<(\s)*br(\s)*>/i' => '<br/>',
+            '/<(\s)*br(\s)*>/i'                 => '<br/>',
             // Handle strikethrough
-            '/<s>/i'   => '<span style="text-decoration: line-through">',
-            '/<\/s>/i' => '</span>',
+            '/<s>/i'                            => '<span style="text-decoration: line-through">',
+            '/<\/s>/i'                          => '</span>',
             // Handle mark
             '/<mark title="markierter Text">/i' => '<span style="background-color:#FFFF00">',
             '/<\/mark>/i'                       => '</span>',

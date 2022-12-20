@@ -476,7 +476,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         'DemosPlan_procedure_public_detail',
                         ['procedure' => $procedure['ident']]
                     ),
-                    'procedureId' => $procedure['ident'],
+                    'procedureId'                  => $procedure['ident'],
                 ];
             }
 

@@ -1330,7 +1330,7 @@ class DemosPlanDocumentController extends BaseController
         );
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'elementlist' => $elements,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1408,7 +1408,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'documentlist' => $documentList,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1478,7 +1478,7 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'documentnew' => [
+            'documentnew'                               => [
                 'r_action',
                 'r_title',
                 'r_text',
@@ -1486,11 +1486,11 @@ class DemosPlanDocumentController extends BaseController
                 'r_elementId',
                 'r_parentId',
             ],
-            'documentdelete' => [
+            'documentdelete'                            => [
                 'r_action',
                 'document_delete',
             ],
-            'documentedit' => [
+            'documentedit'                              => [
                 'action',
                 'r_ident',
                 'r_title',
@@ -1499,7 +1499,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_lockReason',
                 'r_parentId',
             ],
-            'elementedit' => [
+            'elementedit'                               => [
                 'r_action',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1509,7 +1509,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_orga',
                 'r_permission',
             ],
-            'elementnew' => [
+            'elementnew'                                => [
                 'r_text',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1525,23 +1525,23 @@ class DemosPlanDocumentController extends BaseController
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentedit' => [
+            'singledocumentedit'                        => [
                 'r_action',
                 'r_title',
                 'r_text',
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentdelete' => [
+            'singledocumentdelete'                      => [
                 'r_action',
                 'document_delete',
                 'r_sorting',
             ],
-            'onoffswitch' => [
+            'onoffswitch'                               => [
                 'r_action',
                 'r_onoffswitch',
             ],
-            'updateParagraphPDF' => [
+            'updateParagraphPDF'                        => [
                 'r_action',
                 'r_planDelete',
             ],

@@ -1066,7 +1066,7 @@ class DemosPlanAssessmentTableController extends BaseController
                     'hash'    => null,
                     'r_limit' => 25,
                 ],
-                'original' => [
+                'original'   => [
                     'page'    => 1,
                     'hash'    => null,
                     'r_limit' => 25,
@@ -1122,8 +1122,8 @@ class DemosPlanAssessmentTableController extends BaseController
                 'templateVars' => $templateVars,
                 'title'        => 'statement.bulk.edit',
                 // 'procedure' field needed for navigation on right side
-                'procedure'   => $procedureId,
-                'procedureId' => $procedureId,
+                'procedure'    => $procedureId,
+                'procedureId'  => $procedureId,
             ]
         );
     }
@@ -1156,7 +1156,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 'templateVars' => $templateVars,
                 'title'        => 'fragment.bulk.edit',
                 // 'procedure' field needed for navigation on right side
-                'procedure' => $procedureId,
+                'procedure'    => $procedureId,
             ]
         );
     }

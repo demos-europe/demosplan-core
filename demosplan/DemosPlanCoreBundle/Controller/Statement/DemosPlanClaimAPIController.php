@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
+use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
@@ -118,7 +119,7 @@ class DemosPlanClaimAPIController extends APIController
             throw new InvalidArgumentException('Invalid class, only statements or fragmentStatements are allowed.');
         }
         $messageArray = [
-            Statement::class => [
+            Statement::class         => [
                 'assigned'   => 'confirm.statement.assignment.assigned',
                 'unassigned' => 'confirm.statement.assignment.unassigned',
                 'changed'    => 'confirm.statement.assignment.changed',

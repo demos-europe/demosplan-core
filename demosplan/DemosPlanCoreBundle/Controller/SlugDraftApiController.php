@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\SlugDraftValueObject;
 use Symfony\Component\HttpFoundation\JsonResponse;
