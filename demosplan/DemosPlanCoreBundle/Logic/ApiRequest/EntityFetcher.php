@@ -272,7 +272,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface<O> $type
      *
      * @return O
      *
@@ -292,7 +292,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface<O> $type
      *
      * @return O
      *
@@ -308,7 +308,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface<O> $type
      *
      * @return O
      *

@@ -366,7 +366,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $assigneeId = trim($assigneeId);
 
-        return isset($assigneeId) && '' !== $assigneeId;
+        return '' !== $assigneeId;
     }
 
     /**
