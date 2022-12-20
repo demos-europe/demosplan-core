@@ -54,7 +54,7 @@ class DemosPlanElementsAPIController extends APIController
         } catch (HiddenElementUpdateException $e) {
             // FE tried to update hidden element, no special handling yet
         }
-        $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+        $this->messageBag->add('confirm', 'confirm.all.changes.saved');
 
         return $this->renderSuccess();
     }
