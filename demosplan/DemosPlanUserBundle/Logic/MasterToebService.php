@@ -10,6 +10,12 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Exception;
+use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
@@ -18,15 +24,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanReportBundle\Logic\MasterPublicAgencyReportEntryFactory;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanUserBundle\Repository\MasterToebRepository;
 use demosplan\DemosPlanUserBundle\Repository\MasterToebVersionRepository;
-use Doctrine\ORM\EntityNotFoundException;
-use Exception;
-use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MasterToebService extends CoreService
 {

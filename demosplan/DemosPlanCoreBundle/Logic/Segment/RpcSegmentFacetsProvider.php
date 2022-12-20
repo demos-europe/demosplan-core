@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -20,10 +21,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
@@ -115,7 +116,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
             } catch (AccessDeniedException|UserNotFoundException $e) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }
@@ -125,7 +126,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 
     public function generateMethodResult(object $rpcRequest, array $resultArray): object
     {
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->jsonrpc = '2.0';
         $result->result = $resultArray;
         $result->id = $rpcRequest->id;

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -149,7 +150,6 @@ class Video implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
-     *
      * @Assert\NotNull();
      */
     private $customerContext;
@@ -161,7 +161,6 @@ class Video implements UuidEntityInterface
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
-     *
      * @Assert\NotNull();
      * @VideoFileConstraint()
      */
@@ -173,7 +172,6 @@ class Video implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false)
-     *
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      * @Assert\Length(min=1, max=255, normalizer="trim")
      */
@@ -185,7 +183,6 @@ class Video implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
      * @Assert\NotNull()
      * @Assert\Length(max=65535, normalizer="trim")
      */

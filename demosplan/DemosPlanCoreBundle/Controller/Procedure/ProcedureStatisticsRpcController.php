@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureStatisticsService;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +25,7 @@ class ProcedureStatisticsRpcController extends APIController
      * @DplanPermissions("area_statement_segmentation")
      *
      * @return APIResponse|Response
+     *
      * @Route(
      *     path="/rpc/1.0/ProcedureStatistics/get/{procedureId}",
      *     name="dplan_rpc_procedure_segmentation_statistics_segmentations_get",

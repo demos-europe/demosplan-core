@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
@@ -30,7 +30,6 @@ class StatementHistoryAPIController extends APIController
      *     name="dplan_api_statement_history_get",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_statement_content_changes_view")
      */
     public function getAction(
@@ -48,7 +47,7 @@ class StatementHistoryAPIController extends APIController
 
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();
         if ($procedureId !== $statement->getProcedureId()) {
-            //otherwise user can access to any statement history by url modification
+            // otherwise user can access to any statement history by url modification
             throw new AccessDeniedException();
         }
 

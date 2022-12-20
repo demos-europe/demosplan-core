@@ -10,17 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Survey;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
@@ -37,7 +37,6 @@ class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
-     *
      * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
      *        methods={"GET"},
      *        name="dplan_surveyvote_list",
@@ -67,7 +66,6 @@ class SurveyVoteAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_surveyvote_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -103,7 +101,6 @@ class SurveyVoteAPIController extends APIController
      *     methods="POST",
      *     path="/api/1.0/surveyVote",
      *     options={"expose": true})
-     *
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException
@@ -208,7 +205,7 @@ class SurveyVoteAPIController extends APIController
 
         // validate that SurveyVote
         if ($procedureId !== $surveyVote->getSurvey()->getProcedure()->getId()) {
-            throw new \Exception('SurveyVote is not part of Survey or Procedure.');
+            throw new Exception('SurveyVote is not part of Survey or Procedure.');
         }
     }
 }

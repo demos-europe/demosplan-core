@@ -23,7 +23,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class OptionsLoaderPass implements CompilerPassInterface
 {
-    const OVERRIDABLE_CONFIGS = [
+    public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
     ];

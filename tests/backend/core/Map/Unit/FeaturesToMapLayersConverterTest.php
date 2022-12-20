@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Map\Unit;
 
+use Intervention\Image\ImageManager;
+use Point;
+use Tests\Base\UnitTestCase;
+use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
@@ -20,10 +24,6 @@ use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
-use Intervention\Image\ImageManager;
-use Point;
-use Tests\Base\UnitTestCase;
-use Tightenco\Collect\Support\Collection;
 use function imagecolorallocate;
 
 class FeaturesToMapLayersConverterTest extends UnitTestCase

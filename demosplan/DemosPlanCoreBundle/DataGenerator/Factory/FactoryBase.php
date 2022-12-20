@@ -114,8 +114,6 @@ abstract class FactoryBase implements FactoryInterface
     }
 
     /**
-     * @return FactoryBase
-     *
      * @throws DataProviderException
      * @throws ReflectionException
      */

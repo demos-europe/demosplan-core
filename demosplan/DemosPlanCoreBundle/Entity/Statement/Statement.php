@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\CorrectDateOrderConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
@@ -30,15 +34,16 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use UnexpectedValueException;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
@@ -54,7 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @PrePersistUniqueInternIdConstraint(groups={Statement::IMPORT_VALIDATION})
  * @SimilarStatementSubmittersSameProcedureConstraint(groups={"Default", "manual_create"})
  */
-class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterface
+class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterface, StatementInterface
 {
     public const IMPORT_VALIDATION = 'import';
     public const DEFAULT_VALIDATION = 'Default';
@@ -308,7 +313,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $status = 'new';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
@@ -316,7 +321,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $created;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
@@ -324,21 +329,21 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $modified;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_send_date", type="datetime", nullable=false)
      */
     protected $send;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_st_sent_assessment_date", type="datetime", nullable=false)
      */
     protected $sentAssessmentDate;
 
     /**
-     * @var \DateTime *
+     * @var DateTime *
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      * @Assert\NotBlank(groups={Statement::IMPORT_VALIDATION}, message="statement.import.invalidSubmitDateBlank")
@@ -347,7 +352,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     protected $submit;
 
     /**
-     * @var \DateTime *
+     * @var DateTime *
      *
      * @ORM\Column(name="_st_deleted_date", type="datetime", nullable=false)
      */
@@ -420,15 +425,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         // always set to 'no_check_since_not_allowed'.
         // By convention, this value is also the default in invalid cases, e.g. when creating head statements, which
         // should never but which need to have a value.
-        self::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED => 'no',
+        self::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED         => 'no',
         // If the author wants to allow publication, then one of the following values is set:
         // 'publication_pending' is the default, meaning that the FPA needs to check if publication is ok
-        self::PUBLICATION_PENDING                    => 'publication.pending',
+        self::PUBLICATION_PENDING                            => 'publication.pending',
         // Once the check has occurred, the value may either be 'publication_rejected' or 'publication_approved'.
         // The user may not change this once it is set. Hence, the rejection implies that an actual check by the planner
         // has taken place, it should never be used as a default.
-        self::PUBLICATION_REJECTED                   => 'publication.rejected',
-        self::PUBLICATION_APPROVED                   => 'publication.approved',
+        self::PUBLICATION_REJECTED                           => 'publication.rejected',
+        self::PUBLICATION_APPROVED                           => 'publication.approved',
     ];
 
     /**
@@ -1000,10 +1005,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     public function __construct()
     {
-        $this->deletedDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
-        $this->submit = new \DateTime();
-        $this->send = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
-        $this->sentAssessmentDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->deletedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->submit = new DateTime();
+        $this->send = DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->sentAssessmentDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
         $this->version = new ArrayCollection();
         $this->votes = new ArrayCollection();
         $this->likes = new ArrayCollection();
@@ -1555,7 +1560,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     {
         if ('' === $phase) {
             $message = 'Tried to set empty string as statement phase, please choose a valid value.';
-            throw new \UnexpectedValueException($message);
+            throw new UnexpectedValueException($message);
         }
 
         $this->phase = $phase;
@@ -1596,7 +1601,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set Created.
      *
-     * @param \DateTime $created
+     * @param DateTime $created
      */
     public function setCreated($created): Statement
     {
@@ -1608,7 +1613,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get Created.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -1618,7 +1623,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set modified.
      *
-     * @param \DateTime $modified
+     * @param DateTime $modified
      */
     public function setModified($modified): Statement
     {
@@ -1630,7 +1635,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get modified.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModified()
     {
@@ -1640,7 +1645,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set send.
      *
-     * @param \DateTime $send
+     * @param DateTime $send
      */
     public function setSend($send): Statement
     {
@@ -1652,7 +1657,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get send.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getSend()
     {
@@ -1662,7 +1667,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set sentAssessmentDate.
      *
-     * @param \DateTime $sentAssessmentDate
+     * @param DateTime $sentAssessmentDate
      */
     public function setSentAssessmentDate($sentAssessmentDate): Statement
     {
@@ -1674,7 +1679,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get sentAssessmentDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getSentAssessmentDate()
     {
@@ -1684,7 +1689,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set submit.
      *
-     * @param \DateTime $submit
+     * @param DateTime $submit
      */
     public function setSubmit($submit): Statement
     {
@@ -1698,7 +1703,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      */
     public function getSubmit(): int
     {
-        if ($this->submit instanceof \DateTime && \is_numeric($this->submit->getTimestamp())) {
+        if ($this->submit instanceof DateTime && \is_numeric($this->submit->getTimestamp())) {
             return $this->submit->getTimestamp();
         }
 
@@ -1708,7 +1713,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get submit as Object.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getSubmitObject()
     {
@@ -1726,7 +1731,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Set deletedDate.
      *
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      */
     public function setDeletedDate($deletedDate): Statement
     {
@@ -1993,7 +1998,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * Get deletedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {
@@ -2044,7 +2049,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -2078,7 +2083,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     {
         $this->sentAssessment = (int) $sentAssessment;
         if (true === $sentAssessment) {
-            $this->setSentAssessmentDate(new \DateTime());
+            $this->setSentAssessmentDate(new DateTime());
         }
 
         return $this;
@@ -2134,7 +2139,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function setPublicVerified($publicVerified): Statement
     {
         if (!array_key_exists($publicVerified, self::$publicVerifiedMapping)) {
-            throw new \UnexpectedValueException(sprintf('Tried to set property "$publicVerified" of Statement with invalid value: "%s"', $publicVerified));
+            throw new UnexpectedValueException(sprintf('Tried to set property "$publicVerified" of Statement with invalid value: "%s"', $publicVerified));
         }
 
         $this->publicVerified = $publicVerified;
@@ -2148,7 +2153,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     public function getPublicVerified(): string
     {
         if (!array_key_exists($this->publicVerified, self::$publicVerifiedMapping)) {
-            throw new \UnexpectedValueException(sprintf('Property "publicVerified" of Statement has invalid value: "%s"', $this->publicVerified));
+            throw new UnexpectedValueException(sprintf('Property "publicVerified" of Statement has invalid value: "%s"', $this->publicVerified));
         }
 
         return $this->publicVerified;
@@ -3032,12 +3037,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @param string|null $voteStk
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setVoteStk($voteStk): Statement
     {
         if (!\in_array($voteStk, $this->getAllowedVoteValues())) {
-            throw new \Exception("The value of \$voteStk ('$voteStk') is not an acceptable value");
+            throw new Exception("The value of \$voteStk ('$voteStk') is not an acceptable value");
         }
         $this->voteStk = $voteStk;
 
@@ -3058,12 +3063,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @param string|null $votePla
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setVotePla($votePla): Statement
     {
         if (!\in_array($votePla, $this->getAllowedVoteValues())) {
-            throw new \Exception("The value of \$votePla ('$votePla') is not an acceptable value");
+            throw new Exception("The value of \$votePla ('$votePla') is not an acceptable value");
         }
         $this->votePla = '' === $votePla ? null : $votePla;
 
@@ -3354,7 +3359,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @return string|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getConsentSubmitterId()
     {
@@ -3364,7 +3369,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
     /**
      * @return user|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getConsentAuthor()
     {

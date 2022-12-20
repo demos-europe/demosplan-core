@@ -10,12 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
-use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use League\Fractal\Manager;
@@ -23,8 +18,14 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 use LogicException;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
-class ApiResourceService
+class ApiResourceService implements ApiResourceServiceInterface
 {
     /**
      * This is the limit for entity recursion in fractal, which means

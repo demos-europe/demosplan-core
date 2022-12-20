@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -46,7 +46,9 @@ use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
 use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+
 use function is_array;
+
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
@@ -399,7 +401,7 @@ class EntityFetcher implements EntityFetcherInterface
      * Check if the given object matches any of the given conditions.
      *
      * @param array<int, ClauseFunctionInterface<bool>> $conditions at least one condition must match for `true`
-     *                                                        to be returned; must not be empty
+     *                                                              to be returned; must not be empty
      */
     public function objectMatchesAny(object $object, array $conditions): bool
     {

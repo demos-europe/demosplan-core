@@ -12,6 +12,13 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Exception;
+use Psr\Log\NullLogger;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tests\Base\FunctionalTestCase;
+use Tests\Base\MockMethodDefinition;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -21,16 +28,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use Psr\Log\NullLogger;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Tests\Base\FunctionalTestCase;
-use Tests\Base\MockMethodDefinition;
 
 /**
  * @group UnitTest
@@ -38,7 +38,7 @@ use Tests\Base\MockMethodDefinition;
 class ProcedureExtensionTest extends FunctionalTestCase
 {
     /**
-     * @var GlobalConfig
+     * @var GlobalConfigInterface
      */
     protected $globalConfig;
 
@@ -62,7 +62,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
     public function setUp(): void
     {
         parent::setUp();
-
+        /** @var  GlobalConfigInterface globalConfig */
         $this->globalConfig = self::$container->get(GlobalConfigInterface::class);
         $this->procedureService = self::$container->get(ProcedureService::class);
         /** @var ProcedureRepository $procedureRepository */

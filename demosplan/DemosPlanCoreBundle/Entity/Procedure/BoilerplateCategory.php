@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -74,14 +75,16 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     protected $description;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="ptc_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="ptc_modify_date",type="datetime", nullable=false)
      */
@@ -154,7 +157,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -162,7 +165,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      */
     public function setCreateDate($createDate)
     {
@@ -170,7 +173,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {
@@ -178,7 +181,7 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      */
     public function setModifyDate($modifyDate)
     {

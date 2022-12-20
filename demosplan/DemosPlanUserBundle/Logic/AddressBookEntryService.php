@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository;
-use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
-use Doctrine\ORM\OptimisticLockException;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
+use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository;
+use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
 
 class AddressBookEntryService extends CoreService
 {

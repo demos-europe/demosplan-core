@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,8 +35,8 @@ class ProxyInstanceSubscriber implements EventSubscriberInterface
 
         if ($this->isProxyInstance($request)) {
             $redirectUrl = sprintf(
-              '%sredirect/?',
-              $this->globalConfig->getGatewayRedirectURL(),
+                '%sredirect/?',
+                $this->globalConfig->getGatewayRedirectURL(),
             );
             $redirectUrl .= http_build_query(['Token' => $this->sanitizeToken($request->query->get('Token'))]);
 

@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -77,7 +78,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * Statements (and – if at some point relevant – DraftStatement, as they consent is not given at creation).
      * Will be null if no consent was received yet.
      *
-     * @var \DateTime|null
+     * @var DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true, options={"default":null})
      */
@@ -94,7 +95,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
      * Will be set to the current time when the consent is revoked.
      * A null value indicates that the consent was not revoked yet.
      *
-     * @var \DateTime|null
+     * @var DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true, options={"default":null})
      */
@@ -126,7 +127,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function getConsentReceivedDate()
     {
@@ -134,7 +135,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime|null $consentReceivedDate
+     * @param DateTime|null $consentReceivedDate
      */
     public function setConsentReceivedDate($consentReceivedDate)
     {
@@ -142,7 +143,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function getConsentRevokedDate()
     {
@@ -150,7 +151,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime|null $date
+     * @param DateTime|null $date
      */
     public function setConsentRevokedDate($date)
     {

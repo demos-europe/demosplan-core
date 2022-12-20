@@ -10,8 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -19,16 +22,15 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use UnexpectedValueException;
 
 class DemosPlanClaimAPIController extends APIController
 {
@@ -66,7 +68,6 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_statements_api",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateStatementAssignmentAction(string $statementId): APIResponse
@@ -79,7 +80,6 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_fragments_api",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateFragmentAssignmentAction(string $entityId): APIResponse
@@ -103,7 +103,7 @@ class DemosPlanClaimAPIController extends APIController
             throw new InvalidArgumentException('Invalid class, only statements or fragmentStatements are allowed.');
         }
         $messageArray = [
-            Statement::class => [
+            Statement::class         => [
                 'assigned'   => 'confirm.statement.assignment.assigned',
                 'unassigned' => 'confirm.statement.assignment.unassigned',
                 'changed'    => 'confirm.statement.assignment.changed',
@@ -133,7 +133,7 @@ class DemosPlanClaimAPIController extends APIController
                 $entityToUpdate = $this->statementHandler->getStatementFragment($entityId);
             }
             if (null === $entityToUpdate) {
-                throw new \UnexpectedValueException('Could not find ID of statement / statementFragment ID: %s', $entityId);
+                throw new UnexpectedValueException('Could not find ID of statement / statementFragment ID: %s', $entityId);
             }
 
             // select and validate assignee user
@@ -155,7 +155,7 @@ class DemosPlanClaimAPIController extends APIController
                 $this->statementHandler->setAssigneeOfStatementFragment($entityToUpdate, $assignee);
             }
 
-            //determine confirm messages
+            // determine confirm messages
             $message = $messageArray[$class]['assigned'];
             if (null === $assigneeIdUnvalidated) {
                 $message = $messageArray[$class]['unassigned'];
@@ -176,7 +176,7 @@ class DemosPlanClaimAPIController extends APIController
 
             // case: reset
             return $this->renderEmpty();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add('error', $messageArray[$class]['error']);
 
             return $this->handleApiError($e);

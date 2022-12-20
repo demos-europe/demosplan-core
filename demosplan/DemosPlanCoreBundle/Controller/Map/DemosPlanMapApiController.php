@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
 use Exception;
@@ -25,7 +25,6 @@ class DemosPlanMapApiController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_map_options_admin",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      *
      * @throws Exception
@@ -43,7 +42,6 @@ class DemosPlanMapApiController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_map_options_public",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @throws Exception
