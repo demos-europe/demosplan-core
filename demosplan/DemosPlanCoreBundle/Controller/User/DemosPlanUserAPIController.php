@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
@@ -24,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;

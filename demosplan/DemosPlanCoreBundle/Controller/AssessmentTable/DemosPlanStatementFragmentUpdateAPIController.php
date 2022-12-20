@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;

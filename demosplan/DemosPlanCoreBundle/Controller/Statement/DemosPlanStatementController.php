@@ -833,7 +833,7 @@ class DemosPlanStatementController extends BaseController
                 'title'        => $title,
                 'fscope'       => $fscope,
                 // überschreibt ein übergebenes 'permissions' die Werte aus der Session
-                'permissions' => $this->permissions->getPermissions(),
+                'permissions'  => $this->permissions->getPermissions(),
             ]
         );
     }
@@ -1109,7 +1109,7 @@ class DemosPlanStatementController extends BaseController
                             $draftStatementNumber, $currentProcedureService->getProcedureWithCertainty()
                         ),
                     ],
-                    'procedure' => $procedure,
+                    'procedure'    => $procedure,
                 ]
             )->getContent();
 
@@ -1276,7 +1276,7 @@ class DemosPlanStatementController extends BaseController
                             [],
                             'page-title'
                         ),
-                        'url' => $this->generateUrl(
+                        'url'   => $this->generateUrl(
                             'DemosPlan_statement_list_released_group',
                             ['procedure' => $procedure]
                         ),
@@ -1704,7 +1704,7 @@ class DemosPlanStatementController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'statementnew' => [
+            'statementnew'                 => [
                 'action',
                 'r_text',
                 'r_elementID',
@@ -1712,12 +1712,12 @@ class DemosPlanStatementController extends BaseController
                 'r_documentID',
                 'r_polygon',
             ],
-            'list' => [
+            'list'                         => [
                 'action',
                 'flip_status',
                 'submit',
             ],
-            'statementedit' => [
+            'statementedit'                => [
                 'action',
                 'delete_file',
                 'r_ident',
@@ -1741,7 +1741,7 @@ class DemosPlanStatementController extends BaseController
                 'r_makePublic',
                 'location_is_set',
             ],
-            'publicstatementnew' => [
+            'publicstatementnew'           => [
                 'action',
                 'url',
                 'r_loadtime',

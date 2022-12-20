@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -28,6 +27,7 @@ use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;

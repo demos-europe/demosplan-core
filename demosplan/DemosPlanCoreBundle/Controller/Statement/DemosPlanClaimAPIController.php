@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,8 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -103,7 +103,7 @@ class DemosPlanClaimAPIController extends APIController
             throw new InvalidArgumentException('Invalid class, only statements or fragmentStatements are allowed.');
         }
         $messageArray = [
-            Statement::class => [
+            Statement::class         => [
                 'assigned'   => 'confirm.statement.assignment.assigned',
                 'unassigned' => 'confirm.statement.assignment.unassigned',
                 'changed'    => 'confirm.statement.assignment.changed',

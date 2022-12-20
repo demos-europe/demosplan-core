@@ -364,7 +364,7 @@ class FaqController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'faq_new' => [
+            'faq_new'    => [
                 'action',
                 'r_title',
                 'r_text',
@@ -376,7 +376,7 @@ class FaqController extends BaseController
                 'action',
                 'faq_delete',
             ],
-            'faq_edit' => [
+            'faq_edit'   => [
                 'action',
                 'r_ident',
                 'r_title',
@@ -385,11 +385,11 @@ class FaqController extends BaseController
                 'r_group_code',
                 'r_category_id',
             ],
-            'show' => [
+            'show'       => [
                 'action',
                 'r_category_title',
             ],
-            'delete' => [
+            'delete'     => [
                 'action',
             ],
         ];

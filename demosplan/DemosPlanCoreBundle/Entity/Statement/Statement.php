@@ -425,15 +425,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         // always set to 'no_check_since_not_allowed'.
         // By convention, this value is also the default in invalid cases, e.g. when creating head statements, which
         // should never but which need to have a value.
-        self::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED => 'no',
+        self::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED         => 'no',
         // If the author wants to allow publication, then one of the following values is set:
         // 'publication_pending' is the default, meaning that the FPA needs to check if publication is ok
-        self::PUBLICATION_PENDING                    => 'publication.pending',
+        self::PUBLICATION_PENDING                            => 'publication.pending',
         // Once the check has occurred, the value may either be 'publication_rejected' or 'publication_approved'.
         // The user may not change this once it is set. Hence, the rejection implies that an actual check by the planner
         // has taken place, it should never be used as a default.
-        self::PUBLICATION_REJECTED                   => 'publication.rejected',
-        self::PUBLICATION_APPROVED                   => 'publication.approved',
+        self::PUBLICATION_REJECTED                           => 'publication.rejected',
+        self::PUBLICATION_APPROVED                           => 'publication.approved',
     ];
 
     /**

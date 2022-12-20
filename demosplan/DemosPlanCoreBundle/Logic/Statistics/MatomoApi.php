@@ -14,6 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statistics;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -23,9 +26,6 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 class MatomoApi
 {

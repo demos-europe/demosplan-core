@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;

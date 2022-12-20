@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;

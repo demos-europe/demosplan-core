@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use Psr\Log\LoggerInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 class TextIntoImageInserter
 {

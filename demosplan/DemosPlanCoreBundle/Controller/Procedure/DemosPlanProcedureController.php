@@ -628,7 +628,7 @@ class DemosPlanProcedureController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'new' => [
+            'new'             => [
                 'action',
                 'r_copymaster',
                 'r_customerMasterBlueprint',
@@ -645,22 +645,22 @@ class DemosPlanProcedureController extends BaseController
                 'uploadedFiles',
                 'procedureCoupleToken',
             ],
-            'delete' => [
+            'delete'          => [
                 'action',
                 'procedure_delete',
             ],
-            'adminlist' => [
+            'adminlist'       => [
                 'action',
                 'filter_phase',
             ],
-            'emailEdit' => [
+            'emailEdit'       => [
                 'action',
                 'orga_selected',
                 'r_emailCc',
                 'r_emailText',
                 'r_emailTitle',
             ],
-            'edit' => [
+            'edit'            => [
                 'action',
                 'delete_logo',
                 'fieldCompletions',
@@ -706,7 +706,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_startdate',
                 'r_export_settings',
             ],
-            'newSuscription' => [
+            'newSuscription'  => [
                 'action',
                 'r_postalcode',
                 'r_radius',
@@ -2391,7 +2391,7 @@ class DemosPlanProcedureController extends BaseController
                     [],
                     'page-title'
                 ),
-                'url' => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
+                'url'   => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
             ]
         );
 

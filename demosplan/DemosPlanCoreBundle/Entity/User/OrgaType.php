@@ -50,15 +50,15 @@ class OrgaType extends CoreEntity implements UuidEntityInterface
     public const DEFAULT = 'OTDEFA';
 
     public const ORGATYPE_ROLE = [
-        self::PUBLIC_AGENCY   => [
+        self::PUBLIC_AGENCY            => [
             Role::PUBLIC_AGENCY_COORDINATION,
             Role::PUBLIC_AGENCY_WORKER,
         ],
-        self::MUNICIPALITY    => [
+        self::MUNICIPALITY             => [
             Role::PLANNING_AGENCY_ADMIN,
             Role::PLANNING_AGENCY_WORKER,
         ],
-        self::PLANNING_AGENCY => [
+        self::PLANNING_AGENCY          => [
             Role::PRIVATE_PLANNING_AGENCY,
         ],
         self::HEARING_AUTHORITY_AGENCY => [

@@ -14,6 +14,8 @@ use function array_key_exists;
 use function array_keys;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
@@ -28,8 +30,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
