@@ -24,8 +24,8 @@ use demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTran
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use JsonSchema\Exception\InvalidSchemaException;
 use Exception;
+use JsonSchema\Exception\InvalidSchemaException;
 
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {
