@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use function array_key_exists;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterException;
 use DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;

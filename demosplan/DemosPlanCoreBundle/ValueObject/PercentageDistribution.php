@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-
 /**
  * @method int   getTotal()
  * @method array getPercentages()
