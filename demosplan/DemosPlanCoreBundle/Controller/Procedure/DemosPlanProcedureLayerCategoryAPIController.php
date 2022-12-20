@@ -46,11 +46,11 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
     {
         try {
             $mapService->deleteGisLayerCategory($layerCategoryId);
-            $this->getMessageBag()->add('confirm', 'confirm.gislayerCategory.delete');
+            $this->messageBag->add('confirm', 'confirm.gislayerCategory.delete');
 
             return $this->renderDelete();
         } catch (AttachedChildException $e) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'warning.gisLayerCategory.delete.because.of.children',
                 ['categoryName' => $e->getName()]
@@ -58,7 +58,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
 
             return $this->handleApiError($e);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.gislayerCategory.delete');
+            $this->messageBag->add('error', 'error.gislayerCategory.delete');
 
             return $this->handleApiError($e);
         }

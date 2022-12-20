@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -22,12 +24,13 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
@@ -50,14 +53,26 @@ class DemosPlanClaimAPIController extends APIController
     private $userService;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         ProcedureHandler $procedureHandler,
         PrefilledResourceTypeProvider $resourceTypeProvider,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        AbstractProcessorConfig $processorConfig
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $processorConfig
+        );
         $this->procedureHandler = $procedureHandler;
         $this->statementHandler = $statementHandler;
         $this->userService = $userService;
@@ -162,7 +177,7 @@ class DemosPlanClaimAPIController extends APIController
             } elseif (null !== $previousAssignee) {
                 $message = $messageArray[$class]['changed'];
             }
-            $this->getMessageBag()->add('confirm', $message);
+            $this->messageBag->add('confirm', $message);
 
             // get new assignee and prepare assignee data for return
             $assignee = $entityToUpdate->getAssignee();
@@ -177,7 +192,7 @@ class DemosPlanClaimAPIController extends APIController
             // case: reset
             return $this->renderEmpty();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', $messageArray[$class]['error']);
+            $this->messageBag->add('error', $messageArray[$class]['error']);
 
             return $this->handleApiError($e);
         }

@@ -49,6 +49,8 @@ services:
         autoconfigure: true
 
     Tests\CoreApplication\Permissions\Permissions:
+        arguments:
+            $addonPermissions: !tagged_iterator dplan.permission_collection
 
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'

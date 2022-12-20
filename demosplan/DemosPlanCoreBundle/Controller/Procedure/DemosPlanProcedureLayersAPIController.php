@@ -55,7 +55,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
     public function layersUpdateAction(MapHandler $mapHandler): APIResponse
     {
         $rootCategory = $this->getRequestJson('data');
-        $messageBag = $this->getMessageBag();
+        $messageBag = $this->messageBag;
 
         try {
             $mapHandler->updateElementsOfRootCategory($rootCategory);
@@ -90,11 +90,11 @@ class DemosPlanProcedureLayersAPIController extends APIController
     {
         try {
             $mapHandler->deleteGisLayer($layerId);
-            $this->getMessageBag()->add('confirm', 'confirm.gislayer.delete');
+            $this->messageBag->add('confirm', 'confirm.gislayer.delete');
 
             return $this->renderDelete();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.gislayer.delete');
+            $this->messageBag->add('error', 'error.gislayer.delete');
 
             return $this->handleApiError($e);
         }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -39,8 +40,10 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 /**
  * You find general RPC API usage information
@@ -363,7 +366,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $assigneeId = trim($assigneeId);
 
-        return isset($assigneeId) && '' !== $assigneeId;
+        return '' !== $assigneeId;
     }
 
     /**

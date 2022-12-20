@@ -24,10 +24,6 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
 
-
-            #################################
-
-
     DemosEurope\DemosplanAddon\Controller\APIController:
         arguments:
             $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
@@ -44,12 +40,6 @@ services:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
-
-
-
-
-
-        ##########################################
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:

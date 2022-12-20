@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -20,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
@@ -36,7 +37,9 @@ use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,12 +54,24 @@ class DemosPlanProcedureAPIController extends APIController
     private $procedureHandler;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         ProcedureHandler $procedureHandler,
         PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        AbstractProcessorConfig $processorConfig
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $processorConfig
+        );
         $this->procedureHandler = $procedureHandler;
     }
 
@@ -99,7 +114,7 @@ class DemosPlanProcedureAPIController extends APIController
 
             return $this->createResponse([], 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.procedure.markParticipated');
+            $this->messageBag->add('error', 'error.procedure.markParticipated');
 
             return $this->handleApiError($e);
         }
@@ -126,7 +141,7 @@ class DemosPlanProcedureAPIController extends APIController
 
             return $this->createResponse([], 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.procedure.markParticipated');
+            $this->messageBag->add('error', 'error.procedure.markParticipated');
 
             return $this->handleApiError($e);
         }
@@ -434,16 +449,16 @@ class DemosPlanProcedureAPIController extends APIController
             $successful = $userFilterSetService->deleteUserFilterSet($filterSetId);
 
             if ($successful) {
-                $this->getMessageBag()->add('confirm', 'confirm.savedFilterSet.deleted');
+                $this->messageBag->add('confirm', 'confirm.savedFilterSet.deleted');
 
                 return $this->renderDelete();
             }
 
-            $this->getMessageBag()->add('error', 'error.savedFilterSet.deleted');
+            $this->messageBag->add('error', 'error.savedFilterSet.deleted');
 
             return $this->renderDelete(Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.savedFilterSet.deleted');
+            $this->messageBag->add('error', 'error.savedFilterSet.deleted');
 
             return $this->handleApiError($e);
         }

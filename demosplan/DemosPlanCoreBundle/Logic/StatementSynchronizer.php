@@ -395,7 +395,7 @@ class StatementSynchronizer
     }
 
     /**
-     * @template T of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
+     * @template T of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
      *
      * @param T $source
      * @param T $target

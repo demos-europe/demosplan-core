@@ -26,6 +26,7 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
+use stdClass;
 
 class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
 {

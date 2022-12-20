@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -27,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdministratableUserResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
@@ -39,10 +40,12 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Exception;
 use League\Fractal\Resource\Collection;
 use LogicException;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,12 +60,24 @@ class DemosPlanUserAPIController extends APIController
     protected $userService;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         PrefilledResourceTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        AbstractProcessorConfig $processorConfig
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $processorConfig
+        );
 
         $this->userService = $userService;
     }
@@ -94,7 +109,7 @@ class DemosPlanUserAPIController extends APIController
             $e->setEntityId($userId);
             throw $e;
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.access.denied');
+            $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to find user: '.$e);
 
             return $this->handleApiError($e);
@@ -156,7 +171,7 @@ class DemosPlanUserAPIController extends APIController
 
             return $this->renderResource($collection);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.access.denied');
+            $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to get user list: '.$e);
 
             return $this->handleApiError($e);
@@ -192,9 +207,9 @@ class DemosPlanUserAPIController extends APIController
             if ($user instanceof User) {
                 try {
                     $userHandler->inviteUser($user);
-                    $this->getMessageBag()->add('confirm', 'confirm.email.invitation.sent');
+                    $this->messageBag->add('confirm', 'confirm.email.invitation.sent');
                 } catch (SendMailException $e) {
-                    $this->getMessageBag()->add('error', 'error.email.invitation.send.to.user');
+                    $this->messageBag->add('error', 'error.email.invitation.send.to.user');
                 }
 
                 $item = $this->resourceService->makeItemOfResource(
@@ -207,16 +222,16 @@ class DemosPlanUserAPIController extends APIController
 
             throw new RuntimeException('Could not create user');
         } catch (EmailAddressInUseException|LoginNameInUseException $e) {
-            $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
+            $this->messageBag->add('error', 'error.login.or.email.not.unique');
 
             return $this->handleApiError($e);
         } catch (UserAlreadyExistsException $e) {
-            $this->getMessageBag()->add('error', 'error.user.login.exists');
+            $this->messageBag->add('error', 'error.user.login.exists');
 
             return $this->handleApiError($e);
         } catch (Exception $e) {
-            $this->getLogger()->error('New User Entity could not been saved');
-            $this->getMessageBag()->add('error', 'error.save');
+            $this->logger->error('New User Entity could not been saved');
+            $this->messageBag->add('error', 'error.save');
 
             return $this->handleApiError($e);
         }
@@ -285,7 +300,7 @@ class DemosPlanUserAPIController extends APIController
         $updatedUser = $userHandler->updateUser($id, $userData);
 
         if ($updatedUser instanceof User) {
-            $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+            $this->messageBag->add('confirm', 'confirm.all.changes.saved');
             $item = $this->resourceService->makeItemOfResource($updatedUser, UserResourceType::getName());
 
             return $this->renderResource($item);

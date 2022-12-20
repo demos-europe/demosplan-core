@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 use function array_key_exists;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;

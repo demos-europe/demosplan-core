@@ -14,12 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;

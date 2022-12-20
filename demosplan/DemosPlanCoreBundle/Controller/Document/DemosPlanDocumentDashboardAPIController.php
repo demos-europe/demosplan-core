@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
@@ -30,8 +30,10 @@ use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -44,12 +46,24 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     private $objectPersister;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         PrefilledResourceTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        ObjectPersisterInterface $objectPersister
+        ObjectPersisterInterface $objectPersister,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        AbstractProcessorConfig $processorConfig
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $processorConfig
+        );
         $this->objectPersister = $objectPersister;
     }
 
@@ -159,7 +173,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         // ProcedureSettings not automatically trigger an ES update
         $this->objectPersister->replaceOne($updatedProcedure);
         foreach ($successMessages as $message) {
-            $this->getMessageBag()->addObject($message);
+            $this->messageBag->addObject($message);
         }
 
         return $this->renderSuccess();

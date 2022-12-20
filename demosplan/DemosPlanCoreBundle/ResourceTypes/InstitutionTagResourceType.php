@@ -175,7 +175,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         $institutionViolationLists = [];
         $updater->ifPresent(
             $this->taggedInstitutions,
-            static function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
+            function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
                 $tag->setTaggedInstitutions($institutions);
                 $institutions->forAll(function (int $key, Orga $institutionToBeTagged) use ($tag, &$institutionViolationLists): bool {
                     $institutionToBeTagged->addAssignedTag($tag);

@@ -89,7 +89,7 @@ class SurveyVoteAPIController extends APIController
 
             return $this->renderEmpty();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.survey.votes.publication');
+            $this->messageBag->add('error', 'error.survey.votes.publication');
 
             return $this->handleApiError($e);
         }
@@ -130,12 +130,12 @@ class SurveyVoteAPIController extends APIController
             );
             $surveyVoteHandler->updateObject($surveyVote);
             $survey = $surveyHandler->findById($surveyId);
-            $this->getMessageBag()->add('confirm', 'survey.comment.created');
+            $this->messageBag->add('confirm', 'survey.comment.created');
 
             return $this->getCreateResponse($surveyVoteHandler, $survey);
         } catch (Exception $e) {
-            $this->getLogger()->error($e->getMessage());
-            $this->getMessageBag()->add('error', 'error.generic');
+            $this->logger->error($e->getMessage());
+            $this->messageBag->add('error', 'error.generic');
 
             return $this->handleApiError($e);
         }
@@ -162,17 +162,17 @@ class SurveyVoteAPIController extends APIController
         $accepted = true;
         if (!$resourceObject->isPresent('r_confirm_locality') ||
             !$resourceObject->get('r_confirm_locality')) {
-            $this->getMessageBag()->add('warning', 'warning.local.participant.confirm');
+            $this->messageBag->add('warning', 'warning.local.participant.confirm');
             $accepted = false;
         }
         if (!$resourceObject->isPresent('r_gdpr_consent') ||
             !$resourceObject->get('r_gdpr_consent')) {
-            $this->getMessageBag()->add('warning', 'warning.gdpr.consent');
+            $this->messageBag->add('warning', 'warning.gdpr.consent');
             $accepted = false;
         }
         if (!$resourceObject->isPresent('r_privacy') ||
             !$resourceObject->get('r_privacy')) {
-            $this->getMessageBag()->add('warning', 'warning.privacy.confirm');
+            $this->messageBag->add('warning', 'warning.privacy.confirm');
             $accepted = false;
         }
 
@@ -190,7 +190,7 @@ class SurveyVoteAPIController extends APIController
         if (SurveyVote::PUBLICATION_APPROVED === $surveyVote->getTextReview()) {
             $message = 'survey.votes.publication.approval';
         }
-        $this->getMessageBag()->add('confirm', $message);
+        $this->messageBag->add('confirm', $message);
     }
 
     /**
