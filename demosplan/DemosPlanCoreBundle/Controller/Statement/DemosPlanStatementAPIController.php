@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use EDT\JsonApi\Validation\FieldsValidator;
-use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
-use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use function array_key_exists;
 use function array_keys;
 
@@ -51,6 +48,9 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 
 use function is_int;
