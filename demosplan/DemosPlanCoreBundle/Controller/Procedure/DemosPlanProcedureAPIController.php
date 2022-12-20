@@ -20,7 +20,6 @@ use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
@@ -35,9 +34,11 @@ use demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer;
 use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
+use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -56,21 +57,23 @@ class DemosPlanProcedureAPIController extends APIController
     public function __construct(
         LoggerInterface $apiLogger,
         ProcedureHandler $procedureHandler,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        AbstractProcessorConfig $processorConfig
+        SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
             $apiLogger,
             $resourceTypeProvider,
+            $fieldsValidator,
             $translator,
             $logger,
             $globalConfig,
             $messageBag,
-            $processorConfig
+            $schemaPathProcessor
         );
         $this->procedureHandler = $procedureHandler;
     }

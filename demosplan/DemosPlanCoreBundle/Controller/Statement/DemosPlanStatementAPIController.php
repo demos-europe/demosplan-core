@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use function array_key_exists;
 use function array_keys;
 
@@ -31,7 +34,6 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
@@ -49,7 +51,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
 use Exception;
 
 use function is_int;
@@ -72,23 +73,25 @@ class DemosPlanStatementAPIController extends APIController
     private $permissions;
 
     public function __construct(
-        LoggerInterface $apiLogger,
         PermissionsInterface $permissions,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        AbstractProcessorConfig $processorConfig
+        SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
             $apiLogger,
             $resourceTypeProvider,
+            $fieldsValidator,
             $translator,
             $logger,
             $globalConfig,
             $messageBag,
-            $processorConfig
+            $schemaPathProcessor
         );
         $this->permissions = $permissions;
     }

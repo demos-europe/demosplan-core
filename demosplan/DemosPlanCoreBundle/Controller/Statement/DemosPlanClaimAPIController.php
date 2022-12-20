@@ -23,12 +23,13 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -53,25 +54,27 @@ class DemosPlanClaimAPIController extends APIController
     private $userService;
 
     public function __construct(
-        LoggerInterface $apiLogger,
         ProcedureHandler $procedureHandler,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator,
         UserService $userService,
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
+        TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        AbstractProcessorConfig $processorConfig
+        SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
             $apiLogger,
             $resourceTypeProvider,
+            $fieldsValidator,
             $translator,
             $logger,
             $globalConfig,
             $messageBag,
-            $processorConfig
+            $schemaPathProcessor
         );
         $this->procedureHandler = $procedureHandler;
         $this->statementHandler = $statementHandler;

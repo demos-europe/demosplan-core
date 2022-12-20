@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
@@ -39,8 +38,10 @@ use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
+use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
 use LogicException;
@@ -60,23 +61,25 @@ class DemosPlanUserAPIController extends APIController
     protected $userService;
 
     public function __construct(
-        LoggerInterface $apiLogger,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator,
         UserService $userService,
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
+        TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        AbstractProcessorConfig $processorConfig
+        SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
             $apiLogger,
             $resourceTypeProvider,
+            $fieldsValidator,
             $translator,
             $logger,
             $globalConfig,
             $messageBag,
-            $processorConfig
+            $schemaPathProcessor
         );
 
         $this->userService = $userService;

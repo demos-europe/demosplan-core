@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
@@ -30,7 +29,9 @@ use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
@@ -47,22 +48,24 @@ class DemosPlanDocumentDashboardAPIController extends APIController
 
     public function __construct(
         LoggerInterface $apiLogger,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         ObjectPersisterInterface $objectPersister,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        AbstractProcessorConfig $processorConfig
+        SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
             $apiLogger,
             $resourceTypeProvider,
+            $fieldsValidator,
             $translator,
             $logger,
             $globalConfig,
             $messageBag,
-            $processorConfig
+            $schemaPathProcessor
         );
         $this->objectPersister = $objectPersister;
     }
