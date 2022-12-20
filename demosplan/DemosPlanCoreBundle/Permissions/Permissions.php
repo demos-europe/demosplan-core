@@ -1125,6 +1125,11 @@ class Permissions implements PermissionsInterface, CorePermissionEvaluatorInterf
         return true;
     }
 
+    public function requirePermission(string $permissionName): void
+    {
+        $this->evaluatePermission($permissionName);
+    }
+
     public function isPermissionEnabled(string $permissionName): bool
     {
         // The `hasPermission` below would return `false` too if the permission is not known, but
