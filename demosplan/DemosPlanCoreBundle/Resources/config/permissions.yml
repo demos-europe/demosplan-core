@@ -727,6 +727,10 @@ feature_citizen_registration:
     expose: false
     label: 'Allow citizens registration by themselves.'
     loginRequired: false
+feature_create_statement_manually:
+    description: 'allows to add statements manually and independently of the PDF.'
+    label: ' add statement manually'
+    loginRequired: true
 feature_create_procedure_proposal:
     description: 'The user would be able to post suggestions to bring in new topics'
     expose: false
