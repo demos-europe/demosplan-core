@@ -18,7 +18,11 @@ const chunkSplitting = {
       name: 'core',
       chunks: 'all',
       enforce: true,
-      test: /([\\/]node_modules[\\/](vue[\\/]|vuex|v-tooltip|portal-vue|axios|popper|dayjs|dompurify|lodash|@efrane|@sentry|core-js|qs|tooltip\.js|deep-object-diff|js-base64))|([\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue\.js|VueConfigCore\.js|bootstrap\.js))/,
+      test (module) {
+        const nodeModulesCoreTest = /[\\/]node_modules[\\/](@demos-europe|vue[\\/]|vuex|v-tooltip|portal-vue|axios|popper|dayjs|dompurify|lodash|@efrane|@sentry|core-js|qs|tooltip|deep-object-diff|js-base64)/
+        const baseModulesCoreTest = /[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue\.js|VueConfigCore\.js)/
+        return module.resource && (nodeModulesCoreTest.test(module.resource) || baseModulesCoreTest.test(module.resource))
+      },
       priority: 2,
       reuseExistingChunk: true
     },
