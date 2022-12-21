@@ -18,7 +18,6 @@ use Doctrine\Common\Annotations\Reader;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\Routing\RouterInterface;
@@ -63,7 +62,7 @@ class CheckPermissionListener
 
         [$controller, $methodName] = $controllers;
 
-        if (!$controller instanceof AbstractController) {
+        if (!$controller instanceof BaseController) {
             return;
         }
 
@@ -94,7 +93,7 @@ class CheckPermissionListener
             try {
                 if ($controller instanceof APIController) {
                     $redirectResponse = $controller->handleApiError($e);
-                } elseif ($controller instanceof BaseController) {
+                } else {
                     $redirectResponse = $controller->handleError($e);
                 }
             } catch (Exception $e) {
