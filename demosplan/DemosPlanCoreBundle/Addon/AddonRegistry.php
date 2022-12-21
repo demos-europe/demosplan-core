@@ -197,8 +197,13 @@ class AddonRegistry
                 $manifestPath = DemosPlanPath::getRootPath($item['install_path'].$uiData['manifest']);
 
                 try {
-                    $entryFileName = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
+                    $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
                     // Try to get the content of the actual asset
+                    $entryFilePath = DemosPlanPath::getRootPath($item['install_path'].$entryFile);
+                    $assetContent = file_get_contents($entryFilePath);
+                    if (!$assetContent) {
+                        return [];
+                    }
                 } catch (RuntimeException $e) {
                     return [];
                 }
@@ -207,8 +212,7 @@ class AddonRegistry
                     $key => [
                         'entry' => $hookData['entry'],
                         'options' => $hookData['options'],
-                        'manifest' => $manifestPath,
-                        'install_path' => $item['install_path'],
+                        'content' => $assetContent,
                     ],
                 ];
             }
@@ -225,15 +229,15 @@ class AddonRegistry
     private function getAssetPathFromManifest(string $manifestPath, string $entryName): string
     {
         if (!file_exists($manifestPath)) {
-            throw new RuntimeException('Manifest could not be found for: '.$manifestPath);
+            throw new RuntimeException(sprintf('Manifest could not be found for "%s"', $manifestPath));
         }
 
         $manifestContent = Yaml::parseFile($manifestPath);
 
         if (!array_key_exists($entryName, $manifestContent)) {
-            throw new RuntimeException('No entry found in manifest with name: '.$entryName);
+            throw new RuntimeException(sprintf('No entry found in manifest with name: "%s"', $entryName));
         }
 
-        return $manifestPath[$entryName];
+        return $manifestContent[$entryName];
     }
 }

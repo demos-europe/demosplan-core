@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
@@ -56,26 +55,13 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
             try {
                 $this->validateRpcRequest($rpcRequest);
 
-                // Here comes the real logic
                 $hookName = $rpcRequest->params->hookName;
                 $addonsAssetsData = $this->addonRegistry->getFrontendClassesForHook($hookName);
 
-                $loadedAssetsData = [];
-                foreach ($addonsAssetsData as $addon => $assetsData) {
-                    if (file_exists($assetsData['manifest'])) {
-
-                    }
-                }
-
-                // Now it's time to match the files to the paths from the manifest
-
-                // Grab the content of the files and add it to an array with all information
-                $assets = [];
-
-                $resultResponse[] = $this->generateMethodResult($rpcRequest, $assets);
+                $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
             } catch (InvalidArgumentException | InvalidSchemaException $e) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException | UserNotFoundException $e) {
+            } catch (AccessDeniedException $e) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
             } catch (Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
