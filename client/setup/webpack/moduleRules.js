@@ -122,9 +122,9 @@ const moduleRules =
       test: /\.js$/,
       use: ['source-map-loader'],
       enforce: 'pre',
-      exclude: [
-        resolveDir('node_modules')
-      ]
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.s?css$/,

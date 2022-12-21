@@ -36,7 +36,7 @@ class Config {
     this.absoluteRoot = path.resolve(__dirname, this.relativeRoot) + '/'
     this.oldBundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
 
-    // Yes, technically this is not needed but it's here to document the possible use in `resolveAliases`
+    // Yes, technically this is not needed, but it's here to document the possible use in `resolveAliases`.
     const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
     this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
