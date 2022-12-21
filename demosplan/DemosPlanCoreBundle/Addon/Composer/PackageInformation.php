@@ -39,7 +39,7 @@ final class PackageInformation
             return;
         }
 
-        $packageListPath = include $installedPackagesPath;
+        $packageListPath = include_once $installedPackagesPath;
 
         if (!array_key_exists('versions', $packageListPath)) {
             return;
