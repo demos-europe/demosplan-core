@@ -94,7 +94,7 @@ class CheckPermissionListener
             try {
                 if ($controller instanceof APIController) {
                     $redirectResponse = $controller->handleApiError($e);
-                } else if ($controller instanceof BaseController) {
+                } elseif ($controller instanceof BaseController) {
                     $redirectResponse = $controller->handleError($e);
                 }
             } catch (Exception $e) {
