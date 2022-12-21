@@ -174,7 +174,7 @@ class AddonRegistry
 
         spl_autoload_register(static function (string $class) use ($classmap): void {
             if (array_key_exists($class, $classmap)) {
-                include $classmap[$class];
+                include_once $classmap[$class];
             }
         });
 
