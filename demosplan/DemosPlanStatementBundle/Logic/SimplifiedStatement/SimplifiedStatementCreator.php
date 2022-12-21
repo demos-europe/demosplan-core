@@ -67,7 +67,7 @@ abstract class SimplifiedStatementCreator
         }
         $statement = $this->statementHandler->newStatement(
             $rParams,
-            $this->currentUser->hasPermission('feature_create_statement_manually')
+            $this->currentUser->hasPermission('feature_statement_data_input_orga')
         );
         $this->handleCreatedStatement($request, $statement);
 
