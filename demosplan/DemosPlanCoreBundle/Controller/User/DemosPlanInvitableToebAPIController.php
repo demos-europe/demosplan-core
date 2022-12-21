@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +23,6 @@ class DemosPlanInvitableToebAPIController extends APIController
      * @return JsonResponse
      *
      * @Route(path="/api/1.0/procedure/{procedureId}/InvitableToeb", methods={"GET"}, name="dplan_api_invitable_toeb_list")
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      */
     public function listAction(OrgaService $orgaService)

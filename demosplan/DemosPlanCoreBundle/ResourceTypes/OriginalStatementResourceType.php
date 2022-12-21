@@ -82,7 +82,7 @@ final class OriginalStatementResourceType extends DplanResourceType
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
 
-        $this->eventDispatcher->dispatch(new GetPropertiesEvent($properties));
+        $this->eventDispatcher->dispatch(new GetPropertiesEvent($this, $properties));
 
         return $properties;
     }

@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use stdClass;
 
-class RpcErrorGenerator
+class RpcErrorGenerator implements RpcErrorGeneratorInterface
 {
     public const ACCESS_DENIED_CODE = -32768;
     public const ACCESS_DENIED_MESSAGE = 'Access denied';

@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Video;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -35,7 +35,6 @@ class Customer extends CoreEntity implements UuidEntityInterface
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
-
 
     /**
      * @var Collection<int, CustomerCounty>
@@ -173,7 +172,6 @@ class Customer extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
-     *
      * @Assert\Length(max=65000)
      */
     protected $accessibilityExplanation = '';
@@ -207,7 +205,6 @@ class Customer extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
-     *
      * @Assert\Length(max=65536)
      */
     protected $overviewDescriptionInSimpleLanguage = '';

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
@@ -240,7 +240,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->addonMaintenance($output);
             // async localization not needed any more, will be deleted
             // after merging into main, to avoid merge problems
-            //$this->getProcedureLocations($output);
+            // $this->getProcedureLocations($output);
             $this->checkSearchIndexStatus($output);
             // Switch planning categories before procedures, because in case both happen
             // at the same time, we want to show the new categories in the report entry of
@@ -593,7 +593,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->logger->error('switchPhasesOfToday failed', [$e]);
         }
 
-        //Success notice
+        // Success notice
         $output->writeln('Tried switching phases of '.$internalProcedureCounter.' internal/public agency procedures.');
         $output->writeln('Tried switching phases of '.$externalProcedureCounter.' external/citizen procedures.');
     }

@@ -18,6 +18,8 @@ use Cocur\Slugify\Slugify;
 use function collect;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -41,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
@@ -52,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
@@ -628,7 +628,7 @@ class DemosPlanProcedureController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'new' => [
+            'new'             => [
                 'action',
                 'r_copymaster',
                 'r_customerMasterBlueprint',
@@ -645,22 +645,22 @@ class DemosPlanProcedureController extends BaseController
                 'uploadedFiles',
                 'procedureCoupleToken',
             ],
-            'delete' => [
+            'delete'          => [
                 'action',
                 'procedure_delete',
             ],
-            'adminlist' => [
+            'adminlist'       => [
                 'action',
                 'filter_phase',
             ],
-            'emailEdit' => [
+            'emailEdit'       => [
                 'action',
                 'orga_selected',
                 'r_emailCc',
                 'r_emailText',
                 'r_emailTitle',
             ],
-            'edit' => [
+            'edit'            => [
                 'action',
                 'delete_logo',
                 'fieldCompletions',
@@ -706,7 +706,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_startdate',
                 'r_export_settings',
             ],
-            'newSuscription' => [
+            'newSuscription'  => [
                 'action',
                 'r_postalcode',
                 'r_radius',
@@ -2391,7 +2391,7 @@ class DemosPlanProcedureController extends BaseController
                     [],
                     'page-title'
                 ),
-                'url' => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
+                'url'   => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
             ]
         );
 

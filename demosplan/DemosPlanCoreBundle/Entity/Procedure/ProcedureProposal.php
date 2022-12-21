@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -57,19 +58,17 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
     protected $description = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
@@ -129,8 +128,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set name.
-     *
-     * @return ProcedureProposal
      */
     public function setName(string $name): self
     {
@@ -157,22 +154,22 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface
         $this->description = $description;
     }
 
-    public function getCreatedDate(): \DateTime
+    public function getCreatedDate(): DateTime
     {
         return $this->createdDate;
     }
 
-    public function setCreatedDate(\DateTime $createdDate): void
+    public function setCreatedDate(DateTime $createdDate): void
     {
         $this->createdDate = $createdDate;
     }
 
-    public function getModifiedDate(): \DateTime
+    public function getModifiedDate(): DateTime
     {
         return $this->modifiedDate;
     }
 
-    public function setModifiedDate(\DateTime $modifiedDate): void
+    public function setModifiedDate(DateTime $modifiedDate): void
     {
         $this->modifiedDate = $modifiedDate;
     }

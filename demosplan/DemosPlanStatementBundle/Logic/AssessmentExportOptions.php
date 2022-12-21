@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
@@ -21,6 +19,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 
 /**
  * A configuration container for export options of statements, original statements and fragments.

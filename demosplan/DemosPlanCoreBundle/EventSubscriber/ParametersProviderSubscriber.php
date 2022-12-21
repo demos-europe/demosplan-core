@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
+
+use DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
+
+class ParametersProviderSubscriber extends BaseEventSubscriber
+{
+    /**
+     * @var ViewRenderer
+     */
+    private $viewRenderer;
+
+    public function __construct(ViewRenderer $viewRenderer)
+    {
+        $this->viewRenderer = $viewRenderer;
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent' => 'processParameters',
+        ];
+    }
+
+    private function processParameters(ParameterProviderEventInterface $event)
+    {
+        $view = $event->getView();
+        $parameters = $event->getParameters();
+        $response = $event->getResponse();
+        $this->viewRenderer->processRequestStatus();
+        $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);
+        $event->setParameters($parameters);
+    }
+}
