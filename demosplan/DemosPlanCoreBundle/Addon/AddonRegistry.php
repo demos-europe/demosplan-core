@@ -210,7 +210,7 @@ class AddonRegistry
 
                 return [
                     $key => [
-                        'entry' => $hookData['entry'],
+                        'entry'   => $hookData['entry'],
                         'options' => $hookData['options'],
                         'content' => $assetContent,
                     ],
@@ -219,7 +219,7 @@ class AddonRegistry
 
             return [];
         })->reject(function ($value) {
-            return $value === [];
+            return [] === $value;
         })->all();
     }
 
