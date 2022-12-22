@@ -11,6 +11,7 @@ const TerserPlugin = require('terser-webpack-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 const { config } = require('../config')
+const path = require('path')
 
 const chunkSplitting = {
   cacheGroups: {
@@ -18,66 +19,54 @@ const chunkSplitting = {
       name: 'core',
       chunks: 'all',
       enforce: true,
-      test (module) {
-        const nodeModulesCoreTest = /[\\/]node_modules[\\/](@demos-europe|vue[\\/]|vuex|v-tooltip|portal-vue|axios|popper|dayjs|dompurify|lodash|@efrane|@sentry|core-js|qs|tooltip|deep-object-diff|js-base64)/
-        const baseModulesCoreTest = /[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue\.js|VueConfigCore\.js)/
-        return module.resource && (nodeModulesCoreTest.test(module.resource) || baseModulesCoreTest.test(module.resource))
-      },
-      priority: 2,
-      reuseExistingChunk: true
+      minChunks: 3,
+      test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue|VueConfigCore)\.js/,
+      priority: 1
     },
     common: {
       name: 'common',
       chunks: 'all',
       enforce: true,
-      test: /[\\/]client[\\/]js[\\/]generated[\\/](translations\.json|routes\.json)/,
-      priority: 2,
-      reuseExistingChunk: true
+      test: /[\\/]client[\\/]js[\\/]generated[\\/](translations|routes)\.json/,
+      priority: 2
     },
     bs: {
       name: 'bs',
       chunks: 'all',
       enforce: true,
       test: /([\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/]lib)|([\\/]client[\\/]js[\\/]lib)/,
-      priority: 2,
-      reuseExistingChunk: true
-    },
-    tiptap: {
-      name: 'tiptap',
-      chunks: 'all',
-      enforce: true,
-      test: /[\\/]node_modules[\\/](tiptap|prosemirror)/,
-      priority: -5,
-      reuseExistingChunk: true
+      priority: 2
     },
     ol: {
       name: 'ol',
       chunks: 'all',
       enforce: true,
       test (module) {
-        const path = require('path')
         return module.resource &&
-          module.resource.endsWith('.js') &&
-          module.resource.includes(`${path.sep}node_modules${path.sep}ol${path.sep}`)
+          (
+            (module.resource.endsWith('.js') && module.resource.includes(`${path.sep}node_modules${path.sep}ol${path.sep}`)) ||
+            module.resource.includes(`${path.sep}node_modules${path.sep}@masterportal${path.sep}`) ||
+            module.resource.includes(`${path.sep}node_modules${path.sep}ol-mapbox-style${path.sep}`) ||
+            module.resource.includes(`${path.sep}node_modules${path.sep}olcs${path.sep}`) ||
+            module.resource.includes(`${path.sep}node_modules${path.sep}xmlbuilder${path.sep}`) ||
+            module.resource.includes(`${path.sep}node_modules${path.sep}sax${path.sep}`)
+          )
       },
-      priority: -5,
-      reuseExistingChunk: true
+      priority: 3
     },
     d3: {
       name: 'd3',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/]d3.*[\\/]/,
-      priority: -5,
-      reuseExistingChunk: true
+      priority: 3
     },
     leaflet: {
       name: 'leaflet',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/](leaflet|vue2-leaflet|leaflet.markercluster)[\\/]/,
-      priority: -5,
-      reuseExistingChunk: true
+      priority: 3
     }
   }
 }
