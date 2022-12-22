@@ -13,9 +13,12 @@ namespace Tests\Core\Core\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use Psr\Log\NullLogger;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -67,7 +70,12 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $this->procedureService = self::$container->get(ProcedureService::class);
         /** @var ProcedureRepository $procedureRepository */
         $procedureRepository = self::$container->get(ProcedureRepository::class);
-
+        /** @var CustomerService $currentCustomerProvider */
+        $currentCustomerProvider = self::$container->get(CustomerService::class);
+        /** @var PermissionResolver $permissionResolver */
+        $permissionResolver = self::$container->get(PermissionResolver::class);
+        /** @var ValidatorInterface $validator */
+        $validator = self::$container->get(ValidatorInterface::class);
         $this->translator = self::$container->get(TranslatorInterface::class);
         /** @var ProcedureAccessEvaluator $procedureAccessEvaluator */
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
@@ -76,11 +84,14 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
         $this->permissionsStub = new Permissions(
             [],
+            $currentCustomerProvider,
             new NullLogger(),
             $this->globalConfig,
             $permissionCollection,
+            $permissionResolver,
             $procedureAccessEvaluator,
-            $procedureRepository
+            $procedureRepository,
+            $validator
         );
 
         $this->createSut($this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
