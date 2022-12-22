@@ -655,7 +655,6 @@ class Permissions implements PermissionsInterface
             // enable ai specific permissions
             $this->enablePermissions([
                 'feature_ai_create_annotated_statement_pdf_pages',
-                'feature_ai_generated_draft_segments',
                 'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
