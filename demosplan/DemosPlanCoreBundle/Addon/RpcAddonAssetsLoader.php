@@ -79,7 +79,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
     public function validateRpcRequest(object $rpcRequest): void
     {
         if (!$this->permissions->hasPermission('area_admin_consultations')) {
-            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
+            throw AccessDeniedException::missingPermission('area_admin_consultations');
         }
     }
 
@@ -87,9 +87,8 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
     {
         $result = new stdClass();
         $result->jsonrpc = '2.0';
-        $result->result = 'ok';
+        $result->result = $assets;
         $result->id = $rpcRequest->id;
-        $result->assets = $assets;
 
         return $result;
     }

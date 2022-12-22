@@ -33,4 +33,9 @@ class AddonException extends RuntimeException
     {
         return new self("Probable addon class `{$class}` could not be resolved by addon class loading.");
     }
+
+    public static function manifestEntryNotFound(string $entryName): self
+    {
+        return new self(sprintf('No entry found in manifest with name: "%s"', $entryName));
+    }
 }
