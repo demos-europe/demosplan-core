@@ -325,12 +325,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Permissions\Permissions:
         arguments:
-            $addonPermissions: !tagged_iterator dplan.permission_collection
+            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
             $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
             $logger: '@monolog.logger.dplan'
-
-    demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionCollection:
-        shared: false
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 

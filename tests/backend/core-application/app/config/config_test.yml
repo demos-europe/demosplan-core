@@ -50,7 +50,7 @@ services:
 
     Tests\CoreApplication\Permissions\Permissions:
         arguments:
-            $addonPermissions: !tagged_iterator dplan.permission_collection
+            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
 
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'
