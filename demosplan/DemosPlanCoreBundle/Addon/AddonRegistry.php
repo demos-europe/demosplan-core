@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
 use Tightenco\Collect\Support\Collection;
 
@@ -179,5 +178,72 @@ class AddonRegistry
         });
 
         self::$autoloadingConfigured = true;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>>
+     */
+    public function getFrontendClassesForHook(string $hookName): array
+    {
+        return $this->addons->map(function (array $item, string $key) use ($hookName) {
+            if (!array_key_exists('ui', $item['manifest'])) {
+                return [];
+            }
+            $uiData = $item['manifest']['ui'];
+
+            if (!$item['enabled'] || !array_key_exists($hookName, $uiData['hooks'])) {
+                return [];
+            }
+            $hookData = $uiData['hooks'][$hookName];
+            $manifestPath = DemosPlanPath::getRootPath($item['install_path'].'/'.$uiData['manifest']);
+
+            try {
+                $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
+                // Try to get the content of the actual asset
+                $entryFilePath = DemosPlanPath::getRootPath($item['install_path'].'/'.$entryFile);
+                $assetContent = file_get_contents($entryFilePath);
+                if (!$assetContent) {
+                    return [];
+                }
+            } catch (AddonException $e) {
+                return [];
+            }
+
+            return $this->createAddonFrontendAssetsEntry($key, $hookData, $assetContent);
+        })->reject(fn (array $value) => [] === $value)->all();
+    }
+
+    /**
+     * @param array<string, string|array> $hookData
+     *
+     * @return array<string, string|array>
+     */
+    private function createAddonFrontendAssetsEntry(string $key, array $hookData, string $assetContent): array
+    {
+        return [
+            $key => [
+                'entry'   => $hookData['entry'],
+                'options' => $hookData['options'],
+                'content' => $assetContent,
+            ],
+        ];
+    }
+
+    /**
+     * @throws AddonException
+     */
+    private function getAssetPathFromManifest(string $manifestPath, string $entryName): string
+    {
+        if (!file_exists($manifestPath)) {
+            AddonException::invalidManifest($manifestPath);
+        }
+
+        $manifestContent = Yaml::parseFile($manifestPath);
+
+        if (!array_key_exists($entryName, $manifestContent)) {
+            AddonException::manifestEntryNotFound($entryName);
+        }
+
+        return $manifestContent[$entryName];
     }
 }
