@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use function array_key_exists;
 use function collect;
 
+use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -30,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use InvalidArgumentException;
 
@@ -41,7 +41,7 @@ use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.

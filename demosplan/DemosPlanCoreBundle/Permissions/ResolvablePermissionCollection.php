@@ -43,7 +43,6 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
         return $this->permissions[$permissionName] ?? null;
     }
 
-
     public function configurePermission(
         string $name,
         string $label,
