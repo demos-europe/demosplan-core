@@ -210,7 +210,7 @@ class AddonRegistry
             }
 
             return $this->createAddonFrontendAssetsEntry($key, $hookData, $assetContent);
-        })->reject(fn(array $value) => [] === $value)->all();
+        })->reject(fn (array $value) => [] === $value)->all();
     }
 
     /**
