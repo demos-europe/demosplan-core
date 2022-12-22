@@ -31,7 +31,9 @@
       ref="mapStatementRadio">
       <dp-radio
         id="locationcounty"
-        :label="Translator.trans('statement.map.reference.choose_county')"
+        :label="{
+          text: Translator.trans('statement.map.reference.choose_county')
+        }"
         name="r_location"
         :checked="statement.location_is_set === 'county'"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
@@ -62,7 +64,9 @@
       ]">
       <dp-radio
         id="locationNone"
-        :label="Translator.trans('statement.map.no_reference')"
+        :label="{
+          text: Translator.trans('statement.map.no_reference')
+        }"
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"

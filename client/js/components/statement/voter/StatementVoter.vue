@@ -119,13 +119,17 @@
             <div>
               <dp-radio
                 id="role_0"
-                :label="Translator.trans('role.citizen')"
+                :label="{
+                  text: Translator.trans('role.citizen')
+                }"
                 value="0"
                 :checked="formFields.role === 0"
                 @change="formFields.role = 0" />
               <dp-radio
                 id="role_1"
-                :label="Translator.trans('invitable_institution')"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
                 value="1"
                 :checked="formFields.role === 1"
                 @change="formFields.role = 1" />
