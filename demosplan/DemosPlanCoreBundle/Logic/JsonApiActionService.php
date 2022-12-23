@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -209,7 +210,7 @@ class JsonApiActionService extends AbstractApiService
         $object = $this->persistResourceChange($resourceChange);
 
         $postEvent = new AfterResourceUpdateEvent($resourceChange);
-        $this->eventDispatcher->dispatch($postEvent);
+        $this->eventDispatcher->dispatch($postEvent, AfterResourceUpdateEventInterface::class);
 
         return $object;
     }
