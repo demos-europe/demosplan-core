@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
@@ -82,7 +83,8 @@ final class OriginalStatementResourceType extends DplanResourceType
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
 
-        $this->eventDispatcher->dispatch(new GetPropertiesEvent($this, $properties));
+        $event = new GetPropertiesEvent($this, $properties);
+        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
 
         return $properties;
     }

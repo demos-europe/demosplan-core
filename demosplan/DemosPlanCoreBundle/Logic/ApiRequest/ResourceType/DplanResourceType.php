@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use function collect;
 
 use DateTime;
@@ -374,7 +375,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected function processProperties(array $properties): array
     {
         $event = new GetPropertiesEvent($this, $properties);
-        $this->eventDispatcher->dispatch($event);
+        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
 
         return $event->getProperties();
     }
