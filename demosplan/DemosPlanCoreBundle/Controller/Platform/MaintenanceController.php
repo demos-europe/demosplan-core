@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -185,7 +186,8 @@ class MaintenanceController extends BaseController
         switch ($frequency) {
             case 'daily':
                 $logger->info('Starting daily maintenance Tasks');
-                $eventDispatcher->dispatch(new DailyMaintenanceEvent());
+                $event = new DailyMaintenanceEvent();
+                $eventDispatcher->dispatch($event, DailyMaintenanceEventInterface::class);
 
                 // Notfication-Email for public agencies regarding soon ending  phases
                 $logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');
