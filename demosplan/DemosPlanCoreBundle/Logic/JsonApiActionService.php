@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -243,7 +244,7 @@ class JsonApiActionService extends AbstractApiService
         }
 
         $afterCreationEvent = new AfterResourceCreationEvent($resourceChange);
-        $this->eventDispatcher->dispatch($afterCreationEvent);
+        $this->eventDispatcher->dispatch($afterCreationEvent, AfterResourceCreationEventInterface::class);
 
         return $object;
     }
