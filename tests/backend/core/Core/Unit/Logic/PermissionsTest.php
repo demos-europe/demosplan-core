@@ -157,7 +157,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
                     'feature_read_source_statement_via_api',
                     'field_statement_recommendation',
                 ],
@@ -183,7 +182,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
                 ],
                 'features_denied'                   => [
                     'area_admin_dashboard',
@@ -207,7 +205,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
                 ],
                 'features_denied'                   => [
                     'area_admin_dashboard',
