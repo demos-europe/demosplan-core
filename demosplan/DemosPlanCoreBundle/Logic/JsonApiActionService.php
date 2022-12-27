@@ -60,7 +60,7 @@ use Exception;
 
 use function get_class;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**

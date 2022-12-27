@@ -27,7 +27,7 @@ use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use Exception;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
