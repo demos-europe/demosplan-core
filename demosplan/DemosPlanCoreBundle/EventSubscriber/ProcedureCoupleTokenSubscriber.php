@@ -118,14 +118,14 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeResourceUpdateEvent::class    => 'preventUpdateAndDeletion',
-            BeforeResourceDeletionEvent::class  => 'preventUpdateAndDeletion',
-            PostNewProcedureCreatedEvent::class => [
+            BeforeResourceUpdateEvent::class             => 'preventUpdateAndDeletion',
+            BeforeResourceDeletionEvent::class           => 'preventUpdateAndDeletion',
+            PostNewProcedureCreatedEvent::class          => [
                 ['createTokenForProcedure'],
                 ['coupleProcedures'],
             ],
             GetPropertiesEventInterface::class           => 'addProperties',
-            GetInternalPropertiesEvent::class   => 'addInternalProperties',
+            GetInternalPropertiesEvent::class            => 'addInternalProperties',
         ];
     }
 
