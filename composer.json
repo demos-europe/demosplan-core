@@ -138,7 +138,7 @@
         "goetas-webservices/xsd2php": "^0.4",
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
-        "php-parallel-lint/php-console-highlighter": "^0.5",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
         "phpspec/prophecy": "^1.15",
         "phpstan/phpstan": "^1.9",
         "phpstan/phpstan-symfony": "^1.2",
