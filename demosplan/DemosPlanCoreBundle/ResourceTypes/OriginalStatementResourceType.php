@@ -86,6 +86,6 @@ final class OriginalStatementResourceType extends DplanResourceType
         $event = new GetPropertiesEvent($this, $properties);
         $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
 
-        return $properties;
+        return array_merge($properties, $event->getProperties());
     }
 }
