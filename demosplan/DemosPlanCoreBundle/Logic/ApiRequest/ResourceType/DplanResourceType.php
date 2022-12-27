@@ -49,8 +49,8 @@ use function in_array;
 use function is_array;
 
 use IteratorAggregate;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**

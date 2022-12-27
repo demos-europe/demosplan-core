@@ -60,8 +60,8 @@ use Exception;
 
 use function get_class;
 
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @template-extends AbstractApiService<ClauseFunctionInterface<bool>>
