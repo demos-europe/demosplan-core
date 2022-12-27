@@ -65,7 +65,7 @@
         "jms/serializer-bundle": "^4.0",
         "knplabs/knp-menu-bundle": "^3.2",
         "knpuniversity/oauth2-client-bundle": "^2.10",
-        "lcobucci/jwt": "^3.4",
+        "lcobucci/jwt": "^4.2",
         "league/flysystem-bundle": "^2.0",
         "league/fractal": "^0.19",
         "league/html-to-markdown": "^5.0",
