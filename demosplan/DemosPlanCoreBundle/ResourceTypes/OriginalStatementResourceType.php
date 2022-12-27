@@ -79,13 +79,8 @@ final class OriginalStatementResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        $properties = [
+        return [
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
-
-        $event = new GetPropertiesEvent($this, $properties);
-        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
-
-        return array_merge($properties, $event->getProperties());
     }
 }
