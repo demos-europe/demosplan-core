@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -78,12 +77,8 @@ final class OriginalStatementResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        $properties = [
+        return [
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
-
-        $this->eventDispatcher->dispatch(new GetPropertiesEvent($this, $properties));
-
-        return $properties;
     }
 }

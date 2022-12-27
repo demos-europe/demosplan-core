@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
@@ -45,8 +47,8 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
     public function isAvailable(): bool
     {
         // Currently the File resource needs to be exposed for statement import and assessment table.
-        /** @var IsFileAvailableEvent $event * */
-        $event = $this->eventDispatcher->dispatch(new IsFileAvailableEvent());
+        $event = new IsFileAvailableEvent();
+        $this->eventDispatcher->dispatch($event, IsFileAvailableEventInterface::class);
 
         return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
@@ -74,8 +76,8 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
 
     public function isDirectlyAccessible(): bool
     {
-        /** @var IsFileDirectlyAccessibleEvent $event * */
-        $event = $this->eventDispatcher->dispatch(new IsFileDirectlyAccessibleEvent());
+        $event = new IsFileDirectlyAccessibleEvent();
+        $this->eventDispatcher->dispatch($event, IsFileDirectlyAccessibleEventInterface::class);
 
         return $event->isFileDirectlyAccessible() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',

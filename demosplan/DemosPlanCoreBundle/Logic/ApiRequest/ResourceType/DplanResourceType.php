@@ -18,6 +18,7 @@ use function collect;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -48,8 +49,8 @@ use function in_array;
 use function is_array;
 
 use IteratorAggregate;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -374,7 +375,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected function processProperties(array $properties): array
     {
         $event = new GetPropertiesEvent($this, $properties);
-        $this->eventDispatcher->dispatch($event);
+        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
 
         return $event->getProperties();
     }
