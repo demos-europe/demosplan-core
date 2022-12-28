@@ -938,6 +938,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true, $wrapperFactory);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterBlueprintId'] = $masterTemplateService->getMasterTemplateId();
+
         // this key is added just in case that the old one is still used somewhere
         $templateVars['masterTemplateId'] = $templateVars['masterBlueprintId'];
 
