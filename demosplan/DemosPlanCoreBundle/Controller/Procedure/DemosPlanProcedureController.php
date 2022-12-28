@@ -942,7 +942,6 @@ class DemosPlanProcedureController extends BaseController
         // this key is added just in case that the old one is still used somewhere
         $templateVars['masterBlueprintId'] = $masterTemplateService->getMasterTemplateId();
 
-
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_new_master.html.twig',
             [
