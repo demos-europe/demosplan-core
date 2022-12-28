@@ -937,10 +937,11 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.master.new');
         $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true, $wrapperFactory);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
-        $templateVars['masterBlueprintId'] = $masterTemplateService->getMasterTemplateId();
+        $templateVars['masterTemplateId'] = $templateVars['masterBlueprintId'];
 
         // this key is added just in case that the old one is still used somewhere
-        $templateVars['masterTemplateId'] = $templateVars['masterBlueprintId'];
+        $templateVars['masterBlueprintId'] = $masterTemplateService->getMasterTemplateId();
+
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_new_master.html.twig',
