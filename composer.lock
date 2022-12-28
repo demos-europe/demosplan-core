@@ -11332,16 +11332,16 @@
         },
         {
             "name": "stevenmaguire/oauth2-keycloak",
-            "version": "3.1.1",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenmaguire/oauth2-keycloak.git",
-                "reference": "7009a3bebc164742df92e428795aa606b0f5efbe"
+                "reference": "34e4824f5fa26aa8e90f1258859c75570c12d27a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/7009a3bebc164742df92e428795aa606b0f5efbe",
-                "reference": "7009a3bebc164742df92e428795aa606b0f5efbe",
+                "url": "https://api.github.com/repos/stevenmaguire/oauth2-keycloak/zipball/34e4824f5fa26aa8e90f1258859c75570c12d27a",
+                "reference": "34e4824f5fa26aa8e90f1258859c75570c12d27a",
                 "shasum": ""
             },
             "require": {
@@ -11386,9 +11386,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stevenmaguire/oauth2-keycloak/issues",
-                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/3.1.1"
+                "source": "https://github.com/stevenmaguire/oauth2-keycloak/tree/3.2.0"
             },
-            "time": "2022-08-10T06:51:15+00:00"
+            "time": "2022-12-16T12:46:38+00:00"
         },
         {
             "name": "stof/doctrine-extensions-bundle",
