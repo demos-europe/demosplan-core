@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanNewsBundle\Logic\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 
 /**
  * GlobalContent (derzeit GlobalFaq und GlobalNews).

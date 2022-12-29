@@ -63,7 +63,7 @@ use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanMapBundle\Repository\MapRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;

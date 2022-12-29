@@ -63,7 +63,7 @@ use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;

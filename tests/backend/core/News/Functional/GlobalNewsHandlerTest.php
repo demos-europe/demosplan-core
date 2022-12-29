@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Tests\Base\FunctionalTestCase;
 

@@ -33,7 +33,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter;
-use demosplan\DemosPlanNewsBundle\Logic\ServiceOutput as NewsOutput;
+use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
@@ -76,7 +76,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanNewsBundle\Logic\ServiceOutput NewsOutput
+     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
      */
     protected $newsOutput;
 

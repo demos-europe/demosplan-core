@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

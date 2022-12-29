@@ -68,7 +68,7 @@ use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository;
