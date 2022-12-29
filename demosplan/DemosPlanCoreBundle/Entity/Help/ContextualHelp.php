@@ -49,6 +49,7 @@ class ContextualHelp implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
@@ -56,6 +57,7 @@ class ContextualHelp implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")     *
      * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */

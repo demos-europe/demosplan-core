@@ -12,14 +12,16 @@ namespace demosplan\DemosPlanCoreBundle\Services\Breadcrumb;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresRouterTrait;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
+
+use const ENT_QUOTES;
+
 use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use const ENT_QUOTES;
 
 class Breadcrumb
 {
@@ -95,7 +97,7 @@ class Breadcrumb
         if (null !== $procedure) {
             $userOrganisationId = $user->getOrganisationId();
             if ($isOwner || (isset($procedure['orgaId']) && $userOrganisationId === $procedure['orgaId'])) {
-                //Fachplanergruppe der Orga bekommen die Adminansicht
+                // Fachplanergruppe der Orga bekommen die Adminansicht
                 if ($user->isPlanner()) {
                     $this->setAdministrationMode(true);
                 }
@@ -111,7 +113,7 @@ class Breadcrumb
         if (null !== $procedure) {
             // Fachplanung bekommt eine andere Ansicht als Institutionen
             if (true === $this->isAdministrationMode()) {
-                //Wenn es sich um Blaupausen handelt, dann zeig das an
+                // Wenn es sich um Blaupausen handelt, dann zeig das an
                 if (true === $procedure['master']) {
                     $markup .= $this->getSnippetMarkup(
                         $this->getRouter()->generate('DemosPlan_procedure_templates_list'),
