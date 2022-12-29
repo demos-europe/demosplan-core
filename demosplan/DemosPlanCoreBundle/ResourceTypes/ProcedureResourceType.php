@@ -212,11 +212,6 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
         }
 
-        if ($this->currentUser->hasPermission('feature_ai_create_annotated_statement_pdf_pages')) {
-            $owningOrganisation->readable()->sortable()->filterable();
-            $invitedOrganisations->readable()->sortable()->filterable();
-        }
-
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
             $properties[] = $this->createToOneRelationship($this->type)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();

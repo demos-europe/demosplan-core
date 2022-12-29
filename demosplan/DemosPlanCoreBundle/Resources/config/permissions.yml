@@ -618,23 +618,6 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
-feature_ai_create_annotated_statement_pdf_pages:
-    description: 'At some point in the workflow to create a Statement from a PDF, we expect PI to send us info related to the sections in every page from the PDF document. This permissions grants the creation of such info as AnnotatedStatementPdfPage entities.'
-    label: 'Allows creating pages for an annotated statement pdf (after info provided by PI)'
-    loginRequired: false
-feature_ai_generated_draft_segments:
-    description: |-
-        Without AI support users can already split a statement text into segments (if the
-        corresponding permissions are enabled. With this permission the statement text is
-        automatically send to a different server to be processed for an unknown time. When
-        the processing is finished an ID to get the generated draft segments is send
-        to the application. The draft segments are then fetched from that server and
-        stored and provided to the user as initial suggested state when the manual
-        segmentation of the statement begins.
-    expose: true
-    label: 'Allow artificial intelligence generated draft segments'
-    loginRequired: false
-    parent: area_statement_segmentation
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false
