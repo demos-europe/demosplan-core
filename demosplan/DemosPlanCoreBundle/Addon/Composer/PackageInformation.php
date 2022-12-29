@@ -39,7 +39,13 @@ final class PackageInformation
             return;
         }
 
-        $packageListPath = include_once $installedPackagesPath;
+        // Fixme: This is not working with an include_once
+        // It leads to the addon missing during install and I have to look at this again
+        $packageListPath = include $installedPackagesPath;
+
+        if (true === $packageListPath) {
+            return;
+        }
 
         if (!array_key_exists('versions', $packageListPath)) {
             return;
@@ -47,7 +53,7 @@ final class PackageInformation
 
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
-            static fn ($version) => AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'])
+            static fn ($version) => AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? '')
         );
     }
 

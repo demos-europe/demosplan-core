@@ -45,6 +45,10 @@ class AddonRegistry
 
     private PackageInformation $installedAddons;
 
+    private array $classmap;
+
+    private array $coreClassmap;
+
     public function __construct()
     {
         $this->installedAddons = new PackageInformation();
@@ -169,15 +173,28 @@ class AddonRegistry
             return;
         }
 
-        $classmap = include_once $classMapPath;
+        $coreClassMapPath = DemosPlanPath::getRootPath('vendor/composer/autoload_classmap.php');
+        if (!file_exists($coreClassMapPath)) {
+            return;
+        }
 
-        spl_autoload_register(static function (string $class) use ($classmap): void {
-            if (array_key_exists($class, $classmap)) {
-                include_once $classmap[$class];
-            }
-        });
+        $this->classmap = include_once $classMapPath;
+        $this->coreClassmap = include_once $coreClassMapPath;
+
+        spl_autoload_register(array($this, 'autoloadNeededClasses'));
 
         self::$autoloadingConfigured = true;
+    }
+
+    /**
+     * This is being used as a callback during the spl autoloading process.
+     * The idea is to include all not yet autoloaded classes if they can be found in the addons
+     */
+    public function autoloadNeededClasses(string $class): void
+    {
+        if (!class_exists($class, false) && !array_key_exists($class, $this->coreClassmap) && array_key_exists($class, $this->classmap)) {
+            include_once $this->classmap[$class];
+        }
     }
 
     /**
@@ -216,7 +233,7 @@ class AddonRegistry
     /**
      * @param array<string, string|array> $hookData
      *
-     * @return array<string, string|array>
+     * @return array<string, array{entry:string, options:array, content:string}>
      */
     private function createAddonFrontendAssetsEntry(string $key, array $hookData, string $assetContent): array
     {

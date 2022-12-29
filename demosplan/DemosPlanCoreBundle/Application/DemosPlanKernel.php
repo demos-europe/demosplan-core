@@ -107,7 +107,10 @@ class DemosPlanKernel extends Kernel
         $addonRegistry->configureAutoloading();
 
         foreach ($addonRegistry->getAllAddons() as $addonData) {
-            yield new $addonData['manifest']['entry']($addonData['enabled']);
+            $class = $addonData['manifest']['entry'];
+            if (class_exists($class, true)) {
+                yield new $class($addonData['enabled']);
+            }
         }
     }
 

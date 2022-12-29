@@ -93,7 +93,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             Batch::create($this->getApplication(), $output)
                 ->addShell(['composer', 'clearcache'])
                 ->addShell(['composer', 'dump-autoload'])
-                ->addShell(['composer', 'bin', 'addons', 'update', '-a'])
+                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o'])
                 ->run();
         } catch (Exception $e) {
             $output->error($e->getMessage());
