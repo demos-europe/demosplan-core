@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresRouterTrait;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
-use demosplan\DemosPlanHelpBundle\Logic\HelpService;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;

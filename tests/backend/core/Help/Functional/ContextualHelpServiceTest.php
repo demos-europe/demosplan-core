@@ -12,7 +12,7 @@ namespace Tests\Core\Help\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
-use demosplan\DemosPlanHelpBundle\Logic\HelpService;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanHelpBundle\Logic\HelpHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;

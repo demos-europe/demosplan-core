@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Contextual Help.
  *
  * @ORM\Table(name="_platform_context_sensitive_help")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository")
  */
 class ContextualHelp implements UuidEntityInterface
 {

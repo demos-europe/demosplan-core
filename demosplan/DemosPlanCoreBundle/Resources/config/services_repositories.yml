@@ -92,7 +92,7 @@ services:
     demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
-    demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
     demosplan\DemosPlanMapBundle\Repository\MapRepository:

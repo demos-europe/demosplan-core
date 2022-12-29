@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use demosplan\DemosPlanHelpBundle\Logic\HelpService;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use Exception;
 use Twig\Environment;
 use Twig\TwigFunction;
