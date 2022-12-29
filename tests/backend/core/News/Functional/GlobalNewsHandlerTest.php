@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class GlobalNewsHandlerTest extends FunctionalTestCase
@@ -44,7 +45,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $newsList = $this->sut->getNewsList($user);
         static::assertCount(2, $newsList);
         $this->checkSingleGlobalContentVariables($newsList[0]);
-        static::assertCount(17, ($newsList[0]));
+        static::assertCount(17, $newsList[0]);
         static::assertCount(2, $newsList[0]['roles']);
         static::assertCount(1, $newsList[0]['categories']);
         static::assertEquals('GlobalNews2 Title', $newsList[0]['title']);
@@ -57,7 +58,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         static::assertTrue(is_array($newsList));
         static::assertCount(1, $newsList);
         $this->checkSingleGlobalContentVariables($newsList[0]);
-        static::assertCount(17, ($newsList[0]));
+        static::assertCount(17, $newsList[0]);
         static::assertCount(2, $newsList[0]['roles']);
     }
 
@@ -69,7 +70,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $this->checkSingleGlobalContentVariables($newsList[0]);
         static::assertCount(3, $newsList[1]['roles']);
         static::assertCount(6, $newsList[0]['roles'][1]);
-        //Manuelle Sortierung muss für diesen test fertig sein!
+        // Manuelle Sortierung muss für diesen test fertig sein!
         static::assertEquals($this->fixtures->getReference('testGlobalNews2')->getTitle(), $newsList[0]['title']);
         static::assertEquals('News Kategorie Nummer 1', $newsList[0]['categories'][0]['title']);
     }
@@ -84,7 +85,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $this->checkSingleGlobalContentVariables($singleNews);
         static::assertCount(3, $singleNews['roles']);
         static::assertCount(1, $singleNews['categories']
-       );
+        );
     }
 
     public function testGetGlobalSingleNewsWithEmptyIdents()
@@ -133,7 +134,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
 
     public function testAddGlobalNewsWithEmptyDataArray()
     {
-        //Data for new layer
+        // Data for new layer
         $data = [];
         $singleNews = $this->sut->addNews($data);
         $this->checkSingleGlobalContentVariables($singleNews);
@@ -167,7 +168,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $newTitle = 'GlobalNews1 Title verändert';
         $newGroupCode = [Role::GLAUTH, Role::GGUEST];
 
-        //Data for new layer
+        // Data for new layer
         $data = [
             'ident'         => $singleNews1->getIdent(),
             'title'         => $newTitle,
@@ -183,11 +184,11 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $numberOfEntriesBefore = $this->countEntries(GlobalContent::class);
         $singleNews = $this->sut->updateNews($data);
 
-        //check entries of DB
+        // check entries of DB
         $numberOfEntriesAfter = $this->countEntries(GlobalContent::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check return value
+        // check return value
         $this->checkSingleGlobalContentVariables($singleNews);
         static::assertCount(6, $singleNews['roles']);
     }
@@ -197,12 +198,12 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
      */
     public function testUpdateNewsWithNotExistingIdent()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $newTitle = 'News1 Title verändert';
         $newGroupCode = [Role::GLAUTH, Role::GGUEST];
 
-        //Data for new layer
+        // Data for new layer
         $data = ['ident' => '', 'title' => $newTitle, 'text' => 'Ich bin der Text der News1', 'description' => 'kurztextverändert', 'picturetitle' => '', 'pdftitle' => '', 'enabled' => true, 'group_code' => $newGroupCode];
 
         $this->sut->updateNews($data);

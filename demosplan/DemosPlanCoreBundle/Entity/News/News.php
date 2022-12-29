@@ -47,7 +47,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
-     *
      * @Assert\NotBlank(allowNull=false)
      */
     protected $pId;
@@ -56,7 +55,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_n_title", type="string", length=255, nullable=false)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
     protected $title = '';
@@ -65,7 +63,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_n_description", type="text", length=65535, nullable=false)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
      * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
@@ -76,7 +73,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_n_text", type="text", length=65535, nullable=false)
-     *
      * @Assert\Type("string", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
@@ -114,7 +110,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_n_enabled", type="boolean", nullable=false)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
     protected $enabled = false;
@@ -127,21 +122,24 @@ class News extends CoreEntity implements UuidEntityInterface
     protected $deleted = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_n_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_n_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_n_delete_date", type="datetime", nullable=false)
      */
@@ -156,7 +154,6 @@ class News extends CoreEntity implements UuidEntityInterface
      *     joinColumns={@ORM\JoinColumn(name="_n_id", referencedColumnName="_n_id", onDelete="CASCADE")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
      * )
-     *
      * @AllRolesInGroupPresentConstraint(groupCodes={Role::GLAUTH}, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $roles;
@@ -165,7 +162,6 @@ class News extends CoreEntity implements UuidEntityInterface
      * @var DateTime|null
      *
      * @ORM\Column(type = "datetime", nullable = true)
-     *
      * @DateInFutureConstraint(groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     protected $designatedSwitchDate;
@@ -463,7 +459,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Set CreateDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return News
      */
@@ -477,7 +473,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Get CreateDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -487,7 +483,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Set ModifyDate.
      *
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      *
      * @return News
      */
@@ -501,7 +497,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Get nModifyDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {
@@ -511,7 +507,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Set nDeleteDate.
      *
-     * @param \DateTime $deleteDate
+     * @param DateTime $deleteDate
      *
      * @return News
      */
@@ -525,7 +521,7 @@ class News extends CoreEntity implements UuidEntityInterface
     /**
      * Get DeleteDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeleteDate()
     {

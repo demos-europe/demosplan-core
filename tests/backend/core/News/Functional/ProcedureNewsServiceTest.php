@@ -11,6 +11,7 @@
 namespace Tests\Core\News\Functional;
 
 use Carbon\Carbon;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadNewsData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
@@ -18,8 +19,8 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -110,7 +111,7 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
         $this->checkSingleNewsVariables($newsAdminList['result'][0]);
         static::assertCount(3, $newsAdminList['result'][1]['roles']);
         static::assertCount(6, $newsAdminList['result'][0]['roles'][1]);
-        //Manuelle Sortierung muss für diesen test fertig sein!
+        // Manuelle Sortierung muss für diesen test fertig sein!
         static::assertEquals($this->fixtures->getReference(LoadNewsData::TEST_SINGLE_NEWS_2)->getTitle(), $newsAdminList['result'][0]['title']);
     }
 
@@ -242,7 +243,7 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
         $numberOfEntriesAfter = $this->countEntries(News::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check return value
+        // check return value
         $this->checkSingleNewsVariables($singleNews);
 
         // Citizens should be included in Group Guest for news
@@ -324,7 +325,7 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
 
         $newsData = [
             'ident'                => $singleNews1->getIdent(),
-            'designatedSwitchDate' => new \DateTime(),
+            'designatedSwitchDate' => new DateTime(),
             'determinedToSwitch'   => true,
         ];
 
