@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanNewsBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
