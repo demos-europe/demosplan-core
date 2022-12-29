@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanHelpBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Help;
 
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
