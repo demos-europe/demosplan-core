@@ -199,7 +199,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
-            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
             $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
             $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
@@ -240,10 +239,6 @@ services:
             $logger: '@monolog.logger.dplan_mail'
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor:
-        arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
         lazy: true
@@ -1111,9 +1106,7 @@ services:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
 
-    EDT\JsonApi\Validation\FieldsValidator:
-        arguments:
-            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
+    EDT\JsonApi\Validation\FieldsValidator: ~
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
