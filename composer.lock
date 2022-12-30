@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b572ce3cd6454e8b7706ede0a9f8fd96",
+    "content-hash": "d4345e0ab7ed9966658c788927bea0c1",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1289,16 +1289,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-f_update_edt_0_15_1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "d253304a02ce90d251c32c3725200ffb8b34fc8a"
+                "reference": "957ab327eaf04e93c10f9f9d71ade27ae0d573ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/d253304a02ce90d251c32c3725200ffb8b34fc8a",
-                "reference": "d253304a02ce90d251c32c3725200ffb8b34fc8a",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/957ab327eaf04e93c10f9f9d71ade27ae0d573ed",
+                "reference": "957ab327eaf04e93c10f9f9d71ade27ae0d573ed",
                 "shasum": ""
             },
             "require": {
@@ -1322,6 +1322,7 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
+            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1334,9 +1335,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/f_update_edt_0_15_1"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
             },
-            "time": "2022-12-30T10:43:28+00:00"
+            "time": "2022-12-30T10:59:03+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
