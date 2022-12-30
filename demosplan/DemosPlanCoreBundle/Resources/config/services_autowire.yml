@@ -41,10 +41,6 @@ services:
         resource: '../../../../demosplan/DemosPlanMiscContentBundle/*'
         exclude: '../../../../demosplan/DemosPlanMiscContentBundle/{Entity,Tests}'
 
-    demosplan\DemosPlanNewsBundle\:
-        resource: '../../../../demosplan/DemosPlanNewsBundle/*'
-        exclude: '../../../../demosplan/DemosPlanNewsBundle/{Entity,Tests}'
-
     demosplan\DemosPlanProcedureBundle\:
         resource: '../../../../demosplan/DemosPlanProcedureBundle/*'
         exclude: '../../../../demosplan/DemosPlanProcedureBundle/{Entity,Tests}'

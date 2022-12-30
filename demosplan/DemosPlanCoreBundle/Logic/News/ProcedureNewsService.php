@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanNewsBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
@@ -20,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
-use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;

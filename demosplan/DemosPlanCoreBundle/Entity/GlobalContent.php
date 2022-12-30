@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
-use demosplan\DemosPlanNewsBundle\Logic\NewsHandler;
 
 /**
  * GlobalContent (derzeit GlobalFaq und GlobalNews).
@@ -59,7 +59,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_title", type="string", length=255, nullable=false, options={"default":""})
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.heading")
      */
     protected $title = '';
@@ -68,7 +67,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_description", type="text", length=65535, nullable=true)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.teaser")
      * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      * @Assert\Length(max=NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage="error.news.description.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
@@ -79,7 +77,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_pc_text", type="text", length=65535, nullable=true)
-     *
      * @Assert\Type("string", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      * @Assert\Length(max=NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage="error.news.text.toolong", groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP})
      */
@@ -117,7 +114,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      * @var bool
      *
      * @ORM\Column(name="_pc_enabled", type="boolean", nullable=false, options={"default":false })
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, groups={GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP}, message="error.mandatoryfield.status")
      */
     protected $enabled = false;
@@ -131,6 +127,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pc_create_date", type="datetime", nullable=false)
      */
@@ -138,6 +135,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_pc_modify_date", type="datetime", nullable=false)
      */
@@ -145,6 +143,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pc_delete_date", type="datetime", nullable=false)
      */
@@ -163,7 +162,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface
      */
     protected $roles;
 
-    //todo: why is this a n:m relation?
+    // todo: why is this a n:m relation?
     /**
      * @var Collection<int, Category>
      *
