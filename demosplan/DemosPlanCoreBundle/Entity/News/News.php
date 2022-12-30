@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\News;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\AllRolesInGroupPresentConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\DateInFutureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

@@ -12,30 +12,31 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use function array_key_exists;
 use function array_keys;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -47,9 +48,15 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
+
 use function is_int;
+
 use League\Fractal\Resource\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -66,12 +73,26 @@ class DemosPlanStatementAPIController extends APIController
     private $permissions;
 
     public function __construct(
-        ApiLogger $apiLogger,
         PermissionsInterface $permissions,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
+        TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $fieldsValidator,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $schemaPathProcessor
+        );
         $this->permissions = $permissions;
     }
     // @improve T12984
@@ -83,7 +104,6 @@ class DemosPlanStatementAPIController extends APIController
      *        options={"expose": true})
      *
      * Copy Statement into (another) procedure.
-     *
      * @DplanPermissions("feature_statement_copy_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -102,12 +122,12 @@ class DemosPlanStatementAPIController extends APIController
                 throw new Exception('CopyStatement: Could not find Statement ID: '.$statementId);
             }
 
-            //actual copy of statement:
+            // actual copy of statement:
             $copiedStatement = $statementHandler->copyStatementToProcedure($statementToCopy, $targetProcedure);
 
-            //generate message + create response:
+            // generate message + create response:
             if ($copiedStatement instanceof Statement) {
-                //create normal or linked message depending on own or foreign procedure:
+                // create normal or linked message depending on own or foreign procedure:
 
                 // To check specific procedure with ownsProcedure(), it is necessary to set procedure of permissions,
                 // because ownsProcedure(), use procedure which is set in permissions object.
@@ -124,7 +144,7 @@ class DemosPlanStatementAPIController extends APIController
                 ];
 
                 if ($ownsRemoteProcedure) {
-                    $this->getMessageBag()->addObject(
+                    $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
@@ -135,7 +155,7 @@ class DemosPlanStatementAPIController extends APIController
                         )
                     );
                 } else {
-                    $this->getMessageBag()->add('confirm', $message, $messageParameters);
+                    $this->messageBag->add('confirm', $message, $messageParameters);
                 }
 
                 $response = [
@@ -156,17 +176,17 @@ class DemosPlanStatementAPIController extends APIController
                     ],
                 ];
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error',
                     'error.statement.copy.to.procedure',
                     ['externId' => $statementToCopy->getExternId(), 'procedureName' => $targetProcedure->getName()]
                 );
-                $this->getLogger()->error('Not an Statement instance');
+                $this->logger->error('Not an Statement instance');
             }
 
             return $this->createResponse($response, 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.statement.move');
+            $this->messageBag->add('error', 'error.statement.move');
 
             return $this->handleApiError($e);
         }
@@ -179,7 +199,6 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_statement_move",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_move_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -195,7 +214,7 @@ class DemosPlanStatementAPIController extends APIController
         string $statementId)
     {
         try {
-            $targetProcedureId = $request->query->get('targetProcedureId'); //fix T13442:
+            $targetProcedureId = $request->query->get('targetProcedureId'); // fix T13442:
             $deleteVersionHistory = null;
             $content = Json::decodeToArray($request->getContent());
             if (array_key_exists('deleteVersionHistory', $content)) {
@@ -216,8 +235,8 @@ class DemosPlanStatementAPIController extends APIController
             if ($statementToMove->wasMoved() && $statementToMove->getPlaceholderStatement()->getProcedure() === $targetProcedure) {
                 $movedToFirstProcedure = true;
                 $storedExternId = $statementToMove->getExternId();
-            } //actual move of statement:
-            $movedStatement = $statementMover->moveStatementToProcedure($statementToMove, $targetProcedure, $deleteVersionHistory); //generate message + create response:
+            } // actual move of statement:
+            $movedStatement = $statementMover->moveStatementToProcedure($statementToMove, $targetProcedure, $deleteVersionHistory); // generate message + create response:
             if ($movedStatement instanceof Statement) { // To check specific procedure with ownsProcedure(), it is necessary to set procedure of permissions,
                 // because ownsProcedure(), use procedure which is set in permissions object.
                 // Reset currentProcedure after check of specific procedure
@@ -225,7 +244,7 @@ class DemosPlanStatementAPIController extends APIController
                 $ownsRemoteProcedure = $this->permissions->ownsProcedure();
                 $this->permissions->setProcedure($currentProcedureService->getProcedure());
                 $message = $movedToFirstProcedure ? 'confirm.statement.move.first' : 'confirm.statement.move';
-                $formerExternId = $movedStatement->getFormerExternId(); //In case of movedToFirstProcedure, there is no formerExternId, because statement seems to be never moved.
+                $formerExternId = $movedStatement->getFormerExternId(); // In case of movedToFirstProcedure, there is no formerExternId, because statement seems to be never moved.
                 $formerExternId = $movedToFirstProcedure ? $storedExternId : $formerExternId;
                 $messageParameters = [
                     'targetProcedure' => $targetProcedure->getName(),
@@ -233,7 +252,7 @@ class DemosPlanStatementAPIController extends APIController
                     'newExternId'     => $movedStatement->getExternId(),
                 ];
                 if ($ownsRemoteProcedure) {
-                    $this->getMessageBag()->addObject(
+                    $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
                             $message,
@@ -244,7 +263,7 @@ class DemosPlanStatementAPIController extends APIController
                         )
                     );
                 } else {
-                    $this->getMessageBag()->add('confirm', $message, $messageParameters);
+                    $this->messageBag->add('confirm', $message, $messageParameters);
                 }
                 $response = [
                     'code'    => 200,
@@ -261,13 +280,13 @@ class DemosPlanStatementAPIController extends APIController
                     'success' => false,
                     'data'    => ['movedStatementId' => ''],
                 ];
-                $this->getMessageBag()->add('error', 'error.statement.move');
+                $this->messageBag->add('error', 'error.statement.move');
                 $this->logger->error('Not an Statement instance');
             }
 
             return $this->createResponse($response, 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.statement.move');
+            $this->messageBag->add('error', 'error.statement.move');
 
             return $this->handleApiError($e);
         }
@@ -371,10 +390,10 @@ class DemosPlanStatementAPIController extends APIController
 
             $successfullyUpdated = $statement instanceof Statement;
             if ($successfullyUpdated) {
-                $this->getMessageBag()->add('confirm', 'confirm.saved');
+                $this->messageBag->add('confirm', 'confirm.saved');
             } else {
                 $statement = $statementService->getStatement($statementId);
-                $this->getMessageBag()->add('error', 'error.save');
+                $this->messageBag->add('error', 'error.save');
             }
 
             $item = $this->resourceService->makeItemOfResource($statement, StatementResourceType::getName());
@@ -392,7 +411,6 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_assessmentqueryhash_get_procedure_statement_list",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      */
     public function listAction(
@@ -432,7 +450,7 @@ class DemosPlanStatementAPIController extends APIController
             // do not log views for planning agencies, this would be wrong (as not all
             // statements have been displayed and creates a performance issue)
             $allStatements = $statementService->getStatementsByProcedureId(
-            // maybe retrievable from the session? (related to @improve T12984)
+                // maybe retrievable from the session? (related to @improve T12984)
                 $procedureId,
                 [],
                 null,
@@ -482,7 +500,6 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
-     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -515,7 +532,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->renderResource($item);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.statements.cluster.not.created');
+            $this->messageBag->add('error', 'warning.statements.cluster.not.created');
 
             return $this->handleApiError($e);
         }
@@ -531,7 +548,6 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
-     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -557,7 +573,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->renderEmpty();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.statements.cluster.not.created');
+            $this->messageBag->add('error', 'warning.statements.cluster.not.created');
 
             return $this->handleApiError($e);
         }
@@ -585,7 +601,6 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent placeholder statements (only or together with other statements): Show message "%count% der markierten Stellungnahmen befinden sich nicht im aktuellen Verfahren und wurden Ihnen nicht zugewiesen."
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
-     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
      *
      * @return JsonResponse
@@ -620,7 +635,7 @@ class DemosPlanStatementAPIController extends APIController
 
             // show warning if moved statements were selected
             if (0 !== $movedStatementCount) {
-                $this->getMessageBag()->addChoice(
+                $this->messageBag->addChoice(
                     'warning',
                     'bulk.edit.warning.placeholder',
                     ['count' => $movedStatementCount]
@@ -652,7 +667,7 @@ class DemosPlanStatementAPIController extends APIController
                     $violations = $validator->validate($statementBulkEditVo);
                     if (0 === count($violations)) {
                         $statementService->bulkEditStatementsAddData($statementBulkEditVo);
-                        $this->getMessageBag()->addChoice(
+                        $this->messageBag->addChoice(
                             'confirm',
                             'bulk.edit.success',
                             ['count' => $unmovedStatementTargetIdsCount]
@@ -663,17 +678,17 @@ class DemosPlanStatementAPIController extends APIController
 
                     /** @var ConstraintViolationInterface $violation */
                     foreach ($violations as $violation) {
-                        $this->getMessageBag()->add('error', $violation->getMessage());
+                        $this->messageBag->add('error', $violation->getMessage());
                     }
 
                     return $this->handleApiError(new InvalidDataException());
                 } catch (Exception $e) {
-                    $this->getMessageBag()->addChoice(
+                    $this->messageBag->addChoice(
                         'error',
                         'bulk.edit.failure.targets',
                         ['count' => $targetStatementCount]
                     );
-                    $this->getMessageBag()->addChoice(
+                    $this->messageBag->addChoice(
                         'warning',
                         'bulk.edit.failure.marked',
                         ['count' => $markedStatementsCount]
@@ -685,7 +700,7 @@ class DemosPlanStatementAPIController extends APIController
 
             return $this->handleApiError(new InvalidDataException());
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'bulk.edit.assign.failure');
+            $this->messageBag->add('error', 'bulk.edit.assign.failure');
 
             return $this->handleApiError($e);
         }

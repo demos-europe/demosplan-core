@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
@@ -31,7 +31,6 @@ class DemosPlanElementsAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_elements_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      */
     public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
@@ -55,14 +54,13 @@ class DemosPlanElementsAPIController extends APIController
         } catch (HiddenElementUpdateException $e) {
             // FE tried to update hidden element, no special handling yet
         }
-        $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+        $this->messageBag->add('confirm', 'confirm.all.changes.saved');
 
         return $this->renderSuccess();
     }
 
     /**
      * @DplanPermissions("area_demosplan")
-     *
      * @Route(path="/api/1.0/element/{elementId}",
      *        methods={"GET"},
      *        name="dp_api_elements_get",

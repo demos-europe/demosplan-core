@@ -11,6 +11,10 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -18,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
 use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRevokeTokenNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
@@ -27,9 +30,6 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\GdprConsentRevokeTokenRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Exception;
 use function hash;
 
 class GdprConsentRevokeTokenService extends CoreService

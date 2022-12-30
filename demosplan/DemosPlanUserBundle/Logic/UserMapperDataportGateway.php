@@ -10,19 +10,8 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use DOMDocument;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Exception;
 use Monolog\Logger;
 use Patchwork\Utf8;
@@ -32,6 +21,17 @@ use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 
 abstract class UserMapperDataportGateway implements UserMapperInterface
 {

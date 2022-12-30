@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -50,12 +51,14 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(name="_p_phase", type="string", length=50)
      */
     protected $procedurePhase;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_tm_created_date", type="datetime", nullable=false)
      */
@@ -143,7 +146,7 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -151,7 +154,7 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return InstitutionMail
      */

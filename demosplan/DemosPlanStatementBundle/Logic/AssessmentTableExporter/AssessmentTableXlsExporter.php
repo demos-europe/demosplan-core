@@ -13,17 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
-use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -32,6 +22,16 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
+use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
+use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
+use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 
 class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 {

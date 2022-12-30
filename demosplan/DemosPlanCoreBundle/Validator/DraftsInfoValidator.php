@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 

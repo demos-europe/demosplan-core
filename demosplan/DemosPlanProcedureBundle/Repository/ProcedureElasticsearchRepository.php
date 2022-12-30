@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
-use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
 use Elastica\Type;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
+use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 
 class ProcedureElasticsearchRepository
 {

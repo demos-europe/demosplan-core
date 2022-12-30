@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
@@ -19,8 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statistics\MatomoApi;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -66,7 +66,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
      *
      * @return array<string, mixed>
      *
-     * @throws \JsonException
+     * @throws JsonException
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
@@ -85,9 +85,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
                 $procedureId = $rpcRequest->params->procedureId;
                 if (null === $procedure || $procedure->getId() !== $procedureId) {
-                    throw new \demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException(
-                        'Given procedure ID must match the procedure the user was authorized for.'
-                    );
+                    throw new \demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException('Given procedure ID must match the procedure the user was authorized for.');
                 }
 
                 $responseData = $this->matomoApi->getProcedureStatistics($procedureId);

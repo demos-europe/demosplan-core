@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 /**
- * Provides permission definitions in a specific context (e.g. core or an addon).
+ * Provides permission definitions.
  *
  * Does not provide information about the enabled/disabled state of a permission.
  */

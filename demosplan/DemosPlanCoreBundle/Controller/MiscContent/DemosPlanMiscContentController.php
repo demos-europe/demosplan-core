@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\MiscContent;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Command\VendorlistUpdateCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\ContentEmailMismatchException;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MiscContent\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
@@ -42,7 +42,6 @@ class DemosPlanMiscContentController extends BaseController
      * @Route(path="/barrierefreiheit",
      *     name="DemosPlan_misccontent_static_accessibility_explanation"
      * )
-     *
      * @DplanPermissions("area_accessibility_explanation")
      *
      * @throws MessageBagException
@@ -68,7 +67,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_sign_language",
      *     path="/gebaerdensprache",
      * )
-     *
      * @DplanPermissions("area_sign_language_overview_video")
      *
      * @throws Exception
@@ -92,7 +90,6 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/impressum",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -134,7 +131,6 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/datenschutz",
      *     options={"expose": "true"},
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
@@ -173,7 +169,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_how_to_login",
      *     path="/anmeldung",
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -195,7 +190,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_contact",
      *     path="/kontakt"
      * )
-     *
      * @DplanPermissions("area_main_contact")
      *
      * @return RedirectResponse|Response
@@ -290,7 +284,6 @@ class DemosPlanMiscContentController extends BaseController
      * )
      *
      * which generates licenses files for our php and js vendors
-     *
      * @DplanPermissions("area_software_licenses")
      *
      * @return RedirectResponse|Response
@@ -346,7 +339,6 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/nutzungsbedingungen",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_terms_of_use")
      *
      * @return RedirectResponse|Response
@@ -372,7 +364,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_xplanung",
      *     path="/xplanung"
      * )
-     *
      * @DplanPermissions("area_main_xplanning")
      *
      * @return RedirectResponse|Response
@@ -400,7 +391,6 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/informationen/nutzungsbedingungen",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -426,7 +416,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_documents",
      *     path="/unterlagen"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -436,7 +425,7 @@ class DemosPlanMiscContentController extends BaseController
     public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator)
     {
         $templateVars = [];
-        //Generiere breadcrumb items
+        // Generiere breadcrumb items
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('misc.information', [], 'page-title'),
@@ -459,7 +448,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_information",
      *     path="/informationen"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -485,7 +473,6 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_simple_language",
      *     path="/leichte-sprache",
      * )
-     *
      * @DplanPermissions("area_simple_language_overview_description_page")
      *
      * @throws Exception

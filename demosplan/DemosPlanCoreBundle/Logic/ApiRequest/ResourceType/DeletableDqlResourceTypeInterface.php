@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 
 /**

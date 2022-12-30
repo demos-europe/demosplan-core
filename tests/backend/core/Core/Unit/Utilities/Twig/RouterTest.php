@@ -10,15 +10,15 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\Router;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Router;
+use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 
 class RouterTest extends FunctionalTestCase
 {

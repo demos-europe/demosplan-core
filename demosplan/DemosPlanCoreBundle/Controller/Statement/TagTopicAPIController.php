@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
@@ -32,7 +32,6 @@ class TagTopicAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_tag_topic_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_json_api_tag_topic_create")
      */
     public function createAction(
@@ -63,7 +62,7 @@ class TagTopicAPIController extends APIController
 
         try {
             $tag = $statementHandler->createTopic($title, $procedureId);
-            $this->getMessageBag()->add('confirm', 'confirm.topic.created');
+            $this->messageBag->add('confirm', 'confirm.topic.created');
 
             return $this->renderItemOfResource($tag, $tagTopicResourceType);
         } catch (DuplicatedTagTopicTitleException $e) {

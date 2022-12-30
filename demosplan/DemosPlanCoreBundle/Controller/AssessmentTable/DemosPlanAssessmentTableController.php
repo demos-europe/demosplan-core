@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 use function array_key_exists;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
@@ -1066,7 +1066,7 @@ class DemosPlanAssessmentTableController extends BaseController
                     'hash'    => null,
                     'r_limit' => 25,
                 ],
-                'original' => [
+                'original'   => [
                     'page'    => 1,
                     'hash'    => null,
                     'r_limit' => 25,
@@ -1122,8 +1122,8 @@ class DemosPlanAssessmentTableController extends BaseController
                 'templateVars' => $templateVars,
                 'title'        => 'statement.bulk.edit',
                 // 'procedure' field needed for navigation on right side
-                'procedure'   => $procedureId,
-                'procedureId' => $procedureId,
+                'procedure'    => $procedureId,
+                'procedureId'  => $procedureId,
             ]
         );
     }
@@ -1156,7 +1156,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 'templateVars' => $templateVars,
                 'title'        => 'fragment.bulk.edit',
                 // 'procedure' field needed for navigation on right side
-                'procedure' => $procedureId,
+                'procedure'    => $procedureId,
             ]
         );
     }

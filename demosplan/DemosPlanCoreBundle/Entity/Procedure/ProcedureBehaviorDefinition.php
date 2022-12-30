@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
 use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,13 +25,13 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository")
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -41,6 +41,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -48,6 +49,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -61,6 +63,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
+     *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="procedureBehaviorDefinition")
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -72,6 +75,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * Therefore a ProcedureBehaviorDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
+     *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="procedureBehaviorDefinition")
      * @JoinColumn() // Without this, Doctrine doesn't add the column to table, so please don't delete.
      */
@@ -96,6 +100,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * planners.
      *
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
     private $participationGuestOnly = false;
