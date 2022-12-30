@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanNewsBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class NoDesignatedStateException extends \Exception
 {

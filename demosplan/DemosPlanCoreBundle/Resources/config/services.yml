@@ -524,11 +524,11 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanHelpBundle\Logic\HelpHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanHelpBundle\Logic\HelpService:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
@@ -580,15 +580,15 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
-    demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService:
+    demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 

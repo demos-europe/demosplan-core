@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -42,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter;
-use demosplan\DemosPlanNewsBundle\Logic\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
@@ -50,6 +50,7 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
+use Exception;
 
 class ExportService
 {
@@ -76,7 +77,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanNewsBundle\Logic\ServiceOutput NewsOutput
+     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
      */
     protected $newsOutput;
 
@@ -221,7 +222,7 @@ class ExportService
      *
      * @return bool|ZipStream exportfolder path from Export
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createProcedureExportJob($procedureIds, bool $useExternalProcedureName, ZipStream $zip)
     {
@@ -237,12 +238,12 @@ class ExportService
             $fs = new DemosFilesystem();
             try {
                 $fs->mkdir($zipFolderAbsolute);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Could not create Directory: ', [$e]);
             }
         }
 
-        //should be empty, because this method is triggered from procedure list.
+        // should be empty, because this method is triggered from procedure list.
         $storedProcedure = $this->currentProcedureService->getProcedure();
 
         $startTime = microtime(true);
@@ -258,20 +259,20 @@ class ExportService
                 $procedureName = $this->toExportableProcedureName($procedureAsArray[$procedureNameField], $procedureId);
                 $this->logger->info('Creating Zips for Procedure', ['id' => $procedureId, 'name' => $procedureName]);
 
-                //get all PDFs
+                // get all PDFs
 
-                //Institutionen-Liste
+                // Institutionen-Liste
                 if ($this->permissions->hasPermission('feature_procedure_export_include_public_interest_bodies_member_list')) {
                     $zip = $this->addMemberListToZip($procedureId, $procedureName, $zip);
                 }
 
-                //Titelblatt
+                // Titelblatt
                 $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
 
-                //Aktuelles
+                // Aktuelles
                 $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
 
-                //Abwägungstabelle mit Namen
+                // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
                     $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
                 }
@@ -280,7 +281,7 @@ class ExportService
                     $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
                 }
 
-                //Abwägungstabelle ohne Namen (anonym)
+                // Abwägungstabelle ohne Namen (anonym)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
                     $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
                 }
@@ -289,29 +290,29 @@ class ExportService
                     $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
                 }
 
-                //OriginalStellungnahmen
+                // OriginalStellungnahmen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
                     $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
                 }
 
-                //Paragraph Elements
+                // Paragraph Elements
                 $zip = $this->addParagraphElementsToZip($procedureId, $procedureName, $zip);
 
-                //Planzeichnung
+                // Planzeichnung
                 $zip = $this->addMapToZip($procedureId, $procedureName, $zip);
 
-                //Planunsgdokumente ()
+                // Planunsgdokumente ()
                 $zip = $this->addAllPlanningDocumentsToZip($procedureId, $procedureName, $zip);
 
-                //Stellungnahmen ToeB (Endfassungen)
+                // Stellungnahmen ToeB (Endfassungen)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_statement_final_group')) {
                     $zip = $this->addStatementsFinalGroupToZip($procedureId, $procedureName, $zip);
                 }
-                //Stellungnahmen ToeB (Freigaben)
+                // Stellungnahmen ToeB (Freigaben)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_statement_released')) {
                     $zip = $this->addStatementsReleasedToZip($procedureId, $procedureName, $zip);
                 }
-                //Stellungnahmen Buerger (Endfassungen)
+                // Stellungnahmen Buerger (Endfassungen)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_public_statements')) {
                     $zip = $this->addPublicStatementsToZip($procedureId, $procedureName, $zip);
                 }
@@ -346,7 +347,7 @@ class ExportService
             $memberList = $this->getProcedureOutput()->generatePdfForMemberList($procedureId, [], $title);
             $this->zipExportService->addStringToZipStream("$procedureName/$title.pdf", $memberList, $zip);
             $this->logger->info('toeb_benutzer_liste created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('toeb_benutzer_liste could not be created. ', [$e]);
         }
 
@@ -383,7 +384,7 @@ class ExportService
             $titlepage = $this->getProcedureOutput()->generatePdfForTitlePage($procedureId, $titleForPage);
             $this->zipExportService->addStringToZipStream($procedureName.'/Deckblatt.pdf', $titlepage, $zip);
             $this->logger->info('deckblatt created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('deckblatt could not be created. ', [$e]);
         }
 
@@ -404,7 +405,7 @@ class ExportService
                 'news'
             );
             $this->zipExportService->addStringToZipStream($procedureName.'/Aktuelles.pdf', $news, $zip);
-            //Save Files
+            // Save Files
             $outputResult = $this->newsOutput->newsListHandler($procedureId, $manualSortScope);
 
             foreach ($outputResult as $news) {
@@ -418,7 +419,7 @@ class ExportService
             }
 
             $this->logger->info('aktuelles created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('aktuelles could not be created. ', [$e]);
         }
 
@@ -467,7 +468,7 @@ class ExportService
             $this->addDocxToZip($exportResult, $zip, $filename);
             $this->logger->info('abwaegung_list created',
                 ['exportType' => $exportType, 'id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning("abwaegung_list for type $exportType could not be created", [$e]);
         }
 
@@ -515,7 +516,7 @@ class ExportService
 
             $this->addDocxToZip($exportResult, $zip, $filename);
 
-            //Save Files
+            // Save Files
             $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getStatements(),
@@ -526,7 +527,7 @@ class ExportService
 
             $this->logger->info('abwaegung_list_anonym created',
                 ['exportType' => $exportType, 'id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning("abwaegung_list_anonym for $exportType could not be created.", [$e]);
         }
 
@@ -552,7 +553,7 @@ class ExportService
             );
             $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['originals'].'/Anhang/', $zip);
             $this->logger->info('abwaegung_list_original created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('abwaegung_list_original could not be created. ', [$e]);
         }
 
@@ -590,12 +591,12 @@ class ExportService
                             $this->logger->info('ParagraphElement ignored, because it has no paragraphs.',
                                 ['elementTitle' => $elementTitle, 'id' => $procedureId, 'name' => $procedureName]);
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->logger->warning("ParagraphElement $elementTitle could not be created.", [$e]);
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to create ParagraphElements Zip ', [$e]);
         }
 
@@ -613,7 +614,7 @@ class ExportService
                 $this->zipExportService->addFilePathToZipStream($procedureAsArray['settings']['planPDF'], $procedureName.'/Planzeichnung', $zip);
             }
             $this->logger->info('planning_documents created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('planning_documents could not be created. ', [$e]);
         }
 
@@ -624,7 +625,7 @@ class ExportService
     {
         try {
             $elements = $this->elementsService->getElementsAdminList($procedureId);
-            //Folgende Kategorien werden einzeln exportiert
+            // Folgende Kategorien werden einzeln exportiert
             $categoriesNotToExport = ['statement', 'paragraph', 'map'];
             foreach ($elements as $element) {
                 if (!in_array($element->getCategory(), $categoriesNotToExport)) {
@@ -645,7 +646,7 @@ class ExportService
                 }
             }
             $this->logger->info('planning_documents created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('planning_documents could not be created. ', [$e]);
         }
 
@@ -707,7 +708,7 @@ class ExportService
             );
             $this->attachStatementFilesToZip($draftStatementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'/'.$this->literals['attachment'].'/', $zip);
             $this->logger->info('Endfassungen_Gruppe created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Endfassungen_Gruppe could not be created. ', [$e]);
         }
 
@@ -734,7 +735,7 @@ class ExportService
             );
             $this->attachStatementFilesToZip($draftStatementEntities, $procedureName.'/'.$this->literals['statements'].'/Freigaben/'.$this->literals['attachment'].'/', $zip);
             $this->logger->info('Freigaben_Gruppe created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Freigaben_Gruppe could not be created. ', [$e]);
         }
 
@@ -760,7 +761,7 @@ class ExportService
             );
             $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Buerger/'.$this->literals['attachment'].'/', $zip);
             $this->logger->info('Endfassungen_Buerger created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Endfassungen_Buerger could not be created. ', [$e]);
         }
 
@@ -795,7 +796,7 @@ class ExportService
             );
 
             $this->logger->info('Verfahrensprotokoll created', ['id' => $procedureId, 'name' => $procedureName]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Verfahrensprotokoll could not be created. ', [$e]);
         }
 
@@ -902,8 +903,6 @@ class ExportService
 
     /**
      * @param string[] $procedureIds
-     *
-     * @return StreamedResponse
      */
     public function generateProcedureExportZip(array $procedureIds, bool $useExternalProcedureName): StreamedResponse
     {
