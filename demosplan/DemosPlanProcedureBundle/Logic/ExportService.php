@@ -50,16 +50,7 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\Common\Collections\Collection;
 use Exception;
-use Faker\Provider\Uuid;
-use Patchwork\Utf8;
-use PhpOffice\PhpWord\Settings;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use ZipStream\ZipStream;
 
 class ExportService
 {
