@@ -1106,9 +1106,7 @@ services:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
 
-    EDT\JsonApi\Validation\FieldsValidator:
-        arguments:
-            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
+    EDT\JsonApi\Validation\FieldsValidator: ~
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
