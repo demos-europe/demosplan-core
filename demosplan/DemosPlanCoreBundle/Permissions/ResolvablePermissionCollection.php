@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Permission\PermissionConditionBuilder;
+use DemosEurope\DemosplanAddon\Permission\PermissionMetaInterface;
 use DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -59,6 +61,19 @@ class ResolvablePermissionCollection implements ResolvablePermissionCollectionIn
         }
 
         $this->permissions[$name] = $permission;
+    }
+
+    public function configurePermissionInstance(
+        PermissionMetaInterface $permission,
+        PermissionConditionBuilder $permissionConditionBuilder
+    ): void {
+        $this->configurePermission(
+            $permission->getPermissionName(),
+            $permission->getLabel(),
+            $permission->getDescription(),
+            $permission->isExposed(),
+            $permissionConditionBuilder->build()
+        );
     }
 
     /**
