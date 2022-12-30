@@ -8,11 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanHelpBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Help;
 
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
