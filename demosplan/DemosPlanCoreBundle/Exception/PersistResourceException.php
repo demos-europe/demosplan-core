@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\PersistResourceExceptionInterface;
 use Exception;
 
 /**
  * Exception to be used when an Entity can't be persisted.
  */
-class PersistResourceException extends Exception
+class PersistResourceException extends Exception implements PersistResourceExceptionInterface
 {
 }

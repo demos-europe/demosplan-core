@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class AfterSegmentationEvent extends DPlanEvent
+class AfterSegmentationEvent extends DPlanEvent implements AfterSegmentationEventInterface
 {
     private Statement $statement;
 

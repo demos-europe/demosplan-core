@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -210,6 +211,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
      * The service version for the layer.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false)
      */
     protected $layerVersion = '1.3.0';
@@ -222,21 +224,24 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     protected $xplan = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_g_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_g_modify_date",type="datetime", nullable=false)
      */
     protected $modifyDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_g_delete_date",type="datetime", nullable=false)
      */
@@ -244,6 +249,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var ContextualHelp
+     *
      * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp", cascade={"remove"}, fetch="EAGER")
      * @ORM\JoinColumn(name="_g_pcsh_id", referencedColumnName="_pcsh_id", onDelete="SET NULL")
      */
@@ -253,6 +259,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
      * @var GisLayerCategory
      *
      * Many GisLayers has one GisLayerCategory
+     *
      * @ORM\ManyToOne(targetEntity="GisLayerCategory", inversedBy="gisLayers", cascade={"persist"})
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
@@ -260,12 +267,14 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var int
+     *
      * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
     protected $treeOrder = 0;
 
     /**
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
     protected $userToggleVisibility = true;
@@ -777,7 +786,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -785,7 +794,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return GisLayer
      */
@@ -797,7 +806,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {
@@ -805,7 +814,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      *
      * @return GisLayer
      */
@@ -817,7 +826,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeleteDate()
     {
@@ -825,7 +834,7 @@ class GisLayer extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $deleteDate
+     * @param DateTime $deleteDate
      *
      * @return GisLayer
      */

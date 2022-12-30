@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Help;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -49,6 +49,7 @@ class ContextualHelp implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
@@ -56,6 +57,7 @@ class ContextualHelp implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")     *
      * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */

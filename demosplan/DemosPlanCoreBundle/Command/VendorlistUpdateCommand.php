@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Exception;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Helper\ProgressBar;

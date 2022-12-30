@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
@@ -57,7 +57,6 @@ class DemosPlanMasterToebController extends BaseController
      *     name="DemosPlan_user_mastertoeblist",
      *     path="/mastertoeblist"
      * )
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return RedirectResponse|Response
@@ -87,7 +86,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/update",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -98,11 +96,11 @@ class DemosPlanMasterToebController extends BaseController
         $updateData = [$requestPost->get('field') => $requestPost->get('value')];
         $this->masterToebService->updateMasterToeb($requestPost->get('oId'), $updateData);
 
-        //prepare the response
+        // prepare the response
         $response = [
             'code'    => 100,
             'success' => true, ];
-        //return result as JSON
+        // return result as JSON
         return new Response(Json::encode($response));
     }
 
@@ -114,7 +112,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/report/hasNewReportentry/{userId}",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @param string $userId
@@ -137,7 +134,7 @@ class DemosPlanMasterToebController extends BaseController
             $this->profilerStart('getLastRead');
             try {
                 $reportReadSettings = $contentService->getSettings(
-                  'reportMastertoebRead'
+                    'reportMastertoebRead'
                 );
                 // Nur den eigenen Eintrag nutzen
                 foreach ($reportReadSettings as $setting) {
@@ -164,12 +161,12 @@ class DemosPlanMasterToebController extends BaseController
             $this->profilerStop('processEntries');
         }
 
-        //prepare the response
+        // prepare the response
         $response = [
             'code'              => 100,
             'success'           => true,
             'hasNewReportEntry' => $hasNewReportEntry, ];
-        //return result as JSON
+        // return result as JSON
         return new JsonResponse($response);
     }
 
@@ -181,7 +178,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/add",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -211,19 +207,19 @@ class DemosPlanMasterToebController extends BaseController
                 $data['oId'] = $newOrga->getId();
                 $data['dId'] = $newDepartment->getId();
                 $masterToeb = $this->masterToebService->addMasterToeb($data);
-                //prepare the response
+                // prepare the response
                 $response = [
                     'code'    => 100,
                     'success' => true,
                     'ident'   => $masterToeb->getId(),
                 ];
             } else {
-                //prepare the response
+                // prepare the response
                 $response = [
                     'code'    => 101,
                     'success' => true, ];
             }
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         } catch (HttpException $e) {
             // fange unterschiedliche Fehler ab
@@ -234,10 +230,10 @@ class DemosPlanMasterToebController extends BaseController
                         'success' => false, ];
                     break;
                 default:
-                    //return default result as JSON
+                    // return default result as JSON
                     return $this->handleAjaxError($e);
             }
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         }
     }
@@ -250,7 +246,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/organisation/delete",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_manage_mastertoeblist")
      *
      * @return Response
@@ -260,11 +255,11 @@ class DemosPlanMasterToebController extends BaseController
         $requestPost = $request->request;
         $this->masterToebService->deleteMasterToeb($requestPost->get('oId'));
 
-        //prepare the response
+        // prepare the response
         $response = [
             'code'    => 100,
             'success' => true, ];
-        //return result as JSON
+        // return result as JSON
         return new Response(Json::encode($response));
     }
 
@@ -276,7 +271,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/report",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_report_mastertoeblist")
      *
      * @return RedirectResponse|Response
@@ -306,7 +300,7 @@ class DemosPlanMasterToebController extends BaseController
                 try {
                     $reportRead = 0;
                     $reportReadSettings = $contentService->getSettings(
-                      'reportMastertoebRead'
+                        'reportMastertoebRead'
                     );
                     // Nur den eigenen Eintrag nutzen
                     foreach ($reportReadSettings as $setting) {
@@ -340,23 +334,23 @@ class DemosPlanMasterToebController extends BaseController
             $reportEntriesRead = [];
             $reportEntriesUnread = [];
 
-            //gehe die Liste der Einträge durch
+            // gehe die Liste der Einträge durch
 
             foreach ($reportEntries as $key => $entry) {
                 $entry['message'] = '' === $entry['message'] ? [] : Json::decodeToArray($entry['message']);
                 $entry['incoming'] = '' === $entry['incoming'] ? [] : Json::decodeToArray($entry['incoming']);
                 $entry['changes'] = [];
 
-                //Wenn ein Feld aktualsiert wurde, dann gebe eine Variable aus...
+                // Wenn ein Feld aktualsiert wurde, dann gebe eine Variable aus...
                 if ('update' === $entry['category']) {
                     // this really needs to be incoming, as the information
                     // what changed is calculated by incoming vs. message
                     foreach ($entry['incoming'] as $field => $content) {
-                        //mit dem geänderter Feld
+                        // mit dem geänderter Feld
                         $entry['changes'][0]['fieldOfChange'] = $field;
-                        //mit dem neuen Inhalt
+                        // mit dem neuen Inhalt
                         $entry['changes'][0]['contentNew'] = $content;
-                        //und wenn es einen gibt, den alten Eintrag
+                        // und wenn es einen gibt, den alten Eintrag
                         if (isset($entry['message'][$field]) && $content !== $entry['message'][$field]) {
                             $entry['changes'][0]['contentOld'] = $entry['message'][$field];
                         }
@@ -370,7 +364,7 @@ class DemosPlanMasterToebController extends BaseController
                         $entry['message']['orgaName'] = $entry['message']['resultOrganisation']['name'];
                     }
                 }
-                //Wenn ein Organisation gelöscht wird, dann gebe ihren Namen aus
+                // Wenn ein Organisation gelöscht wird, dann gebe ihren Namen aus
                 if ('delete' === $entry['category']) {
                     $entry['changes'][0]['fieldOfChange'] = 'orgaName';
                     $entry['changes'][0]['contentNew'] = 'k.A.';
@@ -378,7 +372,7 @@ class DemosPlanMasterToebController extends BaseController
                         $entry['changes'][0]['contentNew'] = $entry['message']['orgaName'];
                     }
                 }
-                //Wenn ein Organisation hinzugefügt wird, dann gebe ihren Namen aus
+                // Wenn ein Organisation hinzugefügt wird, dann gebe ihren Namen aus
                 if ('add' === $entry['category']) {
                     if (null === $entry['message']) {
                         $this->getLogger()->warning('Message was null', [$entry]);
@@ -388,9 +382,9 @@ class DemosPlanMasterToebController extends BaseController
                         // Bestimmte Felder sollen nicht angegeben werden
                         $fieldsNotToShow = ['ident', 'dId', 'oId'];
                         if (!in_array($field, $fieldsNotToShow)) {
-                            //mit dem geänderter Feld
+                            // mit dem geänderter Feld
                             $entry['changes'][0]['fieldOfChange'] = $field;
-                            //mit dem neuen Inhalt
+                            // mit dem neuen Inhalt
                             $entry['changes'][0]['contentNew'] = $content;
                         }
                     }
@@ -439,7 +433,6 @@ class DemosPlanMasterToebController extends BaseController
      *     path="/mastertoeblist/export",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_use_mastertoeblist")
      *
      * @return RedirectResponse|StreamedResponse
@@ -474,7 +467,6 @@ class DemosPlanMasterToebController extends BaseController
      *     name="DemosPlan_user_mastertoeblist_merge",
      *     path="/mastertoeblist/merge"
      * )
-     *
      * @DplanPermissions("area_merge_mastertoeblist")
      *
      * @return RedirectResponse|Response

@@ -24,6 +24,23 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
 
+    DemosEurope\DemosplanAddon\Controller\APIController:
+        arguments:
+            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface :
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\MessageBag'
+
+    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+
+    EDT\Wrapping\Contracts\TypeProviderInterface:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
             -   name: data_collector
@@ -200,7 +217,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
         arguments:
@@ -295,13 +312,21 @@ services:
         decorates: Sentry\Monolog\Handler
         arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
 
-    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
+    demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
+            $path: !php/const 'demosplan\DemosPlanCoreBundle\Permissions\Permissions::PERMISSIONS_YML'
+            $cacheKey: 'permissionsYml'
+
+
+    demosplan\DemosPlanCoreBundle\Permissions\Permissions:
+        arguments:
+            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
+            $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
-    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
+    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
 
@@ -963,7 +988,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
     demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
 
     demosplan\DemosPlanUserBundle\Logic\AddressService:
@@ -1081,6 +1106,10 @@ services:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
 
+    EDT\JsonApi\Validation\FieldsValidator:
+        arguments:
+            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
+
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
             $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
@@ -1132,6 +1161,9 @@ services:
         arguments: [[], "@event_dispatcher"]
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
+
+    DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator: ~
+
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.

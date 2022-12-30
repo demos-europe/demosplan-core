@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceDeletionEvent;
 use demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent;
@@ -26,11 +31,9 @@ use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\ValueObject\ApiListResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
@@ -57,8 +60,8 @@ use Exception;
 
 use function get_class;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @template-extends AbstractApiService<ClauseFunctionInterface<bool>>
@@ -207,7 +210,7 @@ class JsonApiActionService extends AbstractApiService
         $object = $this->persistResourceChange($resourceChange);
 
         $postEvent = new AfterResourceUpdateEvent($resourceChange);
-        $this->eventDispatcher->dispatch($postEvent);
+        $this->eventDispatcher->dispatch($postEvent, AfterResourceUpdateEventInterface::class);
 
         return $object;
     }
@@ -242,7 +245,7 @@ class JsonApiActionService extends AbstractApiService
         }
 
         $afterCreationEvent = new AfterResourceCreationEvent($resourceChange);
-        $this->eventDispatcher->dispatch($afterCreationEvent);
+        $this->eventDispatcher->dispatch($afterCreationEvent, AfterResourceCreationEventInterface::class);
 
         return $object;
     }

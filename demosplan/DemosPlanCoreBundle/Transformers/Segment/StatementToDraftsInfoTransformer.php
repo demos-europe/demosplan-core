@@ -12,18 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use Faker\Provider\Uuid;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\DraftsInfoTransformerInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
-use Faker\Provider\Uuid;
 
 /**
  * Transforms a Statement to DraftsInfo (with one single DraftSegment containing

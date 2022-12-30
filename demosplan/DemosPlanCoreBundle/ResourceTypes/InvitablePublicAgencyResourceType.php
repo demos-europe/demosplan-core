@@ -32,7 +32,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                              $showlist
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
- * @property-read ProcedureResourceType            $procedureInvitations
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
 {
@@ -75,6 +74,9 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         if (null === $procedure) {
             return $this->conditionFactory->false();
         }
+        $invitedOrgaIds = $procedure->getOrganisation()->map(
+            static fn (Orga $orga): string => $orga->getId()
+        );
 
         return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
@@ -96,13 +98,10 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 ...$this->statusInCustomers->status
             ),
             // avoid already invited organisations
-            $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue(
-                    $procedure->getId(),
-                    ...$this->procedureInvitations->id
-                ),
-                $this->conditionFactory->propertyIsNull(...$this->procedureInvitations)
-            )
+            $this->conditionFactory->propertyHasNotAnyOfValues(
+                $invitedOrgaIds->toArray(),
+                ...$this->id
+            ),
         );
     }
 

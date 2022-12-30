@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCapabilitiesLoader;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapHandler;
@@ -365,7 +365,7 @@ class DemosPlanMapController extends BaseController
 
         $categoriesOfProcedure = $mapHandler->getRootLayerCategoryForProcedure($procedureId);
         $templateVars = [
-            'gislayerCategory' => [
+            'gislayerCategory'      => [
                 'layerWithChildrenHidden' => false,
             ],
             'categoriesOfProcedure' => $categoriesOfProcedure,
@@ -960,7 +960,7 @@ class DemosPlanMapController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'gislayernew' => [
+            'gislayernew'          => [
                 'action',
                 'r_bplan',
                 'r_contextualHelpText',
@@ -984,28 +984,28 @@ class DemosPlanMapController extends BaseController
                 'r_xplanDefaultlayers',
                 'r_category',
             ],
-            'gislayerdelete' => [
+            'gislayerdelete'       => [
                 'action',
                 'gislayerID',
             ],
-            'plandraw' => [
+            'plandraw'             => [
                 'action',
                 'r_planDrawText',
                 'r_planDrawDelete',
             ],
-            'planstand' => [
+            'planstand'            => [
                 'action',
                 'r_planText',
                 'r_planDelete',
                 'r_planningArea',
                 'r_mapHint',
             ],
-            'statementnewpolygon' => [
+            'statementnewpolygon'  => [
                 'action',
                 'r_polygon',
                 'r_ident',
             ],
-            'mapglobals' => [
+            'mapglobals'           => [
                 'action',
                 'r_currentMapExtent',
                 'r_mapExtent',
@@ -1019,7 +1019,7 @@ class DemosPlanMapController extends BaseController
                 'r_coordinate',
                 'r_territory',
             ],
-            'gislayeredit' => [
+            'gislayeredit'         => [
                 'action',
                 'delete_legend',
                 'r_bplan',
@@ -1044,7 +1044,7 @@ class DemosPlanMapController extends BaseController
                 'r_category',
                 'r_user_toggle_visibility',
             ],
-            'mapterritory' => [
+            'mapterritory'         => [
                 'action',
                 'r_territory',
                 'submit_item_return_button',
@@ -1053,7 +1053,7 @@ class DemosPlanMapController extends BaseController
                 'r_featureInfoUrl',
                 'r_featureInfoUrlProxyEnabled',
             ],
-            'gislayerCategorynew' => [
+            'gislayerCategorynew'  => [
                 'action',
                 'r_layerCategoryName',
                 'r_layerWithChildrenHidden',

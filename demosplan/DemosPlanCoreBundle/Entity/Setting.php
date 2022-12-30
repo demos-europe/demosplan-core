@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -98,6 +99,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * Date of creation.
      *
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_s_create_date", type="datetime", nullable=false)
      */
@@ -107,6 +109,7 @@ class Setting extends CoreEntity implements UuidEntityInterface
      * Date of last modifying.
      *
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_s_modified_date", type="datetime", nullable=false)
      */

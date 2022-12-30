@@ -11,18 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer;
@@ -30,8 +29,12 @@ use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -44,12 +47,26 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     private $objectPersister;
 
     public function __construct(
-        ApiLogger $apiLogger,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        ObjectPersisterInterface $objectPersister
+        ObjectPersisterInterface $objectPersister,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $fieldsValidator,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $schemaPathProcessor
+        );
         $this->objectPersister = $objectPersister;
     }
 
@@ -58,7 +75,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"GET"},
      *        name="dp_api_documents_dashboard_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      *
      * Manages the display of the dashboard on load.
@@ -96,7 +112,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
             }
         }
 
-        //T13708: workaround to handle invalid date string in DB:
+        // T13708: workaround to handle invalid date string in DB:
         $dateString = str_replace('Planstand ', '', $procedureSettings->getPlanText());
         try {
             $validDateString = Carbon::createFromFormat('d.m.Y', $dateString)->format('d.m.Y');
@@ -123,7 +139,6 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_dashboard_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin")
      *
      * Manages some updates performed from the dashboard.
@@ -147,8 +162,8 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         if ($documentDashboardData->isPresent('planningArea') && $permissions->hasPermission(
-                'feature_procedure_planning_area_match'
-            )) {
+            'feature_procedure_planning_area_match'
+        )) {
             $procedureSettings->setPlanningArea($documentDashboardData['planningArea']);
             $successMessages[] = new MessageSerializable('confirm', 'confirm.field.changes.saved', ['fieldName' => 'Planungsbereich']);
         }
@@ -161,7 +176,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         // ProcedureSettings not automatically trigger an ES update
         $this->objectPersister->replaceOne($updatedProcedure);
         foreach ($successMessages as $message) {
-            $this->getMessageBag()->addObject($message);
+            $this->messageBag->addObject($message);
         }
 
         return $this->renderSuccess();

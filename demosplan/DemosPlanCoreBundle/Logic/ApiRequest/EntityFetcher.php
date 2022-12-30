@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -288,7 +288,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *
@@ -308,7 +308,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface<O> $type
      *
      * @return O
      *
@@ -324,7 +324,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *

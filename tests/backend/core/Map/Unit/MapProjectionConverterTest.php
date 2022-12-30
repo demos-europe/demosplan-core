@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Map\Unit;
 
-use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use proj4php\Proj;
-use proj4php\Proj4php;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
+use proj4php\Proj4php;
+use proj4php\Proj;
 
 class MapProjectionConverterTest extends UnitTestCase
 {
