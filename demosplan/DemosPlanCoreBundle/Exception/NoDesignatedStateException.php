@@ -8,8 +8,8 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
-interface SegmentInterface
+class NoDesignatedStateException extends \Exception
 {
 }

@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent;
@@ -23,11 +24,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterfa
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Doctrine\ORM\Query\QueryException;
+use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,13 +66,13 @@ class DraftsInfoApiController extends APIController
 
             return $jsonResponse;
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }
@@ -101,17 +102,17 @@ class DraftsInfoApiController extends APIController
         try {
             $data = $request->getContent();
             $draftsInfoHandler->save($data);
-            $this->getMessageBag()->add('confirm', 'confirm.saved');
+            $this->messageBag->add('confirm', 'confirm.saved');
 
             return new JsonResponse();
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }
@@ -131,7 +132,7 @@ class DraftsInfoApiController extends APIController
      * @throws QueryException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions("area_statement_segmentation")
      */
@@ -157,7 +158,7 @@ class DraftsInfoApiController extends APIController
             );
 
             if (0 === count($segments)) {
-                $this->getMessageBag()->add('error', 'statement.has.no.segments');
+                $this->messageBag->add('error', 'statement.has.no.segments');
 
                 return $this->handleApiError();
             }
@@ -178,13 +179,13 @@ class DraftsInfoApiController extends APIController
                 $data
             );
         } catch (StatementNotFoundException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.not.found');
+            $this->messageBag->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
             throw $e;
         } catch (LockedByAssignmentException $e) {
-            $this->getMessageBag()->add('error', 'statement.not.claimed.by_current_user');
+            $this->messageBag->add('error', 'statement.not.claimed.by_current_user');
             throw $e;
         }
     }

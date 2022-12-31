@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;

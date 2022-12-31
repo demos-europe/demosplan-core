@@ -12,6 +12,12 @@ namespace Tests\Core\Procedure\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Doctrine\ORM\ORMInvalidArgumentException;
+use Exception;
+use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -48,15 +54,9 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use Doctrine\ORM\ORMInvalidArgumentException;
-use Exception;
-use Psr\Log\NullLogger;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Tests\Base\FunctionalTestCase;
 
 class ProcedureServiceTest extends FunctionalTestCase
 {

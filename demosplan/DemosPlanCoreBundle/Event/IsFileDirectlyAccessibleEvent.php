@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class IsFileDirectlyAccessibleEvent extends DPlanEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
+
+class IsFileDirectlyAccessibleEvent extends DPlanEvent implements IsFileDirectlyAccessibleEventInterface
 {
     /**
      * @param bool

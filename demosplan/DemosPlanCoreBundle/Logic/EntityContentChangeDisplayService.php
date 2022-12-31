@@ -11,12 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
-use DateTime;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
@@ -64,13 +63,11 @@ class EntityContentChangeDisplayService extends CoreService
         $this->twig = $twig;
     }
 
-    /** @return EntityContentChangeService */
     public function getEntityContentChangeService(): EntityContentChangeService
     {
         return $this->entityContentChangeService;
     }
 
-    /** @return EntityContentChangeRollbackVersionService */
     public function getEntityContentChangeRollbackVersionService(): EntityContentChangeRollbackVersionService
     {
         return $this->entityContentChangeRollbackVersionService;

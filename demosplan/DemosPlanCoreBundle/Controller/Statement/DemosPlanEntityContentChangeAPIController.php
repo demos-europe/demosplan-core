@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
@@ -35,7 +35,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      *        name="dplan_api_history_of_all_fields_of_specific_datetime",
      *        methods={"GET"},
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_content_changes_view")
      *
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
@@ -61,7 +60,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      *     name="dplan_api_statement_fragment_history",
      *     methods={"GET"},
      *     options={"expose": true})
-     *
      * @DplanPermissions("feature_statement_fragment_content_changes_view")
      *
      * @return APIResponse|JsonResponse
@@ -75,7 +73,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     {
         $statementFragment = $statementFragmentService->getStatementFragment($statementFragmentId);
         if (null === $statementFragment) {
-            $this->getMessageBag()->add('error', 'error.statementFragment.not.found');
+            $this->messageBag->add('error', 'error.statementFragment.not.found');
             throw new EntityNotFoundException(sprintf('Statement Fragment not found %s', $statementFragmentId));
         }
         if ($currentProcedureService->getProcedureIdWithCertainty() !== $statementFragment->getProcedureId()) {
@@ -96,7 +94,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
      * Then the combination of ABC is a change instance.
-     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     public function getSegmentContentChangeAction(

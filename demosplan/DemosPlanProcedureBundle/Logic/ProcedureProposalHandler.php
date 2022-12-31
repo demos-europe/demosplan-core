@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
-use Exception;
 
 class ProcedureProposalHandler extends CoreHandler
 {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ConsultationTokenResourceType;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
@@ -35,6 +35,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodInterface;
+use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -226,7 +227,7 @@ class ConsultationTokenService
             $token = $this->createRandomString(8, self::TOKEN_CHARACTERS);
             ++$emergencyCounter;
             if ($emergencyCounter > 1000) {
-                throw new \Exception('Couldn\' find an unreserved token after 1000 attempts.');
+                throw new Exception('Couldn\' find an unreserved token after 1000 attempts.');
             }
         } while ($this->isTokenStringInUse($token));
 

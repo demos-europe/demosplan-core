@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class IsFileAvailableEvent extends DPlanEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
+
+class IsFileAvailableEvent extends DPlanEvent implements IsFileAvailableEventInterface
 {
     /**
      * @param bool

@@ -12,26 +12,27 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathsBasedInterface;
+use Elastica\Type;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathsBasedInterface;
-use Elastica\Type;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<Statement>
@@ -51,7 +52,7 @@ use Elastica\Type;
  * @property-read End $segmentDraftList
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
-final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface
+final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, UpdatableDqlResourceTypeInterface, DeletableDqlResourceTypeInterface, StatementResourceTypeInterface
 {
     /**
      * @var QueryStatement
@@ -140,7 +141,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $allowedProcedureIds[] = $procedure->getId();
 
         return $this->conditionFactory->allConditionsApply(
-        // Statement resources can never be deleted
+            // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, ...$pathStartResourceType->deleted),
             // Normally the path to the relationship would suffice for a NULL check, but the ES
             // provides the 'original.id' path only hence we need the path to the ID to support

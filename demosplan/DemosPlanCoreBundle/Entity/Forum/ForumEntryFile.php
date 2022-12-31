@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -47,14 +48,16 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
     protected $entry;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_fef_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_fef_modified_date", type="datetime", nullable=false)
      */
@@ -90,6 +93,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(name="_fef_hash", type="string", length=36, options={"fixed":true}, nullable=false)
      */
     protected $hash;
@@ -137,7 +141,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return ForumEntryFile
      */
@@ -151,7 +155,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -161,7 +165,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifyDate.
      *
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      *
      * @return ForumEntryFile
      */
@@ -175,7 +179,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifyDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {

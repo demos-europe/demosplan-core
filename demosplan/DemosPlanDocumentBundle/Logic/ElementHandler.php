@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
-use function array_key_exists;
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
+use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use function array_key_exists;
 
 class ElementHandler extends CoreHandler
 {

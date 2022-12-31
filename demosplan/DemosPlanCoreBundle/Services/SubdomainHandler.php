@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 

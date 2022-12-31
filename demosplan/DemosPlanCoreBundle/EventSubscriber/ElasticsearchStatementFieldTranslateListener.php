@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use FOS\ElasticaBundle\Event\TransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;

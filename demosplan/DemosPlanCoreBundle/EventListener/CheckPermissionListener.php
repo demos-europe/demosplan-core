@@ -10,14 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 use Doctrine\Common\Annotations\Reader;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\Routing\RouterInterface;
@@ -62,7 +63,7 @@ class CheckPermissionListener
 
         [$controller, $methodName] = $controllers;
 
-        if (!$controller instanceof BaseController) {
+        if (!$controller instanceof AbstractController) {
             return;
         }
 
@@ -93,7 +94,7 @@ class CheckPermissionListener
             try {
                 if ($controller instanceof APIController) {
                     $redirectResponse = $controller->handleApiError($e);
-                } else {
+                } elseif ($controller instanceof BaseController) {
                     $redirectResponse = $controller->handleError($e);
                 }
             } catch (Exception $e) {

@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\DuplicateInternIdExceptionImterface;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 
-class DuplicateInternIdException extends DemosException
+class DuplicateInternIdException extends DemosException implements DuplicateInternIdExceptionImterface
 {
     public static function create(string $internId, string $procedureId): self
     {
