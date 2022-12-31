@@ -10,14 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
-use demosplan\addons\workflow\SegmentsManager\Logic\Segment\SegmentService;
+use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -29,7 +30,6 @@ class SegmentHistoryAPIController extends APIController
      *     name="dplan_api_segment_history_get",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     public function getAction(
@@ -43,7 +43,7 @@ class SegmentHistoryAPIController extends APIController
 
             $procedureId = $currentProcedureService->getProcedureIdWithCertainty();
             if ($procedureId !== $segment->getProcedureId()) {
-                //otherwise user can access to any statement history by url modification
+                // otherwise user can access to any statement history by url modification
                 throw new AccessDeniedException();
             }
 
@@ -53,7 +53,7 @@ class SegmentHistoryAPIController extends APIController
             );
 
             return $this->renderCollection($data, HistoryDayTransformer::class);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleApiError($e);
         }
     }

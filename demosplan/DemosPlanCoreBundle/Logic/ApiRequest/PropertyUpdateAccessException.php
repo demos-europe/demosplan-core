@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\PropertyUpdateAccessExceptionInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 
-class PropertyUpdateAccessException extends AccessException
+class PropertyUpdateAccessException extends AccessException implements PropertyUpdateAccessExceptionInterface
 {
     public static function notAvailable(ResourceTypeInterface $type, string $property, string ...$availableProperties): self
     {

@@ -39,20 +39,18 @@ class DeployCommand extends CoreCommand
     public function configure(): void
     {
         $this->addOption(
-                'strategy',
-                's',
-                InputOption::VALUE_REQUIRED,
-                'Deployment type',
-                'dataport_package'
-            )
-            ->addOption(
-                'reference',
-                'r',
-                InputOption::VALUE_OPTIONAL,
-                'Git reference to create the deployment from. DOES NOT APPLY TO ALL DEPLOYMENTS!',
-                null
-            )
-            ->setHelp("Deploy demosplan.\nUsage:\n\tphp app/console dplan:deploy [dataport_package|sync]");
+            'strategy',
+            's',
+            InputOption::VALUE_REQUIRED,
+            'Deployment type',
+            'dataport_package'
+        )->addOption(
+            'reference',
+            'r',
+            InputOption::VALUE_OPTIONAL,
+            'Git reference to create the deployment from. DOES NOT APPLY TO ALL DEPLOYMENTS!',
+            null
+        )->setHelp("Deploy demosplan.\nUsage:\n\tphp app/console dplan:deploy [dataport_package|sync]");
     }
 
     /**

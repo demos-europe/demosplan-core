@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -31,7 +32,6 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                              $showlist
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
- * @property-read ProcedureResourceType            $procedureInvitations
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
 {
@@ -74,6 +74,9 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         if (null === $procedure) {
             return $this->conditionFactory->false();
         }
+        $invitedOrgaIds = $procedure->getOrganisation()->map(
+            static fn (Orga $orga): string => $orga->getId()
+        );
 
         return $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
@@ -90,14 +93,15 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 $customer->getId(),
                 $this->statusInCustomers->customer->id
             ),
+            $this->conditionFactory->propertyHasValue(
+                OrgaStatusInCustomer::STATUS_ACCEPTED,
+                ...$this->statusInCustomers->status
+            ),
             // avoid already invited organisations
-            $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue(
-                    $procedure->getId(),
-                    $this->procedureInvitations->id
-                ),
-                $this->conditionFactory->propertyIsNull($this->procedureInvitations)
-            )
+            $this->conditionFactory->propertyHasNotAnyOfValues(
+                $invitedOrgaIds->toArray(),
+                $this->id
+            ),
         );
     }
 

@@ -10,8 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Controller\GenericApiController;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -21,15 +25,11 @@ use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdministratableUserResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
@@ -38,11 +38,15 @@ use demosplan\DemosPlanUserBundle\Logic\UserService;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\RequestHandling\UrlParameter;
+use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
 use LogicException;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,12 +61,26 @@ class DemosPlanUserAPIController extends APIController
     protected $userService;
 
     public function __construct(
-        ApiLogger $apiLogger,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
+        UserService $userService,
+        LoggerInterface $apiLogger,
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        UserService $userService
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $fieldsValidator,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $schemaPathProcessor
+        );
 
         $this->userService = $userService;
     }
@@ -72,7 +90,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_user_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_get")
      *
      * @throws MessageBagException
@@ -95,7 +112,7 @@ class DemosPlanUserAPIController extends APIController
             $e->setEntityId($userId);
             throw $e;
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.access.denied');
+            $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to find user: '.$e);
 
             return $this->handleApiError($e);
@@ -107,7 +124,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_users_get",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_list")
      *
      * @throws MessageBagException
@@ -158,7 +174,7 @@ class DemosPlanUserAPIController extends APIController
 
             return $this->renderResource($collection);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'warning.access.denied');
+            $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to get user list: '.$e);
 
             return $this->handleApiError($e);
@@ -170,7 +186,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_user_create",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_add")
      *
      * @throws MessageBagException
@@ -195,9 +210,9 @@ class DemosPlanUserAPIController extends APIController
             if ($user instanceof User) {
                 try {
                     $userHandler->inviteUser($user);
-                    $this->getMessageBag()->add('confirm', 'confirm.email.invitation.sent');
+                    $this->messageBag->add('confirm', 'confirm.email.invitation.sent');
                 } catch (SendMailException $e) {
-                    $this->getMessageBag()->add('error', 'error.email.invitation.send.to.user');
+                    $this->messageBag->add('error', 'error.email.invitation.send.to.user');
                 }
 
                 $item = $this->resourceService->makeItemOfResource(
@@ -210,16 +225,16 @@ class DemosPlanUserAPIController extends APIController
 
             throw new RuntimeException('Could not create user');
         } catch (EmailAddressInUseException|LoginNameInUseException $e) {
-            $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
+            $this->messageBag->add('error', 'error.login.or.email.not.unique');
 
             return $this->handleApiError($e);
         } catch (UserAlreadyExistsException $e) {
-            $this->getMessageBag()->add('error', 'error.user.login.exists');
+            $this->messageBag->add('error', 'error.user.login.exists');
 
             return $this->handleApiError($e);
         } catch (Exception $e) {
-            $this->getLogger()->error('New User Entity could not been saved');
-            $this->getMessageBag()->add('error', 'error.save');
+            $this->logger->error('New User Entity could not been saved');
+            $this->messageBag->add('error', 'error.save');
 
             return $this->handleApiError($e);
         }
@@ -230,7 +245,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"DELETE"},
      *        name="dplan_api_user_delete",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_delete")
      *
      * @return APIResponse|EmptyResponse
@@ -247,7 +261,6 @@ class DemosPlanUserAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_api_user_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("feature_user_edit")
      */
     public function updateAction(string $id, UserHandler $userHandler): APIResponse
@@ -290,7 +303,7 @@ class DemosPlanUserAPIController extends APIController
         $updatedUser = $userHandler->updateUser($id, $userData);
 
         if ($updatedUser instanceof User) {
-            $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+            $this->messageBag->add('confirm', 'confirm.all.changes.saved');
             $item = $this->resourceService->makeItemOfResource($updatedUser, UserResourceType::getName());
 
             return $this->renderResource($item);

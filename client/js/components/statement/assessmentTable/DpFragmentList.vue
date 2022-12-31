@@ -48,7 +48,7 @@ Hopefully in the future we will be able to refactor this and write it in a corre
 </template>
 
 <script>
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 import Fragment from './Fragment'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapGetters } from 'vuex'

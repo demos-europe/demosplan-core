@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -11,8 +13,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,8 +39,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255, nullable=false)
      *
+     * @ORM\Column(type="string", length=255, nullable=false)
      * @Assert\NotNull(message="institutionTag.label.not.null")
      * @Assert\NotBlank(allowNull=false, normalizer="trim")
      */
@@ -65,6 +67,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -72,6 +75,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -129,6 +133,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface
         if (!$this->taggedInstitutions->contains($institution)) {
             $this->taggedInstitutions->add($institution);
             $institution->addAssignedTag($this);
+
             return true;
         }
 

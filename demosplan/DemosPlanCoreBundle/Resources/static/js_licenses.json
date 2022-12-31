@@ -70,6 +70,11 @@
         "website": "https://purgecss.com/"
     },
     {
+        "package": "@masterportal/masterportalapi",
+        "license": "MIT",
+        "website": "https://bitbucket.org/geowerkstatt-hamburg/masterportalapi#readme"
+    },
+    {
         "package": "@sentry/browser",
         "license": "BSD-3-Clause",
         "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/browser"
@@ -197,7 +202,7 @@
     {
         "package": "core-js",
         "license": "MIT",
-        "website": "Unknown"
+        "website": "http://zloirock.ru"
     },
     {
         "package": "cross-env",
@@ -495,6 +500,16 @@
         "website": "https://adobe-fonts.github.io/source-sans-pro"
     },
     {
+        "package": "stream",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "string_decoder",
+        "license": "MIT",
+        "website": "https://github.com/nodejs/string_decoder"
+    },
+    {
         "package": "striptags",
         "license": "MIT",
         "website": "https://github.com/ericnorris/striptags"
@@ -513,6 +528,11 @@
         "package": "swagger-ui-dist",
         "license": "Apache-2.0",
         "website": "Unknown"
+    },
+    {
+        "package": "timers-browserify",
+        "license": "MIT",
+        "website": "https://github.com/jryans/timers-browserify"
     },
     {
         "package": "tippy.js",

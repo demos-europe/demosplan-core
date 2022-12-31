@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -18,10 +20,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -114,21 +116,24 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     protected $vote;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $created;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
     protected $modified;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @ORM\Column(name="assigned_to_fb_date", type="datetime", nullable=true)
      */
     protected $assignedToFbDate;
@@ -242,7 +247,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * @var int
      *
      * @ORM\Column(type="integer", nullable=false, options={"default":-1})
-     *
      * @Assert\PositiveOrZero(groups={"mandatory"})
      */
     protected $sortIndex = -1;
@@ -251,6 +255,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      * User who triggered this Version.
      *
      * @var User
+     *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(name="modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
@@ -266,12 +271,14 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(type = "string", nullable = true, options={"default":"fragment.status.new"})
      */
     protected $status = 'fragment.status.new';
 
     /**
      * @var User
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(name="last_claimed", referencedColumnName="_u_id", onDelete="SET NULL")
      */
@@ -679,7 +686,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -687,7 +694,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModified()
     {
@@ -714,7 +721,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getVoteAdvice()
     {
-        //aggregate null and emptystring
+        // aggregate null and emptystring
         if ('' === $this->voteAdvice) {
             return null;
         }
@@ -737,7 +744,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
      */
     public function getVote()
     {
-        //aggregate null and emptystring
+        // aggregate null and emptystring
         if ('' === $this->vote) {
             return null;
         }
@@ -1475,7 +1482,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getAssignedToFbDate()
     {
@@ -1483,7 +1490,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $assignedToFbDate
+     * @param DateTime $assignedToFbDate
      */
     public function setAssignedToFbDate($assignedToFbDate)
     {
@@ -1506,7 +1513,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -1579,12 +1586,12 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface
         return $documentTitle;
     }
 
-    public function setCreated(\DateTime $created)
+    public function setCreated(DateTime $created)
     {
         $this->created = $created;
     }
 
-    public function setModified(\DateTime $modified)
+    public function setModified(DateTime $modified)
     {
         $this->modified = $modified;
     }

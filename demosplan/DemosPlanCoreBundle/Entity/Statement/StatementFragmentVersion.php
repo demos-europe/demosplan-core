@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -44,6 +45,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var StatementFragment
      *
      * todo: should be nullable = false? will not working with onDelete="SET NULL"
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", inversedBy="versions")
      * @ORM\JoinColumn(name="statement_fragment_id", referencedColumnName="sf_id", nullable=true, onDelete="SET NULL")
      */
@@ -93,7 +95,8 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     protected $vote;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
@@ -173,6 +176,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * User who triggered this Version.
      *
      * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
+     *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      * @ORM\JoinColumn(name="sfv_modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
@@ -231,11 +235,11 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
         $this->voteAdvice = $fragmentToCreateVersionFrom->getVoteAdvice();
         $this->document = $fragmentToCreateVersionFrom->getDocument();
 
-        //kept relations:
+        // kept relations:
         $this->setStatementFragment($fragmentToCreateVersionFrom);
         $this->procedure = $fragmentToCreateVersionFrom->getProcedure();
 
-        //solved relations:
+        // solved relations:
         $this->setCountyNames($fragmentToCreateVersionFrom->getCountyNames());
         $this->setMunicipalityNames($fragmentToCreateVersionFrom->getMunicipalityNames());
         $this->setPriorityAreaKeys($fragmentToCreateVersionFrom->getPriorityAreaKeys());
@@ -328,7 +332,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -522,7 +526,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $created
+     * @param DateTime $created
      */
     public function setCreated($created)
     {

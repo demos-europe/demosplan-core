@@ -6,10 +6,10 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
-    demosplan\addons\workflow\SegmentsManager\Repository\Segment\SegmentRepository:
-        $entityClass: 'demosplan\addons\workflow\SegmentsManager\Entity\Segment'
+    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
-    demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
+    demosplan\DemosPlanCoreBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
 
     demosplan\DemosPlanCoreBundle\Repository\RoleRepository:
@@ -92,7 +92,7 @@ services:
     demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
-    demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
     demosplan\DemosPlanMapBundle\Repository\MapRepository:

@@ -10,19 +10,19 @@
 
 namespace Tests\Core\Document\Unit;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
+use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
+use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
 
 /**
  * Class DocumentBundleImporterTest.

@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -55,27 +56,31 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     protected $phase;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pr_start_date", type="datetime", nullable=true)
      */
     protected $startDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @ORM\Column(name="_pr_end_date", type="datetime", nullable=true)
      */
     protected $endDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_pr_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pr_create_date", type="datetime", nullable=false)
      */
@@ -169,7 +174,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Set startDate.
      *
-     * @param \DateTime $startDate
+     * @param DateTime $startDate
      *
      * @return DevelopmentRelease
      */
@@ -183,7 +188,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Get startDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getStartDate()
     {
@@ -193,7 +198,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Set endDate.
      *
-     * @param \DateTime $endDate
+     * @param DateTime $endDate
      *
      * @return DevelopmentRelease
      */
@@ -207,7 +212,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Get endDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getEndDate()
     {
@@ -217,7 +222,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifiedDate.
      *
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return DevelopmentRelease
      */
@@ -231,7 +236,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -241,7 +246,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return DevelopmentRelease
      */
@@ -255,7 +260,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {

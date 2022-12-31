@@ -124,7 +124,7 @@ class SessionHandler extends PdoSessionHandler
             $this->handleProcedure();
             $this->permissions->checkProcedurePermission();
 
-            //prüfe die Rechte für den Bereich
+            // prüfe die Rechte für den Bereich
             $this->permissions->checkPermissions($context);
         } catch (AccessDeniedException $e) {
             // Wenn der User vorher keine Session hatte, ist eher die Session abgelaufen,
@@ -178,7 +178,7 @@ class SessionHandler extends PdoSessionHandler
             }
         }
 
-        //save current procedure
+        // save current procedure
         $this->permissions->setProcedure($procedure ?? null);
     }
 

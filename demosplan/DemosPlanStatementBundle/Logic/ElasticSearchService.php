@@ -10,21 +10,21 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function array_key_exists;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
-use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
+use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
+use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
+use function array_key_exists;
 
 class ElasticSearchService extends CoreService
 {

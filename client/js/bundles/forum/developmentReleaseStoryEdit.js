@@ -11,7 +11,7 @@
  * This is the entry point for development_release_story_edit.html.twig
  */
 
-import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
+import { DpEditor } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 
 const components = { DpEditor }

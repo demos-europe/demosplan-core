@@ -10,20 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use Exception;
+
 use function is_array;
+
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -114,7 +115,7 @@ abstract class BaseController extends AbstractController
      *
      * @required
      */
-    public function setMessageBag(MessageBagInterface $messageBag): void
+    public function setMessageBag(MessageBag $messageBag): void
     {
         $this->messageBag = $messageBag;
     }
@@ -361,7 +362,6 @@ abstract class BaseController extends AbstractController
     }
 
     /**
-     * @param        $defaultData
      * @param string $type
      * @param bool   $useCsrf          set to true by default
      * @param bool   $allowExtraFields set to false by default

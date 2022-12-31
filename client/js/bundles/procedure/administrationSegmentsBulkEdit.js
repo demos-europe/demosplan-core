@@ -10,12 +10,14 @@
 /**
  * This is the entrypoint for administration_segments_bulk_edit.html.twig
  */
-
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { initialize } from '@DemosPlanCoreBundle/InitVue'
 import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
 
 const components = { SegmentsBulkEdit }
-const stores = {}
+const stores = {
+  boilerplates: BoilerplatesStore
+}
 const apiStores = ['tag', 'tagTopic']
 
 initialize(components, stores, apiStores)

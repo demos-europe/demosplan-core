@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use Carbon\Exceptions\InvalidFormatException;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\RpcRequestData;
 use Symfony\Component\Config\Definition\Exception\InvalidTypeException;
 use Symfony\Component\HttpFoundation\Request;

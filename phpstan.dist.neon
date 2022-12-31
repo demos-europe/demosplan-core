@@ -2,7 +2,7 @@ includes:
     - %rootDir%/../../../vendor/phpstan/phpstan-symfony/extension.neon
     - %rootDir%/../../../vendor/timeweb/phpstan-enum/extension.neon
 parameters:
-    tmpDir: %rootDir%/../../../infrastructure/.runtime
+    tmpDir: /tmp/phpstan
     scanFiles:
         - %rootDir%/../../../vendor/phayes/geophp/lib/adapters/GeoJSON.class.php
         - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Collection.class.php
@@ -12,7 +12,6 @@ parameters:
         - %rootDir%/../../../vendor/phayes/geophp/lib/geometry/Polygon.class.php
         - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
     scanDirectories:
-        - %rootDir%/../../../lib
 #    # used when oder phpstan version is used during refactoring with rector. Might be deleted with symfony4
 #    autoload_directories:
 #        - %rootDir%/../../../demosplan/DemosPlanCoreBundle/DoctrineMigrations
@@ -22,8 +21,8 @@ parameters:
 #        - %rootDir%/../../../vendor/autoload.php
 #        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
 
-    excludes_analyse:
-        - %rootDir%/../../../demosplan/plugins
+    excludePaths:
         - %rootDir%/../../../demosplan/vendor
         - %rootDir%/../../../vendor
+        - %rootDir%/../../../demosplan/plugins
     level: 1

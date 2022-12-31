@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
@@ -39,7 +41,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @ORM\Table(name="_procedure")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository")
- *
  * @ORM\AssociationOverrides({
  *      @ORM\AssociationOverride(name="slugs",
  *          joinTable=@ORM\JoinTable(
@@ -48,13 +49,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *          )
  *      )
  * })
- *
  * @ProcedureTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
  * @ProcedureTypeConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
  * @ProcedureMasterTemplateConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  * @ProcedureAllowedSegmentsConstraint(groups={Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
-class Procedure extends SluggedEntity
+class Procedure extends SluggedEntity implements ProcedureInterface
 {
     public const VALIDATION_GROUP_MANDATORY_PROCEDURE = 'mandatory_procedure';
     public const VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE = 'mandatory_procedure_template';
@@ -223,7 +223,7 @@ class Procedure extends SluggedEntity
      */
     protected $deleted = false;
 
-    //improve: use blueprint/template instead of master
+    // improve: use blueprint/template instead of master
     /**
      * `true`/`1` if this instance is not an actual procedure but a procedure template instead.
      * `false`/`0` otherwise.
@@ -298,14 +298,14 @@ class Procedure extends SluggedEntity
     protected $publicParticipationStep = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_public_participation_start", type="datetime", nullable=false)
      */
     protected $publicParticipationStartDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_public_participation_end", type="datetime", nullable=false)
      */
@@ -368,35 +368,36 @@ class Procedure extends SluggedEntity
     protected $ars = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_p_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_start_date", type="datetime", nullable=false)
      */
     protected $startDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_end_date", type="datetime", nullable=false)
      */
     protected $endDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_closed_date", type="datetime", nullable=false)
      */
     protected $closedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_p_deleted_date", type="datetime", nullable=false)
      */
@@ -451,24 +452,28 @@ class Procedure extends SluggedEntity
 
     /**
      * @var ProcedureSettings
+     *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings", mappedBy="procedure", cascade={"persist", "remove"})
      */
     protected $settings;
 
     /**
      * @var Collection<int, TagTopic>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic", mappedBy="procedure", cascade={"remove"})
      */
     protected $topics;
 
     /**
      * @var Collection<int, NotificationReceiver>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver", mappedBy="procedure", cascade={"persist", "remove"})
      */
     protected $notificationReceivers;
 
     /**
      * @var Collection<int,Elements>
+     *
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="procedure")
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id")
      */
@@ -492,6 +497,7 @@ class Procedure extends SluggedEntity
      * which need to be considered and result in nullable=true.
      *
      * @var string
+     *
      * @ORM\Column(type="string", length=364, nullable=true, options={"comment":"main email address of the agency (organization) assigned to this procedure"})
      */
     protected $agencyMainEmailAddress;
@@ -548,12 +554,14 @@ class Procedure extends SluggedEntity
 
     /**
      * @var Collection<int, Statement>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="procedure", cascade={"persist", "remove"})
      */
     protected $statements;
 
     /**
      * @var Collection<int, Survey>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\Survey",
      *      mappedBy="procedure", cascade={"persist", "remove"})
      */
@@ -576,6 +584,7 @@ class Procedure extends SluggedEntity
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related StatementFormDefinition.
      *
      * @var StatementFormDefinition|null
+     *
      * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -585,6 +594,7 @@ class Procedure extends SluggedEntity
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureBehaviorDefinition.
      *
      * @var ProcedureBehaviorDefinition|null
+     *
      * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -594,6 +604,7 @@ class Procedure extends SluggedEntity
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureUiDefinition.
      *
      * @var ProcedureUiDefinition|null
+     *
      * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      */
@@ -603,6 +614,7 @@ class Procedure extends SluggedEntity
      * Definition of Fields to be rendered/added in Export of this Procedure.
      *
      * @var Collection<int, ExportFieldsConfiguration>
+     *
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration", mappedBy="procedure", cascade={"persist", "remove"})
      * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
@@ -612,6 +624,7 @@ class Procedure extends SluggedEntity
      * Any files referenced to this procedure.
      *
      * @var Collection<int, File>
+     *
      * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\File", mappedBy="procedure", cascade={"remove"})
      */
     private $files;
@@ -643,12 +656,12 @@ class Procedure extends SluggedEntity
         $this->organisation = new ArrayCollection();
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
-        $this->closedDate = new \DateTime();
-        $this->deletedDate = new \DateTime();
-        $this->endDate = new \DateTime();
-        $this->startDate = new \DateTime();
-        $this->publicParticipationStartDate = new \DateTime();
-        $this->publicParticipationEndDate = new \DateTime();
+        $this->closedDate = new DateTime();
+        $this->deletedDate = new DateTime();
+        $this->endDate = new DateTime();
+        $this->startDate = new DateTime();
+        $this->publicParticipationStartDate = new DateTime();
+        $this->publicParticipationEndDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
         $this->agencyExtraEmailAddresses = new ArrayCollection();
@@ -1041,7 +1054,7 @@ class Procedure extends SluggedEntity
      * @return bool
      */
     public function getMaster()
-    {       //improve: use is instead of get
+    {       // improve: use is instead of get
         return \filter_var($this->master, FILTER_VALIDATE_BOOLEAN);
     }
 
@@ -1202,7 +1215,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pPublicParticipationStart.
      *
-     * @param \DateTime $publicParticipationStartDate
+     * @param DateTime $publicParticipationStartDate
      *
      * @return Procedure
      */
@@ -1216,7 +1229,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pPublicParticipationStart.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getPublicParticipationStartDate()
     {
@@ -1230,7 +1243,7 @@ class Procedure extends SluggedEntity
      */
     public function getPublicParticipationStartDateTimestamp()
     {
-        if (($this->publicParticipationStartDate instanceof \DateTime) && is_numeric($this->publicParticipationStartDate->getTimestamp())) {
+        if (($this->publicParticipationStartDate instanceof DateTime) && is_numeric($this->publicParticipationStartDate->getTimestamp())) {
             return $this->publicParticipationStartDate->getTimestamp();
         }
 
@@ -1240,7 +1253,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pPublicParticipationEnd.
      *
-     * @param \DateTime $publicParticipationEndDate
+     * @param DateTime $publicParticipationEndDate
      *
      * @return Procedure
      */
@@ -1254,7 +1267,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pPublicParticipationEnd.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getPublicParticipationEndDate()
     {
@@ -1268,7 +1281,7 @@ class Procedure extends SluggedEntity
      */
     public function getPublicParticipationEndDateTimestamp()
     {
-        if (($this->publicParticipationEndDate instanceof \DateTime) && is_numeric($this->publicParticipationEndDate->getTimestamp())) {
+        if (($this->publicParticipationEndDate instanceof DateTime) && is_numeric($this->publicParticipationEndDate->getTimestamp())) {
             return $this->publicParticipationEndDate->getTimestamp();
         }
 
@@ -1444,7 +1457,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pCreatedDate.
      *
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return Procedure
      */
@@ -1458,7 +1471,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pCreatedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -1468,7 +1481,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pStartDate.
      *
-     * @param \DateTime $startDate
+     * @param DateTime $startDate
      *
      * @return Procedure
      */
@@ -1482,7 +1495,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pStartDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getStartDate()
     {
@@ -1496,7 +1509,7 @@ class Procedure extends SluggedEntity
      */
     public function getStartDateTimestamp()
     {
-        if ($this->startDate instanceof \DateTime) {
+        if ($this->startDate instanceof DateTime) {
             return $this->startDate->getTimestamp();
         }
 
@@ -1506,7 +1519,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pEndDate.
      *
-     * @param \DateTime $endDate
+     * @param DateTime $endDate
      *
      * @return Procedure
      */
@@ -1520,7 +1533,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pEndDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getEndDate()
     {
@@ -1534,7 +1547,7 @@ class Procedure extends SluggedEntity
      */
     public function getEndDateTimestamp()
     {
-        if ($this->endDate instanceof \DateTime) {
+        if ($this->endDate instanceof DateTime) {
             return $this->endDate->getTimestamp();
         }
 
@@ -1544,7 +1557,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pClosedDate.
      *
-     * @param \DateTime $closedDate
+     * @param DateTime $closedDate
      *
      * @return Procedure
      */
@@ -1558,7 +1571,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pClosedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getClosedDate()
     {
@@ -1568,7 +1581,7 @@ class Procedure extends SluggedEntity
     /**
      * Set pDeletedDate.
      *
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      *
      * @return Procedure
      */
@@ -1582,7 +1595,7 @@ class Procedure extends SluggedEntity
     /**
      * Get pDeletedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {
@@ -1613,7 +1626,7 @@ class Procedure extends SluggedEntity
      */
     public function addOrganisation(Orga $organisation)
     {
-        //hasOrganisation()
+        // hasOrganisation()
         if (false === $this->hasOrganisation($organisation->getId())) {
             $this->organisation->add($organisation);
         }
@@ -2088,8 +2101,6 @@ class Procedure extends SluggedEntity
 
     /**
      * Detach ProcedureCategory from this Procedure.
-     *
-     * @return Procedure
      */
     public function removeProcedureCategory(ProcedureCategory $procedureCategory): self
     {
@@ -2102,8 +2113,6 @@ class Procedure extends SluggedEntity
 
     /**
      * Detach ProcedureCategories from this Procedure.
-     *
-     * @return Procedure
      */
     public function removeProcedureCategories(array $procedureCategories): self
     {

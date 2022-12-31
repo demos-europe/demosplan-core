@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCapabilitiesLoader;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapHandler;
@@ -33,7 +33,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage as ProcedureServiceStorage;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -61,7 +60,6 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/globaleGisEinstellungen",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -107,7 +105,7 @@ class DemosPlanMapController extends BaseController
         $scales = str_replace(['[', ']'], '', $this->globalConfig->getMapPublicAvailableScales());
         $templateVars['availableScales'] = explode(',', $scales);
 
-        //reichere die breadcrumb mit extraItem an
+        // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('drawing.admin.gis.layers', [], 'page-title'),
@@ -118,7 +116,7 @@ class DemosPlanMapController extends BaseController
             ]
         );
 
-        //get settings of current procedure
+        // get settings of current procedure
         $settings = $contentService->getSettings(
             'layerGroupsAlternateVisibility',
             SettingsFilter::whereProcedureId($procedureId)->lock(),
@@ -152,7 +150,6 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_new",
      *     path="/verfahren/{procedure}/verwalten/gislayer/neu"
      * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -182,10 +179,10 @@ class DemosPlanMapController extends BaseController
                 $templateVars['inData'] = $inData;
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult && array_key_exists('ident', $storageResult) && !array_key_exists(
-                        'mandatoryfieldwarning',
-                        $storageResult
-                    )) {
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
@@ -197,7 +194,7 @@ class DemosPlanMapController extends BaseController
                     );
                 }
             }
-            //reichere die breadcrumb mit extraItem an
+            // reichere die breadcrumb mit extraItem an
             $breadcrumb->addItem(
                 [
                     'title' => $translator->trans('drawing.admin.gis.layers', [], 'page-title'),
@@ -235,7 +232,6 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/gislayer/{gislayerID}",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -267,10 +263,10 @@ class DemosPlanMapController extends BaseController
                 $storageResult = $serviceStorage->administrationGislayerEditHandler($procedure, $inData);
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult && array_key_exists('ident', $storageResult) && !array_key_exists(
-                        'mandatoryfieldwarning',
-                        $storageResult
-                    )) {
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
@@ -281,7 +277,7 @@ class DemosPlanMapController extends BaseController
                 }
             }
 
-            //reichere die breadcrumb mit extraItem an
+            // reichere die breadcrumb mit extraItem an
             $breadcrumb->addItem(
                 [
                     'title' => $translator->trans('drawing.admin.gis.layers', [], 'page-title'),
@@ -323,7 +319,6 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_category_new",
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/new-category"
      * )
-     *
      *  @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -342,7 +337,7 @@ class DemosPlanMapController extends BaseController
         if (array_key_exists('r_layerCategoryName', $request)) {
             $childrenHidden = array_key_exists('r_layerWithChildrenHidden', $request) ? true : false;
             $name = $request['r_layerCategoryName'];
-            //set custom category if given, else use rootCategory
+            // set custom category if given, else use rootCategory
             if (array_key_exists('r_layerCategoryCategory', $request)) {
                 $relatedCategoryId = $request['r_layerCategoryCategory'];
             }
@@ -370,7 +365,7 @@ class DemosPlanMapController extends BaseController
 
         $categoriesOfProcedure = $mapHandler->getRootLayerCategoryForProcedure($procedureId);
         $templateVars = [
-            'gislayerCategory' => [
+            'gislayerCategory'      => [
                 'layerWithChildrenHidden' => false,
             ],
             'categoriesOfProcedure' => $categoriesOfProcedure,
@@ -395,7 +390,6 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -465,7 +459,6 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayer",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -507,7 +500,7 @@ class DemosPlanMapController extends BaseController
                     ['procedureId' => $procedureId]
                 );
             }
-            //updatePlanstand
+            // updatePlanstand
             $inData = $this->prepareIncomingData($request, 'planstand');
             $procedure = $procedureServiceStorage->updatePlanHandler($inData, $procedureId);
 
@@ -518,7 +511,7 @@ class DemosPlanMapController extends BaseController
                 );
             }
 
-            //upload Planzeichnung
+            // upload Planzeichnung
             if ((array_key_exists('uploadedFiles', $requestPost) &&
                     '' !== $requestPost['uploadedFiles']['r_planDrawPDF']) || array_key_exists('r_planDrawDelete', $requestPost)) {
                 $inData = $this->prepareIncomingData($request, 'plandraw');
@@ -534,8 +527,8 @@ class DemosPlanMapController extends BaseController
                 }
             }
 
-            //upload Planzeichenerklärung
-            if ((array_key_exists('uploadedFiles', $requestPost) && '' !== $requestPost['uploadedFiles']['r_planPDF']) || (array_key_exists('r_planDelete', $requestPost))) {
+            // upload Planzeichenerklärung
+            if ((array_key_exists('uploadedFiles', $requestPost) && '' !== $requestPost['uploadedFiles']['r_planPDF']) || array_key_exists('r_planDelete', $requestPost)) {
                 $inData = $this->prepareIncomingData($request, 'planstand');
                 if (array_key_exists('r_planDelete', $requestPost)) {
                     $inData['r_planPDF'] = '';
@@ -592,7 +585,6 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_global",
      *     path="/gislayer"
      * )
-     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @return RedirectResponse|Response
@@ -657,13 +649,11 @@ class DemosPlanMapController extends BaseController
      *     path="/gislayer/neu",
      *     defaults={"type": "new"},
      * )
-     *
      * @Route(
      *     name="DemosPlan_map_administration_gislayer_global_edit",
      *     path="/gislayer/{gislayerID}",
      *     defaults={"type": "edit"},
      * )
-     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @param string      $type
@@ -700,10 +690,9 @@ class DemosPlanMapController extends BaseController
                     $adminLayers = $mapService->getGisAdminList($masterTemplateId);
                     $masterBlaupauseGisLayers = $mapService->getLayerObjects($adminLayers);
                     foreach ($masterBlaupauseGisLayers as $masterBlaupauseLayer) {
-                        if (array_key_exists(
-                                'ident',
-                                $storageResult
-                            ) && $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()) {
+                        if (array_key_exists('ident', $storageResult) &&
+                            $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()
+                        ) {
                             // überschreibe die relevanten Werte, damit die Masterblaupause geupdated wird
                             $inDataMaster = $inData;
                             $inDataMaster['r_ident'] = $masterBlaupauseLayer->getIdent();
@@ -718,10 +707,10 @@ class DemosPlanMapController extends BaseController
                 }
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult && array_key_exists('ident', $storageResult) && !array_key_exists(
-                        'mandatoryfieldwarning',
-                        $storageResult
-                    )) {
+                if (false != $storageResult &&
+                    array_key_exists('ident', $storageResult) &&
+                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
@@ -757,7 +746,6 @@ class DemosPlanMapController extends BaseController
      *     path="/getFeatureInfo/{procedure}",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_map_participation_area")
      *
      * @return Response
@@ -782,13 +770,13 @@ class DemosPlanMapController extends BaseController
             }
             $this->profilerStop($profilerName);
 
-            //prepare the response
+            // prepare the response
             $response = [
                 'code'    => 100,
                 'success' => true,
                 'body'    => $result,
             ];
-            //return result as JSON
+            // return result as JSON
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not successfully perform getFeatureinfo: ', [$e]);
             $response = [
@@ -952,12 +940,12 @@ class DemosPlanMapController extends BaseController
                 $code = 500;
             }
 
-            //prepare the response
+            // prepare the response
             $response = [
                 'code'    => $code,
                 'success' => $success,
                 'body'    => $result, ];
-            //return result as JSON
+            // return result as JSON
             return new JsonResponse($response);
         } catch (Exception $e) {
             return $this->handleAjaxError($e);
@@ -972,7 +960,7 @@ class DemosPlanMapController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'gislayernew' => [
+            'gislayernew'          => [
                 'action',
                 'r_bplan',
                 'r_contextualHelpText',
@@ -996,28 +984,28 @@ class DemosPlanMapController extends BaseController
                 'r_xplanDefaultlayers',
                 'r_category',
             ],
-            'gislayerdelete' => [
+            'gislayerdelete'       => [
                 'action',
                 'gislayerID',
             ],
-            'plandraw' => [
+            'plandraw'             => [
                 'action',
                 'r_planDrawText',
                 'r_planDrawDelete',
             ],
-            'planstand' => [
+            'planstand'            => [
                 'action',
                 'r_planText',
                 'r_planDelete',
                 'r_planningArea',
                 'r_mapHint',
             ],
-            'statementnewpolygon' => [
+            'statementnewpolygon'  => [
                 'action',
                 'r_polygon',
                 'r_ident',
             ],
-            'mapglobals' => [
+            'mapglobals'           => [
                 'action',
                 'r_currentMapExtent',
                 'r_mapExtent',
@@ -1031,7 +1019,7 @@ class DemosPlanMapController extends BaseController
                 'r_coordinate',
                 'r_territory',
             ],
-            'gislayeredit' => [
+            'gislayeredit'         => [
                 'action',
                 'delete_legend',
                 'r_bplan',
@@ -1056,7 +1044,7 @@ class DemosPlanMapController extends BaseController
                 'r_category',
                 'r_user_toggle_visibility',
             ],
-            'mapterritory' => [
+            'mapterritory'         => [
                 'action',
                 'r_territory',
                 'submit_item_return_button',
@@ -1065,7 +1053,7 @@ class DemosPlanMapController extends BaseController
                 'r_featureInfoUrl',
                 'r_featureInfoUrlProxyEnabled',
             ],
-            'gislayerCategorynew' => [
+            'gislayerCategorynew'  => [
                 'action',
                 'r_layerCategoryName',
                 'r_layerWithChildrenHidden',

@@ -26,7 +26,9 @@ use demosplan\DemosPlanUserBundle\Logic\UserHasher;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Exception;
+
 use function in_array;
+
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -75,7 +77,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/change",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_mydata_password")
      *
      * @return Response
@@ -106,7 +107,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_change_email_request",
      *     path="/email/change"
      * )
-     *
      * @DplanPermissions("feature_change_own_email")
      *
      * @return RedirectResponse|Response
@@ -135,13 +135,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_change_email",
      *     path="email/change/doubleoptin/{uId}/{key}"
      * )
-     *
      * @DplanPermissions("feature_change_own_email")
      */
     public function changeEmailConfirmationAction(string $uId, string $key): RedirectResponse
     {
         try {
-            //the actual change of the email address:
+            // the actual change of the email address:
             $user = $this->userHandler->getSingleUser($uId);
             if (!$user instanceof User) {
                 return $this->redirectToRoute('core_home');
@@ -155,7 +154,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             }
 
             $this->getMessageBag()->add('error', 'error.email.changed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Fehler wurden schon geloggt, generischer Fehler wird ausgegeben
         }
 
@@ -168,7 +167,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/recover",
      *     options={"expose": true}
      * )
-     *
      *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
      *
      * @return RedirectResponse|Response
@@ -189,7 +187,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->renderTemplate(
             '@DemosPlanUser/DemosPlanUser/password_recover.html.twig',
             [
-                'title' => 'user.password.recover',
+                'title'        => 'user.password.recover',
                 'templateVars' => [],
             ]
         );
@@ -204,12 +202,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/login",
      *     options={"expose": true})
      * )
-     *
      * @Route(
      *     name="DemosPlan_user_login_osi_legacy",
      *     path="/user/login/osi/legacy"
      * )
-     *
      * @Route(
      *     name="DemosPlan_user_login_gateway",
      *     path="/redirect/"
@@ -238,7 +234,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/dplan/login",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
@@ -290,11 +285,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         return $this->renderTemplate(
             '@DemosPlanUser/DemosPlanUser/alternative_login.html.twig',
             [
-                'title' => 'user.login',
-                'useSaml' => $useSaml,
+                'title'     => 'user.login',
+                'useSaml'   => $useSaml,
                 'loginList' => [
-                    'enabled' => 0 < count($users) || 0 < count($usersOsi),
-                    'users' => $users,
+                    'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
             ]
@@ -311,13 +306,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_logout",
      *     path="/user/logout"
      * )
-     *
      * @Route(
      *     name="DemosPlan_user_logout_gateway",
      *     path="/user/logout/gateway",
      *     defaults={"toGateway": true}
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @param bool $toGateway
@@ -362,7 +355,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_logout_success",
      *     path="/user/logout/success"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -377,7 +369,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             }
 
             return $this->renderTemplate('@DemosPlanUser/DemosPlanUser/logout_success.html.twig');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -387,7 +379,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_invite_confirmation",
      *     path="/doubleoptin/{uId}/{token}"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -407,7 +398,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             '@DemosPlanUser/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,
-                'uId' => $uId,
+                'uId'   => $uId,
             ]
         );
     }
@@ -418,7 +409,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/{uId}/setpass/{token}",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response

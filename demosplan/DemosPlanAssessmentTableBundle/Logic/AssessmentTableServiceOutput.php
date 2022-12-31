@@ -11,8 +11,11 @@
 namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 
 use Closure;
+
 use function collect;
 use function date;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -25,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
@@ -39,10 +41,12 @@ use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
+
 use function explode;
 use function htmlspecialchars;
 use function is_array;
 use function is_string;
+
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
@@ -54,9 +58,11 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+
 use function strlen;
 use function strtotime;
 use function substr;
+
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -466,7 +472,7 @@ class AssessmentTableServiceOutput
 
         $orgaId = $user->getOrganisationId();
         if (!$this->isOrgaAuthorized($statement->getProcedure()->getId(), $orgaId)) {
-            throw new \Exception('NoAccess', 1000);
+            throw new Exception('NoAccess', 1000);
         }
 
         if (array_key_exists('files', $fParams) && null !== $fParams['files']) {
@@ -609,9 +615,9 @@ class AssessmentTableServiceOutput
      */
     protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
     {
-        //Benutze das ausgewählte Format
+        // Benutze das ausgewählte Format
         $styles['orientation'] = [];
-        //im Hochformat werden für LibreOffice anderen Breiten benötigt
+        // im Hochformat werden für LibreOffice anderen Breiten benötigt
         $styles['cellWidthTotal'] = 10000;
         $styles['firstCellWidth'] = 1500;
         $styles['cellWidth'] = 3850;
@@ -663,13 +669,13 @@ class AssessmentTableServiceOutput
     public function getScreenshot(string $mapFile): ?string
     {
         if ('' !== $mapFile && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
-            //Hole den Screenshot-Hash
+            // Hole den Screenshot-Hash
             $parts = explode(':', $mapFile);
             $hash = $parts[1] ?? '';
-            //Lege den Screenshot in den Tmp-Ordner
+            // Lege den Screenshot in den Tmp-Ordner
             try {
                 $file = $this->serviceFiles->getFileInfo($hash);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Could not find file for hash');
 
                 return '';
@@ -714,7 +720,8 @@ class AssessmentTableServiceOutput
                     .$delimiter.$concatValue
                 ),
                 $fStyle,
-                $pStyle);
+                $pStyle
+            );
         };
     }
 
@@ -775,7 +782,7 @@ class AssessmentTableServiceOutput
             // as only br as "void-elememt" is allowed use specific regex
             $text = preg_replace('/<(\s)*br(\s)*>/i', '<br/>', $text);
             Html::addHtml($cell, $text, false);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
             $cell->addText($text, $styles['textStyleStatementDetails'], $styles['textStyleStatementDetailsParagraphStyles']);
@@ -858,15 +865,15 @@ class AssessmentTableServiceOutput
      *
      * @return array - formatted fragment
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function formatFragmentObject(StatementFragment $fragment): array
     {
         $item = $this->formatStatementObject($fragment->getStatement());
 
-        //override selected item fields with fragment content:
+        // override selected item fields with fragment content:
         $item['type'] = 'fragment';
-        $item['created'] = $fragment->getCreated(); //todo: check format
+        $item['created'] = $fragment->getCreated(); // todo: check format
         $item['recommendation'] = $fragment->getConsideration();
         $item['text'] = $fragment->getText();
         $item['elementId'] = $fragment->getElementId();
@@ -880,7 +887,7 @@ class AssessmentTableServiceOutput
      *
      * @return array - formatted fragment
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Use {@link formatFragmentObject} instead
      */
@@ -892,7 +899,7 @@ class AssessmentTableServiceOutput
         $item = $this->formatStatementArray($statement);
         $item['sortIndex'] = $fragment['sortIndex'];
 
-        //override selected item fields with fragment content:
+        // override selected item fields with fragment content:
         $item['type'] = 'fragment';
         $item['created'] = $fragment['created'] ?? null;
 
@@ -930,39 +937,39 @@ class AssessmentTableServiceOutput
                 && Statement::EXTERNAL === $clusteredStatement['publicStatement']) {
                 // set 'Bürger'
                 $key = $translator->trans('public').': '.$translator->trans(
-                        'role.citizen'
-                    );
+                    'role.citizen'
+                );
             } else {
-                //set OrgaName
+                // set OrgaName
                 $clusteredStatement['oName'] =
                     (!array_key_exists(
-                            'oName',
-                            $clusteredStatement
-                        ) || '' == $clusteredStatement['oName']) ?
+                        'oName',
+                        $clusteredStatement
+                    ) || '' == $clusteredStatement['oName']) ?
                         $translator->trans('not.specified') :
                         $clusteredStatement['oName'];
 
-                //set DepartmentName
+                // set DepartmentName
                 $clusteredStatement['dName'] =
                     (!array_key_exists(
-                            'dName',
-                            $clusteredStatement
-                        ) || '' == $clusteredStatement['dName']) ?
+                        'dName',
+                        $clusteredStatement
+                    ) || '' == $clusteredStatement['dName']) ?
                         $translator->trans('not.specified') :
                         $clusteredStatement['dName'];
 
                 $key = $translator->trans(
-                        'institution'
-                    ).': '.$clusteredStatement['oName'].', '.$clusteredStatement['dName'];
+                    'institution'
+                ).': '.$clusteredStatement['oName'].', '.$clusteredStatement['dName'];
             }
 
-            //collect usernames in departments of orgas
-            //if orga + department not already in collection:
+            // collect usernames in departments of orgas
+            // if orga + department not already in collection:
             if (!$departments->has($key)) {
                 $departments->put($key, collect([]));
             }
 
-            //collect names of users under orga+department
+            // collect names of users under orga+department
             $departments->get($key)->push($clusteredStatement['uName']);
         }
 
@@ -1105,7 +1112,7 @@ class AssessmentTableServiceOutput
 
         // add former externID in case of statement was moved from another procedure
 
-        //was moved?
+        // was moved?
         if (array_key_exists('formerExternId', $statementArray) && false === is_null($statementArray['formerExternId'])) {
             $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$statementArray['formerExternId'].' '.$this->translator->trans('from').' '.$statementArray['movedFromProcedureName'].')';
         } else {
@@ -1123,7 +1130,7 @@ class AssessmentTableServiceOutput
             }
         }
 
-        //if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
+        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
         return $externIdString;
     }
 
@@ -1144,7 +1151,7 @@ class AssessmentTableServiceOutput
         }
 
         // add former externID in case of statement was moved from another procedure
-        //was moved?
+        // was moved?
         $placeholderStatement = $statement->getPlaceholderStatement();
         if (null !== $statement->getFormerExternId()) {
             $formerExternId = $statement->getFormerExternId();
@@ -1156,7 +1163,7 @@ class AssessmentTableServiceOutput
             $externIdString .= $this->createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure);
         }
 
-        //if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
+        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
         return $externIdString;
     }
 

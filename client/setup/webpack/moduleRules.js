@@ -29,9 +29,6 @@ transpiledModules = transpiledModules.concat(
     '@mapbox', // Ol sub-dependency
     '@demos-europe/demosplan-ui',
     '@demos-europe/demosplan-utils',
-    'tiptap',
-    'tiptap-commands',
-    'tiptap-extensions',
     'vue-resize'
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )
@@ -125,9 +122,9 @@ const moduleRules =
       test: /\.js$/,
       use: ['source-map-loader'],
       enforce: 'pre',
-      exclude: [
-        resolveDir('node_modules')
-      ]
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.s?css$/,
@@ -178,23 +175,19 @@ const moduleRules =
     },
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-      use: [{
-        loader: 'asset/resource',
-        options: {
-          name: '[name].[ext]',
-          outputPath: 'fonts/'
-        }
-      }]
+      type: 'asset/resource',
+      generator: {
+        filename: '[name].[ext]',
+        outputPath: 'fonts/'
+      }
     },
     {
       test: /\.(png|jp(e)?g|gif|svg)$/,
-      use: [{
-        loader: 'asset/resource',
-        options: {
-          name: '[name].[ext]',
-          outputPath: 'img/'
-        }
-      }]
+      type: 'asset/resource',
+      generator: {
+        filename: '[name].[ext]',
+        outputPath: 'img/'
+      }
     }
   ]
 

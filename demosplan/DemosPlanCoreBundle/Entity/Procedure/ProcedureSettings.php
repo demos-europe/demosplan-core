@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -217,14 +217,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPublicPhase = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_switch_date", type="datetime", nullable=true)
      */
     protected $designatedSwitchDate = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_switch_date", type="datetime", nullable=true)
      */
@@ -247,14 +247,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     protected $designatedPublicPhaseChangeUser = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_end_date", type="datetime", nullable=true)
      */
     protected $designatedEndDate = null;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ps_designated_public_end_date", type="datetime", nullable=true)
      */
@@ -271,6 +271,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Contains an identifier for a specific planningArea getting from WFS.
      *
      * @var string|null
+     *
      * @ORM\Column(type="string", options={"default":"all"})
      */
     protected $planningArea = 'all';
@@ -279,6 +280,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Comma separated numbers as string.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=true)
      */
     protected $scales = '';
@@ -288,6 +290,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Legal notice to contains clause or other legal relevant information or references of this Procedure.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
     protected $legalNotice = '';
@@ -296,6 +299,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * T10133.
      *
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
     protected $copyright = '';
@@ -914,7 +918,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Returns the date which is defined for switching the current phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *
-     * @return \DateTime|null date, which is set | null if date not set or there are no related settings
+     * @return DateTime|null date, which is set | null if date not set or there are no related settings
      */
     public function getDesignatedSwitchDate(): ?DateTime
     {
@@ -932,7 +936,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
      * Returns the date which is defined for switching the current public phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *
-     * @return \DateTime|null date, which is set | null if date not set or there are no related settings
+     * @return DateTime|null date, which is set | null if date not set or there are no related settings
      */
     public function getDesignatedPublicSwitchDate(): ?DateTime
     {
@@ -955,7 +959,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $designatedEndDate
+     * @param DateTime $designatedEndDate
      *
      * @return $this
      */

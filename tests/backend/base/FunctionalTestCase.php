@@ -10,7 +10,21 @@
 
 namespace Tests\Base;
 
-use DateTime;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Doctrine\Common\DataFixtures\ReferenceRepository;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use PHPUnit\Framework\MockObject\MockObject;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Yaml\Yaml;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -22,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -32,23 +47,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
-use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
-use PHPUnit\Framework\MockObject\MockObject;
-use ReflectionClass;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Yaml\Yaml;
 
 class FunctionalTestCase extends WebTestCase
 {
@@ -199,8 +197,6 @@ class FunctionalTestCase extends WebTestCase
 
     /**
      * Checks a specific string, if this has the format to be an ID.
-     *
-     * @param $ident
      */
     public function checkId($ident): void
     {
@@ -211,8 +207,6 @@ class FunctionalTestCase extends WebTestCase
 
     /**
      * In case of converting one of the entities to array (legacy) the key 'id' has to be existing.
-     *
-     * @param $arrayToCheck
      */
     public function checkArrayIncludesId($arrayToCheck)
     {
@@ -224,14 +218,14 @@ class FunctionalTestCase extends WebTestCase
     /**
      * Check if the given value is a timestamp of the current date.
      *
-     * @param DateTime|int $timestamp Value to be checked
+     * @param \DateTime|int $timestamp Value to be checked
      *
      * @return bool - true if the given parameter a timestamp of the current date, otherwise false
      */
     public function isCurrentTimestamp($timestamp)
     {
         $currentDate = strtotime(date('Y-m-d'));
-        if ($timestamp instanceof DateTime) {
+        if ($timestamp instanceof \DateTime) {
             $timestamp = $timestamp->getTimestamp();
         } else {
             $timestamp = 13 === strlen($timestamp) ? $timestamp / 1000 : $timestamp;
@@ -354,7 +348,7 @@ class FunctionalTestCase extends WebTestCase
      */
     public function getMaxValue($bundle, $entityName, $nameOfField = 'id'): int
     {
-        $query = $this->getEntityManager()->createQueryBuilder()->select($entityName)->from(($bundle.':'.$entityName), $entityName);
+        $query = $this->getEntityManager()->createQueryBuilder()->select($entityName)->from($bundle.':'.$entityName, $entityName);
         $query->select('MAX('.$entityName.'.'.$nameOfField.')');
         $nextId = (int) $query->getQuery()->getSingleScalarResult();
 
@@ -405,7 +399,7 @@ class FunctionalTestCase extends WebTestCase
      */
     public function isCurrentDateTime($dateString): bool
     {
-        //todo necessary check (will be lead to failing tests because minimal time offset)? can be deletd?
+        // todo necessary check (will be lead to failing tests because minimal time offset)? can be deletd?
         $date2 = $this->toTimestamp($dateString);
         $date = date('Y-m-d H:i:s');
         $date = strtotime($date);
@@ -460,11 +454,11 @@ class FunctionalTestCase extends WebTestCase
             if (0 === strpos($methodName, 'get')) {
                 $attributeName = lcfirst(substr_replace($methodName, '', 0, $length));
                 if (property_exists($class, $attributeName) && !in_array($attributeName, $attributesToSkip, true)) {
-                    if ($object->$methodName() instanceof DateTime
+                    if ($object->$methodName() instanceof \DateTime
                         && is_int($objectAsArray[$attributeName])
                     ) {
                         static::assertEquals(
-                            $object->$methodName()->getTimestamp() * 1000, //duplicate logic from coreService::convertDatesToLegacy()
+                            $object->$methodName()->getTimestamp() * 1000, // duplicate logic from coreService::convertDatesToLegacy()
                             $objectAsArray[$attributeName],
                             'Returned value of '.$methodName.' does not match value of key '.$attributeName
                         );
@@ -533,7 +527,7 @@ class FunctionalTestCase extends WebTestCase
             }
             $property = $mockMethodDefinition->getPropertyName();
             if (null !== $property) {
-                $mockReflection = new ReflectionClass($classToMock);
+                $mockReflection = new \ReflectionClass($classToMock);
                 $propertyReflection = $mockReflection->getProperty($property);
                 $propertyReflection->setAccessible(true);
                 $propertyReflection->setValue($mock, $returnValue);
@@ -671,7 +665,7 @@ class FunctionalTestCase extends WebTestCase
      * indirectly via public methods.
      *
      * @param array{class-string|object,string} $classAndMethod
-     * @param mixed                             $args
+     * @param mixed $args
      *
      * @return mixed
      *
@@ -680,7 +674,7 @@ class FunctionalTestCase extends WebTestCase
     protected function invokeProtectedMethod(array $classAndMethod, ...$args)
     {
         [$class, $methodName] = $classAndMethod;
-        $class = new ReflectionClass($class);
+        $class = new \ReflectionClass($class);
         $method = $class->getMethod($methodName);
         $method->setAccessible(true);
 

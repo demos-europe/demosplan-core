@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
@@ -20,12 +21,11 @@ use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
-use demosplan\addons\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -119,7 +119,7 @@ class XlsxSegmentImport
     {
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
 
-        //allow to rollback all in case of error
+        // allow to rollback all in case of error
         $doctrineConnection = $this->entityManager->getConnection();
         try {
             $doctrineConnection->beginTransaction();

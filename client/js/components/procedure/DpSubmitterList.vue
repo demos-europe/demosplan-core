@@ -59,9 +59,8 @@
 </template>
 
 <script>
+import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpDataTable } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
 
 export default {
   name: 'DpSubmitterList',

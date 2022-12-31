@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -82,14 +83,16 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     protected $numberOfVotes;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @ORM\Column(name="_puv_modified_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_puv_create_date", type="datetime", nullable=false)
      */
@@ -258,7 +261,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifiedDate.
      *
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return DevelopmentUserStoryVote
      */
@@ -272,7 +275,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -282,7 +285,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return DevelopmentUserStoryVote
      */
@@ -296,7 +299,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {

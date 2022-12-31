@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpUnfoldToolbarControl',

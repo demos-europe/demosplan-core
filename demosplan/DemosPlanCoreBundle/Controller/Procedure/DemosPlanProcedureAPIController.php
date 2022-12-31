@@ -10,22 +10,22 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
@@ -34,9 +34,13 @@ use demosplan\DemosPlanProcedureBundle\Transformers\ProcedureArrayTransformer;
 use demosplan\DemosPlanProcedureBundle\ValueObject\AssessmentTableFilter;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
+use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,12 +55,26 @@ class DemosPlanProcedureAPIController extends APIController
     private $procedureHandler;
 
     public function __construct(
-        ApiLogger $apiLogger,
+        LoggerInterface $apiLogger,
         ProcedureHandler $procedureHandler,
-        PrefilledResourceTypeProvider $resourceTypeProvider,
-        TranslatorInterface $translator
+        FieldsValidator $fieldsValidator,
+        PrefilledTypeProvider $resourceTypeProvider,
+        TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor
     ) {
-        parent::__construct($apiLogger, $resourceTypeProvider, $translator);
+        parent::__construct(
+            $apiLogger,
+            $resourceTypeProvider,
+            $fieldsValidator,
+            $translator,
+            $logger,
+            $globalConfig,
+            $messageBag,
+            $schemaPathProcessor
+        );
         $this->procedureHandler = $procedureHandler;
     }
 
@@ -65,7 +83,6 @@ class DemosPlanProcedureAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_procedure_"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      */
     public function listAction(Request $request): APIResponse
@@ -85,7 +102,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_mark_participated",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -101,7 +117,7 @@ class DemosPlanProcedureAPIController extends APIController
 
             return $this->createResponse([], 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.procedure.markParticipated');
+            $this->messageBag->add('error', 'error.procedure.markParticipated');
 
             return $this->handleApiError($e);
         }
@@ -113,7 +129,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_unmark_participated",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_procedures_mark_participated")
      *
      * @param string $procedureId
@@ -129,7 +144,7 @@ class DemosPlanProcedureAPIController extends APIController
 
             return $this->createResponse([], 200);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.procedure.markParticipated');
+            $this->messageBag->add('error', 'error.procedure.markParticipated');
 
             return $this->handleApiError($e);
         }
@@ -143,7 +158,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_empty_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -161,7 +175,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_statement_empty_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return \demosplan\DemosPlanCoreBundle\Response\APIResponse|JsonResponse
@@ -177,7 +190,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_original_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -193,8 +205,8 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = '')
-    {
+        $filterHash = ''
+    ) {
         return $this->getStatementFilter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
@@ -214,7 +226,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dp_api_procedure_get_statement_filters",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -230,8 +241,8 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = '')
-    {
+        $filterHash = ''
+    ) {
         return $this->getStatementFilter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
@@ -251,7 +262,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_filter_hash",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -270,7 +280,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_update_original_filter_hash",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $procedureId
@@ -428,7 +437,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_delete_statement_filter",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @param string $filterSetId
@@ -444,16 +452,16 @@ class DemosPlanProcedureAPIController extends APIController
             $successful = $userFilterSetService->deleteUserFilterSet($filterSetId);
 
             if ($successful) {
-                $this->getMessageBag()->add('confirm', 'confirm.savedFilterSet.deleted');
+                $this->messageBag->add('confirm', 'confirm.savedFilterSet.deleted');
 
                 return $this->renderDelete();
             }
 
-            $this->getMessageBag()->add('error', 'error.savedFilterSet.deleted');
+            $this->messageBag->add('error', 'error.savedFilterSet.deleted');
 
             return $this->renderDelete(Response::HTTP_BAD_REQUEST);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.savedFilterSet.deleted');
+            $this->messageBag->add('error', 'error.savedFilterSet.deleted');
 
             return $this->handleApiError($e);
         }
@@ -504,7 +512,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     name="dplan_api_procedure_add_invited_public_affairs_bodies",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_invitable_institution")
      */
     public function addInvitedPublicAffairsAgentsAction(Request $request, ResourceLinkageFactory $linkageFactory, string $procedureId): JsonResponse
@@ -532,7 +539,6 @@ class DemosPlanProcedureAPIController extends APIController
      *     path="/verfahren/suche/ajax",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @return JsonResponse
@@ -588,8 +594,12 @@ class DemosPlanProcedureAPIController extends APIController
     {
         array_unshift($paths, $path);
 
-        return implode(',', array_map(static function (PropertyPathInterface $path): string {
-            return $path->getAsNamesInDotNotation();
-        }, $paths));
+        return implode(
+            ',',
+            array_map(
+                static fn (PropertyPathInterface $path): string => $path->getAsNamesInDotNotation(),
+                $paths
+            )
+        );
     }
 }

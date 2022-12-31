@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+
 interface IntegerIdEntityInterface extends EntityInterface
 {
     public function getId(): ?int;

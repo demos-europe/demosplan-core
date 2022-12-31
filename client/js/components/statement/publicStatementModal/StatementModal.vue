@@ -383,6 +383,7 @@
           </button>
           <button
             type="submit"
+            data-cy="statementFormSubmit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
             form-name="statementForm"
@@ -446,6 +447,7 @@
             <dp-radio
               id="r_useName_1"
               name="r_useName"
+              data-cy="submitPublicly"
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
@@ -489,6 +491,7 @@
         <div :class="prefixClass('text--right u-mt-0_5')">
           <button
             type="button"
+            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
@@ -556,6 +559,7 @@
             hide-label />
           <button
             type="button"
+            data-cy="sendStatementNow"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
@@ -621,14 +625,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@demos-europe/demosplan-utils'
-import { DpInput, DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, dpValidateMixin, hasOwnProp, isActiveFullScreen, makeFormPost, prefixClassMixin, toggleFullscreen } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpCheckbox, DpInput, DpLabel, DpLoading, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -664,7 +663,7 @@ export default {
     DpModal,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
     DpUploadFiles,

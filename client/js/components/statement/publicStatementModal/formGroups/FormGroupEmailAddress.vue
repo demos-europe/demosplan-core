@@ -11,6 +11,7 @@
   <dp-input
     id="r_email"
     autocomplete="email"
+    data-cy="emailAddress"
     :class="prefixClass('layout__item')"
     data-dp-validate-if="#r_useName_1"
     :label="{

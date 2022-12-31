@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -17,8 +19,6 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PresentableOriginalStatementFactory
 {

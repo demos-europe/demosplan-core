@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanMapBundle\Services\GetFeatureInfo;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Exception;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresLoggerTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use Exception;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class GetFeatureInfo
 {

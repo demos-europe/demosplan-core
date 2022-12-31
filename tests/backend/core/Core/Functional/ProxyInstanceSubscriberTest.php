@@ -10,15 +10,15 @@
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\EventSubscriber\ProxyInstanceSubscriber;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureStatisticsService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
+use demosplan\DemosPlanCoreBundle\EventSubscriber\ProxyInstanceSubscriber;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureStatisticsService;
 
 class ProxyInstanceSubscriberTest extends FunctionalTestCase
 {
@@ -89,7 +89,7 @@ class ProxyInstanceSubscriberTest extends FunctionalTestCase
     {
         $request = Request::create('any', 'GET', ['Token' => $token]);
 
-        return new RequestEvent(self::$kernel, $request, HttpKernelInterface::MASTER_REQUEST);
+        return new RequestEvent(self::$kernel, $request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     private function assertToken(string $expectedToken, Response $response): void

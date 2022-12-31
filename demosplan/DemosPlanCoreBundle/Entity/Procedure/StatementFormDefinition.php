@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanProcedureBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
 use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -28,7 +28,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanProcedureBundle\Repository\StatementFormDefinitionRepository")
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
@@ -50,6 +49,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string|null
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="CUSTOM")
@@ -59,6 +59,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -66,6 +67,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -73,6 +75,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Collection<int, StatementFieldDefinition>
+     *
      * @ORM\OneToMany(
      *      targetEntity="StatementFieldDefinition",
      *      mappedBy="statementFormDefinition",
@@ -90,6 +93,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
+     *
      * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -101,6 +105,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface
      * Therefore a StatementFormDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
+     *
      * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
      * @JoinColumn()
      */

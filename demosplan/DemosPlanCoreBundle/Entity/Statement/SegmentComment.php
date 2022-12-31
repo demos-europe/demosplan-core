@@ -13,10 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\addons\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -40,11 +39,10 @@ class SegmentComment implements UuidEntityInterface
      * @var Segment
      *
      * @ORM\ManyToOne(
-     *     targetEntity="demosplan\addons\workflow\SegmentsManager\Entity\Segment",
+     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
      *     inversedBy="comments"
      * )
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
-     *
      * @Assert\NotNull
      */
     protected $segment;
@@ -73,7 +71,6 @@ class SegmentComment implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $creationDate;
@@ -85,7 +82,6 @@ class SegmentComment implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(type="text", nullable=false)
-     *
      * @Assert\NotBlank
      * @Assert\Length(min=1, max=65536)
      */
