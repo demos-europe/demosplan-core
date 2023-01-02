@@ -18,10 +18,10 @@ const chunkSplitting = {
     core: {
       name: 'core',
       chunks: 'all',
+      minChunks: 40,
       enforce: true,
-      minChunks: 3,
       test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue|VueConfigCore)\.js/,
-      priority: 1
+      priority: 2
     },
     common: {
       name: 'common',
@@ -52,21 +52,21 @@ const chunkSplitting = {
             module.resource.includes(`${path.sep}node_modules${path.sep}sax${path.sep}`)
           )
       },
-      priority: 3
+      priority: -5
     },
     d3: {
       name: 'd3',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/]d3.*[\\/]/,
-      priority: 3
+      priority: -5
     },
     leaflet: {
       name: 'leaflet',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/](leaflet|vue2-leaflet|leaflet.markercluster)[\\/]/,
-      priority: 3
+      priority: -5
     }
   }
 }
