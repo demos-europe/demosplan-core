@@ -75,21 +75,6 @@ use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
 use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodInterface;
-use Elastica\Query;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\MatchQuery;
-use Elastica\Query\Terms;
-use Elastica\Type;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
 
 class DraftStatementService extends CoreService
 {
