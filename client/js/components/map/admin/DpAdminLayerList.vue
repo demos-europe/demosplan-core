@@ -188,10 +188,9 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDraggable, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
-import DpDraggable from '@DpJs/components/core/DpDraggable'
 import lscache from 'lscache'
 import { scrollTo } from 'vue-scrollto'
 

@@ -192,7 +192,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import DpAdminLayerListItem from './DpAdminLayerListItem'
-import DpDraggable from '@DpJs/components/core/DpDraggable'
+import { DpDraggable } from '@demos-europe/demosplan-ui'
 import { hasOwnProp } from '@demos-europe/demosplan-utils'
 import { v4 as uuid } from 'uuid'
 
