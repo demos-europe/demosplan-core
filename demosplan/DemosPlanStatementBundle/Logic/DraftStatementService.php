@@ -75,6 +75,21 @@ use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
 use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\SortMethodInterface;
+use Elastica\Query;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\MatchQuery;
+use Elastica\Query\Terms;
+use Elastica\Type;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class DraftStatementService extends CoreService
 {
@@ -474,7 +489,7 @@ class DraftStatementService extends CoreService
      */
     public function setManualSort($ident, $context, $sortIds): bool
     {
-        //keine leerzeichen zwischen den Ids
+        // keine leerzeichen zwischen den Ids
         $sortIds = str_replace(' ', '', $sortIds);
 
         $data = [
@@ -583,8 +598,8 @@ class DraftStatementService extends CoreService
             'released'       => false,
             'rejected'       => true,
             'rejectedReason' => $reason,
-            'rejectedDate'   => new DateTime(),
-            'releasedDate'   => DateTime::createFromFormat('d.m.Y', '2.1.1970'),
+            'rejectedDate'   => new \DateTime(),
+            'releasedDate'   => \DateTime::createFromFormat('d.m.Y', '2.1.1970'),
         ];
         $result = $this->updateDraftStatement($data);
 
@@ -631,7 +646,7 @@ class DraftStatementService extends CoreService
             $data = [
                 'ident'        => $id,
                 'released'     => false,
-                'releasedDate' => DateTime::createFromFormat('d.m.Y', '2.1.1970'),
+                'releasedDate' => \DateTime::createFromFormat('d.m.Y', '2.1.1970'),
             ];
 
             $result = $this->updateDraftStatement($data);
@@ -667,7 +682,7 @@ class DraftStatementService extends CoreService
             $data = [
                 'ident'        => $ident,
                 'released'     => true,
-                'releasedDate' => new DateTime(),
+                'releasedDate' => new \DateTime(),
             ];
             $result = $this->updateDraftStatement($data);
             if (false === $result) {
@@ -755,7 +770,7 @@ class DraftStatementService extends CoreService
                 'ident'         => $draftStatementId,
                 'submitted'     => true,
                 'released'      => true,
-                'submittedDate' => new DateTime(),
+                'submittedDate' => new \DateTime(),
             ];
 
             $draftStatement = $this->updateDraftStatement($data, false);
@@ -804,7 +819,7 @@ class DraftStatementService extends CoreService
      *
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws ReflectionException
+     * @throws \ReflectionException
      */
     protected function addReport(array $statement): void
     {
@@ -825,7 +840,7 @@ class DraftStatementService extends CoreService
      */
     public function addDraftStatement($data)
     {
-        //validate visibility of related paragraph in case of related paragraph is set
+        // validate visibility of related paragraph in case of related paragraph is set
         if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId'])) {
             $paragraph = $this->paragraphService->getParaDocumentObject($data['paragraphId']);
             if (!is_null($paragraph) && 1 != $paragraph->getVisible()) {
@@ -1016,7 +1031,7 @@ class DraftStatementService extends CoreService
 
         $this->getLogger()->debug('Send Content to tex2pdf consumer: '.DemosPlanTools::varExport($content, true));
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $this->profilerStart('Rabbit PDF');
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), $pictures);
         $this->profilerStop('Rabbit PDF');
@@ -1050,9 +1065,9 @@ class DraftStatementService extends CoreService
      * @param array $statementList - array of Statements as array
      * @param array $pictures      - array where the information about the file will be added to
      *
-     * @throws \Exception
-     *
      * @return array - informations about the file where the picture was found in special structure
+     *
+     * @throws \Exception
      */
     protected function getPicturesFromStatementList($statementList, $pictures)
     {
@@ -1060,7 +1075,7 @@ class DraftStatementService extends CoreService
             try {
                 // ensure that current mapfile exists when polygon is drawn
                 $statementData = $this->checkMapScreenshotFile($statementData, $statementData['pId']);
-                //hat das Statement ein Screenshot?
+                // hat das Statement ein Screenshot?
                 if (0 < strlen($statementData['mapFile'] ?? '')) {
                     $this->getLogger()->info('DraftStatement hat einen Screenshot.');
                     $file = $this->fileService->getFileInfoFromFileString($statementData['mapFile']);
@@ -1076,12 +1091,12 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
-        //hat das Statement einen Screenshot aber kein Polygon?
+        // hat das Statement einen Screenshot aber kein Polygon?
         if (0 < strlen($statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
-        //hat das Statement ein Screenshot?
+        // hat das Statement ein Screenshot?
         if (0 < strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat einen Screenshot.');
             $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
@@ -1515,7 +1530,7 @@ class DraftStatementService extends CoreService
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
 
             $query = $this->addEsAggregation($query, 'oName.raw');
             $query = $this->addEsAggregation($query, 'dId');
@@ -1646,7 +1661,7 @@ class DraftStatementService extends CoreService
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
 
             $query = $this->addEsAggregation($query, 'oName.raw');
             $query = $this->addEsAggregation($query, 'dId');
@@ -1893,9 +1908,9 @@ class DraftStatementService extends CoreService
     protected function addPriorityAreaAttribute($data, $draftStatement, $attrRepo)
     {
         if (array_key_exists(
-                'priorityAreaKey',
-                $data['statementAttributes']
-            ) && 0 < strlen($data['statementAttributes']['priorityAreaKey'])
+            'priorityAreaKey',
+            $data['statementAttributes']
+        ) && 0 < strlen($data['statementAttributes']['priorityAreaKey'])
         ) {
             try {
                 $dataKey = [
@@ -1981,7 +1996,7 @@ class DraftStatementService extends CoreService
             $draftStatements = $this->getDraftStatementsOfOrga($organisationId);
             // @improve T12803
             $this->deleteDraftStatements($draftStatements);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('Fehler beim Löschen der draftStatements: ', [$e]);
 
             return false;
@@ -2006,7 +2021,7 @@ class DraftStatementService extends CoreService
     {
         $elementService = $this->elementsService;
         $determinedElementId = '';
-        //get standard element:
+        // get standard element:
         $defaultStatementElement = $elementService->getStatementElement($procedureId);
         if ($defaultStatementElement instanceof Elements) {
             $determinedElementId = $defaultStatementElement->getId();
@@ -2020,15 +2035,15 @@ class DraftStatementService extends CoreService
             $data['r_element_id'] = $data['element_id'];
         }
 
-        //overwrite with current if draftStatement is given:
+        // overwrite with current if draftStatement is given:
         if (array_key_exists('r_ident', $data)) {
             $currentDraftStatement = $this->getDraftStatementObject($data['r_ident']);
             $determinedElementId = $currentDraftStatement instanceof DraftStatement ? $currentDraftStatement->getElementId() : '';
         }
 
-        //#0.5 document without attached paragraph
+        // #0.5 document without attached paragraph
         if (array_key_exists('r_element_id', $data)) {
-            //if '' or null given as elementId -> means reset to defaultStatementElement:
+            // if '' or null given as elementId -> means reset to defaultStatementElement:
             if ('' === $data['r_element_id'] || is_null($data['r_element_id'])) {
                 $determinedElementId = '';
                 if ($defaultStatementElement instanceof Elements) {
@@ -2039,13 +2054,13 @@ class DraftStatementService extends CoreService
             }
         }
 
-        //#1: Einzeichnung/Planzeichnung:
+        // #1: Einzeichnung/Planzeichnung:
         $geoData = $this->extractGeoData($data, []);
         if (array_key_exists('polygon', $geoData) && 0 !== strlen($geoData['polygon'])) {
             $determinedElementId = $elementService->getMapElement($procedureId)->getId();
         }
 
-        //#2: get values for negative Report (Fehlanzeige), if set
+        // #2: get values for negative Report (Fehlanzeige), if set
         if (array_key_exists('r_isNegativeReport', $data)) {
             if ('1' === $data['r_isNegativeReport']) {
                 $negativeReportElement = $elementService->getNegativeReportElement($procedureId);
@@ -2063,7 +2078,7 @@ class DraftStatementService extends CoreService
             }
         }
 
-        //#3: category: dokument
+        // #3: category: dokument
         if (array_key_exists('r_document_id', $data) && 0 !== strlen($data['r_document_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
@@ -2071,7 +2086,7 @@ class DraftStatementService extends CoreService
             $determinedElementId = array_key_exists('r_elementID', $data) ? $data['r_elementID'] : '';
         }
 
-        //#4: strongest category: absatz
+        // #4: strongest category: absatz
         if (array_key_exists('r_paragraph_id', $data) && 0 !== strlen($data['r_paragraph_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
@@ -2118,7 +2133,7 @@ class DraftStatementService extends CoreService
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->logger->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
                 }
             }

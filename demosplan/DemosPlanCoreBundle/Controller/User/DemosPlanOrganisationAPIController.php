@@ -36,13 +36,11 @@ use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
-use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use UnexpectedValueException;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -79,7 +77,7 @@ class DemosPlanOrganisationAPIController extends APIController
             }
 
             throw OrgaNotFoundException::createFromId($id);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('', [$e]);
 
             return $this->handleApiError($e);
@@ -159,7 +157,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->handleApiError($e);
         }
     }
@@ -294,7 +292,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $this->messageBag->add('error', 'error.organisation.not.deleted');
 
             return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->handleApiError($e);
         }
     }
@@ -340,7 +338,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $item = $this->resourceService->makeItemOfResource($newOrga, OrgaResourceType::getName());
 
             return $this->renderResource($item);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->messageBag->add('error', 'error.organisation.not.created');
             $this->logger->error('Unable to create Orga: ', [$e]);
 
@@ -417,8 +415,8 @@ class DemosPlanOrganisationAPIController extends APIController
                 return $this->renderResource($item);
             }
 
-            throw new UnexpectedValueException();
-        } catch (Exception $e) {
+            throw new \UnexpectedValueException();
+        } catch (\Exception $e) {
             return $this->handleApiError($e);
         }
     }

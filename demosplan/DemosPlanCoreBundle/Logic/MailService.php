@@ -30,7 +30,6 @@ use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
-use stdClass;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -130,7 +129,7 @@ class MailService extends CoreService
      *    and the contents of the attachment in 'content'. You can mix
      *    both types.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function sendMail(
         $template,
@@ -247,7 +246,7 @@ class MailService extends CoreService
             }
             $em->flush();
             $em->getConnection()->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $em->getConnection()->rollBack();
             throw SendMailException::mailListFailed($to, $e);
         }
@@ -264,7 +263,7 @@ class MailService extends CoreService
     {
         try {
             return $this->mailRepository->findOneBy(['id' => $id]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Get Mail from Queue failed: ', [$e]);
 
             return null;
@@ -288,7 +287,7 @@ class MailService extends CoreService
         try {
             try {
                 $mailList = $this->getMailsToSend($limit);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->warning('Get Maillist from Queue failed: ', [$e]);
                 $mailList = null;
 
@@ -371,7 +370,7 @@ class MailService extends CoreService
                 try {
                     $this->mailer->send($message);
                     $mail->setStatus('sent');
-                    $mail->setSendDate(new DateTime());
+                    $mail->setSendDate(new \DateTime());
                 } catch (TransportExceptionInterface $e) {
                     $this->logger->warning('Could not send Mail',
                         [
@@ -386,7 +385,7 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->logger->error('General exception on sending e-mail.');
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
                 }
@@ -426,7 +425,7 @@ class MailService extends CoreService
             $logger = null;
 
             return $emailsSent;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // flush Entities, if any are processed before Exception has been thrown
             $em->flush();
             $em->clear();
@@ -470,7 +469,7 @@ class MailService extends CoreService
      *
      * @return array<int, MailSend>
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getMailsToSend(int $limit = 200): array
     {
@@ -509,7 +508,7 @@ class MailService extends CoreService
             $field = $field->getFullAddress();
         }
 
-        if ($field instanceof stdClass) {
+        if ($field instanceof \stdClass) {
             $field = Json::decodeToArray(Json::encode($field));
         }
 

@@ -44,7 +44,6 @@ use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
-use LogicException;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -111,7 +110,7 @@ class DemosPlanUserAPIController extends APIController
             $e = new EntityIdNotFoundException('No user with that id in found database.');
             $e->setEntityId($userId);
             throw $e;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to find user: '.$e);
 
@@ -173,7 +172,7 @@ class DemosPlanUserAPIController extends APIController
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->messageBag->add('error', 'warning.access.denied');
             $this->logger->error('Unable to get user list: '.$e);
 
@@ -223,7 +222,7 @@ class DemosPlanUserAPIController extends APIController
                 return $this->renderResource($item);
             }
 
-            throw new RuntimeException('Could not create user');
+            throw new \RuntimeException('Could not create user');
         } catch (EmailAddressInUseException|LoginNameInUseException $e) {
             $this->messageBag->add('error', 'error.login.or.email.not.unique');
 
@@ -232,7 +231,7 @@ class DemosPlanUserAPIController extends APIController
             $this->messageBag->add('error', 'error.user.login.exists');
 
             return $this->handleApiError($e);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('New User Entity could not been saved');
             $this->messageBag->add('error', 'error.save');
 
@@ -293,7 +292,7 @@ class DemosPlanUserAPIController extends APIController
                         break;
 
                     default:
-                        throw new LogicException("Unexpected relationship {$relationship}");
+                        throw new \LogicException("Unexpected relationship {$relationship}");
                 }
             }
         } catch (InvalidArgumentException $e) {

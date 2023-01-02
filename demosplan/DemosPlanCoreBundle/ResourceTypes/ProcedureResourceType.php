@@ -233,7 +233,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                     $this->currentUser->getUser()
                 );
 
-                if (!is_array($statementResult->getResult())) {
+                if (!\is_array($statementResult->getResult())) {
                     return 0;
                 }
 

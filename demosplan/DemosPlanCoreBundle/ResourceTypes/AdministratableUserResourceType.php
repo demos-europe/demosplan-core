@@ -28,6 +28,7 @@ use Elastica\Type;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>
+ *
  * @template-extends DplanResourceType<User>
  *
  * 'Administratable' in this context simply means that the accessing user wishes to

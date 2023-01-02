@@ -228,13 +228,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
             $parentId->readable(true);
             $title->readable(true);
             $documents->readable(true);
-            if (!in_array($fileInfo, $properties, true)) {
+            if (!\in_array($fileInfo, $properties, true)) {
                 $properties[] = $fileInfo;
             }
-            if (!in_array($filePathWithHash, $properties, true)) {
+            if (!\in_array($filePathWithHash, $properties, true)) {
                 $properties[] = $filePathWithHash;
             }
-            if (!in_array($children, $properties, true)) {
+            if (!\in_array($children, $properties, true)) {
                 $properties[] = $children;
             }
             $properties[] = $index;
@@ -247,7 +247,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
 
         if ($this->currentUser->hasPermission('feature_admin_element_edit')) {
             $id->filterable();
-            if (!in_array($index, $properties, true)) {
+            if (!\in_array($index, $properties, true)) {
                 $properties[] = $index;
             }
             $properties = array_merge($properties, [
