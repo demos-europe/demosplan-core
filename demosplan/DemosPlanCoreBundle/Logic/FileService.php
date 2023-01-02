@@ -898,10 +898,10 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $fs = new DemosFilesystem();
         /** @var UploadedFile $file */
-        foreach ($this->requestStack->getCurrentRequest()->files->all() as $file) {
+        foreach ($this->requestStack->getCurrentRequest()->files?->all() as $file) {
             $fs->remove($file->getPathname());
         }
-        $this->requestStack->getCurrentRequest()->files->replace([]);
+        $this->requestStack->getCurrentRequest()->files?->replace([]);
     }
 
     /**
