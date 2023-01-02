@@ -23,7 +23,7 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function originalStatement(): self
     {
-        return $this->propertyIsNull('original');
+        return $this->propertyIsNull(['original']);
     }
 
     /**
@@ -31,18 +31,15 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function isNonOriginal(): self
     {
-        return $this->propertyIsNotNull('original');
+        return $this->propertyIsNotNull(['original']);
     }
 
-    /**
-     * @return $this
-     */
     public function notClusterRelated(): self
     {
         return $this->allConditionsApply()
-            ->propertyHasValue(false, 'clusterStatement')
-            ->propertyIsNull('headStatement')
-            ->propertyHasSize(0, 'cluster');
+            ->propertyHasValue(false, ['clusterStatement'])
+            ->propertyIsNull(['headStatement'])
+            ->propertyHasSize(0, ['cluster']);
     }
 
     /**
@@ -66,7 +63,7 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function inProcedureWithId(string $procedureId): self
     {
-        return $this->propertyHasValue($procedureId, 'procedure', 'id');
+        return $this->propertyHasValue($procedureId, ['procedure', 'id']);
     }
 
     /**
@@ -74,12 +71,12 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function assignedToUser(User $assignee): self
     {
-        return $this->propertyHasValue($assignee->getId(), 'assignee', 'id');
+        return $this->propertyHasValue($assignee->getId(), ['assignee', 'id']);
     }
 
     public function unassigned(): self
     {
-        return $this->propertyIsNull('assignee');
+        return $this->propertyIsNull(['assignee']);
     }
 
     /**
