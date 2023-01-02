@@ -5,7 +5,7 @@
     "license": "EUPL-1.2",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.4,<8.2",
+        "php": "8.1.*",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",
@@ -184,9 +184,6 @@
         }
     },
     "config": {
-        "platform": {
-            "php": "7.4"
-        },
         "process-timeout": 600,
         "sort-packages": true,
         "allow-plugins": {
