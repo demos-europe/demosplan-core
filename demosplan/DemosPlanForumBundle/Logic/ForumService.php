@@ -10,6 +10,14 @@
 
 namespace demosplan\DemosPlanForumBundle\Logic;
 
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use Exception;
+use ReflectionException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
@@ -26,14 +34,6 @@ use demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository;
 use demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository;
 use demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use Exception;
-use ReflectionException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ForumService extends CoreService
 {

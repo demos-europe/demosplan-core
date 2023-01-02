@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerCategoryResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanMapBundle\Logic\MapHandler;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -47,7 +48,6 @@ class DemosPlanProcedureLayersAPIController extends APIController
 
     /**
      * @Route(methods={"POST", "PATCH"}, name="update")
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @throws MessageBagException
@@ -55,7 +55,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
     public function layersUpdateAction(MapHandler $mapHandler): APIResponse
     {
         $rootCategory = $this->getRequestJson('data');
-        $messageBag = $this->getMessageBag();
+        $messageBag = $this->messageBag;
 
         try {
             $mapHandler->updateElementsOfRootCategory($rootCategory);
@@ -69,7 +69,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
                 'error.gislayerCategory.treedepth',
                 ['max_depth' => $maxDepth]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $messageBag->add('error', 'error.gislayers.updated');
         }
 
@@ -80,7 +80,6 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * Delete a specific GisLayer.
      *
      * @Route(path="{layerId}", methods={"DELETE"}, name="delete")
-     *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse
@@ -91,11 +90,11 @@ class DemosPlanProcedureLayersAPIController extends APIController
     {
         try {
             $mapHandler->deleteGisLayer($layerId);
-            $this->getMessageBag()->add('confirm', 'confirm.gislayer.delete');
+            $this->messageBag->add('confirm', 'confirm.gislayer.delete');
 
             return $this->renderDelete();
-        } catch (\Exception $e) {
-            $this->getMessageBag()->add('error', 'error.gislayer.delete');
+        } catch (Exception $e) {
+            $this->messageBag->add('error', 'error.gislayer.delete');
 
             return $this->handleApiError($e);
         }

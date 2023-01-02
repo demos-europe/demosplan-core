@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanStatementBundle\Exception\DuplicateInternIdException;
@@ -72,7 +72,7 @@ class StatementResourceTypeService extends ResourceTypeService
         $updater->ifPresent($resourceType->fullText, [$object, 'setText']);
         $updater->ifPresent($resourceType->submitType, [$object, 'setSubmitType']);
         $updater->ifPresent($resourceType->internId, function ($internIdToSet) use ($object): void {
-            //check for unique
+            // check for unique
             $isUnique = $this->statementService->isInternIdUniqueForProcedure($internIdToSet, $object->getProcedureId());
             if (!$isUnique) {
                 throw DuplicateInternIdException::create($internIdToSet, $object->getProcedureId());

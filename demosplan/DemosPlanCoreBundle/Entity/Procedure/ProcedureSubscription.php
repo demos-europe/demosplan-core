@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -82,7 +83,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     protected $deleted = false;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_psu_created_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -90,14 +91,15 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_psu_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_psu_deleted_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
@@ -277,7 +279,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Set createdDate.
      *
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return ProcedureSubscription
      */
@@ -293,7 +295,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -303,7 +305,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifiedDate.
      *
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return ProcedureSubscription
      */
@@ -317,7 +319,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -327,7 +329,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Set deletedDate.
      *
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      *
      * @return ProcedureSubscription
      */
@@ -341,7 +343,7 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
     /**
      * Get deletedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {

@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use Symfony\Component\Filesystem\Filesystem;
@@ -120,7 +120,7 @@ class BounceChecker extends CoreService
                 $this->logger->error('Could not find Bouncemail Boundary '.DemosPlanTools::varExport($bounce, true));
                 continue;
             }
-            //ungewöhnlicher Delimiter, weil / in den Boundaries vorkommen kann
+            // ungewöhnlicher Delimiter, weil / in den Boundaries vorkommen kann
             $mailParts = preg_split('$--'.preg_quote($boundary[1]).'\s$', $bounce, -1, PREG_SPLIT_NO_EMPTY);
             // wenn keine Mailteile zu der Boundary gefunden werden können, kann die gebouncte Mail nicht erkannt werden
             if (!isset($mailParts[1])) {
@@ -200,5 +200,4 @@ Hinweis: Diese E-Mail wurde automatisch erstellt.
             $this->logger->error('Fehler beim Versand der Bouncebenachrichtigung: ', [$e]);
         }
     }
-
 }

@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Core\Unit\Response;
 
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use Tests\Base\UnitTestCase;
 
 class APIResponseTest extends UnitTestCase

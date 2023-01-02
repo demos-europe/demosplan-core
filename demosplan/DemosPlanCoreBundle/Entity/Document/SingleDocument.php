@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -89,7 +89,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_sd_title", type="string", length=256, nullable=false)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.heading", groups={SingleDocument::IMPORT_CREATION})
      */
     protected $title = '';
@@ -114,7 +113,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_sd_document", type="string", nullable=false, length=256)
-     *
      * @Assert\NotBlank(normalizer="trim", allowNull=false, message="error.mandatoryfield.file", groups={SingleDocument::IMPORT_CREATION})
      */
     protected $document = '';
@@ -144,6 +142,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_sd_create_date", type="datetime", nullable=false)
      */
@@ -151,6 +150,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
@@ -158,6 +158,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */
@@ -183,8 +184,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set procedure.
-     *
-     * @return SingleDocument
      */
     public function setProcedure(Procedure $procedure): self
     {
@@ -243,8 +242,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCategory.
-     *
-     * @return SingleDocument
      */
     public function setCategory(string $category): self
     {
@@ -263,8 +260,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eTitle.
-     *
-     * @return SingleDocument
      */
     public function setTitle(string $title): self
     {
@@ -283,8 +278,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eText.
-     *
-     * @return SingleDocument
      */
     public function setText(string $text): self
     {
@@ -331,8 +324,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set Order.
-     *
-     * @return SingleDocument
      */
     public function setOrder(int $order): self
     {
@@ -361,8 +352,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eEnabled.
-     *
-     * @return SingleDocument
      */
     public function setVisible(bool $visible): self
     {
@@ -381,8 +370,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleted.
-     *
-     * @return SingleDocument
      */
     public function setDeleted(bool $deleted): self
     {
@@ -401,8 +388,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCreateDate.
-     *
-     * @return SingleDocument
      */
     public function setCreateDate(DateTime $createDate): self
     {
@@ -418,8 +403,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eModifyDate.
-     *
-     * @return SingleDocument
      */
     public function setModifyDate(DateTime $modifyDate): self
     {
@@ -438,8 +421,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleteDate.
-     *
-     * @return SingleDocument
      */
     public function setDeleteDate(DateTime $deleteDate): self
     {

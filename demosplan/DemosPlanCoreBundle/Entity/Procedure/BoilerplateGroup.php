@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,7 +42,7 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
     protected $title = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -98,13 +99,13 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface
         $this->title = $title;
     }
 
-    public function getCreateDate(): \DateTime
+    public function getCreateDate(): DateTime
     {
         return $this->createDate;
     }
 
     /**
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      */
     public function setCreateDate($createDate)
     {

@@ -10,13 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Elastica\Index;
 use Elastica\Query;
@@ -24,6 +18,12 @@ use Elastica\Query\BoolQuery;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
+use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
+use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 
 class FragmentElasticsearchRepository extends CoreRepository
 {

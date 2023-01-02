@@ -12,19 +12,21 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+
 use function file_put_contents;
 use function str_replace;
+
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
@@ -87,7 +89,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
         try {
             $this->exportAdditionalData(
-                ($input->getOption('debug-additional-data') ? $output : new NullOutput())
+                $input->getOption('debug-additional-data') ? $output : new NullOutput()
             );
         } catch (Exception $e) {
             $output->writeln('Error: Additional data load failed');

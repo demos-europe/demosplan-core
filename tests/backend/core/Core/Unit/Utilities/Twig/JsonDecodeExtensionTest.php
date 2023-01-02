@@ -10,9 +10,9 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
-use demosplan\DemosPlanCoreBundle\Twig\Extension\JsonDecodeExtension;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Tests\Base\FunctionalTestCase;
+use demosplan\DemosPlanCoreBundle\Twig\Extension\JsonDecodeExtension;
 
 class JsonDecodeExtensionTest extends FunctionalTestCase
 {

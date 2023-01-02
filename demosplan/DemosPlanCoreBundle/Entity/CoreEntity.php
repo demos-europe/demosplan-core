@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-class CoreEntity
+use DemosEurope\DemosplanAddon\Contracts\Entities\CoreEntityInterface;
+
+class CoreEntity implements CoreEntityInterface
 {
     /**
      * The Database field to store content change of an Entity, is modeled as "text".

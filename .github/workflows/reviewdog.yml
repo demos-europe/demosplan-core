@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-        -   uses: styfle/cancel-workflow-action@0.10.0
+        -   uses: styfle/cancel-workflow-action@0.11.0
             with:
                 workflow_id: "reviewdog"
                 access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -33,7 +33,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.2.1
         with:
           path: |
             ~/.composer/cache
@@ -43,7 +43,7 @@ jobs:
             ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.2.1
         with:
           path: |
             config/.runtime/cache

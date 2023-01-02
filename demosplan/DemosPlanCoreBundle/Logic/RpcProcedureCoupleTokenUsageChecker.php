@@ -19,7 +19,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+
 use function is_string;
+
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 

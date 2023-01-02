@@ -10,17 +10,17 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanMapBundle\MapValidationException;
 use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
-use Psr\Log\LoggerInterface;
 use function parse_url;
 use function rawurlencode;
 use function str_replace;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ServiceStorage
 {

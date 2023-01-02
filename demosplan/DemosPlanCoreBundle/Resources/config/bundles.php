@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 return [
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-    BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class => ['all' => true],
-    Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle::class => ['all' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
-    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
-    Enqueue\Bundle\EnqueueBundle::class => ['all' => true],
+    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class                              => ['all' => true],
+    BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class                              => ['all' => true],
+    Bazinga\Bundle\JsTranslationBundle\BazingaJsTranslationBundle::class               => ['all' => true],
+    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class                               => ['all' => true],
+    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class                   => ['all' => true],
+    Enqueue\Bundle\EnqueueBundle::class                                                => ['all' => true],
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
     FOS\ElasticaBundle\FOSElasticaBundle::class => ['all' => true],
     FOS\JsRoutingBundle\FOSJsRoutingBundle::class => ['all' => true],
@@ -30,24 +38,23 @@ return [
     demosplan\DemosPlanDocumentBundle\DemosPlanDocumentBundle::class => ['all' => true],
     demosplan\DemosPlanFaqBundle\DemosPlanFaqBundle::class => ['all' => true],
     demosplan\DemosPlanForumBundle\DemosPlanForumBundle::class => ['all' => true],
-    demosplan\DemosPlanHelpBundle\DemosPlanHelpBundle::class => ['all' => true],
-    demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class => ['all' => true],
-    demosplan\DemosPlanMiscContentBundle\DemosPlanMiscContentBundle::class => ['all' => true],
-    demosplan\DemosPlanNewsBundle\DemosPlanNewsBundle::class => ['all' => true],
-    demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class => ['all' => true],
-    demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class => ['all' => true],
-    demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class => ['all' => true],
-    demosplan\DemosPlanSurveyBundle\DemosPlanSurveyBundle::class => ['all' => true],
-    demosplan\DemosPlanUserBundle\DemosPlanUserBundle::class => ['all' => true],
-    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['test' => true, 'dev' => true],
-    Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class => ['test' => true],
-    Liip\TestFixturesBundle\LiipTestFixturesBundle::class => ['test' => true],
-    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['test' => true, 'dev' => true],
-    Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true],
-    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class => ['all' => true],
-    Bazinga\GeocoderBundle\BazingaGeocoderBundle::class => ['all' => true],
+    demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class                             => ['all' => true],
+    demosplan\DemosPlanMiscContentBundle\DemosPlanMiscContentBundle::class             => ['all' => true],
+    demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class                 => ['all' => true],
+    demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class                       => ['all' => true],
+    demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class                 => ['all' => true],
+    demosplan\DemosPlanSurveyBundle\DemosPlanSurveyBundle::class                       => ['all' => true],
+    demosplan\DemosPlanUserBundle\DemosPlanUserBundle::class                           => ['all' => true],
+    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
+    Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class                          => ['test' => true],
+    Liip\TestFixturesBundle\LiipTestFixturesBundle::class                              => ['test' => true],
+    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class                          => ['test' => true, 'dev' => true],
+    Symfony\Bundle\DebugBundle\DebugBundle::class                                      => ['dev' => true],
+    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class               => ['all' => true],
+    Bazinga\GeocoderBundle\BazingaGeocoderBundle::class                                => ['all' => true],
     Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle::class => ['all' => true],
-    EFrane\TusBundle\Bundle\TusBundle::class => ['all' => true],
-    Knp\Bundle\MenuBundle\KnpMenuBundle::class => ['all' => true],
+    EFrane\TusBundle\Bundle\TusBundle::class                                           => ['all' => true],
+    Knp\Bundle\MenuBundle\KnpMenuBundle::class                                         => ['all' => true],
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class                              => ['all' => true],
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class => ['all' => true],
 ];

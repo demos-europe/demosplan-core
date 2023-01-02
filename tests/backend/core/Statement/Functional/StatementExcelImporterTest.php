@@ -13,6 +13,10 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Symfony\Component\Finder\SplFileInfo;
+use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -22,11 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Symfony\Component\Finder\SplFileInfo;
-use Tests\Base\FunctionalTestCase;
 
 class StatementExcelImporterTest extends FunctionalTestCase
 {

@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\DraftsInfoTransformerInterface;
+use DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface;
 use Symfony\Component\Form\Exception\RuntimeException;
 
 /**

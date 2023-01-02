@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -55,7 +55,7 @@ class DemosPlanRequestListener
      */
     public function onKernelRequest(RequestEvent $event)
     {
-        if (HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) {
+        if (HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) {
             $event->getRequest()->attributes->set('_request_type', 'master');
         } elseif (HttpKernelInterface::SUB_REQUEST === $event->getRequestType()) {
             $event->getRequest()->attributes->set('_request_type', 'sub');
@@ -63,7 +63,7 @@ class DemosPlanRequestListener
 
         $request = $event->getRequest();
 
-        //check whether Platform is in service mode
+        // check whether Platform is in service mode
         if ($this->globalConfig->getPlatformServiceMode()
             && 'core_service_mode' !== $request->attributes->get('_route')) {
             $event->setResponse(
@@ -74,12 +74,12 @@ class DemosPlanRequestListener
         }
 
         // API-Requests are always master requests
-        if ((HttpKernelInterface::MASTER_REQUEST === $event->getRequestType()) && $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
+        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
+            $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
             if (null !== $response) {
                 $event->setResponse($response);
             }
         }
     }
-
 }

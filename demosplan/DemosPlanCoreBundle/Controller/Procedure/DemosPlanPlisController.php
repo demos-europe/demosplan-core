@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,6 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedure/{uuid}",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid
@@ -43,13 +42,13 @@ class DemosPlanPlisController extends BaseController
         try {
             $procedure = $procedureHandlerBobhh->getLgvPlisPlanningcause($uuid);
 
-            //prepare the response
+            // prepare the response
             $response = [
                 'code'    => 200,
                 'success' => false,
             ];
             if (0 < count($procedure)) {
-                //prepare the response
+                // prepare the response
                 $response = [
                     'code'      => 100,
                     'success'   => true,
@@ -57,7 +56,7 @@ class DemosPlanPlisController extends BaseController
                 ];
             }
 
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         } catch (Exception $e) {
             return $this->handleAjaxError($e);
@@ -72,7 +71,6 @@ class DemosPlanPlisController extends BaseController
      *     path="/plis/getProcedureName/{uuid}",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier
@@ -94,14 +92,14 @@ class DemosPlanPlisController extends BaseController
                     break;
                 }
             }
-            //prepare the response
+            // prepare the response
             $response = [
                 'code'          => 100,
                 'success'       => true,
                 'procedureName' => $procedureName,
             ];
 
-            //return result as JSON
+            // return result as JSON
             return new JsonResponse($response);
         } catch (Exception $e) {
             return $this->handleAjaxError($e);

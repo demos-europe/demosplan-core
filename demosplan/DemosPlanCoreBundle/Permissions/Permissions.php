@@ -10,9 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use function array_key_exists;
+use function collect;
+
+use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -21,22 +27,21 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use InvalidArgumentException;
+
+use function is_array;
+
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
@@ -59,7 +64,7 @@ class Permissions implements PermissionsInterface
     protected $procedure;
 
     /**
-     * @var array<string,Permission>|Permission[]|IlluminateCollection
+     * @var array<string, Permission>
      */
     protected $permissions = [];
 
@@ -77,10 +82,6 @@ class Permissions implements PermissionsInterface
      * @var GlobalConfigInterface|GlobalConfig
      */
     protected $globalConfig;
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
     /**
      * @deprecated This variable is used to minimize changes in permission handling to keep it easier
@@ -102,18 +103,56 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
+    private PermissionCollectionInterface $corePermissions;
+
+    private CustomerService $currentCustomerProvider;
+
+    private ValidatorInterface $validator;
+
+    private PermissionResolver $permissionResolver;
+
+    /**
+     * @var array<non-empty-string, PermissionInitializerInterface>
+     */
+    private array $addonPermissionInitializers;
+
+    /**
+     * Permissions loaded from addons.
+     *
+     * This property is initialized when {@link self::setInitialPermissions()} is called.
+     *
+     * @var array<non-empty-string, ResolvablePermissionCollection> mapping from addon name to permissions
+     */
+    private array $addonPermissionCollections = [];
+
+    /**
+     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
+     */
     public function __construct(
-        CacheInterface $cache,
+        iterable $addonInfoProviders,
+        CustomerService $currentCustomerProvider,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
+        PermissionCollectionInterface $corePermissions,
+        PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureRepository $procedureRepository
+        ProcedureRepository $procedureRepository,
+        ValidatorInterface $validator
     ) {
-        $this->cache = $cache;
+        $this->addonPermissionInitializers = array_map(
+            fn (
+                AbstractAddonInfoProvider $infoProvider
+            ): PermissionInitializerInterface => $infoProvider->getPermissionInitializer(),
+            iterator_to_array($addonInfoProviders)
+        );
+        $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
+        $this->permissionResolver = $permissionResolver;
+        $this->validator = $validator;
+        $this->currentCustomerProvider = $currentCustomerProvider;
     }
 
     /**
@@ -161,7 +200,6 @@ class Permissions implements PermissionsInterface
             'area_documents',
             'area_globalnews',
             'area_imprint_text',
-            'area_login_dialog',
             'area_main_file',
             'area_main_procedures',
             'area_map_participation_area',
@@ -616,8 +654,6 @@ class Permissions implements PermissionsInterface
 
             // enable ai specific permissions
             $this->enablePermissions([
-                'feature_ai_create_annotated_statement_pdf_pages',
-                'feature_ai_generated_draft_segments',
                 'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
@@ -1017,26 +1053,22 @@ class Permissions implements PermissionsInterface
      */
     protected function setInitialPermissions(): void
     {
-        // cache parsing of permissions.yml, saves ~200ms
-        $permissions = $this->cache->get('permissionsYml', function (ItemInterface $item) {
-            $this->logger->info('Read Permissions from yml');
-            $permissions = \collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
-                ->map(
-                    static function ($permissionsArray, $permissionName) {
-                        return Permission::instanceFromArray($permissionName, $permissionsArray);
-                    }
-                )->toArray();
+        // initialize addon permissions
+        $this->addonPermissionCollections = collect($this->addonPermissionInitializers)
+            ->map(function (PermissionInitializerInterface $initializer): ResolvablePermissionCollection {
+                $resolvablePermissions = new ResolvablePermissionCollection($this->validator);
+                $initializer->configurePermissions($resolvablePermissions);
 
-            // set long ttl only in prod mode to improve DX in dev mode when working with permissions
-            $ttl = $this->globalConfig->isProdMode() ? 3600 : 10;
+                return $resolvablePermissions;
+            })
+            ->all();
 
-            $this->logger->info('Save Permissions into cache with ttl '.$ttl);
-            $item->expiresAfter($ttl);
-
-            return $permissions;
-        });
-
-        $this->permissions = $permissions;
+        // Add addon permissions to list of core permissions. Not mixing them would be preferred,
+        // but this is currently needed to expose addon permissions to the frontend.
+        $this->permissions = collect($this->addonPermissionCollections)
+            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
+            ->merge($this->corePermissions->toArray())
+            ->all();
     }
 
     /**
@@ -1130,6 +1162,58 @@ class Permissions implements PermissionsInterface
         }
 
         return true;
+    }
+
+    public function requirePermission($permissionIdentifier): void
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, evaluating via core
+        if (null === $addonIdentifier) {
+            $this->evaluatePermission($permissionName);
+
+            return;
+        }
+
+        // addon permission, evaluating via resolver
+        $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
+        if (null === $resolvablePermission
+            || !$this->isResolvablePermissionEnabled($resolvablePermission)) {
+            throw AccessDeniedException::missingPermission($permissionName, $this->user);
+        }
+    }
+
+    public function isPermissionEnabled($permissionIdentifier): bool
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, evaluating via core
+        if (null === $addonIdentifier) {
+            // shortcut to avoid performance heavy exception creation inside `hasPermission`
+            if (!array_key_exists($permissionName, $this->permissions)) {
+                return false;
+            }
+
+            return $this->hasPermission($permissionName);
+        }
+
+        // addon permission, evaluating via resolver
+        $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
+
+        return null !== $resolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
+    }
+
+    public function isPermissionKnown($permissionIdentifier): bool
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, check if it exists in core
+        if (null === $addonIdentifier) {
+            return array_key_exists($permissionName, $this->permissions);
+        }
+
+        // addon permission, check if it exists in the correct collection
+        return null !== $this->getAddonPermission($permissionName, $addonIdentifier);
     }
 
     /**
@@ -1235,7 +1319,7 @@ class Permissions implements PermissionsInterface
     {
         \collect($permissions)->map(
             function ($permissionName) {
-                if (!\array_key_exists($permissionName, $this->permissions)) {
+                if (!array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return null;
@@ -1263,7 +1347,7 @@ class Permissions implements PermissionsInterface
     {
         \collect($permissions)->map(
             function ($permissionName) {
-                if (!\array_key_exists($permissionName, $this->permissions)) {
+                if (!array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
 
                     return [];
@@ -1277,6 +1361,42 @@ class Permissions implements PermissionsInterface
                     $permission->disable();
                 }
             }
+        );
+    }
+
+    /**
+     * @param non-empty-string|PermissionIdentifierInterface $permissionIdentifier
+     *
+     * @return array{0: non-empty-string, 1: non-empty-string|null}
+     */
+    protected function permissionIdentifierToPair($permissionIdentifier): array
+    {
+        if (!$permissionIdentifier instanceof PermissionIdentifierInterface) {
+            return [$permissionIdentifier, null];
+        }
+
+        return [
+            $permissionIdentifier->getPermissionName(),
+            $permissionIdentifier->getAddonIdentifier(),
+        ];
+    }
+
+    protected function getAddonPermission(string $permissionName, string $addonIdentifier): ?ResolvablePermission
+    {
+        if (!array_key_exists($addonIdentifier, $this->addonPermissionCollections)) {
+            return null;
+        }
+
+        return $this->addonPermissionCollections[$addonIdentifier]->getResolvablePermission($permissionName);
+    }
+
+    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission)
+    {
+        return $this->permissionResolver->isPermissionEnabled(
+            $resolvablePermission,
+            $this->user,
+            $this->procedure,
+            $this->currentCustomerProvider->getCurrentCustomer()
         );
     }
 }

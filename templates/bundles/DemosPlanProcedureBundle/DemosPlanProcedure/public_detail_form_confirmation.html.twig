@@ -33,13 +33,21 @@
     <p class="{{ 'u-mt cf'|prefixClass }}">
       {% set draftStatementIdent = templateVars.draftStatementIdent is defined ? templateVars.draftStatementIdent : 'statement_ident' %}
 
-        <a class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}" href="{{ path('DemosPlan_statement_single_export_pdf',{'sId':draftStatementIdent ,'procedure':procedure}) }}" name="pdfStatement" target="_blank">
+        <a
+            class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}"
+            data-cy="pdfStatementDownload"
+            href="{{ path('DemosPlan_statement_single_export_pdf',{ sId: draftStatementIdent, procedure: procedure }) }}"
+            name="pdfStatement"
+            target="_blank">
             <i class="{{ 'fa fa-file'|prefixClass }}" aria-hidden="true"></i>
             {{ "pdf.download"|trans }}
         </a>
 
         <span class="{{ 'float--right text--right u-1-of-1-palm u-mt-0_5-palm'|prefixClass }}">
-            <a class="{{ 'btn btn--secondary'|prefixClass }}" href="{{ path('DemosPlan_procedure_public_detail', {'procedure': procedure}) }}">
+            <a
+                class="{{ 'btn btn--secondary'|prefixClass }}"
+                data-cy="statementFormClose"
+                href="{{ path('DemosPlan_procedure_public_detail', { procedure: procedure }) }}">
                 {{ "close"|trans }}
             </a>
         </span>

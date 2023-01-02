@@ -34,7 +34,6 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     name="DemosPlan_title_page_export.tex.twig",
      *     path="/verfahren/{procedure}/titlepage/export"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure
@@ -83,14 +82,13 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     path="/verfahren/{procedure}/einstellungen/benutzer/pdf",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationMemberListPdfAction(
         CurrentProcedureService $currentProcedureService,
@@ -102,15 +100,15 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->get('orga_selected', []);
 
-        //Lösche bestimmte RequestVariablen, die für den Export nicht benötigt werden
+        // Lösche bestimmte RequestVariablen, die für den Export nicht benötigt werden
         $contentNotToTransferToPDF = ['r_emailTitle', 'r_emailCc', 'r_emailText'];
         foreach ($contentNotToTransferToPDF as $item) {
             unset($requestPost[$item]);
         }
-        //Filter
+        // Filter
         $filters = null;
 
-        //hole Infos  für das Template
+        // hole Infos  für das Template
         $file = $procedureServiceOutput->generatePdfForMemberList($procedure, $filters, 'procedure.public.agency.list.export', $selectedOrgas);
 
         if ('' === $file) {
@@ -136,7 +134,6 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_export",
      *     path="/verfahren/{procedure}/export",
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure

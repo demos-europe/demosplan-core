@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
+
 use function is_array;
+
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;

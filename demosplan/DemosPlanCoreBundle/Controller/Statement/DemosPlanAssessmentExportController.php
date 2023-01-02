@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use function array_key_exists;
+
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -19,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter\AssessmentTableExporterStrategy;
@@ -51,14 +52,12 @@ class DemosPlanAssessmentExportController extends BaseController
      *     methods={"POST", "GET"},
      *     path="/verfahren/abwaegung/export/{procedureId}",
      *        options={"expose": true})
-     *
      * @Route(
      *     name="DemosPlan_assessment_table_original_export",
      *     path="/verfahren/abwaegung/original/export/{procedureId}",
      *     defaults={"original": true},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return Response
