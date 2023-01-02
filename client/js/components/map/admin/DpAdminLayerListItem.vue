@@ -150,7 +150,7 @@
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
-      :draggable-class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       v-model="childElements">
       <dp-admin-layer-list-item
@@ -170,7 +170,7 @@
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
       class="layout u-ml u-mt-0_25"
-      :draggable-class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
+      :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       v-model="childElements"
       @add="onAddToCategoryWithChildrenHidden">

@@ -82,7 +82,7 @@
       v-if="false === this.isLoading"
       :opts="draggableOptions"
       v-model="currentList"
-      :draggable-class="{'color--grey': false === isEditable}">
+      :class="{'color--grey': false === isEditable}">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentList"
         :key="item.id"
@@ -131,7 +131,7 @@
       v-if="false === this.isLoading"
       :opts="draggableOptionsForBaseLayer"
       v-model="currentBaseList"
-      :draggable-class="{'color--grey': false === isEditable}">
+      :class="{'color--grey': false === isEditable}">
       <dp-admin-layer-list-item
         v-for="(item, idx) in currentBaseList"
         :key="item.id"
