@@ -7,7 +7,7 @@ parameters:
 
     elasticsearch_populate_workers: 4
     elasticsearch_urls:
-        -   url: "http://search6:9200"
+        -   url: "http://search7:9200"
 
     fileservice_filepath: "/opt/uploads"
 
