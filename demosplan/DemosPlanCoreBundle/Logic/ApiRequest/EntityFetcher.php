@@ -358,7 +358,7 @@ class EntityFetcher implements EntityFetcherInterface
 
         try {
             $identifierPath = $type->getIdentifierPropertyPath();
-            $identifierCondition = $this->conditionFactory->propertyHasValue($id, ...$identifierPath);
+            $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPath);
             $entities = $this->listTypeEntities($entityProvider, $type, [$identifierCondition], []);
 
             switch (count($entities)) {

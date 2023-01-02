@@ -1838,8 +1838,8 @@ class DraftStatementService extends CoreService
 
         return collect($sortMethodPaths)->map(function (array $path) use ($sortDir): SortMethodInterface {
             return 'asc' === $sortDir
-                ? $this->sortMethodFactory->propertyAscending(...$path)
-                : $this->sortMethodFactory->propertyDescending(...$path);
+                ? $this->sortMethodFactory->propertyAscending($path)
+                : $this->sortMethodFactory->propertyDescending($path);
         })->all();
     }
 

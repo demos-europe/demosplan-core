@@ -333,9 +333,9 @@ class ConsultationTokenService
                 $sortProperty = $this->consultationTokenResourceType->statement->submitName;
         }
         if ('1' === $sortParams['direction']) {
-            return $this->sortMethodFactory->propertyAscending(...$sortProperty);
+            return $this->sortMethodFactory->propertyAscending($sortProperty);
         }
 
-        return $this->sortMethodFactory->propertyDescending(...$sortProperty);
+        return $this->sortMethodFactory->propertyDescending($sortProperty);
     }
 }

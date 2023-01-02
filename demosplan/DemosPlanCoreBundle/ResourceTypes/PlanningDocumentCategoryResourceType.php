@@ -311,7 +311,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
                 // the parent must be either enabled...
                 $this->conditionFactory->propertyHasValue(true, $parentPath->enabled),
                 // ...or there must be no parent at all
-                $this->conditionFactory->propertyIsNull(...$parentPath)
+                $this->conditionFactory->propertyIsNull($parentPath)
             );
             // set the next parent as context
             $parentPath = $parentPath->parent;
