@@ -82,7 +82,7 @@
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpoffice/phpword": "0.18.3",
         "proj4php/proj4php": "^2.0",
-        "ramsey/uuid": "^4",
+        "ramsey/uuid": "4.2.*",
         "rollerworks/password-strength-bundle": "^2.2",
         "sensio/framework-extra-bundle": "^6.1",
         "sentry/sentry-symfony": "^4.0",
