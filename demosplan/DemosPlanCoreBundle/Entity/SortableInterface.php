@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+
 interface SortableInterface extends UuidEntityInterface
 {
     public function getSortIndex(): int;

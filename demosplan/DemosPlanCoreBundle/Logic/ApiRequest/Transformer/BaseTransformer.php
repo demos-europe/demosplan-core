@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use League\Fractal\TransformerAbstract;

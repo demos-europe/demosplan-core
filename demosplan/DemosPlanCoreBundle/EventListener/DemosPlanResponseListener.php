@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;

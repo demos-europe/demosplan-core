@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -65,6 +66,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -72,6 +74,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -113,7 +116,7 @@ class FaqCategory extends CoreEntity implements UuidEntityInterface
     public function setType(string $type): void
     {
         if (!in_array($type, self::FAQ_CATEGORY_TYPES_MANDATORY, true)
-            && ($type !== self::FAQ_CATEGORY_TYPES_OPTIONAL)
+            && (self::FAQ_CATEGORY_TYPES_OPTIONAL !== $type)
         ) {
             throw new UnexpectedValueException(sprintf('FAQ category type has the value %s, please register this value in the entity.', $type));
         }

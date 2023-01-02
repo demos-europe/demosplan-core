@@ -10,12 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface;
+
 use function implode;
+
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Throwable;
 
-class ViolationsException extends InvalidArgumentException
+class ViolationsException extends InvalidArgumentException implements ViolationsExceptionInterface
 {
     /**
      * @var ConstraintViolationListInterface

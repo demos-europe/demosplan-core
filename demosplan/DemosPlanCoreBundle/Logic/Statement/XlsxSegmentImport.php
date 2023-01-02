@@ -28,6 +28,7 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -110,7 +111,7 @@ class XlsxSegmentImport
      *
      * @param FileInfo $file Hands over basic information about the file
      *
-     * @throws \Exception
+     * @throws Exception
      * @throws RowAwareViolationsException
      * @throws ConnectionException
      */
@@ -137,7 +138,7 @@ class XlsxSegmentImport
                 try {
                     $statementArray = $this->statementService->convertToLegacy($statement);
                     $this->statementService->addReportNewStatement($statementArray);
-                } catch (\Exception $exception) {
+                } catch (Exception $exception) {
                     $doctrineConnection->rollBack();
 
                     $this->logger->warning('Add Report on importFromFile() failed Message: ', [$exception]);
@@ -157,7 +158,7 @@ class XlsxSegmentImport
             $doctrineConnection->commit();
 
             return $importResult;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $doctrineConnection->rollBack();
 
             throw $exception;

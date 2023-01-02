@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -90,7 +91,7 @@ class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
         $header->addText(
             $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
             $this->styles['currentDateFont'],
@@ -233,7 +234,7 @@ class SegmentsExporter
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
         );
-        Html::addHtml($cell, $this->getHtmlValidText($text, $cellExportStyle), false, false);
+        Html::addHtml($cell, $this->getHtmlValidText($text), false, false);
     }
 
     private function getHtmlValidText(string $text): string

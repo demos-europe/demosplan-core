@@ -10,16 +10,17 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator;
+use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 
 /**
  * Creates a statement from the info coming from a simplified new Statement form.

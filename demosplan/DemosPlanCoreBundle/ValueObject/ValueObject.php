@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
+use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 
-class ValueObject implements JsonSerializable
+class ValueObject implements JsonSerializable, ValueObjectInterface
 {
     public const ACCESSOR_REGEX = '/(get|set)?(.+)/';
 

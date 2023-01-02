@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use FOS\ElasticaBundle\Event\IndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Monolog\Logger;

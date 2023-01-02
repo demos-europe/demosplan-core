@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -68,7 +68,7 @@ class SegmentComment implements UuidEntityInterface
     protected $place;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
@@ -110,7 +110,7 @@ class SegmentComment implements UuidEntityInterface
         return $this->place;
     }
 
-    public function getCreationDate(): \DateTime
+    public function getCreationDate(): DateTime
     {
         return $this->creationDate;
     }

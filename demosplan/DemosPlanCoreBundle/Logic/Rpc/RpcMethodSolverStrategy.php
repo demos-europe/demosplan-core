@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use GuzzleHttp\Exception\InvalidArgumentException;

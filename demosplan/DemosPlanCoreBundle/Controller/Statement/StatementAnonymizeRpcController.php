@@ -30,6 +30,7 @@ class StatementAnonymizeRpcController extends RpcController
      * @DplanPermissions("area_statement_anonymize")
      *
      * @return RedirectResponse|Response
+     *
      * @Route(
      *     path="/rpc/1.0/statement/anonymize",
      *     name="dplan_rpc_statement_anonymize",

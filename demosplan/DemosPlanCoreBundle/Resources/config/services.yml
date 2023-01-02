@@ -24,6 +24,23 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
 
+    DemosEurope\DemosplanAddon\Controller\APIController:
+        arguments:
+            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface :
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\MessageBag'
+
+    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+
+    EDT\Wrapping\Contracts\TypeProviderInterface:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
             -   name: data_collector
@@ -182,7 +199,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
-            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
             $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
             $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
@@ -201,7 +217,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
         arguments:
@@ -223,10 +239,6 @@ services:
             $logger: '@monolog.logger.dplan_mail'
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor:
-        arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
         lazy: true
@@ -305,18 +317,16 @@ services:
             $path: !php/const 'demosplan\DemosPlanCoreBundle\Permissions\Permissions::PERMISSIONS_YML'
             $cacheKey: 'permissionsYml'
 
-    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
-        arguments:
-            $addonPermissions: !dplan.permission_collection
-            $corePermissions: demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection
-            $logger: '@monolog.logger.dplan'
 
-    demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermissionCollection:
-        shared: false
+    demosplan\DemosPlanCoreBundle\Permissions\Permissions:
+        arguments:
+            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
+            $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
+            $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
-    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
+    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
         class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
         public: true
 
@@ -514,11 +524,11 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanHelpBundle\Logic\HelpHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanHelpBundle\Logic\HelpService:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
@@ -570,15 +580,15 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
-    demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService:
+    demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
@@ -978,7 +988,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
+    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
     demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
 
     demosplan\DemosPlanUserBundle\Logic\AddressService:
@@ -1096,6 +1106,8 @@ services:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
 
+    EDT\JsonApi\Validation\FieldsValidator: ~
+
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
             $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
@@ -1147,6 +1159,9 @@ services:
         arguments: [[], "@event_dispatcher"]
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
+
+    DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator: ~
+
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.

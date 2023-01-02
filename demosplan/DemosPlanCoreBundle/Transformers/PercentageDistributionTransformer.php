@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Transformers;
 
+use DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use Enqueue\Util\UUID;
 
-class PercentageDistributionTransformer extends BaseTransformer
+class PercentageDistributionTransformer extends BaseTransformer implements PercentageDistributionTransformerInterface
 {
     protected $type = 'PercentageDistribution';
 

@@ -10,7 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -34,6 +35,7 @@ class StatementVersionField implements UuidEntityInterface
      * UserId. Muss nicht als Assoziation modelliert werden, weil es nicht genutzt wird.
      *
      * @var string
+     *
      * @ORM\Column(name="_u_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
     protected $userIdent = '';
@@ -74,7 +76,7 @@ class StatementVersionField implements UuidEntityInterface
     protected $value;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_sv_created_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -248,7 +250,7 @@ class StatementVersionField implements UuidEntityInterface
     /**
      * Set svCreatedDate.
      *
-     * @param \DateTime $created
+     * @param DateTime $created
      *
      * @return StatementVersionField
      */
@@ -262,7 +264,7 @@ class StatementVersionField implements UuidEntityInterface
     /**
      * Get svCreatedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {

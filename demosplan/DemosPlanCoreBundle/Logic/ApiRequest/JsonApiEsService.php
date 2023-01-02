@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -74,7 +74,7 @@ class JsonApiEsService
      * executed in the relational database and the scored sorting is lost.
      *
      * This sorting behavior explicitly ignores both {@link AbstractQuery::getSortDefault} and
-     * {@link ReadableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
+     * {@link TransferableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
      * `search` parameter was provided by the client (which resulted in this method being called)
      * that the scored sorting is wanted as default.
      *

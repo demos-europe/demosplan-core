@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DataCollector;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use Throwable;
 
 class GeoJsonDataCollector extends DataCollector
 {
@@ -35,7 +36,7 @@ class GeoJsonDataCollector extends DataCollector
     /**
      * @throws UserNotFoundException
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, Throwable $exception = null): void
     {
         $currentRoute = $request->get('_route');
         if ('DemosPlan_statement_list_draft' === $currentRoute) {

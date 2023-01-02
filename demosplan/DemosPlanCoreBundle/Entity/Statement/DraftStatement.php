@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -19,16 +21,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository")
- *
  * @FormDefinitionConstraint()
  */
 class DraftStatement extends CoreEntity implements UuidEntityInterface
@@ -246,6 +247,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     protected $houseNumber = '';
@@ -381,7 +383,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $phase = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="create")
@@ -389,14 +391,14 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_deleted_date", type="datetime", nullable=false)
      */
     protected $deletedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
      * @Gedmo\Timestampable(on="update")
@@ -404,21 +406,21 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     protected $lastModifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_submited_date", type="datetime", nullable=false)
      */
     protected $submittedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_released_date", type="datetime", nullable=false)
      */
     protected $releasedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_ds_rejected_date", type="datetime", nullable=false)
      */
@@ -433,12 +435,14 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Collection<int, StatementAttribute>
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="draftStatement")
      */
     protected $statementAttributes;
 
     /**
      * @var array
+     *
      * @ORM\Column(name="_ds_misc_data", type="array", nullable=true)
      */
     protected $miscData;
@@ -448,6 +452,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      * (This is currently only possible as unregistered guest user in public detail).
      *
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
     private $anonymous = false;
@@ -456,10 +461,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     {
         $this->categories = new ArrayCollection();
         $this->versions = new ArrayCollection();
-        $this->deletedDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
-        $this->submittedDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
-        $this->releasedDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
-        $this->rejectedDate = \DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->deletedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->submittedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->releasedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
+        $this->rejectedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
         $this->statementAttributes = new ArrayCollection();
         $this->files = new ArrayCollection();
         $this->miscData = [];
@@ -754,7 +759,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
         return $this->file;
     }
 
-
     /**
      * Return FileStrings to keep method backwards compatible.
      *
@@ -762,7 +766,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
      */
     public function getFiles(): array
     {
-        return $this->files->map(static function(DraftStatementFile $draftStatementFile): ?string {
+        return $this->files->map(static function (DraftStatementFile $draftStatementFile): ?string {
             return $draftStatementFile->getFileString();
         })->toArray();
     }
@@ -792,8 +796,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
 
     public function removeFileByFileId(string $fileId): self
     {
-        foreach($this->files as $file) {
-            if($file->getFile()->getId() !== $fileId) {
+        foreach ($this->files as $file) {
+            if ($file->getFile()->getId() !== $fileId) {
                 continue;
             }
 
@@ -870,7 +874,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
         if ($this->organisation instanceof Orga) {
             try {
                 $this->oGatewayName = $this->organisation->getGatewayName();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->oGatewayName = '';
             }
         }
@@ -1358,7 +1362,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -1507,7 +1511,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set createdDate.
      *
-     * @param \DateTime $createdDate
+     * @param DateTime $createdDate
      *
      * @return DraftStatement
      */
@@ -1521,7 +1525,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get createdDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedDate()
     {
@@ -1531,7 +1535,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set deletedDate.
      *
-     * @param \DateTime $deletedDate
+     * @param DateTime $deletedDate
      *
      * @return DraftStatement
      */
@@ -1545,7 +1549,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get deletedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getDeletedDate()
     {
@@ -1555,7 +1559,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set lastModifiedDate.
      *
-     * @param \DateTime $lastModifiedDate
+     * @param DateTime $lastModifiedDate
      *
      * @return DraftStatement
      */
@@ -1569,7 +1573,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get lastModifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getLastModifiedDate()
     {
@@ -1579,7 +1583,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set submittedDate.
      *
-     * @param \DateTime $submittedDate
+     * @param DateTime $submittedDate
      *
      * @return DraftStatement
      */
@@ -1593,7 +1597,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get submittedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getSubmittedDate()
     {
@@ -1603,7 +1607,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set releasedDate.
      *
-     * @param \DateTime $releasedDate
+     * @param DateTime $releasedDate
      *
      * @return DraftStatement
      */
@@ -1617,7 +1621,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get releasedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getReleasedDate()
     {
@@ -1627,7 +1631,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Set rejectedDate.
      *
-     * @param \DateTime $rejectedDate
+     * @param DateTime $rejectedDate
      *
      * @return DraftStatement
      */
@@ -1641,7 +1645,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface
     /**
      * Get rejectedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getRejectedDate()
     {

@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -30,6 +30,7 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
@@ -79,7 +80,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws HandlerException
      */
     public function exportAllXlsx(Statement ...$statements): IWriter
@@ -268,7 +269,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @return array<string, mixed>
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function covertIntoExportableArray(SegmentInterface $segmentOrStatement): array
     {
