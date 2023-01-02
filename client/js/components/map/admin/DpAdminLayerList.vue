@@ -249,7 +249,7 @@ export default {
       get () {
         return (this.currentTab === 'mapOrder') ? this.mapBaseList : this.treeBaseList
       },
-      set ({newOrder}) {
+      set ({ newOrder }) {
         if (this.currentTab === 'mapOrder') {
           this.mapBaseList = newOrder
         } else {
