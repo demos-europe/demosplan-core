@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
-use Elastica\Type;
+use Elastica\Index;
 use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
@@ -34,12 +34,12 @@ class ProcedureElasticsearchRepository
     protected $permissions;
 
     public function __construct(
-        Type $procedureSearchType,
+        Index $procedureSearchType,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         PermissionsInterface $permissions
     ) {
-        $this->search = $procedureSearchType;
+        $this->index = $procedureSearchType;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->permissions = $permissions;

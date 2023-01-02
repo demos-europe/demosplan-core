@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
-use Elastica\Type;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -47,7 +47,7 @@ class FragmentElasticsearchRepository extends CoreRepository
     protected $translator;
 
     public function __construct(
-        Type $fragmentSearchType,
+        Index $fragmentSearchType,
         ManagerRegistry $registry,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
@@ -56,7 +56,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         ParagraphService $paragraphService,
         string $entityClass
     ) {
-        $this->search = $fragmentSearchType;
+        $this->index = $fragmentSearchType;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->translator = $translator;
@@ -103,7 +103,7 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $boolMustNotFilter[] = $this->getTermsQuery($filter);
             }
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
             }
 
             $query = new Query();
@@ -133,7 +133,7 @@ class FragmentElasticsearchRepository extends CoreRepository
 
             $this->logger->debug('Elasticsearch Fragment Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
-            $search = $this->getSearch();
+            $search = $this->getIndex();
             $fragments = $search->search($query);
             $result = $fragments->getResponse()->getData();
             $aggregations = $fragments->getAggregations();

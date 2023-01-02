@@ -22,11 +22,11 @@ use Doctrine\ORM\OptimisticLockException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodInterface;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -83,7 +83,7 @@ class DraftStatementService extends CoreService
      */
     protected $currentUser;
 
-    /** @var Type */
+    /** @var Index */
     protected $esDraftStatementIndex;
 
     /** @var ElementsService */
@@ -1505,11 +1505,7 @@ class DraftStatementService extends CoreService
             $this->profilerStart('ES');
 
             // Base Filters to apply always
-            $boolMustFilter = [
-                new Terms('_id', $ids),
-            ];
-
-            $boolQuery->addMust($boolMustFilter);
+            $boolQuery->addMust(new Terms('_id', $ids));
 
             // generate Query
             $query = new Query();
@@ -1628,7 +1624,8 @@ class DraftStatementService extends CoreService
                 $boolMustFilter[] = new Terms('showToAll', $showToAll);
             }
 
-            $boolQuery->addMust($boolMustFilter);
+            array_map([$boolQuery,'addMust'], $boolMustFilter);
+
 
             $boolMustNotFilter = [];
 
@@ -1639,7 +1636,7 @@ class DraftStatementService extends CoreService
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query
@@ -1692,7 +1689,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @return Type
+     * @return Index
      */
     protected function getEsDraftStatementIndex()
     {
@@ -1700,7 +1697,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @param Type $esDraftStatementIndex
+     * @param Index $esDraftStatementIndex
      */
     public function setEsDraftStatementIndex($esDraftStatementIndex)
     {
