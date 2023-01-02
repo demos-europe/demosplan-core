@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanNewsBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 
 class NewsHandler extends CoreHandler
 {

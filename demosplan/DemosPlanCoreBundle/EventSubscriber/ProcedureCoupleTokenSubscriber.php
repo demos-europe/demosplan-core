@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -24,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
@@ -118,14 +118,14 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeResourceUpdateEvent::class    => 'preventUpdateAndDeletion',
-            BeforeResourceDeletionEvent::class  => 'preventUpdateAndDeletion',
-            PostNewProcedureCreatedEvent::class => [
+            BeforeResourceUpdateEvent::class             => 'preventUpdateAndDeletion',
+            BeforeResourceDeletionEvent::class           => 'preventUpdateAndDeletion',
+            PostNewProcedureCreatedEvent::class          => [
                 ['createTokenForProcedure'],
                 ['coupleProcedures'],
             ],
-            GetPropertiesEvent::class           => 'addProperties',
-            GetInternalPropertiesEvent::class   => 'addInternalProperties',
+            GetPropertiesEventInterface::class           => 'addProperties',
+            GetInternalPropertiesEvent::class            => 'addInternalProperties',
         ];
     }
 
@@ -232,7 +232,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function addProperties(GetPropertiesEvent $event): void
+    public function addProperties(GetPropertiesEventInterface $event): void
     {
         // The synchronized property is added to statement resource only
         if (!$event->getType() instanceof StatementResourceType) {

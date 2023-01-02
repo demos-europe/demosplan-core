@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanNewsBundle\Logic\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

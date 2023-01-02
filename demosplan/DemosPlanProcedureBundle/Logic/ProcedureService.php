@@ -82,6 +82,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
@@ -92,7 +93,6 @@ use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository;
@@ -613,7 +613,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
         $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
-        //T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
+        // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
         if (array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
             $inData['customer'] = $this->customerService->getCurrentCustomer();
         }
@@ -1015,7 +1015,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $usersOfOrganisation = $userOrga->getUsers();
 
-        //remove current user, to avoid unselecting yourself:
+        // remove current user, to avoid unselecting yourself:
         if ($excludeUser) {
             $usersOfOrganisation->forget($usersOfOrganisation->search($user));
         }
@@ -1026,7 +1026,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             });
         }
 
-        //T8901: filter users with false roles:
+        // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
             static function (User $user): bool {
                 return $user->isPlanningAgency() || $user->isHearingAuthority();
@@ -1066,7 +1066,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function addProcedureEntity(array $data, string $currentUserId): Procedure
     {
         try {
-            //T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
+            // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] = $data['settings']['emailTitle'] ?? '';
             if ('' === $data['settings']['emailTitle']) {
                 $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
@@ -1210,7 +1210,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // Delete Entities manually as constraints are no option anymore because mysql truncates tables when
             // trying to add constraints afterwards
 
-            //Deletes Statements, DraftStatements, DraftStatementsVersions, EntityContentChanges and Reports
+            // Deletes Statements, DraftStatements, DraftStatementsVersions, EntityContentChanges and Reports
             $procedure = $this->getProcedure($procedureId);
             if (!$procedure instanceof Procedure) {
                 throw ProcedureNotFoundException::createFromId($procedureId);
@@ -1353,13 +1353,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         try {
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:
-            //therefore there will be no difference between sourceProcedure and updatedProcedure.
+            // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
-            //clone the source-procedure and the procedure-settings before update for report entry
+            // clone the source-procedure and the procedure-settings before update for report entry
             $sourceProcedure = clone $this->procedureRepository->get($procedureToUpdate->getId());
             $sourceProcedureSettings = clone $sourceProcedure->getSettings();
 
-            //set the cloned settings into the source procedure
+            // set the cloned settings into the source procedure
             $sourceProcedure->setSettings($sourceProcedureSettings);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
@@ -1372,7 +1372,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
 
-            //create report with the sourceProcedure including the related settings
+            // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
                 $sourceProcedure,
                 $destinationProcedure,
@@ -1546,7 +1546,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
              - Alle Subscriptions heraussuchen, die mit einem Radius von 5km IN() den gefundenen Postleitzahlen liegen
              - Subscriptions unique merken
              */
-            //Get Postleitzahl vom Verfahren
+            // Get Postleitzahl vom Verfahren
             $locationService = $this->locationService;
             $procedure = $this->getProcedure($procedureId);
             if (null === $procedure) {
@@ -1563,13 +1563,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 return $this->getSubscriptionList($filter, false);
             }
 
-            //Get loc_id der OpenGeoDb zur PLZ des Verfahrens
+            // Get loc_id der OpenGeoDb zur PLZ des Verfahrens
             $location = $locationService->getSingleLocationFromPostCode($procedure->getLocationPostCode());
             if (!$location instanceof Location) {
                 throw new Exception('Keine Location zu PLZ gefunden. '.$procedure->getLocationPostCode());
             }
 
-            //Postleitzahlen im Radius von 5, 10 & 50 km um die PLZ des Verfahrens einsammeln
+            // Postleitzahlen im Radius von 5, 10 & 50 km um die PLZ des Verfahrens einsammeln
             $radien = [5, 10, 50];
             $subscriptions = new ArrayCollection();
             foreach ($radien as $radius) {
@@ -1699,7 +1699,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     private function getBoilerplateGroupsFilteredByCategory(array $groupsToFilter, string $categoryTitle): array
     {
         $filteredGroups = [];
-        //filter boilerplates from groups, where not have category.name === $categoryName
+        // filter boilerplates from groups, where not have category.name === $categoryName
         foreach ($groupsToFilter as $group) {
             $filteredBoilerplates = $group->filterBoilerplatesByCategory($categoryTitle);
 
@@ -2018,11 +2018,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
     {
-        //use global default blueprint as default anyway:
+        // use global default blueprint as default anyway:
         $masterTemplateId = $this->masterTemplateService->getMasterTemplateId();
         $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
 
-        //T15664: in case of globalMasterBlueprint is set,
+        // T15664: in case of globalMasterBlueprint is set,
         // use customer master blueprint if existing, (instead of global masterblueprint)
         if ($masterTemplateId === $incomingCopyMasterId) {
             $customerBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
@@ -2335,7 +2335,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     protected function setAuthorizedUsersToProcedure(Procedure $newProcedure, $blueprint, $currentUserId)
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
-        //at least the current user has to be set as User
+        // at least the current user has to be set as User
         $newProcedure->setAuthorizedUsers([$currentUser]);
 
         if (null !== $blueprint) {
@@ -2369,10 +2369,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $this->boilerplateRepository->copyBoilerplates($blueprintId, $newProcedure);
 
-        //copy boilerplatecategories without boilerplates:
+        // copy boilerplatecategories without boilerplates:
         $this->boilerplateCategoryRepository->copyEmptyCategories($blueprintId, $newProcedure);
 
-        //copy boilerplateGroups without boilerplates:
+        // copy boilerplateGroups without boilerplates:
         $this->boilerplateGroupRepository->copyEmptyGroups($blueprintId, $newProcedure);
 
         // ensure that we have at least our base Categories & Groups from Master blueprint
@@ -2395,7 +2395,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 
-        //resolve & set categories:
+        // resolve & set categories:
         $categories = [];
         /** @var BoilerplateCategoryVO $boilerplateCategoryVO */
         foreach ($boilerplateVO->getCategories() as $boilerplateCategoryVO) {
@@ -2404,8 +2404,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
         $boilerplate->setCategories($categories);
 
-        //resolve & set group:
-        //enable unset of group, because in this case incoming group is null
+        // resolve & set group:
+        // enable unset of group, because in this case incoming group is null
         $boilerplate->detachGroup();
         if (null !== $boilerplateVO->getGroupId()) {
             $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
@@ -2469,7 +2469,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $boilerplate->setTitle($boilerplateVO->getTitle());
             $boilerplate->setText($boilerplateVO->getText());
 
-            //resolve & set categories:
+            // resolve & set categories:
             $categories = [];
             /** @var BoilerplateCategoryVO $boilerplateCategoryVO */
             foreach ($boilerplateVO->getCategories() as $boilerplateCategoryVO) {
@@ -2478,7 +2478,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
             $boilerplate->setCategories($categories);
 
-            //resolve & set group:
+            // resolve & set group:
             if (null !== $boilerplateVO->getGroupId()) {
                 $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
                 $boilerplate->setGroup($group);
@@ -2538,8 +2538,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $unauthorizedProcedures = [];
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-            //this is additional needed because of filter "p.orga != :oId" can not be combined with the logic of getUnauthorizedProcedures()
-            //additional get procedures of orga of current user, but not accessible:
+            // this is additional needed because of filter "p.orga != :oId" can not be combined with the logic of getUnauthorizedProcedures()
+            // additional get procedures of orga of current user, but not accessible:
             $unauthorizedProcedures = $this->getUnauthorizedProcedures($user);
         }
 
@@ -2773,7 +2773,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], 'municipalCode');
         }
 
-        //use array_key_exists, because value of key 'customer' is null
+        // use array_key_exists, because value of key 'customer' is null
         if (array_key_exists('customer', $filters)) {
             // T15644 customer master procedure has customer set
             if ($template &&
@@ -2922,7 +2922,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // copy NotificationReceiver (Email to counties T433)
         $this->notificationReceiverRepository->copy($blueprintId, $newProcedure->getId());
 
-        //copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
+        // copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);

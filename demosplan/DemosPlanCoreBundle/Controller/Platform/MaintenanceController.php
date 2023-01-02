@@ -11,22 +11,22 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanNewsBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
 use Exception;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
 class MaintenanceController extends BaseController
@@ -185,7 +186,8 @@ class MaintenanceController extends BaseController
         switch ($frequency) {
             case 'daily':
                 $logger->info('Starting daily maintenance Tasks');
-                $eventDispatcher->dispatch(new DailyMaintenanceEvent());
+                $event = new DailyMaintenanceEvent();
+                $eventDispatcher->dispatch($event, DailyMaintenanceEventInterface::class);
 
                 // Notfication-Email for public agencies regarding soon ending  phases
                 $logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');

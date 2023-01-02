@@ -8,12 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanNewsBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;

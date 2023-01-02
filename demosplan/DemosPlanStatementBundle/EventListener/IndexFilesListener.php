@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use FOS\ElasticaBundle\Event\TransformEvent;
+use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class IndexFilesListener implements EventSubscriberInterface
@@ -30,7 +30,7 @@ class IndexFilesListener implements EventSubscriberInterface
     /**
      * Add Files to Statement index.
      */
-    public function addFiles(TransformEvent $event): void
+    public function addFiles(PostTransformEvent $event): void
     {
         $statement = $event->getObject();
         if (!$statement instanceof Statement) {
@@ -49,7 +49,7 @@ class IndexFilesListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            TransformEvent::POST_TRANSFORM => 'addFiles',
+            PostTransformEvent::class => 'addFiles',
         ];
     }
 }

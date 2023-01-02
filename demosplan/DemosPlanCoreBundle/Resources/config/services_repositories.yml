@@ -9,7 +9,7 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
-    demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
+    demosplan\DemosPlanCoreBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
 
     demosplan\DemosPlanCoreBundle\Repository\RoleRepository:
@@ -92,7 +92,7 @@ services:
     demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
-    demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
     demosplan\DemosPlanMapBundle\Repository\MapRepository:
@@ -100,10 +100,6 @@ services:
 
     demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
-
-    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-        $fragmentSearchType: '@fos_elastica.index.statementFragments.statementFragment'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
@@ -203,9 +199,6 @@ services:
 
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
-
-    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
     demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'
