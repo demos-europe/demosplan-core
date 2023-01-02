@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\ValueObject;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValidatableValueObject;
 use demosplan\DemosPlanStatementBundle\Exception\UnexpectedDataStructureException;
 use Symfony\Component\Validator\Constraints as Assert;

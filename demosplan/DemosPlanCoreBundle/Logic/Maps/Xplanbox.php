@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Exception;
 use proj4php\Proj;
 use proj4php\Proj4php;

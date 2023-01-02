@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use demosplan\DemosPlanUserBundle\Logic\UserMapperInterface;
@@ -177,7 +177,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
             $this->logger->info('User has multiple users');
 
             if (false === $publicAgencyUser->isProfileCompleted() || true === $publicAgencyUser->isNewUser()) {
-                //Set user with incomplete profile first to be filled out
+                // Set user with incomplete profile first to be filled out
                 $user = $publicAgencyUser;
             }
         }

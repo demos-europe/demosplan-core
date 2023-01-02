@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -35,7 +36,6 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      *     path="/{layerCategoryId}",
      *     methods={"DELETE"},
      *     name="dplan_api_procedure_layer_category_delete")
-     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @return $this|JsonResponse
@@ -46,19 +46,19 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
     {
         try {
             $mapService->deleteGisLayerCategory($layerCategoryId);
-            $this->getMessageBag()->add('confirm', 'confirm.gislayerCategory.delete');
+            $this->messageBag->add('confirm', 'confirm.gislayerCategory.delete');
 
             return $this->renderDelete();
         } catch (AttachedChildException $e) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'warning.gisLayerCategory.delete.because.of.children',
                 ['categoryName' => $e->getName()]
             );
 
             return $this->handleApiError($e);
-        } catch (\Exception $e) {
-            $this->getMessageBag()->add('error', 'error.gislayerCategory.delete');
+        } catch (Exception $e) {
+            $this->messageBag->add('error', 'error.gislayerCategory.delete');
 
             return $this->handleApiError($e);
         }

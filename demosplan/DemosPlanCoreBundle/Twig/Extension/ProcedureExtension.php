@@ -12,19 +12,19 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use Carbon\Carbon;
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 
 /**
  * Procedure specific functions.

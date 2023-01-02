@@ -10,10 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -68,9 +67,7 @@ abstract class SimplifiedStatementCreator
         }
         $statement = $this->statementHandler->newStatement(
             $rParams,
-            $this->currentUser->getUser()->hasRole(
-                Role::PROCEDURE_DATA_INPUT
-            )
+            $this->currentUser->hasPermission('feature_statement_data_input_orga')
         );
         $this->handleCreatedStatement($request, $statement);
 

@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RoleResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
@@ -24,7 +24,6 @@ class DemosPlanRoleAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_manage_users")
-     *
      * @Route(path="/api/1.0/role/",
      *        methods={"GET"},
      *        name="dplan_api_role_list",

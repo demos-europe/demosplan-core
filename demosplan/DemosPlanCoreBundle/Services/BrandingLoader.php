@@ -10,20 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
+use Exception;
+use Symfony\Component\HttpFoundation\Request;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\BrandingProvider;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\BrandingValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Exception;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Chooses the right logo and branding styles for every request.

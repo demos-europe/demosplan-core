@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Exception\ContentTypeInspectorException;
 use Exception;
+
 use function in_array;
+
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,10 +80,10 @@ class JsonApiRequestValidator
         $jsonApiContentType = $request->getMimeType('jsonapi');
 
         if (0 < count($acceptableContentTypes) && !in_array(
-                $jsonApiContentType,
-                $acceptableContentTypes,
-                true
-            )
+            $jsonApiContentType,
+            $acceptableContentTypes,
+            true
+        )
         ) {
             // the accept header MUST contain the exact match of the json:api mimetype
             return new Response('', Response::HTTP_NOT_ACCEPTABLE);
@@ -96,7 +98,7 @@ class JsonApiRequestValidator
                 // and it MUST be the json:api content type
                 return new Response('', Response::HTTP_UNSUPPORTED_MEDIA_TYPE);
             }
-        } catch (Exception | ContentTypeInspectorException $e) {
+        } catch (Exception|ContentTypeInspectorException $e) {
             // a throwing inspector means there is no content type
             if ('' !== $request->getContent()) {
                 // missing content type is only accepted if there is also no content

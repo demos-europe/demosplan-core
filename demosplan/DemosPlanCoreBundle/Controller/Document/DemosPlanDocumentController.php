@@ -14,6 +14,8 @@ use function array_key_exists;
 use function array_merge;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -25,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -37,7 +38,6 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
@@ -1330,7 +1330,7 @@ class DemosPlanDocumentController extends BaseController
         );
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'elementlist' => $elements,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1408,7 +1408,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'documentlist' => $documentList,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1478,7 +1478,7 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'documentnew' => [
+            'documentnew'                               => [
                 'r_action',
                 'r_title',
                 'r_text',
@@ -1486,11 +1486,11 @@ class DemosPlanDocumentController extends BaseController
                 'r_elementId',
                 'r_parentId',
             ],
-            'documentdelete' => [
+            'documentdelete'                            => [
                 'r_action',
                 'document_delete',
             ],
-            'documentedit' => [
+            'documentedit'                              => [
                 'action',
                 'r_ident',
                 'r_title',
@@ -1499,7 +1499,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_lockReason',
                 'r_parentId',
             ],
-            'elementedit' => [
+            'elementedit'                               => [
                 'r_action',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1509,7 +1509,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_orga',
                 'r_permission',
             ],
-            'elementnew' => [
+            'elementnew'                                => [
                 'r_text',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1525,23 +1525,23 @@ class DemosPlanDocumentController extends BaseController
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentedit' => [
+            'singledocumentedit'                        => [
                 'r_action',
                 'r_title',
                 'r_text',
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentdelete' => [
+            'singledocumentdelete'                      => [
                 'r_action',
                 'document_delete',
                 'r_sorting',
             ],
-            'onoffswitch' => [
+            'onoffswitch'                               => [
                 'r_action',
                 'r_onoffswitch',
             ],
-            'updateParagraphPDF' => [
+            'updateParagraphPDF'                        => [
                 'r_action',
                 'r_planDelete',
             ],

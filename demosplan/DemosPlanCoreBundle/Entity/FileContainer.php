@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -53,6 +54,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="create_date", type="datetime", nullable=false)
      */
@@ -60,6 +62,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="modify_date", type="datetime", nullable=false)
      */
@@ -89,6 +92,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface
      * Is the file visible in this statement for other users than Fachplaner (yes = true, no = false).
      *
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable=false, options={"default":true, "comment":"Is the file visible in this statement for other users than Fachplaner"})
      */
     protected $publicAllowed = true;

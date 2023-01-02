@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use JsonSerializable;
 
 /**
  * ViewObject for Messages.
  */
-class MessageSerializable implements JsonSerializable
+class MessageSerializable implements JsonSerializable, MessageSerializableInterface
 {
     protected $severity = '';
     protected $text = '';

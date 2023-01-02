@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 use function array_flip;
 use function array_map;
 use function collect;
+
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;

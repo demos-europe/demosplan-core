@@ -10,11 +10,11 @@
 
 namespace Tests\Core\StatementFragment;
 
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Normalizer;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
 
 class StatementFragmentUpdateTest extends FunctionalTestCase
 {

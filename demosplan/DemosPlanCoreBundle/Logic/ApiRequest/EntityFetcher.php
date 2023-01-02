@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -42,11 +42,13 @@ use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
-use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
 use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+
 use function is_array;
+
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
@@ -83,12 +85,16 @@ class EntityFetcher implements EntityFetcherInterface
      *
      * For all properties accessed while filtering/sorting it is checked if:
      *
-     * * the given type and the types in the property paths are {@link TypeInterface::isAvailable() available at all} and {@link ReadableTypeInterface readable}
-     * * the property is available for {@link ReadableTypeInterface::getFilterableProperties() filtering}/{@link ReadableTypeInterface::getSortableProperties() sorting}
+     * * the given type and the types in the property paths are
+     *  {@link TypeInterface::isAvailable() available at all} and
+     *  {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *  {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *  {@link SortableTypeInterface::getSortableProperties() sorting}
      *
      * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
      *
-     * @param ReadableTypeInterface<O>           $type
+     * @param TransferableTypeInterface<O>       $type
      * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
      * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
      *                                                        higher priority. Ie. a second sort method
@@ -101,7 +107,7 @@ class EntityFetcher implements EntityFetcherInterface
      * @throws AccessException thrown if the resource type denies the currently logged in user
      *                         the access to the resource type needed to fulfill the request
      */
-    public function listEntities(ReadableTypeInterface $type, array $conditions, array $sortMethods = []): array
+    public function listEntities(TransferableTypeInterface $type, array $conditions, array $sortMethods = []): array
     {
         if (!$type->isDirectlyAccessible()) {
             throw AccessException::typeNotDirectlyAccessible($type);
@@ -126,8 +132,12 @@ class EntityFetcher implements EntityFetcherInterface
      * @throws PaginationException
      * @throws PathException
      */
-    public function getEntityPaginator(ReadableTypeInterface $type, APIPagination $pagination, array $conditions, array $sortMethods = []): DemosPlanPaginator
-    {
+    public function getEntityPaginator(
+        TransferableTypeInterface $type,
+        APIPagination $pagination,
+        array $conditions,
+        array $sortMethods = []
+    ): DemosPlanPaginator {
         if (!$type->isAvailable()) {
             throw AccessException::typeNotAvailable($type);
         }
@@ -156,12 +166,16 @@ class EntityFetcher implements EntityFetcherInterface
      *
      * For all properties accessed while filtering/sorting it is checked if:
      *
-     * * the given type and the types in the property paths are {@link TypeInterface::isAvailable() available at all} and {@link ReadableTypeInterface readable}
-     * * the property is available for {@link ReadableTypeInterface::getFilterableProperties() filtering}/{@link ReadableTypeInterface::getSortableProperties() sorting}
+     * * the given type and the types in the property paths are
+     *   {@link TypeInterface::isAvailable() available at all} and
+     *   {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *   {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *   {@link SortableTypeInterface::getSortableProperties() sorting}
      *
      * @template O of object
      *
-     * @param ReadableTypeInterface<O>           $type
+     * @param TransferableTypeInterface<O>       $type
      * @param array<int,O>                       $dataObjects
      * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
      * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
@@ -175,8 +189,12 @@ class EntityFetcher implements EntityFetcherInterface
      * @throws AccessException thrown if the resource type denies the currently logged in user
      *                         the access to the resource type needed to fulfill the request
      */
-    public function listPrefilteredEntities(ReadableTypeInterface $type, array $dataObjects, array $conditions = [], array $sortMethods = []): array
-    {
+    public function listPrefilteredEntities(
+        TransferableTypeInterface $type,
+        array $dataObjects,
+        array $conditions = [],
+        array $sortMethods = []
+    ): array {
         if (!$type->isDirectlyAccessible()) {
             throw AccessException::typeNotDirectlyAccessible($type);
         }
@@ -270,7 +288,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *
@@ -290,7 +308,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface<O> $type
      *
      * @return O
      *
@@ -306,7 +324,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *
@@ -322,7 +340,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @param array<int, ClauseFunctionInterface<bool>> $conditions
      */
-    public function getEntityCount(ReadableTypeInterface $type, array $conditions): int
+    public function getEntityCount(TransferableTypeInterface $type, array $conditions): int
     {
         $pagination = new APIPagination();
         $pagination->setSize(1);
@@ -358,13 +376,13 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @param IdentifiableTypeInterface&ReadableTypeInterface $type
-     * @param array<int,FunctionInterface<bool>>              $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>                  $sortMethods Order matters. Lower positions imply
-     *                                                                     higher priority. Ie. a second sort method
-     *                                                                     will be applied to each subset individually
-     *                                                                     that resulted from the first sort method.
-     *                                                                     The array keys will be ignored.
+     * @param IdentifiableTypeInterface&TransferableTypeInterface $type
+     * @param array<int,FunctionInterface<bool>>                  $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>                      $sortMethods Order matters. Lower positions imply
+     *                                                                         higher priority. Ie. a second sort method
+     *                                                                         will be applied to each subset individually
+     *                                                                         that resulted from the first sort method.
+     *                                                                         The array keys will be ignored.
      *
      * @return array<int, string> the identifiers of the entities, sorted by the given $sortMethods
      *
@@ -372,7 +390,7 @@ class EntityFetcher implements EntityFetcherInterface
      *                         the access to the resource type needed to fulfill the request
      */
     public function listEntityIdentifiers(
-        ReadableTypeInterface $type,
+        TransferableTypeInterface $type,
         array $conditions,
         array $sortMethods
     ) {
@@ -399,7 +417,7 @@ class EntityFetcher implements EntityFetcherInterface
      * Check if the given object matches any of the given conditions.
      *
      * @param array<int, ClauseFunctionInterface<bool>> $conditions at least one condition must match for `true`
-     *                                                        to be returned; must not be empty
+     *                                                              to be returned; must not be empty
      */
     public function objectMatchesAny(object $object, array $conditions): bool
     {

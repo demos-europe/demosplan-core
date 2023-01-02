@@ -53,10 +53,7 @@ class DplanPropertyPathProcessor extends PropertyPathProcessor
 
         if ([] === $remainingParts) {
             try {
-                $propertyTypeIdentifier = $this->getPropertyTypeIdentifier($currentType, $currentPathPart);
-                if (null !== $propertyTypeIdentifier) {
-                    $this->processorConfig->getRelationshipType($propertyTypeIdentifier);
-                }
+                $this->processorConfig->getPropertyType($currentType, $currentPathPart);
             } catch (PropertyAccessException|TypeRetrievalAccessException $exception) {
                 $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
             }
@@ -64,15 +61,10 @@ class DplanPropertyPathProcessor extends PropertyPathProcessor
             return $newPath;
         }
 
-        $propertyTypeIdentifier = $this->getPropertyTypeIdentifier($currentType, $currentPathPart);
-        if (null !== $propertyTypeIdentifier) {
+        $nextTarget = $this->processorConfig->getPropertyType($currentType, $currentPathPart);
+        if (null !== $nextTarget) {
             try {
-                // even if we don't need the $nextTarget here because there may be no
-                // remaining segments, we still check with this call if the current
-                // relationship is valid in this path
-                $nextTarget = $this->processorConfig->getRelationshipType($propertyTypeIdentifier);
-
-                // otherwise, we continue the mapping recursively
+                // continue the mapping recursively
                 return $this->processPropertyPath($nextTarget, $newPath, ...$remainingParts);
             } catch (TypeRetrievalAccessException $exception) {
                 throw RelationshipAccessException::relationshipTypeAccess($currentType, $currentPathPart, $exception);

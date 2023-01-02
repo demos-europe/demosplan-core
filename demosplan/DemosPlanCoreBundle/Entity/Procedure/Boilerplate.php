@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -65,6 +66,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
      * @var BoilerplateGroup
      *
      * This Class/Entity is the owning side
+     *
      * @ORM\ManyToOne(targetEntity="BoilerplateGroup", inversedBy="boilerplates")
      * @ORM\JoinColumn(referencedColumnName="id", nullable = true)
      */
@@ -92,14 +94,16 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     protected $text;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_pt_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_pt_modify_date",type="datetime", nullable=false)
      */
@@ -188,11 +192,11 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * @param bool $toString
      *
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function getCreateDate($toString = true)
     {
-        //ensure legacy format by default, because this might be the way it is still in use
+        // ensure legacy format by default, because this might be the way it is still in use
         if ($toString) {
             $date = $this->createDate->format('Y-m-d H:i:s');
             $date[10] = 'T';
@@ -204,7 +208,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      */
     public function setCreateDate($createDate)
     {
@@ -214,11 +218,11 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     /**
      * @param bool $toString
      *
-     * @return \DateTime|string
+     * @return DateTime|string
      */
     public function getModifyDate($toString = true)
     {
-        //ensure legacy format by default, because this might be the way it is still in use
+        // ensure legacy format by default, because this might be the way it is still in use
         if ($toString) {
             $date = $this->modifyDate->format('Y-m-d H:i:s');
             $date[10] = 'T';
@@ -230,7 +234,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      */
     public function setModifyDate($modifyDate)
     {
@@ -293,7 +297,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     {
         $this->categories->removeElement($boilerplateCategory);
 
-        //if boilerplateCategory->getTopic != null:
+        // if boilerplateCategory->getTopic != null:
         $boilerplateCategory->removeBoilerplate(null);
 
         return $this;
@@ -382,7 +386,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface
     {
         $this->tags->removeElement($tag);
 
-        //if tag->getTopic != null:
+        // if tag->getTopic != null:
         if (!is_null($tag->getBoilerplate())) {
             $tag->setBoilerplate(null);
         }

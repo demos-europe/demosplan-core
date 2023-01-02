@@ -10,9 +10,13 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use function array_key_exists;
-use function collect;
+use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -21,16 +25,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
-use Doctrine\ORM\ORMException;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
+use function array_key_exists;
+use function collect;
 
 class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {

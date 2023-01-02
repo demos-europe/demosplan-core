@@ -10,13 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Report;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
@@ -79,7 +81,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_category", type="string", length=100, nullable=false, options={"fixed":true})
-     *
      * @Assert\NotBlank()
      */
     protected $category;
@@ -88,7 +89,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_group", type="string", length=100, nullable=false, options={"fixed":true})
-     *
      * @Assert\NotBlank()
      */
     protected $group;
@@ -111,7 +111,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_u_name", type="string", length=255, nullable=false, options={"fixed":true})
-     *
      * @Assert\NotBlank()
      */
     protected $userName;
@@ -129,7 +128,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier_type", type="string", length=50, nullable=false)
-     *
      * @Assert\NotBlank()
      */
     protected $identifierType;
@@ -138,7 +136,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_re_identifier", type="string", length=36, options={"fixed":true}, nullable=false)
-     *
      * @Assert\NotBlank()
      */
     protected $identifier;
@@ -156,7 +153,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      * @var string always in JSON format (a simple string is considered valid JSON)
      *
      * @ORM\Column(name="_re_message", type="text", nullable=false, length=15000000)
-     *
      * @Assert\NotBlank()
      */
     protected $message;
@@ -169,7 +165,8 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     protected $incoming = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create"), updateable = true
      * @ORM\Column(name="_re_created_date", type="datetime", nullable=false)
      */
@@ -180,7 +177,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
-     *
      * @Assert\NotBlank()
      */
     protected $customer;
@@ -198,7 +194,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -526,7 +522,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return ReportEntry
      */
@@ -540,7 +536,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -550,7 +546,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
