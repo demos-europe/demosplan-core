@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 
+use EDT\Wrapping\Properties\UpdatableRelationship;
 use function collect;
 
 use DateTime;
