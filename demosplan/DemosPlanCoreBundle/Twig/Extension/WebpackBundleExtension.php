@@ -31,7 +31,6 @@ class WebpackBundleExtension extends ExtensionBase
 
         // extracted vendors
         'd3.js',
-        'tiptap.js',
         'ol.js',
         'leaflet.js',
         'jquery-3.5.1.min.js',
