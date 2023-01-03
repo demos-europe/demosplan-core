@@ -29,7 +29,7 @@ updates:
       # Can't be used as CommonJs but only ESM which will break our FE build atm
       - dependency-name: chalk
         versions:
-            - ">= 4.1.2"
+            - ">= 5"
     labels:
       - dependencies:yarn
 
