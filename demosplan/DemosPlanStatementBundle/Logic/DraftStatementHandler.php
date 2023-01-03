@@ -10,25 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -39,6 +22,23 @@ use Twig\Environment;
 use Twig_Error_Loader;
 use Twig_Error_Runtime;
 use Twig_Error_Syntax;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
+use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
+use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
 
 /**
  * Speicherung von Planterunterlagen.

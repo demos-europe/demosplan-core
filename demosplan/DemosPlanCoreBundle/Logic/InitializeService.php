@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Exception;
 use Psr\Log\LoggerInterface;

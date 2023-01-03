@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 

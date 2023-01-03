@@ -10,11 +10,11 @@
 
 namespace Tests\Core\Survey\Unit;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
+use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 
 class SurveyValidJsonTest extends SurveyTestUtils
 {

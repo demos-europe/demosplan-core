@@ -12,23 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\User;
 
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\RoleHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use Exception;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
@@ -116,7 +115,6 @@ class SamlUserFactory implements SamlUserFactoryInterface
             // user exists with email. Just update login to tie user to saml and at the same time
             // allow to login locally via email
             $user->setLogin($login);
-            $user->setProvidedByIdentityProvider(true);
 
             return $this->userService->updateUserObject($user);
         }
@@ -167,6 +165,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         }
 
         throw new InvalidArgumentException('Invalid user attributes given');
+
     }
 
     private function getNewUserWithDefaultValues(): User
@@ -181,7 +180,6 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user->setNoPiwik(false);
         $user->setPassword('loginViaSAML');
         $user->setProfileCompleted(true);
-        $user->setProvidedByIdentityProvider(true);
 
         return $user;
     }
@@ -223,7 +221,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
                 $orgaName
             );
             $this->eventDispatcherPost->post($newOrgaRegisteredEvent);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->warning('Could not successfully perform orga registered from SAML event', [$e]);
         }
 
@@ -231,7 +229,6 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $user = $orga->getUsers()->first();
         // set Orga Id as User login to be able to login as the default Orga user on login
         $user->setLogin($attributes['ID'][0] ?? '');
-        $user->setProvidedByIdentityProvider(true);
 
         return $this->userService->updateUserObject($user);
     }

@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Survey\Unit;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
 
 class SurveyConfigurationTest extends SurveyTestUtils

@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Monolog\Logger;
@@ -94,7 +94,6 @@ class CoreHandler
 
         return $result;
     }
-
 
     /**
      * Get form option from globally defined parameter.

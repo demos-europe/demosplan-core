@@ -207,7 +207,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'ol.js', 'statement-assessmentStatement.js']) }}
+    {{ webpackBundles(['ol.js', 'statement-assessmentStatement.js']) }}
     <script nonce="{{ csp_nonce('script') }}">
         const setElement = function (value) {
             Array.from(document.querySelectorAll('.js-paragraph')).forEach(el => {

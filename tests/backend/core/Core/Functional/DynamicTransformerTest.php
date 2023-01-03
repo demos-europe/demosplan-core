@@ -12,14 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use EDT\JsonApi\OutputTransformation\DynamicTransformer;
 use EDT\JsonApi\OutputTransformation\IncludeDefinition;
 use EDT\JsonApi\OutputTransformation\IncludeDefinitionInterface;
@@ -33,11 +27,17 @@ use League\Fractal\Scope;
 use League\Fractal\Serializer\JsonApiSerializer;
 use League\Fractal\TransformerAbstract;
 use Psr\Log\LoggerInterface;
-use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 use Tests\Base\MockMethodDefinition;
 use Tightenco\Collect\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
+use stdClass;
 
 class DynamicTransformerTest extends JsonApiTest
 {

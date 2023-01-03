@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -44,6 +45,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -51,6 +53,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */

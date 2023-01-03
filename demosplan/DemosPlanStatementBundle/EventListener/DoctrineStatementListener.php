@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanStatementBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DoctrineStatementListener
 {

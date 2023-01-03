@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Map\Functional;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter;

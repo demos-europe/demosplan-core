@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileInUseChecker;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -25,10 +27,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_files")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
-class File extends CoreEntity implements UuidEntityInterface
+class File extends CoreEntity implements UuidEntityInterface, FileInterface
 {
     /**
      * @var int
+     *
      * @ORM\Column(name="_f_id", type="integer", nullable=true)
      */
     protected $id;
@@ -114,6 +117,7 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
@@ -121,6 +125,7 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */

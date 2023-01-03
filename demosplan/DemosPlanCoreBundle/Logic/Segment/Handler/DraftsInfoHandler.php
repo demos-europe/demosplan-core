@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Handler;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\DraftsInfoService;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
+use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -48,7 +49,7 @@ class DraftsInfoHandler
      * @throws InvalidSchemaException
      * @throws LockedByAssignmentException
      * @throws StatementAlreadySegmentedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function save(string $data): string
     {

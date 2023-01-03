@@ -10,17 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Survey;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceObject;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyHandler;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyService;
@@ -37,7 +37,6 @@ class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
-     *
      * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
      *        methods={"GET"},
      *        name="dplan_surveyvote_list",
@@ -67,7 +66,6 @@ class SurveyVoteAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_surveyvote_update",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -91,7 +89,7 @@ class SurveyVoteAPIController extends APIController
 
             return $this->renderEmpty();
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.survey.votes.publication');
+            $this->messageBag->add('error', 'error.survey.votes.publication');
 
             return $this->handleApiError($e);
         }
@@ -103,7 +101,6 @@ class SurveyVoteAPIController extends APIController
      *     methods="POST",
      *     path="/api/1.0/surveyVote",
      *     options={"expose": true})
-     *
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException
@@ -133,12 +130,12 @@ class SurveyVoteAPIController extends APIController
             );
             $surveyVoteHandler->updateObject($surveyVote);
             $survey = $surveyHandler->findById($surveyId);
-            $this->getMessageBag()->add('confirm', 'survey.comment.created');
+            $this->messageBag->add('confirm', 'survey.comment.created');
 
             return $this->getCreateResponse($surveyVoteHandler, $survey);
         } catch (Exception $e) {
-            $this->getLogger()->error($e->getMessage());
-            $this->getMessageBag()->add('error', 'error.generic');
+            $this->logger->error($e->getMessage());
+            $this->messageBag->add('error', 'error.generic');
 
             return $this->handleApiError($e);
         }
@@ -165,17 +162,17 @@ class SurveyVoteAPIController extends APIController
         $accepted = true;
         if (!$resourceObject->isPresent('r_confirm_locality') ||
             !$resourceObject->get('r_confirm_locality')) {
-            $this->getMessageBag()->add('warning', 'warning.local.participant.confirm');
+            $this->messageBag->add('warning', 'warning.local.participant.confirm');
             $accepted = false;
         }
         if (!$resourceObject->isPresent('r_gdpr_consent') ||
             !$resourceObject->get('r_gdpr_consent')) {
-            $this->getMessageBag()->add('warning', 'warning.gdpr.consent');
+            $this->messageBag->add('warning', 'warning.gdpr.consent');
             $accepted = false;
         }
         if (!$resourceObject->isPresent('r_privacy') ||
             !$resourceObject->get('r_privacy')) {
-            $this->getMessageBag()->add('warning', 'warning.privacy.confirm');
+            $this->messageBag->add('warning', 'warning.privacy.confirm');
             $accepted = false;
         }
 
@@ -193,7 +190,7 @@ class SurveyVoteAPIController extends APIController
         if (SurveyVote::PUBLICATION_APPROVED === $surveyVote->getTextReview()) {
             $message = 'survey.votes.publication.approval';
         }
-        $this->getMessageBag()->add('confirm', $message);
+        $this->messageBag->add('confirm', $message);
     }
 
     /**
@@ -208,7 +205,7 @@ class SurveyVoteAPIController extends APIController
 
         // validate that SurveyVote
         if ($procedureId !== $surveyVote->getSurvey()->getProcedure()->getId()) {
-            throw new \Exception('SurveyVote is not part of Survey or Procedure.');
+            throw new Exception('SurveyVote is not part of Survey or Procedure.');
         }
     }
 }
