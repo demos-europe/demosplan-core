@@ -9,7 +9,7 @@
         {{ "text.master.new"|trans }}
     </p>
 
-    {% set copyMasterOptions = [{ label: 'master.empty', value: templateVars.masterBlueprintId }] %}
+    {% set copyMasterOptions = [{ label: 'master.empty', value: templateVars.masterTemplateId }] %}
     {% if templateVars.list.procedures is defined %}
         {% for procedure in templateVars.list.procedures %}
             {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default, value: procedure.ident|default }]) %}
@@ -43,7 +43,7 @@
         :is-customer-master-blueprint-existing="Boolean({{ templateVars.isCustomerMasterBlueprintExisting }})"
         public-participation-contact="{{ proceduresettings.publicParticipationContact|default('notspecified'|trans) }}"
         token-vars-value="{{ form._token.vars.value }}"
-        master-blueprint-id="{{ templateVars.masterBlueprintId }}"
+        master-blueprint-id="{{ templateVars.masterTemplateId }}"
         :blueprint-options="JSON.parse('{{ copyMasterOptions|json_encode|e('js', 'utf-8') }}')">
     </new-blueprint-form>
 {% endblock %}

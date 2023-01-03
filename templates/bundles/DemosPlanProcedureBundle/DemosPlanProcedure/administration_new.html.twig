@@ -5,7 +5,7 @@
         {{ "procedure.new"|trans }}
     </h1>
     {% if hasPermission('feature_procedure_templates') %}
-        {% set masterBlueprintId = templateVars.masterBlueprintId %}
+        {% set masterBlueprintId = templateVars.masterTemplateId %}
         {% set copyMasterOptions = [{ label: 'master.empty', value: masterBlueprintId, isMaster: true }] %}
         {% if templateVars.list.procedures is defined %}
             {% for procedure in templateVars.list.procedures %}
