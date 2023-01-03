@@ -36,18 +36,9 @@ class AddonRegistry
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
-    /**
-     * Prevent adding the autoloader multiple times.
-     */
-    private static bool $autoloadingConfigured = false;
-
     private Collection $addons;
 
     private PackageInformation $installedAddons;
-
-    private array $classmap;
-
-    private array $coreClassmap;
 
     public function __construct()
     {
@@ -153,47 +144,6 @@ class AddonRegistry
         } catch (Exception $e) {
             echo $e->getMessage();
             throw AddonException::invalidManifest($addonName);
-        }
-    }
-
-    /**
-     * Configure autoloading for addons.
-     *
-     * If possible with the current state of the registry,
-     * this will configure autoloading for addon provided classes.
-     */
-    public function configureAutoloading(): void
-    {
-        if (self::$autoloadingConfigured) {
-            return;
-        }
-
-        $classMapPath = DemosPlanPath::getRootPath('addons/vendor/composer/autoload_classmap.php');
-        if (!file_exists($classMapPath)) {
-            return;
-        }
-
-        $coreClassMapPath = DemosPlanPath::getRootPath('vendor/composer/autoload_classmap.php');
-        if (!file_exists($coreClassMapPath)) {
-            return;
-        }
-
-        $this->classmap = include_once $classMapPath;
-        $this->coreClassmap = include_once $coreClassMapPath;
-
-        spl_autoload_register(array($this, 'autoloadNeededClasses'));
-
-        self::$autoloadingConfigured = true;
-    }
-
-    /**
-     * This is being used as a callback during the spl autoloading process.
-     * The idea is to include all not yet autoloaded classes if they can be found in the addons
-     */
-    public function autoloadNeededClasses(string $class): void
-    {
-        if (!class_exists($class, false) && !array_key_exists($class, $this->coreClassmap) && array_key_exists($class, $this->classmap)) {
-            include_once $this->classmap[$class];
         }
     }
 
