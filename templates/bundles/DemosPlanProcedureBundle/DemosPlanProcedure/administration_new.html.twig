@@ -5,13 +5,13 @@
         {{ "procedure.new"|trans }}
     </h1>
     {% if hasPermission('feature_procedure_templates') %}
-            {% set masterBlueprintId = templateVars.masterTemplateId %}
-            {% set copyMasterOptions = [{ label: 'master.empty', value: masterBlueprintId, isMaster: true }] %}
-            {% if templateVars.list.procedures is defined %}
-                {% for procedure in templateVars.list.procedures %}
-                    {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default('----'), value: procedure.ident|default('----') }]) %}
-                {% endfor %}
-            {% endif %}
+        {% set masterBlueprintId = templateVars.masterBlueprintId %}
+        {% set copyMasterOptions = [{ label: 'master.empty', value: masterBlueprintId, isMaster: true }] %}
+        {% if templateVars.list.procedures is defined %}
+            {% for procedure in templateVars.list.procedures %}
+                {% set copyMasterOptions = copyMasterOptions|merge([{ label: procedure.name|default('----'), value: procedure.ident|default('----') }]) %}
+            {% endfor %}
+        {% endif %}
     {% endif %}
 
     {% set procedureTypes = templateVars.procedureTypes|map(el => { name: el.name, id: el.id, description: el.description }) %}
