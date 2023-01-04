@@ -547,7 +547,7 @@ class ElasticSearchService extends CoreService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $resultSet->setTotal($elasticsearchResult->getHits()['total']);
+        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits']));
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($elasticsearchResult->getPager());

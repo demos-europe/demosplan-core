@@ -11,7 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use FOS\ElasticaBundle\Event\IndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
+use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -43,7 +44,7 @@ class PopulateElasticaListener
         $this->globalConfig = $globalConfig;
     }
 
-    public function preIndexPopulate(IndexPopulateEvent $event)
+    public function preIndexPopulate(PreIndexPopulateEvent $event)
     {
         $index = $this->indexManager->getIndex($event->getIndex());
         $settings = $index->getSettings();
@@ -53,13 +54,13 @@ class PopulateElasticaListener
         $this->logger->info('preIndexPopulate ES Index. Set refresh interval to -1');
     }
 
-    public function postIndexPopulate(IndexPopulateEvent $event)
+    public function postIndexPopulate(PostIndexPopulateEvent $event)
     {
         $index = $this->indexManager->getIndex($event->getIndex());
         $settings = $index->getSettings();
 
         $settings->setNumberOfReplicas($this->globalConfig->getElasticsearchNumReplicas());
-        $index->getClient()->request('_forcemerge', 'POST', ['max_num_segments' => 5]);
+        $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');
 
         // set short refresh interval to avoid problems with outdated lists
         // might lead to performance hits

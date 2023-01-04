@@ -25,6 +25,11 @@ updates:
       - dependency-name: vue-loader
         versions:
             - ">= 16"
+
+      # Can't be used as CommonJs but only ESM which will break our FE build atm
+      - dependency-name: chalk
+        versions:
+            - ">= 5"
     labels:
       - dependencies:yarn
 

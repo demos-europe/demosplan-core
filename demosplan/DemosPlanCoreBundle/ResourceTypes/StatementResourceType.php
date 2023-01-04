@@ -19,7 +19,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
-use Elastica\Type;
+use Elastica\Index;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -188,7 +188,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         return $this->esQuery->getScopes();
     }
 
-    public function getSearchType(): Type
+    public function getSearchType(): Index
     {
         return $this->jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }

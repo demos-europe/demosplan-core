@@ -468,7 +468,7 @@ parameters:
     file.formats.xls: [xls, xlsx]
 
     # JSON Web Tokens configuration
-    jwt_passphrase: "demosplan_jwt_secret"
+    jwt_passphrase: "%env(JWT_SECRET_KEY)%"
 
 
     # Deployments on our servers are rsynced to this dir
