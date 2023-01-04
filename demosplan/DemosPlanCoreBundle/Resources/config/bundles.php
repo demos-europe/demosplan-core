@@ -57,4 +57,5 @@ return [
     Knp\Bundle\MenuBundle\KnpMenuBundle::class                                         => ['all' => true],
     KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class                              => ['all' => true],
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class => ['all' => true],
+    DemosEurope\DemosplanAddon\DemosAddonBundle::class => ['all' => true],
 ];
