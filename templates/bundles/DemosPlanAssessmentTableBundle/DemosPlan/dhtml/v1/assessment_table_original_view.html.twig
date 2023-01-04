@@ -25,10 +25,10 @@
             :export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
             init-filter-hash="{{ templateVars.filterHash }}"
             :pagination="{
-                current_page: {{ templateVars.pager.currentPage|default('1') }},
-                per_page: {{ templateVars.pager.maxPerPage|default('1') }},
+                current_page: {{ templateVars.pager.currentPage|default(1) }},
+                per_page: {{ templateVars.pager.maxPerPage|default(1) }},
                 count: {{ templateVars.totalResults }},
-                limits: [{{ templateVars.pager.limits|join(',') }}]
+                limits: [{{ templateVars.pager.limits|default(1) }}]
             }"
             procedure-id="{{ templateVars.table.procedure.ident }}"
         >
