@@ -60,7 +60,7 @@ class PopulateElasticaListener
         $settings = $index->getSettings();
 
         $settings->setNumberOfReplicas($this->globalConfig->getElasticsearchNumReplicas());
-        $index->getClient()->request('_forcemerge', 'POST', ['max_num_segments' => 5]);
+        $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');
 
         // set short refresh interval to avoid problems with outdated lists
         // might lead to performance hits
