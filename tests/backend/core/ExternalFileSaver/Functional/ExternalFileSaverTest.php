@@ -12,8 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\ExternalFileSaver\Functional;
 
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use Intervention\Image\Exception\NotReadableException;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpClient\MockHttpClient;
 use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver;
@@ -50,7 +53,8 @@ class ExternalFileSaverTest extends FunctionalTestCase
 
         $this->client = $this->makeClient();// self::createClient();
         $this->currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
-        $this->sut = self::$container->get(ExternalFileSaver::class);
+        $fileService = $this->getContainer()->get(FileService::class);
+        $this->sut = new ExternalFileSaver($fileService, new MockHttpClient(), new NullLogger());
         $this->router = self::$container->get(Router::class);
     }
 
