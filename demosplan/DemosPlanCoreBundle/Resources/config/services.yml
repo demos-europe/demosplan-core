@@ -17,9 +17,6 @@ services:
 
     demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
 
-    demosplan\DemosPlanCoreBundle\Context\PluginContext: ~
-
-
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
