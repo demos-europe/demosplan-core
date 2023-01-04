@@ -70,7 +70,7 @@ export default {
         mail: ''
       },
       itemIndex: null,
-      emails: this.initEmails,
+      emails: [],
       translationKeys: {
         new: Translator.trans('email.address.new'),
         add: Translator.trans('email.address.add'),
@@ -79,12 +79,6 @@ export default {
         noEntries: Translator.trans('email.address.no'),
         delete: Translator.trans('email.address.delete')
       }
-    }
-  },
-
-  watch: {
-    initEmails (newVal) {
-      this.emails = newVal
     }
   },
 
@@ -133,6 +127,8 @@ export default {
       this.formFields.mail = this.emails[index].mail
       this.itemIndex = index
     })
+
+    this.emails = this.initEmails
   }
 }
 </script>
