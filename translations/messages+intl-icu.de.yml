@@ -3243,7 +3243,7 @@ statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
-statements.final: "Einreichungen der Organisation"
+statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
 statements.final_versions: "Endfassungen"
 statements.group: "Stellungnahmen der Gruppe"
@@ -3260,7 +3260,7 @@ statements.grouped.priority: |
         =1 {Eine Stellungnahme nach Priorität}
         other {# Stellungnahmen nach Priorität}
     }
-statements.grouprelease: "Freigaben der Organisation"
+statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
