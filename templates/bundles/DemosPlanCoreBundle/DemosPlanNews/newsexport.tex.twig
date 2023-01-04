@@ -3,6 +3,6 @@
 % Überschrift
 \section*{{ '{' }}{{ "news.notes"|trans|latex|raw }}{{ '}' }}
 {% for news in templateVars.list.newslist %}
-        {% include '@DemosPlanNews/DemosPlanNews/newsexport_entry.tex.twig' %}
+        {% include '@DemosPlanCore/DemosPlanNews/newsexport_entry.tex.twig' %}
 {% endfor %}
 {% endblock %}
