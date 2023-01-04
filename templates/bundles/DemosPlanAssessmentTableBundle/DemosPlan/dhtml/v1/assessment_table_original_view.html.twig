@@ -28,7 +28,7 @@
                 current_page: {{ templateVars.pager.currentPage|default(1) }},
                 per_page: {{ templateVars.pager.maxPerPage|default(1) }},
                 count: {{ templateVars.totalResults|default(1) }},
-                limits: [{{ templateVars.pager.limits|default(1) }}]
+                limits: [{{ templateVars.pager.limits|default(1)|join(',') }}]
             }"
             procedure-id="{{ templateVars.table.procedure.ident }}"
         >
