@@ -83,7 +83,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
 
         $this->permissionsStub = new Permissions(
-            [],
+            new \SplFixedArray(),
             $currentCustomerProvider,
             new NullLogger(),
             $this->globalConfig,
