@@ -39,9 +39,7 @@ final class PackageInformation
             return;
         }
 
-        // Fixme: This is not working with an include_once
-        // It leads to the addon missing during install and I have to look at this again
-        $packageListPath = include $installedPackagesPath;
+        $packageListPath = include_once $installedPackagesPath;
 
         if (true === $packageListPath) {
             return;

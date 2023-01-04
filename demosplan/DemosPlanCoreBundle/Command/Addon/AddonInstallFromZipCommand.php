@@ -27,6 +27,7 @@ use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Yaml\Yaml;
@@ -116,6 +117,10 @@ class AddonInstallFromZipCommand extends CoreCommand
                     ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $packageMeta['install_path'])
                     ->run();*/
             }
+
+            // Clear cache to force Symfony to rebuild its container
+            $cacheClearCommand = $this->getApplication()->get('cache:clear');
+            $cacheClearCommand->run(new StringInput('cache:clear'), $output);
         } catch (Exception $e) {
             $output->error($e->getMessage());
 
@@ -199,8 +204,6 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function copyAndUnzipFileIfNecessary(OutputInterface $output): void
     {
-        $output->writeln('Checking if the addon needs to be unpacked');
-
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
 
