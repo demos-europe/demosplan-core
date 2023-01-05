@@ -275,6 +275,10 @@ class ElementHandler extends CoreHandler
         }
 
         $element['enabled'] = false;
+        if (array_key_exists('r_publish_categories', $data)) {
+            $element['enabled'] = $data['r_publish_categories'];
+        }
+
         $element['pId'] = $procedureId;
 
         if ($this->permissions->hasPermission('feature_auto_switch_element_state')) {
