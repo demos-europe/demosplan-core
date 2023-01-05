@@ -13,7 +13,7 @@
                 </h2>
                 {% if templateVars.recentNewsList is defined  and templateVars.recentNewsList == true %}
                     {% for news in templateVars.recentNewsList %}
-                        {% include '@DemosPlanNews/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
                     {% endfor %}
                 {% endif %}
             </div>
@@ -25,7 +25,7 @@
                     </h2>
                     {% if templateVars.pressList is defined  and templateVars.pressList == true %}
                         {% for news in templateVars.pressList %}
-                            {% include '@DemosPlanNews/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
+                            {% include '@DemosPlanCore/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
                         {% endfor %}
                     {% endif %}
                 </div>
