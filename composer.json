@@ -117,7 +117,7 @@
         "symfony/security-csrf": "5.*.*",
         "symfony/serializer": "5.*.*",
         "symfony/stopwatch": "5.*.*",
-        "symfony/templating": "5.*.*",
+        "symfony/templating": "6.*.*",
         "symfony/twig-bundle": "5.*.*",
         "symfony/validator": "5.*.*",
         "symfony/var-dumper": "5.*.*",
