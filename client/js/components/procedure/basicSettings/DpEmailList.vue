@@ -84,7 +84,7 @@ export default {
 
   watch: {
     initEmails (newVal) {
-      this.newEmails = newVal
+      this.emails = newVal
     }
   },
 
