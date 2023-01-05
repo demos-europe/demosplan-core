@@ -149,7 +149,7 @@
         "symfony/maker-bundle": "^1.30",
         "symfony/phpunit-bridge": "6.*.*",
         "symfony/var-dumper": "5.*.*",
-        "symfony/web-profiler-bundle": "5.*.*",
+        "symfony/web-profiler-bundle": "6.*.*",
         "timeweb/phpstan-enum": "^3.1",
         "vimeo/psalm": "^4.9.3",
         "weirdan/doctrine-psalm-plugin": "^2.0.1"
