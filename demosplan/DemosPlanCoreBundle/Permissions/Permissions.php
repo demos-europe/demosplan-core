@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use function array_key_exists;
 use function collect;
 
 use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
