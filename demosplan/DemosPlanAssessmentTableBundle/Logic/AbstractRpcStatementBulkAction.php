@@ -33,7 +33,10 @@ use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\Contracts\AccessException;
+use Exception;
+use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
+use stdClass;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {
@@ -155,7 +158,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
 
     /**
      * @throws InvalidSchemaException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function validateRpcRequest(object $rpcRequest): void
     {
@@ -164,7 +167,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
 
     private function generateMethodResult(object $rpcRequest): object
     {
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->jsonrpc = '2.0';
         $result->result = 'ok';
         $result->id = $rpcRequest->id;
@@ -192,7 +195,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
 
     /**
      * @throws InvalidSchemaException
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function validateRpcRequestJson(object $rpcRequest): void
     {
@@ -238,9 +241,9 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
                 $resultResponse[] = $this->generateMethodResult($rpcRequest);
             } catch (AccessException $e) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (InvalidSchemaException|\JsonException|PathException $e) {
+            } catch (InvalidSchemaException|JsonException|PathException $e) {
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

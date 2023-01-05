@@ -20,6 +20,8 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use Exception;
+use ReflectionException;
 
 class SingleDocumentService extends CoreService
 {
@@ -82,7 +84,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
@@ -121,7 +123,7 @@ class SingleDocumentService extends CoreService
      *
      * @param array $documents
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function sortDocuments($documents): bool
     {
@@ -146,7 +148,7 @@ class SingleDocumentService extends CoreService
      * @param string      $category
      * @param string|null $search
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
@@ -185,7 +187,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getSingleDocumentAdminListAll($procedureId, $search = null)
     {
@@ -225,7 +227,7 @@ class SingleDocumentService extends CoreService
      *
      * @return SingleDocument|array|null
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      *
      * @psalm-return SingleDocument|array{statement_enabled: mixed}|null
      */
@@ -251,7 +253,7 @@ class SingleDocumentService extends CoreService
      *
      * @return SingleDocumentVersion[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVersions($singleDocumentId)
     {
@@ -267,7 +269,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function addSingleDocument($data)
     {
@@ -300,14 +302,14 @@ class SingleDocumentService extends CoreService
                 try {
                     // lösche die Entity
                     $repos->delete($documentId);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines SingleDocuments: ', [$e]);
                     $success = false;
                 }
             }
 
             return $success;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Löschen eines SingleDocuments: ', [$e]);
 
             return false;
@@ -321,7 +323,7 @@ class SingleDocumentService extends CoreService
      *
      * @return array
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function updateSingleDocument($data)
     {
@@ -472,7 +474,7 @@ class SingleDocumentService extends CoreService
     /**
      * Create Version of SingleDocument.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createSingleDocumentVersion(SingleDocument $singleDocument): SingleDocumentVersion
     {

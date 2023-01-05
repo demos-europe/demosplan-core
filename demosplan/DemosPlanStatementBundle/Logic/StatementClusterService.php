@@ -24,6 +24,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use Exception;
+use ReflectionException;
 
 class StatementClusterService extends CoreService
 {
@@ -80,7 +82,7 @@ class StatementClusterService extends CoreService
      *
      * @return bool|Statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newStatementCluster(Statement $representativeStatement, array $statementIdsToCluster)
     {
@@ -97,7 +99,7 @@ class StatementClusterService extends CoreService
             );
 
             if (!$statementAssessmentTable instanceof Statement) {
-                throw new \Exception();
+                throw new Exception();
             }
 
             $headStatement = $this->statementRepository
@@ -116,7 +118,7 @@ class StatementClusterService extends CoreService
             );
 
             return $headStatement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $doctrineConnection->rollBack();
             $this->logger->error('Create new StatementCluster failed:', [$e]);
             throw $e;
@@ -130,7 +132,7 @@ class StatementClusterService extends CoreService
      * @throws MessageBagException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function copyClusterToProcedure(Statement $headStatement, Procedure $targetProcedure)
     {

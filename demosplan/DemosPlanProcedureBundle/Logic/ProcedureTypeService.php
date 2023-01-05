@@ -175,7 +175,7 @@ class ProcedureTypeService extends CoreService
      * @param Procedure     $targetProcedure            procedure where the copied procedureTypeContent will be related
      *                                                  to
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copyProcedureTypeContent(
         ProcedureType $procedureTypeToCopyContent,

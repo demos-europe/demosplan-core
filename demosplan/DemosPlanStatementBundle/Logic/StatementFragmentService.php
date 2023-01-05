@@ -10,33 +10,10 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use Elastica\Index;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\Persistence\ManagerRegistry;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Elastica\Exception\ClientException;
-use Elastica\Query;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\MatchAll;
-use Elastica\Query\Terms;
-use Elastica\ResultSet;
-use Exception;
-use Pagerfanta\Exception\NotValidCurrentPageException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -58,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
@@ -77,13 +55,30 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use function collect;
-use function is_array;
-use function str_replace;
-use function strlen;
-use function strpos;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Elastica\Exception\ClientException;
+use Elastica\Index;
+use Elastica\Query;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\MatchAll;
+use Elastica\Query\Terms;
+use Elastica\ResultSet;
+use Exception;
+use Pagerfanta\Exception\NotValidCurrentPageException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService extends CoreService
 {
@@ -251,7 +246,7 @@ class StatementFragmentService extends CoreService
     {
         try {
             return $this->statementFragmentRepository->get($fragmentId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not find StatementFragment with id '.DemosPlanTools::varExport($fragmentId, true).': ', [$e]);
 
             return null;
@@ -348,7 +343,7 @@ class StatementFragmentService extends CoreService
                 $statementFragmentId
             );
             $success = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Fehler beim Löschen eines StatementFragments: ', [$e]);
             $success = false;
         }
@@ -468,7 +463,7 @@ class StatementFragmentService extends CoreService
                 [$this->conditionFactory->propertyHasValue($statementId, ['statement'])],
                 [$this->sortMethodFactory->propertyAscending(['sortIndex'])]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment List', [$e]);
 
             return null;
@@ -545,7 +540,7 @@ class StatementFragmentService extends CoreService
             }
         } catch (NotAssignedException $e) {
             throw NotAssignedException::mustBeAssignedException();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Could not copy StatementFragment', [$e]);
 
             return null;
@@ -570,8 +565,8 @@ class StatementFragmentService extends CoreService
     public function moveFragmentIntoProcedure(StatementFragment $newFragment, StatementFragment $fragmentToCopy): StatementFragment
     {
         // todo write test
-        $newFragment->setCreated(new \DateTime());
-        $newFragment->setModified(new \DateTime());
+        $newFragment->setCreated(new DateTime());
+        $newFragment->setModified(new DateTime());
         $newFragment->setDisplayId(null);
         $newFragment->setLastClaimed(null);
         $newFragment->setAssignee(null);
@@ -693,7 +688,7 @@ class StatementFragmentService extends CoreService
      *
      * @return array|StatementFragment[]|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getStatementFragmentsDepartment($esQuery, $requestValues): ?array
     {
@@ -723,7 +718,7 @@ class StatementFragmentService extends CoreService
             }
 
             return $resultList;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getStatementFragmentsDepartment: ', [$e]);
 
             return null;
@@ -769,7 +764,7 @@ class StatementFragmentService extends CoreService
                 $fieldVersions = $versions;
                 break;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Versions ', [$e]);
 
             return null;
@@ -790,7 +785,7 @@ class StatementFragmentService extends CoreService
             $filters['procedureId'] = $procedureId;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters, '', null, $limit, $page);
             $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Procedure List', [$e]);
 
             return (new ElasticsearchResultSet())->lock();
@@ -861,7 +856,7 @@ class StatementFragmentService extends CoreService
 
             $esResult = $this->getElasticsearchStatementFragmentResult($userFilters, $search, null, $limit, $page, [], false);
             $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Statement List', [$e]);
 
             return (new ElasticsearchResultSet())->lock();
@@ -917,7 +912,7 @@ class StatementFragmentService extends CoreService
     {
         try {
             $result = $this->statementFragmentVersionRepository->addObject($fragmentVersion);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not create StatementFragmentVersion', [$e]);
 
             return null;
@@ -961,7 +956,7 @@ class StatementFragmentService extends CoreService
      * @throws NoResultException
      * @throws NonUniqueResultException
      * @throws ORMException
-     * @throws \Exception
+     * @throws Exception
      */
     public function createStatementFragmentIgnoreAssignment($data): StatementFragment
     {
@@ -994,7 +989,7 @@ class StatementFragmentService extends CoreService
      *
      * @return StatementFragment|false|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementFragmentObject(StatementFragment $fragment)
     {
@@ -1033,7 +1028,7 @@ class StatementFragmentService extends CoreService
                 $this->createStatementFragmentVersion($version);
                 $this->reindexStatementFragment($result);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
 
             return null;
@@ -1045,7 +1040,7 @@ class StatementFragmentService extends CoreService
     /**
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getParagraphVersionsForFragmentArray(array $fragmentArray)
     {
@@ -1080,7 +1075,7 @@ class StatementFragmentService extends CoreService
      *
      * @return StatementFragment|false|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementFragmentArray($fragmentId, $data)
     {
@@ -1088,7 +1083,7 @@ class StatementFragmentService extends CoreService
             $fragment = $this->getStatementFragment($fragmentId);
 
             if (null === $fragment) {
-                throw new \Exception('Fragment with ID '.$fragmentId.' not found.');
+                throw new Exception('Fragment with ID '.$fragmentId.' not found.');
             }
 
             $user = $this->currentUser->getUser();
@@ -1125,7 +1120,7 @@ class StatementFragmentService extends CoreService
                 $this->createStatementFragmentVersion($version);
                 $this->reindexStatementFragment($result);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Could not update StatementFragment', [$e]);
 
             return null;
@@ -1227,7 +1222,7 @@ class StatementFragmentService extends CoreService
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Department Archive List', [$e]);
 
             return null;
@@ -1402,10 +1397,10 @@ class StatementFragmentService extends CoreService
                         // user wants to see not existent query as well as some filter
                         if (0 < count($shouldNotFilter)) {
                             $shouldNotBool = new BoolQuery();
-                            array_map([$shouldNotBool,'addMustNot'], $shouldNotFilter);
+                            array_map([$shouldNotBool, 'addMustNot'], $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
                         }
-                        array_map([$shouldQuery,'addShould'], $shouldFilter);
+                        array_map([$shouldQuery, 'addShould'], $shouldFilter);
                         $shouldQuery = $this->searchService->setMinimumShouldMatch(
                             $shouldQuery,
                             1
@@ -1431,12 +1426,12 @@ class StatementFragmentService extends CoreService
             }
 
             if (0 < count($boolMustFilter)) {
-                array_map([$boolQuery,'addMust'], $boolMustFilter);
+                array_map([$boolQuery, 'addMust'], $boolMustFilter);
             }
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
+                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query
@@ -1661,7 +1656,7 @@ class StatementFragmentService extends CoreService
             $elasticsearchResultStatement->setPager($paginator);
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
             $elasticsearchResultStatement = $this->searchService->getESEmptyResult();
         }
@@ -1697,7 +1692,7 @@ class StatementFragmentService extends CoreService
             }
 
             $statementFragment = $this->createStatementFragmentIgnoreAssignment($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add StatementFragment', [$e]);
 
             return null;
@@ -1778,7 +1773,7 @@ class StatementFragmentService extends CoreService
     /**
      * @throws InvalidArgumentException
      * @throws ConnectionException
-     * @throws \Exception               Thrown in case of a problem during the transaction. To be save to not introduce bugs
+     * @throws Exception                Thrown in case of a problem during the transaction. To be save to not introduce bugs
      *                                  <strong>DO NOT USE DOCTRINE AFTER THIS POINT</strong> except if the possible problems (see the
      *                                  exception handling at the bottom of this method) are well understood.
      */
@@ -1833,7 +1828,7 @@ class StatementFragmentService extends CoreService
                 }
             }
             $connection->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->log('warning', 'Could not complete transaction; rolling back the relational database; be aware about the possible danger of desynchronizations to Elasticsearch', [$e]);
             $connection->rollBack();
             $this->refreshElasticsearchIndexes();
@@ -1862,7 +1857,7 @@ class StatementFragmentService extends CoreService
 
     /**
      * @throws InvalidDataException
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementFragmentFromStatementFragmentUpdate(StatementFragment $statementFragment, StatementFragmentUpdate $statementFragmentUpdate)
     {
@@ -1886,7 +1881,7 @@ class StatementFragmentService extends CoreService
 
     /**
      * @throws InvalidDataException
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateClaimingForStatementFragmentFromStatementFragmentUpdate(
         StatementFragment $statementFragment,
@@ -1964,7 +1959,7 @@ class StatementFragmentService extends CoreService
     {
         try {
             $relatedVersions = $this->statementFragmentVersionRepository->findBy(['statementFragment' => $fragmentId]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not find related Versions of StatementFragment with id '.$fragmentId.': ', [$e]);
 
             return null;
@@ -2004,7 +1999,7 @@ class StatementFragmentService extends CoreService
     {
         try {
             $statementFragment = $this->statementFragmentRepository->getListByTag($tagId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get List of StatementFragment by Tag failed Message: ', [$e]);
 
             return null;

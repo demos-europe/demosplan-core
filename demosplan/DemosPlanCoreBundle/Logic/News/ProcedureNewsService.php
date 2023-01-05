@@ -14,16 +14,18 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
-use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
+use InvalidArgumentException;
 
 class ProcedureNewsService extends CoreService
 {
@@ -173,7 +175,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSingleNews($ident)
     {
@@ -181,7 +183,7 @@ class ProcedureNewsService extends CoreService
             $singleNews = $this->newsRepository->get($ident);
 
             return $this->convertToLegacy($singleNews);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines NewsEntry: ', [$e]);
             throw $e;
         }
@@ -194,7 +196,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return array - The added Object as an array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addNews($data)
     {
@@ -202,7 +204,7 @@ class ProcedureNewsService extends CoreService
             $singleNews = $this->newsRepository->add($data);
             // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Anlegen eines Newsbeitrags: ', [$e]);
             throw $e;
         }
@@ -216,7 +218,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return bool - true, if the new order was saved, otherwise false
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setManualSortOfNews($procedureId, $sortIds): bool
     {
@@ -240,18 +242,18 @@ class ProcedureNewsService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateNews($data)
     {
         try {
             if (!isset($data['ident']) || '' === $data['ident']) {
-                throw new \InvalidArgumentException('Ident is missing');
+                throw new InvalidArgumentException('Ident is missing');
             }
             $singleNews = $this->newsRepository->update($data['ident'], $data);
 
             return $this->convertToLegacy($singleNews);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update SingleNews failed Message: ', [$e]);
             throw $e;
         }
@@ -292,7 +294,7 @@ class ProcedureNewsService extends CoreService
      *
      * @return News[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getNewsToSetStateToday(): array
     {
@@ -310,7 +312,7 @@ class ProcedureNewsService extends CoreService
      * @param News $news News which state will be switched
      *
      * @throws NoDesignatedStateException
-     * @throws \Exception
+     * @throws Exception
      */
     public function setState(News $news): void
     {

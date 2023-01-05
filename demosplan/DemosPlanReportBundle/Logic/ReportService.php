@@ -11,14 +11,6 @@
 namespace demosplan\DemosPlanReportBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -32,6 +24,14 @@ use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ReportService extends CoreService
 {
@@ -158,7 +158,7 @@ class ReportService extends CoreService
     /**
      * Reporteinträge zur Sichtbarkeitsänderung von InvitableInstitution.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInvitableInstitutionShowlistChanges(): DemosPlanPaginator
     {
@@ -219,7 +219,7 @@ class ReportService extends CoreService
                     $anonymizeAuthorData,
                     $isManualStatement
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->error('Error on anonymize user data of EeportEntry:'.$e);
             }
         }
@@ -356,7 +356,7 @@ class ReportService extends CoreService
                 $this->addAnonymizationReport(ReportEntry::CATEGORY_DELETE_ATTACHMENTS, $event);
             }
             $doctrineConnection->commit();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $event->setException($exception);
             $event->stopPropagation();
             $doctrineConnection->rollBack();

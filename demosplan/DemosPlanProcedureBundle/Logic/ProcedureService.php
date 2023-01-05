@@ -15,35 +15,8 @@ use function array_key_exists;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\Contracts\SortMethodInterface;
-use Exception;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use ReflectionException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Tightenco\Collect\Support\Collection;
-use TypeError;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
@@ -79,9 +52,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
@@ -113,19 +86,36 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use function array_merge;
-use function array_unique;
-use function collect;
-use function in_array;
-use function is_array;
-use function is_dir;
-use function is_string;
-use function stripos;
-use function strlen;
-use function var_export;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
+use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tightenco\Collect\Support\Collection;
+use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -490,7 +480,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @retrun array<int,int>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function switchPhasesOfProceduresUntilNow(): array
     {
@@ -630,7 +620,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 if (!$hasName) {
                     $inData = $this->checkProcedureDataNoJS($inData);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Probleme beim LGV, Verfahren sollen auch ohne Startkartenausschnitt angelegt werden können
             }
         }
@@ -653,7 +643,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // Frage die LGV PLIS-Datenbank ab, was für Verfahren angelegt sind
             try {
                 $templateVars['plisProcedures'] = $this->plis->getLgvPlisProcedureList();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $templateVars['plisProcedures'] = [];
             }
         }
@@ -667,7 +657,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param array<string, mixed> $inData
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function checkProcedureDataNoJS(array $inData): array
     {
@@ -701,7 +691,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $this->messageBag->add('error', 'error.plis.no.procedure');
 
-        throw new \Exception('Kein Verfahren zur PlisId '.$inData['r_plisId'].' gefunden');
+        throw new Exception('Kein Verfahren zur PlisId '.$inData['r_plisId'].' gefunden');
     }
 
     protected function getElementsService(): ElementsService
@@ -727,7 +717,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Procedure[]|array[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true, $asArray = false): array
     {
@@ -755,7 +745,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProcedureFullList(string $search = '', bool $toLegacy = true)
     {
@@ -771,7 +761,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der ProcedureFullList: ', [$e]);
             throw $e;
         }
@@ -794,13 +784,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Procedure[]|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDeletedProcedures($limit = 100000000)
     {
         try {
             return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProcedureDeleted: ', [$e]);
             throw $e;
         }
@@ -823,7 +813,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array|Procedure[]
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated do not spread usage of this; see T21768
      */
@@ -844,7 +834,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $toLegacy ? $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray() : $procedureList;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der ProcedureAdminList: ', [$e]);
             throw $e;
         }
@@ -913,7 +903,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedure = $this->getProcedure($procedureId);
 
             return $this->procedureToLegacyConverter->convertToLegacy($procedure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Procedures: ', [$e]);
         }
 
@@ -936,7 +926,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * @param string $procedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProcedure($procedureId): ?Procedure
     {
@@ -958,7 +948,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $procedure;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Procedures: ', [$e]);
             throw $e;
         }
@@ -969,13 +959,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProcedureNames($procedureId)
     {
         try {
             return $this->procedureRepository->getNames($procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines Procedures: ', [$e]);
             throw $e;
         }
@@ -1060,7 +1050,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws CriticalConcernException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws UserNotFoundException
      * @throws \Doctrine\DBAL\Exception
      */
@@ -1103,7 +1093,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             try {
                 $this->prepareReportFromProcedureService
                     ->addReportOnProcedureCreate($this->procedureToLegacyConverter->convertToLegacy($newProcedure), $newProcedure);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $doctrineConnection->rollBack();
                 $this->logger->warning('Add Report in addProcedure() failed Message: ', [$e]);
                 throw $e;
@@ -1120,7 +1110,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $doctrineConnection->commit();
 
             return $newProcedure;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Procedure failed Message: ', [$e]);
             throw $e;
         }
@@ -1131,7 +1121,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string|array $procedureIds
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteProcedure($procedureIds): void
     {
@@ -1150,12 +1140,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 try {
                     $this->updateProcedureWithoutReport($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Mark Procedure as deleted failed Message: ', [$e]);
             throw $e;
         }
@@ -1168,7 +1158,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return int number of deleted Reports
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function deleteReports(Procedure $procedure): int
     {
@@ -1186,7 +1176,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return int number of deleted EntityContentChanges
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function deleteEntityContentChanges(Procedure $procedure): int
     {
@@ -1200,7 +1190,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Delete a procedure and its related entities from db.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function purgeProcedure(string $procedureId): void
     {
@@ -1241,7 +1231,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $fs = new Filesystem();
                     $fs->remove($filesPath.'/procedure/'.$procedureId);
                     $fs = null;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getLogger()->error(
                         'Could not delete orphaned Directory  '.$filesPath.'/procedure/'.$procedureId.'. Reason: '.$e
                     );
@@ -1290,7 +1280,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateProcedure($data)
     {
@@ -1335,7 +1325,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             // convert procedure to match legacy arraystructure
             return $this->procedureToLegacyConverter->convertToLegacy($procedure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update Procedure failed Message: ', [$e]);
             throw $e;
         }
@@ -1348,7 +1338,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array|Procedure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateProcedureObject(Procedure $procedureToUpdate)
     {
@@ -1380,7 +1370,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             );
 
             return $procedure;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Update Procedure Object failed Message: ', [$e]);
             throw $e;
         }
@@ -1394,7 +1384,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateProcedureWithoutReport($data)
     {
@@ -1411,7 +1401,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->procedureToLegacyConverter->convertToLegacy($procedure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update Procedure without Report failed Message: ', [$e]);
             throw $e;
         }
@@ -1424,7 +1414,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param QueryProcedure $esQuery
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getPublicList($esQuery): array
     {
@@ -1434,7 +1424,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $this->profilerStop('ES');
 
             return $procedureList;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der ProcedurePublicList: ', [$e]);
             throw $e;
         }
@@ -1447,7 +1437,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Procedure[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getListOfProceduresEndingSoon(int $exactlyDaysToGo, $internal = true): array
     {
@@ -1461,7 +1451,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $city
      * @param int    $distance Distanz
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addSubscription($postcode, $city, $distance, User $user): ProcedureSubscription
     {
@@ -1470,7 +1460,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $this->procedureSubscriptionRepository->updateObjects([$procedureSubscription]);
 
             return $procedureSubscription;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Add ProcedureSubscription failed : ', [$e]);
             throw $e;
         }
@@ -1484,7 +1474,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated do not spread usage of this; see T21768
      */
@@ -1502,7 +1492,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $subscriptions;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('getSubscriptionList failed: ', [$e]);
             throw $e;
         }
@@ -1513,13 +1503,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string $ident Id der zu löschenden Subscription
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteSubscription($ident): bool
     {
         try {
             return $this->procedureSubscriptionRepository->delete($ident);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('delete ProcedureSubscription failed: ', [$e]);
             throw $e;
         }
@@ -1534,7 +1524,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProcedureSubscriptionList($procedureId, $useDistance = true)
     {
@@ -1551,10 +1541,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $locationService = $this->locationService;
             $procedure = $this->getProcedure($procedureId);
             if (null === $procedure) {
-                throw new \Exception('Procedure not found. '.$procedureId);
+                throw new Exception('Procedure not found. '.$procedureId);
             }
             if (null === $procedure->getLocationPostCode() || '' === $procedure->getLocationPostCode()) {
-                throw new \Exception('Keine Postleitzahl angegeben, Benachrichtigung nicht möglich. '.$procedureId);
+                throw new Exception('Keine Postleitzahl angegeben, Benachrichtigung nicht möglich. '.$procedureId);
             }
 
             // Wenn nur eine Suche auf die genaue PLZ gewünscht ist, führe diese aus
@@ -1567,7 +1557,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // Get loc_id der OpenGeoDb zur PLZ des Verfahrens
             $location = $locationService->getSingleLocationFromPostCode($procedure->getLocationPostCode());
             if (!$location instanceof Location) {
-                throw new \Exception('Keine Location zu PLZ gefunden. '.$procedure->getLocationPostCode());
+                throw new Exception('Keine Location zu PLZ gefunden. '.$procedure->getLocationPostCode());
             }
 
             // Postleitzahlen im Radius von 5, 10 & 50 km um die PLZ des Verfahrens einsammeln
@@ -1590,7 +1580,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return ['result' => $subscriptions->toArray(), 'total' => $subscriptions->count()];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('getProcedureSubscriptionList failed: ', [$e]);
             throw $e;
         }
@@ -1627,7 +1617,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return BoilerplateGroup|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getBoilerplateGroup(string $groupId)
     {
@@ -1733,7 +1723,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $boilerplateCategory = $this->boilerplateCategoryRepository->findOneBy(['procedure' => $procedureId, 'title' => $category]);
 
             return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new HttpException($e->getCode());
         }
     }
@@ -1743,7 +1733,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return BoilerplateCategory[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getBoilerplateCategoryList(
         string $procedureId,
@@ -1766,7 +1756,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Boilerplate|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getBoilerplate($boilerplateId)
     {
@@ -1787,7 +1777,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $data['procedure'] = $this->getProcedure($procedureId);
 
             return $this->boilerplateRepository->add($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Post boilerplate failed');
         }
 
@@ -1799,7 +1789,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string $boilerplateId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteBoilerplate($boilerplateId): bool
     {
@@ -1822,7 +1812,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteBoilerplateGroupsByIds(array $groupIdsToDelete)
     {
@@ -1831,7 +1821,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             try {
                 $groupToDelete = $this->getBoilerplateGroup($groupId);
                 $this->deleteBoilerplateGroup($groupToDelete);
-            } catch (\TypeError|\Exception $e) {
+            } catch (TypeError|Exception $e) {
                 $allDeleted = false;
             }
         }
@@ -1851,7 +1841,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         try {
             return $this->boilerplateRepository->update($boilerplateId, $data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update boilerplate failed: ', [$e]);
 
             return false;
@@ -1865,7 +1855,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $orga        Organisation
      * @param string $phase
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addInstitutionMail($procedureId, $orga, $phase): void
     {
@@ -1887,7 +1877,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInstitutionMailList($procedureId, $phase = null)
     {
@@ -1907,7 +1897,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->procedureToLegacyConverter->toLegacyResult($institutionMailList)->toArray();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der InstitutionMailList: ', [$e]);
             throw $e;
         }
@@ -1925,7 +1915,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $institutionMails = $this->getInstitutionMailsOfOrga($organisationId);
             $this->deleteInstitutionMails($institutionMails);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Fehler beim Löschen des InstitutionMail Eintrages: ', [$e]);
 
             return false;
@@ -1939,7 +1929,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array<int, Procedure>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProceduresForDataInputOrga(string $orgaId): array
     {
@@ -1947,7 +1937,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $allowedPhases = $this->globalConfig->getInternalPhaseKeys('read||write');
 
             return $this->procedureRepository->getProceduresForDataInputOrga($orgaId, $allowedPhases);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
             throw $e;
         }
@@ -1961,7 +1951,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string $input
      * @param string $time  Formatted Time to be generated
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function internalMakeUserInputDateTestable($input, $time = '02:00:00')
     {
@@ -1974,7 +1964,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteStatements(Procedure $procedure): int
     {
@@ -1986,7 +1976,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteDraftStatements(Procedure $procedure): int
     {
@@ -1998,7 +1988,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteDraftStatementVersions(Procedure $procedure): int
     {
@@ -2042,13 +2032,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return TagTopic[] List of all Topics of this procedure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTopics($procedureId)
     {
         try {
             return $this->procedureRepository->getTopics($procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('GetTopics of the procedure with ID: '.$procedureId.' failed: ', [$e]);
             throw $e;
         }
@@ -2059,7 +2049,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param Orga[] $organisations - Organisations to add
      *
-     * @throws \Exception if adding the organisations failed
+     * @throws Exception if adding the organisations failed
      */
     public function addOrganisations(Procedure $procedure, array $organisations)
     {
@@ -2073,7 +2063,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $this->procedureRepository->updateObject($procedure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Add Orga to Procedure failed Reason: ', [$e]);
 
             throw $e;
@@ -2090,7 +2080,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $procedure->removeOrganisation($organisation);
             $this->procedureRepository->updateObject($procedure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Remove Orga from Procedure failed Reason: ', [$e]);
 
             return false;
@@ -2112,7 +2102,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($organisations as $organisation) {
                 $this->detachOrganisation($procedure, $organisation);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -2166,7 +2156,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param Procedure $procedure procedure of which the {@link Procedure::$phase} will be switched
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function switchToDesignatedPhase(Procedure $procedure): bool
     {
@@ -2197,7 +2187,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $this->resetDesignatedPhaseSwitch($procedureSettings);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('switchToDesignatedPhase of the procedure with ID: '.$procedure->getId().' failed: ', [$e]);
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
@@ -2212,7 +2202,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param Procedure $procedure procedure of which the {@link Procedure::$publicPhase} will be switched
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function switchToDesignatedPublicPhase(Procedure $procedure): bool
     {
@@ -2239,7 +2229,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('switchToDesignatedPublicPhase of the procedure with ID: '.$procedure->getId().' failed: ', [$e]);
 
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);
@@ -2256,7 +2246,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array<int, Procedure>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProceduresToSwitchUntilNow(): array
     {
@@ -2280,7 +2270,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param institutionMail[] $institutionMails - list of institutionMail entries to delete
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteInstitutionMails($institutionMails)
     {
@@ -2294,7 +2284,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Setting[]|array|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProcedureLocalizationQueue()
     {
@@ -2306,7 +2296,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param string $procedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function removeProcedureFromLocalizationQueue($procedureId)
     {
@@ -2331,7 +2321,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Procedure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setAuthorizedUsersToProcedure(Procedure $newProcedure, $blueprint, $currentUserId)
     {
@@ -2364,7 +2354,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @param string    $blueprintId  - The ID of the blueprint procedure
      * @param procedure $newProcedure - The new created procedure object
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copyBoilerplates(string $blueprintId, $newProcedure)
     {
@@ -2390,7 +2380,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $boilerplate = $this->boilerplateRepository->get($boilerplateVO->getId());
 
         if (null === $boilerplate) {
-            throw new \Exception('Boilerplate with id: '.$boilerplateVO->getId().' not found');
+            throw new Exception('Boilerplate with id: '.$boilerplateVO->getId().' not found');
         }
 
         $boilerplate->setTitle($boilerplateVO->getTitle());
@@ -2432,7 +2422,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $group = new BoilerplateGroup($groupVO->getTitle(), $procedure);
 
             return $boilerplateGroupRepository->addObject($group);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
     }
@@ -2448,7 +2438,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $boilerplateGroupRepository = $this->boilerplateGroupRepository;
         $group = $boilerplateGroupRepository->get($groupVO->getId());
         if (null === $group) {
-            throw new \Exception('BoilerplateGroup with id: '.$groupVO->getId().' not found');
+            throw new Exception('BoilerplateGroup with id: '.$groupVO->getId().' not found');
         }
 
         $group->setTitle($groupVO->getTitle());
@@ -2486,7 +2476,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->boilerplateRepository->addObject($boilerplate);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
     }
@@ -2509,7 +2499,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return Procedure[] - procedures, where the given user has no access
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInaccessibleProcedures(User $user, $procedureIdToExclude = null)
     {
@@ -2552,7 +2542,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array|Collection
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getUnauthorizedProcedures(User $user)
     {
@@ -2581,7 +2571,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInaccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
@@ -2603,7 +2593,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
@@ -2649,7 +2639,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @return boilerplateGroup - Created BoilerplateGroup
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createBoilerplateGroup($title, $procedureId): BoilerplateGroup
     {
@@ -2673,7 +2663,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
     /**
      * @throws ProcedureNotFoundException
-     * @throws \Exception
+     * @throws Exception
      */
     public function resetMapHint(string $procedureId): void
     {
@@ -2687,7 +2677,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     public function isProcedureInCustomer(string $procedureId, string $subdomain): bool
@@ -2719,7 +2709,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function createElementFromExplanation(
         Procedure $procedure,
@@ -2858,7 +2848,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @throws InvalidDataException|\Throwable
+     * @throws InvalidDataException|Throwable
      */
     private function copyProcedureRelatedFilesFromBlueprint(string $blueprintId, Procedure $newProcedure): void
     {

@@ -27,6 +27,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use Exception;
 
 class TagService extends CoreService
 {
@@ -83,7 +84,7 @@ class TagService extends CoreService
         try {
             $result = $this->tagTopicRepository
                 ->get($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get Topic with ID: '.$id.' failed: ', [$e]);
 
             return null;
@@ -103,7 +104,7 @@ class TagService extends CoreService
     {
         try {
             return $this->tagRepository->get($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get Tag with ID: '.$id.' failed: ', [$e]);
 
             return null;
@@ -116,7 +117,7 @@ class TagService extends CoreService
      * @param string $title
      *
      * @throws DuplicatedTagTitleException
-     * @throws \Exception
+     * @throws Exception
      */
     public function createTag($title, TagTopic $topic, bool $persistAndFlush = true): Tag
     {
@@ -145,7 +146,7 @@ class TagService extends CoreService
      * @param string $title - Title of the new topic
      *
      * @throws DuplicatedTagTopicTitleException
-     * @throws \Exception
+     * @throws Exception
      */
     public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
     {
@@ -189,7 +190,7 @@ class TagService extends CoreService
      * @param Tag         $tag
      * @param Boilerplate $boilerplate
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function attachBoilerplateToTag($tag, $boilerplate)
     {
@@ -204,7 +205,7 @@ class TagService extends CoreService
      * @param Tag         $tag
      * @param Boilerplate $boilerplate
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function detachBoilerplateFromTag($tag, $boilerplate)
     {

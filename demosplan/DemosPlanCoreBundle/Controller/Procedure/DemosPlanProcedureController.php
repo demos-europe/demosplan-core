@@ -10,13 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-use function array_merge;
-
 use Cocur\Slugify\Slugify;
 
 use function collect;
-use function compact;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -111,19 +107,7 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
-use function filter_var;
-use function in_array;
-
 use InvalidArgumentException;
-
-use function is_array;
-use function is_bool;
-use function preg_replace;
-use function strlen;
-
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -134,6 +118,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -266,7 +251,7 @@ class DemosPlanProcedureController extends BaseController
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
             return $this->redirectToRoute('core_home');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -285,7 +270,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function procedureDashboardAction(
         CurrentUserService $currentUserService,
@@ -316,7 +301,7 @@ class DemosPlanProcedureController extends BaseController
             );
 
             $templateVars['statementsTotal'] = $statements->getTotal();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
         }
 
@@ -349,7 +334,7 @@ class DemosPlanProcedureController extends BaseController
                     $fragmentVoteEmptyData
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Could not get StatementFragments by Status ', [$e]);
         }
 
@@ -414,7 +399,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function collectProcedureDashboard(
         StatementService $statementService,
@@ -465,7 +450,7 @@ class DemosPlanProcedureController extends BaseController
                             0,
                             1
                         );
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->getLogger()->warning('Could not get Statements by Status ', [$e]);
                         continue;
                     }
@@ -502,7 +487,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
             $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Failed to get moved procedures for dashboard', [$e]);
         }
 
@@ -516,7 +501,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @param string $type 'statement' or 'fragment'
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateAssessmentTableFilterLinkFromStatus(
         string $statusLabel,
@@ -748,7 +733,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newProcedureAction(
         Breadcrumb $breadcrumb,
@@ -821,7 +806,7 @@ class DemosPlanProcedureController extends BaseController
                 foreach ($e->getViolationsAsStrings() as $violationMessage) {
                     $this->messageBag->add('error', $violationMessage);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error($logErrorMessage, [$e]);
                 $this->messageBag->add('error', 'error.procedure.create');
             }
@@ -853,7 +838,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newProcedureTemplateAction(
         Breadcrumb $breadcrumb,
@@ -926,7 +911,7 @@ class DemosPlanProcedureController extends BaseController
                 foreach ($e->getViolationsAsStrings() as $violationMessage) {
                     $this->messageBag->add('error', $violationMessage);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error($logErrorMessage, [$e]);
                 $this->messageBag->add('error', 'error.procedure_template.create');
             }
@@ -962,7 +947,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationNewMemberListMastertoeblistAction(
         CurrentProcedureService $currentProcedureService,
@@ -1103,7 +1088,7 @@ class DemosPlanProcedureController extends BaseController
      * )
      * @DplanPermissions("area_invite_unregistered_public_agencies")
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationUnregisteredPublicAgencyListAction(
         AddressBookEntryService $addressBookEntryService,
@@ -1158,7 +1143,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function administrationMemberEMailAction(
         OrgaService $orgaService,
@@ -1203,7 +1188,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Helper method to creates an defined text to attach to an Email.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -1226,7 +1211,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * @param Orga $organization the organization to use as entity
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -1499,7 +1484,7 @@ class DemosPlanProcedureController extends BaseController
             $this->logger->error("Failed to edit procedure or procedure template with ID '$procedureId' due to constraint violations.", [$e]);
 
             return $this->redirectToRoute('DemosPlan_procedure_edit', ['procedure' => $procedureId]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->logger->error("Failed to edit procedure or procedure template with ID '$procedureId'.", [$e]);
 
             return $this->redirectToRoute('DemosPlan_procedure_edit', ['procedure' => $procedureId]);
@@ -1557,7 +1542,7 @@ class DemosPlanProcedureController extends BaseController
      * )
      * @DplanPermissions({"area_main_procedures", "area_admin_import"})
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationImportAction(
         CurrentUserService $currentUser,
@@ -1644,7 +1629,7 @@ class DemosPlanProcedureController extends BaseController
                 }
             }
             // fange Mailversandexceptions hier ab, damit sie den sonstigen Workflow nicht stören
-        } catch (\Throwable $e) { // renderBlock may throw Throwables
+        } catch (Throwable $e) { // renderBlock may throw Throwables
             $this->logger->error('Ein Fehler ist beim Mailversand aufgetreten: ', [$e]);
         }
     }
@@ -1661,7 +1646,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function publicDetailAction(
         BrandingService $brandingService,
@@ -1740,7 +1725,7 @@ class DemosPlanProcedureController extends BaseController
                     );
                     try {
                         $eventDispatcherPost->post($event);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         return $this->redirectToRoute('core_home');
                     }
 
@@ -1941,7 +1926,7 @@ class DemosPlanProcedureController extends BaseController
                         ' hat versucht, unberechtigt auf DraftStatement '.$draftStatement['ident'].' zuzugreifen'
                     );
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->warning(
                     'DraftStatement could not be found',
                     [
@@ -2029,7 +2014,7 @@ class DemosPlanProcedureController extends BaseController
      * )
      * @DplanPermissions("area_statement_data_input_orga")
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function dataInputOrgaChooseProcedureAction(CurrentUserService $currentUser): Response
     {
@@ -2057,7 +2042,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function subscribeAction(CurrentUserService $currentUser, Request $request)
     {
@@ -2133,7 +2118,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function administrationMemberListAction(
         Breadcrumb $breadcrumb,
@@ -2277,7 +2262,7 @@ class DemosPlanProcedureController extends BaseController
                     );
 
                     return $this->redirectBack($request);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getMessageBag()->add(
                         'error',
                         'error.email.invitation.send',
@@ -2341,7 +2326,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationNewMemberListAction(
         Breadcrumb $breadcrumb,
@@ -2418,7 +2403,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function boilerplateListAction(
         ProcedureHandler $procedureHandler,
@@ -2460,7 +2445,7 @@ class DemosPlanProcedureController extends BaseController
                     'confirm.boilerplate.group.created',
                     ['title' => $createdGroup->getTitle()]
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getMessageBag()->add(
                     'error',
                     'error.boilerplate.group.not.created',
@@ -2599,7 +2584,7 @@ class DemosPlanProcedureController extends BaseController
                 $includeNewsCategory,
                 $includeEmailCategory
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Failed to load boilerplate categories', [$procedure, $e]);
             $boilerplateCategories = [];
         }
@@ -2630,7 +2615,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function boilerplateGroupDeleteAction(Request $request, $procedure, $boilerplateGroupId)
     {
@@ -2667,7 +2652,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function boilerplateGroupEditAction(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateGroupId)
     {
@@ -2863,7 +2848,7 @@ class DemosPlanProcedureController extends BaseController
 
     /**
      * @throws MessageBagException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function validateAdministrationEditInput(array $input): void
     {
@@ -2884,7 +2869,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         if ($error) {
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException();
         }
     }
 }

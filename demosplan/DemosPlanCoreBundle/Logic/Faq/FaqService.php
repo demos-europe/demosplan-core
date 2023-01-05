@@ -30,6 +30,7 @@ use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use Exception;
 
 class FaqService extends CoreService
 {
@@ -166,7 +167,7 @@ class FaqService extends CoreService
      * @param string $sortIds
      *                        (Komma separierte Liste) / leer zum löschen
      *
-     * @throws \Exception
+     * @throws Exception
      */ // function setManualSort($ident, $context, $sortIds)
 
     public function setManualSortForGlobalContent($context, $sortIds, $type): bool

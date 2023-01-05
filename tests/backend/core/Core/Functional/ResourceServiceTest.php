@@ -179,5 +179,4 @@ class ResourceServiceTest extends FunctionalTestCase
         self::assertGreaterThan(1, $listResult);
         self::assertContains($expected, $listResult);
     }
-
 }

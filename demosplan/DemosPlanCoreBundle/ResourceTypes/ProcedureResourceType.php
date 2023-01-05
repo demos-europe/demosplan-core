@@ -24,8 +24,6 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
-use function is_array;
-
 /**
  * @template-extends DplanResourceType<Procedure>
  *

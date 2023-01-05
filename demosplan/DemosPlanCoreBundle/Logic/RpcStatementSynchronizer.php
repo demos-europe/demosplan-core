@@ -33,10 +33,8 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\PathException;
 use Exception;
-
-use function is_object;
-
 use JsonSchema\Exception\InvalidSchemaException;
+use stdClass;
 
 /**
  * Synchronizes statements from one procedure into another.
@@ -199,7 +197,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
             } catch (AccessDeniedException|UserNotFoundException $e) {
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
@@ -245,7 +243,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         int $actuallySynchronizedStatementCount,
         int $alreadySynchronizedStatementCount
     ): object {
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->jsonrpc = '2.0';
         $result->result = [
             'attemptedSynchronizedStatementCount' => $attemptedSynchronizedStatementCount,

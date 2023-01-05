@@ -29,8 +29,6 @@ use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
-use function in_array;
-
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<Elements>
  *

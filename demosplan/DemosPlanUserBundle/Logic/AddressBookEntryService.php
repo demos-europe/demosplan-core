@@ -11,18 +11,18 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
 
 class AddressBookEntryService extends CoreService
 {
@@ -102,7 +102,7 @@ class AddressBookEntryService extends CoreService
      *
      * @return AddressBookEntry[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getAddressBookEntries(array $addressBookEntryIds)
     {
@@ -112,7 +112,7 @@ class AddressBookEntryService extends CoreService
                 [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, ['id'])],
                 [$this->sortMethodFactory->propertyAscending(['name'])]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);
             throw $e;
         }
@@ -132,7 +132,7 @@ class AddressBookEntryService extends CoreService
             if ($toDelete instanceof AddressBookEntry) {
                 return $this->addressBookEntryRepository->deleteObject($toDelete);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Error on removeAddressBookEntry(): ', [$e]);
             $this->messageBag->add('error', 'error.delete.addressBookEntry');
         }
@@ -161,7 +161,7 @@ class AddressBookEntryService extends CoreService
     {
         try {
             return $this->addressBookEntryRepository->findBy(['organisation' => $organisationId], ['name' => 'asc']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Error on getAddressBookOfOrganisation(): ', [$e]);
 
             return [];

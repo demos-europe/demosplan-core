@@ -24,6 +24,7 @@ use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +43,7 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function verifyDepartmentSwitchOrUpdateAction(AuthenticationUtils $authenticationUtils, Request $request)
     {
@@ -60,7 +61,7 @@ class DemosPlanDepartmentController extends BaseController
                     ],
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -78,7 +79,7 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function listDepartmentsAction(
         CurrentUserService $currentUser,
@@ -159,7 +160,7 @@ class DemosPlanDepartmentController extends BaseController
                 'error', 'error.reserved.name',
                 ['name' => $reservedSystemNameException->getName()]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // TODO: check wether we can't return more sanely here
 
             return $this->handleError($e);
@@ -179,7 +180,7 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function editDepartmentAction(Request $request)
     {
@@ -206,7 +207,7 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function adminDepartmentsAction(Request $request, UserHandler $userHandler, $orgaId)
     {

@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 
-use EDT\Wrapping\Properties\UpdatableRelationship;
 use function collect;
 
 use DateTime;
@@ -47,6 +46,7 @@ use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
+use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
 use function in_array;
@@ -64,10 +64,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @property-read End $id
  */
-abstract class DplanResourceType extends CachingResourceType implements
-    IteratorAggregate,
-    PropertyAutoPathInterface,
-    ExposableRelationshipTypeInterface
+abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface
 {
     use PropertyAutoPathTrait;
 
