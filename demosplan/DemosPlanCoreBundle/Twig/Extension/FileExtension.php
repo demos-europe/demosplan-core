@@ -181,7 +181,7 @@ class FileExtension extends ExtensionBase
             'type'                    => $type,
             'chunksize'               => $chunksize,
             'maxfilesize'             => $maxFileSize,
-            'omit_css_class_prefix'   => $omitCssClassPrefix,
+            'omit_css_class_prefix'   => $omitCssClassPrefix
         ];
 
         return $this->twig->render('@DemosPlanCore/Extension/fileupload.html.twig', $data);
