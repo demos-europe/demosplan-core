@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use function array_key_exists;
 use function collect;
 
@@ -46,7 +47,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-class Permissions implements PermissionsInterface
+class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
     public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
 
