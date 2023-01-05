@@ -1145,6 +1145,9 @@ services:
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
 
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface: '@demosplan\DemosPlanCoreBundle\Logic\MessageBag'
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
+    DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver'
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
