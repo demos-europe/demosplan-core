@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
+use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 
 class FormOptionsResolverTest extends FunctionalTestCase
 {

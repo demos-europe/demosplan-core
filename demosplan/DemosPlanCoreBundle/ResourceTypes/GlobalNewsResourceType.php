@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\Querying\Contracts\PathException;
@@ -27,6 +27,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends AbstractNewsResourceType<GlobalContent>
+ *
  * @template-implements DeletableDqlResourceTypeInterface<GlobalContent>
  * @template-implements CreatableDqlResourceTypeInterface<GlobalContent>
  *
@@ -93,7 +94,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType implements D
      */
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
     }
 
     /**

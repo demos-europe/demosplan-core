@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
@@ -421,8 +421,8 @@ class OrgaService extends CoreService
     public function getParticipants(): array
     {
         return $this->getOrganisations([
-            $this->conditionFactory->propertyHasValue(1, ...$this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, ...$this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
         ]);
     }
 
@@ -466,9 +466,9 @@ class OrgaService extends CoreService
             $conditions = array_merge($additionalConditions, $this->orgaResourceType->getMandatoryConditions());
             $conditions[] = $this->conditionFactory->propertyHasNotValue(
                 User::ANONYMOUS_USER_ORGA_ID,
-                ...$this->orgaResourceType->id
+                $this->orgaResourceType->id
             );
-            $sortMethod = $this->sortMethodFactory->propertyAscending(...$this->orgaResourceType->name);
+            $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
             $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
@@ -515,17 +515,17 @@ class OrgaService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                ...$this->orgaResourceType->statusInCustomers->status
+                $this->orgaResourceType->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
                 $orgaTypeName,
-                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+                $this->orgaResourceType->statusInCustomers->orgaType->name
             ),
             // The resource type will already contain this restriction,
             // but we add it here too for clarity.
             $this->conditionFactory->propertyHasValue(
                 $customerContext->getId(),
-                ...$this->orgaResourceType->statusInCustomers->customer->id
+                $this->orgaResourceType->statusInCustomers->customer->id
             ),
         ];
 
@@ -575,16 +575,14 @@ class OrgaService extends CoreService
     {
         $orga->setSubmissionType($this->globalConfig->getProjectSubmissionType());
 
-        if ($this->permissions->hasPermission('feature_change_submission_type')) {
-            $settingSubmissionType = $this->contentService->getSettings(
-                'submissionType',
-                SettingsFilter::whereOrga($orga)->lock(),
-                false
-            );
-            if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
-                $orga->setSubmissionType($settingSubmissionType[0]->getContent());
-                $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
-            }
+        $settingSubmissionType = $this->contentService->getSettings(
+            'submissionType',
+            SettingsFilter::whereOrga($orga)->lock(),
+            false
+        );
+        if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
+            $orga->setSubmissionType($settingSubmissionType[0]->getContent());
+            $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
         }
     }
 
@@ -893,10 +891,10 @@ class OrgaService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, 'id'),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
             ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
             return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
         } catch (Exception $e) {
@@ -936,9 +934,9 @@ class OrgaService extends CoreService
     {
         $query = $this->orgaTypeRepository->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($orga->getId(), 'orgaStatusInCustomers', 'orga', 'id')
-            ->propertyHasValue($customer->getId(), 'orgaStatusInCustomers', 'customer', 'id')
-            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, 'orgaStatusInCustomers', 'status');
+            ->propertyHasValue($orga->getId(), ['orgaStatusInCustomers', 'orga', 'id'])
+            ->propertyHasValue($customer->getId(), ['orgaStatusInCustomers', 'customer', 'id'])
+            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, ['orgaStatusInCustomers', 'status']);
 
         return $query->getEntities();
     }

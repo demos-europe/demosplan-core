@@ -1,0 +1,38 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% block component_part %}
+	{% set isLayoutArrow ='true' %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+    'content_heading': "news.all"|trans
+    }%}
+
+        {% block content %}
+
+            <div class="layout__item u-1-of-1-palm{% if hidePressAnnouncements is not defined %} u-1-of-2-lap-up{% endif %} u-pl-0_5 u-pl-0-lap-up u-pr-lap-up">
+                <h2>
+                    {{ "news.announcements"|trans }}
+                </h2>
+                {% if templateVars.recentNewsList is defined  and templateVars.recentNewsList == true %}
+                    {% for news in templateVars.recentNewsList %}
+                        {% include '@DemosPlanCore/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {% if hidePressAnnouncements is not defined %}
+                <div class="layout__item u-1-of-1-palm u-1-of-2-lap-up u-pl-0_5 u-pl-0-lap-up">
+                    <h2>
+                        {{ "press.announcements"|trans }}
+                    </h2>
+                    {% if templateVars.pressList is defined  and templateVars.pressList == true %}
+                        {% for news in templateVars.pressList %}
+                            {% include '@DemosPlanCore/DemosPlanNews/globalnewslist_list_entry.html.twig' %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}

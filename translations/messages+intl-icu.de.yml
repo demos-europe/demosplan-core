@@ -459,7 +459,7 @@ confirm.fragment.assignment.unassigned: "Der Datensatz wurde erfolgreich freigeg
 confirm.fragment.deleted: "Der Datensatz wurde gelöscht."
 confirm.fragment.edit: "Die Änderungen am Datensatz {id} wurden gespeichert."
 confirm.fragment.update.complete: "Die Bearbeitung des Datensatzes {id} wurde von Ihnen abgeschlossen."
-confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--default\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
+confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--external\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
 confirm.gdpr.consent.registration: "Hiermit bestätige ich, dass ich die <a class=\"o-link--default\" href=\"{gdpr}\" target=\"_blank\" aria-label=\"Hinweise zum Datenschutz\">Hinweise zum Datenschutz</a> gelesen habe und erkläre mich mit der Speicherung und Verarbeitung meiner personenbezogenen Daten einverstanden."
 confirm.gislayer.delete: "Die Kartenebene wurde gelöscht."
 confirm.gislayerCategory.delete: "Die Kartenebenen-Kategorie wurde gelöscht."
@@ -3243,7 +3243,7 @@ statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
-statements.final: "Einreichungen der Organisation"
+statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
 statements.final_versions: "Endfassungen"
 statements.group: "Stellungnahmen der Gruppe"
@@ -3260,7 +3260,7 @@ statements.grouped.priority: |
         =1 {Eine Stellungnahme nach Priorität}
         other {# Stellungnahmen nach Priorität}
     }
-statements.grouprelease: "Freigaben der Organisation"
+statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"

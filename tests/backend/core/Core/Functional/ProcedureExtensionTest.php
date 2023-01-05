@@ -12,22 +12,25 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionCollectionInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use Psr\Log\NullLogger;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -38,7 +41,7 @@ use Tests\Base\MockMethodDefinition;
 class ProcedureExtensionTest extends FunctionalTestCase
 {
     /**
-     * @var GlobalConfig
+     * @var GlobalConfigInterface
      */
     protected $globalConfig;
 
@@ -62,21 +65,33 @@ class ProcedureExtensionTest extends FunctionalTestCase
     public function setUp(): void
     {
         parent::setUp();
-
+        /* @var  GlobalConfigInterface globalConfig */
         $this->globalConfig = self::$container->get(GlobalConfigInterface::class);
         $this->procedureService = self::$container->get(ProcedureService::class);
+        /** @var ProcedureRepository $procedureRepository */
         $procedureRepository = self::$container->get(ProcedureRepository::class);
-
+        /** @var CustomerService $currentCustomerProvider */
+        $currentCustomerProvider = self::$container->get(CustomerService::class);
+        /** @var PermissionResolver $permissionResolver */
+        $permissionResolver = self::$container->get(PermissionResolver::class);
+        /** @var ValidatorInterface $validator */
+        $validator = self::$container->get(ValidatorInterface::class);
         $this->translator = self::$container->get(TranslatorInterface::class);
         /** @var ProcedureAccessEvaluator $procedureAccessEvaluator */
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
+        /** @var PermissionCollectionInterface $permissionCollection */
+        $permissionCollection = self::$container->get(PermissionCollectionInterface::class);
 
         $this->permissionsStub = new Permissions(
-            new FilesystemAdapter(),
+            new \SplFixedArray(),
+            $currentCustomerProvider,
             new NullLogger(),
             $this->globalConfig,
+            $permissionCollection,
+            $permissionResolver,
             $procedureAccessEvaluator,
-            $procedureRepository
+            $procedureRepository,
+            $validator
         );
 
         $this->createSut($this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
@@ -189,8 +204,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderProcedureName
-     *
-     * @param $providerData
      */
     public function testGetNameFunction($providerData)
     {
@@ -287,7 +300,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
                 'assertedPublicParticipationPhase' => $externalPhases[1]['name'],
             ]];
         }
-        //external phases
+        // external phases
         foreach ($externalPhases as $externalPhase) {
             $phasesDataProvider[] = [[
                 'phase'                            => $internalPhases[1]['key'],
@@ -376,8 +389,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     /**
      * @dataProvider getDataProviderDaysLeft
-     *
-     * @param $providerData
      */
     public function testGetDaysLeft($providerData)
     {

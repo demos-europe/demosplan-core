@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
@@ -29,7 +32,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $created
  * @property-read End $mimetype
  */
-final class FileResourceType extends DplanResourceType
+final class FileResourceType extends DplanResourceType implements FileResourceTypeInterface
 {
     public function getEntityClass(): string
     {
@@ -44,8 +47,8 @@ final class FileResourceType extends DplanResourceType
     public function isAvailable(): bool
     {
         // Currently the File resource needs to be exposed for statement import and assessment table.
-        /** @var IsFileAvailableEvent $event * */
-        $event = $this->eventDispatcher->dispatch(new IsFileAvailableEvent());
+        $event = new IsFileAvailableEvent();
+        $this->eventDispatcher->dispatch($event, IsFileAvailableEventInterface::class);
 
         return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
@@ -63,7 +66,7 @@ final class FileResourceType extends DplanResourceType
      */
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        return $this->conditionFactory->propertyHasValue(false, $this->deleted);
     }
 
     public function isReferencable(): bool
@@ -73,8 +76,8 @@ final class FileResourceType extends DplanResourceType
 
     public function isDirectlyAccessible(): bool
     {
-        /** @var IsFileDirectlyAccessibleEvent $event * */
-        $event = $this->eventDispatcher->dispatch(new IsFileDirectlyAccessibleEvent());
+        $event = new IsFileDirectlyAccessibleEvent();
+        $this->eventDispatcher->dispatch($event, IsFileDirectlyAccessibleEventInterface::class);
 
         return $event->isFileDirectlyAccessible() || $this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',

@@ -73,8 +73,8 @@ class UserFilterSetResourceType extends DplanResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($user->getId(), ...$this->user->id),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id)
+            $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
         );
     }
 }

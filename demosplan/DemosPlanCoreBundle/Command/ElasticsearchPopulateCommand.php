@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -147,7 +148,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
     private function getCurrentProjectConsole(): string
     {
         if (null === $this->getApplication()) {
-            throw new \RuntimeException('Cannot run this command without an application');
+            throw new RuntimeException('Cannot run this command without an application');
         }
 
         return DemosPlanPath::getRootPath('bin/'.$this->getApplication()->getKernel()->getActiveProject());

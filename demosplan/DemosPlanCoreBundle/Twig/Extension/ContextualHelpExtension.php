@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use demosplan\DemosPlanHelpBundle\Logic\HelpService;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use Exception;
 use Twig\Environment;
 use Twig\TwigFunction;
@@ -25,7 +25,7 @@ class ContextualHelpExtension extends ExtensionBase
         return [
             new TwigFunction(
                 'contextualHelp',
-                [$this, 'contextualHelp'], (['is_safe' => ['html']])
+                [$this, 'contextualHelp'], ['is_safe' => ['html']]
             ),
         ];
     }

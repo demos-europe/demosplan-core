@@ -1,0 +1,380 @@
+{# @improve T15271 #}
+
+{% set news = templateVars.news %}
+
+{# Kategorien initialisieren #}
+{% set recentNews = false %}
+{% set press = false %}
+
+{% if news.categories is defined %}
+    {% for category in news.categories %}
+        {% if category.name == 'news' %}
+            {% set recentNews = true %}
+        {% elseif category.name == 'press' %}
+            {% set press = true %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{# Rollengruppe initial #}
+{% set GGUEST = false %}
+{% set GLAUTH = false %}
+{% set GPSORG = false %}
+{# Rollengruppe setzen #}
+{% if news.roles is defined %}
+    {% for role in news.roles %}
+        {% if role.groupCode == 'GGUEST' %}
+            {% set GGUEST = true %}
+        {% elseif role.groupCode == 'GLAUTH' %}
+            {% set GLAUTH = true %}
+        {% elseif role.groupCode == 'GPSORG' %}
+            {% set GPSORG = true %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% extends procedure is not null ? '@DemosPlanCore/DemosPlanCore/procedure.html.twig' : '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% if (procedure is not null) %}
+        {% set actionPath = path('DemosPlan_news_administration_news_edit_post', {'procedure': procedure, 'newsID': news.ident}) %}
+        {% set cancelPath = path('DemosPlan_news_administration_news', {'procedure': procedure}) %}
+    {% else %}
+        {% set actionPath = path('DemosPlan_globalnews_administration_news_edit_post', {'newsID': news.ident}) %}
+        {% set cancelPath = path('DemosPlan_globalnews_administration_news') %}
+    {% endif %}
+
+    <h1>{{ "news.edit"|trans }}</h1>
+
+    <form
+        class="cf"
+        action="{{ actionPath }}"
+        method="post"
+        enctype="multipart/form-data"
+        data-dp-validate
+        novalidate>
+        <input name="action" type="hidden" value="newsedit">
+        <input name="r_ident" type="hidden" value="{% if news.ident is defined %}{{ news.ident }}{% endif %}">
+
+        {% set currentState = '0' %}
+        {% set defaultNewState = '1' %}
+        {% if templateVars.news.enabled == true %}
+            {% set statusOptions = [{ 'value': '1', 'label': 'released', 'selected': true}, {'value': '0', 'label': 'blocked'}] %}
+            {% set currentState = '1' %}
+            {% set defaultNewState = '0' %}
+        {% elseif templateVars.news.enabled == false %}
+            {% set statusOptions = [{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked', 'selected': true}] %}
+        {% endif %}
+
+        {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}
+            <dp-change-state-at-date
+                class="u-mb-0_75"
+                regular-dropdown-id="r_enable"
+                delayed-switch-dropdown-id="r_designatedState"
+                check-switch-id="r_determinedToSwitch"
+                label="status"
+                :active-delay="JSON.parse('{{ templateVars.news.determinedToSwitch|default(false)|json_encode }}')"
+                date-id="r_designatedSwitchDate"
+                init-date="{{ templateVars.news.designatedSwitchDate|dplanDate|default }}"
+                :status-options="JSON.parse('{{ statusOptions|json_encode }}')"
+                default-current-state="{{ currentState }}"
+                default-new-state="{{ templateVars.news.designatedState|default == true ? '1' : '0' }}"
+                init-status="{{ currentState }}"></dp-change-state-at-date>
+        {% else %}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'status'|trans },
+                        control: { name: 'r_enable', options: statusOptions, attributes: ['data-cy=newsEnabled'] },
+                        id: 'r_enable',
+                        type: 'select',
+                        required: true,
+                        elementSize: 'smaller'
+                    }
+                ]
+            }) }}
+        {% endif %}
+
+         {% block visibility %}
+
+             {# set 'checked' status for checkboxes #}
+             {# fachplaner #}
+             {% if GLAUTH == true %}
+                 {% set fachplanerChecked = true %}
+             {% endif %}
+
+             {# publicagency #}
+             {% if GPSORG == true %}
+                 {% set publicAgencyChecked = true %}
+             {% endif %}
+
+             {# citizen #}
+             {% if GGUEST == true %}
+                 {% set guestChecked = true %}
+             {% endif %}
+
+             {% set visibilityOptions = [
+                 {
+                     label: { text: 'role.fp.for'|trans },
+                     control: { name: 'r_group_code[]', value: 'GLAUTH', checked: fachplanerChecked|default(false) },
+                     id: 'fachplanerVisibility',
+                     type: 'checkbox',
+                     elementSize: 'medium'
+                 },
+                 {
+                     label: { text: 'citizen.for'|trans },
+                     control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
+                     id: 'citizenVisibility',
+                     type: 'checkbox',
+                     elementSize: 'medium'
+                 }
+             ] %}
+
+             {% if hasPermission('feature_institution_participation') %}
+                {% set visibilityOptions = visibilityOptions|merge([{
+                    label: { text: 'invitable_institution.for'|trans },
+                    control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
+                    id: 'publicAgencyVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium'
+                }]) %}
+             {% endif %}
+
+            {%  if templateVars.isGlobal is defined and templateVars.isGlobal == true  %}
+                {{ uiComponent('form.row', {
+                    elements: visibilityOptions,
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+
+            {% else %}
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'citizen.for'|trans },
+                            control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
+                            id: 'citizenVisibility',
+                            type: 'checkbox',
+                            elementSize: 'medium'
+                        },
+                        {
+                            label: { text: 'invitable_institution.for'|trans },
+                            control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
+                            id: 'publicAgencyVisibility',
+                            type: 'checkbox',
+                            elementSize: 'medium'
+                        }
+                    ],
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+            {% endif %}
+         {% endblock %}
+
+        {%  if templateVars.isGlobal is defined and templateVars.isGlobal == true  %}
+
+            {% if recentNews == true %}
+                {% set newsChecked = true %}
+            {% elseif press == true %}
+                {% set pressChecked = true %}
+            {% endif %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'news'|trans, style: 'inline' },
+                        control: { name: 'r_category_name', value: 'news', style: 'inline', checked: newsChecked|default(false) },
+                        id: 'r_category_name_news',
+                        type: 'radio',
+                        elementStyle: 'inline',
+                        elementSize: 'medium'
+                    },
+                    {
+                        label: { text: 'press.announcement'|trans, style: 'inline' },
+                        control: { name: 'r_category_name', style: 'inline', value: 'press', checked: pressChecked|default(false) },
+                        id: 'r_category_name_press',
+                        type: 'radio',
+                        elementStyle: 'inline',
+                        elementSize: 'medium'
+                    }
+                ],
+                heading: 'area',
+                required: true
+            }) }}
+        {% endif %}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'heading'|trans },
+                    control: { name: 'r_title', value: news.title },
+                    id: 'r_title',
+                    type: 'text',
+                    maxCharCount: 255,
+                    required: true
+                }
+            ]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'teaser'|trans },
+                    control: {
+                        value: news.description,
+                        procedureId: procedure,
+                        hiddenInput: 'r_description',
+                        linkButton: true,
+                        ref: 'r_description'
+                    },
+                    id: 'r_description',
+                    type: 'editor',
+                    required: true
+                },
+            ]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'news.text'|trans },
+                    control: {
+                        value: news.text,
+                        procedureId: procedure,
+                        hiddenInput: 'r_text',
+                        linkButton: true,
+                        editorId: 'newsText',
+                        ref: 'r_text',
+                        boilerPlate: 'news.notes'
+                    },
+                    id: 'r_text',
+                    type: 'editor'
+                }
+            ]
+        }) }}
+
+        {% if news.picture is defined and news.picture != "" %}
+
+            <p class="lbl">{{ "picture"|trans }}</p>
+            <img class="layout__item u-1-of-4 u-pl-0 u-mb" id="news_picture" src="{{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }}">
+            {# image caption #}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'caption'|trans },
+                        control: { name: 'r_pictitle', value: news.pictitle, attributes: ['data-cy=editPictureTitle'] },
+                        id: 'r_pictitle',
+                        type: 'text',
+                        maxCharCount: 250,
+                        required: true
+                    }
+                ]
+            }) }}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'picture.delete'|trans },
+                        control: { name: 'delete_picture', value: '1' },
+                        id: 'delete_picture',
+                        type: 'checkbox',
+                        elementSize: 'medium'
+                    }
+                ]
+            }) }}
+
+        {% else %}
+
+            {{
+                fileupload(
+                    "r_picture",
+                    "picture"|trans
+                        ~ '<p class="lbl__hint">'
+                        ~ "explanation.pic.dimensions"|trans
+                        ~ '</p>',
+                    "img",
+                    "form.button.upload.file",
+                    null,
+                    true
+                )
+            }}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'caption'|trans },
+                        control: { name: 'r_pictitle', value: news.pictitle },
+                        id: 'r_pictitle',
+                        maxCharCount: 250,
+                        type: 'text',
+                        required: true
+                    }
+                ]
+            }) }}
+        {% endif %}
+
+        {% if hasPermission('field_news_pdf') %}
+
+            {% if news.pdf is defined and news.pdf != '' %}
+
+                <p class="lbl">{{ "pdf.document"|trans }}</p>
+
+                <a
+                    id="news_pdf"
+                    class="o-hellip overflow-word-break u-mb-0_25"
+                    target="_blank"
+                    rel="noopener"
+                    href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                    <i class="fa fa-file-o"></i>
+                    {{ news.pdftitle|default(news.pdf|getFile('name')) }}
+                    {% if ( news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
+                        ({{ news.pdf|getFile('mimeType') }}
+                        {{ news.pdf|getFile('size') }})
+                    {% endif %}
+                </a>
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'delete'|trans },
+                            control: { name: 'delete_pdf', value: '1' },
+                            id: 'delete_pdf',
+                            type: 'checkbox'
+                        }
+                    ]
+                }) }}
+
+            {% else %}
+
+                {{ fileupload( "r_pdf", null, null, null, null,  true ) }}
+
+            {% endif %}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'document.title'|trans, hint: 'explanation.pdf.title' },
+                        control: { name: 'r_pdftitle', value: news.pdftitle|default, attributes: ['data-cy=editPDFTitle'] },
+                        id: 'r_pdftitle',
+                        maxCharCount: 250,
+                        type: 'text',
+                        required: true
+                    }
+                ]
+            }) }}
+        {% endif %}
+
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', {type: 'submit'}),
+            secondary: uiComponent('button', {color: 'secondary', href: cancelPath, attributes: ['data-cy=saveChangesMessage']})
+        }) }}
+    </form>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['news-newsAdminEdit.js']) }}
+{% endblock javascripts %}

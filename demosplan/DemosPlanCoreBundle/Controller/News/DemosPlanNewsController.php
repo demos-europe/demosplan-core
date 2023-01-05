@@ -16,13 +16,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
+use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler;
-use demosplan\DemosPlanNewsBundle\Logic\NewsHandler;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
-use demosplan\DemosPlanNewsBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
@@ -113,7 +113,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/public_newsdetail.html.twig',
+            '@DemosPlanCore/DemosPlanNews/public_newsdetail.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,
@@ -223,7 +223,7 @@ class DemosPlanNewsController extends BaseController
 
         return $this->renderTemplate(
             // globale Newslist ausgeloggt
-            '@DemosPlanNews/DemosPlanNews/globalnewslist_list_index.html.twig',
+            '@DemosPlanCore/DemosPlanNews/globalnewslist_list_index.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'news.global',
@@ -269,7 +269,7 @@ class DemosPlanNewsController extends BaseController
             ];
 
             return $this->renderTemplate(
-                '@DemosPlanNews/DemosPlanNews/public_newslist.html.twig',
+                '@DemosPlanCore/DemosPlanNews/public_newslist.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
@@ -313,7 +313,7 @@ class DemosPlanNewsController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_list.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -354,7 +354,7 @@ class DemosPlanNewsController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_list.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => null,
@@ -630,7 +630,7 @@ class DemosPlanNewsController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/newsdetail.html.twig',
+            '@DemosPlanCore/DemosPlanNews/newsdetail.html.twig',
             [
                 'procedure'    => null,
                 'templateVars' => $templateVars,
@@ -786,7 +786,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_edit.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -817,7 +817,7 @@ class DemosPlanNewsController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_new.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_new.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,

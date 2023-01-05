@@ -34,8 +34,8 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         // that are not connected to a specific procedure.
         if ($procedureTypeEditAllowed) {
             return $this->conditionFactory->allConditionsApply(
-                $this->conditionFactory->propertyIsNotNull(...$this->procedureType),
-                $this->conditionFactory->propertyIsNull(...$this->procedure)
+                $this->conditionFactory->propertyIsNotNull($this->procedureType),
+                $this->conditionFactory->propertyIsNull($this->procedure)
             );
         }
 
@@ -48,8 +48,8 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
         // If no edit permission for ProcedureType, allow access to StatementFormDefinitions
         // connected to the given Procedure.
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($currentProcedure->getId(), ...$this->procedure->id),
-            $this->conditionFactory->propertyIsNull(...$this->procedureType)
+            $this->conditionFactory->propertyHasValue($currentProcedure->getId(), $this->procedure->id),
+            $this->conditionFactory->propertyIsNull($this->procedureType)
         );
     }
 

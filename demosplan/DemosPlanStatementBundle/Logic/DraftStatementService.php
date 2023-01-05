@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -31,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -62,19 +62,16 @@ use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\SortMethodInterface;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Exception;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
-use Twig_Error_Loader;
-use Twig_Error_Runtime;
-use Twig_Error_Syntax;
 
 class DraftStatementService extends CoreService
 {
@@ -83,7 +80,7 @@ class DraftStatementService extends CoreService
      */
     protected $currentUser;
 
-    /** @var Type */
+    /** @var Index */
     protected $esDraftStatementIndex;
 
     /** @var ElementsService */
@@ -266,7 +263,7 @@ class DraftStatementService extends CoreService
      * @param string|null $manualSortScope
      * @param bool        $toLegacy
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDraftStatementList($procedureId, $scope, StatementListUserFilter $filters, $search, $sort, $user, $manualSortScope = null, $toLegacy = true): DraftStatementResult
     {
@@ -281,8 +278,8 @@ class DraftStatementService extends CoreService
             }
 
             $conditions = [
-                $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
+                $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
             ];
 
             // only show drafts from own organisation
@@ -290,33 +287,33 @@ class DraftStatementService extends CoreService
             // When a gateway name is set, users see drafts from any organisation that has the same gateway name as own orga
             $userOrganisationGatewayName = $user->getOrga()->getGatewayName();
             if (null === $userOrganisationGatewayName || '' === $userOrganisationGatewayName) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($user->getOrganisationId(), 'organisation');
+                $conditions[] = $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['organisation']);
             } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, 'organisation', 'gatewayName');
+                $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
 
             if ('own' === $scope || 'ownCitizen' === $scope) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), 'user');
+                $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
                 $filters->setSomeOnesUserId($user->getIdent());
             }
 
             if (null !== $filters->getReleased()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getReleased(), 'released');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getReleased(), ['released']);
             }
             if (null !== $filters->getSubmitted()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getSubmitted(), 'submitted');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getSubmitted(), ['submitted']);
             }
             if (null !== $filters->getElement()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getElement(), 'element');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getElement(), ['element']);
             }
             if (null !== $filters->getDepartment()) {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getDepartment(), 'department');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters->getDepartment(), ['department']);
             }
 
             // Suche
             if (is_string($search) && 0 < strlen($search)) {
-                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, 'text');
+                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
             // Sortierung
@@ -343,7 +340,7 @@ class DraftStatementService extends CoreService
             $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search);
 
             return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get DraftStatement List failed. Reason: ', [$e]);
             throw $e;
         }
@@ -359,22 +356,22 @@ class DraftStatementService extends CoreService
      * @param User        $user
      * @param string|null $manualSortScope
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDraftStatementListFromOtherCompanies($procedureId, StatementListUserFilter $filters, $search, $sort, $user, $manualSortScope = null): DraftStatementResult
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'organisation'),
-                $this->conditionFactory->propertyHasValue(true, 'submitted'),
-                $this->conditionFactory->propertyHasValue(true, 'showToAll'),
+                $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['organisation']),
+                $this->conditionFactory->propertyHasValue(true, ['submitted']),
+                $this->conditionFactory->propertyHasValue(true, ['showToAll']),
             ];
 
             // Suche
             if (is_string($search) && 0 < strlen($search)) {
-                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, 'text');
+                $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
             // Sortierung
@@ -397,7 +394,7 @@ class DraftStatementService extends CoreService
             $filters->setOrganisationNameFilter(true);
 
             return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get DraftStatement List other companies failed. ', [$e]);
             throw $e;
         }
@@ -412,7 +409,7 @@ class DraftStatementService extends CoreService
     {
         try {
             return $this->draftStatementRepository->findAll();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('DraftStatementService getAllDraftStatements() has thrown an exception: ', [$e]);
 
             return [];
@@ -440,7 +437,7 @@ class DraftStatementService extends CoreService
     {
         try {
             return $this->notificationReceiverRepository->getNotificationReceiversByProcedure($procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('DraftStatementService getNotificationReceiversByProcedure() has thrown an exception: ', [$e]);
 
             return false;
@@ -470,11 +467,11 @@ class DraftStatementService extends CoreService
      * @param string $sortIds
      *                        (Komma separierte Liste) / leer zum löschen
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setManualSort($ident, $context, $sortIds): bool
     {
-        //keine leerzeichen zwischen den Ids
+        // keine leerzeichen zwischen den Ids
         $sortIds = str_replace(' ', '', $sortIds);
 
         $data = [
@@ -494,7 +491,7 @@ class DraftStatementService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated use {@link getDraftStatementEntity} instead
      */
@@ -543,7 +540,7 @@ class DraftStatementService extends CoreService
     /**
      * @return DraftStatement|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDraftStatementEntity(string $draftStatementId)
     {
@@ -573,7 +570,7 @@ class DraftStatementService extends CoreService
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function rejectDraftStatement($ident, $reason)
     {
@@ -791,7 +788,7 @@ class DraftStatementService extends CoreService
                 }
 
                 $this->addReport($submitResult);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Add Report in submitDraftStatement() failed Message: ', [$e]);
             }
         }
@@ -821,16 +818,16 @@ class DraftStatementService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addDraftStatement($data)
     {
-        //validate visibility of related paragraph in case of related paragraph is set
+        // validate visibility of related paragraph in case of related paragraph is set
         if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId'])) {
             $paragraph = $this->paragraphService->getParaDocumentObject($data['paragraphId']);
             if (!is_null($paragraph) && 1 != $paragraph->getVisible()) {
                 $this->getLogger()->error('On addDraftStatement(): selected paragraph '.$paragraph->getId().' is not released!');
-                throw new \Exception();
+                throw new Exception();
             }
         }
 
@@ -864,7 +861,7 @@ class DraftStatementService extends CoreService
             } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen($data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $attrRepo->removeCounty($draftStatement);
                 }
             }
@@ -909,7 +906,7 @@ class DraftStatementService extends CoreService
         foreach ($draftStatements as $draftStatement) {
             try {
                 $this->draftStatementRepository->deleteObject($draftStatement);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error('Fehler beim Löschen eines DraftStatements: ', [$e]);
                 $success = false;
             }
@@ -927,7 +924,7 @@ class DraftStatementService extends CoreService
      * @param string            $procedureId
      * @param array|null        $itemsToExport
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generatePdf($draftStatementList, $type, $procedureId, $itemsToExport = null): PdfFile
     {
@@ -1016,7 +1013,7 @@ class DraftStatementService extends CoreService
 
         $this->getLogger()->debug('Send Content to tex2pdf consumer: '.DemosPlanTools::varExport($content, true));
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $this->profilerStart('Rabbit PDF');
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), $pictures);
         $this->profilerStop('Rabbit PDF');
@@ -1050,9 +1047,9 @@ class DraftStatementService extends CoreService
      * @param array $statementList - array of Statements as array
      * @param array $pictures      - array where the information about the file will be added to
      *
-     * @throws \Exception
-     *
      * @return array - informations about the file where the picture was found in special structure
+     *
+     * @throws Exception
      */
     protected function getPicturesFromStatementList($statementList, $pictures)
     {
@@ -1060,13 +1057,13 @@ class DraftStatementService extends CoreService
             try {
                 // ensure that current mapfile exists when polygon is drawn
                 $statementData = $this->checkMapScreenshotFile($statementData, $statementData['pId']);
-                //hat das Statement ein Screenshot?
+                // hat das Statement ein Screenshot?
                 if (0 < strlen($statementData['mapFile'] ?? '')) {
                     $this->getLogger()->info('DraftStatement hat einen Screenshot.');
                     $file = $this->fileService->getFileInfoFromFileString($statementData['mapFile']);
                     $pictures = $this->addEntryOfFoundPicture($file, $pictures);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->warning('Exception in Screenshotter: ', [$e]);
             }
         }
@@ -1076,12 +1073,12 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
-        //hat das Statement einen Screenshot aber kein Polygon?
+        // hat das Statement einen Screenshot aber kein Polygon?
         if (0 < strlen($statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
-        //hat das Statement ein Screenshot?
+        // hat das Statement ein Screenshot?
         if (0 < strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat einen Screenshot.');
             $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
@@ -1108,7 +1105,7 @@ class DraftStatementService extends CoreService
      *
      * @return array - informations about the file where the picture was found in special structure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function extractPicturesFromContent($content, $pictures)
     {
@@ -1200,7 +1197,7 @@ class DraftStatementService extends CoreService
                         $attrRepo->unsetNoLocation($draftStatement);
                         $draftStatement->setMapFile('');
                         $draftStatement->setPolygon('');
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $attrRepo->removeCounty($draftStatement);
                     }
                 }
@@ -1223,7 +1220,7 @@ class DraftStatementService extends CoreService
             }
 
             return $draftStatement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update DraftStatement failed:', [$e]);
 
             return false;
@@ -1237,7 +1234,7 @@ class DraftStatementService extends CoreService
      *
      * @return array|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function convertToLegacy($draftStatement)
     {
@@ -1260,7 +1257,7 @@ class DraftStatementService extends CoreService
                 // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                 $parentParagraph = $draftStatement['paragraph']->getParagraph();
                 $draftStatement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                 $this->logger->error('No ParagraphVersion found for Id '.DemosPlanTools::varExport($draftStatement['paragraph']->getId(), true));
                 unset($draftStatement['paragraph']);
@@ -1304,7 +1301,7 @@ class DraftStatementService extends CoreService
      *
      * @return array $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getEntityVersions($data)
     {
@@ -1362,7 +1359,7 @@ class DraftStatementService extends CoreService
     /**
      * Creates and adds a Version of the given paragraph.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createParagraphVersion(Paragraph $paragraph): ParagraphVersion
     {
@@ -1376,7 +1373,7 @@ class DraftStatementService extends CoreService
      *
      * @return SingleDocumentVersion
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createSingleDocumentVersion(SingleDocument $singleDocument)
     {
@@ -1450,7 +1447,7 @@ class DraftStatementService extends CoreService
      *
      * @return array DraftStatementVersionList
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDraftStatementReleasedOwnList(
         $procedureId,
@@ -1485,7 +1482,7 @@ class DraftStatementService extends CoreService
             $aggregation = $this->getElasticsearchDraftStatementAggregationByIds($draftStatementIds, $procedureId, $user);
 
             return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get DraftStatament List failed. ', [$e]);
             throw $e;
         }
@@ -1505,17 +1502,13 @@ class DraftStatementService extends CoreService
             $this->profilerStart('ES');
 
             // Base Filters to apply always
-            $boolMustFilter = [
-                new Terms('_id', $ids),
-            ];
-
-            $boolQuery->addMust($boolMustFilter);
+            $boolQuery->addMust(new Terms('_id', $ids));
 
             // generate Query
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
 
             $query = $this->addEsAggregation($query, 'oName.raw');
             $query = $this->addEsAggregation($query, 'dId');
@@ -1553,7 +1546,7 @@ class DraftStatementService extends CoreService
             }
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getDraftStatementAggregation failed.', [$e]);
         }
 
@@ -1628,7 +1621,7 @@ class DraftStatementService extends CoreService
                 $boolMustFilter[] = new Terms('showToAll', $showToAll);
             }
 
-            $boolQuery->addMust($boolMustFilter);
+            array_map([$boolQuery, 'addMust'], $boolMustFilter);
 
             $boolMustNotFilter = [];
 
@@ -1639,14 +1632,14 @@ class DraftStatementService extends CoreService
 
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
 
             $query = $this->addEsAggregation($query, 'oName.raw');
             $query = $this->addEsAggregation($query, 'dId');
@@ -1684,7 +1677,7 @@ class DraftStatementService extends CoreService
             }
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getDraftStatementAggregation failed.', [$e]);
         }
 
@@ -1692,7 +1685,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @return Type
+     * @return Index
      */
     protected function getEsDraftStatementIndex()
     {
@@ -1700,7 +1693,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * @param Type $esDraftStatementIndex
+     * @param Index $esDraftStatementIndex
      */
     public function setEsDraftStatementIndex($esDraftStatementIndex)
     {
@@ -1727,7 +1720,7 @@ class DraftStatementService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getElementMap($procedureId)
     {
@@ -1751,7 +1744,7 @@ class DraftStatementService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getDepartmentMap($user)
     {
@@ -1810,8 +1803,8 @@ class DraftStatementService extends CoreService
         $sortDirection = $this->determineDirection($sort, true);
 
         return ('asc' === $sortDirection)
-            ? $this->sortMethodFactory->propertyAscending($sortProperty)
-            : $this->sortMethodFactory->propertyDescending($sortProperty);
+            ? $this->sortMethodFactory->propertyAscending([$sortProperty])
+            : $this->sortMethodFactory->propertyDescending([$sortProperty]);
     }
 
     /**
@@ -1838,8 +1831,8 @@ class DraftStatementService extends CoreService
 
         return collect($sortMethodPaths)->map(function (array $path) use ($sortDir): SortMethodInterface {
             return 'asc' === $sortDir
-                ? $this->sortMethodFactory->propertyAscending(...$path)
-                : $this->sortMethodFactory->propertyDescending(...$path);
+                ? $this->sortMethodFactory->propertyAscending($path)
+                : $this->sortMethodFactory->propertyDescending($path);
         })->all();
     }
 
@@ -1893,9 +1886,9 @@ class DraftStatementService extends CoreService
     protected function addPriorityAreaAttribute($data, $draftStatement, $attrRepo)
     {
         if (array_key_exists(
-                'priorityAreaKey',
-                $data['statementAttributes']
-            ) && 0 < strlen($data['statementAttributes']['priorityAreaKey'])
+            'priorityAreaKey',
+            $data['statementAttributes']
+        ) && 0 < strlen($data['statementAttributes']['priorityAreaKey'])
         ) {
             try {
                 $dataKey = [
@@ -1911,7 +1904,7 @@ class DraftStatementService extends CoreService
                     'value'          => $data['statementAttributes']['priorityAreaType'],
                 ];
                 $attrRepo->add($dataType);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getLogger()->warning(
                     'add priorityAreaKey to DraftStatement failed: '.$e
                 );
@@ -1926,7 +1919,7 @@ class DraftStatementService extends CoreService
      * @param array                        $data
      * @param StatementAttributeRepository $statementAttributeRepository
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setPriorityAreaAttributes($data, $draftStatement, $statementAttributeRepository)
     {
@@ -2000,13 +1993,13 @@ class DraftStatementService extends CoreService
      *
      * @return string result category-ID
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function determineStatementCategory($procedureId, $data)
     {
         $elementService = $this->elementsService;
         $determinedElementId = '';
-        //get standard element:
+        // get standard element:
         $defaultStatementElement = $elementService->getStatementElement($procedureId);
         if ($defaultStatementElement instanceof Elements) {
             $determinedElementId = $defaultStatementElement->getId();
@@ -2020,15 +2013,15 @@ class DraftStatementService extends CoreService
             $data['r_element_id'] = $data['element_id'];
         }
 
-        //overwrite with current if draftStatement is given:
+        // overwrite with current if draftStatement is given:
         if (array_key_exists('r_ident', $data)) {
             $currentDraftStatement = $this->getDraftStatementObject($data['r_ident']);
             $determinedElementId = $currentDraftStatement instanceof DraftStatement ? $currentDraftStatement->getElementId() : '';
         }
 
-        //#0.5 document without attached paragraph
+        // #0.5 document without attached paragraph
         if (array_key_exists('r_element_id', $data)) {
-            //if '' or null given as elementId -> means reset to defaultStatementElement:
+            // if '' or null given as elementId -> means reset to defaultStatementElement:
             if ('' === $data['r_element_id'] || is_null($data['r_element_id'])) {
                 $determinedElementId = '';
                 if ($defaultStatementElement instanceof Elements) {
@@ -2039,13 +2032,13 @@ class DraftStatementService extends CoreService
             }
         }
 
-        //#1: Einzeichnung/Planzeichnung:
+        // #1: Einzeichnung/Planzeichnung:
         $geoData = $this->extractGeoData($data, []);
         if (array_key_exists('polygon', $geoData) && 0 !== strlen($geoData['polygon'])) {
             $determinedElementId = $elementService->getMapElement($procedureId)->getId();
         }
 
-        //#2: get values for negative Report (Fehlanzeige), if set
+        // #2: get values for negative Report (Fehlanzeige), if set
         if (array_key_exists('r_isNegativeReport', $data)) {
             if ('1' === $data['r_isNegativeReport']) {
                 $negativeReportElement = $elementService->getNegativeReportElement($procedureId);
@@ -2063,7 +2056,7 @@ class DraftStatementService extends CoreService
             }
         }
 
-        //#3: category: dokument
+        // #3: category: dokument
         if (array_key_exists('r_document_id', $data) && 0 !== strlen($data['r_document_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
@@ -2071,7 +2064,7 @@ class DraftStatementService extends CoreService
             $determinedElementId = array_key_exists('r_elementID', $data) ? $data['r_elementID'] : '';
         }
 
-        //#4: strongest category: absatz
+        // #4: strongest category: absatz
         if (array_key_exists('r_paragraph_id', $data) && 0 !== strlen($data['r_paragraph_id'])) {
             $determinedElementId = $data['r_element_id'];
         }
@@ -2142,7 +2135,7 @@ class DraftStatementService extends CoreService
      */
     public function getByIds(array $draftStatementIds): array
     {
-        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, 'id');
+        $condition = $this->conditionFactory->propertyHasAnyOfValues($draftStatementIds, ['id']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(DraftStatement::class, [$condition]);
     }

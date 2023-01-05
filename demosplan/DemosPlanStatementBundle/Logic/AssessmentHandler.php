@@ -11,6 +11,13 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use Carbon\Carbon;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Exception;
+use PhpOffice\PhpWord\IOFactory;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
@@ -29,13 +36,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\UserFilterSetService;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
-use PhpOffice\PhpWord\IOFactory;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AssessmentHandler extends CoreHandler
 {

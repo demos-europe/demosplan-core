@@ -10,14 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-use function array_merge;
-
 use Cocur\Slugify\Slugify;
 
 use function collect;
-use function compact;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -41,9 +39,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
@@ -52,7 +50,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
@@ -63,7 +60,6 @@ use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
@@ -111,19 +107,7 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\WrapperFactoryInterface;
 use Exception;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
-use function filter_var;
-use function in_array;
-
 use InvalidArgumentException;
-
-use function is_array;
-use function is_bool;
-use function preg_replace;
-use function strlen;
-
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -480,7 +464,7 @@ class DemosPlanProcedureController extends BaseController
                     }
 
                     // save priorities per status
-                    if (array_key_exists('priority', $statements->getFilterSet()['filters'])) {
+                    if (\array_key_exists('priority', $statements->getFilterSet()['filters'])) {
                         foreach ($statements->getFilterSet()['filters']['priority'] as $aggregation) {
                             $priorityKey = ('' == $aggregation['value'] || 'no_value' === $aggregation['value']) ? 'none' : $aggregation['value'];
                             $statementData['freq'][$priorityKey] = $aggregation['count'];
@@ -547,9 +531,9 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function extractAndPrepareDataFromBucket(ElasticsearchResultSet $statements, $translator, $filterKey, $procedureId, $data = [])
     {
-        $dataCollection = collect($data);
+        $dataCollection = \collect($data);
         // save priorities per status
-        if (array_key_exists($filterKey, $statements->getFilterSet()['filters'])) {
+        if (\array_key_exists($filterKey, $statements->getFilterSet()['filters'])) {
             foreach ($statements->getFilterSet()['filters'][$filterKey] as $aggregation) {
                 $dataCollection->transform(function ($dataItem) use ($aggregation, $translator, $filterKey, $procedureId) {
                     if ($dataItem['key'] === $translator->trans($aggregation['label'])) {
@@ -628,7 +612,7 @@ class DemosPlanProcedureController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'new' => [
+            'new'             => [
                 'action',
                 'r_copymaster',
                 'r_customerMasterBlueprint',
@@ -645,22 +629,22 @@ class DemosPlanProcedureController extends BaseController
                 'uploadedFiles',
                 'procedureCoupleToken',
             ],
-            'delete' => [
+            'delete'          => [
                 'action',
                 'procedure_delete',
             ],
-            'adminlist' => [
+            'adminlist'       => [
                 'action',
                 'filter_phase',
             ],
-            'emailEdit' => [
+            'emailEdit'       => [
                 'action',
                 'orga_selected',
                 'r_emailCc',
                 'r_emailText',
                 'r_emailTitle',
             ],
-            'edit' => [
+            'edit'            => [
                 'action',
                 'delete_logo',
                 'fieldCompletions',
@@ -706,7 +690,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_startdate',
                 'r_export_settings',
             ],
-            'newSuscription' => [
+            'newSuscription'  => [
                 'action',
                 'r_postalcode',
                 'r_radius',
@@ -722,12 +706,12 @@ class DemosPlanProcedureController extends BaseController
         $request = $request->request->all();
 
         foreach ($incomingFields[$action] as $key) {
-            if (array_key_exists($key, $request)) {
+            if (\array_key_exists($key, $request)) {
                 $result[$key] = $request[$key];
 
                 // Only handle receivers if r_sendMailsToCounties is checked
                 if ('r_sendMailsToCounties' === $key && 'on' === $request[$key]
-                    && array_key_exists('r_receiver', $request)) {
+                    && \array_key_exists('r_receiver', $request)) {
                     $result['r_receiver'] = $request['r_receiver'];
                 }
             }
@@ -785,7 +769,7 @@ class DemosPlanProcedureController extends BaseController
         // add new data from request to form
         $form->handleRequest($request);
 
-        if (array_key_exists('action', $inData) && 'new' === $inData['action']
+        if (\array_key_exists('action', $inData) && 'new' === $inData['action']
             && $form->isSubmitted()
             && $form->isValid()) {
             $inData = $this->procedureService->fillInData($inData, $form);
@@ -892,7 +876,7 @@ class DemosPlanProcedureController extends BaseController
 
         // skip email form validation if it is a blueprint because agencyMainEmailAddress is only mandatory when creating procedures
         // For blueprints/templates the agencyMainEmailAddress should be set to empty string
-        if (array_key_exists('action', $inData) && 'new' === $inData['action']) {
+        if (\array_key_exists('action', $inData) && 'new' === $inData['action']) {
             $inData = $this->procedureService->fillInData($inData, $form);
 
             $logErrorMessage = 'Failed to create new procedure template';
@@ -937,7 +921,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('procedure.master.new');
         $templateVars = $this->addProcedureTypesToTemplateVars($templateVars, true, $wrapperFactory);
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
-        $templateVars['masterBlueprintId'] = $masterTemplateService->getMasterTemplateId();
+        $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/administration_new_master.html.twig',
@@ -975,7 +959,7 @@ class DemosPlanProcedureController extends BaseController
         // Storage initialisieren
         $requestPost = $request->request->all();
 
-        if (array_key_exists('orga_add', $requestPost)) {
+        if (\array_key_exists('orga_add', $requestPost)) {
             $addorgas = $requestPost['orga_add'];
             $storageResult = $serviceStorage->addOrgaToProcedureHandler($procedure, $addorgas);
 
@@ -1000,7 +984,7 @@ class DemosPlanProcedureController extends BaseController
 
         // Stelle nur die Orgas dar, die noch nicht zugewiesen sind
         foreach ($masterToebOrgas as $masterToebOrga) {
-            if (!in_array($masterToebOrga['oId'], $procedureOrgaIds, true)) {
+            if (!\in_array($masterToebOrga['oId'], $procedureOrgaIds, true)) {
                 $templateVars['orgas'][] = $masterToebOrga;
             }
         }
@@ -1047,12 +1031,12 @@ class DemosPlanProcedureController extends BaseController
         );
 
         // on load email edit view:
-        if (array_key_exists('writeEmail', $requestPost) && array_key_exists('entries_selected', $requestPost)) {
+        if (\array_key_exists('writeEmail', $requestPost) && \array_key_exists('entries_selected', $requestPost)) {
             $selectedAddressBookEntries = $addressBookEntryService->getAddressBookEntries($requestPost['entries_selected']);
         }
 
         // on click on send email:
-        if (array_key_exists('sendEmail', $requestPost) && array_key_exists('entries_selected', $requestPost)) {
+        if (\array_key_exists('sendEmail', $requestPost) && \array_key_exists('entries_selected', $requestPost)) {
             $addressBookEntryEmails = [];
             $selectedAddressBookEntries = $addressBookEntryService->getAddressBookEntries($requestPost['entries_selected']);
             foreach ($selectedAddressBookEntries as $addressBookEntry) {
@@ -1120,7 +1104,7 @@ class DemosPlanProcedureController extends BaseController
 
         $requestPost = $request->request->all();
 
-        if (array_key_exists('unregirstered_toeb_add', $requestPost)) {
+        if (\array_key_exists('unregirstered_toeb_add', $requestPost)) {
             $addressBookEntryIdsToAdd = $requestPost['unregirstered_toeb_add'];
             $procedureService->addAddressBookEntryToProcedure($procedure, $addressBookEntryIdsToAdd);
 
@@ -1169,7 +1153,7 @@ class DemosPlanProcedureController extends BaseController
     ): Response {
         $requestPost = $request->request->all();
         $selectedOrganisations = [];
-        if (array_key_exists('email_orga_action', $requestPost) && array_key_exists('orga_selected', $requestPost)) {
+        if (\array_key_exists('email_orga_action', $requestPost) && \array_key_exists('orga_selected', $requestPost)) {
             $selectedOrganisations = $orgaService->getOrganisationsByIds($requestPost['orga_selected']);
         }
 
@@ -1333,7 +1317,7 @@ class DemosPlanProcedureController extends BaseController
             // add new data from request to form
             $form->handleRequest($request);
 
-            if (array_key_exists('action', $inData)
+            if (\array_key_exists('action', $inData)
                 && 'edit' === $inData['action']) {
                 // ensure that form component triggers even when no field is used
                 // that is defined in Form component
@@ -1376,7 +1360,7 @@ class DemosPlanProcedureController extends BaseController
                 $procedureAsArray = $procedureServiceOutput->getProcedureWithPhaseNames($procedureId);
 
                 // generiere eine Erfolgsmeldung
-                if (false !== $storageResult && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
+                if (false !== $storageResult && !\array_key_exists('mandatoryfieldwarning', $storageResult)) {
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
                     // Prüfe, ob eine Email an die Verfahrensabonnenten geschicht werden soll
@@ -1411,9 +1395,9 @@ class DemosPlanProcedureController extends BaseController
             }
 
             $settings = $contentService->getSettingsByProcedureId($procedureId);
-            $procedureAsArray = array_merge($procedureAsArray, $settings);
+            $procedureAsArray = \array_merge($procedureAsArray, $settings);
             // Wandle für die Ausgabe <br> zu Newlines zurück
-            $procedureAsArray['externalDesc'] = preg_replace(
+            $procedureAsArray['externalDesc'] = \preg_replace(
                 '|<br />|s',
                 "\n",
                 $procedureAsArray['externalDesc']
@@ -1533,7 +1517,7 @@ class DemosPlanProcedureController extends BaseController
 
         $incomingData = $this->prepareIncomingData($request, 'edit');
         $incomingData['r_pictogram'] = $fileUploadService->prepareFilesUpload($request, 'r_pictogram', true);
-        if (array_key_exists('action', $incomingData) && 'edit' === $incomingData['action']) {
+        if (\array_key_exists('action', $incomingData) && 'edit' === $incomingData['action']) {
             $storageResult = $serviceStorage->administrationEditHandler($incomingData, false);
 
             $event = new ProcedureEditedEvent(
@@ -1626,7 +1610,7 @@ class DemosPlanProcedureController extends BaseController
                 $emailSent = [];
                 /** @var ProcedureSubscription $subscription */
                 foreach ($usersToSendMail['result'] as $subscription) {
-                    if (in_array($subscription->getUserEmail(), $emailSent)) {
+                    if (\in_array($subscription->getUserEmail(), $emailSent)) {
                         continue;
                     }
 
@@ -1719,7 +1703,7 @@ class DemosPlanProcedureController extends BaseController
         ];
         $requestPost = $request->request->all();
 
-        if (array_key_exists('action', $requestPost) && 'statementpublicnew' === $requestPost['action']) {
+        if (\array_key_exists('action', $requestPost) && 'statementpublicnew' === $requestPost['action']) {
             try {
                 $this->permissions->checkPermission('feature_new_statement');
 
@@ -1767,7 +1751,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['isSubmitted'] = true;
 
                 // Wenn der User eine E-Mail-Adresse angegeben hat, schicke eine Bestätigungsmail
-                if ($request->request->has('r_email') && 0 < strlen($requestPost['r_email'])) {
+                if ($request->request->has('r_email') && 0 < \strlen($requestPost['r_email'])) {
                     $fullEmailAddress = $requestPost['r_email'];
                     $gdprConsentRevokeToken = isset($savedStatement)
                         ? $gdprConsentRevokeTokenService->maybeCreateGdprConsentRevokeToken(
@@ -1807,8 +1791,8 @@ class DemosPlanProcedureController extends BaseController
         );
 
         $layerGroupsAlternateVisibility = (1 === count($settings)) ? $settings[0]->getContent() : false;
-        if (false === is_bool($layerGroupsAlternateVisibility)) {
-            $layerGroupsAlternateVisibility = filter_var($layerGroupsAlternateVisibility, FILTER_VALIDATE_BOOLEAN);
+        if (false === \is_bool($layerGroupsAlternateVisibility)) {
+            $layerGroupsAlternateVisibility = \filter_var($layerGroupsAlternateVisibility, \FILTER_VALIDATE_BOOLEAN);
         }
         $templateVars['procedureSettings']['layerGroupsAlternateVisibility'] = $layerGroupsAlternateVisibility;
 
@@ -1858,7 +1842,7 @@ class DemosPlanProcedureController extends BaseController
         );
 
         // add information about liked public statements
-        $statementCollection = collect($statements->getResult());
+        $statementCollection = \collect($statements->getResult());
         $event = new PublicDetailStatementListLoadedEvent(
             $statementCollection,
             $request,
@@ -1928,7 +1912,7 @@ class DemosPlanProcedureController extends BaseController
                     $templateVars['request']['r_text'] = $draftStatement['text'];
                     // Id des Kreises, dem die SN zugeordnet ist
                     $county = null;
-                    if (!array_key_exists('noLocation', $draftStatement['statementAttributes'])) {
+                    if (!\array_key_exists('noLocation', $draftStatement['statementAttributes'])) {
                         $dsCounty = $draftStatement['statementAttributes']['county'];
                         $county = $countyService->findCountyByName($dsCounty);
                     }
@@ -1958,13 +1942,13 @@ class DemosPlanProcedureController extends BaseController
         if ($currentProcedure['isMapEnabled'] && $this->permissions->hasPermission('area_map_participation_area')) {
             ++$tabCount;
         }
-        if (array_key_exists('planningDocuments', $templateVars) && $templateVars['planningDocuments']) {
+        if (\array_key_exists('planningDocuments', $templateVars) && $templateVars['planningDocuments']) {
             ++$tabCount;
         }
         if (
             $this->permissions->hasPermission('area_statements_public_published_public') &&
-            array_key_exists('publicStatements', $templateVars) &&
-            array_key_exists('statements', $templateVars['publicStatements']) &&
+            \array_key_exists('publicStatements', $templateVars) &&
+            \array_key_exists('statements', $templateVars['publicStatements']) &&
             0 < sizeof($templateVars['publicStatements']['statements'])
         ) {
             ++$tabCount;
@@ -1978,7 +1962,7 @@ class DemosPlanProcedureController extends BaseController
             }
         }
         // T16602 display html datasheets only in Procedures "wind" Version 1 and 2
-        $templateVars['htmlAvailable'] = in_array($globalConfig->getDatasheetVersion($procedureId), [1, 2], true);
+        $templateVars['htmlAvailable'] = \in_array($globalConfig->getDatasheetVersion($procedureId), [1, 2], true);
 
         // orga Branding
         if ($this->permissions->hasPermission('area_orga_display')) {
@@ -2042,7 +2026,7 @@ class DemosPlanProcedureController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanProcedure/DemosPlanProcedure/list_data_input_orga_procedures.html.twig',
-            compact('templateVars', 'title')
+            \compact('templateVars', 'title')
         );
     }
 
@@ -2066,9 +2050,9 @@ class DemosPlanProcedureController extends BaseController
         $requestPost = $request->request->all();
 
         // Überprüfe, ob PLZ und Orte für Benachrichtigungen eingegeben wurden
-        if (array_key_exists('newSubscription', $requestPost)) {
+        if (\array_key_exists('newSubscription', $requestPost)) {
             $postalCode = $requestPost['r_postalCode'];
-            if (5 != strlen($postalCode)) {
+            if (5 != \strlen($postalCode)) {
                 /* In BOB-SH's area_subscriptions feature the postal code is sent by the FE only if
                  * one of the dropdown entries is selected, otherwise (eg. even when a valid postal
                  * code is entered into the search field) `r_postalCode` will be sent by the FE
@@ -2091,7 +2075,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // Lösche gegebenenfalls Benachrichtigungen
-        if (array_key_exists('deleteSubscription', $requestPost)) {
+        if (\array_key_exists('deleteSubscription', $requestPost)) {
             if (!isset($requestPost['region_selected']) || 0 === count($requestPost['region_selected'])) {
                 $this->getMessageBag()->add('error', 'explanation.entries.noneselected');
             } else {
@@ -2152,17 +2136,17 @@ class DemosPlanProcedureController extends BaseController
         $title = 'procedure.public.agency.administration';
 
         // todo: this is a workaround to get selected organisations into administrationMemberEMailAction()
-        if (array_key_exists('email_orga_action', $requestPost)) {
+        if (\array_key_exists('email_orga_action', $requestPost)) {
             return $this->administrationMemberEMailAction($orgaService, $request, $procedure, $title);
         }
 
-        if (array_key_exists('search_word', $requestPost)) {
+        if (\array_key_exists('search_word', $requestPost)) {
             $search = $requestPost['search_word'];
         } else {
             $search = null;
         }
 
-        if (array_key_exists('delete_orga_action', $requestPost)) {
+        if (\array_key_exists('delete_orga_action', $requestPost)) {
             if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
                 $this->getMessageBag()->add('error', 'explanation.invitable_institutions.noneselected');
             } else {
@@ -2179,13 +2163,13 @@ class DemosPlanProcedureController extends BaseController
             }
         }
 
-        if (array_key_exists('updateEmailText', $requestPost)) {
+        if (\array_key_exists('updateEmailText', $requestPost)) {
             $inData = $this->prepareIncomingData($request, 'emailEdit');
             $inData['action'] = 'updateEmailText';
             $storageResult = $serviceStorage->updateEmailTextHandler($inData, $procedure);
 
             // generiere eine Erfolgsmeldung
-            if (false !== $storageResult && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
+            if (false !== $storageResult && !\array_key_exists('mandatoryfieldwarning', $storageResult)) {
                 $this->getMessageBag()->add(
                     'confirm',
                     $translator->trans(
@@ -2217,7 +2201,7 @@ class DemosPlanProcedureController extends BaseController
             $emailTextAdded = $this->generateAdditionalInvitationEmailText($publicAffairsAgents, $organization, $procedureAsArray['agencyMainEmailAddress']);
         }
         // versende die Einladungsemail mit dem aktuell eingegebenen Text und speichere den Text nicht
-        if (array_key_exists('sendInvitationEmail', $requestPost)) {
+        if (\array_key_exists('sendInvitationEmail', $requestPost)) {
             if (!isset($requestPost['orga_selected']) || 0 === count($requestPost['orga_selected'])) {
                 $this->getMessageBag()->add(
                     'error',
@@ -2311,9 +2295,9 @@ class DemosPlanProcedureController extends BaseController
             $procedure,
             $templateVars['procedure']['phase']
         );
-        if (is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
+        if (\is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
-                if (array_key_exists('organisation', $invitedOrga) &&
+                if (\array_key_exists('organisation', $invitedOrga) &&
                     $invitedOrga['organisation'] instanceof Orga
                 ) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();
@@ -2355,7 +2339,7 @@ class DemosPlanProcedureController extends BaseController
     ) {
         $requestPost = $request->request->all();
 
-        if (array_key_exists('orga_add', $requestPost)) {
+        if (\array_key_exists('orga_add', $requestPost)) {
             $addorgas = $requestPost['orga_add'];
             $storageResult = $serviceStorage->addOrgaToProcedureHandler($procedure, $addorgas);
 
@@ -2391,7 +2375,7 @@ class DemosPlanProcedureController extends BaseController
                     [],
                     'page-title'
                 ),
-                'url' => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
+                'url'   => $this->generateUrl('DemosPlan_procedure_member_index', ['procedure' => $procedure]),
             ]
         );
 
@@ -2851,7 +2835,7 @@ class DemosPlanProcedureController extends BaseController
             throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
-        $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
+        $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
         $procedureTypeResources = array_map(function (object $entity) use ($wrapperFactory) {
             return $wrapperFactory->createWrapper($entity, $this->procedureTypeResourceType);
@@ -2870,15 +2854,15 @@ class DemosPlanProcedureController extends BaseController
     {
         $error = false;
         if (
-            array_key_exists('r_publicParticipationContact', $input)
-            && strlen($input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
+            \array_key_exists('r_publicParticipationContact', $input)
+            && \strlen($input['r_publicParticipationContact']) > Procedure::MAX_PUBLIC_PARTICIPATION_CONTACT_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.participation.maxlength');
             $error = true;
         }
         if (
-            array_key_exists('r_externalDesc', $input)
-            && strlen($input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
+            \array_key_exists('r_externalDesc', $input)
+            && \strlen($input['r_externalDesc']) > Procedure::MAX_PUBLIC_DESCRIPTION_LENGTH
         ) {
             $this->getMessageBag()->add('error', 'adjustments.general.error.public.procedure.description.maxlength');
             $error = true;

@@ -124,7 +124,7 @@ final class OrgaResourceType extends DplanResourceType
 
         // if no special permissions are given, the user can at least access its own organisation
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($organisationId, ...$this->id),
+            $this->conditionFactory->propertyHasValue($organisationId, $this->id),
             ...$mandatoryConditions
         );
     }
@@ -142,10 +142,10 @@ final class OrgaResourceType extends DplanResourceType
         // Regardless of permissions or organisation affiliation we never show deleted organisations
         // or organisations of a foreign customer.
         return [
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
-                ...$this->statusInCustomers->customer->id
+                $this->statusInCustomers->customer->id
             ),
         ];
     }

@@ -13,8 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
+
 use function collect;
+
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
@@ -22,10 +27,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
@@ -36,16 +39,22 @@ use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
+use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Wrapping\Utilities\TypeAccessor;
+use EDT\Wrapping\Contracts\TypeProviderInterface;
+use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
+use EDT\Wrapping\Contracts\Types\TypeInterface;
+use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
+
 use function in_array;
 use function is_array;
+
 use IteratorAggregate;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -55,7 +64,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * @property-read End $id
  */
-abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyPathInterface
+abstract class DplanResourceType extends CachingResourceType implements IteratorAggregate, PropertyAutoPathInterface, ExposableRelationshipTypeInterface
 {
     use PropertyAutoPathTrait;
 
@@ -99,10 +108,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      * @var ConditionFactoryInterface
      */
     protected $conditionFactory;
-    /**
-     * @var TypeAccessor
-     */
-    protected $typeAccessor;
+
+    private TypeProviderInterface $typeProvider;
 
     /**
      * @var WrapperObjectFactory
@@ -236,7 +243,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     public function setTypeProvider(PrefilledResourceTypeProvider $typeProvider): void
     {
-        $this->typeAccessor = new TypeAccessor($typeProvider);
+        $this->typeProvider = $typeProvider;
     }
 
     /**
@@ -314,7 +321,12 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         $event = new GetInternalPropertiesEvent($properties, $this);
         $this->eventDispatcher->dispatch($event);
 
-        return $event->getProperties();
+        return array_map(
+            fn (?string $typeIdentifier): ?TypeInterface => null === $typeIdentifier
+                ? null
+                : $this->typeProvider->requestType($typeIdentifier)->getInstanceOrThrow(),
+            $event->getProperties(),
+        );
     }
 
     public function isExposedAsPrimaryResource(): bool
@@ -352,9 +364,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      *
      * The behavior for multiple given property paths with the same dot notation is undefined.
      *
-     * @param PropertyPathInterface ...$propertyPaths
-     *
-     * @return array<string,string|null>
+     * @return array<non-empty-string, UpdatableRelationship|null>
      */
     protected function toProperties(PropertyPathInterface ...$propertyPaths): array
     {
@@ -362,7 +372,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
             ->mapWithKeys(static function (PropertyPathInterface $propertyPath): array {
                 $key = $propertyPath->getAsNamesInDotNotation();
                 $value = $propertyPath instanceof ResourceTypeInterface
-                    ? $propertyPath::getName()
+                    ? new UpdatableRelationship([])
                     : null;
 
                 return [$key => $value];
@@ -372,7 +382,7 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     protected function processProperties(array $properties): array
     {
         $event = new GetPropertiesEvent($this, $properties);
-        $this->eventDispatcher->dispatch($event);
+        $this->eventDispatcher->dispatch($event, GetPropertiesEventInterface::class);
 
         return $event->getProperties();
     }
@@ -382,9 +392,9 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
         return $this->wrapperFactory;
     }
 
-    protected function getTypeAccessor(): TypeAccessor
+    protected function getTypeProvider(): TypeProviderInterface
     {
-        return $this->typeAccessor;
+        return $this->typeProvider;
     }
 
     protected function getLogger(): LoggerInterface

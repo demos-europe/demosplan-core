@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
@@ -18,9 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityNotFoundException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -475,10 +475,10 @@ class MailService extends CoreService
     public function getMailsToSend(int $limit = 200): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue('new', 'status'),
-            $this->conditionFactory->valueSmallerEqualsThan(20, 'sendAttempt'),
+            $this->conditionFactory->propertyHasValue('new', ['status']),
+            $this->conditionFactory->valueSmallerEqualsThan(20, ['sendAttempt']),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createdDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(
             MailSend::class,

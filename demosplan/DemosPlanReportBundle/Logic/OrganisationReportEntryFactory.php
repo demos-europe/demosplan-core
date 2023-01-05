@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 
 class OrganisationReportEntryFactory extends AbstractReportEntryFactory

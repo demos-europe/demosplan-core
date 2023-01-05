@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Core\Unit\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -19,9 +20,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
@@ -29,7 +32,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
 
@@ -122,14 +125,28 @@ class PermissionsTest extends FunctionalTestCase
         // generiere ein Stub vom GlobalConfig
         /** @var MockObject|GlobalConfigInterface $globalConfig */
         $globalConfig = self::$container->get(GlobalConfigInterface::class);
-
+        $corePermissions = self::$container->get(CachingYamlPermissionCollection::class);
+        $permissionsResolver = self::$container->get(PermissionResolver::class);
+        $validator = self::$container->get(ValidatorInterface::class);
         $procedureRepository = $this->getProcedureRepositoryMock();
         $permissionsClass = $this->getPermissionsClass();
+
+        $customerService = static::$container->get(CustomerService::class);
 
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
         /** @var Permissions $permissions */
         $permissions = (new ReflectionClass($permissionsClass))
-            ->newInstance(new FilesystemAdapter(), $logger, $globalConfig, $procedureAccessEvaluator, $procedureRepository);
+            ->newInstance(
+                new \SplFixedArray(),
+                $customerService,
+                $logger,
+                $globalConfig,
+                $corePermissions,
+                $permissionsResolver,
+                $procedureAccessEvaluator,
+                $procedureRepository,
+                $validator
+            );
 
         return $permissions;
     }
@@ -148,8 +165,8 @@ class PermissionsTest extends FunctionalTestCase
     public function permissionsTests(): array
     {
         return [
-            //############### AI (Demos PI) User ########################
-            'ai api user #1' => [
+            // ############### AI (Demos PI) User ########################
+            'ai api user #1'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -157,8 +174,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
-                    'feature_ai_generated_draft_segments',
                     'feature_read_source_statement_via_api',
                     'field_statement_recommendation',
                 ],
@@ -176,7 +191,7 @@ class PermissionsTest extends FunctionalTestCase
                 ],
             ],
 
-            'ai api user #2' => [
+            'ai api user #2'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -184,8 +199,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
-                    'feature_ai_generated_draft_segments',
                 ],
                 'features_denied'                   => [
                     'area_admin_dashboard',
@@ -201,7 +214,7 @@ class PermissionsTest extends FunctionalTestCase
                 ],
             ],
 
-            'ai api user #3'          => [
+            'ai api user #3'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => 'participation',
@@ -209,8 +222,6 @@ class PermissionsTest extends FunctionalTestCase
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
                 'featuresAllowed'                   => [
-                    'feature_ai_create_annotated_statement_pdf_pages',
-                    'feature_ai_generated_draft_segments',
                 ],
                 'features_denied'                   => [
                     'area_admin_dashboard',
@@ -226,8 +237,8 @@ class PermissionsTest extends FunctionalTestCase
                 ],
             ],
 
-            //############### Customer Master User ######################
-            'customer master user #1' => [
+            // ############### Customer Master User ######################
+            'customer master user #1'           => [
                 'roles'                             => [Role::CUSTOMER_MASTER_USER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -239,7 +250,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_report_public_phase',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin_consultations',
                     'area_admin_faq',
@@ -259,8 +270,8 @@ class PermissionsTest extends FunctionalTestCase
                     // 'area_preferences', #fixme 10.12.2019
                 ],
             ],
-            //############### Fachplaner Admin ######################
-            'planning agency admin #1' => [
+            // ############### Fachplaner Admin ######################
+            'planning agency admin #1'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -313,7 +324,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_public_allowed',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin_analysis',
                     'area_admin_consultations',
@@ -340,7 +351,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_admin_assessmenttable_export_docx_condensed',
                     'feature_admin_element_edit',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
                     'feature_assign_system_roles',
@@ -447,7 +457,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency admin #2' => [
+            'planning agency admin #2'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -470,7 +480,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_fragment_vote',
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_statement_list',
                     'area_customer_send_mail_to_users',
@@ -489,7 +499,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_survey_management',
                     'feature_admin_element_edit',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -533,7 +542,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency admin #3' => [
+            'planning agency admin #3'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -549,7 +558,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_json_rpc_post',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_statement_list',
                     'area_customer_send_mail_to_users',
@@ -565,7 +574,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_fragment',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -601,7 +609,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency admin #4' => [
+            'planning agency admin #4'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -614,7 +622,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_faq',
                     'area_admin_statement_list',
@@ -632,7 +640,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_statements_public_published',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -667,7 +674,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency admin #5' => [
+            'planning agency admin #5'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -682,7 +689,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_consultations',
                     'area_admin_faq',
@@ -700,7 +707,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_fragment',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -734,7 +740,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency admin #6' => [
+            'planning agency admin #6'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -747,7 +753,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_demosplan',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
                     'area_admin_statement_list',
@@ -764,7 +770,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_fragment',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -796,8 +801,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //############### Fachplaner-Masteruser ######################
-            'planning agency master user #1' => [
+            // ############### Fachplaner-Masteruser ######################
+            'planning agency master user #1'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -817,15 +822,15 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_orga_edit',
                     'feature_procedure_single_document_upload_zip',
                     'feature_public_index_map',
-                    'feature_user_add', //fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
-                    'feature_user_edit', //fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
                     'field_statement_file',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_faq',
@@ -852,7 +857,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_export_procedure',
                     'feature_admin_new_procedure',
-                    'feature_ai_generated_draft_segments',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
                     'feature_assign_system_roles',
@@ -922,7 +926,7 @@ class PermissionsTest extends FunctionalTestCase
 //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
-            'planning agency master user #2' => [
+            'planning agency master user #2'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -940,7 +944,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
@@ -958,7 +962,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_fragment',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
                     'feature_assign_system_roles',
@@ -990,7 +993,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_submitter_email_address',
                 ],
             ],
-            'planning agency master user #3' => [
+            'planning agency master user #3'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1011,7 +1014,7 @@ class PermissionsTest extends FunctionalTestCase
                     'area_institution_tag_manage',
                 ],
             ],
-            'planning agency master user #4' => [
+            'planning agency master user #4'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1032,8 +1035,8 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_institution_tag_update',
                 ],
             ],
-            //############### Planungsbüro ######################
-            'private planning agency #1' => [
+            // ############### Planungsbüro ######################
+            'private planning agency #1'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1064,7 +1067,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_file',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_dashboard',
@@ -1087,7 +1090,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1138,7 +1140,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'private planning agency #2' => [
+            'private planning agency #2'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1156,7 +1158,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_dashboard',
                     'area_admin_faq',
                     'area_admin_statement_list',
@@ -1173,7 +1175,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1217,7 +1218,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'private planning agency #3' => [
+            'private planning agency #3'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1234,7 +1235,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_admin_export_procedure',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_invitable_institution',
                     'area_admin_news',
@@ -1251,7 +1252,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1290,7 +1290,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'private planning agency #4' => [
+            'private planning agency #4'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1308,7 +1308,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_invitable_institution',
                     'area_admin_news',
@@ -1325,7 +1325,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1363,7 +1362,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'private planning agency #5' => [
+            'private planning agency #5'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1388,7 +1387,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_fragment_edit',
                     'feature_statements_fragment_list',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_analysis',
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
@@ -1406,7 +1405,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_public_published',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1449,8 +1447,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //###############  Fachplaner-Sachbearbeiter ###################
-            'planning agency worker #1' => [
+            // ###############  Fachplaner-Sachbearbeiter ###################
+            'planning agency worker #1'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1487,7 +1485,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_file',
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_dashboard',
                     'area_admin_faq',
@@ -1510,7 +1508,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_procedure_phase',
@@ -1563,7 +1560,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency worker #2' => [
+            'planning agency worker #2'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1582,7 +1579,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_statement_list',
                     'area_customer_send_mail_to_users',
@@ -1598,7 +1595,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_survey_management',
                     'feature_admin_element_edit',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -1631,7 +1627,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_submitter_email_address',
                 ],
             ],
-            'planning agency worker #3' => [
+            'planning agency worker #3'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1648,7 +1644,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_json_api_get',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_dashboard',
                     'area_admin_faq',
                     'area_admin_invitable_institution',
@@ -1666,7 +1662,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_assessmenttable_export_docx',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1701,7 +1696,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'planning agency worker #4' => [
+            'planning agency worker #4'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1718,7 +1713,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_json_api_get',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_faq',
@@ -1738,7 +1733,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_public_published',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -1775,8 +1769,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Toeb-Koordinator###################
-            'public agency coordinator #1' => [
+            // ################### Toeb-Koordinator###################
+            'public agency coordinator #1'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1806,7 +1800,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_vote_may_vote',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_dashboard',
                     'area_admin_faq',
@@ -1828,7 +1822,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_public_published',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_procedure_phase',
@@ -1885,7 +1878,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'public agency coordinator #2' => [
+            'public agency coordinator #2'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1900,7 +1893,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_statements_public',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_analysis',
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
@@ -1915,7 +1908,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_fragments_department_archive',
                     'area_statements_fragment',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -1945,7 +1937,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'public agency coordinator #3' => [
+            'public agency coordinator #3'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -1963,7 +1955,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_statements_public',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_analysis',
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
@@ -1980,7 +1972,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements_fragment',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2013,8 +2004,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Toeb-Sachbearbeiter ###################
-            'public agency worker #1' => [
+            // ################### Toeb-Sachbearbeiter ###################
+            'public agency worker #1'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2044,7 +2035,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_dashboard',
                     'area_admin_faq',
@@ -2065,7 +2056,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_public_published',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_procedure_phase',
@@ -2125,7 +2115,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'public agency worker #2' => [
+            'public agency worker #2'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2139,7 +2129,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_faq',
                     'area_admin_procedures',
@@ -2158,7 +2148,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_statements_released_group',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2190,7 +2179,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'public agency worker #3' => [
+            'public agency worker #3'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2206,7 +2195,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_new_statement',
                     'feature_procedure_single_document_upload_zip',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_faq',
                     'area_admin_gislayer_global_edit',
@@ -2225,7 +2214,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_statements_released_group',
                     'area_survey_management',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2258,8 +2246,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Redakteur ###################
-            'editor #1' => [
+            // ################### Redakteur ###################
+            'editor #1'                         => [
                 'roles'                             => [Role::CONTENT_EDITOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2280,7 +2268,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_gislayer_global_edit',
@@ -2303,7 +2291,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_released_group',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_procedure_phase',
@@ -2342,8 +2329,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Anonymer User / Gast ###################
-            'guest #1' => [
+            // ################### Anonymer User / Gast ###################
+            'guest #1'                          => [
                 'roles'                             => [Role::GUEST],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2373,7 +2360,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_meta_street',
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_analysis',
@@ -2403,7 +2390,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_export_procedure',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2472,8 +2458,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Bürger ###################
-            'citizen #1' => [
+            // ################### Bürger ###################
+            'citizen #1'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => 'participation',
@@ -2503,7 +2489,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_public_allowed',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_analysis',
@@ -2527,7 +2513,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_subscriptions',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -2581,7 +2566,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'citizen #2' => [
+            'citizen #2'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => 'participation',
@@ -2606,7 +2591,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_meta_street',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_analysis',
@@ -2633,7 +2618,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -2673,7 +2657,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'citizen #3' => [
+            'citizen #3'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => 'participation',
@@ -2700,7 +2684,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_meta_postal_code',
                     'field_statement_meta_street',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_faq',
@@ -2724,7 +2708,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -2759,7 +2742,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'citizen #4' => [
+            'citizen #4'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => 'closed',
@@ -2782,7 +2765,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_meta_postal_code',
                     'field_statement_meta_street',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_faq',
@@ -2807,7 +2790,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -2844,8 +2826,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Support ###################
-            'support #1' => [
+            // ################### Support ###################
+            'support #1'                        => [
                 'roles'                             => [Role::PLATFORM_SUPPORT],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2864,14 +2846,14 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
                     'feature_public_index_map',
-                    'feature_user_add', //fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_add', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_delete',
-                    'feature_user_edit', //fixme: this permission was both here and in featuresDenied. Please check.
+                    'feature_user_edit', // fixme: this permission was both here and in featuresDenied. Please check.
                     'feature_user_get',
                     'feature_user_list',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_faq',
@@ -2894,7 +2876,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
                     'feature_assign_system_roles',
@@ -2944,8 +2925,8 @@ class PermissionsTest extends FunctionalTestCase
 //                    'feature_user_edit', //fixme: this permission was both here and in featuresAllowed. Please check.
                 ],
             ],
-            //################### Moderator###################
-            'forum moderator #1' => [
+            // ################### Moderator###################
+            'forum moderator #1'                => [
                 'roles'                             => [Role::BOARD_MODERATOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -2965,7 +2946,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_public_index_map',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin_faq',
                     'area_admin_statement_list',
                     'area_customer_send_mail_to_users',
@@ -2984,7 +2965,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_released',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -3022,7 +3002,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Fachplaner-Fachbehörde ###################
+            // ################### Fachplaner-Fachbehörde ###################
             'planning supporting department #1' => [
                 'roles'                             => [Role::PLANNING_SUPPORTING_DEPARTMENT],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
@@ -3043,7 +3023,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_organisation_email_reviewer_admin',
                     'field_statement_recommendation',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_assessmenttable',
                     'area_admin_dashboard',
@@ -3062,7 +3042,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -3111,8 +3090,8 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            //################### Datenerfassung ###################
-            'data input #1' => [
+            // ################### Datenerfassung ###################
+            'data input #1'                     => [
                 'roles'                             => [Role::PROCEDURE_DATA_INPUT],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -3128,7 +3107,7 @@ class PermissionsTest extends FunctionalTestCase
 //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_assessmenttable',
                     'area_admin_faq',
@@ -3147,7 +3126,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -3201,7 +3179,7 @@ class PermissionsTest extends FunctionalTestCase
                     'role_participant',
                 ],
             ],
-            'data input #2' => [
+            'data input #2'                     => [
                 'roles'                             => [Role::PROCEDURE_DATA_INPUT],
                 'procedurePhase'                    => $this->getParticipationPhases(),
                 'procedurePublicParticipationPhase' => '',
@@ -3215,7 +3193,7 @@ class PermissionsTest extends FunctionalTestCase
 //                  'feature_statement_data_input_orga', //fixme: permission is not set and it is unclear why this line is here - area_statement_data_input_orga instead is set - might be a mismatch
                     'field_statement_public_allowed',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_assessmenttable',
                     'area_admin_faq',
@@ -3234,7 +3212,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements_fragment',
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
-                    'feature_ai_generated_draft_segments',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -3317,7 +3294,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_meta_postal_code',
                     'field_statement_meta_street',
                 ],
-                'featuresDenied' => [
+                'featuresDenied'                    => [
                     'area_admin',
                     'area_admin_gislayer_global_edit',
                     'area_admin_statement_list',
@@ -3335,7 +3312,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
-                    'feature_ai_generated_draft_segments',
                     'feature_citizen_registration',
                     'feature_create_procedure_from_XBauleitplanungMessage',
                     'feature_has_logout_landing_page',
@@ -3438,7 +3414,7 @@ class PermissionsTest extends FunctionalTestCase
 
         $user = $this->getTestUser(compact('roles', 'ownsProcedure'));
 
-        //setze die Phase
+        // setze die Phase
         if (0 < strpos($procedurePhases, '||')) {
             $procedurePhases = explode('||', $procedurePhases);
         } else {

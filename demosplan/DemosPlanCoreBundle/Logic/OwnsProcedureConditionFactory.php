@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 use Psr\Log\LoggerInterface;
@@ -65,7 +65,7 @@ class OwnsProcedureConditionFactory
 
         return $this->conditionFactory->propertyHasAnyOfValues(
             $procedurePlanningOffices,
-            'orga', 'id'
+            ['orga', 'id']
         );
     }
 
@@ -83,15 +83,15 @@ class OwnsProcedureConditionFactory
     {
         $orgaOwnsProcedure = $this->conditionFactory->propertyHasValue(
             $this->procedure->getOrgaId(),
-            'orga', 'id'
+            ['orga', 'id']
         );
 
-        //T8427: allow access by manually configured users, overwriting the organisation-based access
+        // T8427: allow access by manually configured users, overwriting the organisation-based access
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
             $planningAgencyIsAuthorized = $this->isAuthorizedViaPlanningAgency();
             $userIsAuthorized = $this->conditionFactory->propertyHasAnyOfValues(
                 $this->procedure->getAuthorizedUserIds(),
-                'id'
+                ['id']
             );
 
             $orgaOwnsProcedure = $this->conditionFactory->anyConditionApplies(
@@ -116,7 +116,7 @@ class OwnsProcedureConditionFactory
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             // Fachplaner-Admin GLAUTH Kommune oder Fachplaner SB
 
-            //Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
+            // Fachplaner admin oder Fachplaner Sachbearbeiter oder Plattform-Admin oder AHB-Admin
 
             $ownsOrgaRoleCondition = $this->conditionFactory->propertyHasAnyOfValues(
                 [
@@ -126,9 +126,7 @@ class OwnsProcedureConditionFactory
                     Role::HEARING_AUTHORITY_ADMIN,
                     Role::HEARING_AUTHORITY_WORKER,
                 ],
-                'roleInCustomers',
-                'role',
-                'code'
+                ['roleInCustomers', 'role', 'code']
             );
         }
 
@@ -150,9 +148,7 @@ class OwnsProcedureConditionFactory
             // ist es ein PLanungsbüro?
             $planningAgencyOwnsProcedure = $this->conditionFactory->propertyHasValue(
                 Role::PRIVATE_PLANNING_AGENCY,
-                'roleInCustomers',
-                'role',
-                'code'
+                ['roleInCustomers', 'role', 'code']
             );
         }
 
@@ -166,7 +162,7 @@ class OwnsProcedureConditionFactory
     {
         return $this->conditionFactory->propertyHasValue(
             $customer->getId(),
-            'roleInCustomers', 'customer', 'id'
+            ['roleInCustomers', 'customer', 'id']
         );
     }
 }

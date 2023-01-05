@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use geoPHP;
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;

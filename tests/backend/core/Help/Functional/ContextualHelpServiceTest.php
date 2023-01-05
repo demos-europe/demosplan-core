@@ -12,7 +12,7 @@ namespace Tests\Core\Help\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
-use demosplan\DemosPlanHelpBundle\Logic\HelpService;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpService;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -32,7 +32,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
 
     public function testGetAllContextualHelp()
     {
-        //Does he fetch all help items in the expected way
+        // Does he fetch all help items in the expected way
         $helpList = $this->sut->getHelpAll();
         static::assertTrue(is_array($helpList));
         static::assertCount(2, $helpList);
@@ -40,15 +40,15 @@ class ContextualHelpServiceTest extends FunctionalTestCase
     }
 
     public function testGetSingleContextualHelp()
-    {   //fetch the id
+    {   // fetch the id
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
-        //Does he fetch all infos about one specific help item by id
+        // Does he fetch all infos about one specific help item by id
         /** @var ContextualHelp $singleHelp */
         $singleHelp = $this->sut->getHelp($testContextualHelp->getIdent());
         static::assertInstanceOf(ContextualHelp::class, $singleHelp);
         $this->checkId($singleHelp->getId());
 
-        //does he fetch all infos about one specific help item by key
+        // does he fetch all infos about one specific help item by key
         $singleHelp = $this->sut->getHelpByKey('help.key2');
         static::assertInstanceOf(ContextualHelp::class, $singleHelp);
         $this->checkId($singleHelp->getId());
@@ -74,25 +74,25 @@ class ContextualHelpServiceTest extends FunctionalTestCase
 
     public function testUpdateOfContextualHelp()
     {
-        //fetch the id
+        // fetch the id
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
-        //Case: Text is being altered
+        // Case: Text is being altered
         $data = [];
         $data['text'] = 'Ich bin die Kontexthilfe für den Weiterentwicklungsbereich.Und wurde jetzt verändert';
         $response = $this->sut->updateHelp($testContextualHelp->getIdent(), $data);
         static::assertTrue($response);
 
-        //check, if new entry is right
+        // check, if new entry is right
         $singleHelp = $this->sut->getHelp($testContextualHelp->getIdent());
         static::assertEquals($data['text'], $singleHelp->getText());
     }
 
     public function testExceptionCasesByUpdatingContextualHelps()
     {
-        //fetch the id
+        // fetch the id
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
 
-        //Case: Id doesn't exist
+        // Case: Id doesn't exist
         $data = [];
         $data['text'] = 'Ich bin die Kontexthilfe für den Weiterentwicklungsbereich.Und wurde jetzt verändert';
         try {
@@ -109,7 +109,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
      */
     public function testUpdateHelpWithEmptyValues()
     {
-        //fetch the id
+        // fetch the id
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
         $data = [];
         $this->expectException(Exception::class);
@@ -121,15 +121,15 @@ class ContextualHelpServiceTest extends FunctionalTestCase
      */
     public function testUpdateHelpWithTextIsNull()
     {
-        //case: text-variable is null
-        //fetch the id
+        // case: text-variable is null
+        // fetch the id
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
         $data['text'] = null;
         $this->expectException(Exception::class);
         $response = $this->sut->updateHelp($testContextualHelp->getIdent(), $data);
     }
 
-    //Check result, when Database is empty
+    // Check result, when Database is empty
     public function testWithEmptyDatabase()
     {
         $this->databaseTool->loadFixtures([]);
@@ -165,7 +165,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
         $testContextualHelp = $this->fixtures->getReference('testContextualHelp');
         $id = $testContextualHelp->getIdent();
 
-        //to test the relation minimum 1 gis have to use this ContextualHelp
+        // to test the relation minimum 1 gis have to use this ContextualHelp
         static::assertGreaterThanOrEqual(1, $numberOfGisBefore);
 
         $this->sut->deleteHelp($id);
@@ -173,7 +173,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
         static::assertCount($numberOfContextHelpsBefore - 1, $this->getEntries(ContextualHelp::class));
         static::assertCount($numberOfGisBefore, $this->getEntries(GisLayer::class));
 
-        //get gis->getHelp == null!
+        // get gis->getHelp == null!
         $relatedGisLayer = $this->getEntries(GisLayer::class, ['ident' => $relatedGisLayer->getIdent()]);
         $relatedHelp = $relatedGisLayer[0]->getContextualHelp();
         static::assertNull($relatedHelp);

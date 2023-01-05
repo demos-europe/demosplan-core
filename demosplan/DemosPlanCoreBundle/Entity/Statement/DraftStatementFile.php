@@ -11,15 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity()
  */
-class DraftStatementFile implements UuidEntityInterface {
+class DraftStatementFile implements UuidEntityInterface
+{
     /**
      * @var string
      *
@@ -56,24 +57,28 @@ class DraftStatementFile implements UuidEntityInterface {
      */
     private $file;
 
-    public function getId(): string {
+    public function getId(): string
+    {
         return $this->id;
     }
 
-    public function getDraftStatement(): ?DraftStatement {
+    public function getDraftStatement(): ?DraftStatement
+    {
         return $this->draftStatement;
     }
 
     /**
      * Set to null to activate orphan removal.
      */
-    public function setDraftStatement(?DraftStatement $draftStatement): self {
+    public function setDraftStatement(?DraftStatement $draftStatement): self
+    {
         $this->draftStatement = $draftStatement;
 
         return $this;
     }
 
-    public function getCreateDate(): DateTimeInterface {
+    public function getCreateDate(): DateTimeInterface
+    {
         return $this->createDate;
     }
 

@@ -61,7 +61,7 @@
             id="r_email_address"
             checked
             :label="{
-                text: Translator.trans('procedure.testmail.submitters.send', { email: templateVars.userMail }),
+                text: Translator.trans('procedure.testmail.submitters.send', { email: '{{ templateVars.userMail }}' }),
                 tooltip: Translator.trans('explanation.organisation.email.procedure.agency')
             }"
             name="r_email_address"
@@ -92,5 +92,5 @@
 {#  bundles generated via webpack/gulp build are included here  #}
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'procedure-administrationSendEmail.js']) }}
+    {{ webpackBundles(['procedure-administrationSendEmail.js']) }}
 {% endblock javascripts %}
