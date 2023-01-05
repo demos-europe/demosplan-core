@@ -575,16 +575,14 @@ class OrgaService extends CoreService
     {
         $orga->setSubmissionType($this->globalConfig->getProjectSubmissionType());
 
-        if ($this->permissions->hasPermission('feature_change_submission_type')) {
-            $settingSubmissionType = $this->contentService->getSettings(
-                'submissionType',
-                SettingsFilter::whereOrga($orga)->lock(),
-                false
-            );
-            if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
-                $orga->setSubmissionType($settingSubmissionType[0]->getContent());
-                $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
-            }
+        $settingSubmissionType = $this->contentService->getSettings(
+            'submissionType',
+            SettingsFilter::whereOrga($orga)->lock(),
+            false
+        );
+        if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
+            $orga->setSubmissionType($settingSubmissionType[0]->getContent());
+            $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
         }
     }
 

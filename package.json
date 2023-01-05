@@ -106,7 +106,7 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.7",
+    "@babel/core": "^7.20.12",
     "@babel/eslint-parser": "^7.18.9",
     "@babel/eslint-plugin": "^7.18.10",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
@@ -128,7 +128,7 @@
     "babel-loader": "^9.1.0",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
-    "caniuse-lite": "^1.0.30001441",
+    "caniuse-lite": "^1.0.30001442",
     "chalk": "4.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cli-progress": "^3.11.2",
