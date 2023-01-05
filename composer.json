@@ -99,7 +99,7 @@
         "symfony/finder": "5.*.*",
         "symfony/flex": "^1.13",
         "symfony/form": "5.4.16",
-        "symfony/http-client": "5.*.*",
+        "symfony/http-client": "6.*.*",
         "symfony/http-foundation": "5.*.*",
         "symfony/inflector": "5.*.*",
         "symfony/intl": "5.*.*",
