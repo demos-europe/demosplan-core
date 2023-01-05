@@ -118,7 +118,7 @@
         "symfony/serializer": "5.*.*",
         "symfony/stopwatch": "5.*.*",
         "symfony/templating": "5.*.*",
-        "symfony/twig-bundle": "5.*.*",
+        "symfony/twig-bundle": "6.*.*",
         "symfony/validator": "5.*.*",
         "symfony/var-dumper": "5.*.*",
         "symfony/var-exporter": "5.*.*",
