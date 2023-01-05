@@ -146,8 +146,8 @@ class DemosPlanUserAPIController extends APIController
             }
 
             $sortMethods = [
-                $sortMethodFactory->propertyAscending(...$userType->lastname),
-                $sortMethodFactory->propertyAscending(...$userType->firstname),
+                $sortMethodFactory->propertyAscending($userType->lastname),
+                $sortMethodFactory->propertyAscending($userType->firstname),
             ];
 
             $searchParams = SearchParams::createOptional($request->query->get('search', []));

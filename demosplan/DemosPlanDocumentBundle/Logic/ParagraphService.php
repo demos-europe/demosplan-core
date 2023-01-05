@@ -103,7 +103,7 @@ class ParagraphService extends CoreService
          */
         $result = $this->getParaDocumentObjectList($procedureId, $elementId);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);
@@ -128,12 +128,12 @@ class ParagraphService extends CoreService
     public function getParaDocumentObjectList($procedureId, $elementId): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($elementId, 'element'),
-            $this->conditionFactory->propertyHasAnyOfValues([1, 2], 'visible'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($elementId, ['element']),
+            $this->conditionFactory->propertyHasAnyOfValues([1, 2], ['visible']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
     }
@@ -171,7 +171,7 @@ class ParagraphService extends CoreService
         $resArray = $result;
 
         if ($toLegacy) {
-            //Convert result to array
+            // Convert result to array
             $resArray = [];
             foreach ($result as $p) {
                 $res = $this->entityHelper->toArray($p);
@@ -201,14 +201,14 @@ class ParagraphService extends CoreService
     public function getParaDocumentAdminListAll($procedureId)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
 
-        //Convert result to array
+        // Convert result to array
         $resArray = [];
         foreach ($result as $p) {
             $res = $this->entityHelper->toArray($p);
@@ -712,15 +712,15 @@ class ParagraphService extends CoreService
     public function getParagraphDocumentAdminListAsObjects($procedureId, $elementId, bool $nullParentOnly = false): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($elementId, 'element'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($elementId, ['element']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
         if ($nullParentOnly) {
-            $conditions[] = $this->conditionFactory->propertyIsNull('parent');
+            $conditions[] = $this->conditionFactory->propertyIsNull(['parent']);
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('order');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['order']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Paragraph::class, $conditions, [$sortMethod]);
     }

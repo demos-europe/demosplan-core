@@ -72,7 +72,7 @@ final class TagTopicResourceType extends DplanResourceType implements CreatableD
 
         return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            ...$this->procedure->id
+            $this->procedure->id
         );
     }
 

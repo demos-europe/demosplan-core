@@ -30,7 +30,7 @@ final class OrgaTypeResourceType extends DplanResourceType
     {
         return $this->conditionFactory->propertyHasValue(
             $this->currentCustomerService->getCurrentCustomer()->getId(),
-            ...$this->orgaStatusInCustomers->customer->id
+            $this->orgaStatusInCustomers->customer->id
         );
     }
 

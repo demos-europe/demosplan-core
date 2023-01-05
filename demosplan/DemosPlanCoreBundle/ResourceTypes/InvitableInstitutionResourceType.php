@@ -70,22 +70,22 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                ...$this->statusInCustomers->status
+                $this->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
                 Role::GPSORG,
-                ...$this->users->roleInCustomers->role->groupCode
+                $this->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaType::PUBLIC_AGENCY,
-                ...$this->statusInCustomers->orgaType->name
+                $this->statusInCustomers->orgaType->name
             ),
             $this->conditionFactory->propertyHasValue(
                 $customer->getId(),
-                ...$this->statusInCustomers->customer->id
+                $this->statusInCustomers->customer->id
             ),
         );
     }

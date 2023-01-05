@@ -11,22 +11,6 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Query\QueryException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use Exception;
-use ReflectionException;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -43,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
@@ -56,6 +41,21 @@ use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanUserBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanUserBundle\ValueObject\DataProtectionOrganisation;
 use demosplan\DemosPlanUserBundle\ValueObject\ImprintOrganisation;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\QueryException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use Exception;
+use ReflectionException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaService extends CoreService
 {
@@ -421,8 +421,8 @@ class OrgaService extends CoreService
     public function getParticipants(): array
     {
         return $this->getOrganisations([
-            $this->conditionFactory->propertyHasValue(1, ...$this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, ...$this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
         ]);
     }
 
@@ -466,9 +466,9 @@ class OrgaService extends CoreService
             $conditions = array_merge($additionalConditions, $this->orgaResourceType->getMandatoryConditions());
             $conditions[] = $this->conditionFactory->propertyHasNotValue(
                 User::ANONYMOUS_USER_ORGA_ID,
-                ...$this->orgaResourceType->id
+                $this->orgaResourceType->id
             );
-            $sortMethod = $this->sortMethodFactory->propertyAscending(...$this->orgaResourceType->name);
+            $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
             $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
@@ -515,17 +515,17 @@ class OrgaService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                ...$this->orgaResourceType->statusInCustomers->status
+                $this->orgaResourceType->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
                 $orgaTypeName,
-                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+                $this->orgaResourceType->statusInCustomers->orgaType->name
             ),
             // The resource type will already contain this restriction,
             // but we add it here too for clarity.
             $this->conditionFactory->propertyHasValue(
                 $customerContext->getId(),
-                ...$this->orgaResourceType->statusInCustomers->customer->id
+                $this->orgaResourceType->statusInCustomers->customer->id
             ),
         ];
 
@@ -891,10 +891,10 @@ class OrgaService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, 'id'),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
             ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
             return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
         } catch (Exception $e) {
@@ -934,9 +934,9 @@ class OrgaService extends CoreService
     {
         $query = $this->orgaTypeRepository->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($orga->getId(), 'orgaStatusInCustomers', 'orga', 'id')
-            ->propertyHasValue($customer->getId(), 'orgaStatusInCustomers', 'customer', 'id')
-            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, 'orgaStatusInCustomers', 'status');
+            ->propertyHasValue($orga->getId(), ['orgaStatusInCustomers', 'orga', 'id'])
+            ->propertyHasValue($customer->getId(), ['orgaStatusInCustomers', 'customer', 'id'])
+            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, ['orgaStatusInCustomers', 'status']);
 
         return $query->getEntities();
     }
