@@ -120,8 +120,13 @@ class DocumentHandler extends CoreHandler
      *
      * @throws Exception
      */
-    public function saveElementsFromImport($request, $sessionId, $sessionElementImportList, string $procedure, string $importDir): array
-    {
+    public function saveElementsFromImport(
+        $request,
+        $sessionId,
+        $sessionElementImportList,
+        string $procedure,
+        string $importDir
+    ): array {
         //Schreibe den Status des Imports im ein temporäres File
         $fs = new Filesystem();
         $statusHash = md5($sessionId.$procedure);
@@ -141,7 +146,16 @@ class DocumentHandler extends CoreHandler
         $errorReport = [];
 
         // gehe die zwischengespeicherte Liste der importierten Dateien durch
-        $this->saveElementsFromDirArray($fileDir, $startElementId, $sessionId, $procedure, $request, $sessionElementImportList, null, $errorReport);
+        $this->saveElementsFromDirArray(
+            $fileDir,
+            $startElementId,
+            $sessionId,
+            $procedure,
+            $request,
+            $sessionElementImportList,
+            null,
+            $errorReport
+        );
 
         $this->getSession()->remove('bulkImportFilesTotal');
         $this->getSession()->remove('bulkImportFilesProcessed');
@@ -174,7 +188,16 @@ class DocumentHandler extends CoreHandler
      *
      * @throws Exception
      */
-    protected function saveElementsFromDirArray($entries, $elementId, $sessionId, $procedure, $request, $sessionElementImportList, $category = null, array &$errorReport)
+    protected function saveElementsFromDirArray(
+        $entries,
+        $elementId,
+        $sessionId,
+        $procedure,
+        $request,
+        $sessionElementImportList,
+        $category = null,
+        array &$errorReport
+    )
     {
         $fs = new Filesystem();
         $result = [];
