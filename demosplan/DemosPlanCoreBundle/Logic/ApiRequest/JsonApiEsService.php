@@ -50,7 +50,7 @@ class JsonApiEsService
     private $searchTypes;
 
     /**
-     * @var array<string,Index>
+     * @param array<string,Index> $searchTypes
      */
     public function __construct(
         DqlConditionFactory $conditionFactory,
