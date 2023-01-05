@@ -126,9 +126,7 @@ class OwnsProcedureConditionFactory
                     Role::HEARING_AUTHORITY_ADMIN,
                     Role::HEARING_AUTHORITY_WORKER,
                 ],
-                'roleInCustomers',
-                'role',
-                'code'
+                ['roleInCustomers', 'role', 'code']
             );
         }
 

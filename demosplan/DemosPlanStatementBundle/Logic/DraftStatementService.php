@@ -1803,8 +1803,8 @@ class DraftStatementService extends CoreService
         $sortDirection = $this->determineDirection($sort, true);
 
         return ('asc' === $sortDirection)
-            ? $this->sortMethodFactory->propertyAscending($sortProperty)
-            : $this->sortMethodFactory->propertyDescending($sortProperty);
+            ? $this->sortMethodFactory->propertyAscending([$sortProperty])
+            : $this->sortMethodFactory->propertyDescending([$sortProperty]);
     }
 
     /**

@@ -2837,9 +2837,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         } else {
             foreach ($sort as $key => $value) {
                 if ('ASC' === $value) {
-                    $sortMethods[] = $this->sortMethodFactory->propertyAscending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyAscending([$key]);
                 } else {
-                    $sortMethods[] = $this->sortMethodFactory->propertyDescending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyDescending([$key]);
                 }
             }
         }

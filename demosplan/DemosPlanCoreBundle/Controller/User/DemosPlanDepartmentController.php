@@ -108,7 +108,10 @@ class DemosPlanDepartmentController extends BaseController
         // Falls es sich um den SupportUser handelt, hole alle Orgas des customers,
         // damit er zwischen der orgas wechseln kann
         if (in_array(Role::PLATFORM_SUPPORT, $userRoles, true)) {
-            $condition[] = $conditionFactory->propertyHasValue($customerHandler->getCurrentCustomer()->getId(), ['statusInCustomers', 'customer']);
+            $condition[] = $conditionFactory->propertyHasValue(
+                $customerHandler->getCurrentCustomer()->getId(),
+                ['statusInCustomers', 'customer']
+            );
             $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
             $sortMethod = $sortMethodFactory->propertyAscending(['name']);
             $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);

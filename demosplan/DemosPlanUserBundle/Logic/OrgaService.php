@@ -936,9 +936,9 @@ class OrgaService extends CoreService
     {
         $query = $this->orgaTypeRepository->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($orga->getId(), 'orgaStatusInCustomers', 'orga', 'id')
-            ->propertyHasValue($customer->getId(), 'orgaStatusInCustomers', 'customer', 'id')
-            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, 'orgaStatusInCustomers', 'status');
+            ->propertyHasValue($orga->getId(), ['orgaStatusInCustomers', 'orga', 'id'])
+            ->propertyHasValue($customer->getId(), ['orgaStatusInCustomers', 'customer', 'id'])
+            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, ['orgaStatusInCustomers', 'status']);
 
         return $query->getEntities();
     }
