@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b990356cdb8d5323c004bdd85441583d",
+    "content-hash": "01554a25608beadbfb06cf3cf660424c",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4500,33 +4500,33 @@
         },
         {
             "name": "friendsofsymfony/jsrouting-bundle",
-            "version": "2.8.0",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle.git",
-                "reference": "c978fabc6a21a77052ff3fe927b41111ec944f0d"
+                "reference": "fb188bfe352ccd7ecff06c08eca05fed47f30de4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSJsRoutingBundle/zipball/c978fabc6a21a77052ff3fe927b41111ec944f0d",
-                "reference": "c978fabc6a21a77052ff3fe927b41111ec944f0d",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSJsRoutingBundle/zipball/fb188bfe352ccd7ecff06c08eca05fed47f30de4",
+                "reference": "fb188bfe352ccd7ecff06c08eca05fed47f30de4",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1|^8.0",
-                "symfony/console": "~3.4|^4.4.20|^5.0",
-                "symfony/framework-bundle": "~3.4|^4.4.20|^5.0",
-                "symfony/serializer": "~3.4|^4.4.20|^5.0",
-                "willdurand/jsonp-callback-validator": "~1.1"
+                "php": "^8.0",
+                "symfony/console": "^5.4|^6.0",
+                "symfony/framework-bundle": "^5.4|^6.0",
+                "symfony/serializer": "^5.4|^6.0.1",
+                "willdurand/jsonp-callback-validator": "~1.1|^2.0"
             },
             "require-dev": {
-                "symfony/expression-language": "~3.4|^4.4.20|^5.0",
-                "symfony/phpunit-bridge": "^5.3"
+                "symfony/expression-language": "^5.4|^6.0",
+                "symfony/phpunit-bridge": "^5.4|^6.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.x-dev"
+                    "dev-master": "3.x-dev"
                 }
             },
             "autoload": {
@@ -4551,7 +4551,7 @@
                     "homepage": "https://github.com/friendsofsymfony/FOSJsRoutingBundle/contributors"
                 }
             ],
-            "description": "A pretty nice way to expose your Symfony2 routing to client applications.",
+            "description": "A pretty nice way to expose your Symfony routing to client applications.",
             "homepage": "http://friendsofsymfony.github.com",
             "keywords": [
                 "Js Routing",
@@ -4560,9 +4560,9 @@
             ],
             "support": {
                 "issues": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/issues",
-                "source": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/tree/2.8.0"
+                "source": "https://github.com/FriendsOfSymfony/FOSJsRoutingBundle/tree/3.2.1"
             },
-            "time": "2021-12-15T08:51:04+00:00"
+            "time": "2022-07-01T11:50:22+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",
@@ -12747,27 +12747,27 @@
         },
         {
             "name": "symfony/error-handler",
-            "version": "v5.4.17",
+            "version": "v6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/error-handler.git",
-                "reference": "b900446552833ad2f91ca7dd52aa8ffe78f66cb2"
+                "reference": "0926124c95d220499e2baf0fb465772af3a4eddb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/error-handler/zipball/b900446552833ad2f91ca7dd52aa8ffe78f66cb2",
-                "reference": "b900446552833ad2f91ca7dd52aa8ffe78f66cb2",
+                "url": "https://api.github.com/repos/symfony/error-handler/zipball/0926124c95d220499e2baf0fb465772af3a4eddb",
+                "reference": "0926124c95d220499e2baf0fb465772af3a4eddb",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
+                "php": ">=8.1",
                 "psr/log": "^1|^2|^3",
-                "symfony/var-dumper": "^4.4|^5.0|^6.0"
+                "symfony/var-dumper": "^5.4|^6.0"
             },
             "require-dev": {
                 "symfony/deprecation-contracts": "^2.1|^3",
-                "symfony/http-kernel": "^4.4|^5.0|^6.0",
-                "symfony/serializer": "^4.4|^5.0|^6.0"
+                "symfony/http-kernel": "^5.4|^6.0",
+                "symfony/serializer": "^5.4|^6.0"
             },
             "bin": [
                 "Resources/bin/patch-type-declarations"
@@ -12798,7 +12798,7 @@
             "description": "Provides tools to manage errors and ease debugging PHP code",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/error-handler/tree/v5.4.17"
+                "source": "https://github.com/symfony/error-handler/tree/v6.2.3"
             },
             "funding": [
                 {
@@ -12814,7 +12814,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-12-13T09:43:00+00:00"
+            "time": "2022-12-19T14:33:49+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -14397,28 +14397,27 @@
         },
         {
             "name": "symfony/password-hasher",
-            "version": "v5.4.11",
+            "version": "v6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/password-hasher.git",
-                "reference": "b0169ed8f09a4ae39eb119218ea1685079a9b179"
+                "reference": "955ce6bdbb53933897043ad00776a88ba916208a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/password-hasher/zipball/b0169ed8f09a4ae39eb119218ea1685079a9b179",
-                "reference": "b0169ed8f09a4ae39eb119218ea1685079a9b179",
+                "url": "https://api.github.com/repos/symfony/password-hasher/zipball/955ce6bdbb53933897043ad00776a88ba916208a",
+                "reference": "955ce6bdbb53933897043ad00776a88ba916208a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
-                "symfony/polyfill-php80": "^1.15"
+                "php": ">=8.1"
             },
             "conflict": {
-                "symfony/security-core": "<5.3"
+                "symfony/security-core": "<5.4"
             },
             "require-dev": {
-                "symfony/console": "^5.3|^6.0",
-                "symfony/security-core": "^5.3|^6.0"
+                "symfony/console": "^5.4|^6.0",
+                "symfony/security-core": "^5.4|^6.0"
             },
             "type": "library",
             "autoload": {
@@ -14450,7 +14449,7 @@
                 "password"
             ],
             "support": {
-                "source": "https://github.com/symfony/password-hasher/tree/v5.4.11"
+                "source": "https://github.com/symfony/password-hasher/tree/v6.2.0"
             },
             "funding": [
                 {
@@ -14466,7 +14465,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-20T13:00:38+00:00"
+            "time": "2022-09-01T02:03:18+00:00"
         },
         {
             "name": "symfony/polyfill-apcu",
@@ -16820,50 +16819,51 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v5.4.14",
+            "version": "v6.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "f0ed07675863aa6e3939df8b1bc879450b585cab"
+                "reference": "a2a15404ef4c15d92c205718eb828b225a144379"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/f0ed07675863aa6e3939df8b1bc879450b585cab",
-                "reference": "f0ed07675863aa6e3939df8b1bc879450b585cab",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/a2a15404ef4c15d92c205718eb828b225a144379",
+                "reference": "a2a15404ef4c15d92c205718eb828b225a144379",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
-                "symfony/deprecation-contracts": "^2.1|^3",
+                "php": ">=8.1",
                 "symfony/polyfill-mbstring": "~1.0",
-                "symfony/polyfill-php80": "^1.16",
-                "symfony/translation-contracts": "^2.3"
+                "symfony/translation-contracts": "^2.3|^3.0"
             },
             "conflict": {
-                "symfony/config": "<4.4",
-                "symfony/console": "<5.3",
-                "symfony/dependency-injection": "<5.0",
-                "symfony/http-kernel": "<5.0",
-                "symfony/twig-bundle": "<5.0",
-                "symfony/yaml": "<4.4"
+                "symfony/config": "<5.4",
+                "symfony/console": "<5.4",
+                "symfony/dependency-injection": "<5.4",
+                "symfony/http-kernel": "<5.4",
+                "symfony/twig-bundle": "<5.4",
+                "symfony/yaml": "<5.4"
             },
             "provide": {
-                "symfony/translation-implementation": "2.3"
+                "symfony/translation-implementation": "2.3|3.0"
             },
             "require-dev": {
+                "nikic/php-parser": "^4.13",
                 "psr/log": "^1|^2|^3",
-                "symfony/config": "^4.4|^5.0|^6.0",
+                "symfony/config": "^5.4|^6.0",
                 "symfony/console": "^5.4|^6.0",
-                "symfony/dependency-injection": "^5.0|^6.0",
-                "symfony/finder": "^4.4|^5.0|^6.0",
+                "symfony/dependency-injection": "^5.4|^6.0",
+                "symfony/finder": "^5.4|^6.0",
                 "symfony/http-client-contracts": "^1.1|^2.0|^3.0",
-                "symfony/http-kernel": "^5.0|^6.0",
-                "symfony/intl": "^4.4|^5.0|^6.0",
+                "symfony/http-kernel": "^5.4|^6.0",
+                "symfony/intl": "^5.4|^6.0",
                 "symfony/polyfill-intl-icu": "^1.21",
+                "symfony/routing": "^5.4|^6.0",
                 "symfony/service-contracts": "^1.1.2|^2|^3",
-                "symfony/yaml": "^4.4|^5.0|^6.0"
+                "symfony/yaml": "^5.4|^6.0"
             },
             "suggest": {
+                "nikic/php-parser": "To use PhpAstExtractor",
                 "psr/log-implementation": "To use logging capability in translator",
                 "symfony/config": "",
                 "symfony/yaml": ""
@@ -16897,7 +16897,7 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/translation/tree/v5.4.14"
+                "source": "https://github.com/symfony/translation/tree/v6.2.3"
             },
             "funding": [
                 {
@@ -16913,24 +16913,24 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-07T08:01:20+00:00"
+            "time": "2022-12-23T14:11:11+00:00"
         },
         {
             "name": "symfony/translation-contracts",
-            "version": "v2.5.2",
+            "version": "v3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation-contracts.git",
-                "reference": "136b19dd05cdf0709db6537d058bcab6dd6e2dbe"
+                "reference": "68cce71402305a015f8c1589bfada1280dc64fe7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation-contracts/zipball/136b19dd05cdf0709db6537d058bcab6dd6e2dbe",
-                "reference": "136b19dd05cdf0709db6537d058bcab6dd6e2dbe",
+                "url": "https://api.github.com/repos/symfony/translation-contracts/zipball/68cce71402305a015f8c1589bfada1280dc64fe7",
+                "reference": "68cce71402305a015f8c1589bfada1280dc64fe7",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5"
+                "php": ">=8.1"
             },
             "suggest": {
                 "symfony/translation-implementation": ""
@@ -16938,7 +16938,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.5-dev"
+                    "dev-main": "3.3-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -16948,7 +16948,10 @@
             "autoload": {
                 "psr-4": {
                     "Symfony\\Contracts\\Translation\\": ""
-                }
+                },
+                "exclude-from-classmap": [
+                    "/Test/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -16975,7 +16978,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/translation-contracts/tree/v2.5.2"
+                "source": "https://github.com/symfony/translation-contracts/tree/v3.2.0"
             },
             "funding": [
                 {
@@ -16991,7 +16994,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-27T16:58:25+00:00"
+            "time": "2022-11-25T10:21:52+00:00"
         },
         {
             "name": "symfony/twig-bridge",
@@ -18182,23 +18185,23 @@
         },
         {
             "name": "willdurand/jsonp-callback-validator",
-            "version": "v1.1.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/JsonpCallbackValidator.git",
-                "reference": "1a7d388bb521959e612ef50c5c7b1691b097e909"
+                "reference": "738c36e91d4d7e0ff0cac145f77057e0fb88526e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/JsonpCallbackValidator/zipball/1a7d388bb521959e612ef50c5c7b1691b097e909",
-                "reference": "1a7d388bb521959e612ef50c5c7b1691b097e909",
+                "url": "https://api.github.com/repos/willdurand/JsonpCallbackValidator/zipball/738c36e91d4d7e0ff0cac145f77057e0fb88526e",
+                "reference": "738c36e91d4d7e0ff0cac145f77057e0fb88526e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=7.1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~3.7"
+                "symfony/phpunit-bridge": "^5.0"
             },
             "type": "library",
             "autoload": {
@@ -18213,16 +18216,15 @@
             "authors": [
                 {
                     "name": "William Durand",
-                    "email": "william.durand1@gmail.com",
-                    "homepage": "http://www.willdurand.fr"
+                    "email": "will+git@drnd.me"
                 }
             ],
             "description": "JSONP callback validator.",
             "support": {
                 "issues": "https://github.com/willdurand/JsonpCallbackValidator/issues",
-                "source": "https://github.com/willdurand/JsonpCallbackValidator/tree/master"
+                "source": "https://github.com/willdurand/JsonpCallbackValidator/tree/v2.0.0"
             },
-            "time": "2014-01-20T22:35:06+00:00"
+            "time": "2022-01-30T20:33:09+00:00"
         },
         {
             "name": "wrep/daemonizable-command",
