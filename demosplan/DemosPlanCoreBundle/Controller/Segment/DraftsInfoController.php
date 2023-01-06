@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
@@ -106,8 +107,8 @@ class DraftsInfoController extends BaseController
         } catch (StatementNotFoundException $e) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
             throw $e;
-        } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+        } catch (StatementAlreadySegmentedException|LockedByAssignmentException $e) {
+            $this->messageBag->add('error', $e->getMessage());
             throw $e;
         }
     }
