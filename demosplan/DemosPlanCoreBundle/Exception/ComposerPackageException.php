@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use InvalidArgumentException;
+
 /**
  * Handles all exceptions related to composer package information.
  */
-class ComposerPackageException extends \InvalidArgumentException
+class ComposerPackageException extends InvalidArgumentException
 {
     /**
      * Composer packages must have a type. If they don't, this exception is needed.

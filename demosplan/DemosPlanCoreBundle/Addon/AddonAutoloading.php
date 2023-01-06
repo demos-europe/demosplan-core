@@ -15,12 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
- * Handles the addon autoloading
+ * Handles the addon autoloading.
  */
 final class AddonAutoloading
 {
     /**
-     * Prevent the autoloader from being added multiple times
+     * Prevent the autoloader from being added multiple times.
      */
     private static bool $autoloadingConfigured = false;
 
