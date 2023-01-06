@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 /**
  * Handles the addon autoloading
  */
-class AddonAutoloading
+final class AddonAutoloading
 {
     /**
      * Prevent the autoloader from being added multiple times
