@@ -20,6 +20,7 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -78,7 +79,7 @@ class DraftsInfoController extends BaseController
      *     options={"expose": true}
      * )
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions("area_statement_segmentation")
      */
