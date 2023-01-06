@@ -81,11 +81,11 @@ trait ElasticsearchQueryTrait
      * Do actual Elasticsearch Query.
      *
      * @param AbstractQuery $esQuery
-     * @param int $limit use -1 to use the default limit, use 0 if you aren't interested
+     * @param int           $limit   use -1 to use the default limit, use 0 if you aren't interested
      *                               in the actual entities but still want other information like
      *                               the aggregations
-     * @param int $page
-     * @param Index|null $index if set this will be used instead of {@link index}
+     * @param int           $page
+     * @param Index|null    $index   if set this will be used instead of {@link index}
      */
     public function getElasticsearchResult(
               $esQuery,
@@ -115,11 +115,11 @@ trait ElasticsearchQueryTrait
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
             $query = $this->buildAggregation($esQuery, $query);
 
             // Sorting
-            //default
+            // default
             $esSortFields = [];
             $sorts = $esQuery->getSort();
             $availableSorts = $esQuery->getAvailableSorts();
@@ -136,7 +136,7 @@ trait ElasticsearchQueryTrait
                 $query->addSort($esSortFields);
             }
 
-            $this->getLogger()->debug('Elasticsearch Procedure Query: ' . DemosPlanTools::varExport($query->getQuery(), true));
+            $this->getLogger()->debug('Elasticsearch Procedure Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
             $search = $index ?? $this->index;
             $elasticaAdapter = new ElasticaAdapter($search, $query);
@@ -184,7 +184,7 @@ trait ElasticsearchQueryTrait
             })->all();
 
             $aggregationMissing = collect($esQuery->getAvailableFilters())->mapWithKeys(function (FilterDisplay $filter) use ($aggregations) {
-                $aggregationField = $filter->getName() . '_missing';
+                $aggregationField = $filter->getName().'_missing';
                 $count = $aggregations[$aggregationField]['doc_count'];
 
                 return [$filter->getName() => $count];
@@ -218,7 +218,7 @@ trait ElasticsearchQueryTrait
     /**
      * Hook to modify Must Filters.
      *
-     * @param BoolQuery $boolQuery
+     * @param BoolQuery     $boolQuery
      * @param AbstractQuery $esQuery
      */
     protected function modifyBoolMustFilter($boolQuery, $esQuery): BoolQuery
@@ -238,8 +238,8 @@ trait ElasticsearchQueryTrait
      * Add param to userfilter.
      *
      * @param string $key
-     * @param array $userFilters
-     * @param array $boolMustFilter
+     * @param array  $userFilters
+     * @param array  $boolMustFilter
      *
      * @return array
      */
@@ -306,25 +306,25 @@ trait ElasticsearchQueryTrait
             }
         }
         if (0 < count($boolMustFilters)) {
-            array_map([$boolQuery,'addMust'], $boolMustFilters);
+            array_map([$boolQuery, 'addMust'], $boolMustFilters);
         }
         if (0 < count($boolMustNotFilters)) {
-            array_map([$boolQuery,'addMustNot'], $boolMustNotFilters);
+            array_map([$boolQuery, 'addMustNot'], $boolMustNotFilters);
         }
         if (0 < count($esQuery->getFilterMustNotQueries())) {
-            array_map([$boolQuery,'addMustNot'], $esQuery->getFilterMustNotQueries());
+            array_map([$boolQuery, 'addMustNot'], $esQuery->getFilterMustNotQueries());
         }
         if (0 < count($esQuery->getFilterMustQueries())) {
-            array_map([$boolQuery,'addMust'], $esQuery->getFilterMustQueries());
+            array_map([$boolQuery, 'addMust'], $esQuery->getFilterMustQueries());
         }
 
         return $boolQuery;
     }
 
     /**
-     * @param BoolQuery $boolQuery
+     * @param BoolQuery     $boolQuery
      * @param AbstractQuery $esQuery
-     * @param array $boolShouldFilter
+     * @param array         $boolShouldFilter
      *
      * @return BoolQuery
      */
@@ -340,7 +340,7 @@ trait ElasticsearchQueryTrait
         }
 
         if (0 < count($boolShouldFilter)) {
-            array_map([$boolQuery,'addShould'], $boolShouldFilter);
+            array_map([$boolQuery, 'addShould'], $boolShouldFilter);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);
         }
 
@@ -349,7 +349,7 @@ trait ElasticsearchQueryTrait
 
     /**
      * @param BoolQuery $boolQuery
-     * @param int $minimumShouldMatch
+     * @param int       $minimumShouldMatch
      */
     protected function setMinimumShouldMatch($boolQuery, $minimumShouldMatch): BoolQuery
     {
@@ -358,7 +358,7 @@ trait ElasticsearchQueryTrait
 
     /**
      * @param AbstractQuery $esQuery
-     * @param Query $query
+     * @param Query         $query
      *
      * @return Query
      */
@@ -373,7 +373,7 @@ trait ElasticsearchQueryTrait
     }
 
     /**
-     * @param string $key
+     * @param string      $key
      * @param string|null $orderBy
      * @param string|null $orderDir asc|desc
      *
@@ -418,7 +418,7 @@ trait ElasticsearchQueryTrait
      */
     protected function addMissingAggregation(Query $query, FilterDisplay $filterDisplay)
     {
-        $aggPriority = new Missing($filterDisplay->getName() . '_missing', $filterDisplay->getName());
+        $aggPriority = new Missing($filterDisplay->getName().'_missing', $filterDisplay->getName());
         $aggPriority->setField($filterDisplay->getAggregationField());
         $query->addAggregation($aggPriority);
 
@@ -428,8 +428,8 @@ trait ElasticsearchQueryTrait
     /**
      * Transform Elasticsearch Buckets info existing Filterstructure.
      *
-     * @param array $bucket
-     * @param array $labelMap array with labels for bucket keys
+     * @param array  $bucket
+     * @param array  $labelMap array with labels for bucket keys
      * @param string $labelKey Key used to get the label from each entry in the given bucket. Defaults to 'key'.
      * @param string $valueKey Key used to get the value from each entry in the given bucket. Defaults to 'key'.
      * @param string $countKey Key used to get the count from each entry in the given bucket. Defaults to 'doc_count'.
@@ -532,8 +532,8 @@ trait ElasticsearchQueryTrait
 
     /**
      * @param AbstractQuery $esQuery
-     * @param array $aggregationsFilterResult
-     * @param array $labelMaps
+     * @param array         $aggregationsFilterResult
+     * @param array         $labelMaps
      */
     public function prepareEsQueryDisplayFilters($esQuery, $aggregationsFilterResult, $labelMaps = [])
     {
@@ -575,7 +575,7 @@ trait ElasticsearchQueryTrait
     }
 
     /**
-     * @param array $bucket
+     * @param array  $bucket
      * @param string $label
      */
     public function generateFilterValue($bucket, $label): FilterValue
@@ -603,15 +603,15 @@ trait ElasticsearchQueryTrait
 
     /**
      * @param FilterDisplay $filter
-     * @param array $aggregations
+     * @param array         $aggregations
      *
      * @return FilterValue
      */
     public function generateMissingFilterValue($filter, $aggregations)
     {
-        $keyInAggregations = $filter->getName() . '_missing';
+        $keyInAggregations = $filter->getName().'_missing';
         $bucket = [
-            'key' => '',
+            'key'       => '',
             'doc_count' => 0,
         ];
         if (array_key_exists($keyInAggregations, $aggregations)) {
