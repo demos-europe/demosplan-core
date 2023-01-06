@@ -135,8 +135,8 @@ class FaqService extends CoreService
      */
     public function getEnabledAndDisabledFaqList(FaqCategory $faqCategory): array
     {
-        $condition = $this->conditionFactory->propertyHasValue($faqCategory, 'faqCategory');
-        $sortMethod = $this->sortMethodFactory->propertyAscending('title');
+        $condition = $this->conditionFactory->propertyHasValue($faqCategory, ['faqCategory']);
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, [$condition], [$sortMethod]);
     }
@@ -150,11 +150,11 @@ class FaqService extends CoreService
     {
         $roles = $user->isPublicUser() ? [Role::GUEST] : $user->getRoles();
         $conditions = [
-            $this->conditionFactory->propertyHasValue(1, 'enabled'),
-            $this->conditionFactory->propertyHasValue($faqCategory, 'faqCategory'),
-            $this->conditionFactory->propertyHasAnyOfValues($roles, 'roles', 'code'),
+            $this->conditionFactory->propertyHasValue(1, ['enabled']),
+            $this->conditionFactory->propertyHasValue($faqCategory, ['faqCategory']),
+            $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']),
         ];
-        $sortMethod = $this->sortMethodFactory->propertyAscending('title');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['title']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(Faq::class, $conditions, [$sortMethod]);
     }

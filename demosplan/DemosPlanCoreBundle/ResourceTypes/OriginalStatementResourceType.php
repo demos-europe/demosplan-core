@@ -57,11 +57,11 @@ final class OriginalStatementResourceType extends DplanResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyIsNull(...$this->original->id),
-            $this->conditionFactory->propertyIsNull(...$this->headStatement->id),
-            $this->conditionFactory->propertyIsNull(...$this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id)
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyIsNull($this->original->id),
+            $this->conditionFactory->propertyIsNull($this->headStatement->id),
+            $this->conditionFactory->propertyIsNull($this->movedStatement),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
         );
     }
 

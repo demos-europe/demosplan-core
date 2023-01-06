@@ -59,7 +59,7 @@ final class RoleResourceType extends DplanResourceType
 
         return $this->conditionFactory->propertyHasAnyOfValues(
             $projectRoleCodes,
-            ...$this->code
+            $this->code
         );
     }
 

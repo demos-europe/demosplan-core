@@ -121,7 +121,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
 
         return $this->conditionFactory->propertyHasAnyOfValues(
             $procedureIds,
-            ...$this->parentStatement->procedure->id
+            $this->parentStatement->procedure->id
         );
     }
 
@@ -196,10 +196,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             ? $this->conditionFactory->false()
             : $this->conditionFactory->propertyHasValue(
                 $currentProcedure->getId(),
-                ...$this->placeResourceType->procedure->id
+                $this->placeResourceType->procedure->id
             );
         $placeSortMethod = $this->sortMethodFactory->propertyAscending(
-            ...$this->placeResourceType->sortIndex
+            $this->placeResourceType->sortIndex
         );
 
         return [

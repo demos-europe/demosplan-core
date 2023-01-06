@@ -12,11 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use GuzzleHttp\Exception\InvalidArgumentException;
-use Tightenco\Collect\Support\Collection;
-use Twig\TwigFunction;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use GuzzleHttp\Exception\InvalidArgumentException;
+use RuntimeException;
+use Tightenco\Collect\Support\Collection;
+use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase
 {
@@ -186,7 +187,7 @@ class WebpackBundleExtension extends ExtensionBase
             try {
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
             } catch (InvalidArgumentException $e) {
-                throw new \RuntimeException(<<<ERR
+                throw new RuntimeException(<<<ERR
 The manifest
 
     $manifestFile

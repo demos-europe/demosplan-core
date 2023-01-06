@@ -1340,19 +1340,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     {
         $query = $this->createFluentQuery();
         $orCondition = $query->getConditionDefinition()
-            ->propertyHasValue(false, 'deleted')
-            ->propertyHasValue(false, 'master')
-            ->propertyHasValue(false, 'masterTemplate')
+            ->propertyHasValue(false, ['deleted'])
+            ->propertyHasValue(false, ['master'])
+            ->propertyHasValue(false, ['masterTemplate'])
             ->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull('settings', 'designatedSwitchDate')
-            ->propertyIsNotNull('settings', 'designatedPhase')
-            ->propertyIsNotNull('settings', 'designatedEndDate')
+            ->propertyIsNotNull(['settings', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['settings', 'designatedPhase'])
+            ->propertyIsNotNull(['settings', 'designatedEndDate'])
             ->propertyHasValueBeforeNow(['settings', 'designatedSwitchDate']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull('settings', 'designatedPublicSwitchDate')
-            ->propertyIsNotNull('settings', 'designatedPublicPhase')
-            ->propertyIsNotNull('settings', 'designatedPublicEndDate')
+            ->propertyIsNotNull(['settings', 'designatedPublicSwitchDate'])
+            ->propertyIsNotNull(['settings', 'designatedPublicPhase'])
+            ->propertyIsNotNull(['settings', 'designatedPublicEndDate'])
             ->propertyHasValueBeforeNow(['settings', 'designatedPublicSwitchDate']);
 
         return $query->getEntities();

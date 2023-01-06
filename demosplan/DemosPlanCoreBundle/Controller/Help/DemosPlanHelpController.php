@@ -160,7 +160,7 @@ class DemosPlanHelpController extends BaseController
                     'templateVars'   => [
                         'contextualHelp' => $helpHandler->getHelp($contextualHelpId),
                     ],
-                    'title' => 'help.contextualHelp.edit',
+                    'title'          => 'help.contextualHelp.edit',
                 ]
             );
         } catch (InvalidArgumentException $e) {

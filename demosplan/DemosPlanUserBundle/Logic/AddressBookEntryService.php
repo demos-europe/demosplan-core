@@ -11,18 +11,18 @@
 namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanUserBundle\ValueObject\AddressBookEntryVO;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
 
 class AddressBookEntryService extends CoreService
 {
@@ -109,8 +109,8 @@ class AddressBookEntryService extends CoreService
         try {
             return $this->entityFetcher->listEntitiesUnrestricted(
                 AddressBookEntry::class,
-                [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, 'id')],
-                [$this->sortMethodFactory->propertyAscending('name')]
+                [$this->conditionFactory->propertyHasAnyOfValues($addressBookEntryIds, ['id'])],
+                [$this->sortMethodFactory->propertyAscending(['name'])]
             );
         } catch (Exception $e) {
             $this->logger->error('Fehler bei getOrganisationsByIds Orga: ', [$e]);

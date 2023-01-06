@@ -33,9 +33,6 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\PathException;
 use Exception;
-
-use function is_object;
-
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
@@ -152,7 +149,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
             throw new AccessDeniedException('Procedure authorization required');
         }
 
-        $rpcRequests = is_object($rpcRequests)
+        $rpcRequests = \is_object($rpcRequests)
             ? [$rpcRequests]
             : $rpcRequests;
 
@@ -216,7 +213,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         }
 
         if (!isset($rpcRequest->params->filter)
-            || !is_object($rpcRequest->params->filter)
+            || !\is_object($rpcRequest->params->filter)
         ) {
             throw new InvalidArgumentException('filter required');
         }
@@ -302,7 +299,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         $conditions = $this->filterParser->parseFilter($filter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $sourceProcedure->getId(),
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         if (null === $searchParams) {

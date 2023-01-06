@@ -61,7 +61,7 @@
             id="r_email_address"
             checked
             :label="{
-                text: Translator.trans('procedure.testmail.submitters.send', { email: templateVars.userMail }),
+                text: Translator.trans('procedure.testmail.submitters.send', { email: '{{ templateVars.userMail }}' }),
                 tooltip: Translator.trans('explanation.organisation.email.procedure.agency')
             }"
             name="r_email_address"

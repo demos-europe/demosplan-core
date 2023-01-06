@@ -62,8 +62,8 @@ class StatementRepositoryTest extends FunctionalTestCase
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
             ->anyConditionApplies()
-            ->propertyHasValue($expectedIdA, 'id')
-            ->propertyHasValue($expectedIdB, 'id');
+            ->propertyHasValue($expectedIdA, ['id'])
+            ->propertyHasValue($expectedIdB, ['id']);
 
         $actualStatements = $query->getEntities();
 
@@ -83,9 +83,9 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($expectedAuthorName, 'meta', 'authorName')
-            ->propertyHasValue($expectedSubmitName, 'meta', 'submitName')
-            ->propertyHasValue($expectedId, 'id');
+            ->propertyHasValue($expectedAuthorName, ['meta', 'authorName'])
+            ->propertyHasValue($expectedSubmitName, ['meta', 'submitName'])
+            ->propertyHasValue($expectedId, ['id']);
 
         $actualStatements = $query->getEntities();
 
@@ -101,7 +101,7 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($expectedId, 'id')
+            ->propertyHasValue($expectedId, ['id'])
             ->inProcedureWithId($expectedProcedureId);
 
         $actualStatements = $query->getEntities();
@@ -118,8 +118,8 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($expectedProcedureOrgaId, 'procedure', 'orga', 'id')
-            ->propertyHasValue($expectedId, 'id');
+            ->propertyHasValue($expectedProcedureOrgaId, ['procedure', 'orga', 'id'])
+            ->propertyHasValue($expectedId, ['id']);
 
         $actualStatements = $query->getEntities();
 
@@ -134,7 +134,7 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($expectedId, 'meta', 'statement', 'id');
+            ->propertyHasValue($expectedId, ['meta', 'statement', 'id']);
 
         $actualStatements = $query->getEntities();
 
@@ -151,23 +151,25 @@ class StatementRepositoryTest extends FunctionalTestCase
         $query->getConditionDefinition()
             ->propertyHasValue(
                 $expectedId,
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'meta',
-                'statement',
-                'id'
+                [
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'meta',
+                    'statement',
+                    'id',
+                ]
             );
 
         $actualStatements = $query->getEntities();
@@ -184,8 +186,8 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyBetweenValuesInclusive($expectedVotes - 1, $expectedVotes + 1, 'numberOfAnonymVotes')
-            ->propertyHasValue($expectedId, 'id');
+            ->propertyBetweenValuesInclusive($expectedVotes - 1, $expectedVotes + 1, ['numberOfAnonymVotes'])
+            ->propertyHasValue($expectedId, ['id']);
 
         $actualStatements = $query->getEntities();
 
@@ -210,11 +212,11 @@ class StatementRepositoryTest extends FunctionalTestCase
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
             ->anyConditionApplies()
-            ->propertyHasValue($expectedIdB, 'id')
+            ->propertyHasValue($expectedIdB, ['id'])
             ->allConditionsApply()
-            ->propertyHasValue($authorNameA, 'meta', 'authorName')
-            ->propertyHasValue($submitNameA, 'meta', 'submitName')
-            ->propertyHasValue($expectedIdA, 'id');
+            ->propertyHasValue($authorNameA, ['meta', 'authorName'])
+            ->propertyHasValue($submitNameA, ['meta', 'submitName'])
+            ->propertyHasValue($expectedIdA, ['id']);
 
         $actualStatements = $query->getEntities();
 
@@ -230,7 +232,7 @@ class StatementRepositoryTest extends FunctionalTestCase
 
         $query = $this->sut->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasNotValue($unexpectedId, 'id');
+            ->propertyHasNotValue($unexpectedId, ['id']);
 
         $actualStatements = $query->getEntities();
 

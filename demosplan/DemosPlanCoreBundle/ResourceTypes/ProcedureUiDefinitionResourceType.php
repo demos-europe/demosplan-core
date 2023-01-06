@@ -43,14 +43,14 @@ final class ProcedureUiDefinitionResourceType extends DplanResourceType implemen
             // access the list of ProcedureTypes and should be restricted to ProcedureUiDefinitions
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
             return $this->conditionFactory->allConditionsApply(
-                $this->conditionFactory->propertyIsNull(...$this->procedure),
-                $this->conditionFactory->propertyIsNotNull(...$this->procedureType)
+                $this->conditionFactory->propertyIsNull($this->procedure),
+                $this->conditionFactory->propertyIsNotNull($this->procedureType)
             );
         }
 
         return $this->conditionFactory->propertyHasValue(
             $currentProcedure->getId(),
-            ...$this->procedure->id
+            $this->procedure->id
         );
     }
 

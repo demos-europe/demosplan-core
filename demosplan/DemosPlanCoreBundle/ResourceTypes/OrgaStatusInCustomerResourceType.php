@@ -31,7 +31,7 @@ final class OrgaStatusInCustomerResourceType extends DplanResourceType
     {
         return $this->conditionFactory->propertyHasValue(
             $this->currentCustomerService->getCurrentCustomer()->getId(),
-            ...$this->customer->id
+            $this->customer->id
         );
     }
 

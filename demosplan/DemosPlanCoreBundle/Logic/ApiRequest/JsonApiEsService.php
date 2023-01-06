@@ -50,7 +50,7 @@ class JsonApiEsService
     private $searchTypes;
 
     /**
-     * @var array<string,Index> $searchTypes
+     * @param array<string,Index> $searchTypes
      */
     public function __construct(
         DqlConditionFactory $conditionFactory,
@@ -173,7 +173,7 @@ class JsonApiEsService
         $esIds = array_column($esResultArrays, 'id');
         $condition = $this->conditionFactory->propertyHasAnyOfValues(
             $esIds,
-            ...$resourceType->id
+            $resourceType->id
         );
 
         $entities = [];

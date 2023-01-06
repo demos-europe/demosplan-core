@@ -114,7 +114,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
-            ...$this->owningOrganisation->id
+            $this->owningOrganisation->id
         );
     }
 
