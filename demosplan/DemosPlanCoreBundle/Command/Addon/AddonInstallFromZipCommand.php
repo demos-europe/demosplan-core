@@ -125,15 +125,18 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
 
             // Clear cache to force Symfony to rebuild its container
-            $cacheClearCommand = $this->getApplication()->get('cache:clear');
-            $cacheClearCommand->run(new StringInput('cache:clear'), $output);
+            $cacheClearReturn = Batch::create($this->getApplication(), $output)
+                ->addShell(['cache:clear'])
+                ->run();
+
+            if (0 === $cacheClearReturn) {
+                return Command::SUCCESS;
+            }
         } catch (Exception $e) {
             $output->error($e->getMessage());
-
-            return Command::FAILURE;
         }
 
-        return Command::SUCCESS;
+        return Command::FAILURE;
     }
 
     /**
