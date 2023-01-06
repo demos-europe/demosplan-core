@@ -1,11 +1,12 @@
 babdev/pagerfanta-bundle: MIT
+bamarni/composer-bin-plugin: MIT
 beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/package-versions-deprecated: MIT
+demos-europe/demosplan-addon: MIT
 demos-europe/edt-dql: MIT
 demos-europe/edt-extra: MIT
-demos-europe/edt-jsonapi: MIT
 demos-europe/edt-paths: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
@@ -39,7 +40,8 @@ jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
 knplabs/knp-menu-bundle: MIT
-lcobucci/jwt: BSD-3-Clause
+knpuniversity/oauth2-client-bundle: MIT
+league/flysystem: MIT
 league/flysystem-bundle: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
@@ -70,6 +72,7 @@ rollerworks/password-strength-bundle: MIT
 sensio/framework-extra-bundle: MIT
 sentry/sentry-symfony: Apache-2.0
 squizlabs/php_codesniffer: BSD-3-Clause
+stevenmaguire/oauth2-keycloak: MIT
 stof/doctrine-extensions-bundle: MIT
 symfony/asset: MIT
 symfony/cache: MIT
@@ -121,4 +124,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 
-As of 25.11.2022 10:20
+As of 05.01.2023 15:27
