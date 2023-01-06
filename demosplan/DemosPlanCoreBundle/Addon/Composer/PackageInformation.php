@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Addon\Composer;
 
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
+use demosplan\DemosPlanCoreBundle\Exception\ComposerPackageException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
 /**
@@ -51,7 +52,13 @@ final class PackageInformation
 
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
-            static fn ($version) => AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? '')
+            static function (array $version): bool {
+                if (!array_key_exists('type', $version)) {
+                    throw ComposerPackageException::typeMissing($version['name']);
+                }
+
+                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? '');
+            }
         );
     }
 
