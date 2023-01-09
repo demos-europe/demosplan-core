@@ -53,11 +53,7 @@ final class PackageInformation
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
             static function (array $version): bool {
-                if (!array_key_exists('type', $version)) {
-                    throw ComposerPackageException::typeMissing($version['name']);
-                }
-
-                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? '');
+                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
             }
         );
     }
