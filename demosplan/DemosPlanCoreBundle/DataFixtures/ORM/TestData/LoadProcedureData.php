@@ -97,6 +97,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->flush();
 
         $this->loadMasterBluePrintFileElements($manager, $procedureMaster);
+        $this->loadMasterBluePrintParagraphElements($manager, $procedureMaster);
 
         $this->setReference('masterBlaupause', $procedureMaster);
 
@@ -928,6 +929,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             Elements::FILE_TYPE_VERTEILER,
             Elements::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
             Elements::FILE_TYPE_SCOPING_PAPIER,
+            // added elements in bobhh master-template
+            Elements::FILE_TYPE_GUTACHTEN,
+            Elements::FILE_TYPE_ARBEITSKREISPAPIER_I,
+            Elements::FILE_TYPE_ARBEITSKREISPAPIER_II,
+            Elements::FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE,
+            Elements::FILE_TYPE_GROBABSTIMMUNGSPAPIER,
+            Elements::FILE_TYPE_SCOPING_PROTOKOLL,
         ];
 
         foreach ($elementsToCreate as $key => $elementTitle) {
@@ -944,6 +952,31 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
             $manager->persist($element);
             $this->setReference("masterBlueprintElement-$key", $element);
+        }
+    }
+
+    protected function loadMasterBluePrintParagraphElements(
+        ObjectManager $manager,
+        Procedure $masterBlueprint
+    ): void {
+        $elementsToCreate = [
+            Elements::FILE_TYPE_VERORDNUNG,
+            Elements::FILE_TYPE_BEGRUENDUNG,
+        ];
+        foreach ($elementsToCreate as $key => $elementTitle) {
+            $element = new Elements();
+            $element->setProcedure($masterBlueprint);
+            $element->setCategory(Elements::ELEMENTS_CATEGORY_PARAGRAPH);
+            $element->setOrder($key);
+            $element->setEnabled(1);
+            $element->setTitle($elementTitle);
+            $manager->persist($element);
+
+            $this->loadTestProcedureSingleDocument($masterBlueprint, $element);
+            $this->loadTestProcedureSingleDocumentVersion($masterBlueprint, $element);
+
+            $manager->persist($element);
+            $this->setReference("masterBlueprintElement-paragraph$key", $element);
         }
     }
 }
