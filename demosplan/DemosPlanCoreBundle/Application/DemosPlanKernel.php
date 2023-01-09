@@ -165,14 +165,14 @@ class DemosPlanKernel extends Kernel
 
         if ($this->isLocalContainer()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/cache/%s', $this->activeProject, $this->environment)
+                sprintf('dplan/%s/cache/%s', $this->activeProject, $this->environment)
             );
         }
 
         // use distinct caches for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+                sprintf('dplan/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
@@ -189,7 +189,7 @@ class DemosPlanKernel extends Kernel
 
         if ($this->isLocalContainer()) {
             $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/logs/%s', $this->activeProject, $this->environment)
+                sprintf('dplan/%s/logs/%s', $this->activeProject, $this->environment)
             );
         }
 
