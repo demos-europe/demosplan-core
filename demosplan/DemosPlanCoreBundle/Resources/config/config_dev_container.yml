@@ -13,7 +13,7 @@ parameters:
 
     is_shared_folder: true
 
-    mailer_dsn: "smtp://localhost:1025"
+    mailer_dsn: "smtp://172.22.255.1:1025"
 
     https_only: false
 
@@ -38,7 +38,7 @@ parameters:
         - '*.demos-europe.eu'
         - 'cdnjs.cloudflare.com'
 
-    rabbitmq_host: "mq"
+    rabbitmq_host: "message_queue"
     rabbitmq_routing_disabled: true
 
     gateway_url: '/app_dev.php/dplan/login'
