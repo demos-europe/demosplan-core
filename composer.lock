@@ -19175,16 +19175,16 @@
         },
         {
             "name": "goetas-webservices/xsd2php",
-            "version": "0.4.6",
+            "version": "0.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goetas-webservices/xsd2php.git",
-                "reference": "4d6927620bc0b279118c4a38a8c6a0819dd1df46"
+                "reference": "a3fe60d58ccd59194603e60804fe6adff7b51ab4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goetas-webservices/xsd2php/zipball/4d6927620bc0b279118c4a38a8c6a0819dd1df46",
-                "reference": "4d6927620bc0b279118c4a38a8c6a0819dd1df46",
+                "url": "https://api.github.com/repos/goetas-webservices/xsd2php/zipball/a3fe60d58ccd59194603e60804fe6adff7b51ab4",
+                "reference": "a3fe60d58ccd59194603e60804fe6adff7b51ab4",
                 "shasum": ""
             },
             "require": {
@@ -19240,7 +19240,7 @@
             ],
             "support": {
                 "issues": "https://github.com/goetas-webservices/xsd2php/issues",
-                "source": "https://github.com/goetas-webservices/xsd2php/tree/0.4.6"
+                "source": "https://github.com/goetas-webservices/xsd2php/tree/0.4.7"
             },
             "funding": [
                 {
@@ -19256,7 +19256,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2022-10-23T17:17:56+00:00"
+            "time": "2022-12-20T21:36:07+00:00"
         },
         {
             "name": "liip/functional-test-bundle",
