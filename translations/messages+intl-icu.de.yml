@@ -1306,6 +1306,7 @@ explanation.gislayer.visibility.group.locked.unexpected: "Die Kartenebene kann n
 explanation.gislayer.xplan.default: "Nutze die vordefinierten Standard XPlan-Layer."
 explanation.gislayer.xplan: "Diesen WMS als XPlanlayer anlegen."
 explanation.invitationmail.deactivated: "Bitte speichern Sie Ihre Änderungen zu der Beteiligungs-E-Mail ab, bevor Sie die Einladungen verschicken, damit die Änderungen übernommen werden."
+explanation.import.topicsAndTags: "Die Schlagworte wurden erfolgreich importiert."
 explanation.layers.separated: "Mehrere Layer werden durch ein Komma getrennt."
 explanation.list.of.submitters: "In dieser Liste finden Sie alle Personen, die in diesem Verfahren mindestens eine Stellungnahme eingereicht haben."
 explanation.login.gateway: "Die Anmeldung erfolgt über den Schleswig-Holstein-Service. Für Institutionen erforderlich, für Bürgerinnen und Bürger optional."
