@@ -227,6 +227,7 @@ class DocumentHandler extends CoreHandler
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
+                $element['r_publish_categories'] = (bool)($request['r_publish_categories'] ?? false);
                 // Ist es eine Unterkategorie?
                 if (null !== $elementId) {
                     $element['r_parent'] = $elementId;
