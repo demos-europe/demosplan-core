@@ -132,7 +132,7 @@
     "chalk": "4.1.2",
     "clean-webpack-plugin": "^4.0.0",
     "cli-progress": "^3.11.2",
-    "commander": "^9.4.1",
+    "commander": "^9.5.0",
     "copy-webpack-plugin": "^11.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.2",
