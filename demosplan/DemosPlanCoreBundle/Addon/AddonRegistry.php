@@ -29,11 +29,6 @@ class AddonRegistry
     public const ADDON_DIRECTORY = '/addons/';
     public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
 
-    /**
-     * Composer package type for addon packages.
-     */
-    public const ADDON_COMPOSER_TYPE = 'demosplan-addon';
-
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
     private Collection $addons;
@@ -75,7 +70,7 @@ class AddonRegistry
      */
     public function register(PackageInterface $addonComposerDefinition): void
     {
-        if (self::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
+        if (PackageInformation::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
             throw AddonException::invalidType($addonComposerDefinition->getName(), $addonComposerDefinition->getType());
         }
 
