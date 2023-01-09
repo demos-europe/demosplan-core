@@ -24,6 +24,11 @@ final class PackageInformation
 {
     public const UNDEFINED_VERSION = '0.0.0.0';
 
+    /**
+     * Composer package type for addon packages.
+     */
+    public const ADDON_COMPOSER_TYPE = 'demosplan-addon';
+
     private array $addonPackages = [];
 
     public function __construct()
@@ -52,7 +57,7 @@ final class PackageInformation
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
             static function (array $version): bool {
-                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
+                return self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
             }
         );
     }
