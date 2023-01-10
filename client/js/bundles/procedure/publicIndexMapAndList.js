@@ -13,7 +13,7 @@
  */
 import { dpApi, prefixClass } from '@demos-europe/demosplan-utils/index'
 import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
 const components = { DpSearchProcedureMap }

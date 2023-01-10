@@ -12,7 +12,7 @@
  */
 
 import AdministrationProceduresList from '@DpJs/components/procedure/admin/AdministrationProceduresList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   AdministrationProceduresList

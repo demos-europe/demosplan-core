@@ -18,7 +18,7 @@ import { DpDateRangePicker } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import DPWizard from '@DpJs/lib/procedure/DPWizard'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 
 const components = { DpBasicSettings, DpEmailList, DpDateRangePicker }

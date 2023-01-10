@@ -14,7 +14,7 @@
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import DpUserList from '@DpJs/components/user/DpUserList'
 import DpUserListExtended from '@DpJs/components/user/DpUserListExtended'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import UserFormFields from '@DpJs/store/user/UserFormFields'
 
 const stores = {

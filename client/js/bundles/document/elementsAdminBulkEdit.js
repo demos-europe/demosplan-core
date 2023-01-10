@@ -12,7 +12,7 @@
  */
 
 import ElementsAdminBulkEdit from '@DpJs/components/document/ElementsAdminBulkEdit/ElementsAdminBulkEdit'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   ElementsAdminBulkEdit
