@@ -709,24 +709,6 @@ export default {
       }
     },
 
-    updateSelectedElementEditableStatus (data) {
-      const checkboxId = data.id + ':item_check[]'
-      if (document.getElementById(checkboxId)) {
-        if (document.getElementById(checkboxId).checked) {
-          data.checked = true
-          this.updateSelectedElementsList(data)
-        }
-      }
-    },
-
-    updateSelectedElementsList (data) {
-      if (data.checked) {
-        this.addToSelectionAction(data)
-      } else {
-        this.removeFromSelectionAction(data.id)
-      }
-    },
-
     waitForElement (selector) {
       return new Promise(resolve => {
         const element = document.querySelector(selector)
