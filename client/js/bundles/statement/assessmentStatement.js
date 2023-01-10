@@ -17,7 +17,7 @@ import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
 import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
