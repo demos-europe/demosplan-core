@@ -114,6 +114,8 @@ services:
         networks:
             demosplan_development_network:
                 ipv4_address: 172.22.255.12
+        environment:
+            - JAVASERVICE_MEMORY=${JAVASERVICE_MEMORY:-1024m}
     message_queue:
         image: 'rabbitmq:3.11-management'
         # use a password hash as calculated in https://gist.github.com/komuw/c6fb1a1c757afb43fe69bdd736d5cf63

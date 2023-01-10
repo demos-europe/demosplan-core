@@ -7,4 +7,7 @@ RUN freshclam
 COPY demosplan.jar /opt/demosplan/demosplan.jar
 COPY override.properties /opt/demosplan/override.properties
 
-ENTRYPOINT ["java","-jar","-Xmx1024m", "-Dfile.encoding=UTF-8", "-Dlogpath=/var/logs/demosplan", "/opt/demosplan/demosplan.jar", "--spring.config.location=classpath:application.properties,/opt/demosplan/override.properties"]
+ADD ./start.sh /
+RUN chmod +x /start.sh
+
+ENTRYPOINT [ "/start.sh" ]
