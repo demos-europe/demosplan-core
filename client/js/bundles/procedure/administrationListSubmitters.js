@@ -12,7 +12,7 @@
  */
 
 import DpSubmitterList from '@DpJs/components/procedure/DpSubmitterList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSubmitterList }
 

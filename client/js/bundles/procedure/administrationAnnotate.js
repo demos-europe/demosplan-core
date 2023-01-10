@@ -12,7 +12,7 @@
  */
 
 import DpImageAnnotator from '@DpJs/components/procedure/imageAnnotator/DpImageAnnotator'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpImageAnnotator }
 const stores = {}

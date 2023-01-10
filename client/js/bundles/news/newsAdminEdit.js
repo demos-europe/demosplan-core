@@ -14,7 +14,7 @@
 import { DpChangeStateAtDate, DpEditor, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import newsAdminInit from '@DpJs/lib/news/newsAdmin'
 
 const components = {

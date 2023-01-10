@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
 
 const components = {
