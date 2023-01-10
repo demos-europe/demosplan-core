@@ -3,7 +3,7 @@ fos_elastica:
         procedures:
             index_name: '%project_prefix%_procedures_test'
             persistence:
-            listener: { enabled: false }
+                listener: { enabled: false }
         draftStatements:
             index_name: '%project_prefix%_draft_statements_test'
             persistence:
