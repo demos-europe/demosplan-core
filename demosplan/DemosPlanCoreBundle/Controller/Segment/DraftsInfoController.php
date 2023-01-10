@@ -108,8 +108,11 @@ class DraftsInfoController extends BaseController
         } catch (StatementNotFoundException $e) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
             throw $e;
-        } catch (StatementAlreadySegmentedException|LockedByAssignmentException $e) {
-            $this->messageBag->add('error', $e->getMessage());
+        } catch (StatementAlreadySegmentedException $e) {
+            $this->messageBag->add('error', 'error.statement.already.segmented');
+            throw $e;
+        } catch (LockedByAssignmentException $e) {
+            $this->messageBag->add('error', 'error.statement.not.assigned');
             throw $e;
         }
     }
