@@ -929,7 +929,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             Elements::FILE_TYPE_VERTEILER,
             Elements::FILE_TYPE_NIEDERSCHRIFT_SONSTIGE,
             Elements::FILE_TYPE_SCOPING_PAPIER,
-            // added elements in bobhh master-template
             Elements::FILE_TYPE_GUTACHTEN,
             Elements::FILE_TYPE_ARBEITSKREISPAPIER_I,
             Elements::FILE_TYPE_ARBEITSKREISPAPIER_II,
