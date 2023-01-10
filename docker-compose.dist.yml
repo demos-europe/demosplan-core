@@ -117,9 +117,10 @@ services:
         environment:
             - JAVASERVICE_MEMORY=${JAVASERVICE_MEMORY:-1024m}
     message_queue:
-        image: 'rabbitmq:3.11-management'
+        build:
+            context: docker/rabbitmq
+        image: 'demosdeutschland/demosplan-rabbitmq:1.0'
         # use a password hash as calculated in https://gist.github.com/komuw/c6fb1a1c757afb43fe69bdd736d5cf63
-        command: 'rabbitmq-server'
         hostname: message-queue
         networks:
             demosplan_development_network:
@@ -131,6 +132,8 @@ services:
         volumes:
             - './docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro'
             - './docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro'
+        environment:
+            - RABBITMQ_USER_PASSWORD=${RABBITMQ_USER_PASSWORD:-}
     search7:
         build:
             context: docker/elasticsearch7
