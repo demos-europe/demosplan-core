@@ -83,16 +83,20 @@
             <dp-radio
               id="attachTextRadioId"
               v-model="actions.addRecommendations.isTextAttached"
-              :bold="false"
               :checked="actions.addRecommendations.isTextAttached"
-              :label="Translator.trans('segments.bulk.edit.recommendations.radio.text.attach')"
+              :label="{
+                bold: false,
+                text: Translator.trans('segments.bulk.edit.recommendations.radio.text.attach')
+              }"
               @change="actions.addRecommendations.isTextReplaced = false" />
             <dp-radio
               id="replaceTextRadioId"
               v-model="actions.addRecommendations.isTextReplaced"
-              :bold="false"
               :checked="actions.addRecommendations.isTextReplaced"
-              :label="Translator.trans('segments.bulk.edit.recommendations.radio.text.replace')"
+              :label="{
+                bold: false,
+                text: Translator.trans('segments.bulk.edit.recommendations.radio.text.replace')
+              }"
               @change="actions.addRecommendations.isTextAttached = false" />
           </div>
           <dp-editor

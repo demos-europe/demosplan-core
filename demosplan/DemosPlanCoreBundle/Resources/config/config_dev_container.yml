@@ -1,6 +1,8 @@
 # this file keeps specific params used
 # during development with DEMOS Containers
 parameters:
+    avscan_enable: false
+
     database_host: "db"
     database_user: "root"
     database_password: ""

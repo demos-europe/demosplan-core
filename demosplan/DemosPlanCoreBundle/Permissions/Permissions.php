@@ -15,6 +15,7 @@ use function collect;
 
 use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -46,7 +47,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-class Permissions implements PermissionsInterface
+class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
     public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
 

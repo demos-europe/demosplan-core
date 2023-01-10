@@ -101,8 +101,8 @@ class DemosPlanNewsController extends BaseController
 
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = [
-            'news'      => $this->procedureNewsService->getSingleNews($newsID),
-            'procedure' => $procedureId,
+            'news'                  => $this->procedureNewsService->getSingleNews($newsID),
+            'procedure'             => $procedureId,
             // Verfahrensname holen und an das Template übergeben
             'procedureExternalName' => $currentProcedureService->getProcedureWithCertainty()->getExternalName(),
         ];
@@ -214,7 +214,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         $templateVars = [
-            'list' => [
+            'list'           => [
                 'newslist' => $newsList,
             ],
             'pressList'      => $pressList,
@@ -261,7 +261,7 @@ class DemosPlanNewsController extends BaseController
             // Logo holen und an das Template übergeben
             $procedureArray = $currentProcedureService->getProcedureArray();
             $templateVars = [
-                'list' => [
+                'list'      => [
                     'newslist' => $sResult['result'],
                 ],
                 'procedure' => $procedure,
@@ -373,7 +373,7 @@ class DemosPlanNewsController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'newsnew' => [
+            'newsnew'  => [
                 'action',
                 'r_title',
                 'r_description',

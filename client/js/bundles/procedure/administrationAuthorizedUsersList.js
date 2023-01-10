@@ -12,7 +12,7 @@
  */
 
 import AuthorizedUsersList from '@DpJs/components/procedure/admin/AuthorizedUsersList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { AuthorizedUsersList }
 const stores = {}

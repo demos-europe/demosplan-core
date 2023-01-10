@@ -15,7 +15,7 @@ import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import { DpEditor } from '@demos-europe/demosplan-ui'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/user/UrlPreview'
 
 const stores = {}

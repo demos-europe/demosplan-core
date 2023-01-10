@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_split_statement.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
 import SplitStatementView from '@DpJs/components/procedure/splitStatement/SplitStatementView'
 
