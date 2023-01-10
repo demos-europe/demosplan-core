@@ -66,6 +66,7 @@ services:
 #    php-maintenance-project:
 #        build:
 #            context: docker/php8.1-cli-maintenance
+#        image: 'some/image:1.0'
 #        volumes:
 #            - ${DEMOSPLAN_PATH:-}:/srv/www:ro
 #            - 'file_storage:/opt/uploads'
