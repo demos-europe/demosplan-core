@@ -1,6 +1,8 @@
 # This is an example file for a working demosplan development setup
 # You need to pass a `DEMOSPLAN_PATH` environment variable
 # with the current path to docker-compose.
+# To be able to log in to development container you need to provide
+# `CURRENT_HOST_USERNAME` and `CURRENT_HOST_USERID`
 #
 version: '3.4'
 services:
@@ -89,6 +91,8 @@ services:
             - BLACKFIRE_CLIENT_TOKEN=${BLACKFIRE_CLIENT_TOKEN:-}
             - BLACKFIRE_SERVER_ID=${BLACKFIRE_SERVER_ID:-}
             - BLACKFIRE_SERVER_TOKEN=${BLACKFIRE_SERVER_TOKEN:-}
+            - CURRENT_HOST_USERNAME=${CURRENT_HOST_USERNAME:-}
+            - CURRENT_HOST_USERID=${CURRENT_HOST_USERID:-}
             - DATABASE_HOST=${DATABASE_HOST:-db}
             - DATABASE_USER=${DATABASE_USER:-root}
         volumes:
