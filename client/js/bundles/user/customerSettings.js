@@ -12,7 +12,7 @@
  */
 
 import CustomerSettings from '@DpJs/components/user/CustomerSettings/CustomerSettings'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   CustomerSettings
