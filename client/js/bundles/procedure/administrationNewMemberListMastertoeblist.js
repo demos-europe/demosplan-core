@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_new_member_list_mastertoeblist.html.twig
  */
 import DpMasterToebList from '@DpJs/components/user/DpMasterToebList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpMasterToebList

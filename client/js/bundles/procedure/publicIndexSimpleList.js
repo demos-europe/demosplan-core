@@ -11,7 +11,7 @@
  * This is the entrypoint for publix_index.html.twig in planfestsh.
  */
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize()
   .then(() => {

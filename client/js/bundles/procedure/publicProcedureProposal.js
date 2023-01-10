@@ -13,7 +13,7 @@
 import { DpEditor } from '@demos-europe/demosplan-ui'
 import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize({
   DpEditor,
