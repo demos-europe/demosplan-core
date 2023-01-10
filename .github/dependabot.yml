@@ -54,6 +54,8 @@ updates:
           - "< 10"
       - dependency-name: symfony/*
         update-types: ["version-update:semver-major"]
+      - dependency-name: friendsofsymfony/jsrouting-bundle
+        update-types: [ "version-update:semver-major" ]
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
