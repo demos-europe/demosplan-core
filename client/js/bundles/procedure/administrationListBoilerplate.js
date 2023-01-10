@@ -13,7 +13,7 @@
 
 import { DpFlyout, DpSplitButton } from '@demos-europe/demosplan-ui'
 import { AnimateById } from '@demos-europe/demosplan-utils'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpFlyout, DpSplitButton }
 

@@ -12,7 +12,7 @@
  */
 
 import DpConvertAnnotatedPdf from '@DpJs/components/procedure/imageAnnotator/DpConvertAnnotatedPdf'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpConvertAnnotatedPdf }
 const stores = {}
