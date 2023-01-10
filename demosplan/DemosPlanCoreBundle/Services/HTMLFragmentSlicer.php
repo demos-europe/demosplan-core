@@ -72,23 +72,36 @@ class HTMLFragmentSlicer
         $htmlFragment,
         $sliceIndex = self::SLICE_DEFAULT
     ) {
+        $slicer = new self();
+
+        return $slicer
+            ->setOriginalFragment($htmlFragment)
+            ->setSliceIndex($sliceIndex)
+            ->execute();
+    }
+
+    /**
+     * Cached shorthand method for shortened text
+     *
+     * @param string $htmlFragment
+     * @param int $sliceIndex
+     */
+    public static function getShortened($htmlFragment, $sliceIndex = self::SLICE_DEFAULT):string
+    {
         $textHash = md5($htmlFragment);
         $cacheKey = 'htmlslicer_'.$textHash;
         if (DemosPlanTools::cacheExists($cacheKey)) {
             return DemosPlanTools::cacheGet($cacheKey);
         }
 
-        $slicer = new self();
+        $slicer = self::slice($htmlFragment, $sliceIndex);
 
-        $sliced = $slicer
-            ->setOriginalFragment($htmlFragment)
-            ->setSliceIndex($sliceIndex)
-            ->execute();
+        $shortened = $slicer->getShortenedFragment();
 
         // cache entry for 180 Days
-        DemosPlanTools::cacheAdd($cacheKey, $sliced, 15552000);
+        DemosPlanTools::cacheAdd($cacheKey, $shortened, 15552000);
 
-        return $sliced;
+        return $shortened;
     }
 
     public function execute()
