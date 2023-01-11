@@ -17,6 +17,7 @@ services:
             - MYSQL_ALLOW_EMPTY_PASSWORD=${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
             - MYSQL_USER=${MYSQL_USER:-dockerdb}
             - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+        restart: always
         volumes:
             - 'db_storage:/var/lib/mysql'
             - '/.runtime/my.cnf:/etc/mysql/conf.d/demos.cnf'
@@ -32,6 +33,7 @@ services:
         networks:
             demosplan_development_network:
                 ipv4_address: 172.22.255.9
+        restart: always
     php:
         build:
             context: docker/php8.1-fpm
@@ -49,6 +51,7 @@ services:
             - BLACKFIRE_SERVER_TOKEN=${BLACKFIRE_SERVER_TOKEN:-}
             - DATABASE_HOST=${DATABASE_HOST:-db}
             - DATABASE_USER=${DATABASE_USER:-root}
+        restart: always
     php-xdebug:
         build:
             context: docker/php8.1-fpm-xdebug
@@ -64,6 +67,7 @@ services:
             - DATABASE_USER=${DATABASE_USER:-root}
         depends_on:
             - "php"
+        restart: always
      # Each activated project needs a maintenance container
 #    php-maintenance-project:
 #        build:
@@ -106,6 +110,7 @@ services:
                     - demosplan
                     - dplan
                 ipv4_address: 172.22.255.2
+        restart: always
     java_service:
         build:
             context: docker/javaservice
@@ -120,6 +125,7 @@ services:
                 ipv4_address: 172.22.255.12
         environment:
             - JAVASERVICE_MEMORY=${JAVASERVICE_MEMORY:-1024m}
+        restart: always
     message_queue:
         build:
             context: docker/rabbitmq
@@ -138,6 +144,7 @@ services:
             - './docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro'
         environment:
             - RABBITMQ_USER_PASSWORD=${RABBITMQ_USER_PASSWORD:-}
+        restart: always
     search7:
         build:
             context: docker/elasticsearch7
@@ -153,6 +160,7 @@ services:
             memlock:
                 soft: -1
                 hard: -1
+        restart: always
     mailhog:
         image: mailhog/mailhog
         networks:
@@ -161,6 +169,7 @@ services:
         ports:
             - 1025:1025 # smtp server
             - 8025:8025 # web ui
+        restart: always
 
 networks:
     demosplan_development_network:
