@@ -11,7 +11,7 @@
  * DPVueBusPlugin adds extended event-emitter and -listener-methods to a Vue instance used as an event bus
  */
 
-import { extendedEmit, extendedOn } from '../lib/ExtendedVueEvents'
+import { extendedEmit, extendedOn } from '../lib/core/ExtendedVueEvents'
 
 const DPVueBusPlugin = {
   install: function (Vue, options) {
