@@ -14,29 +14,33 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\NonAuthorizedAssignRemover;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\NonAuthorizedCaseworkerRemover;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class NonAuthorizedAssignRemoveSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var NonAuthorizedAssignRemover
-     */
-    private $assignRemover;
+    private NonAuthorizedAssignRemover $assignRemover;
+    private NonAuthorizedCaseworkerRemover $caseworkerRemover;
 
-    public function __construct(NonAuthorizedAssignRemover $assignRemover)
+    public function __construct(NonAuthorizedAssignRemover $assignRemover, NonAuthorizedCaseworkerRemover $caseworkerRemover)
     {
         $this->assignRemover = $assignRemover;
+        $this->caseworkerRemover = $caseworkerRemover;
     }
 
     public static function getSubscribedEvents()
     {
         return [
-            ProcedureEditedEvent::class => 'removeNonAuthorizedAssignees',
+            ProcedureEditedEvent::class => 'removeUnauthorizedProcedureAssignments',
         ];
     }
 
-    public function removeNonAuthorizedAssignees(ProcedureEditedEvent $event): void
+    public function removeUnauthorizedProcedureAssignments(ProcedureEditedEvent $event): void
     {
-        $this->assignRemover->removeNonAuthorizedAssignees($event->getProcedureId());
+        $procedureId = $event->getProcedureId();
+        // Find and remove unauthorized assignees
+        $this->assignRemover->removeNonAuthorizedAssignees($procedureId);
+        // Find and remove unauthorized caseworkers
+        $this->caseworkerRemover->removeNonAuthorizedCaseWorkers($procedureId);
     }
 }
