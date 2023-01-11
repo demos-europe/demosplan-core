@@ -457,9 +457,8 @@ fos_elastica:
                 internId: {type: keyword, index: true}
                 memo: {type: text}
                 feedback: {type: text}
-                        sentAssessment: {type: boolean}
-                        type: {type: keyword, index: true}
-                        submitObject: {type: date, index: true, format: "yyyy-MM-dd'T'HH:mm:ssXXXXX" }
+                        sentAssessment: {type: boolean}type: {type: keyword, index: true}
+                submitObject: { type: date, index: true, format: "yyyy-MM-dd'T'HH:mm:ssXXXXX" }
                 submitDateString: {type: keyword, index: true}
                 submit: {type: long, index: true } # Timestamp für die Sortierung. Müsste auch über date gehen, tuts aber gerade nicht
                 submitType: {type: keyword, index: true}

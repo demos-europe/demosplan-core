@@ -58,7 +58,7 @@ class DemosPlanHelpController extends BaseController
 
         $templateVars['contextualHelpList'] = $helpHandler->getHelpNonGisLayer();
 
-        return $this->renderTemplate('@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'help.contextualHelp.list',
         ]);
@@ -88,7 +88,7 @@ class DemosPlanHelpController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
+            '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
             [
                 'formAction'     => 'dplan_contextual_help_create',
                 'formParameters' => [],
@@ -153,7 +153,7 @@ class DemosPlanHelpController extends BaseController
             ]);
 
             return $this->renderTemplate(
-                '@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
+                '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
                 [
                     'formAction'     => 'dplan_contextual_help_edit',
                     'formParameters' => ['contextualHelpId'=> $contextualHelpId],
