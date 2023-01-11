@@ -10,7 +10,7 @@
 /**
  * This is the entry point for elements_admin_import.html.twig
  */
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize({}).then(() => {
   $('form').submit(function (e) {

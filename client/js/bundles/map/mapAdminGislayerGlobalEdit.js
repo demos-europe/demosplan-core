@@ -13,7 +13,7 @@
 
 import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpUploadFiles

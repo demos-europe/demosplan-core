@@ -52,6 +52,12 @@ export default {
   },
 
   props: {
+    allowUpdatesFromOutside: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     initEmails: {
       required: true,
       type: Array
@@ -84,7 +90,9 @@ export default {
 
   watch: {
     initEmails (newVal) {
-      this.emails = newVal
+      if (this.allowUpdatesFromOutside) {
+        this.emails = newVal
+      }
     }
   },
 

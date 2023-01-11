@@ -36,7 +36,9 @@
         class="u-mb-0_25"
         :checked="isLocationSelected"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
-        :label="Translator.trans('statement.map.reference.add_on_map')"
+        :label="{
+          text: Translator.trans('statement.map.reference.add_on_map')
+        }"
         value="point" />
 
       <a
@@ -67,7 +69,9 @@
       ]">
       <dp-radio
         id="locationcounty"
-        :label="Translator.trans('statement.map.reference.choose_county')"
+        :label="{
+          text: Translator.trans('statement.map.reference.choose_county')
+        }"
         name="r_location"
         class="u-mb-0_25"
         :checked="statement.r_location === 'county'"
@@ -100,7 +104,9 @@
       ]">
       <dp-radio
         id="locationNone"
-        :label="Translator.trans('statement.map.no_reference')"
+        :label="{
+          text: Translator.trans('statement.map.no_reference')
+        }"
         name="r_location"
         class="u-mb-0_25"
         data-cy="notLocated"

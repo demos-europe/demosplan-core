@@ -10,41 +10,14 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use function array_map;
+
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\Querying\Contracts\PathException;
-use Elastica\Exception\ClientException;
-use Elastica\Query;
-use Elastica\Query\AbstractQuery;
-use Elastica\Query\BoolQuery;
-use Elastica\Index;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use Pagerfanta\Elastica\ElasticaAdapter;
-use Pagerfanta\Exception\NotValidCurrentPageException;
-use RuntimeException;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Traversable;
-use UnexpectedValueException;
-use const PHP_INT_MAX;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ClusterCitizenInstitutionSorter;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
@@ -63,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -73,14 +45,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -100,8 +73,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
-use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -140,20 +114,37 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
-use function array_key_exists;
-use function array_map;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function collect;
-use function in_array;
-use function is_array;
-use function is_string;
-use function strcmp;
-use function strlen;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\Querying\Contracts\PathException;
+use Elastica\Exception\ClientException;
+use Elastica\Index;
+use Elastica\Query;
+use Elastica\Query\AbstractQuery;
+use Elastica\Query\BoolQuery;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use Pagerfanta\Elastica\ElasticaAdapter;
+use Pagerfanta\Exception\NotValidCurrentPageException;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Traversable;
+use UnexpectedValueException;
 
 class StatementService extends CoreService implements StatementServiceInterface
 {
@@ -493,25 +484,25 @@ class StatementService extends CoreService implements StatementServiceInterface
         $em = $this->getDoctrine()->getManager();
 
         // Create and use versions of paragraph and SingleDocument
-        if (array_key_exists('paragraphId', $data) && 0 < strlen($data['paragraphId']) && '-' != $data['paragraphId']) {
+        if (\array_key_exists('paragraphId', $data) && 0 < \strlen($data['paragraphId']) && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (array_key_exists('documentId', $data) && 0 < strlen($data['documentId'])) {
+        if (\array_key_exists('documentId', $data) && 0 < \strlen($data['documentId'])) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
         }
 
-        //get submitOrgaId to set it in generateObjectValues() to the statement->meta
+        // get submitOrgaId to set it in generateObjectValues() to the statement->meta
         $data['submitOrgaId'] = $this->currentUser->getUser()->getOrganisationId();
 
         $statement = new Statement();
         $statement->setMeta(new StatementMeta());
 
-        if (array_key_exists('originalAttachmentFiles', $data)) {
+        if (\array_key_exists('originalAttachmentFiles', $data)) {
             /** @var ArrayCollection<int,File> $originalAttachmentFiles */
             $originalAttachmentFiles = $data['originalAttachmentFiles'];
             $originalAttachments = $originalAttachmentFiles
@@ -547,7 +538,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // Add MiscData to StatementMeta
-        if (array_key_exists('meta', $data) && is_array($data['meta'])) {
+        if (\array_key_exists('meta', $data) && \is_array($data['meta'])) {
             foreach ($data['meta'] as $key => $value) {
                 $statement->getMeta()->setMiscDataValue($key, $value);
             }
@@ -567,19 +558,19 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // add files to FileContainer
-        if (array_key_exists('file', $data)) {
+        if (\array_key_exists('file', $data)) {
             $statement = $this->addFilesToStatement($data['file'], $statement);
         }
 
-        if (array_key_exists('statementAttributes', $data) && is_array($data['statementAttributes'])) {
+        if (\array_key_exists('statementAttributes', $data) && \is_array($data['statementAttributes'])) {
             $attrRepo = $this->statementAttributeRepository;
-            if (array_key_exists('noLocation', $data['statementAttributes'])
+            if (\array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($statement);
-            } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen($data['statementAttributes']['county'])) {
+            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen($data['statementAttributes']['county'])) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $attrRepo->removeCounty($statement);
                 }
             }
@@ -593,14 +584,14 @@ class StatementService extends CoreService implements StatementServiceInterface
         $statementArray = $this->convertToLegacy($statement);
         try {
             $this->addReportNewStatement($statementArray);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Add Report in newStatement() failed Message: ', [$e]);
         }
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->post(new ManualOriginalStatementCreatedEvent($statement));
 
-        //statement similarities are calculated?
+        // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
         if (null !== $statementSimilarities) {
             foreach ($statementSimilarities as $statementSimilarity) {
@@ -625,10 +616,10 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function newStatement($data)
     {
-        //creating originalStatement
+        // creating originalStatement
         try {
             return $this->createOriginalStatement($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new Statement failed:', [$e]);
 
             return false;
@@ -649,7 +640,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return $statement;
         }
 
-        if (!is_array($fileStrings)) {
+        if (!\is_array($fileStrings)) {
             $fileStrings = [$fileStrings];
         }
 
@@ -664,7 +655,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $fileService = $this->fileService;
 
-        collect($fileStrings)
+        \collect($fileStrings)
             ->map(function ($fileString) use ($fileService, $statement) {
                 $fileService->addStatementFileContainer(
                     $statement->getId(),
@@ -783,7 +774,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statementCreatedEvent = $this->eventDispatcher->post(new StatementCreatedEvent($assessableStatement));
 
             return $statementCreatedEvent->getStatement();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create Statement failed:', [$e]);
 
             return false;
@@ -795,7 +786,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param string $ident
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVersionFields($ident): array
     {
@@ -833,7 +824,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $this->similarStatementSubmitterResourceType->similarStatements,
             static function (Collection $similarStatements) use ($change, $submitter): void {
                 /** @var Statement $statement */
-                foreach ($similarStatements as $statement){
+                foreach ($similarStatements as $statement) {
                     $statement->getSimilarStatementSubmitters()->add($submitter);
                     $change->addEntitiesToPersist($statement);
                 }
@@ -856,7 +847,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         return $this->entityFetcher->getEntityCount(
@@ -869,7 +860,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $currentUser = $this->currentUser->getUser();
         $accessMap = [];
-        if ($currentUser instanceof User && in_array(Role::PRIVATE_PLANNING_AGENCY, $currentUser->getRoles())) {
+        if ($currentUser instanceof User && \in_array(Role::PRIVATE_PLANNING_AGENCY, $currentUser->getRoles())) {
             $accessMap['user'] = $currentUser;
             $accessMap['uName'] = $currentUser->getFullname();
             $accessMap['oName'] = $currentUser->getOrganisationNameLegal();
@@ -892,7 +883,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         try {
             $id = $this->statementRepository->getNewestInternId($procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get newest Intern Id of statement of the procedure: '.$procedureId.' failed: ', [$e]);
 
             return null;
@@ -957,12 +948,12 @@ class StatementService extends CoreService implements StatementServiceInterface
         if ($statementEntitiesCount < $statementIdsCount) {
             $this->getLogger()->warning('At least one statement could not be found.
             It may have been deleted or moved into a different procedure.', [$procedureId]);
-            //schedule reindexing of statements warnings
+            // schedule reindexing of statements warnings
             $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
         if ($statementEntitiesCount > $statementIdsCount) {
             $this->getLogger()->warning('Doctrine returned more results than asked for.', [$procedureId]);
-            //schedule reindexing of statements warnings
+            // schedule reindexing of statements warnings
             $this->triggerElasticsearchReindex($statementIds, $statementEntities);
         }
 
@@ -973,7 +964,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 continue;
             }
             $statementId = $statement->getId();
-            if (!array_key_exists($statementId, $statementIds)) {
+            if (!\array_key_exists($statementId, $statementIds)) {
                 $this->getLogger()->warning('Doctrine returned statements not asked for.', [$procedureId]);
                 continue;
             }
@@ -993,7 +984,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // ensure that every value is a statement
-        return collect($statementIds)->filter(static function ($entry) {
+        return \collect($statementIds)->filter(static function ($entry) {
             return $entry instanceof Statement;
         })->toArray();
     }
@@ -1005,7 +996,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     protected function triggerElasticsearchReindex(array $esIndexStatementIds, array $dbStatements): void
     {
-        $dbStatementIds = collect($dbStatements)->transform(static function (Statement $statement) {
+        $dbStatementIds = \collect($dbStatements)->transform(static function (Statement $statement) {
             return $statement->getId();
         });
 
@@ -1013,7 +1004,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         // existent in the other array gets indexed
         $statementIdsToIndex = $dbStatementIds->diff($esIndexStatementIds)
             ->concat(
-                collect($esIndexStatementIds)->diff($dbStatementIds)
+                \collect($esIndexStatementIds)->diff($dbStatementIds)
             );
 
         if (0 < $statementIdsToIndex->count()) {
@@ -1021,7 +1012,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             // fetch statements as it is necessary to update placeholders
             // and other referenced Statements as well
-            $idsToIndex = collect();
+            $idsToIndex = \collect();
             foreach ($statementIdsToIndex->all() as $statementId) {
                 $statement = $this->getStatement($statementId);
                 if (!$statement instanceof Statement) {
@@ -1093,7 +1084,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             );
 
             $statementList = $this->searchService->simplifyEsStructure($elasticsearchResult, $search, $filters, $sort);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get Statement List failed. Reason: ', [$e]);
             throw $e;
         }
@@ -1119,12 +1110,12 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($statements as $statement) {
                     $publicStatement = $statement instanceof Statement ? $statement->getPublicStatement() : $statement['publicStatement'];
                     $statementId = $statement instanceof Statement ? $statement->getId() : $statement['id'];
-                    if (0 < count($accessMap) && 0 === strcmp($publicStatement, Statement::EXTERNAL)) {
+                    if (0 < count($accessMap) && 0 === \strcmp($publicStatement, Statement::EXTERNAL)) {
                         $this->addStatementViewedReport($procedureId, $accessMap, $statementId);
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
     }
@@ -1160,7 +1151,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $result = $this->getResultByFilterSetHash($filterHash, $pagination)->getCurrentPageResults();
 
-        return collect($result)->all();
+        return \collect($result)->all();
     }
 
     /**
@@ -1168,7 +1159,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function getStatementsAndTheirFragmentsInOneFlatList(array $statements, array $entityClassesToInclude): array
     {
-        return collect($statements)
+        return \collect($statements)
             ->flatMap(
                 function (Statement $statement) use ($entityClassesToInclude): \Tightenco\Collect\Support\Collection {
                     return $this->getStatementAndItsFragmentsInOneFlatList(
@@ -1248,13 +1239,13 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return Statement[] - laoded Statements
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getStatementsByIds(array $statementIds)
     {
         try {
             $statementList = $this->statementRepository->getStatements($statementIds);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('get Statement List failed. Reason: ', [$e]);
             throw $e;
         }
@@ -1271,7 +1262,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $assessmentTableQuery = $filterSet->getStoredQuery();
 
         // Get sorting from filterSet
-        if (is_array($assessmentTableQuery->getSorting()) && 0 < count($assessmentTableQuery->getSorting())) {
+        if (\is_array($assessmentTableQuery->getSorting()) && 0 < count($assessmentTableQuery->getSorting())) {
             $rParams['sort'] = $assessmentTableQuery->getSorting();
         }
 
@@ -1361,8 +1352,8 @@ class StatementService extends CoreService implements StatementServiceInterface
             // T12218: T12304: In case the text has changed && has obscured text
             // -> inform user, that related statement, are not obscured automatically
             // T16361: but only if statement fragments actually exist for this statement
-            if (is_array($updatedStatement)
-                && array_key_exists('text', $updatedStatement)
+            if (\is_array($updatedStatement)
+                && \array_key_exists('text', $updatedStatement)
                 && $this->editorService->hasObscuredText($currentText)
                 && 0 < $currentStatementObject->getFragmentsCount()
             ) {
@@ -1391,11 +1382,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $lockedByAssignmentOfHeadStatement = $this->checkStatementAddToClusterLocked($updatedStatement);
             }
 
-            if (is_array($updatedStatement)) {
+            if (\is_array($updatedStatement)) {
                 foreach ($this->fileContainerRepository->getStatementFileContainers($statementId) as $fileContainer) {
                     /* @var $fileContainer FileContainer */
                     $fileIdent = $fileContainer->getFile()->getIdent();
-                    $publicAllowed = isset($updatedStatement['attachmentPublicAllowed']) && in_array($fileIdent, $updatedStatement['attachmentPublicAllowed'], true);
+                    $publicAllowed = isset($updatedStatement['attachmentPublicAllowed']) && \in_array($fileIdent, $updatedStatement['attachmentPublicAllowed'], true);
                     $fileContainer->setPublicAllowed($publicAllowed);
                     $this->fileContainerRepository->updateObject($fileContainer);
                 }
@@ -1407,7 +1398,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $this->getLogger()->warning('Trying to update a locked by assignment statement.');
             }
 
-            //there are fields, which are only allowed to modify on a manual statement?
+            // there are fields, which are only allowed to modify on a manual statement?
             $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
             $updateForbidden = $hasManualStatementUpdateFields && !$currentStatementObject->isManual();
             if ($updateForbidden) {
@@ -1436,7 +1427,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 && !$lockedByOriginal
                 && !$currentStatementObject->isPlaceholder()) {
                 $preUpdatedStatement = clone $currentStatementObject;
-                if (is_array($updatedStatement)) {
+                if (\is_array($updatedStatement)) {
                     // @improve T12690
                     $this->getLogger()->debug('Update Statement', [$updatedStatement]);
                     $result = $this->updateStatementArray($updatedStatement);
@@ -1454,7 +1445,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
                 return $result;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Update Statement failed:', [$e, $e->getTraceAsString()]);
 
             return false;
@@ -1478,12 +1469,12 @@ class StatementService extends CoreService implements StatementServiceInterface
                 return $arrayOrObject->getText();
             }
 
-            if (array_key_exists('text', $arrayOrObject)) {
+            if (\array_key_exists('text', $arrayOrObject)) {
                 return $arrayOrObject['text'];
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning(
                 'Unable to get Text from given arrayOrObject. ', [$e]
             );
@@ -1499,7 +1490,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return array<int, FileContainer> the result from the repository
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getFileContainersForStatement($statementId): array
     {
@@ -1517,7 +1508,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return FileContainer[] the array of FileContainers with their ident as array key
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createFileHashToFileContainerMapping($statementId): array
     {
@@ -1545,7 +1536,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $currentSubmitterName = $currentStatement->getSubmitterName();
         $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
         $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
-        //orgaName is submitterType:
+        // orgaName is submitterType:
         $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
         $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
         $currentOrgaCity = $currentStatement->getOrgaCity();
@@ -1556,8 +1547,8 @@ class StatementService extends CoreService implements StatementServiceInterface
         $currentSubmittedDateString = $currentStatement->getSubmitDateString();
         $currentSubmittedDateTimeStamp = $currentStatement->getSubmit();
 
-        if (is_array($statement)) {
-            $statement = collect($statement);
+        if (\is_array($statement)) {
+            $statement = \collect($statement);
             if (
                 ($statement->has('author_name') && $statement->get('author_name') != $currentAuthorName)
                 || ($statement->has('submit_name') && $statement->get('submit_name') != $currentSubmitterName)
@@ -1717,7 +1708,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function isStatementAssignedToCurrentUser($statement): bool
     {
-        if (is_array($statement)) {
+        if (\is_array($statement)) {
             $statementId = $this->entityHelper->extractId($statement);
             $statement = $this->getStatement($statementId);
             if (null === $statement) {
@@ -1763,12 +1754,12 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $entry = $this->statementReportEntryFactory->createUpdateEntry($statement);
                 $this->reportService->persistAndFlushReportEntries($entry);
                 $this->logger->debug('generate report of updateStatement(). ReportID: '.$entry->getIdentifier());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Add Report in updateStatement() failed Message: ', [$e]);
             }
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update Statement failed:', [$e]);
 
             return false;
@@ -1784,12 +1775,12 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
     {
         // only log if user is known
-        if (!array_key_exists('user', $accessMap)) {
+        if (!\array_key_exists('user', $accessMap)) {
             return;
         }
         $alreadyLogged = $this->reportService
@@ -1818,7 +1809,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         try {
             return $this->statementRepository->findAll();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning($e);
 
             return [];
@@ -1853,7 +1844,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 ->assignedToUser($user);
 
             return $query->getEntities();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not get assigend Statements', [$e]);
 
             return null;
@@ -1865,7 +1856,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param string $ident
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Use {@link StatementService::getStatement()} instead
      */
@@ -1883,14 +1874,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             return [];
         }
         try {
-            if (0 < count($accessMap) && 0 === strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
+            if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
                 try {
                     $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning('Add Report in getStatementByIdent() failed Message: ', [$e]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
 
@@ -1923,19 +1914,19 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             try {
                 $accessMap = $this->generateAccessMap();
-                if (0 < count($accessMap) && 0 === strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
+                if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), Statement::EXTERNAL)) {
                     try {
                         $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
             }
 
             return $statement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error($e);
             $this->getLogger()->warning('No Statement found for Id '.$statementId);
 
@@ -1962,7 +1953,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Could not copy statement ', [$e]);
 
             return false;
@@ -1983,7 +1974,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $entities = $this->elasticsearchStatementsToObjects($statements);
 
-        return array_map(static function (array $statement) use ($entities): array {
+        return \array_map(static function (array $statement) use ($entities): array {
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
                 static function (StatementAttachment $attachment) {
@@ -2018,7 +2009,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $success = false;
             $statementId = $statement->getId();
 
-            //if the corresponding permission is disabled, the Statement can be deleted anyway
+            // if the corresponding permission is disabled, the Statement can be deleted anyway
             $ignoreAssignment = $ignoreAssignment || (false === $this->permissions->hasPermission('feature_statement_assignment'));
             $noAssignee = null === $statement->getAssignee();
             $assignedToCurrentUser = $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
@@ -2026,11 +2017,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $lockedByAssignment = !($ignoreAssignment || $noAssignee || $assignedToCurrentUser);
             $lockedByAssignmentOfRelatedFragments = !$this->statementFragmentService->areAllFragmentsClaimedByCurrentUser($statementId);
             $lockedByCluster = $statement->isInCluster();
-            //placeholders (even originalSTN) are allowed to delete:
+            // placeholders (even originalSTN) are allowed to delete:
             $lockedBecauseOfOriginal = $statement->isOriginal() && !$ignoreOriginal;
 
             $allowedToDelete = (
-                   !$lockedByAssignmentOfRelatedFragments
+                !$lockedByAssignmentOfRelatedFragments
                 && !$lockedByAssignment
                 && !$lockedByCluster
                 && !$lockedBecauseOfOriginal
@@ -2046,7 +2037,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $doctrineConnection->beginTransaction();
                     $forReport = clone $statement;
 
-                    $attachedFileIdents = collect($statement->getAttachments())
+                    $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static function (StatementAttachment $attachment): string {
                             return $attachment->getFile()->getIdent();
                         });
@@ -2061,14 +2052,14 @@ class StatementService extends CoreService implements StatementServiceInterface
                         );
                     }
                     $deleted = $this->statementRepository->delete($statementId);
-                    //add report:
+                    // add report:
                     try {
                         if (true === $deleted) {
                             $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
                             $this->reportService->persistAndFlushReportEntries($entry);
                             $this->logger->info('generate report of deleteStatement(). ReportID: ', ['identifier' => $entry->getIdentifier()]);
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
                     $doctrineConnection->commit();
@@ -2087,7 +2078,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         $demosException->getUserMsg()
                     );
                     $success = false;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
                     $doctrineConnection->rollBack();
                     $success = false;
@@ -2131,7 +2122,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             return $success;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
             $doctrineConnection->rollBack();
 
@@ -2156,7 +2147,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 'lastName'  => $user->getLastname(),
             ];
 
-            //only one vote per user per statement
+            // only one vote per user per statement
             $vote = $this->statementVoteRepository->findOneBy([
                 'user'      => $user->getId(),
                 'statement' => $statementId,
@@ -2174,7 +2165,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             return $vote;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new StatementVote failed:', [$e]);
 
             return false;
@@ -2209,7 +2200,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             );
 
             return $like;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Create new StatementLike failed:', [$e]);
 
             return false;
@@ -2267,7 +2258,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
                     $parentParagraph = $statement['paragraph']->getParagraph();
                     $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
                     $this->logger->error(
                         'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
@@ -2289,7 +2280,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         isset($statement['procedure']['planningOffices']) ?
                             $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
                             [];
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
                             $statement['id'],
@@ -2301,7 +2292,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             if ($statement['organisation'] instanceof Orga) {
                 try {
                     $statement['organisation'] = $this->entityHelper->toArray($statement['organisation']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
                             $statement['id'],
@@ -2313,20 +2304,20 @@ class StatementService extends CoreService implements StatementServiceInterface
             if ($statement['meta'] instanceof StatementMeta) {
                 try {
                     $statement['meta'] = $this->entityHelper->toArray($statement['meta']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->warning(
                         'Could not convert Statement Meta to Legacy. Statement: '.DemosPlanTools::varExport($statement['id'], true).$e
                     );
                 }
             }
 
-            //Enter StatementAttributes
+            // Enter StatementAttributes
             if (count($statementAttributes) > 0) {
                 $statement['statementAttributes'] = [];
             }
             foreach ($statementAttributes as $sa) {
                 if (isset($statement['statementAttributes'][$sa->getType()])) {
-                    if (is_array($statement['statementAttributes'][$sa->getType()])) {
+                    if (\is_array($statement['statementAttributes'][$sa->getType()])) {
                         $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
                     } else {
                         $v = $statement['statementAttributes'][$sa->getType()];
@@ -2345,11 +2336,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             } else {
                 unset($statement['documentId']);
 
-                if (array_key_exists('documentTitle', $statement)) {
+                if (\array_key_exists('documentTitle', $statement)) {
                     unset($statement['documentTitle']);
                 }
 
-                if (array_key_exists('document', $statement)) {
+                if (\array_key_exists('document', $statement)) {
                     unset($statement['document']);
                 }
             }
@@ -2363,7 +2354,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statement['votes'] = $votes;
 
             $statement = $this->dateHelper->convertDatesToLegacy($statement);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Could not convert Statement to Legacy.',
                 [$statementId, $e]
@@ -2378,40 +2369,40 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return array $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getEntityVersions(array $data): array
     {
         $em = $this->getDoctrine()->getManager();
         $currentStatement = $this->getStatement($data['ident']);
 
-        if (array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph &&
+        if (\array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph &&
             $data['paragraph']->getId() != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion($data['paragraph']);
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
-        if (array_key_exists('paragraphId', $data) &&
-            0 < strlen($data['paragraphId']) &&
+        if (\array_key_exists('paragraphId', $data) &&
+            0 < \strlen($data['paragraphId']) &&
             $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->getReference(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (array_key_exists('document', $data) && $data['document'] instanceof SingleDocument &&
+        if (\array_key_exists('document', $data) && $data['document'] instanceof SingleDocument &&
             $data['document']->getId() != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion($data['document']);
         }
 
-        if (array_key_exists('documentId', $data) &&
-            0 < strlen($data['documentId']) &&
+        if (\array_key_exists('documentId', $data) &&
+            0 < \strlen($data['documentId']) &&
             $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->getReference(SingleDocument::class, $data['documentId'])
             );
         }
 
-        if (array_key_exists('recommendation', $data) && $data['recommendation'] != $currentStatement->getRecommendation()) {
+        if (\array_key_exists('recommendation', $data) && $data['recommendation'] != $currentStatement->getRecommendation()) {
             // Only save a version when there actually was a recommendationtext before
             $user = $this->currentUser->getUser();
             try {
@@ -2548,7 +2539,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param string    $orgaDisplayName
      * @param string    $role
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createRecommendationVersion($statement, $recommendation, $user, $orgaDisplayName, $role): StatementVersionField
     {
@@ -2577,7 +2568,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         try {
             return $this->statementRepository->isManualStatement($statementId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Check statement for manual failed:', [$e]);
         }
     }
@@ -2613,13 +2604,13 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param string[] $statementsIds
      * @param string[] $fragmentIds
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createElementsGroupStructure(string $procedureId, array $statementsIds, array $fragmentIds): StatementEntityGroup
     {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
-        $entities = array_merge($statements, $fragments);
+        $entities = \array_merge($statements, $fragments);
 
         $groupingFields = [
             'getElementId'                           => 'getElementTitle',
@@ -2663,7 +2654,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @param Statement[] $statements
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createElementsGroupStructureBobHH(string $procedureId, array $statements, string $missingGroupTitle): StatementEntityGroup
     {
@@ -2848,9 +2839,9 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function collectRequest(array $rParams): array
     {
-        return collect($rParams)->filter(
+        return \collect($rParams)->filter(
             static function ($value, string $key) {
-                return 0 === strpos($key, 'r_') && ((is_string($value) && '' !== $value) || (is_array($value) && 0 < count($value)));
+                return 0 === strpos($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -2869,8 +2860,8 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function collectFilters(array $rParams): array
     {
-        return collect($rParams)->filter(static function ($value, string $key) {
-            return is_array($value) && false !== strpos($key, 'filter_') && 0 < count($value);
+        return \collect($rParams)->filter(static function ($value, string $key) {
+            return \is_array($value) && false !== strpos($key, 'filter_') && 0 < count($value);
         })->mapWithKeys(static function (array $value, string $key) {
             $filterKey = str_replace('filter_', '', $key);
 
@@ -2899,14 +2890,14 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         // GET QUERY (INI)
         // userFilters may come in in strange formats
-        if (is_array($searchFields) && 1 === count($searchFields) && '' === $searchFields[0]) {
+        if (\is_array($searchFields) && 1 === count($searchFields) && '' === $searchFields[0]) {
             $searchFields = [];
         }
         $this->profilerStart('ES');
 
         //
         // if a Searchterm is set use it
-        if (is_string($search) && 0 < strlen($search)) {
+        if (\is_string($search) && 0 < \strlen($search)) {
             $availableSearchfields = [
                 'text'                    => 'text.text',
                 'oName'                   => 'oName^0.2',
@@ -2930,29 +2921,29 @@ class StatementService extends CoreService implements StatementServiceInterface
                 'cluster_uName'           => 'cluster.uName^0.1',
                 'fragments.documentTitle.text',
                 'fragments.paragraphTitle.text',
-                'votes.firstName' => 'votes.firstName',
-                'votes.lastName'  => 'votes.lastName',
-                'votes.name'      => 'votes.name',
-                'filename'        => 'files',
+                'votes.firstName'         => 'votes.firstName',
+                'votes.lastName'          => 'votes.lastName',
+                'votes.name'              => 'votes.name',
+                'filename'                => 'files',
                 // after refactoring in T20362:
-                'authorName'       => 'uName^0.2',
-                'consideration'    => 'recommendation.text',
-                'department'       => 'dName^0.2',
-                'orgaCity'         => 'meta.orgaCity',
-                'organisationName' => 'oName^0.2',
-                'orgaPostalCode'   => 'meta.orgaPostalCode',
-                'planDocument'     => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
-                'statementId'      => 'externId',
-                'statementText'    => 'text.text',
-                'topics'           => 'topicNames.text',
+                'authorName'              => 'uName^0.2',
+                'consideration'           => 'recommendation.text',
+                'department'              => 'dName^0.2',
+                'orgaCity'                => 'meta.orgaCity',
+                'organisationName'        => 'oName^0.2',
+                'orgaPostalCode'          => 'meta.orgaPostalCode',
+                'planDocument'            => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
+                'statementId'             => 'externId',
+                'statementText'           => 'text.text',
+                'topics'                  => 'topicNames.text',
             ];
 
             $usedSearchfields = [];
             if ([] === $searchFields) {
-                $usedSearchfields = array_values($availableSearchfields);
+                $usedSearchfields = \array_values($availableSearchfields);
             } else {
                 foreach ($searchFields as $field) {
-                    if (array_key_exists($field, $availableSearchfields)) {
+                    if (\array_key_exists($field, $availableSearchfields)) {
                         $usedSearchfields[] = $availableSearchfields[$field];
                     }
                 }
@@ -2988,7 +2979,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         ];
 
         // Ist es die Abwägungstabelle oder die Originalansicht?
-        if (array_key_exists('original', $userFilters) && 'IS NULL' === $userFilters['original']) {
+        if (\array_key_exists('original', $userFilters) && 'IS NULL' === $userFilters['original']) {
             // Originalstellungnahmen haben null im Feld originalId
             $boolMustNotFilter[] = $this->searchService->getElasticaExistsInstance(
                 'originalId'
@@ -3013,34 +3004,34 @@ class StatementService extends CoreService implements StatementServiceInterface
     private function getRenamedUserFilters(array $userFilters): array
     {
         // map filternames from request to elasticsearch mapping names
-        if (array_key_exists('planningDocument', $userFilters)) {
+        if (\array_key_exists('planningDocument', $userFilters)) {
             $userFilters['elementId'] = $userFilters['planningDocument'];
         }
-        if (array_key_exists('reasonParagraph', $userFilters)) {
+        if (\array_key_exists('reasonParagraph', $userFilters)) {
             $userFilters['paragraphParentId'] = $userFilters['reasonParagraph'];
         }
-        if (array_key_exists('department', $userFilters)) {
+        if (\array_key_exists('department', $userFilters)) {
             $userFilters['dName.raw'] = $userFilters['department'];
         }
-        if (array_key_exists('institution', $userFilters)) {
+        if (\array_key_exists('institution', $userFilters)) {
             $userFilters['oName.raw'] = $userFilters['institution'];
         }
-        if (array_key_exists('assignee_id', $userFilters)) {
+        if (\array_key_exists('assignee_id', $userFilters)) {
             $userFilters['assignee.id'] = $userFilters['assignee_id'];
         }
-        if (array_key_exists('userState', $userFilters)) {
+        if (\array_key_exists('userState', $userFilters)) {
             $userFilters['meta.userState'] = $userFilters['userState'];
             unset($userFilters['userState']);
         }
-        if (array_key_exists('userGroup', $userFilters)) {
+        if (\array_key_exists('userGroup', $userFilters)) {
             $userFilters['meta.userGroup'] = $userFilters['userGroup'];
             unset($userFilters['userGroup']);
         }
-        if (array_key_exists('userOrganisation', $userFilters)) {
+        if (\array_key_exists('userOrganisation', $userFilters)) {
             $userFilters['meta.userOrganisation'] = $userFilters['userOrganisation'];
             unset($userFilters['userOrganisation']);
         }
-        if (array_key_exists('userPosition', $userFilters)) {
+        if (\array_key_exists('userPosition', $userFilters)) {
             $userFilters['meta.userPosition'] = $userFilters['userPosition'];
             unset($userFilters['userPosition']);
         }
@@ -3071,19 +3062,19 @@ class StatementService extends CoreService implements StatementServiceInterface
         ];
 
         // map filternames from request to elasticsearch mapping names
-        if (array_key_exists('planningDocument', $userFilters)) {
+        if (\array_key_exists('planningDocument', $userFilters)) {
             $fragmentFilters[] = 'planningDocument';
         }
-        if (array_key_exists('reasonParagraph', $userFilters)) {
+        if (\array_key_exists('reasonParagraph', $userFilters)) {
             $fragmentFilters[] = 'reasonParagraph';
         }
-        if (array_key_exists('department', $userFilters)) {
+        if (\array_key_exists('department', $userFilters)) {
             $fragmentFilters[] = 'department';
         }
-        if (array_key_exists('institution', $userFilters)) {
+        if (\array_key_exists('institution', $userFilters)) {
             $fragmentFilters[] = 'institution';
         }
-        if (array_key_exists('assignee_id', $userFilters)) {
+        if (\array_key_exists('assignee_id', $userFilters)) {
             $fragmentFilters[] = 'assignee_id';
         }
 
@@ -3138,7 +3129,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = array_unique($statementMustIds);
+                $statementMustIds = \array_unique($statementMustIds);
                 $shouldQuery = new BoolQuery();
                 $shouldQuery->addShould(
                     $this->searchService->getElasticaTermsInstance(
@@ -3185,20 +3176,20 @@ class StatementService extends CoreService implements StatementServiceInterface
             ];
 
             foreach ($userFilters as $filterName => $filterValues) {
-                if (in_array($filterName, $fragmentFilters)) {
+                if (\in_array($filterName, $fragmentFilters)) {
                     continue;
                 }
 
-                $filterValues = is_array($filterValues) ? array_unique($filterValues) : $filterValues;
+                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
 
-                if (is_array($filterValues) && 1 < count($filterValues)) {
+                if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
                     // query as filters should only be ORed within one field
                     $shouldQuery = new BoolQuery();
                     $shouldFilter = [];
                     $shouldNotFilter = [];
                     foreach ($filterValues as $filterValue) {
-                        if ($filterValue === $this->searchService::KEINE_ZUORDNUNG || null === $filterValue || (in_array($filterName, $nullValues) && '' === $filterValue)) {
+                        if ($filterValue === $this->searchService::KEINE_ZUORDNUNG || null === $filterValue || (\in_array($filterName, $nullValues) && '' === $filterValue)) {
                             $shouldNotFilter[] = $this->searchService->getElasticaExistsInstance(
                                 $filterName
                             );
@@ -3211,11 +3202,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                             );
                         }
                     }
-                    array_map([$shouldQuery,'addShould'], $shouldFilter);
+                    array_map([$shouldQuery, 'addShould'], $shouldFilter);
                     // user wants to see not existent query as well as some filter
                     if (0 < count($shouldNotFilter)) {
                         $shouldNotBool = new BoolQuery();
-                        array_map([$shouldNotBool,'addMustNot'], $boolMustNotFilter);
+                        array_map([$shouldNotBool, 'addMustNot'], $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
                     }
                     $shouldQuery = $this->searchService->setMinimumShouldMatch(
@@ -3237,11 +3228,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             if (0 < count($boolMustFilter)) {
-                array_map([$boolQuery,'addMust'], $boolMustFilter);
+                array_map([$boolQuery, 'addMust'], $boolMustFilter);
             }
             // do not include procedures in configuration
             if (0 < count($boolMustNotFilter)) {
-                array_map([$boolQuery,'addMustNot'], $boolMustNotFilter);
+                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
             }
 
             // generate Query
@@ -3259,130 +3250,130 @@ class StatementService extends CoreService implements StatementServiceInterface
             /****************************************** EINREICHUNG **************************************************/
 
             // Öffentlichkeit/Institution - publicStatement - publicStatement
-            if ($addAllAggregations || array_key_exists('publicStatement', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicStatement', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'publicStatement');
             }
             // Institution/Name - institution - oName.raw
-            if ($addAllAggregations || array_key_exists('institution', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'oName.raw', null, null, 'oName.raw');
                 $query = $this->searchService->addEsMissingAggregation($query, 'oName.raw');
             }
             // Abteilung - department - dName.raw
-            if ($addAllAggregations || array_key_exists('department', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'dName.raw', null, null, 'dName.raw');
                 $query = $this->searchService->addEsMissingAggregation($query, 'dName.raw');
             }
             // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || array_key_exists('phase', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'phase');
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
-            if ($addAllAggregations || array_key_exists('movedFromProcedureId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'movedFromProcedureId');
             }
             // Verschobene Stellungnahmen aus diesem Verfahren - movedToProcedureId - movedToProcedureId
-            if ($addAllAggregations || array_key_exists('movedToProcedureId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('movedToProcedureId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'movedToProcedureId');
             }
             // VeröffentlichungI - publicAllowed - publicAllowed
-            if ($addAllAggregations || array_key_exists('publicAllowed', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicAllowed', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'publicAllowed');
             }
             // VeröffentlichungII - publicCheck - publicCheck
-            if ($addAllAggregations || array_key_exists('publicCheck', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicCheck', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'publicCheck');
             }
             // VeröffentlichungIII - publicVerify - publicVerify
-            if ($addAllAggregations || array_key_exists('publicVerified', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicVerified', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'publicVerified');
             }
             // Project specifics
-            if ($addAllAggregations || array_key_exists('meta.userState', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userState', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'meta.userState');
             }
-            if ($addAllAggregations || array_key_exists('meta.userGroup', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userGroup', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'meta.userGroup');
             }
-            if ($addAllAggregations || array_key_exists('meta.userOrganisation', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userOrganisation', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'meta.userOrganisation');
             }
-            if ($addAllAggregations || array_key_exists('meta.userPosition', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userPosition', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'meta.userPosition');
             }
 
             /***************************************** STELLUNGNAHME ************************************************/
             // Sachbearbeiter - assignee_id - assignee.id
-            if ($addAllAggregations || array_key_exists('assignee_id', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'assignee.id', null, null, 'assignee_id');
                 $query = $this->searchService->addEsMissingAggregation($query, 'assignee.id');
             }
             // Bearbeitungsstatus - status - status
-            if ($addAllAggregations || array_key_exists('status', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'status');
             }
             // Votum - votePla - votePla
-            if ($addAllAggregations || array_key_exists('votePla', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'votePla', null, null, 'votePla'); // vote
                 $query = $this->searchService->addEsMissingAggregation($query, 'votePla');
             }
             // Kreis - countyNames - countyNames.raw
-            if ($addAllAggregations || array_key_exists('countyNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'countyNames.raw', null, null, 'countyNames');
                 $query = $this->searchService->addEsMissingAggregation($query, 'countyNames.raw');
             }
             // Gemeinde - municipalityNames - municipalityNames.raw
-            if ($addAllAggregations || array_key_exists('municipalityNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'municipalityNames.raw', null, null, 'municipalityNames');
                 $query = $this->searchService->addEsMissingAggregation($query, 'municipalityNames.raw');
             }
             // Schlagwort - tagNames - tagNames.raw
-            if ($addAllAggregations || array_key_exists('tagNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'tagNames.raw', null, null, 'tagNames');
                 $query = $this->searchService->addEsMissingAggregation($query, 'tagNames.raw');
             }
             // Potenzialflächen - priorityAreaKeys - priorityAreaKeys
-            if ($addAllAggregations || array_key_exists('priorityAreaKeys', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('priorityAreaKeys', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'priorityAreaKeys');
                 $query = $this->searchService->addEsMissingAggregation($query, 'priorityAreaKeys');
             }
             // Dokument - planningDocument - elementId
-            if ($addAllAggregations || array_key_exists('elementId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'elementId', '_term', 'asc', 'elementId');
                 $query = $this->searchService->addEsMissingAggregation($query, 'elementId');
             }
             // Kapitel - reasonParagraph - paragraphParentId
-            if ($addAllAggregations || array_key_exists('reasonParagraph', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('reasonParagraph', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'paragraphParentId');
                 $query = $this->searchService->addEsMissingAggregation($query, 'paragraphParentId');
             }
             // Datei - documentParentId - documentParentId
-            if ($addAllAggregations || array_key_exists('documentParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('documentParentId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'documentParentId');
                 $query = $this->searchService->addEsMissingAggregation($query, 'documentParentId');
             }
             // Thema - topicNames - topicNames.raw
-            if ($addAllAggregations || array_key_exists('topicNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('topicNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'topicNames.raw', null, null, 'topicNames');
                 $query = $this->searchService->addEsMissingAggregation($query, 'topicNames.raw');
             }
             // ID - externId - externId
-            if ($addAllAggregations || array_key_exists('externId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('externId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'externId');
             }
             // Gruppenname - name - name.raw
-            if ($addAllAggregations || array_key_exists('name', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('name', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'name.raw');
             }
             // Art der Stellungnahme - type - type
-            if ($addAllAggregations || array_key_exists('type', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('type', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'type');
             }
             // Priorität - priority - priority
-            if ($addAllAggregations || array_key_exists('priority', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'priority');
             }
             // Empfehlung - voteStk - voteStk
-            if ($addAllAggregations || array_key_exists('voteStk', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'voteStk', null, null, 'voteStk'); // advice for vote
                 $query = $this->searchService->addEsMissingAggregation($query, 'voteStk');
             }
@@ -3390,53 +3381,53 @@ class StatementService extends CoreService implements StatementServiceInterface
             /*************************************** DATENSATZ / FRAGMENTS *******************************************/
 
             // Sachbearbeiter - fragments_lastClaimed_id - fragments.lastClaimedUserId
-            if ($addAllAggregations || array_key_exists('fragments_lastClaimed_id', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_lastClaimed_id', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.lastClaimedUserId', null, null, 'fragments_lastClaimed_id');
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.lastClaimedUserId', $query);
             }
             // Bearbeitungsstatus - fragments_status - fragments.status
-            if ($addAllAggregations || array_key_exists('fragments_status', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_status', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.status', null, null, 'fragments_status');
             }
             // Votum - fragments_vote - fragments.vote
-            if ($addAllAggregations || array_key_exists('fragments_vote', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_vote', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.vote', null, null, 'fragments_vote');
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.vote', $query);
             }
             // Kreis - fragments_countyNames - fragments.countyNames
-            if ($addAllAggregations || array_key_exists('fragments_countyNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_countyNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.countyNames.raw', null, null, 'fragments_countyNames');
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.countyNames.raw', $query);
             }
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
-            if ($addAllAggregations || array_key_exists('fragments_municipalityNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_municipalityNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.municipalityNames.raw', null, null, 'fragments_municipalityNames');
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.municipalityNames.raw', $query);
             }
             // Schlagwort - fragments_tagNames - fragments.tags.name
-            if ($addAllAggregations || array_key_exists('fragments.tagNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments.tagNames', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.tags.name.raw', null, null, 'fragments_tagNames');
             }
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
-            if ($addAllAggregations || array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.priorityAreaKeys', null, null, 'fragments.priorityAreaKeys');
             }
             // Dokument - fragments_element - fragments.elementId
-            if ($addAllAggregations || array_key_exists('fragments_element', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_element', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.elementId', null, null, 'fragments_element');
             }
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
-            if ($addAllAggregations || array_key_exists('fragments_paragraphParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_paragraphParentId', $userFilters)) {
                 $query = $this->searchService->addEsAggregation($query, 'fragments.paragraphParentId', null, null, 'fragments_paragraphParentId');
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.paragraphParentId', $query);
             }
             // Datei - fragments_documentParentId - fragments.documentParentId
-            if ($addAllAggregations || array_key_exists('fragments_documentParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_documentParentId', $userFilters)) {
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.documentParentId', $query);
                 $query = $this->searchService->addEsAggregation($query, 'fragments.documentParentId', null, null, 'fragments.documentParentId');
             }
             // Fachbehörde - fragments_reviewerName - fragments.departmentId
-            if ($addAllAggregations || array_key_exists('fragments_reviewerName', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_reviewerName', $userFilters)) {
                 $query = $this->searchService->addEsFragmentsMissingAggregation('fragments.departmentId', $query);
                 $query = $this->searchService->addEsAggregation($query, 'fragments.departmentId', null, null, 'fragments.departmentId');
             }
@@ -3486,7 +3477,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             $aggregation = [];
             $elementsAdminList = $this->serviceElements->getElementsAdminList($procedureId);
-            $elementMap = collect($elementsAdminList)
+            $elementMap = \collect($elementsAdminList)
                 ->mapWithKeys(static function (Elements $element): array {
                     return [$element->getId() => $element->getTitle()];
                 })->all();
@@ -3495,24 +3486,24 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             /****************************************** EINREICHUNG **************************************************/
             // Öffentlichkeit/Institution - publicStatement - publicStatement
-            if ($addAllAggregations || array_key_exists('publicStatement', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicStatement', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('publicStatement', 'publicStatement', $aggregations, $aggregation);
             }
             // Institution/Name - institution - oName.raw
-            if ($addAllAggregations || array_key_exists('institution', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('oName.raw', 'institution', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('oName.raw', 'institution', $aggregations, $aggregation);
             }
             // Abteilung - department - dName.raw
-            if ($addAllAggregations || array_key_exists('department', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('dName.raw', 'department', $aggregations, $aggregation);
             }
             // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || array_key_exists('phase', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('phase', 'phase', $aggregations, $aggregation);
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
-            if ($addAllAggregations || array_key_exists('movedFromProcedureId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
                 $movedStatementCount = 0;
                 $aggregation['movedFromProcedureId'] = [];
                 if (isset($aggregations['movedFromProcedureId'])) {
@@ -3534,7 +3525,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 ]);
             }
             // Verschobene Stellungnahmen aus diesem Verfahren - movedToProcedureId - movedToProcedureId
-            if ($addAllAggregations || array_key_exists('movedToProcedureId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('movedToProcedureId', $userFilters)) {
                 $movedStatementCount = 0;
                 $aggregation['movedToProcedureId'] = [];
                 if (isset($aggregations['movedToProcedureId'])) {
@@ -3556,14 +3547,14 @@ class StatementService extends CoreService implements StatementServiceInterface
                 ]);
             }
 
-            if ($addAllAggregations || array_key_exists('publicCheck', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('publicCheck', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('publicCheck', 'publicCheck', $aggregations, $aggregation);
             }
 
             /***************************************** STELLUNGNAHME ************************************************/
 
             // Sachbearbeiter - assignee_id
-            if ($addAllAggregations || array_key_exists('assignee_id', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('assignee.id', 'assignee_id', $aggregations, $aggregation);
             }
             if (isset($aggregations['assignee_id'])) {
@@ -3580,11 +3571,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Bearbeitungsstatus - status
-            if ($addAllAggregations || array_key_exists('status', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('status', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('status', 'status', $aggregations, $aggregation);
             }
             // Votum - votePla
-            if ($addAllAggregations || array_key_exists('votePla', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('votePla', 'votePla', $aggregations, $aggregation);
             }
             if (isset($aggregations['votePla'])) {
@@ -3597,37 +3588,37 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Kreis - countyNames
-            if ($addAllAggregations || array_key_exists('countyNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('countyNames.raw', 'countyNames', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('countyNames', 'countyNames', $aggregations, $aggregation);
             }
             // Gemeinde - municipalityNames
-            if ($addAllAggregations || array_key_exists('municipalityNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('municipalityNames.raw', 'municipalityNames', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('municipalityNames', 'municipalityNames', $aggregations, $aggregation);
             }
             // Schlagwort - tagNames - tagNams.raw
-            if ($addAllAggregations || array_key_exists('tagNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('tagNames.raw', 'tagNames', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('tagNames', 'tagNames', $aggregations, $aggregation);
             }
             // Potenzialflächen - priorityAreaKeys
-            if ($addAllAggregations || array_key_exists('priorityAreaKeys', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('priorityAreaKeys', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('priorityAreaKeys', 'priorityAreaKeys', $aggregations, $aggregation);
             }
             // Dokument - planningDocument - elementId
-            if ($addAllAggregations || array_key_exists('elementId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('elementId', 'planningDocument', $aggregations, $aggregation, $elementMap);
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('elementId', 'planningDocument', $aggregations, $aggregation);
             }
             // Kapitel - reasonParagraph - paragraphParentId
-            if ($addAllAggregations || array_key_exists('reasonParagraph', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('reasonParagraph', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('paragraphParentId', 'reasonParagraph', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('paragraphParentId', 'reasonParagraph', $aggregations, $aggregation, $this->getParagraphMap($aggregations['paragraphParentId']['buckets']));
             }
             // Datei - documentParentId
-            if ($addAllAggregations || array_key_exists('documentParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('documentParentId', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('documentParentId', 'documentParentId', $aggregations, $aggregation);
             }
             if (isset($aggregations['documentParentId'])) {
@@ -3642,16 +3633,16 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Thema - topicNames - topicNames.raw
-            if ($addAllAggregations || array_key_exists('topicNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('topicNames', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('topicNames.raw', 'topicNames', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('topicNames', 'topicNames', $aggregations, $aggregation);
             }
             // ID - externId - externId
-            if ($addAllAggregations || array_key_exists('externId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('externId', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('externId', 'externId', $aggregations, $aggregation);
             }
             // Gruppenname - name - name.raw
-            if ($addAllAggregations || array_key_exists('name', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('name', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('name.raw', 'name', $aggregations, $aggregation);
             }
             // Art der Stellungnahme - type
@@ -3665,11 +3656,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // Priorität - priority
-            if ($addAllAggregations || array_key_exists('priority', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('priority', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('priority', 'priority', $aggregations, $aggregation);
             }
             // Empfehlung - voteStk
-            if ($addAllAggregations || array_key_exists('voteStk', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('voteStk', $userFilters)) {
                 $aggregation = $this->searchService->addMissingAggregationResultToArray('voteStk', 'voteStk', $aggregations, $aggregation);
             }
             if (isset($aggregations['voteStk'])) {
@@ -3682,16 +3673,16 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             // project specifics
-            if ($addAllAggregations || array_key_exists('meta.userState', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userState', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('meta.userState', 'userState', $aggregations, $aggregation);
             }
-            if ($addAllAggregations || array_key_exists('meta.userGroup', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userGroup', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('meta.userGroup', 'userGroup', $aggregations, $aggregation);
             }
-            if ($addAllAggregations || array_key_exists('meta.userOrganisation', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userOrganisation', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('meta.userOrganisation', 'userOrganisation', $aggregations, $aggregation);
             }
-            if ($addAllAggregations || array_key_exists('meta.userPosition', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('meta.userPosition', $userFilters)) {
                 $aggregation = $this->searchService->addAggregationResultToArray('meta.userPosition', 'userPosition', $aggregations, $aggregation);
             }
 
@@ -3700,12 +3691,12 @@ class StatementService extends CoreService implements StatementServiceInterface
             // We use $fragmentsEsResult for the filters and $aggregations for the Statement List
 
             // Sachbearbeiter - fragments_lastClaimed_id - fragments.lastClaimedUserId
-            if ($addAllAggregations || array_key_exists('fragments_lastClaimed_id', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_lastClaimed_id', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.lastClaimedUserId', 'fragments_lastClaimed_id', $aggregations, $aggregation);
             }
             $fragmentAggregations = $fragmentEsResult->getAggregations();
             if (isset($fragmentAggregations['lastClaimed_id'])) {
-                $aggregation['fragments_lastClaimed_id'] = array_merge($aggregation['fragments_lastClaimed_id'],
+                $aggregation['fragments_lastClaimed_id'] = \array_merge($aggregation['fragments_lastClaimed_id'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['lastClaimed_id'],
                         'value',
@@ -3713,7 +3704,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         'count'
                     ));
             } elseif (isset($aggregations['fragments_lastClaimed_id'])) {
-                $aggregation['fragments_lastClaimed_id'] = array_merge($aggregation['fragments_lastClaimed_id'],
+                $aggregation['fragments_lastClaimed_id'] = \array_merge($aggregation['fragments_lastClaimed_id'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $aggregations['fragments_lastClaimed_id']['buckets']
                     ));
@@ -3731,11 +3722,11 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $aggregation = $this->searchService->addAggregationResultToArray('fragments_vote', 'fragments_vote', $aggregations, $aggregation);
             }
             // Kreis - fragments_countyNames - fragments.countyNames
-            if ($addAllAggregations || array_key_exists('fragments_countyNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_countyNames', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.countyNames', 'fragments_countyNames', $aggregations, $aggregation);
             }
             if (isset($fragmentAggregations['countyNames'])) {
-                $aggregation['fragments_countyNames'] = array_merge($aggregation['fragments_countyNames'],
+                $aggregation['fragments_countyNames'] = \array_merge($aggregation['fragments_countyNames'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['countyNames'],
                         'value',
@@ -3743,17 +3734,17 @@ class StatementService extends CoreService implements StatementServiceInterface
                         'count'
                     ));
             } elseif (isset($aggregations['fragments_countyNames'])) {
-                $aggregation['fragments_countyNames'] = array_merge(array_key_exists('fragments_countyNames', $aggregation) ? $aggregation['fragments_countyNames'] : [],
+                $aggregation['fragments_countyNames'] = \array_merge(\array_key_exists('fragments_countyNames', $aggregation) ? $aggregation['fragments_countyNames'] : [],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $aggregations['fragments_countyNames']['buckets']
                     ));
             }
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
-            if ($addAllAggregations || array_key_exists('fragments_municipalityNames', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_municipalityNames', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.municipalityNames', 'fragments_municipalityNames', $aggregations, $aggregation);
             }
             if (isset($fragmentAggregations['municipalityNames'])) {
-                $aggregation['fragments_municipalityNames'] = array_merge($aggregation['fragments_municipalityNames'],
+                $aggregation['fragments_municipalityNames'] = \array_merge($aggregation['fragments_municipalityNames'],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $fragmentAggregations['municipalityNames'],
                         'value',
@@ -3761,7 +3752,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                         'count'
                     ));
             } elseif (isset($aggregations['fragments_municipalityNames'])) {
-                $aggregation['fragments_municipalityNames'] = array_merge(array_key_exists('fragments_municipalityNames', $aggregation) ? $aggregation['fragments_municipalityNames'] : [],
+                $aggregation['fragments_municipalityNames'] = \array_merge(\array_key_exists('fragments_municipalityNames', $aggregation) ? $aggregation['fragments_municipalityNames'] : [],
                     $this->searchService->generateFilterArrayFromUserAssignEsBucket(
                         $aggregations['fragments_municipalityNames']['buckets']
                     ));
@@ -3771,19 +3762,19 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $aggregation = $this->searchService->addFragmentEsResultToArray('tagNames', 'fragments_tagNames', $fragmentAggregations, $aggregation);
             }
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
-            if ($addAllAggregations || array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('fragments.priorityAreaKeys', 'fragments.priorityAreaKeys', $aggregations, $aggregation);
             }
             // Dokument - fragments_element - fragments.elementId
-            if ($addAllAggregations || array_key_exists('fragments_element', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_element', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.elementId', 'fragments_element', $aggregations, $aggregation);
             }
             if (isset($aggregations['fragments_element'])) {
                 $aggregation = $this->searchService->addAggregationResultToArray('fragments_element', 'fragments_element', $aggregations, $aggregation, $elementMap);
             }
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
-            if ($addAllAggregations || array_key_exists('fragments_paragraphParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_paragraphParentId', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.paragraphParentId', 'fragments_paragraphParentId', $aggregations, $aggregation);
                 $aggregation = $this->searchService->addAggregationResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $aggregations, $aggregation, $this->getParagraphMap($aggregations['fragments_paragraphParentId']['buckets']));
             }
@@ -3791,7 +3782,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $aggregation = $this->searchService->addFragmentEsResultToArray('fragments_paragraphParentId', 'fragments_paragraphParentId', $fragmentAggregations, $aggregation, $this->getParagraphMap(
                     $fragmentAggregations['fragments_paragraphParentId'], 'value'));
             }
-            if ($addAllAggregations || array_key_exists('fragments_documentParentId', $userFilters)) {
+            if ($addAllAggregations || \array_key_exists('fragments_documentParentId', $userFilters)) {
                 $aggregation = $this->searchService->addFragmentsMissingAggregationResultToArray('fragments.documentParentId', 'fragments_documentParentId', $aggregations, $aggregation);
             }
             // Datei - fragments_documentParentId - fragments.documentParentId
@@ -3836,7 +3827,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
             $this->profilerStop('ES');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
 
             $elasticsearchResultStatement = $this->searchService->getESEmptyResult(
@@ -3874,7 +3865,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     protected function isRawFilteredTerm($key, $rawFields): bool
     {
-        return in_array($key, $rawFields, true);
+        return \in_array($key, $rawFields, true);
     }
 
     /**
@@ -3883,11 +3874,11 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param array  $bucket
      * @param string $idKey
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getParagraphMap($bucket, $idKey = 'key'): array
     {
-        if (!is_array($bucket) || 0 === count($bucket)) {
+        if (!\is_array($bucket) || 0 === count($bucket)) {
             return [];
         }
         $ids = [];
@@ -3933,7 +3924,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     protected function mapSorting($sort, $search = null): array
     {
         // sort by score if something has been searched for
-        if (is_string($search) && '*' !== $search && 0 < mb_strlen($search)) {
+        if (\is_string($search) && '*' !== $search && 0 < mb_strlen($search)) {
             return ['_score' => 'desc'];
         }
 
@@ -3971,11 +3962,11 @@ class StatementService extends CoreService implements StatementServiceInterface
             $esSort = [
                 'elementTitle.sort' => [
                     'order'   => $sortDirection,
-                    'missing' => PHP_INT_MAX - 1000,
+                    'missing' => \PHP_INT_MAX - 1000,
                 ],
-                'paragraphOrder' => [
+                'paragraphOrder'    => [
                     'order'   => $sortDirection,
-                    'missing' => PHP_INT_MAX - 1000,
+                    'missing' => \PHP_INT_MAX - 1000,
                 ],
             ];
         }
@@ -3994,7 +3985,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         // add default sort, additionally to primary sort
-        if (!array_key_exists('submit', $esSort) || 'asc' !== strtolower($esSort['submit'])) {
+        if (!\array_key_exists('submit', $esSort) || 'asc' !== strtolower($esSort['submit'])) {
             $esSort['submit'] = 'desc';
         }
 
@@ -4005,7 +3996,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      * @param Tag       $tag
      * @param Statement $statement
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated Used by tests only. Tags are automatically persisted when their statement is
      *             persisted, so you can simply add Tags to statements and persist the statements
@@ -4031,7 +4022,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             return $statementAbwaegungstabelle;
         }
 
-        if (!is_null($statementAbwaegungstabelle->getPolygon()) && 0 < strlen($statementAbwaegungstabelle->getPolygon())) {
+        if (!is_null($statementAbwaegungstabelle->getPolygon()) && 0 < \strlen($statementAbwaegungstabelle->getPolygon())) {
             try {
                 $this->statementGeoService->scheduleFetchGeoData($statementAbwaegungstabelle->getId());
             } catch (Exception $e) {
@@ -4104,7 +4095,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return Statement the updated object
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateStatementObject(Statement $statement): Statement
     {
@@ -4137,7 +4128,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get internIds of statement of the procedure: '.$procedureId.' failed: ', [$e]);
 
             return null;
@@ -4159,7 +4150,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function getHeadStatementIdsOfStatements($statementIds): \Tightenco\Collect\Support\Collection
     {
-        $result = collect([]);
+        $result = \collect([]);
         try {
             $statements = $this->statementRepository
                 ->getAllStatementsOfHeadStatements($statementIds);
@@ -4170,7 +4161,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $result->push($clusterMember->getHeadStatementId());
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get HeadStatement IDs of statements : '.DemosPlanTools::varExport($statementIds, true).' failed: ', [$e]);
         }
 
@@ -4221,7 +4212,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         if ($updatedStatement instanceof Statement) {
             $headStatement = $updatedStatement->getHeadStatement();
-        } elseif (array_key_exists('headStatementId', $updatedStatement)) {
+        } elseif (\array_key_exists('headStatementId', $updatedStatement)) {
             $headStatement = $this->getStatement($updatedStatement['headStatementId']);
         }
 
@@ -4258,7 +4249,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @throws ConnectionException
      * @throws NoTargetsException
-     * @throws \Exception
+     * @throws Exception
      */
     public function bulkEditStatementsAddData(StatementBulkEditVO $statementEdit): void
     {
@@ -4279,7 +4270,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         if (count($targetStatements) !== count($targetIds)) {
             $e = new UnknownIdsException('Some statement IDs were not found.');
             $e->setExpectedIds($targetIds);
-            $e->setFoundIds(array_map([$this, 'mapStatementToStatementId'], $targetStatements));
+            $e->setFoundIds(\array_map([$this, 'mapStatementToStatementId'], $targetStatements));
             throw $e;
         }
         // transaction is needed here, because we want both the Statement changes and the
@@ -4316,7 +4307,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
             }
             $conn->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $conn->rollBack();
             throw $e;
         }
@@ -4428,7 +4419,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $to['total'] += $bucket['doc_count'];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedToProcedureCount failed. ', [$e]);
         }
 
@@ -4479,7 +4470,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                     $from['total'] += $bucket['doc_count'];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedFromProcedureCount failed. ', [$e]);
         }
 
@@ -4546,8 +4537,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 'DemosPlan_procedure_public_detail',
                 ['procedure' => $statement->getProcedureId()]
             ),
-            'statementText' => $statement->getText(),
-            'orgaEmail'     => $statement->getOrgaEmail(),
+            'statementText'  => $statement->getText(),
+            'orgaEmail'      => $statement->getOrgaEmail(),
         ];
     }
 
@@ -4563,47 +4554,47 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $userFragmentFilters = [];
         // Sachbearbeiter
-        if (array_key_exists('fragments_lastClaimed_id', $userFilters)) {
+        if (\array_key_exists('fragments_lastClaimed_id', $userFilters)) {
             $userFragmentFilters['lastClaimedUserId'] = $userFilters['fragments_lastClaimed_id'];
         }
-        //Bearbeitungsstatus
-        if (array_key_exists('fragments_status', $userFilters)) {
+        // Bearbeitungsstatus
+        if (\array_key_exists('fragments_status', $userFilters)) {
             $userFragmentFilters['status'] = $userFilters['fragments_status'];
         }
         // Votum
-        if (array_key_exists('fragments_vote', $userFilters)) {
+        if (\array_key_exists('fragments_vote', $userFilters)) {
             $userFragmentFilters['vote'] = $userFilters['fragments_vote'];
         }
         // Kreis
-        if (array_key_exists('fragments_countyNames', $userFilters)) {
+        if (\array_key_exists('fragments_countyNames', $userFilters)) {
             $userFragmentFilters['countyNames'] = $userFilters['fragments_countyNames'];
         }
         // Gemeinde
-        if (array_key_exists('fragments_municipalityNames', $userFilters)) {
+        if (\array_key_exists('fragments_municipalityNames', $userFilters)) {
             $userFragmentFilters['municipalityNames'] = $userFilters['fragments_municipalityNames'];
         }
         // Schlagwort
-        if (array_key_exists('fragments_tagNames', $userFilters)) {
+        if (\array_key_exists('fragments_tagNames', $userFilters)) {
             $userFragmentFilters['tagNames'] = $userFilters['fragments_tagNames'];
         }
         // Potenzialflächen
-        if (array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
+        if (\array_key_exists('fragments.priorityAreaKeys', $userFilters)) {
             $userFragmentFilters['priorityAreaKeys'] = $userFilters['fragments.priorityAreaKeys'];
         }
         // Dokument
-        if (array_key_exists('fragments_element', $userFilters)) {
+        if (\array_key_exists('fragments_element', $userFilters)) {
             $userFragmentFilters['element'] = $userFilters['fragments_element'];
         }
         // Kapitel
-        if (array_key_exists('fragments_paragraphParentId', $userFilters)) {
+        if (\array_key_exists('fragments_paragraphParentId', $userFilters)) {
             $userFragmentFilters['paragraphParentId'] = $userFilters['fragments_paragraphParentId'];
         }
         // Datei
-        if (array_key_exists('fragments_documentParentId', $userFilters)) {
+        if (\array_key_exists('fragments_documentParentId', $userFilters)) {
             $userFragmentFilters['documentParentId'] = $userFilters['fragments_documentParentId'];
         }
         // Fachbehörde
-        if (array_key_exists('fragments_reviewerName', $userFilters)) {
+        if (\array_key_exists('fragments_reviewerName', $userFilters)) {
             $userFragmentFilters['departmentId'] = $userFilters['fragments_reviewerName'];
         }
 
@@ -4629,103 +4620,103 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $statement['isManualStatement'] = $isManualStatement;
 
-        if (array_key_exists('r_author_name', $data)) {
+        if (\array_key_exists('r_author_name', $data)) {
             $statement['author_name'] = $data['r_author_name'];
             $statement['submit_name'] = $data['r_author_name'];
         }
 
-        if (array_key_exists('r_internId', $data)) {
+        if (\array_key_exists('r_internId', $data)) {
             $statement['internId'] = $data['r_internId'];
         }
-        if (array_key_exists('r_orga_street', $data)) {
+        if (\array_key_exists('r_orga_street', $data)) {
             $statement['orga_street'] = $data['r_orga_street'];
         }
 
-        if (array_key_exists('r_orga_postalcode', $data)) {
+        if (\array_key_exists('r_orga_postalcode', $data)) {
             $statement['orga_postalcode'] = $data['r_orga_postalcode'];
         }
 
-        if (array_key_exists('r_orga_city', $data)) {
+        if (\array_key_exists('r_orga_city', $data)) {
             $statement['orga_city'] = $data['r_orga_city'];
         }
 
-        if (array_key_exists('r_orga_email', $data)) {
+        if (\array_key_exists('r_orga_email', $data)) {
             $statement['orga_email'] = $data['r_orga_email'];
-            //Globaleinstellung Rückmeldung per email (wichtig für SN von Bürgern)
+            // Globaleinstellung Rückmeldung per email (wichtig für SN von Bürgern)
             $statement['feedback'] = 'email';
             // Save that user wants feedback. Might be better dedicated checkbox to explicitly set wish
             // for feedback. Keep current implicit behavior to avoid BC break.
             $statement['author_feedback'] = true;
         }
-        if (array_key_exists('r_feedback', $data)) {
+        if (\array_key_exists('r_feedback', $data)) {
             $statement['feedback'] = $data['r_feedback'];
             // save that user wants some kind of feedback
             $statement['author_feedback'] = true;
         }
 
-        if (array_key_exists('r_orga_name', $data)) {
+        if (\array_key_exists('r_orga_name', $data)) {
             $statement['orga_name'] = $data['r_orga_name'];
         }
 
-        if (array_key_exists('r_orga_department_name', $data)) {
+        if (\array_key_exists('r_orga_department_name', $data)) {
             $statement['orga_department_name'] = $data['r_orga_department_name'];
         }
 
-        if (array_key_exists('r_text', $data)) {
+        if (\array_key_exists('r_text', $data)) {
             $statement['text'] = $data['r_text'];
         }
 
-        if (array_key_exists('r_memo', $data)) {
+        if (\array_key_exists('r_memo', $data)) {
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (array_key_exists('r_phase', $data)) {
+        if (\array_key_exists('r_phase', $data)) {
             $statement['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_created_date', $data)) {
+        if (\array_key_exists('r_created_date', $data)) {
             $statement['createdDate'] = $data['r_created_date'];
         }
 
-        if (array_key_exists('r_submitted_date', $data)) {
+        if (\array_key_exists('r_submitted_date', $data)) {
             // set default value if not set e.g. in manual statement
             if ('' === $data['r_submitted_date']) {
                 $data['r_submitted_date'] = Carbon::now()->format('d.m.Y H:i:s');
             } else {
                 $incomingDate = Carbon::createFromTimestamp(strtotime($data['r_submitted_date']));
                 $now = Carbon::now();
-                //On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
+                // On CREATE: Enrich which current hour, minute and second, to allow distinct order by submitDate
                 $incomingDate->setTime($now->hour, $now->minute, $now->second);
                 $statement['submittedDate'] = $incomingDate->format('d.m.Y H:i:s');
             }
         }
 
-        if (array_key_exists('r_ident', $data)) {
+        if (\array_key_exists('r_ident', $data)) {
             $statement['pId'] = $data['r_ident'];
         }
 
 //        do not set fileupload if emtpystring, because id '' will not be found and lead to error on add filecontainer
-        if (array_key_exists('fileupload', $data) && '' !== $data['fileupload']) {
+        if (\array_key_exists('fileupload', $data) && '' !== $data['fileupload']) {
             $statement['file'] = $data['fileupload'];
         }
 
         // get Gesamtstellungnahme as default:
         $statement['element'] = $this->serviceElements->getStatementElement($statement['pId']);
 
-        if (array_key_exists('r_element', $data) && 36 === strlen($data['r_element'])) {
+        if (\array_key_exists('r_element', $data) && 36 === \strlen($data['r_element'])) {
             $statement['elementId'] = $data['r_element'];
 
-            if (array_key_exists('r_paragraph_'.$statement['elementId'], $data)) {
+            if (\array_key_exists('r_paragraph_'.$statement['elementId'], $data)) {
                 $statement['paragraphId'] = $data['r_paragraph_'.$statement['elementId']];
                 $statement['documentId'] = '';
             }
 
-            if (array_key_exists('r_document_'.$statement['elementId'], $data)) {
+            if (\array_key_exists('r_document_'.$statement['elementId'], $data)) {
                 $statement['documentId'] = $data['r_document_'.$statement['elementId']];
                 $statement['paragraphId'] = '';
             }
 
-            if (!array_key_exists('r_document_'.$statement['elementId'], $data) && !array_key_exists('r_paragraph_'.$statement['elementId'], $data)) {
+            if (!\array_key_exists('r_document_'.$statement['elementId'], $data) && !\array_key_exists('r_paragraph_'.$statement['elementId'], $data)) {
                 $statement['documentId'] = '';
                 $statement['paragraphId'] = '';
             }
@@ -4733,7 +4724,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         $statement['publicVerified'] = Statement::PUBLICATION_PENDING;
         if ($this->permissions->hasPermission('field_statement_public_allowed')) {
-            if (array_key_exists('r_publicVerified', $data) && !empty($data['r_publicVerified'])) {
+            if (\array_key_exists('r_publicVerified', $data) && !empty($data['r_publicVerified'])) {
                 // validation is done in setPublicVerified in Statement
                 $statement['publicVerified'] = $data['r_publicVerified'];
             }
@@ -4741,13 +4732,13 @@ class StatementService extends CoreService implements StatementServiceInterface
             $statement['publicVerified'] = Statement::PUBLICATION_NO_CHECK_SINCE_PERMISSION_DISABLED;
         }
 
-        if (array_key_exists('r_categories', $data)) {
+        if (\array_key_exists('r_categories', $data)) {
             $statement['categories'] = $data['r_categories'];
         }
 
-        //Kennzeichne manuelle SN von Bürgern und übergebe Ihnen den richtigen Wert für Feedback
+        // Kennzeichne manuelle SN von Bürgern und übergebe Ihnen den richtigen Wert für Feedback
 
-        if (array_key_exists('r_role', $data)) {
+        if (\array_key_exists('r_role', $data)) {
             if ('0' === $data['r_role']) {
                 $statement['civic'] = true;
                 $statement['meta'][StatementMeta::SUBMITTER_ROLE] = 'citizen';
@@ -4757,67 +4748,67 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
         }
 
-        if (array_key_exists('r_userState', $data) && 0 < strlen($data['r_userState'])) {
+        if (\array_key_exists('r_userState', $data) && 0 < \strlen($data['r_userState'])) {
             $statement['meta']['userState'] = $data['r_userState'];
         }
-        if (array_key_exists('r_userGroup', $data) && 0 < strlen($data['r_userGroup'])) {
+        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen($data['r_userGroup'])) {
             $statement['meta']['userGroup'] = $data['r_userGroup'];
         }
-        if (array_key_exists('r_userOrganisation', $data) && 0 < strlen($data['r_userOrganisation'])) {
+        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen($data['r_userOrganisation'])) {
             $statement['meta']['userOrganisation'] = $data['r_userOrganisation'];
         }
-        if (array_key_exists('r_userPosition', $data) && 0 < strlen($data['r_userPosition'])) {
+        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen($data['r_userPosition'])) {
             $statement['meta']['userPosition'] = $data['r_userPosition'];
         }
-        if (array_key_exists('r_phone', $data) && 0 < strlen($data['r_phone'])) {
+        if (\array_key_exists('r_phone', $data) && 0 < \strlen($data['r_phone'])) {
             $statement['meta'][StatementMeta::USER_PHONE] = $data['r_phone'];
         }
 
-        if (array_key_exists('r_authored_date', $data) && 0 < strlen($data['r_authored_date'])) {
+        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen($data['r_authored_date'])) {
             $statement['authoredDate'] = $data['r_authored_date'];
         }
 
-        if (array_key_exists('r_submit_type', $data)) {
+        if (\array_key_exists('r_submit_type', $data)) {
             $statement['submitType'] = $data['r_submit_type'];
         }
 
-        if (array_key_exists('r_counties', $data)) {
+        if (\array_key_exists('r_counties', $data)) {
             $statement['counties'] = $data['r_counties'];
         }
 
-        if (array_key_exists('r_municipalities', $data)) {
+        if (\array_key_exists('r_municipalities', $data)) {
             $statement['municipalities'] = $data['r_municipalities'];
         }
 
-        if (array_key_exists('r_priorityAreas', $data)) {
+        if (\array_key_exists('r_priorityAreas', $data)) {
             $statement['priorityAreas'] = $data['r_priorityAreas'];
         }
 
-        if (array_key_exists('r_tags', $data)) {
+        if (\array_key_exists('r_tags', $data)) {
             $statement['tags'] = $data['r_tags'];
         }
 
-        if (array_key_exists('r_voters', $data)) {
+        if (\array_key_exists('r_voters', $data)) {
             $statement['votes'] = $data['r_voters'];
         }
 
-        if (array_key_exists('r_voters_anonym', $data) && is_numeric($data['r_voters_anonym'])) {
+        if (\array_key_exists('r_voters_anonym', $data) && is_numeric($data['r_voters_anonym'])) {
             $statement['numberOfAnonymVotes'] = abs(intval($data['r_voters_anonym']));
         }
 
-        if (array_key_exists('r_head_statement', $data)) {
+        if (\array_key_exists('r_head_statement', $data)) {
             $statement['headStatementId'] = $data['r_head_statement'];
         }
 
-        if (array_key_exists('r_recommendation', $data)) {
+        if (\array_key_exists('r_recommendation', $data)) {
             $statement['recommendation'] = $data['r_recommendation'];
         }
 
-        if (array_key_exists('r_houseNumber', $data)) {
+        if (\array_key_exists('r_houseNumber', $data)) {
             $statement['houseNumber'] = $data['r_houseNumber'];
         }
 
-        if (array_key_exists('originalAttachments', $data)) {
+        if (\array_key_exists('originalAttachments', $data)) {
             $originalAttachmentFiles = (new ArrayCollection($data['originalAttachments']))
                 ->map(Closure::fromCallable([$this->fileService, 'getFileIdFromUploadFile']))
                 ->map(Closure::fromCallable([$this->fileService, 'getFileById']));
@@ -4884,7 +4875,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     private function getSorting(array $rParams): array
     {
         $sort = $this->maybeAddSort($rParams, []);
-        if (!empty($sort) && array_key_exists('sort', $sort) && '' !== $sort['sort']) {
+        if (!empty($sort) && \array_key_exists('sort', $sort) && '' !== $sort['sort']) {
             return $sort['sort'];
         }
 
@@ -4918,7 +4909,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     private function includeStatements(array $allowedClasses): bool
     {
-        return in_array(Statement::class, $allowedClasses, true);
+        return \in_array(Statement::class, $allowedClasses, true);
     }
 
     /**
@@ -4926,7 +4917,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     private function includeStatementFragments(array $allowedClasses): bool
     {
-        return in_array(Statement::class, $allowedClasses, true);
+        return \in_array(Statement::class, $allowedClasses, true);
     }
 
     /**
@@ -4934,14 +4925,14 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     private function getStatementAndItsFragmentsInOneFlatList(Statement $statement, array $entityClassesToInclude): \Tightenco\Collect\Support\Collection
     {
-        $explodedStatement = collect();
+        $explodedStatement = \collect();
 
         if ($this->includeStatements($entityClassesToInclude)) {
             $explodedStatement->add($statement);
         }
 
         if ($this->includeStatementFragments($entityClassesToInclude)) {
-            $explodedStatement->push(...$statement->getFragments());
+            $explodedStatement->push($statement->getFragments());
         }
 
         return $explodedStatement;
@@ -4956,7 +4947,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $condition = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         return $this->entityFetcher->listEntities($this->statementResourceType, [$condition]);
@@ -4965,12 +4956,12 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function addMissingSortKeys($sort, string $defaultPropertyName, string $defaultDirection): ToBy
     {
         $direction = $defaultDirection;
-        if (is_array($sort) && array_key_exists('to', $sort)) {
+        if (\is_array($sort) && \array_key_exists('to', $sort)) {
             $direction = $sort['to'];
         }
 
         $propertyName = $defaultPropertyName;
-        if (is_array($sort) && array_key_exists('by', $sort)) {
+        if (\is_array($sort) && \array_key_exists('by', $sort)) {
             $propertyName = $sort['by'];
         }
 
@@ -4980,11 +4971,11 @@ class StatementService extends CoreService implements StatementServiceInterface
     private function addFilterToAggregationsWhenCausedResultIsEmpty(array $aggregations, array $userfilters): array
     {
         foreach ($userfilters as $label => $value) {
-            if (array_key_exists($label, $aggregations)
-                    && is_array($aggregations[$label])
-                    && array_key_exists('buckets', $aggregations[$label])
+            if (\array_key_exists($label, $aggregations)
+                    && \is_array($aggregations[$label])
+                    && \array_key_exists('buckets', $aggregations[$label])
                     && empty($aggregations[$label]['buckets'])
-                ) {
+            ) {
                 // A filter was set by the user that caused an empty search result - therefore the filter ist not
                 // set within the aggregations by default - add those filters manually to let the FE know we used a filter
                 $aggregations[$label]['buckets'] = [['key' => $value[0], 'doc_count' => 0]];

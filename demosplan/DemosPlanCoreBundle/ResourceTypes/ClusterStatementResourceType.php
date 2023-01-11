@@ -61,22 +61,22 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyIsNotNull(...$this->original),
-            $this->conditionFactory->propertyHasValue(true, ...$this->clusterStatement),
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyIsNotNull($this->original),
+            $this->conditionFactory->propertyHasValue(true, $this->clusterStatement),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             // only get non-clusterMember to avoid getting cluster of cluster and
             // bring result into line with ES result in ATable:
-            $this->conditionFactory->propertyIsNull(...$this->headStatement),
+            $this->conditionFactory->propertyIsNull($this->headStatement),
             // statement placeholders are not considered actual statement resources
-            $this->conditionFactory->propertyIsNull(...$this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id)
+            $this->conditionFactory->propertyIsNull($this->movedStatement),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
         );
     }
 
     public function getDefaultSortMethods(): array
     {
         return [
-            $this->sortMethodFactory->propertyAscending(...$this->externId),
+            $this->sortMethodFactory->propertyAscending($this->externId),
         ];
     }
 

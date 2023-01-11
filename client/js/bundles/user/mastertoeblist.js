@@ -11,6 +11,6 @@
  * This is the entrypoint for mastertoeblist.html.twig
  */
 import DpMasterToebList from '@DpJs/components/user/DpMasterToebList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize({ DpMasterToebList })

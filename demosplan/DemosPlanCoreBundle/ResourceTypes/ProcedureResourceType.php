@@ -24,8 +24,6 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
-use function is_array;
-
 /**
  * @template-extends DplanResourceType<Procedure>
  *
@@ -130,13 +128,13 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $dataInputCondition = $this->conditionFactory->false();
         if ($isAllowedAsDataInputOrga) {
             // as `$isAllowedAsDataInputOrga` is `true`, `$procedure` can't be `null` at this point
-            $dataInputCondition = $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->id);
+            $dataInputCondition = $this->conditionFactory->propertyHasValue($procedure->getId(), $this->id);
         }
 
         // check for owning organisation
-        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->owningOrganisation->id);
+        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->owningOrganisation->id);
         // check for invited organisation
-        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->invitedOrganisations->id);
+        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->invitedOrganisations->id);
 
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
@@ -164,13 +162,13 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
              * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
              * until the property is migrated the following condition ensures to handle the int correcly.
              */
-            $this->conditionFactory->propertyHasValue(0, ...$this->master),
-            $this->conditionFactory->propertyHasValue(false, ...$this->master)
+            $this->conditionFactory->propertyHasValue(0, $this->master),
+            $this->conditionFactory->propertyHasValue(false, $this->master)
         );
         // procedure resources can never have the deleted state
-        $undeletedCondition = $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        $undeletedCondition = $this->conditionFactory->propertyHasValue(false, $this->deleted);
         // only procedure templates are tied to a customer
-        $customerCondition = $this->conditionFactory->propertyIsNull(...$this->customer);
+        $customerCondition = $this->conditionFactory->propertyIsNull($this->customer);
 
         return $this->conditionFactory->allConditionsApply(
             $noBlueprintCondition,
@@ -233,7 +231,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                     $this->currentUser->getUser()
                 );
 
-                if (!is_array($statementResult->getResult())) {
+                if (!\is_array($statementResult->getResult())) {
                     return 0;
                 }
 

@@ -90,6 +90,7 @@
           :tooltip="Translator.trans('email.address.more.explanation.help')" />
         <dp-email-list
           id="emailList"
+          allow-updates-from-outside
           :class="`${mainEmail === '' ? 'opacity-7 pointer-events-none' : '' } u-mt-0_25`"
           :init-emails="emailAddresses" />
 

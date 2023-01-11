@@ -14,7 +14,7 @@
 import { prefixClass, TableWrapper } from '@demos-europe/demosplan-utils'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { DpUploadFiles } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import TocStateMemorizer from '@DemosPlanCoreBundle/lib/TocStateMemorizer'
 

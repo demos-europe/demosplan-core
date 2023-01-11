@@ -133,7 +133,7 @@ class ServiceOutput
 
         // Erstelle das tex-Dokument
         $content = $this->twig->render(
-            '@DemosPlanNews/DemosPlanNews/newsexport.tex.twig',
+            '@DemosPlanCore/DemosPlanNews/newsexport.tex.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,

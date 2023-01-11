@@ -40,19 +40,23 @@
                     <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
                     <dp-radio
                         id="statement_enabled_true"
-                        :bold="false"
                         class="u-mr-2"
                         checked="{{ templateVars.request.r_statement_enabled is defined and templateVars.request.r_statement_enabled == '1' }}"
-                        :label="Translator.trans('yes')"
+                        :label="{
+                            bold: false,
+                            text: Translator.trans('yes')
+                        }"
                         name="r_statement_enabled"
                         data-cy="enableFileToStatement"
                         value="1">
                     </dp-radio>
                     <dp-radio
                         id="statement_enabled_false"
-                        :bold="false"
                         checked="{{ templateVars.request.r_statement_enabled is defined and templateVars.request.r_statement_enabled == '0' }}"
-                        :label="Translator.trans('no')"
+                        :label="{
+                            bold: false,
+                            text: Translator.trans('no')
+                        }"
                         name="r_statement_enabled"
                         data-cy="disableFileToStatement"
                         value="0">

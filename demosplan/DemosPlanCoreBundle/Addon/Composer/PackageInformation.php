@@ -41,13 +41,19 @@ final class PackageInformation
 
         $packageListPath = include_once $installedPackagesPath;
 
+        if (true === $packageListPath) {
+            return;
+        }
+
         if (!array_key_exists('versions', $packageListPath)) {
             return;
         }
 
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
-            static fn ($version) => AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'])
+            static function (array $version): bool {
+                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
+            }
         );
     }
 

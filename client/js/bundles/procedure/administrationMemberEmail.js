@@ -14,7 +14,7 @@ import { DpAccordion, DpEditor, DpInlineNotification, DpLabel } from '@demos-eur
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,

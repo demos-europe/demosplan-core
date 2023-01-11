@@ -37,14 +37,18 @@
               name="r_role"
               value="0"
               :id="`${instanceId}r_role_0`"
-              :label="Translator.trans('citizen')"
+              :label="{
+                text: Translator.trans('citizen')
+              }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
               @change="values.submitter.institution = false" />
             <dp-radio
               name="r_role"
               value="1"
               :id="`${instanceId}r_role_1`"
-              :label="Translator.trans('institution')"
+              :label="{
+                text: Translator.trans('institution')
+              }"
               :checked="values.submitter.institution === true"
               @change="values.submitter.institution = true" />
           </div>

@@ -1306,6 +1306,7 @@ explanation.gislayer.visibility.group.locked.unexpected: "Die Kartenebene kann n
 explanation.gislayer.xplan.default: "Nutze die vordefinierten Standard XPlan-Layer."
 explanation.gislayer.xplan: "Diesen WMS als XPlanlayer anlegen."
 explanation.invitationmail.deactivated: "Bitte speichern Sie Ihre Änderungen zu der Beteiligungs-E-Mail ab, bevor Sie die Einladungen verschicken, damit die Änderungen übernommen werden."
+explanation.import.topicsAndTags: "Die Schlagworte wurden erfolgreich importiert."
 explanation.layers.separated: "Mehrere Layer werden durch ein Komma getrennt."
 explanation.list.of.submitters: "In dieser Liste finden Sie alle Personen, die in diesem Verfahren mindestens eine Stellungnahme eingereicht haben."
 explanation.login.gateway: "Die Anmeldung erfolgt über den Schleswig-Holstein-Service. Für Institutionen erforderlich, für Bürgerinnen und Bürger optional."
@@ -3244,7 +3245,7 @@ statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
-statements.final: "Einreichungen der Organisation"
+statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
 statements.final_versions: "Endfassungen"
 statements.group: "Stellungnahmen der Gruppe"
@@ -3261,7 +3262,7 @@ statements.grouped.priority: |
         =1 {Eine Stellungnahme nach Priorität}
         other {# Stellungnahmen nach Priorität}
     }
-statements.grouprelease: "Freigaben der Organisation"
+statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"

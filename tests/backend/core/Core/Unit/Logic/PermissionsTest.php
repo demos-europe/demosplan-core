@@ -20,8 +20,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
@@ -29,7 +32,8 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use SplFixedArray;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
 
@@ -122,14 +126,28 @@ class PermissionsTest extends FunctionalTestCase
         // generiere ein Stub vom GlobalConfig
         /** @var MockObject|GlobalConfigInterface $globalConfig */
         $globalConfig = self::$container->get(GlobalConfigInterface::class);
-
+        $corePermissions = self::$container->get(CachingYamlPermissionCollection::class);
+        $permissionsResolver = self::$container->get(PermissionResolver::class);
+        $validator = self::$container->get(ValidatorInterface::class);
         $procedureRepository = $this->getProcedureRepositoryMock();
         $permissionsClass = $this->getPermissionsClass();
+
+        $customerService = static::$container->get(CustomerService::class);
 
         $procedureAccessEvaluator = self::$container->get(ProcedureAccessEvaluator::class);
         /** @var Permissions $permissions */
         $permissions = (new ReflectionClass($permissionsClass))
-            ->newInstance(new FilesystemAdapter(), $logger, $globalConfig, $procedureAccessEvaluator, $procedureRepository);
+            ->newInstance(
+                new SplFixedArray(),
+                $customerService,
+                $logger,
+                $globalConfig,
+                $corePermissions,
+                $permissionsResolver,
+                $procedureAccessEvaluator,
+                $procedureRepository,
+                $validator
+            );
 
         return $permissions;
     }

@@ -11,7 +11,7 @@
  * This is the entry point for unregistered_publicagency_list.html.twig
  */
 import { DpToggleForm } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpToggleForm }
 

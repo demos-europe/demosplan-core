@@ -11,7 +11,7 @@
  * This is the entry point for list_subscriptions.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import ListSubscriptions from '@DpJs/components/procedure/listSubscriptions/ListSubscriptions'
 
 const components = { ListSubscriptions }

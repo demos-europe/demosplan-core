@@ -463,29 +463,45 @@ export default {
         'elements',
         'paragraph',
         'document',
-        'tags',
         'assignee',
         'attachments',
         'attachments.file',
         'files'
       ]
 
-      // isSubmittedByCitizen, priorityAreas, counties and municipalities are available and readable with one of the following permissions
+      /*
+       * `tags`, `isSubmittedByCitizen`, `priorityAreas`, `counties` and `municipalities`
+       * are available and readable with one of the following permissions
+       */
       const statementFields = []
+      const fields = {}
+
       if (hasAnyPermissions(['feature_segments_of_statement_list', 'area_statement_segmentation', 'area_admin_statement_list', 'area_admin_submitters'])) {
         statementFields.push('isSubmittedByCitizen')
       }
+
       if (hasPermission('field_statement_priority_area') && data.hasPriorityArea === true) {
         includes.push('priorityAreas')
         statementFields.push('priorityAreas')
+        fields.PriorityArea = 'name'
       }
+
       if (hasPermission('field_statement_county')) {
         includes.push('counties')
         statementFields.push('counties')
+        fields.County = 'name'
       }
+
       if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
         includes.push('municipalities')
         statementFields.push('municipalities')
+        fields.Municipality = 'name'
+      }
+
+      if (hasAnyPermissions(['feature_json_api_tag', 'area_statement_segmentation', 'feature_statements_tag'])) {
+        includes.push('tags')
+        statementFields.push('tags')
+        fields.Tag = 'name'
       }
 
       return dpApi({
@@ -503,6 +519,7 @@ export default {
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {
+            ...fields,
             Statement: [
               ...statementFields,
               'anonymous',
@@ -545,7 +562,6 @@ export default {
               'status',
               'submitDate',
               'submitName',
-              'tags',
               'text',
               'textIsTruncated',
               'userGroup',
@@ -556,9 +572,6 @@ export default {
               'votesNum',
               'voteStk'
             ].join(),
-            ...(hasPermission('field_statement_county') && { County: 'name' }),
-            ...((hasPermission('field_statement_priority_area') && data.hasPriorityArea) && { PriorityArea: 'name' }),
-            ...(hasPermission('field_statement_municipality') && { Municipality: 'name' }),
             Claim: [
               'name',
               'orgaName'
@@ -579,8 +592,7 @@ export default {
             StatementAttachment: [
               'file',
               'type'
-            ].join(),
-            Tag: 'title'
+            ].join()
           },
           include: includes.join(',')
         })

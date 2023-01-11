@@ -25,6 +25,15 @@ updates:
       - dependency-name: vue-loader
         versions:
             - ">= 16"
+
+      - dependency-name: portal-vue
+        versions:
+            - ">= 3"
+
+      # Can't be used as CommonJs but only ESM which will break our FE build atm
+      - dependency-name: chalk
+        versions:
+            - ">= 5"
     labels:
       - dependencies:yarn
 
@@ -43,6 +52,10 @@ updates:
         versions:
           - ">= 9.a"
           - "< 10"
+      - dependency-name: symfony/*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: friendsofsymfony/jsrouting-bundle
+        update-types: [ "version-update:semver-major" ]
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
