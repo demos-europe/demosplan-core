@@ -68,6 +68,7 @@
         'c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'
       ]">
       <dp-radio
+        v-if="hasPermission('field_statement_county')"
         id="locationcounty"
         :label="{
           text: Translator.trans('statement.map.reference.choose_county')
