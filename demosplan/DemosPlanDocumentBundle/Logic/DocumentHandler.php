@@ -11,14 +11,6 @@
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use DirectoryIterator;
-use Exception;
-use ReflectionException;
-use RuntimeException;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -29,6 +21,14 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use DirectoryIterator;
+use Exception;
+use ReflectionException;
+use RuntimeException;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DocumentHandler extends CoreHandler
 {
@@ -127,7 +127,7 @@ class DocumentHandler extends CoreHandler
         string $procedure,
         string $importDir
     ): array {
-        //Schreibe den Status des Imports im ein temporäres File
+        // Schreibe den Status des Imports im ein temporäres File
         $fs = new Filesystem();
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
@@ -197,8 +197,7 @@ class DocumentHandler extends CoreHandler
         $sessionElementImportList,
         $category = null,
         array &$errorReport
-    )
-    {
+    ) {
         $fs = new Filesystem();
         $result = [];
 
@@ -219,7 +218,7 @@ class DocumentHandler extends CoreHandler
                 $keys = array_keys($sessionElementImportList, $entry['path']);
                 if (is_array($keys) && isset($request[$keys[0]]) && 0 < strlen(
                     $request[$keys[0]]
-                  )
+                )
                 ) {
                     $fileName = $request[$keys[0]];
                 }
@@ -227,7 +226,7 @@ class DocumentHandler extends CoreHandler
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
-                $element['r_publish_categories'] = (bool)($request['r_publish_categories'] ?? false);
+                $element['r_publish_categories'] = (bool) ($request['r_publish_categories'] ?? false);
                 // Ist es eine Unterkategorie?
                 if (null !== $elementId) {
                     $element['r_parent'] = $elementId;
@@ -237,14 +236,14 @@ class DocumentHandler extends CoreHandler
                 $category = $result['category'];
                 // lege eine Kategorie an und übergebe die aktuelle Kategorie rekursiv
                 $this->saveElementsFromDirArray(
-                  $entry['entries'],
-                  $resultElementId,
-                  $sessionId,
-                  $procedure,
-                  $request,
-                  $sessionElementImportList,
-                  $category,
-                  $errorReport
+                    $entry['entries'],
+                    $resultElementId,
+                    $sessionId,
+                    $procedure,
+                    $request,
+                    $sessionElementImportList,
+                    $category,
+                    $errorReport
                 );
             } else {
                 // Wenn elementId null ist kann kein SingleDocument angelegt werden, deshalb mit dem nächsten Eintrag weiter machen
@@ -294,7 +293,7 @@ class DocumentHandler extends CoreHandler
                 // save all the created documents
                 $this->singleDocumentService->persistAndFlushNewPlanningDocumentsFromImport($createdDocuments);
 
-                //Schreibe den Status des Imports im ein temporäres File
+                // Schreibe den Status des Imports im ein temporäres File
                 $status = Json::encode(
                     [
                         'bulkImportFilesTotal'     => $this->getSession()->get('bulkImportFilesTotal'),
@@ -337,7 +336,7 @@ class DocumentHandler extends CoreHandler
                   'title'   => $fileInfo->getFilename(),
                   'path'    => $fileInfo->getPathname(),
                   'entries' => $this->elementImportDirToArray(
-                    $fileInfo->getPathname()
+                      $fileInfo->getPathname()
                   ),
                 ];
             } else {
