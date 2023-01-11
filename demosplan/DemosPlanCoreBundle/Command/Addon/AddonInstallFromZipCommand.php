@@ -90,13 +90,19 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             // The '-a' flag for the composer update is strictly necessary as it generates the authorative
             // classmap with all classes which we then use for our own extended autoloading.
-            Batch::create($this->getApplication(), $output)
+            $composerReturn = Batch::create($this->getApplication(), $output)
                 ->addShell(['composer', 'clearcache'])
                 ->addShell(['composer', 'dump-autoload'])
-                ->addShell(['composer', 'bin', 'addons', 'update', '-a'])
+                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o'])
                 ->run();
         } catch (Exception $e) {
             $output->error($e->getMessage());
+
+            return Command::FAILURE;
+        }
+
+        if (0 !== $composerReturn) {
+            $output->error('Composer commands failed! This is most likely due to a conflict in dependency versions. Please check manually!');
 
             return Command::FAILURE;
         }
@@ -116,13 +122,20 @@ class AddonInstallFromZipCommand extends CoreCommand
                     ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $packageMeta['install_path'])
                     ->run();*/
             }
+
+            // Clear cache to force Symfony to rebuild its container
+            $cacheClearReturn = Batch::create($this->getApplication(), $output)
+                ->addShell(['cache:clear'])
+                ->run();
+
+            if (0 === $cacheClearReturn) {
+                return Command::SUCCESS;
+            }
         } catch (Exception $e) {
             $output->error($e->getMessage());
-
-            return Command::FAILURE;
         }
 
-        return Command::SUCCESS;
+        return Command::FAILURE;
     }
 
     /**
@@ -199,8 +212,6 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function copyAndUnzipFileIfNecessary(OutputInterface $output): void
     {
-        $output->writeln('Checking if the addon needs to be unpacked');
-
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
 

@@ -32,7 +32,9 @@
         @change="val => setStatementData({r_getEvaluation: 'email'})"
         :checked="statement.r_getEvaluation === 'email' && statement.r_getFeedback === 'on'"
         aria-labelledby="statement-detail-require-response-email"
-        :label="Translator.trans('statement.form.personal.require_answer_email')"
+        :label="{
+          text: Translator.trans('statement.form.personal.require_answer_email')
+        }"
         value="email" />
 
       <!--              {# email address #}-->
@@ -82,7 +84,9 @@
           :disabled="statement.r_useName === '0'"
           @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
           :checked="statement.r_getEvaluation === 'snailmail'"
-          :label="Translator.trans('statement.form.personal.require_answer_post')"
+          :label="{
+            text: Translator.trans('statement.form.personal.require_answer_post')
+          }"
           aria-labelledby="statement-detail-require-response-post"
           value="snailmail" />
         <form-group-street-and-number

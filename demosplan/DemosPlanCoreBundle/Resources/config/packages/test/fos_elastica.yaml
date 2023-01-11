@@ -2,36 +2,26 @@ fos_elastica:
     indexes:
         procedures:
             index_name: '%project_prefix%_procedures_test'
-            types:
-                procedure:
-                    persistence:
-                        listener: { enabled: false }
+            persistence:
+                listener: { enabled: false }
         draftStatements:
             index_name: '%project_prefix%_draft_statements_test'
-            types:
-                draftStatement:
-                    persistence:
-                        listener: { enabled: false }
+            persistence:
+                listener: { enabled: false }
         statements:
             index_name: '%project_prefix%_statements_test'
         statementFragments:
             index_name: '%project_prefix%_statement_fragments_test'
-            types:
-                statementFragment:
-                    persistence:
-                        listener: { enabled: false }
+            persistence:
+                listener: { enabled: false }
         statementSegments:
             index_name: '%project_prefix%_segments_test'
-            types:
-                statementSegment:
-                    persistence:
-                        listener: { enabled: false }
+            persistence:
+                listener: { enabled: false }
         users:
             index_name: '%project_prefix%_user_test'
-            types:
-                user:
-                    persistence:
-                        listener: { enabled: false }
+            persistence:
+                listener: { enabled: false }
 
 imports:
     - { resource: "@DemosPlanCoreBundle/Resources/config/elasticsearch.yml" }

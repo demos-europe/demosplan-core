@@ -18,7 +18,7 @@ import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpTable from '@DpJs/components/statement/assessmentTable/DpTable'
 import FilterStore from '@DpJs/store/statement/Filter'
 import FragmentStore from '@DpJs/store/statement/Fragment'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {

@@ -61,19 +61,19 @@ final class ProcedureTemplateResourceType extends DplanResourceType
             return $this->conditionFactory->false();
         }
 
-        $masterTemplateSubCondition = $this->conditionFactory->propertyHasValue(true, ...$this->masterTemplate);
+        $masterTemplateSubCondition = $this->conditionFactory->propertyHasValue(true, $this->masterTemplate);
         $normalTemplateSubCondition = $this->conditionFactory->allConditionsApply(
             // not the unique master template
-            $this->conditionFactory->propertyHasValue(false, ...$this->masterTemplate),
+            $this->conditionFactory->propertyHasValue(false, $this->masterTemplate),
             // created by the users organisation (ie.: the current user is in the owning organisation of the template)
-            $this->conditionFactory->propertyHasValue($userOrga->getId(), ...$this->owningOrganisation->id)
+            $this->conditionFactory->propertyHasValue($userOrga->getId(), $this->owningOrganisation->id)
         );
 
         return $this->conditionFactory->allConditionsApply(
             // a deleted template is not a valid template resource
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             // templates are never actual procedures
-            $this->conditionFactory->propertyHasValue(true, ...$this->master),
+            $this->conditionFactory->propertyHasValue(true, $this->master),
             // the template must be either the unique master template or a "normal" template
             $this->conditionFactory->anyConditionApplies($masterTemplateSubCondition, $normalTemplateSubCondition)
         );

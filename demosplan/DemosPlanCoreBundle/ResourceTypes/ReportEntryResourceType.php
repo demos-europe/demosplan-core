@@ -81,17 +81,17 @@ class ReportEntryResourceType extends DplanResourceType
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->identifier),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), ...$this->group),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), ...$this->category),
-            $this->conditionFactory->propertyHasValue($customer->getId(), ...$this->customer->id),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
+            $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
+            $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
+            $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
         );
     }
 
     public function getDefaultSortMethods(): array
     {
         return [
-            $this->sortMethodFactory->propertyDescending(...$this->createDate),
+            $this->sortMethodFactory->propertyDescending($this->createDate),
         ];
     }
 

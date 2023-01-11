@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_new_member_list.html.twig
  */
 import DpAddOrganisationList from '@DpJs/components/procedure/admin/DpAddOrganisationList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAddOrganisationList

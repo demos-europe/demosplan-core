@@ -53,8 +53,8 @@ class GlobalNewsCategoryResourceType extends DplanResourceType
     public function getAccessCondition(): PathsBasedInterface
     {
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyHasValue(true, ...$this->enabled)
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyHasValue(true, $this->enabled)
         );
     }
 

@@ -56,7 +56,8 @@ class Config {
         'demosplan/**/*.js.twig',
         'client/**/*.js',
         'client/**/*.vue',
-        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true }),
+        ...glob.sync('node_modules/@demos-europe/demosplan-utils/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [

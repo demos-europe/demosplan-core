@@ -26,10 +26,12 @@
             <legend class="font-size-medium u-mb-0_25">{{ 'status'|trans }}</legend>
             <dp-radio
                 id="visbility_true"
-                :bold="false"
                 class="u-mr-2"
                 :checked="Boolean({{ document.visible == true }})"
-                :label="Translator.trans('released')"
+                :label="{
+                    bold: false,
+                    text: Translator.trans('released')
+                }"
                 name="r_visible"
                 value="1">
             </dp-radio>
@@ -37,7 +39,10 @@
                 id="visbility_false"
                 :bold="false"
                 :checked="Boolean({{ document.visible != true }})"
-                :label="Translator.trans('blocked')"
+                :label="{
+                    bold: false,
+                    text: Translator.trans('blocked')
+                }"
                 name="r_visible"
                 value="0">
             </dp-radio>
@@ -75,18 +80,22 @@
                 <legend class="font-size-medium u-mb-0_25">{{ 'statement.possible'|trans }}</legend>
                 <dp-radio
                     id="statement_enabled_true"
-                    :bold="false"
                     class="u-mr-2"
                     :checked="{{ document.statement_enabled == true ? 'true' : 'false' }}"
-                    :label="Translator.trans('yes')"
+                    :label="{
+                        bold: false,
+                        text: Translator.trans('yes')
+                    }"
                     name="r_statement_enabled"
                     value="1">
                 </dp-radio>
                 <dp-radio
                     id="statement_enabled_false"
-                    :bold="false"
                     :checked="{{ document.statement_enabled != true ? 'true' : 'false' }}"
-                    :label="Translator.trans('no')"
+                    :label="{
+                        bold: false,
+                        text: Translator.trans('no')
+                    }"
                     name="r_statement_enabled"
                     value="0">
                 </dp-radio>

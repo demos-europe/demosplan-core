@@ -12,7 +12,7 @@
  */
 import { addFormHiddenField, removeFormHiddenField } from '@demos-europe/demosplan-utils/lib/FormActions'
 import { DpTooltipIcon } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpTooltipIcon

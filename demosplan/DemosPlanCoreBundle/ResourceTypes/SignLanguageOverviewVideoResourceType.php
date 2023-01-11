@@ -68,7 +68,7 @@ class SignLanguageOverviewVideoResourceType extends DplanResourceType implements
             // in the current customer
             $this->conditionFactory->propertyHasValue(
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
-                ...$this->customerContext->id
+                $this->customerContext->id
             ),
             // to be an actual 'SignLanguageOverviewVideo' the entity must be set as one of the
             // sign language videos of the customer it was uploaded in

@@ -10,38 +10,13 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use function array_key_exists;
+
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\PathException;
-use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\Contracts\SortMethodInterface;
-use Exception;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use ReflectionException;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Tightenco\Collect\Support\Collection;
-use TypeError;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
@@ -77,9 +52,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
@@ -111,20 +86,36 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use function array_key_exists;
-use function array_merge;
-use function array_unique;
-use function collect;
-use function in_array;
-use function is_array;
-use function is_dir;
-use function is_string;
-use function stripos;
-use function strlen;
-use function var_export;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\SortMethodFactoryInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
+use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tightenco\Collect\Support\Collection;
+use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -614,13 +605,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
         // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
-        if (array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
+        if (\array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
             $inData['customer'] = $this->customerService->getCurrentCustomer();
         }
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = array_key_exists('r_name', $inData) && 0 < strlen($inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen($inData['r_name']);
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -670,7 +661,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     protected function checkProcedureDataNoJS(array $inData): array
     {
-        if (array_key_exists('r_name', $inData) && '' === $inData['r_name']) {
+        if (\array_key_exists('r_name', $inData) && '' === $inData['r_name']) {
             $planungsanlass = $this->plis->getLgvPlisPlanningcause(
                 $inData['r_plisId']
             );
@@ -839,7 +830,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             );
 
             if ($toLegacy) {
-                $procedureList = collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
+                $procedureList = \collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
             }
 
             return $toLegacy ? $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray() : $procedureList;
@@ -855,7 +846,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
         $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, 'deleted');
+        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
 
         $organisationId = $user->getOrganisationId();
 
@@ -863,7 +854,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // authorized for (enabled via field_procedure_adjustments_planning_agency).
         $planningAgencyCondition = $this->conditionFactory->false();
         if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, 'planningOffices');
+            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
         }
 
         $orgaOwnsProcedureCondition = $this->conditionFactory->false();
@@ -876,11 +867,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             || $user->isPlanningAgency()
         ) {
             // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, 'orga');
+            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
 
             // If enabled via globalConfig, Planning agencies can be authorized user-wise.
             if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), 'authorizedUsers');
+                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
             }
         }
 
@@ -892,7 +883,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             )
         );
 
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, 'master');
+        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
 
         return $conditions;
     }
@@ -1005,12 +996,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $procedure = $this->procedureRepository->get($procedureId);
         if (!$procedure instanceof Procedure) {
-            return collect();
+            return \collect();
         }
 
         $userOrga = $user->getOrga();
         if (!$userOrga instanceof Orga) {
-            return collect();
+            return \collect();
         }
 
         $usersOfOrganisation = $userOrga->getUsers();
@@ -1020,7 +1011,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $usersOfOrganisation->forget($usersOfOrganisation->search($user));
         }
         // planning offices needs to get all Orga members that are planners
-        if (in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
+        if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
             return $usersOfOrganisation->filter(static function (User $user): bool {
                 return $user->isPlanner();
             });
@@ -1042,7 +1033,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $authorizedUserIds = $procedure->getAuthorizedUserIds();
             $usersOfOrganisation = $usersOfOrganisation->filter(
                 static function (User $user) use ($authorizedUserIds): bool {
-                    return in_array($user->getId(), $authorizedUserIds);
+                    return \in_array($user->getId(), $authorizedUserIds);
                 }
             );
         }
@@ -1082,7 +1073,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
-            if (array_key_exists('explanation', $data)) {
+            if (\array_key_exists('explanation', $data)) {
                 // Create a Paragraph Element from the explanation and add it to the procedure
                 $explanation = $data['explanation'];
                 $newProcedure = $this->createElementFromExplanation($newProcedure, $explanation);
@@ -1135,7 +1126,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function deleteProcedure($procedureIds): void
     {
         try {
-            if (!is_array($procedureIds)) {
+            if (!\is_array($procedureIds)) {
                 $procedureIds = [$procedureIds];
             }
 
@@ -1148,7 +1139,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
                 try {
                     $this->updateProcedureWithoutReport($data);
-                    $this->getLogger()->info('Procedure marked as deleted: '.var_export($procedureId, true));
+                    $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
@@ -1235,7 +1226,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             // delete pregenerated zips in filedirectory/procedure
             $filesPath = $fileService->getFilesPathAbsolute();
-            if (is_dir($filesPath.'/procedure/'.$procedureId)) {
+            if (\is_dir($filesPath.'/procedure/'.$procedureId)) {
                 try {
                     $fs = new Filesystem();
                     $fs->remove($filesPath.'/procedure/'.$procedureId);
@@ -1307,7 +1298,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure = $this->cloneProcedure($origSourceRepos);
 
             // Update exportSettings
-            if (array_key_exists('exportSettings', $data)) {
+            if (\array_key_exists('exportSettings', $data)) {
                 $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
             }
 
@@ -2128,7 +2119,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     protected function isValidDesignatedPublicPhase($phaseName)
     {
-        return in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
+        return \in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
     }
 
     /**
@@ -2314,7 +2305,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             SettingsFilter::whereProcedureId($procedureId)->lock(),
             false
         );
-        if (is_array($settings) && $settings[0] instanceof Setting) {
+        if (\is_array($settings) && $settings[0] instanceof Setting) {
             $this->contentService->deleteSetting($settings[0]->getIdent());
         }
     }
@@ -2340,7 +2331,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         if (null !== $blueprint) {
             $blueprint =
-                is_string($blueprint) ? $this->getProcedure($blueprint) : $blueprint;
+                \is_string($blueprint) ? $this->getProcedure($blueprint) : $blueprint;
 
             if (false === $blueprint->getAuthorizedUsers()->isEmpty()) {
                 $newProcedure->setAuthorizedUsers($blueprint->getAuthorizedUsers());
@@ -2513,22 +2504,22 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getInaccessibleProcedures(User $user, $procedureIdToExclude = null)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
         ];
 
         if (null !== $procedureIdToExclude) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, ['id']);
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
-        if (false !== stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
-            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), 'planningOffices');
+        if (false !== \stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
+            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'orga');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
         $foreignProcedures = $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2543,7 +2534,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $unauthorizedProcedures = $this->getUnauthorizedProcedures($user);
         }
 
-        return array_merge($foreignProcedures, $unauthorizedProcedures);
+        return \array_merge($foreignProcedures, $unauthorizedProcedures);
     }
 
     /**
@@ -2556,13 +2547,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getUnauthorizedProcedures(User $user)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
-            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), 'orga'),
-            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), 'authorizedUsers'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
+            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['orga']),
+            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), ['authorizedUsers']),
         ];
 
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createdDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2586,7 +2577,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $inAccessibleProcedures = $this->getInaccessibleProcedures($user, $procedureIdToExclude);
         $inAccessibleProcedures =
-            collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
+            \collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
                 return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
             });
 
@@ -2610,7 +2601,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $accessibleProcedures = $this->getProcedureAdminList($filters, null, ['name' => 'ASC'], $user, false, false);
 
         $accessibleProcedures =
-            collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
+            \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
                 return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
             });
 
@@ -2762,55 +2753,55 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     ): array {
         $conditions = $this->getAdminProcedureConditions($template, $user);
 
-        if (is_string($search) && 0 < strlen($search)) {
+        if (\is_string($search) && 0 < \strlen($search)) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
-                'name'
+                ['name']
             );
         }
 
-        if (isset($filters['municipalCode']) && is_array($filters['municipalCode'])) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], 'municipalCode');
+        if (isset($filters['municipalCode']) && \is_array($filters['municipalCode'])) {
+            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
         // use array_key_exists, because value of key 'customer' is null
-        if (array_key_exists('customer', $filters)) {
+        if (\array_key_exists('customer', $filters)) {
             // T15644 customer master procedure has customer set
             if ($template &&
                 $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
             ) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyIsNull('customer'),
-                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), 'customer')
+                    $this->conditionFactory->propertyIsNull(['customer']),
+                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), ['customer'])
                 );
             } elseif (null === $filters['customer']) {
-                $conditions[] = $this->conditionFactory->propertyIsNull('customer');
+                $conditions[] = $this->conditionFactory->propertyIsNull(['customer']);
             } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], 'customer');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], ['customer']);
             }
         }
 
-        if (array_key_exists('orgaCustomerId', $filters)) {
+        if (\array_key_exists('orgaCustomerId', $filters)) {
             $conditions[] = $this->conditionFactory->propertyHasValue(
                 $filters['orgaCustomerId'],
-                'orga', 'statusInCustomers', 'customer', 'id'
+                ['orga', 'statusInCustomers', 'customer', 'id']
             );
         }
 
         if (isset($filters['procedureIdToExclude'])) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], ['id']);
         }
 
         if ($excludeArchived) {
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', 'phase'),
-                $this->conditionFactory->propertyHasNotValue('closed', 'publicParticipationPhase')
+                $this->conditionFactory->propertyHasNotValue('closed', ['phase']),
+                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase'])
             );
         }
 
         // may be simplified
-        $hiddenPhases = array_unique(
-            array_merge(
+        $hiddenPhases = \array_unique(
+            \array_merge(
                 $this->globalConfig->getInternalPhaseKeys('hidden'),
                 $this->globalConfig->getExternalPhaseKeys('hidden')
             )
@@ -2819,8 +2810,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'phase'),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'publicParticipationPhase'),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase']),
             );
         }
 
@@ -2841,14 +2832,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     {
         $sortMethods = [];
         if (null === $sort) {
-            $sortMethods[] = $this->sortMethodFactory->propertyDescending('createdDate');
-            $sortMethods[] = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethods[] = $this->sortMethodFactory->propertyDescending(['createdDate']);
+            $sortMethods[] = $this->sortMethodFactory->propertyAscending(['name']);
         } else {
             foreach ($sort as $key => $value) {
                 if ('ASC' === $value) {
-                    $sortMethods[] = $this->sortMethodFactory->propertyAscending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyAscending([$key]);
                 } else {
-                    $sortMethods[] = $this->sortMethodFactory->propertyDescending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyDescending([$key]);
                 }
             }
         }

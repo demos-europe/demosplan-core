@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_list_survey_comments.html.twig
  */
 import DpSurveyCommentsList from '@DpJs/components/procedure/survey/DpSurveyCommentsList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSurveyCommentsList }
 

@@ -104,15 +104,19 @@
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
               @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-              :label="Translator.trans('public.participation.participate')"
+              :label="{
+                text: Translator.trans('public.participation.participate')
+              }"
               value="0" />
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_true"
-              :hint="Translator.trans('link.title.indicationerror')"
               :checked="formData.r_isNegativeReport === '1'"
               @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
-              :label="Translator.trans('indicationerror')"
+              :label="{
+                hint: Translator.trans('link.title.indicationerror'),
+                text: Translator.trans('indicationerror')
+              }"
               value="1" />
           </div>
         </template>
@@ -451,7 +455,9 @@
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
-              :label="Translator.trans('statement.detail.form.personal.post_publicly')" />
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_publicly')
+              }" />
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout')">
@@ -476,7 +482,9 @@
               value="0"
               @change="val => setStatementData({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
-              :label="Translator.trans('statement.detail.form.personal.post_anonymously')"
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_anonymously')
+              }"
               aria-labelledby="statement-detail-post-anonymously"
               data-cy="submitAnonymously" />
           </div>

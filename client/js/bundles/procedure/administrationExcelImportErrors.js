@@ -12,7 +12,7 @@
  */
 
 import ExcelImportErrors from '@DpJs/components/procedure/AdministrationImport/ExcelImport/ExcelImportErrors'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { ExcelImportErrors }
 

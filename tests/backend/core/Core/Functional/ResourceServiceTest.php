@@ -117,7 +117,7 @@ class ResourceServiceTest extends FunctionalTestCase
             $this->statementResourceType,
             [$this->conditionFactory->propertyHasValue(
                 $expected->getAuthorName(),
-                ...$this->statementResourceType->authorName
+                $this->statementResourceType->authorName
             )],
         );
 
@@ -144,7 +144,7 @@ class ResourceServiceTest extends FunctionalTestCase
 
         $listResult = $this->entityFetcher->listEntities(
             $this->orgaResourceType,
-            [$this->conditionFactory->propertyIsNotNull(...$this->orgaResourceType->masterToeb)]
+            [$this->conditionFactory->propertyIsNotNull($this->orgaResourceType->masterToeb)]
         );
 
         self::assertCount(1, $listResult);
@@ -173,11 +173,10 @@ class ResourceServiceTest extends FunctionalTestCase
 
         $listResult = $this->entityFetcher->listEntities(
             $this->statementResourceType,
-            [$this->conditionFactory->propertyHasSize(0, ...$this->statementResourceType->segments)]
+            [$this->conditionFactory->propertyHasSize(0, $this->statementResourceType->segments)]
         );
 
         self::assertGreaterThan(1, $listResult);
         self::assertContains($expected, $listResult);
     }
-
 }

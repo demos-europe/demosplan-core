@@ -11,7 +11,7 @@
  * This is the entry point for elements_admin_import.html.twig
  */
 import { DpCheckbox } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpCheckbox }
 initialize(components, {}).then(() => {

@@ -67,14 +67,14 @@ final class BoilerplateResourceType extends DplanResourceType
 
         return $this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            ...$this->procedure->id
+            $this->procedure->id
         );
     }
 
     public function getDefaultSortMethods(): array
     {
         return [
-            $this->sortMethodFactory->propertyAscending(...$this->title),
+            $this->sortMethodFactory->propertyAscending($this->title),
         ];
     }
 

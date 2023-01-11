@@ -358,7 +358,7 @@ class EntityFetcher implements EntityFetcherInterface
 
         try {
             $identifierPath = $type->getIdentifierPropertyPath();
-            $identifierCondition = $this->conditionFactory->propertyHasValue($id, ...$identifierPath);
+            $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPath);
             $entities = $this->listTypeEntities($entityProvider, $type, [$identifierCondition], []);
 
             switch (count($entities)) {
@@ -519,7 +519,7 @@ class EntityFetcher implements EntityFetcherInterface
      */
     public function getUniqueEntity(ResourceTypeInterface $type, string $id, array $conditions): UuidEntityInterface
     {
-        $conditions[] = $this->conditionFactory->propertyHasValue($id, ...$type->getIdentifierPropertyPath());
+        $conditions[] = $this->conditionFactory->propertyHasValue($id, $type->getIdentifierPropertyPath());
 
         $entities = $this->listEntities($type, $conditions);
 
