@@ -12,12 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\AkdbBpkParser;
-use demosplan\DemosPlanUserBundle\Logic\UserService;
 
 class SamlUserProvider implements UserProviderInterface
 {
