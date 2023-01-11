@@ -68,6 +68,16 @@ class HTMLFragmentSlicer
         $this->remainingList = new Collection();
     }
 
+    /**
+     * Returns the HTMLFragmentSlicer object. Please be aware
+     * of the performance implications, as the result is not
+     * cached here. Please use {@link HTMLFragmentSlicer::getShortened()}
+     * if you only need the shortened text instead
+     *
+     * @param string $htmlFragment
+     * @param int $sliceIndex
+     * @return HTMLFragmentSlicer
+     */
     public static function slice(
         $htmlFragment,
         $sliceIndex = self::SLICE_DEFAULT

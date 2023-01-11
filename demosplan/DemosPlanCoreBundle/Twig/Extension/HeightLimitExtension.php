@@ -18,7 +18,7 @@ class HeightLimitExtension extends ExtensionBase
     public function getFilters(): array
     {
         return [
-            new TwigFilter('heightLimitData', [$this, 'heightLimitData']),
+            new TwigFilter('heightLimitShorten', [$this, 'heightLimitShorten']),
         ];
     }
 
@@ -28,10 +28,9 @@ class HeightLimitExtension extends ExtensionBase
      * @param string $content
      * @param int    $maxNbCharcters
      *
-     * @return array
      */
-    public function heightLimitData($content, $maxNbCharcters = 500)
+    public function heightLimitShorten($content, $maxNbCharcters = 500): string
     {
-        return HTMLFragmentSlicer::slice($content, $maxNbCharcters)->toArray();
+        return HTMLFragmentSlicer::getShortened($content, $maxNbCharcters);
     }
 }
