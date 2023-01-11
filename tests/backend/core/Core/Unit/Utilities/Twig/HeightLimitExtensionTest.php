@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\HeightLimitExtension;
 use Tests\Base\UnitTestCase;
+use Twig\TwigFilter;
 
 /**
  * Teste HeightLimitExtension
@@ -37,10 +38,10 @@ class HeightLimitExtensionTest extends UnitTestCase
     {
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+        static::assertInstanceOf(TwigFilter::class, $result[0]);
         $callable = $result[0]->getCallable();
-        static::assertEquals('heightLimitData', $callable[1]);
-        static::assertEquals('heightLimitData', $result[0]->getName());
+        static::assertEquals('heightLimitShorten', $callable[1]);
+        static::assertEquals('heightLimitShorten', $result[0]->getName());
     }
 
     public function testHeightLimit()
@@ -61,10 +62,7 @@ class HeightLimitExtensionTest extends UnitTestCase
             'actual real world result without it being a real world result. Damn it 500 '.
             'characters is a long stretch of';
 
-        $result = $this->twigExtension->heightLimitData($textToTest);
-
-        static::assertIsArray($result);
-        static::assertArrayHasKey('shortened', $result);
-        static::assertEquals($expected, $result['shortened']);
+        $result = $this->twigExtension->heightLimitShorten($textToTest);
+        static::assertEquals($expected, $result);
     }
 }
