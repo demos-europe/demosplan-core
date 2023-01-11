@@ -22,9 +22,9 @@ use Tightenco\Collect\Support\Collection;
 
 class HTMLFragmentSlicer
 {
-    const SLICE_AT_END_OF_STRING = -1;
+    public const SLICE_AT_END_OF_STRING = -1;
 
-    const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
+    public const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
 
     /**
      * @var string
@@ -72,10 +72,11 @@ class HTMLFragmentSlicer
      * Returns the HTMLFragmentSlicer object. Please be aware
      * of the performance implications, as the result is not
      * cached here. Please use {@link HTMLFragmentSlicer::getShortened()}
-     * if you only need the shortened text instead
+     * if you only need the shortened text instead.
      *
      * @param string $htmlFragment
-     * @param int $sliceIndex
+     * @param int    $sliceIndex
+     *
      * @return HTMLFragmentSlicer
      */
     public static function slice(
@@ -91,12 +92,12 @@ class HTMLFragmentSlicer
     }
 
     /**
-     * Cached shorthand method for shortened text
+     * Cached shorthand method for shortened text.
      *
      * @param string $htmlFragment
-     * @param int $sliceIndex
+     * @param int    $sliceIndex
      */
-    public static function getShortened($htmlFragment, $sliceIndex = self::SLICE_DEFAULT):string
+    public static function getShortened($htmlFragment, $sliceIndex = self::SLICE_DEFAULT): string
     {
         $textHash = md5($htmlFragment);
         $cacheKey = 'htmlslicer_'.$textHash;

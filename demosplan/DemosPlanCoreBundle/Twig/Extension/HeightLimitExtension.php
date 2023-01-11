@@ -27,7 +27,6 @@ class HeightLimitExtension extends ExtensionBase
      *
      * @param string $content
      * @param int    $maxNbCharcters
-     *
      */
     public function heightLimitShorten($content, $maxNbCharcters = 500): string
     {
