@@ -496,11 +496,11 @@
                         {{ "statement.text"|trans}}
                     </div>
                     <span class="layout__item u-5-of-8" id="statementText">
-                        {% set statementTextHeightLimited = statement.text|default("notspecified"|trans)|heightLimitData %}
+                        {% set statementTextHeightShortened = statement.text|default("notspecified"|trans)|heightLimitShorten %}
                         <dp-height-limit
-                            short-text="{{ statementTextHeightLimited.shortened|default("notspecified"|trans) }}"
+                            short-text="{{ statementTextHeightShortened|default("notspecified"|trans) }}"
                             full-text="{{ statement.text|default("notspecified"|trans) }}"
-                            :is-shortened="{{ statementTextHeightLimited.shortened|length }} < {{ statement.text|length }}"
+                            :is-shortened="{{ statementTextHeightShortened|length }} < {{ statement.text|length }}"
                             element="statement"
                             no-event
                             class="c-styled-html u-mr"

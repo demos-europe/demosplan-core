@@ -943,8 +943,7 @@ class DemosPlanAssessmentTableController extends BaseController
             $data = ['original' => $statement->getText()];
 
             if ($request->get('includeShortened')) {
-                $sliced = HTMLFragmentSlicer::slice($data['original']);
-                $data['shortened'] = $sliced->getShortenedFragment();
+                $data['shortened'] = HTMLFragmentSlicer::getShortened($data['original']);
             }
 
             return $this->renderJson($data);

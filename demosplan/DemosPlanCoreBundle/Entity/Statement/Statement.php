@@ -2259,9 +2259,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     public function getTextShort(): string
     {
-        $sliced = HTMLFragmentSlicer::slice($this->text);
-
-        return $sliced->getShortenedFragment();
+        return HTMLFragmentSlicer::getShortened($this->text);
     }
 
     /**
@@ -2298,9 +2296,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
 
     public function getRecommendationShort(): string
     {
-        $sliced = HTMLFragmentSlicer::slice($this->recommendation);
-
-        return $sliced->getShortenedFragment();
+        return HTMLFragmentSlicer::getShortened($this->recommendation);
     }
 
     /**
