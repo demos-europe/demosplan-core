@@ -216,9 +216,9 @@ class DocumentHandler extends CoreHandler
             $fileName = utf8_decode($entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys) && isset($request[$keys[0]]) && 0 < strlen(
-                    $request[$keys[0]]
-                )
+                if (is_array($keys) &&
+                    isset($request[$keys[0]]) &&
+                    0 < strlen($request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
                 }
