@@ -184,6 +184,7 @@ class DocumentHandler extends CoreHandler
      * @param string|null $category
      *
      * @return array|false
+     *
      * @throws Exception
      */
     protected function saveElementsFromDirArray(
