@@ -528,7 +528,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 try {
                     $maxExtent = Json::decodeToMatchingType($request->query->get('filterByExtent'));
                 } catch (Exception $e) {
-                    $this->logger->err('Could not get mapExtent to generate autocomplete.', [$e]);
+                    $this->logger->error('Could not get mapExtent to generate autocomplete.', [$e]);
                     $maxExtent = null;
                 }
             }
