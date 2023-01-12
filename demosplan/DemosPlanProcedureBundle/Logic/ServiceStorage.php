@@ -458,6 +458,7 @@ class ServiceStorage
         }
 
         $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'links');
+        $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'emailTitle');
 
         //T9581
         if ($this->permissions->hasPermission('feature_procedure_legal_notice_write')) {
