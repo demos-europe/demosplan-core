@@ -1347,7 +1347,7 @@ class DemosPlanProcedureController extends BaseController
 
                 // also change the procedureSettings EmailTitle as it contains the ProcedureName
                 // used for email subjects when inviting registered institutions
-                $inData['r_emailTitle'] = 'Einladung zur Beteiligung: ' . $inData['r_name'];
+                $inData['r_emailTitle'] = 'Einladung zur Beteiligung: '.$inData['r_name'];
 
                 // Storage Formulardaten übergeben
                 $storageResult = $serviceStorage->administrationEditHandler($inData);
