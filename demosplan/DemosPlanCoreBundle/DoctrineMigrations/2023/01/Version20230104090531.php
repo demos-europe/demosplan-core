@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -17,6 +27,7 @@ class Version20230104090531 extends AbstractMigration
     private const OLD_GIS_LAYER = 'webatlasde';
     private const OLD_GIS_URL = 'https://sg.geodatenzentrum.de/wms_webatlasde__ce01ef82-8df3-d28f-edc0-bae62cfa13d6';
     private const OLD_COPYRIGHT_TEXT = 'Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+
     public function getDescription(): string
     {
         return 'refs T29639: Replace the "Web-Atlas" by basemap as standard and sets a new copyright,
@@ -53,7 +64,7 @@ class Version20230104090531 extends AbstractMigration
                 SET c.base_layer_url = :newGisUrl,
                     c.base_layer_layers = :newGisLayer',
             [
-                'newGisUrl' => self::NEW_GIS_URL,
+                'newGisUrl'   => self::NEW_GIS_URL,
                 'newGisLayer' => self::NEW_GIS_LAYER,
             ]
         );
@@ -100,7 +111,7 @@ class Version20230104090531 extends AbstractMigration
                 SET c.base_layer_url = :oldGisUrl,
                     c.base_layer_layers = :oldGisLayer',
             [
-                'oldGisUrl' => self::OLD_GIS_URL,
+                'oldGisUrl'   => self::OLD_GIS_URL,
                 'oldGisLayer' => self::OLD_GIS_LAYER,
             ]
         );
