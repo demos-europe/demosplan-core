@@ -127,9 +127,7 @@ class NonAuthorizedCaseworkerRemover
 
         return $authorizedUsers
             ->merge($owningUsers)
-            ->map(static function (User $user): string {
-                return $user->getName();
-            })
+            ->map(static fn(User $user): string => $user->getName())
             ->unique()
             ->all();
     }

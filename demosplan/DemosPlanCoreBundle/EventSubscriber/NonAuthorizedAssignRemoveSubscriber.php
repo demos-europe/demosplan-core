@@ -22,8 +22,10 @@ class NonAuthorizedAssignRemoveSubscriber implements EventSubscriberInterface
     private NonAuthorizedAssignRemover $assignRemover;
     private NonAuthorizedCaseworkerRemover $caseworkerRemover;
 
-    public function __construct(NonAuthorizedAssignRemover $assignRemover, NonAuthorizedCaseworkerRemover $caseworkerRemover)
-    {
+    public function __construct(
+        NonAuthorizedAssignRemover $assignRemover,
+        NonAuthorizedCaseworkerRemover $caseworkerRemover
+    ) {
         $this->assignRemover = $assignRemover;
         $this->caseworkerRemover = $caseworkerRemover;
     }
