@@ -36,11 +36,6 @@ class AddonRegistry
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
-    /**
-     * Prevent adding the autoloader multiple times.
-     */
-    private static bool $autoloadingConfigured = false;
-
     private Collection $addons;
 
     private PackageInformation $installedAddons;
@@ -153,34 +148,6 @@ class AddonRegistry
     }
 
     /**
-     * Configure autoloading for addons.
-     *
-     * If possible with the current state of the registry,
-     * this will configure autoloading for addon provided classes.
-     */
-    public function configureAutoloading(): void
-    {
-        if (self::$autoloadingConfigured) {
-            return;
-        }
-
-        $classMapPath = DemosPlanPath::getRootPath('addons/vendor/composer/autoload_classmap.php');
-        if (!file_exists($classMapPath)) {
-            return;
-        }
-
-        $classmap = include_once $classMapPath;
-
-        spl_autoload_register(static function (string $class) use ($classmap): void {
-            if (array_key_exists($class, $classmap)) {
-                include_once $classmap[$class];
-            }
-        });
-
-        self::$autoloadingConfigured = true;
-    }
-
-    /**
      * @return array<string, array<string, mixed>>>
      */
     public function getFrontendClassesForHook(string $hookName): array
@@ -216,7 +183,7 @@ class AddonRegistry
     /**
      * @param array<string, string|array> $hookData
      *
-     * @return array<string, string|array>
+     * @return array<string, array{entry:string, options:array, content:string}>
      */
     private function createAddonFrontendAssetsEntry(string $key, array $hookData, string $assetContent): array
     {

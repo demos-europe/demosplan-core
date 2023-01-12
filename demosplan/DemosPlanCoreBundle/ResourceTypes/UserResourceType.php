@@ -166,7 +166,7 @@ final class UserResourceType extends DplanResourceType implements UpdatableDqlRe
             return $this->conditionFactory->true();
         }
 
-        return $this->conditionFactory->propertyHasValue($user->getId(), ...$this->id);
+        return $this->conditionFactory->propertyHasValue($user->getId(), $this->id);
     }
 
     public function isReferencable(): bool

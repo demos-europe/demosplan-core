@@ -44,7 +44,7 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
         ): PathsBasedInterface => $this->conditionFactory->false();
         $functions[self::NOT_SIZE] = fn (
             array $path, $conditionValue
-        ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($conditionValue, ...$path);
+        ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($conditionValue, $path);
 
         return $functions;
     }

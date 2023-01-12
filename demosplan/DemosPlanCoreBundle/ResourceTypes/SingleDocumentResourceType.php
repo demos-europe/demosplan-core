@@ -73,7 +73,7 @@ final class SingleDocumentResourceType extends DplanResourceType
             return $this->conditionFactory->true();
         }
 
-        return $this->conditionFactory->propertyHasValue(true, ...$this->visible);
+        return $this->conditionFactory->propertyHasValue(true, $this->visible);
     }
 
     protected function getProperties(): array

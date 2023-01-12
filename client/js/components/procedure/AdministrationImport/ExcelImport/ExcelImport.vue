@@ -17,7 +17,9 @@
           :id="entity.key"
           :checked="entity.key === active"
           @change="active = entity.key"
-          :label="radioLabel(entity)"
+          :label="{
+            text: radioLabel(entity)
+          }"
           :value="entity.key" />
       </template>
       <p

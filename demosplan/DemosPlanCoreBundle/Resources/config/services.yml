@@ -17,22 +17,12 @@ services:
 
     demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
 
-    demosplan\DemosPlanCoreBundle\Context\PluginContext: ~
-
-
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
-    DemosEurope\DemosplanAddon\Controller\APIController:
-        arguments:
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-
     EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-
-    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface :
-        alias: 'demosplan\DemosPlanCoreBundle\Logic\MessageBag'
 
     EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
 
@@ -215,8 +205,6 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
-
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
         arguments:
             $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
@@ -323,10 +311,6 @@ services:
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
-
-    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
-        public: true
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
@@ -990,7 +974,6 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
     demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
 
     demosplan\DemosPlanUserBundle\Logic\AddressService:
@@ -1162,8 +1145,9 @@ services:
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
 
-    DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator: ~
-
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface: '@demosplan\DemosPlanCoreBundle\Logic\MessageBag'
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
+    DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver'
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.

@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_search_procedures.html.twig
  */
 import DpSearchProcedures from '@DpJs/components/procedure/DpSearchProcedures'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSearchProcedures }
 

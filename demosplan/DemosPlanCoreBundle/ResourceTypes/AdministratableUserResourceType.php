@@ -28,6 +28,7 @@ use Elastica\Index;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>
+ *
  * @template-extends DplanResourceType<User>
  *
  * 'Administratable' in this context simply means that the accessing user wishes to
@@ -86,9 +87,9 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     {
         $conditions = [
             // always get non-deleted users only
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
             // never show internal Citizen user
-            $this->conditionFactory->propertyHasNotValue(User::ANONYMOUS_USER_ID, ...$this->id),
+            $this->conditionFactory->propertyHasNotValue(User::ANONYMOUS_USER_ID, $this->id),
         ];
 
         // when user has more role besides RMOPSM s/he may be able to administer
@@ -102,14 +103,14 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $orgaId = $user->getOrganisationId();
             $conditions[] = $this->conditionFactory->propertyHasValue(
                 $orgaId,
-                ...$this->orga->id
+                $this->orga->id
             );
         } else {
             // display only users of current Customer
             $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
             $conditions[] = $this->conditionFactory->propertyHasValue(
                 $customerId,
-                ...$this->roleInCustomers->customer->id
+                $this->roleInCustomers->customer->id
             );
         }
 

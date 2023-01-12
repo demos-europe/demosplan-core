@@ -12,7 +12,7 @@
  */
 
 import DpMapAdmin from '@DpJs/components/map/admin/DpMapAdmin'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpMapAdmin }
 

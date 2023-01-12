@@ -10,31 +10,12 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use function array_key_exists;
+
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Query\QueryException;
-use Exception;
-use Goodby\CSV\Import\Standard\Interpreter;
-use Goodby\CSV\Import\Standard\Lexer;
-use ReflectionException;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
-use Tightenco\Collect\Support\Collection;
-use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -65,7 +46,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -78,6 +58,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
@@ -114,10 +95,32 @@ use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanStatementBundle\ValueObject\CountyNotificationData;
 use demosplan\DemosPlanStatementBundle\ValueObject\PdfFile;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use function array_key_exists;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\QueryException;
+use Exception;
+use Goodby\CSV\Import\Standard\Interpreter;
+use Goodby\CSV\Import\Standard\Lexer;
+
 use function is_string;
+
+use ReflectionException;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Tightenco\Collect\Support\Collection;
+use Twig\Environment;
 
 class StatementHandler extends CoreHandler implements StatementHandlerInterface
 {
@@ -4598,7 +4601,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 LinkMessageSerializable::createLinkMessage(
                     'confirm',
                     'confirm.statement.cluster.created',
-                    ['clusterId' => $newClusterStatement->getExternId()],
+                    ['clusterId'   => $newClusterStatement->getExternId()],
                     'DemosPlan_cluster_view',
                     ['procedureId' => $newClusterStatement->getProcedureId(), 'statement' => $newClusterStatement->getId()],
                     $newClusterStatement->getExternId()

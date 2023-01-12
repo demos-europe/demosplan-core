@@ -12,7 +12,7 @@
  */
 
 import { DpDataTableExtended } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatisticsCharts from '@DpJs/components/admin/StatisticsCharts'
 
 initialize({ DpDataTableExtended }).then(() => {

@@ -138,10 +138,11 @@
 
         display: none;
         min-width: 100%;
-        max-height: 500px;
+        max-height: 510px;
         overflow-y: auto;
+        margin-top: 35px; // Height of &__trigger...
         padding-bottom: 10px;
-        padding-top: 35px; // Height of &__trigger...
+        padding-top: 10px;
 
         background-color: $dp-color-white;
         box-shadow: $dp-token-box-shadow-1;

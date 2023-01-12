@@ -859,8 +859,8 @@ class ExcelImporter extends CoreService
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), ...$this->tagResourceType->title),
-            $this->conditionFactory->propertyHasValue($procedureId, ...$this->tagResourceType->topic->procedure->id),
+            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
+            $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
         );
 
         $matchingTags = $this->entityFetcher->listPrefilteredEntities($this->tagResourceType, $this->generatedTags, [$titleCondition]);

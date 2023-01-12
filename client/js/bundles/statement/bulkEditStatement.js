@@ -15,7 +15,7 @@ import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 import FragmentStore from '@DpJs/store/statement/Fragment'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {

@@ -173,11 +173,7 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function getFileInfo($hash): FileInfo
     {
-        /**
-         * @var File|null
-         */
-        $file = $this->fileRepository
-            ->getFileInfo($hash);
+        $file = $this->fileRepository->getFileInfo($hash);
 
         if (null !== $file) {
             $path = $file->getPath();
@@ -898,10 +894,10 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $fs = new DemosFilesystem();
         /** @var UploadedFile $file */
-        foreach ($this->requestStack->getCurrentRequest()->files->all() as $file) {
+        foreach ($this->requestStack->getCurrentRequest()->files?->all() as $file) {
             $fs->remove($file->getPathname());
         }
-        $this->requestStack->getCurrentRequest()->files->replace([]);
+        $this->requestStack->getCurrentRequest()->files?->replace([]);
     }
 
     /**

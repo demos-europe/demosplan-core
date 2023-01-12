@@ -14,7 +14,7 @@
 import { DpSplitButton, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
 
 const stores = { layers }

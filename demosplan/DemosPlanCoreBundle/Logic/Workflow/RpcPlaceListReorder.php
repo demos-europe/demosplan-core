@@ -12,20 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
-use EDT\Querying\Contracts\PathException;
-use Exception;
-use JsonSchema\Exception\InvalidSchemaException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -34,9 +23,20 @@ use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use EDT\ConditionFactory\ConditionFactoryInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
+use Exception;
+use JsonSchema\Exception\InvalidSchemaException;
 
 /**
  * You find general RPC API usage information
@@ -216,8 +216,8 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
      */
     private function loadPlaces(string $procedureId): \Doctrine\Common\Collections\Collection
     {
-        $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, ...$this->placeResourceType->procedure->id);
-        $sortMethod = $this->sortMethodFactory->propertyAscending('sortIndex');
+        $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, $this->placeResourceType->procedure->id);
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['sortIndex']);
 
         if (!$this->placeResourceType instanceof UpdatableDqlResourceTypeInterface) {
             throw new AccessDeniedException('Entity is not Updatable');

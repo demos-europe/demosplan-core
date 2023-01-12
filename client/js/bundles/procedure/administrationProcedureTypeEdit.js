@@ -16,7 +16,7 @@
  * import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
  */
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
 const components = {
