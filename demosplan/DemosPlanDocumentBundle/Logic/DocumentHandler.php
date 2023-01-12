@@ -153,7 +153,6 @@ class DocumentHandler extends CoreHandler
             $procedure,
             $request,
             $sessionElementImportList,
-            null,
             $errorReport
         );
 
@@ -185,7 +184,6 @@ class DocumentHandler extends CoreHandler
      * @param string|null $category
      *
      * @return array|false
-     *
      * @throws Exception
      */
     protected function saveElementsFromDirArray(
@@ -195,8 +193,8 @@ class DocumentHandler extends CoreHandler
         $procedure,
         $request,
         $sessionElementImportList,
-        $category = null,
-        array &$errorReport
+        array &$errorReport,
+        $category = null
     ) {
         $fs = new Filesystem();
         $result = [];
@@ -242,8 +240,8 @@ class DocumentHandler extends CoreHandler
                     $procedure,
                     $request,
                     $sessionElementImportList,
-                    $category,
-                    $errorReport
+                    $errorReport,
+                    $category
                 );
             } else {
                 // Wenn elementId null ist kann kein SingleDocument angelegt werden, deshalb mit dem nächsten Eintrag weiter machen
