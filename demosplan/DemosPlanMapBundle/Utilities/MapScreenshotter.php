@@ -195,8 +195,8 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = 'Kartengrundlage:'.
-                        ' © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                    $copyrightText = '© basemap.de BKG (www.basemap.de) /'.
+                    'LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
@@ -266,7 +266,7 @@ class MapScreenshotter
     ): ?string {
         try {
             $copyrightText = $copyrightText
-                ?? 'Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                ?? '© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
 
             $features = $this
                 ->geoJsonToFeaturesConverter
