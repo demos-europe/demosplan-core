@@ -6,8 +6,33 @@
  *
  * All rights reserved
  */
-
 import { dpApi } from '@demos-europe/demosplan-utils'
+
+const statusBox = document.querySelector('#js__statusBox')
+const mapExtentInput = document.querySelector('input[name="r_mapExtent"]')
+const saveBtn = document.getElementById('saveBtn')
+
+const setWarningForUnsetBounds = function () {
+  // Fill error-data for initialExtend into hidden fields
+  mapExtentInput.setAttribute('value', '')
+  statusBox.innerText = Translator.trans('map.import.bounds.warning')
+  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('flash-confirm')
+  statusBox.classList.add('flash-warning')
+  // Enable save-button
+  saveBtn.removeAttribute('disabled')
+}
+
+const setConfirmForBounds = function (data) {
+  // Fill data for initialExtend into hidden fields
+  mapExtentInput.setAttribute('value', data.procedure.bounds)
+  statusBox.innerText = Translator.trans('map.import.bounds.success')
+  statusBox.classList.remove('hide-visually')
+  statusBox.classList.remove('flash-warning')
+  statusBox.classList.add('flash-confirm')
+  // Enable save-button
+  saveBtn.removeAttribute('disabled')
+}
 
 function getXplanboxBounds (procedureName) {
   return dpApi({
@@ -17,35 +42,14 @@ function getXplanboxBounds (procedureName) {
     url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName: procedureName })
   })
     .then(data => {
-      const statusBox = document.querySelector('#js__statusBox')
       if (data.data.code === 100 && data.data.success === true) {
-        // {# fill data for initialExtend into hidden fields #}
-        document.querySelector('input[name="r_mapExtent"]').setAttribute('value', data.data.procedure.bounds)
-        statusBox.innerText = Translator.trans('map.import.bounds.success')
-        statusBox.classList.remove('hide-visually')
-        statusBox.classList.remove('flash-warning')
-        statusBox.classList.add('flash-confirm')
-        // Enable save-button
-        document.getElementById('saveBtn').removeAttribute('disabled')
+        setConfirmForBounds(data.data)
       } else {
-        // {# fill error-data for initialExtend into hidden fields #}
-        document.querySelector('input[name="r_mapExtent"]').setAttribute('value', '')
-        statusBox.innerText = Translator.trans('map.import.bounds.warning')
-        statusBox.classList.remove('hide-visually')
-        statusBox.classList.remove('flash-confirm')
-        statusBox.classList.add('flash-warning')
-        // Enable save-button
-        document.getElementById('saveBtn').removeAttribute('disabled')
+        setWarningForUnsetBounds()
       }
     })
-    .catch(data => {
-      // {# fill error-data for initialExtend into hidden fields #}
-      document.querySelector('input[name="r_mapExtent"]').setAttribute('value', '')
-      const statusBox = document.querySelector('#js__statusBox')
-      statusBox.innerText = Translator.trans('map.import.bounds.error')
-      statusBox.classList.remove('hide-visually')
-      statusBox.classList.remove('flash-confirm')
-      statusBox.classList.add('flash-error')
+    .catch(() => {
+      setWarningForUnsetBounds()
     })
 }
 
@@ -56,7 +60,6 @@ export default function CreateProcedure () {
    * @improve T15008
    * disable save-button - user can only save if we have a valid  plis-id seleced
    */
-  const saveBtn = document.getElementById('saveBtn')
   saveBtn.setAttribute('disabled', true)
 
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
