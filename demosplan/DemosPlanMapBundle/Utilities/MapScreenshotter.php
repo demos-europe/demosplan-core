@@ -15,12 +15,6 @@ namespace demosplan\DemosPlanMapBundle\Utilities;
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use GeoJson\GeoJson;
-use Intervention\Image\ImageManager;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
@@ -36,7 +30,14 @@ use demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger;
 use demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use Exception;
+use GeoJson\GeoJson;
+use geoPHP;
+use Intervention\Image\ImageManager;
+use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Component\Filesystem\Filesystem;
+use Tightenco\Collect\Support\Collection;
 
 class MapScreenshotter
 {
@@ -195,8 +196,8 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = 'Kartengrundlage:'.
-                        ' © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                    $copyrightText = '© basemap.de BKG (www.basemap.de) /'.
+                    'LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
@@ -266,7 +267,7 @@ class MapScreenshotter
     ): ?string {
         try {
             $copyrightText = $copyrightText
-                ?? 'Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                ?? '© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
 
             $features = $this
                 ->geoJsonToFeaturesConverter
@@ -374,7 +375,7 @@ class MapScreenshotter
      */
     public function getBoundingBox(string $geoJsonString, $viewport): stdClass
     {
-        $geoPhp = \geoPHP::load($geoJsonString);
+        $geoPhp = geoPHP::load($geoJsonString);
         $bBox = $geoPhp->getBBox();
 
         $viewport = $this->setViewportDimensions($bBox, $viewport);
@@ -486,7 +487,7 @@ class MapScreenshotter
 
         // Zwischenbild in Zielbild kopieren
         imagecopymerge($dst_im, $cut, $dst_x, $dst_y, $src_x, $src_y, $src_w,
-                       $src_h, $opacity);
+            $src_h, $opacity);
     }
 
     private function getTemporaryPath(): string
@@ -522,8 +523,8 @@ class MapScreenshotter
             $tile['url'] .= "&bbox=$bbox&width=$this->width&height=$this->height";
 
             $tempFile = $this->getTemporaryPath().'/tmp_wms_'.md5(
-                    microtime().random_int(0, mt_getrandmax())
-                ).'.png';
+                microtime().random_int(0, mt_getrandmax())
+            ).'.png';
 
             $wmsUrl = str_replace(' ', '%20', trim($tile['url']));
             $imageContent = $this->urlFileReader->getFileContents($wmsUrl);
@@ -557,7 +558,7 @@ class MapScreenshotter
 
     protected function adjustPictureSize(float $top, stdClass $viewport, float $bottom, float $left, float $right): void
     {
-        //Anpassen der Bildhöhe wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
+        // Anpassen der Bildhöhe wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
         if ($this->height < $this->minHeight) {
             $height = ($this->minHeight - $this->height) / 2;
             $viewport->top = $top + $height;
@@ -565,7 +566,7 @@ class MapScreenshotter
             $this->height = $this->minHeight;
         }
 
-        //Anpassen der Bildbreite wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
+        // Anpassen der Bildbreite wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
         if ($this->width < $this->minWidth) {
             $width = ($this->minWidth - $this->width) / 2;
             $viewport->left = $left - $width;
@@ -573,7 +574,7 @@ class MapScreenshotter
             $this->width = $this->minWidth;
         }
 
-        //Anpassen der Bildbreite und -höhe wenn die maximale Größe überschritten wird
+        // Anpassen der Bildbreite und -höhe wenn die maximale Größe überschritten wird
         if ($this->width > $this->maxWidth || $this->height > $this->maxHeight) {
             $this->adjustPictureSizeWhenTooBig($top, $viewport, $bottom, $left, $right);
         }
