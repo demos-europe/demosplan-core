@@ -62,7 +62,7 @@
         "intriro/csv-bundle": "^1.0",
         "jfcherng/php-diff": "^6.0",
         "jmikola/geojson": "^1.0",
-        "jms/serializer-bundle": "^4.0",
+        "jms/serializer-bundle": "^5.2",
         "knplabs/knp-menu-bundle": "^3.2",
         "knpuniversity/oauth2-client-bundle": "^2.10",
         "league/flysystem-bundle": "^2.0",
