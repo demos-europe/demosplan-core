@@ -1348,7 +1348,7 @@ class DemosPlanProcedureController extends BaseController
                 // also change the procedureSettings EmailTitle as it contains the ProcedureName
                 // used for email subjects when inviting registered institutions
                 if ($procedureObject->getName() !== $inData['r_name']
-                    && str_contains($procedureObject->getSettings()->getEmailTitle(),$procedureObject->getName())
+                    && str_contains($procedureObject->getSettings()->getEmailTitle(), $procedureObject->getName())
                 ) {
                     $inData['r_emailTitle'] = str_replace(
                         $procedureObject->getName(),
