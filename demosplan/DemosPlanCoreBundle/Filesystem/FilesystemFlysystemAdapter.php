@@ -108,4 +108,14 @@ abstract class FilesystemFlysystemAdapter implements FilesystemOperator
     {
         $this->filesystemOperator->copy($source, $destination, $config);
     }
+
+    public function directoryExists(string $location): bool
+    {
+        return $this->filesystemOperator->directoryExists($location);
+    }
+
+    public function has(string $location): bool
+    {
+        return $this->filesystemOperator->has($location);
+    }
 }
