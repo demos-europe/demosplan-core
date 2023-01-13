@@ -136,6 +136,8 @@ class NonAuthorizedCaseworkerRemover
      * Removes caseworkers from the array of statements.
      *
      * @param array<int, Statement> $statementsWithSetCaseWorker
+     *
+     * @return array<int, string>
      */
     private function unsetCaseWorkers(array $statementsWithSetCaseWorker): array
     {
