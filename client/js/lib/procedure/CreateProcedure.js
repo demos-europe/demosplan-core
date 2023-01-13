@@ -8,30 +8,30 @@
  */
 import { dpApi } from '@demos-europe/demosplan-utils'
 
-const statusBox = document.querySelector('#js__statusBox')
-const mapExtentInput = document.querySelector('input[name="r_mapExtent"]')
-const saveBtn = document.getElementById('saveBtn')
+const setWarningForUnsetBounds = () => {
+  const statusBox = document.querySelector('#js__statusBox')
 
-const setWarningForUnsetBounds = function () {
   // Fill error-data for initialExtend into hidden fields
-  mapExtentInput.setAttribute('value', '')
+  document.querySelector('input[name="r_mapExtent"]').setAttribute('value', '')
   statusBox.innerText = Translator.trans('map.import.bounds.warning')
   statusBox.classList.remove('hide-visually')
   statusBox.classList.remove('flash-confirm')
   statusBox.classList.add('flash-warning')
   // Enable save-button
-  saveBtn.removeAttribute('disabled')
+  document.getElementById('saveBtn').removeAttribute('disabled')
 }
 
 const setConfirmForBounds = function (data) {
+  const statusBox = document.querySelector('#js__statusBox')
+
   // Fill data for initialExtend into hidden fields
-  mapExtentInput.setAttribute('value', data.procedure.bounds)
+  document.querySelector('input[name="r_mapExtent"]').setAttribute('value', data.procedure.bounds)
   statusBox.innerText = Translator.trans('map.import.bounds.success')
   statusBox.classList.remove('hide-visually')
   statusBox.classList.remove('flash-warning')
   statusBox.classList.add('flash-confirm')
   // Enable save-button
-  saveBtn.removeAttribute('disabled')
+  document.getElementById('saveBtn').removeAttribute('disabled')
 }
 
 function getXplanboxBounds (procedureName) {
