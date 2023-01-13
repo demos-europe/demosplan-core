@@ -124,11 +124,10 @@
 
                             {% apply spaceless %}
                                 {% if ownsProcedure(proceduresettings) %}
-                                    {# Display procedure phase of institutions AND citizens to enable planner user to quickly check correct settings #}
-                                    {{ getProcedurePhase(proceduresettings, 'internal') ~ ' / ' ~ getProcedurePhase(proceduresettings, 'public') }}
-                                {% else %}
-                                    {# Display procedure phase (depending on role) #}
-                                    {{ getProcedurePhase(proceduresettings) }}
+                                    {# Display procedure phase of institutions to enable planner user to quickly check correct settings #}
+                                    {{ getProcedurePhase(proceduresettings, 'internal') }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{ '\n'|nl2br }}
                                 {% endif %}
 
                                 {# Display a "legal notice" for institutions #}
@@ -136,9 +135,9 @@
                                     ({{ proceduresettings.settings.legalNotice }})
                                 {% endif %}
                             {% endapply %}
-
-                            {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
-
+                            {# Display public procedure phase (not depending on role) #}
+                            {{ getProcedurePhase(proceduresettings, 'public') }}
+                            {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
                         </div><!--
                     {% endif %}
 
