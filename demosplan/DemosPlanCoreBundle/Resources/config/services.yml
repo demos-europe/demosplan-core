@@ -127,14 +127,6 @@ services:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
 
-    demosplan\DemosPlanCoreBundle\Filesystem\LocalFilesystem:
-        arguments:
-            # It's okay that the symfony extension complains about a missing
-            # service id here. This service is generated during the container
-            # build and not always picked up by the extension, but you may
-            # rest assured that it exists.
-            $filesystemOperator: '@local.storage'
-
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureBehaviorDefinitionFormType: ~
