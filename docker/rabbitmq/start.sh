@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-rabbitmqctl change_password hase "$RABBITMQ_USER_PASSWORD"
+envsubst < /etc/rabbitmq/definitions-raw.json > /etc/rabbitmq/definitions.json
 
 rabbitmq-server

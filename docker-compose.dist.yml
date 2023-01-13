@@ -125,6 +125,7 @@ services:
                 ipv4_address: 172.22.255.12
         environment:
             - JAVASERVICE_MEMORY=${JAVASERVICE_MEMORY:-1024m}
+            - RABBITMQ_USER_PASSWORD=${RABBITMQ_USER_PASSWORD:-}
         restart: always
     message_queue:
         build:
@@ -141,9 +142,9 @@ services:
                 ipv4_address: 172.22.255.5
         volumes:
             - './docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro'
-            - './docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro'
+            - './docker/rabbitmq/definitions-raw.json:/etc/rabbitmq/definitions-raw.json:ro'
         environment:
-            - RABBITMQ_USER_PASSWORD=${RABBITMQ_USER_PASSWORD:-}
+            - RABBITMQ_PASSWORD_HASH=${RABBITMQ_PASSWORD_HASH:-}
         restart: always
     search7:
         build:
