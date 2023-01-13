@@ -420,7 +420,12 @@ export default {
         const firstTogglableLayer = this.baseLayers.find(layer => {
           return layer.getProperties().isEnabled === true && layer.getProperties().title !== 'customBaselayerDanmark'
         })
-        firstTogglableLayer.setVisible(true)
+
+        if(typeof firstTogglableLayer !== 'undefined') {
+          firstTogglableLayer.setVisible(true)
+        } else {
+          console.warn('There is no published baseLayer')
+        }
       }
     },
 
