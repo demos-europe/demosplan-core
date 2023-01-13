@@ -173,11 +173,7 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function getFileInfo($hash): FileInfo
     {
-        /**
-         * @var File|null
-         */
-        $file = $this->fileRepository
-            ->getFileInfo($hash);
+        $file = $this->fileRepository->getFileInfo($hash);
 
         if (null !== $file) {
             $path = $file->getPath();

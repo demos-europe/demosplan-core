@@ -1,7 +1,9 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
 {% block component_part %}
-    <h1 class="u-mb">
+    <h1
+        class="u-mb"
+        id="title">
         {{ "contextual.help"|trans }}
     </h1>
 
@@ -24,7 +26,9 @@
             }) }}
         </div>
 
-        <table class="c-table">
+        <table
+            aria-describedby="title"
+            class="c-table">
             <colgroup>
                 <col>
             </colgroup>

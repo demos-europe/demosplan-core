@@ -107,7 +107,10 @@
         </div>
       </div>
     </div>
-
+    <div
+      v-if="noResults"
+      class="u-mt-0_75"
+      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
     <!-- list -->
     <template v-if="isLoading && isInitialLoad">
       <dp-loading class="u-ml u-mt" />
@@ -152,6 +155,7 @@
 
 <script>
 import {
+  CleanHtml,
   DpButton,
   DpCheckboxGroup,
   DpLoading,
@@ -174,6 +178,10 @@ export default {
     DpSearchField,
     DpSkeletonBox,
     DpSlidingPagination
+  },
+
+  directives: {
+    cleanhtml: CleanHtml
   },
 
   mixins: [dpSelectAllMixin],
@@ -255,6 +263,7 @@ export default {
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
       isLoading: true,
+      noResults: false,
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
@@ -379,6 +388,7 @@ export default {
         .then(() => {
           this.pendingOrganisationsLoading = false
           this.isLoading = false
+          this.noResults = Object.keys(this.items).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
@@ -397,6 +407,7 @@ export default {
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
+          this.noResults = Object.keys(this.items).length === 0
         })
     },
 
@@ -430,6 +441,7 @@ export default {
 
     resetSearch () {
       this.searchTerm = ''
+      this.noResults = false
       this.getItemsByPage()
     }
   },
