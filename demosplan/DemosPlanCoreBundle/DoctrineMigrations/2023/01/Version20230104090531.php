@@ -89,44 +89,8 @@ class Version20230104090531 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        // Replace all basemap Entries by Web-Atlas (only for procedure templates).
-        $this->addSql(
-            'UPDATE _gis AS g
-            INNER JOIN _procedure AS p ON g._p_id = p._p_id
-            SET g._g_name           = :oldGisName,
-                g._g_layers         = :oldGisLayer,
-                g._g_url            = :oldGisUrl
-            WHERE g._g_url = :newGisUrl AND p._p_master = 1 AND p._p_deleted = 0',
-            [
-                'oldGisName'  => self::OLD_GIS_NAME,
-                'oldGisLayer' => self::OLD_GIS_LAYER,
-                'oldGisUrl'   => self::OLD_GIS_URL,
-                'newGisUrl'   => self::NEW_GIS_URL,
-            ]
-        );
-
-        // Set basemap back to Web-Atlas for the customers.
-        $this->addSql(
-            'UPDATE customer AS c
-                SET c.base_layer_url = :oldGisUrl,
-                    c.base_layer_layers = :oldGisLayer',
-            [
-                'oldGisUrl'   => self::OLD_GIS_URL,
-                'oldGisLayer' => self::OLD_GIS_LAYER,
-            ]
-        );
-
-        // Replace the new copyright entries by the old ones.
-        $this->addSql(
-            'UPDATE _procedure_settings AS ps
-            INNER JOIN _procedure AS p ON ps._p_id = p._p_id
-            SET ps.copyright = :oldCopyrightText
-            WHERE ps.copyright = :newCopyrightText AND p._p_master = 1 AND p._p_deleted = 0',
-            [
-                'newCopyrightText' => self::NEW_COPYRIGHT_TEXT,
-                'oldCopyrightText' => self::OLD_COPYRIGHT_TEXT,
-            ]
-        );
+        $this->throwIrreversibleMigrationException('This migration is not revertable because we can\'t
+        be sure the Web-Atlas or the old copyright was already replaced by basemap or the new copyright.');
     }
 
     /**
