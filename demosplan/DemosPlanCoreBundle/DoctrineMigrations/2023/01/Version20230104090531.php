@@ -88,9 +88,6 @@ class Version20230104090531 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->throwIrreversibleMigrationException('This migration is not revertable because we can\'t
-        be sure the Web-Atlas or the old copyright was already replaced by basemap or the new copyright.');
     }
 
     /**
