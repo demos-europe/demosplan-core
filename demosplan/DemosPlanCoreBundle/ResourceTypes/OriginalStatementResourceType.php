@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
@@ -30,7 +31,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  */
-final class OriginalStatementResourceType extends DplanResourceType
+final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public static function getName(): string
     {
