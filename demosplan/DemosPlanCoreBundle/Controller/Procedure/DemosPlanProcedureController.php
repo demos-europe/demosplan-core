@@ -1345,10 +1345,13 @@ class DemosPlanProcedureController extends BaseController
                     $inData['r_name'] = $inData['r_externalName'];
                 }
 
-                // also change the procedureSettings EmailTitle as it contains the ProcedureName
+                // also change the procedureSettings EmailTitle as it may contain the old ProcedureName
                 // used for email subjects when inviting registered institutions
+                $emailTitle = $procedureObject->getSettings()->getEmailTitle();
                 if ($procedureObject->getName() !== $inData['r_name']
-                    && str_contains($procedureObject->getSettings()->getEmailTitle(), $procedureObject->getName())
+                    // the user may have updated the emailTitle already and in this case do not update
+                    && !$this->eMailTitleContainsNewProcedureName($emailTitle, $inData['r_name'])
+                    && $this->eMailTitleContainsOldProcedureName($emailTitle, $procedureObject->getName())
                 ) {
                     $inData['r_emailTitle'] = str_replace(
                         $procedureObject->getName(),
@@ -2882,5 +2885,15 @@ class DemosPlanProcedureController extends BaseController
         if ($error) {
             throw new InvalidArgumentException();
         }
+    }
+
+    private function eMailTitleContainsNewProcedureName(string $eMailTitle, string $newProcedureName): bool
+    {
+        return str_contains($eMailTitle, $newProcedureName);
+    }
+
+    private function eMailTitleContainsOldProcedureName(string $eMailTitle, string $oldProcedureName): bool
+    {
+        return str_contains(strtolower($eMailTitle), strtolower($oldProcedureName));
     }
 }
