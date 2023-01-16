@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
 use DOMDocument;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -64,7 +65,7 @@ use demosplan\DemosPlanUserBundle\ValueObject\OrgaUsersPair;
 use function array_key_exists;
 use function in_array;
 
-class UserService extends CoreService
+class UserService extends CoreService implements UserServiceInterface
 {
     /**
      * The hash function that is being used to generate password hashes.
