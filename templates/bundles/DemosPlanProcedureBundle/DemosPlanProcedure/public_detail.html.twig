@@ -132,7 +132,7 @@
                                 {# Display a "legal notice" for institutions #}
                                 {% if hasPermission('feature_procedure_legal_notice_read') and proceduresettings.settings.legalNotice|default != '' %}
                                     ({{ proceduresettings.settings.legalNotice }})
-                                {% endif %}K
+                                {% endif %}
                                 {# Display public procedure phase without login or logged as citizen  #}
                                 {{ getProcedurePhase(proceduresettings, 'public') }}
                                 {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
