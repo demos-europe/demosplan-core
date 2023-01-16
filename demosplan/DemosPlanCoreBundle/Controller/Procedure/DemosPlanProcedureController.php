@@ -2889,7 +2889,7 @@ class DemosPlanProcedureController extends BaseController
 
     private function eMailTitleContainsNewProcedureName(string $eMailTitle, string $newProcedureName): bool
     {
-        return str_contains($eMailTitle, $newProcedureName);
+        return str_contains(strtolower($eMailTitle), strtolower($newProcedureName));
     }
 
     private function eMailTitleContainsOldProcedureName(string $eMailTitle, string $oldProcedureName): bool
