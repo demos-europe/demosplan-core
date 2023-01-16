@@ -39,6 +39,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                   $endDate
  * @property-read End                   $internalEndDate
  * @property-read End                   $originalStatementsCount
+ * @property-read End                   $statementsCount
  * @property-read End                   $phase
  * @property-read End                   $phaseName
  * @property-read End                   $internalPhaseIdentifier
@@ -123,6 +124,10 @@ final class AdminProcedureResourceType extends DplanResourceType
                     $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
 
                     return $counts[$procedureId] ?? 0;
+                }),
+                $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
+                    //todo
+                    return 0;
                 }),
                 $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase),
                 $this->createAttribute($this->internalPhaseTranslationKey)
