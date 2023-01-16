@@ -421,7 +421,7 @@ export default {
           return layer.getProperties().isEnabled === true && layer.getProperties().title !== 'customBaselayerDanmark'
         })
 
-        if(typeof firstTogglableLayer !== 'undefined') {
+        if (typeof firstTogglableLayer !== 'undefined') {
           firstTogglableLayer.setVisible(true)
         } else {
           console.warn('There is no published baseLayer, please go to the admin area and set a baseLayer as "published"')
