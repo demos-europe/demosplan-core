@@ -424,7 +424,7 @@ export default {
         if(typeof firstTogglableLayer !== 'undefined') {
           firstTogglableLayer.setVisible(true)
         } else {
-          console.warn('There is no published baseLayer')
+          console.warn('There is no published baseLayer, please go to the admin area and set a baseLayer as "published"')
         }
       }
     },
