@@ -1353,7 +1353,7 @@ class DemosPlanProcedureController extends BaseController
                     && !$this->eMailTitleContainsNewProcedureName($emailTitle, $inData['r_name'])
                     && $this->eMailTitleContainsOldProcedureName($emailTitle, $procedureObject->getName())
                 ) {
-                    $inData['r_emailTitle'] = str_replace(
+                    $inData['r_emailTitle'] = str_ireplace(
                         $procedureObject->getName(),
                         $inData['r_name'],
                         $procedureObject->getSettings()->getEmailTitle());
