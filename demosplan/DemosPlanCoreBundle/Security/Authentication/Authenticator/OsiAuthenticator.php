@@ -44,8 +44,8 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
         return new RedirectResponse($this->urlGenerator->generate('core_home'));
     }
 
-    protected function getPassport(Credentials $credentials): Passport {
-
+    protected function getPassport(Credentials $credentials): Passport
+    {
         $user = $this->userMapper->getValidUser($credentials);
 
         return new SelfValidatingPassport(new UserBadge($user->getLogin()));
@@ -58,5 +58,4 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
             Response::HTTP_TEMPORARY_REDIRECT
         );
     }
-
 }
