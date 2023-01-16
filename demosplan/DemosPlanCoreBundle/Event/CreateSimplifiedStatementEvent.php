@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 
 use DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface;
 use Symfony\Component\HttpFoundation\Request;
-use DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
 
 class CreateSimplifiedStatementEvent  extends DPlanEvent implements CreateSimplifiedStatementEventInterface
 {

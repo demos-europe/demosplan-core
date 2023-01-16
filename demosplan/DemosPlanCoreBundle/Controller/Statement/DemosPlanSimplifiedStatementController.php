@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,7 +48,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         string $procedureId
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
-        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);
         $eventStatementCreator = $event->getStatementFromEmailCreator();
         if (null !== $eventStatementCreator && is_callable($eventStatementCreator)) {
             return $eventStatementCreator($request, $procedureId);
