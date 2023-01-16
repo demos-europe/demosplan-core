@@ -122,7 +122,6 @@
                                 <i class="{{ 'fa fa-puzzle-piece u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.public.phase'|trans }}
                             </h3>
 
-                            {% apply spaceless %}
                                 {% if ownsProcedure(proceduresettings) %}
                                     {# Display procedure phase of institutions to enable planner user to quickly check correct settings #}
                                     {{ getProcedurePhase(proceduresettings, 'internal') }}
@@ -137,7 +136,6 @@
                                 {# Display public procedure phase without login or logged as citizen  #}
                                 {{ getProcedurePhase(proceduresettings, 'public') }}
                                 {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['o-tooltip--question-circle'|prefixClass, 'c-infolist__help u-ml-0_25'|prefixClass]) -}}
-                            {% endapply %}
                         </div><!--
                     {% endif %}
 
