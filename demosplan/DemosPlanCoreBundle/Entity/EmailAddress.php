@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EmailAddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -31,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository")
  */
-class EmailAddress extends CoreEntity implements UuidEntityInterface
+class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddressInterface
 {
     /**
      * @var string|null
