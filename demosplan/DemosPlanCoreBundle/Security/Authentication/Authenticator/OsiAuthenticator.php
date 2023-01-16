@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use demosplan\DemosPlanUserBundle\Logic\UserMapperDataportGateway;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -22,8 +21,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-abstract class OsiAuthenticator extends DplanAuthenticator
+abstract class OsiAuthenticator extends DplanAuthenticator implements AuthenticationEntryPointInterface
 {
     protected const LOGIN_ROUTES = ['DemosPlan_user_login_osi_legacy', 'DemosPlan_user_login_gateway'];
 
@@ -51,5 +51,12 @@ abstract class OsiAuthenticator extends DplanAuthenticator
         return new SelfValidatingPassport(new UserBadge($user->getLogin()));
     }
 
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        return new RedirectResponse(
+            '/', // might be the site, where users choose their oauth provider
+            Response::HTTP_TEMPORARY_REDIRECT
+        );
+    }
 
 }
