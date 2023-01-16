@@ -316,18 +316,25 @@ export default {
       return string
     },
 
+    baseLayerVisibility (baseLayer) {
+      //  If no baseLayer has defaultVisibility, show first toggleable baselayer
+      if (baseLayer.every(el => el.getProperties().visible === false)) {
+        const firstToggleableLayer = baseLayer.find(layer => {
+          return layer.getProperties().isEnabled === true && layer.getProperties().title !== 'customBaselayerDanmark'
+        })
+
+        if (typeof firstToggleableLayer !== 'undefined') {
+          firstToggleableLayer.setVisible(true)
+        } else {
+          console.warn('There is no published baseLayer, please go to the admin area and set a baseLayer as "published"')
+        }
+      }
+    },
+
     deleteCustomAjaxHeaders () {
       if ($.ajaxSettings.headers) {
         delete $.ajaxSettings.headers['X-Requested-With']
       }
-    },
-
-    restoreCustomAjaxHeaders () {
-      $.ajaxSetup({
-        headers: {
-          'X-Requested-With': 'dplan'
-        }
-      })
     },
 
     bindLoadingEvents (source) {
@@ -415,13 +422,8 @@ export default {
         name: 'baseLayerGroup'
       })
 
-      //  If no baseLayer has defaultVisibility, show first toggleable baselayer
-      if (this.baseLayers.every(el => el.getProperties().visible === false)) {
-        const firstTogglableLayer = this.baseLayers.find(layer => {
-          return layer.getProperties().isEnabled === true && layer.getProperties().title !== 'customBaselayerDanmark'
-        })
-        firstTogglableLayer.setVisible(true)
-      }
+      //  If no baseLayer has defaultVisibility, show first toggleable baseLayer
+      this.baseLayerVisibility(this.baseLayers)
     },
 
     /**
@@ -1689,6 +1691,14 @@ export default {
         string = $xmlFromNeedle.text()
       }
       return string
+    },
+
+    restoreCustomAjaxHeaders () {
+      $.ajaxSetup({
+        headers: {
+          'X-Requested-With': 'dplan'
+        }
+      })
     },
 
     //  Animate map to given coordinate when user selects an item from search-location

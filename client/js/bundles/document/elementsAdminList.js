@@ -17,7 +17,11 @@ import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { ElementsAdminList, DpMapSettingsPreview, DpUploadFiles }
+const components = {
+  ElementsAdminList,
+  DpMapSettingsPreview,
+  DpUploadFiles
+}
 
 const apiStores = ['elements']
 

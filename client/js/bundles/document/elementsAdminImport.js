@@ -10,9 +10,11 @@
 /**
  * This is the entry point for elements_admin_import.html.twig
  */
+import { DpCheckbox } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
-initialize({}).then(() => {
+const components = { DpCheckbox }
+initialize(components, {}).then(() => {
   $('form').submit(function (e) {
     setInterval(function () { getImportStatus() }, 3000)
     $(this).find('input[type="submit"]').prev('p').removeClass('hide-visually')
