@@ -2584,6 +2584,12 @@ field_statement_municipality:
     label: 'Show field "municipality" (Gemeinde) and save its value'
     loginRequired: false
     parent: field_statement
+field_statement_paragraph:
+    description: 'Show statement field for paragraphs'
+    expose: true
+    label: 'Statement field for paragraphs'
+    loginRequired: true
+    parent: field_statement
 field_statement_phase:
     description: 'Defines in which procedure phase the statement was submitted. Feature itself is only use in frontend.'
     expose: true

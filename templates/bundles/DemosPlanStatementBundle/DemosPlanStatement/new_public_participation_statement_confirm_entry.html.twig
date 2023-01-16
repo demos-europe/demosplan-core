@@ -16,29 +16,31 @@
         </dd><!--
 
         {% if hasPermission('field_statement_location') %}
-     --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-            {{ "location"|trans }}:
-        </dt><!--
-     --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
-            {% if statement.polygon|default != '' %}
-                <button
-                    class="{{ 'btn--blank o-link--default'|prefixClass }}"
-                    type="button"
-                    @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">
-                    {{ 'see'|trans }}
-                </button>
-            {% else %}
-                {{ "notspecified"|trans }}
-            {% endif %}
-        </dd><!--
+         --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
+                {{ "location"|trans }}:
+            </dt><!--
+         --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+                {% if statement.polygon|default != '' %}
+                    <button
+                        class="{{ 'btn--blank o-link--default'|prefixClass }}"
+                        type="button"
+                        @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">
+                        {{ 'see'|trans }}
+                    </button>
+                {% else %}
+                    {{ "notspecified"|trans }}
+                {% endif %}
+            </dd><!--
         {% endif %}
 
-	 --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
-            {{ "paragraph"|trans }}:
-        </dt><!--
-     --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
-            {% if statement.paragraph.title is defined %}{{ statement.paragraph.title|striptags|default() }}{% endif %}
-        </dd><!--
+        {% if hasPermission('field_statement_paragraph') %}
+        --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
+                {{ "paragraph"|trans }}:
+            </dt><!--
+        --><dd class="{{ 'layout__item u-1-of-3 u-ml-0-lap-up u-1-of-1-palm u-ml-0_5-palm'|prefixClass }}">
+                {% if statement.paragraph.title is defined %}{{ statement.paragraph.title|striptags|default() }}{% endif %}
+            </dd><!--
+        {% endif %}
 
      --><dt class="{{ 'layout__item u-1-of-6 weight--bold u-1-of-1-palm'|prefixClass }}">
             {{ "file"|trans }}:
