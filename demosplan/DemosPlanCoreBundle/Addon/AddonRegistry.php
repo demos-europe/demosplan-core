@@ -12,200 +12,95 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use Carbon\Carbon;
-use Composer\Package\PackageInterface;
-use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
+use ArrayAccess;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Exception;
-use Symfony\Component\Yaml\Yaml;
-use Tightenco\Collect\Support\Collection;
+use Iterator;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
  */
-class AddonRegistry
+class AddonRegistry implements Iterator, ArrayAccess
 {
-    public const ADDON_DIRECTORY = '/addons/';
-    public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
+    /** @var array<string, AddonInfo> */
+    private array $addonInfos;
+    private int $iteratorIndex;
 
-    private const ADDON_YAML_INLINE_DEPTH = 100;
-
-    private Collection $addons;
-
-    private PackageInformation $installedAddons;
+    /**
+     * @var array<int, string>
+     */
+    private array $iteratorKeys;
 
     public function __construct()
     {
-        $this->installedAddons = new PackageInformation();
-        $this->addons = collect();
-
-        $this->loadAddonInformation();
+        $this->addonInfos = [];
     }
 
-    /**
-     * Reads addon information from the configuration file for all installed addons.
-     */
-    private function loadAddonInformation(): void
+    public function boot(array $addonInfos = [])
     {
-        if (file_exists(DemosPlanPath::getRootPath('addons/addons.yaml'))) {
-            $configFile = Yaml::parseFile(DemosPlanPath::getRootPath('addons/addons.yaml'));
-            if (is_array($configFile) && array_key_exists('addons', $configFile) && is_array($configFile['addons'])) {
-                $this->addons = \collect($configFile['addons']);
-            }
+        if ([] !== $this->addonInfos) {
+            // TODO: throw exception? go into existential crisis? are dinosaurs even extinct?
+            // no they're not, have you heard about chickens?
+            return;
+        }
+
+        foreach ($addonInfos as $addonInfo) {
+            $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
     }
 
-    /**
-     * Returns all available addons.
-     */
-    public function getAllAddons(): Collection
+    public function current(): AddonInfo
     {
-        return $this->addons;
+        return $this->addonInfos[$this->iteratorIndex];
+    }
+
+    public function next(): void
+    {
+        ++$this->iteratorIndex;
+    }
+
+    public function key(): mixed
+    {
+        return $this->iteratorKeys[$this->iteratorIndex];
+    }
+
+    public function valid(): bool
+    {
+        return array_key_exists($this->iteratorKeys[$this->iteratorIndex], $this->addonInfos);
+    }
+
+    public function rewind(): void
+    {
+        $this->iteratorIndex = 0;
+        $this->iteratorKeys = array_keys($this->addonInfos);
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return array_key_exists($offset, $this->addonInfos);
     }
 
     /**
-     * Checks if a given composer definition is a correct representation of an addon.
-     * If so and if that addon is not yet installed, it will be added to the list of installed addons.
+     * @param string $offset
      */
-    public function register(PackageInterface $addonComposerDefinition): void
+    public function offsetGet(mixed $offset): AddonInfo
     {
-        if (PackageInformation::ADDON_COMPOSER_TYPE !== $addonComposerDefinition->getType()) {
-            throw AddonException::invalidType($addonComposerDefinition->getName(), $addonComposerDefinition->getType());
-        }
-
-        // if addon is not in registry, then add it
-        if (!$this->isRegistered($addonComposerDefinition->getName())) {
-            $this->installedAddons->reloadPackages();
-            $this->doRegister($addonComposerDefinition);
-        }
-
-        $this->refreshAddonsYaml();
+        return $this->addonInfos[$offset];
     }
 
     /**
-     * @return array<string, mixed>
+     * @param string    $offset
+     * @param AddonInfo $value
      */
-    public function getAddon(string $addonName): array
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        return $this->addons[$addonName];
+        throw AddonException::immutableRegistry();
     }
 
     /**
-     * Writes the current collection of addons back into the addons.yaml.
+     * @param string $offset
      */
-    private function refreshAddonsYaml(): void
+    public function offsetUnset(mixed $offset): void
     {
-        $yamlContent = [
-            'addons' => $this->addons->all(),
-        ];
-
-        file_put_contents(
-            DemosPlanPath::getRootPath('addons/addons.yaml'),
-            Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH)
-        );
-    }
-
-    private function isRegistered(string $addonName): bool
-    {
-        return $this->addons->has($addonName);
-    }
-
-    private function doRegister(PackageInterface $addonComposerDefinition): void
-    {
-        $addonName = $addonComposerDefinition->getName();
-
-        $this->addons[$addonName] = [
-            'enabled'      => false,
-            'installed_at' => Carbon::now()->toIso8601String(),
-            'install_path' => realpath($this->installedAddons->getInstallPath($addonName)),
-            'manifest'     => $this->loadManifest($addonName),
-        ];
-    }
-
-    /**
-     * @return array<string, array<string, string>>
-     */
-    private function loadManifest(string $addonName): array
-    {
-        try {
-            // TODO: Fix manifest parsing
-            /*$config = Yaml::parseFile($this->installedAddons->getManifestPath($addonName));
-            $processor = new Processor();
-            $parsed = $processor->processConfiguration(new ManifestConfiguration(), [$config['demosplan_addon']]);
-            var_export($parsed);*/
-
-            return Yaml::parseFile($this->installedAddons->getManifestPath($addonName))[ManifestConfiguration::MANIFEST_ROOT];
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            throw AddonException::invalidManifest($addonName);
-        }
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>>
-     */
-    public function getFrontendClassesForHook(string $hookName): array
-    {
-        return $this->addons->map(function (array $item, string $key) use ($hookName) {
-            if (!array_key_exists('ui', $item['manifest'])) {
-                return [];
-            }
-            $uiData = $item['manifest']['ui'];
-
-            if (!$item['enabled'] || !array_key_exists($hookName, $uiData['hooks'])) {
-                return [];
-            }
-            $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = DemosPlanPath::getRootPath($item['install_path'].'/'.$uiData['manifest']);
-
-            try {
-                $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
-                // Try to get the content of the actual asset
-                $entryFilePath = DemosPlanPath::getRootPath($item['install_path'].'/'.$entryFile);
-                $assetContent = file_get_contents($entryFilePath);
-                if (!$assetContent) {
-                    return [];
-                }
-            } catch (AddonException $e) {
-                return [];
-            }
-
-            return $this->createAddonFrontendAssetsEntry($key, $hookData, $assetContent);
-        })->reject(fn (array $value) => [] === $value)->all();
-    }
-
-    /**
-     * @param array<string, string|array> $hookData
-     *
-     * @return array<string, array{entry:string, options:array, content:string}>
-     */
-    private function createAddonFrontendAssetsEntry(string $key, array $hookData, string $assetContent): array
-    {
-        return [
-            $key => [
-                'entry'   => $hookData['entry'],
-                'options' => $hookData['options'],
-                'content' => $assetContent,
-            ],
-        ];
-    }
-
-    /**
-     * @throws AddonException
-     */
-    private function getAssetPathFromManifest(string $manifestPath, string $entryName): string
-    {
-        if (!file_exists($manifestPath)) {
-            AddonException::invalidManifest($manifestPath);
-        }
-
-        $manifestContent = Yaml::parseFile($manifestPath);
-
-        if (!array_key_exists($entryName, $manifestContent)) {
-            AddonException::manifestEntryNotFound($entryName);
-        }
-
-        return $manifestContent[$entryName];
+        throw AddonException::immutableRegistry();
     }
 }

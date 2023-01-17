@@ -1,0 +1,44 @@
+<?php
+
+namespace demosplan\DemosPlanCoreBundle\Command\Addon;
+
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use EFrane\ConsoleAdditions\Batch\Batch;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
+class AddonBuildFrontendCommand extends CoreCommand
+{
+    protected static $defaultName = 'dplan:addon:build-frontend';
+
+    private AddonRegistry $registry;
+
+    public function __construct(AddonRegistry $registry, ParameterBagInterface $parameterBag, string $name = null)
+    {
+        parent::__construct($parameterBag, $name);
+        $this->registry = $registry;
+    }
+
+    protected function configure()
+    {
+        $this->setDescription('Build frontend assets for an addon');
+        $this->addArgument('addon-name', InputArgument::REQUIRED, 'Addon name, du\'h.');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln("Building frontend assets for {$input->getArgument('addon-name')}");
+
+        $addonInfo = $this->registry[$input->getArgument('addon-name')];
+
+        Batch::create($this->getApplication(), $output)
+            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonInfo->getInstallPath())
+            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonInfo->getInstallPath())
+            ->run();
+
+        return self::SUCCESS;
+    }
+}
