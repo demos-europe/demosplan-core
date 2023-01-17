@@ -226,11 +226,9 @@ class MapScreenshotter
      *
      * @param string[] $wmsUrls
      *
-     * @return GdImage
-     *
      * @throws Exception
      */
-    public function makeScreenshotWms(Collection $geo, array $wmsUrls, string $copyrightText)
+    public function makeScreenshotWms(Collection $geo, array $wmsUrls, string $copyrightText): GdImage
     {
         /* einheitliche BBOX setzen */
         $bbox = $this->viewport->left.','.$this->viewport->bottom.','.$this->viewport->right.','.$this->viewport->top;
@@ -394,11 +392,9 @@ class MapScreenshotter
      * @param string $path
      * @param string $type
      *
-     * @return GdImage|false liefert eine image-handle oder false zurück
-     *
      * @throws Exception
      */
-    private function getImage($path, $type = '')
+    private function getImage($path, $type = ''): GdImage|false
     {
         // Bild-Typ ermitteln, wenn nicht mit übergeben
         if (empty($type)) {
@@ -442,13 +438,12 @@ class MapScreenshotter
      * saveImage()
      * save to disk and tell the client where they can pick it up.
      *
-     * @param GdImage $image
      * @param string  $file
      * @param string  $format
      *
      * @return bool
      */
-    private function saveImage($image, $file, $format)
+    private function saveImage(GdImage $image, $file, $format)
     {
         switch ($format) {
             case 'PNG':
@@ -497,13 +492,10 @@ class MapScreenshotter
     }
 
     /**
-     * @param GdImage $image
-     *
      * @throws Exception
      */
-    private function saveImageToFile($image): string
+    private function saveImageToFile(GdImage $image): string
     {
-        $this->assertGdImage($image);
         $format = $this->outputFormat;
         $file = $this->getTemporaryPath().md5(microtime().random_int(0, mt_getrandmax())).'.'.$format;
         $this->saveImage($image, $file, $format);
@@ -512,13 +504,11 @@ class MapScreenshotter
     }
 
     /**
-     * @param GdImage $image
-     *
      * @return mixed $image
      *
      * @throws Exception
      */
-    private function getLayersTilesAndMergeThemIntoMap(array $wmsUrls, string $bbox, $image)
+    private function getLayersTilesAndMergeThemIntoMap(array $wmsUrls, string $bbox, GdImage|false $image)
     {
         foreach ($wmsUrls as $tile) {
             $tile['url'] .= "&bbox=$bbox&width=$this->width&height=$this->height";
@@ -579,18 +569,6 @@ class MapScreenshotter
         if ($this->width > $this->maxWidth || $this->height > $this->maxHeight) {
             $this->adjustPictureSizeWhenTooBig($top, $viewport, $bottom, $left, $right);
         }
-    }
-
-    /**
-     * @param GdImage $image
-     */
-    public function assertGdImage($image): bool
-    {
-        if (false === $image instanceof GdImage) {
-            throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));
-        }
-
-        return true;
     }
 
     /**

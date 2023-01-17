@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use GdImage;
@@ -46,6 +47,7 @@ class PolygonIntoMapLayerMerger
     public function merge(Collection $geo, MapLayer $mapLayer)
     {
         $image = $mapLayer->getImage()->getCore();
+        $this->assertGdImage($image);
         $this->viewport->bottom = $mapLayer->getBottom();
         $this->viewport->left = $mapLayer->getLeft();
         $this->viewport->right = $mapLayer->getRight();
@@ -207,5 +209,19 @@ class PolygonIntoMapLayerMerger
         $b = hexdec($b);
 
         return [$r, $g, $b];
+    }
+
+    /**
+     * @param GdImage $image
+     */
+    public function assertGdImage($image): bool
+    {
+        if (false === $image instanceof GdImage) {
+            throw new InvalidArgumentException(
+                sprintf('Argument must be a valid GdImage type. %s given.', gettype($image))
+            );
+        }
+
+        return true;
     }
 }
