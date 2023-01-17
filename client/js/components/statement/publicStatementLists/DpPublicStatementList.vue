@@ -261,8 +261,8 @@ export default {
       const statementParagraph = (paragraph && paragraph.title) || Translator.trans('notspecified')
       const text = statement.text
 
-      const transformedSubmitDate = submitted === false ? {} : { submittedDate: dayjs(submittedDate).format('DD.MM.YYYY HH:mm') }
-      const transformedCreatedDate = dayjs(createdDate).format('DD.MM.YYYY HH:mm')
+      const transformedSubmitDate = submitted === false ? {} : { submittedDate: dayjs.unix(statement.submit).format('DD.MM.YYYY HH:mm') }
+      const transformedCreatedDate = dayjs.unix(statement.createdDate / 1000).format('DD.MM.YYYY HH:mm')
 
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 
@@ -290,6 +290,7 @@ export default {
     },
 
     transformStatements (statements) {
+      console.log(statements.map(s => this.transformStatement(s)))
       return statements.map(s => this.transformStatement(s))
     }
   }
