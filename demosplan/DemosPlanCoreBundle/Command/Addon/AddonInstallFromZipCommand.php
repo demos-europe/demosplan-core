@@ -12,13 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Composer\Console\Input\InputOption;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
+use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
+use demosplan\DemosPlanCoreBundle\Addon\Registrator;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -29,6 +32,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use ZipArchive;
 
@@ -48,6 +52,14 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $zipCachePath;
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
+    private Registrator $installer;
+
+    public function __construct(Registrator $installer, ParameterBagInterface $parameterBag, string $name = null)
+    {
+        parent::__construct($parameterBag, $name);
+
+        $this->installer = $installer;
+    }
 
     public function configure(): void
     {
@@ -56,6 +68,8 @@ class AddonInstallFromZipCommand extends CoreCommand
             InputArgument::REQUIRED,
             'Path to zip'
         );
+
+        $this->addOption('reinstall', '', InputOption::VALUE_NONE, 'Re-install an addon (useful for debugging)');
     }
 
     /**
@@ -80,11 +94,17 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             $packageDefinition = $this->loadPackageDefinition();
 
+            $this->checkReinstall($packageDefinition, $input->getOption('reinstall'));
+
             $this->addAddonToComposerRequire($packageDefinition);
         } catch (JsonException $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
+        } catch (AddonException $e) {
+            $output->success($e->getMessage());
+
+            return Command::SUCCESS;
         }
 
         try {
@@ -93,7 +113,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $composerReturn = Batch::create($this->getApplication(), $output)
                 ->addShell(['composer', 'clearcache'])
                 ->addShell(['composer', 'dump-autoload'])
-                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o'])
+                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
                 ->run();
         } catch (Exception $e) {
             $output->error($e->getMessage());
@@ -108,27 +128,17 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         // If composer update went well, add the addon to the registry
-        $addonRegistry = new AddonRegistry();
-        $addonRegistry->register($packageDefinition);
+        $name = $this->installer->register($packageDefinition);
 
         try {
-            $packageMeta = $addonRegistry->getAddon($packageDefinition->getName());
+            $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
-            if (array_key_exists('ui', $packageMeta['manifest'])) {
-                // TODO: fix frontend build
-                /*
-                Batch::create($this->getApplication(), $output)
-                    ->addShell(['yarn', 'install', '--frozen-lockfile'], $packageMeta['install_path'])
-                    ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $packageMeta['install_path'])
-                    ->run();*/
-            }
-
-            // Clear cache to force Symfony to rebuild its container
-            $cacheClearReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(['cache:clear'])
+            $batchReturn = Batch::create($this->getApplication(), $output)
+                ->add('cache:clear')
+                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name])
                 ->run();
 
-            if (0 === $cacheClearReturn) {
+            if (0 === $batchReturn) {
                 return Command::SUCCESS;
             }
         } catch (Exception $e) {
@@ -198,13 +208,13 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function setPaths(string $path): void
     {
-        $this->addonsDirectory = DemosPlanPath::getRootPath(AddonRegistry::ADDON_DIRECTORY);
-        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(AddonRegistry::ADDON_CACHE_DIRECTORY);
+        $this->addonsDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_DIRECTORY);
+        $this->addonsCacheDirectory = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY);
         $this->zipSourcePath = realpath($path);
 
         $pathInfo = new SplFileInfo($path);
 
-        $this->zipCachePath = DemosPlanPath::getRootPath(AddonRegistry::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
+        $this->zipCachePath = DemosPlanPath::getRootPath(Registrator::ADDON_CACHE_DIRECTORY.$pathInfo->getBasename('.zip').'/');
     }
 
     /**
@@ -270,6 +280,14 @@ class AddonInstallFromZipCommand extends CoreCommand
                 $this->addonsDirectory.'composer.json',
                 Json::encode($composerContent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
             );
+        }
+    }
+
+    public function checkReinstall(PackageInterface $packageDefinition, bool $reinstall): void
+    {
+        $addons = AddonManifestCollection::load();
+        if (array_key_exists($packageDefinition->getName(), $addons) && !$reinstall) {
+            throw AddonException::alreadyInstalled();
         }
     }
 }

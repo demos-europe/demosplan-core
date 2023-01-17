@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon\Composer;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
