@@ -31,6 +31,7 @@ use demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use Exception;
+use GdImage;
 use GeoJson\GeoJson;
 use geoPHP;
 use Intervention\Image\ImageManager;
@@ -225,7 +226,7 @@ class MapScreenshotter
      *
      * @param string[] $wmsUrls
      *
-     * @return resource
+     * @return GdImage
      *
      * @throws Exception
      */
@@ -393,7 +394,7 @@ class MapScreenshotter
      * @param string $path
      * @param string $type
      *
-     * @return resource|false liefert eine image-handle oder false zurück
+     * @return GdImage|false liefert eine image-handle oder false zurück
      *
      * @throws Exception
      */
@@ -441,7 +442,7 @@ class MapScreenshotter
      * saveImage()
      * save to disk and tell the client where they can pick it up.
      *
-     * @param resource $image
+     * @param GdImage $image
      * @param string   $file
      * @param string   $format
      *
@@ -496,13 +497,13 @@ class MapScreenshotter
     }
 
     /**
-     * @param resource $image
+     * @param GdImage $image
      *
      * @throws Exception
      */
     private function saveImageToFile($image): string
     {
-        $this->assertResource($image);
+        $this->assertGdImage($image);
         $format = $this->outputFormat;
         $file = $this->getTemporaryPath().md5(microtime().random_int(0, mt_getrandmax())).'.'.$format;
         $this->saveImage($image, $file, $format);
@@ -511,7 +512,7 @@ class MapScreenshotter
     }
 
     /**
-     * @param resource $image
+     * @param GdImage $image
      *
      * @return mixed $image
      *
@@ -581,12 +582,14 @@ class MapScreenshotter
     }
 
     /**
-     * @param resource $resource
+     * @param GdImage $image
      */
-    public function assertResource($resource): bool
+    public function assertGdImage($image): bool
     {
-        if (false === is_resource($resource)) {
-            throw new InvalidArgumentException(sprintf('Argument must be a valid resource type. %s given.', gettype($resource)));
+        if (false === $image instanceof GdImage) {
+            throw new InvalidArgumentException(
+                sprintf('Argument must be a valid GdImage type. %s given.', gettype($image))
+            );
         }
 
         return true;

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanMapBundle\Logic;
 
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use GdImage;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
 
@@ -39,7 +40,7 @@ class PolygonIntoMapLayerMerger
      *
      * @param Collection<int, Feature> $geo
      *
-     * @return resource
+     * @return GdImage
      */
     public function merge(Collection $geo, MapLayer $mapLayer)
     {

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use GdImage;
 use Psr\Log\LoggerInterface;
 
 class TextIntoImageInserter
@@ -29,10 +30,10 @@ class TextIntoImageInserter
     /**
      * Simple helper method to put a given text into an image.
      *
-     * @param resource $image
-     * @param int      $imageHeight
-     * @param string   $text
-     * @param int      $textSize
+     * @param GdImage $image
+     * @param int     $imageHeight
+     * @param string  $text
+     * @param int     $textSize
      *
      * @return bool
      */
