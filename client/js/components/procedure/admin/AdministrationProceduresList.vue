@@ -264,7 +264,8 @@ export default {
             'internalEndDate',
             'internalPhaseIdentifier',
             'internalPhaseTranslationKey',
-            'originalStatementsCount'
+            'originalStatementsCount',
+            'statementsCount'
           ].join()
         },
         filter: {
@@ -285,7 +286,7 @@ export default {
           response.data.data.forEach(el => this.items.push({
             creationDate: formatDate(el.attributes.creationDate.date),
             creationDateRaw: el.attributes.creationDate.date,
-            count: el.attributes.originalStatementsCount > 0 ? el.attributes.originalStatementsCount : '0',
+            count: `${el.attributes.statementsCount} (${el.attributes.originalStatementsCount})`,
             name: el.attributes.name,
             externalName: el.attributes.externalName,
             externalEndDate: formatDate(el.attributes.externalEndDate.date),
