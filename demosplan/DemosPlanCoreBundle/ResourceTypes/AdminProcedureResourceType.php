@@ -126,8 +126,10 @@ final class AdminProcedureResourceType extends DplanResourceType
                     return $counts[$procedureId] ?? 0;
                 }),
                 $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
-                    // todo
-                    return 0;
+                    $procedureId = $procedure->getId();
+                    $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+
+                    return $counts[$procedureId] ?? 0;
                 }),
                 $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase),
                 $this->createAttribute($this->internalPhaseTranslationKey)

@@ -50,6 +50,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -1447,10 +1448,10 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     }
 
     /**
-     * @param array $procedureIds the procedure IDs to get the number of statements for
+     * @param array $procedureIds the procedure IDs to get the number of original statements for
      *
      * @return array<string, int> unordered array with procedure IDs as keys and the count of corresponding
-     *                            statements which are no placeholders and not deleted as values
+     *                            original statements which are no placeholders and not deleted as values
      */
     public function getOriginalStatementsCounts(array $procedureIds): array
     {
@@ -1458,24 +1459,57 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             return [];
         }
 
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
-            ->select('IDENTITY(statement.procedure) as procedureId')
-            ->addSelect('count(statement.id) as count')
-            ->from(Statement::class, 'statement')
-            ->groupBy('statement.procedure')
-            ->andWhere('statement.deleted = :deleted')
-            ->setParameter('deleted', false)
-            ->andWhere($qb->expr()->isNull('statement.original'))
-            ->andWhere('statement.clusterStatement = :clusterStatement')
-            ->setParameter('clusterStatement', false)
-            ->andWhere($qb->expr()->in('statement.procedure', $procedureIds))
-            ->getQuery()
-            ->getArrayResult();
+        $queryBuilder = $this->createStatementsCountsQueryBuilder($procedureIds);
+        $queryBuilder->andWhere($queryBuilder->expr()->isNull('statement.original'));
+        $queryResult = $queryBuilder->getQuery()->getArrayResult();
 
         return array_map(static function (string $count): int {
             return (int) $count;
         }, array_column($queryResult, 'count', 'procedureId'));
+    }
+
+    /**
+     * @param array $procedureIds the procedure IDs to get the number of statements for
+     *
+     * @return array<string, int> unordered array with procedure IDs as keys and the count of corresponding
+     *                            statements which are no placeholders and not deleted as values
+     */
+    public function getStatementsCounts(array $procedureIds): array
+    {
+        if ([] === $procedureIds) {
+            return [];
+        }
+
+        $queryBuilder = $this->createStatementsCountsQueryBuilder($procedureIds);
+        $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('statement.original'));
+        $queryResult = $queryBuilder->getQuery()->getArrayResult();
+
+        return array_map(static function (string $count): int {
+            return (int) $count;
+        }, array_column($queryResult, 'count', 'procedureId'));
+    }
+
+    /**
+     * @param array $procedureIds the procedure IDs to get the number of statements for
+     */
+    private function createStatementsCountsQueryBuilder(array $procedureIds): QueryBuilder
+    {
+        {
+            $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+            $queryBuilder
+                ->select('IDENTITY(statement.procedure) as procedureId')
+                ->addSelect('count(statement.id) as count')
+                ->from(Statement::class, 'statement')
+                ->groupBy('statement.procedure')
+                ->andWhere('statement.deleted = :deleted')
+                ->setParameter('deleted', false)
+                ->andWhere('statement.clusterStatement = :clusterStatement')
+                ->setParameter('clusterStatement', false)
+                ->andWhere($queryBuilder->expr()->isNull('statement.movedStatement'))
+                ->andWhere($queryBuilder->expr()->in('statement.procedure', $procedureIds));
+
+            return $queryBuilder;
+        }
     }
 
     /**
