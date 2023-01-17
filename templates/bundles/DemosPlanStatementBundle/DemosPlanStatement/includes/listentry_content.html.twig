@@ -64,7 +64,7 @@
         </dd>
     {% endif %}
 
-    {% if hasPermission('field_statement_paragraph') %}
+    {% if hasPermission('feature_documents_new_statement') %}
         <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.paragraph.title|default()|isNot(' color--grey')|prefixClass }}">
             {{ "paragraph"|trans }}:
         </dt>

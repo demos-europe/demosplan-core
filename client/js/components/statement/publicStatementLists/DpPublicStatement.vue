@@ -160,7 +160,7 @@
         </div>
       </div><!--
    --><div
-        v-if="hasPermission('field_statement_paragraph')"
+        v-if="hasPermission('feature_documents_new_statement')"
         class="u-1-of-1 c-public-statement__content-item">
         <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
           {{ Translator.trans('paragraph') }}
