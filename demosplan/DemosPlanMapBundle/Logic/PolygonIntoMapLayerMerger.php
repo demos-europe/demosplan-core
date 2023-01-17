@@ -217,9 +217,7 @@ class PolygonIntoMapLayerMerger
     public function assertGdImage($image): bool
     {
         if (false === $image instanceof GdImage) {
-            throw new InvalidArgumentException(
-                sprintf('Argument must be a valid GdImage type. %s given.', gettype($image))
-            );
+            throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));
         }
 
         return true;

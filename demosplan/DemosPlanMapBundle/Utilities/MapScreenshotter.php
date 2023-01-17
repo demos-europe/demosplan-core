@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanMapBundle\Utilities;
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
@@ -438,8 +437,8 @@ class MapScreenshotter
      * saveImage()
      * save to disk and tell the client where they can pick it up.
      *
-     * @param string  $file
-     * @param string  $format
+     * @param string $file
+     * @param string $format
      *
      * @return bool
      */

@@ -30,9 +30,9 @@ class TextIntoImageInserter
     /**
      * Simple helper method to put a given text into an image.
      *
-     * @param int     $imageHeight
-     * @param string  $text
-     * @param int     $textSize
+     * @param int    $imageHeight
+     * @param string $text
+     * @param int    $textSize
      *
      * @return bool
      */
