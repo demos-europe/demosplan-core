@@ -290,7 +290,6 @@ export default {
     },
 
     transformStatements (statements) {
-      console.log(statements.map(s => this.transformStatement(s)))
       return statements.map(s => this.transformStatement(s))
     }
   }
