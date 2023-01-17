@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanMapBundle\Logic;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use GdImage;
+use Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
 
@@ -129,7 +130,7 @@ class PolygonIntoMapLayerMerger
 
                     $polyPts = [];
 
-                    /** @var \Point $point */
+                    /** @var Point $point */
                     foreach ($geometry->getPoints() as $point) {
                         $dst_x = $point->getX();
                         $dst_y = $point->getY();

@@ -443,8 +443,8 @@ class MapScreenshotter
      * save to disk and tell the client where they can pick it up.
      *
      * @param GdImage $image
-     * @param string   $file
-     * @param string   $format
+     * @param string  $file
+     * @param string  $format
      *
      * @return bool
      */
@@ -587,9 +587,7 @@ class MapScreenshotter
     public function assertGdImage($image): bool
     {
         if (false === $image instanceof GdImage) {
-            throw new InvalidArgumentException(
-                sprintf('Argument must be a valid GdImage type. %s given.', gettype($image))
-            );
+            throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));
         }
 
         return true;
