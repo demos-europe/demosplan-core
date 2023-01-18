@@ -306,7 +306,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Permissions\Permissions:
         arguments:
-            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
             $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
             $logger: '@monolog.logger.dplan'
 
