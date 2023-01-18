@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
@@ -482,7 +483,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      * @param array $entityArrayList Array of Statement or Statement Fragment in array form (not object!) which has
      *                               the format that is needed here and the correct set of statements,
      *                               but in the wrong order
-     * @param array $orderedList     Array of Statement objects or Statement Fragment objects that may include
+     * @param array<int|string, UuidEntityInterface> $orderedList Array of Statement objects or Statement Fragment objects that may include
      *                               more than the selected ones, but which has the correct order
      */
     protected function reorderStatementsOrStatementFragmentsAccordingToOtherList(array $entityArrayList, array &$orderedList): array
