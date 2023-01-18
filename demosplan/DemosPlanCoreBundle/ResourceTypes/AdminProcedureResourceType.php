@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use EDT\PathBuilding\End;
@@ -126,16 +125,14 @@ final class AdminProcedureResourceType extends DplanResourceType
 
                     return $counts[$procedureId] ?? 0;
                 }),
-                $this->createAttribute($this->statementsCount)
-                    ->readable(false, function (Procedure $procedure): int {
-                        return $procedure->getStatements()->filter(function (Statement $statement) {
-                            return !$statement->isOriginal()
-                                && !$statement->isDeleted()
-                                && !$statement->isPlaceholder()
-                                && !$statement->isInCluster()
-                            ;
-                        })->count();
-                    }),
+                $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
+                    // optimize performance? it may be possible to use an actual relationship or
+                    // otherwise use an RPC route that calculates the count for all procedures at once
+                    $procedureId = $procedure->getId();
+                    $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+
+                    return $counts[$procedureId] ?? 0;
+                }),
                 $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase),
                 $this->createAttribute($this->internalPhaseTranslationKey)
                     ->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
