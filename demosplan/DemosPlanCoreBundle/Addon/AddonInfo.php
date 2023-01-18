@@ -2,23 +2,30 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+
 final class AddonInfo
 {
     /**
      * @param string $name
-     * @param array<string,mixed> $manifest
+     * @param array<string,mixed> $config
      */
-    public function __construct(private string $name, private array $manifest)
+    public function __construct(private string $name, private array $config, private PermissionInitializerInterface $permissionInitializer)
     {
     }
 
     public function getInstallPath(): string
     {
-        return $this->manifest['install_path'];
+        return $this->config['install_path'];
     }
 
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getPermissionInitializer(): PermissionInitializerInterface
+    {
+        return $this->permissionInitializer;
     }
 }
