@@ -1438,7 +1438,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->leftJoin('statement.meta', 'meta')
             ->andWhere('statement.original IS NULL')
             ->andWhere($queryBuilder->expr()->orX(
-            // submitted statements
+                // submitted statements
                 $queryBuilder->expr()->eq('meta.submitUId', ':userId'),
                 // authored statements
                 $queryBuilder->expr()->eq('statement.user', ':userId')
