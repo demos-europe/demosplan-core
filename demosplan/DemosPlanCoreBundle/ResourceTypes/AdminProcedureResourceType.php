@@ -129,11 +129,11 @@ final class AdminProcedureResourceType extends DplanResourceType
                 $this->createAttribute($this->statementsCount)
                     ->readable(false, function (Procedure $procedure): int {
                         return $procedure->getStatements()->filter(function (Statement $statement) {
-                            return (!$statement->isOriginal()
+                            return !$statement->isOriginal()
                                 && !$statement->isDeleted()
                                 && !$statement->isPlaceholder()
                                 && !$statement->isInCluster()
-                            );
+                            ;
                         })->count();
                     }),
                 $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase),
