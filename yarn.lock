@@ -1595,14 +1595,14 @@
     "@sentry/types" "7.31.1"
     "@sentry/utils" "7.31.1"
 
-"@sentry/tracing@^7.31.0":
-  version "7.31.0"
-  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-7.31.0.tgz#c37f1930aba05a4c461f655dc258eaa851e9a305"
-  integrity sha512-p/b9sOw2wwcDLp8p0bJ0oetgeEB1q/ueZaXDeBeSh+3GNKx6J4S3pcFpbMXDK8d2Ayd3P9Gvrm7y9Hc2ueJteg==
+"@sentry/tracing@^7.31.1":
+  version "7.31.1"
+  resolved "https://registry.yarnpkg.com/@sentry/tracing/-/tracing-7.31.1.tgz#f3bf8ca3aa9ddc15c282425df8043be978baadb4"
+  integrity sha512-kW6vNwddp2Ycq2JfTzveUEIRF9YQwvl7L6BBoOZt9oVnYlsPipEeyU2Q277LatHldr8hDo2tbz/vz2BQjO5GSw==
   dependencies:
-    "@sentry/core" "7.31.0"
-    "@sentry/types" "7.31.0"
-    "@sentry/utils" "7.31.0"
+    "@sentry/core" "7.31.1"
+    "@sentry/types" "7.31.1"
+    "@sentry/utils" "7.31.1"
     tslib "^1.9.3"
 
 "@sentry/types@7.31.0":
