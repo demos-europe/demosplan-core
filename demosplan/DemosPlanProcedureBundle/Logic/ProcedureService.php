@@ -2662,16 +2662,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @param array<int, string> $procedureIds
-     *
-     * @return array<string, int>
-     */
-    public function getStatementsCounts(array $procedureIds): array
-    {
-        return $this->statementRepository->getStatementsCounts($procedureIds);
-    }
-
-    /**
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
