@@ -143,7 +143,8 @@ export default {
     },
 
     nodeSelectionChange (selected) {
-      this.selectedFiles = selected.filter(node => node.type === 'singleDocument')
+      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
+      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
     },
 
     /*
