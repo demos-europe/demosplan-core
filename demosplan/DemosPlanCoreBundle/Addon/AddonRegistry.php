@@ -19,6 +19,9 @@ use Iterator;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
+ *
+ * @template-implements ArrayAccess<string, AddonInfo>
+ * @template-implements Iterator<string, AddonInfo>
  */
 class AddonRegistry implements Iterator, ArrayAccess
 {

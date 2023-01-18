@@ -26,16 +26,16 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
     private PermissionsInterface $permissions;
     private RpcErrorGenerator $errorGenerator;
-    private AddonRegistry $addonRegistry;
+    private FrontendAssetProvider $assetProvider;
 
     public function __construct(
-        AddonRegistry $addonRegistry,
+        FrontendAssetProvider $assetProvider,
         PermissionsInterface $permissions,
         RpcErrorGenerator $errorGenerator)
     {
         $this->permissions = $permissions;
         $this->errorGenerator = $errorGenerator;
-        $this->addonRegistry = $addonRegistry;
+        $this->assetProvider = $assetProvider;
     }
 
     public function supports(string $method): bool
@@ -56,7 +56,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
 
                 $hookName = $rpcRequest->params->hookName;
-                $addonsAssetsData = $this->addonRegistry->getFrontendClassesForHook($hookName);
+                $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
             } catch (InvalidArgumentException|InvalidSchemaException $e) {

@@ -33,7 +33,7 @@ final class AddonAutoloading
      * as the very first executed line in all entrypoints. By assuming that all
      * dependencies of demosplan will always be found by these autoloaders, we can
      * safely make a classname lookup here as only actual addon or addon-dependency classes
-     * will not have been found up until this point in the autolaoding chain.
+     * will not have been found up until this point in the autoloading chain.
      */
     public static function register(): void
     {
