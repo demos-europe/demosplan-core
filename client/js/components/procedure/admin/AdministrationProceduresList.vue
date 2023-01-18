@@ -99,6 +99,14 @@
         <span v-text="Translator.trans('procedure.public.phase')" />
         <div v-text="Translator.trans('institution')" />
       </template>
+      <template
+        v-if="showStatementCount"
+        v-slot:header-count>
+        {{ Translator.trans('quantity') }}
+        <i
+          class="fa fa-question-circle u-pt-0_25 display--inline-block float--right"
+          v-tooltip="Translator.trans('statements.count.and.original')" />
+      </template>
 
       <template
         v-if="showInternalPhases"
