@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use ArrayAccess;
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use Iterator;
 
@@ -102,5 +103,13 @@ class AddonRegistry implements Iterator, ArrayAccess
     public function offsetUnset(mixed $offset): void
     {
         throw AddonException::immutableRegistry();
+    }
+
+    /**
+     * @return PermissionInitializerInterface[]
+     */
+    public function getPermissionInitializers(): array
+    {
+        return array_map(fn (AddonInfo $addonInfo) => $addonInfo->getPermissionInitializer(), $this->addonInfos);
     }
 }
