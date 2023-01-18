@@ -15,15 +15,20 @@ class LoadAddonInfoCompilerPass implements CompilerPassInterface
 
         $addonInfos = [];
 
-        foreach ($addons as $name => $manifest) {
-            // TODO: maybe we need to register the permission initializers
+        foreach ($addons as $name => $config) {
+            $permissionInitializerClass = $config['manifest']['permissionInitializer'];
+            $permissionInitializerDefinition = new Definition($permissionInitializerClass);
+            $permissionInitializerDefinition->setAutowired(true);
+            $permissionInitializerDefinition->setAutoconfigured(true);
 
+            $container->setDefinition($permissionInitializerClass, $permissionInitializerDefinition);
 
             $addonInfoDefinition = new Definition(AddonInfo::class);
 
             $addonInfoDefinition->setShared(false);
             $addonInfoDefinition->setArgument('$name', $name);
-            $addonInfoDefinition->setArgument('$manifest', $manifest);
+            $addonInfoDefinition->setArgument('$config', $config);
+            $addonInfoDefinition->setArgument('$permissionInitializer', $permissionInitializerDefinition);
 
             $slugify = Slugify::create();
 
