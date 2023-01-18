@@ -41,10 +41,8 @@ class PolygonIntoMapLayerMerger
      * loop through the features, render each one onto the canvas.
      *
      * @param Collection<int, Feature> $geo
-     *
-     * @return GdImage
      */
-    public function merge(Collection $geo, MapLayer $mapLayer)
+    public function merge(Collection $geo, MapLayer $mapLayer): GdImage
     {
         $image = $mapLayer->getImage()->getCore();
         $this->assertGdImage($image);
@@ -212,9 +210,9 @@ class PolygonIntoMapLayerMerger
     }
 
     /**
-     * @param GdImage $image
+     * @throws InvalidArgumentException
      */
-    public function assertGdImage($image): bool
+    public function assertGdImage(mixed $image): bool
     {
         if (false === $image instanceof GdImage) {
             throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));

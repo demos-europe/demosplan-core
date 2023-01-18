@@ -33,10 +33,8 @@ class TextIntoImageInserter
      * @param int    $imageHeight
      * @param string $text
      * @param int    $textSize
-     *
-     * @return bool
      */
-    public function insert(GdImage $image, $imageHeight, $text, $textSize = 6)
+    public function insert(GdImage $image, $imageHeight, $text, $textSize = 6): bool
     {
         try {
             $pathToFont = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/public/fonts/ptsansnarrow_regular/PTN57F-webfont.woff');
