@@ -122,15 +122,16 @@ class GeoJsonToFeaturesConverter
             $imagesDirectoryPath = DemosPlanPath::getTemporaryPath(
                 md5($printLayer->layerTitle).'-'.Uuid::uuid().'/'
             );
+            $test = new PrintLayer(
+                $printLayer->isBaseLayer ?? false,
+                $this->convertTiles($printLayer, $imagesDirectoryPath),
+                $printLayer->layerMapOrder ?? 0,
+                $printLayer->layerName ?? '',
+                $printLayer->layerTitle ?? '',
+                $imagesDirectoryPath
+            );
             $result->add(
-                new PrintLayer(
-                    $printLayer->isBaseLayer ?? false,
-                    $this->convertTiles($printLayer, $imagesDirectoryPath),
-                    $printLayer->layerMapOrder ?? 0,
-                    $printLayer->layerName ?? '',
-                    $printLayer->layerTitle ?? '',
-                    $imagesDirectoryPath
-                )
+                $test
             );
         }
 
