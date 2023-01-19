@@ -2572,6 +2572,7 @@ procedures.none: "Es sind noch keine Verfahren vorhanden."
 procedures.orga: "Verfahren Ihrer Organisation"
 procedures.participation.none: "Derzeit befinden sich keine Verfahren in Beteiligung."
 procedures.phase.overview: "Phasenübersicht aller Verfahren"
+procedures.statements.count.and.original: "Anzahl Stellungnahmen (Originalstellungnahmen)"
 procedures.statements.total: |
     {statementCount, plural,
         =1 {Eine Stellungnahme in {procedureCount} Verfahren}
