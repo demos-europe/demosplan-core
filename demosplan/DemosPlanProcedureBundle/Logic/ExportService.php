@@ -579,12 +579,12 @@ class ExportService
                     $elementTitle = $procedureElement->getTitle();
                     try {
                         $elementFile = $procedureElement->getFile();
+                        if (0 !== strlen($elementFile)) {
+                            $this->zipExportService->addFilePathToZipStream($elementFile, $procedureName.'/'.$this->literals['elements'].'/'.$elementTitle, $zip);
+                        }
                         $agreement = $this->paragraphExporter->generatePdf($procedureId, $elementTitle, $procedureElement->getId());
                         if (null !== $agreement) {
                             $this->zipExportService->addStringToZipStream($procedureName.'/'.$this->literals['elements'].'/'.Utf8::toAscii($elementTitle).'.pdf', $agreement, $zip);
-                            if (0 !== strlen($elementFile)) {
-                                $this->zipExportService->addFilePathToZipStream($elementFile, $procedureName.'/'.$this->literals['elements'].'/'.$elementTitle, $zip);
-                            }
                             $this->logger->info('ParagraphElement created',
                                 ['elementTitle' => $elementTitle, 'id' => $procedureId, 'name' => $procedureName]);
                         } else {
