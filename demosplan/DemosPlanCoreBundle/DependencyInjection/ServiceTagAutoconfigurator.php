@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
