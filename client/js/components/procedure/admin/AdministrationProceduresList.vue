@@ -104,7 +104,7 @@
         v-slot:header-count>
         {{ Translator.trans('quantity') }}
         <i
-          class="fa fa-question-circle u-pt-0_25 display--inline-block float--right"
+          class="fa fa-question-circle u-pt-0_125 display--inline-block float--right"
           v-tooltip="Translator.trans('procedures.statements.count.and.original')" />
       </template>
 
@@ -205,7 +205,7 @@ export default {
           label: Translator.trans('name')
         },
         {
-          colClass: 'width-60',
+          colClass: 'width-85',
           field: 'count',
           isVisible: this.showStatementCount,
           label: Translator.trans('quantity')
