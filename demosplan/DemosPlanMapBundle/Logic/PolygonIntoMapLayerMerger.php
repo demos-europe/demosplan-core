@@ -45,7 +45,7 @@ class PolygonIntoMapLayerMerger
     public function merge(Collection $geo, MapLayer $mapLayer): GdImage
     {
         $image = $mapLayer->getImage()->getCore();
-        $this->assertGdImage($image);
+        $image = $this->assertGdImage($image);
         $this->viewport->bottom = $mapLayer->getBottom();
         $this->viewport->left = $mapLayer->getLeft();
         $this->viewport->right = $mapLayer->getRight();
@@ -212,12 +212,12 @@ class PolygonIntoMapLayerMerger
     /**
      * @throws InvalidArgumentException
      */
-    public function assertGdImage(mixed $image): bool
+    public function assertGdImage(mixed $image): GdImage
     {
         if (false === $image instanceof GdImage) {
             throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));
         }
 
-        return true;
+        return $image;
     }
 }

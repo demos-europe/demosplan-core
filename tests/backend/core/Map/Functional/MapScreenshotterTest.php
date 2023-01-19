@@ -97,7 +97,7 @@ class MapScreenshotterTest extends FunctionalTestCase
         $result = $this->sut->makeScreenshotWms($geo, $wms, $copyright);
 
         self::assertIsResource($result);
-        self::assertTrue($this->polygonIntoMapLayerMerger->assertGdImage($result));
+        $result = $this->polygonIntoMapLayerMerger->assertGdImage($result);
         self::assertNotFalse(strpos($result, '.PNG'));
 
         $simpleCurrent = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[520497.840995682,6122598.425506909]},"properties":null}]}';
@@ -107,7 +107,7 @@ class MapScreenshotterTest extends FunctionalTestCase
         $result = $this->sut->makeScreenshotWms($geo, $wms, $copyright);
 
         self::assertIsResource($result);
-        self::assertTrue($this->polygonIntoMapLayerMerger->assertGdImage($result));
+        $result = $this->polygonIntoMapLayerMerger->assertGdImage($result);
         self::assertNotFalse(strpos($result, '.PNG'));
     }
 
