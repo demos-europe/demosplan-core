@@ -167,7 +167,11 @@ export default {
     },
 
     loadComponents (hookName) {
-      dpRpc('addons.assets.load', hookName).then(response => {
+      const params = {
+        hookName: hookName
+      }
+
+      dpRpc('addons.assets.load', params).then(response => {
         this.addComponent(response)
         this.addComponentScript(response)
       })

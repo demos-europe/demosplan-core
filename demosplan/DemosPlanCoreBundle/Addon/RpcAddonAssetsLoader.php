@@ -78,9 +78,10 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 
     public function validateRpcRequest(object $rpcRequest): void
     {
-        if (!$this->permissions->hasPermission('area_admin_consultations')) {
-            throw AccessDeniedException::missingPermission('area_admin_consultations');
-        }
+        // TODO: This needs a better validation
+        //if (!$this->permissions->hasPermission('area_admin_consultations')) {
+        //    throw AccessDeniedException::missingPermission('area_admin_consultations');
+        //}
     }
 
     private function generateMethodResult(object $rpcRequest, array $assets): object

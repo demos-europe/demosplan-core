@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
@@ -32,12 +40,12 @@ final class FrontendAssetProvider
             }
 
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath().'/'.$uiData['manifest']);
+            $manifestPath = $addonInfo->getInstallPath().'/'.$uiData['manifest'];
 
             try {
                 $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
                 // Try to get the content of the actual asset
-                $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath().'/'.$entryFile);
+                $entryFilePath = $addonInfo->getInstallPath().'/dist/'.$entryFile;
                 $assetContent = file_get_contents($entryFilePath);
                 if (!$assetContent) {
                     return [];
@@ -47,7 +55,7 @@ final class FrontendAssetProvider
             }
 
             return $this->createAddonFrontendAssetsEntry($addonInfo->getName(), $hookData, $assetContent);
-        }, iterator_to_array($this->registry));
+        }, $this->registry->getAddonInfos());
     }
 
     /**
@@ -58,11 +66,9 @@ final class FrontendAssetProvider
     private function createAddonFrontendAssetsEntry(string $addonName, array $hookData, string $assetContent): array
     {
         return [
-            $addonName => [
-                'entry'   => $hookData['entry'],
-                'options' => $hookData['options'],
-                'content' => $assetContent,
-            ],
+            'entry'   => $hookData['entry'],
+            'options' => $hookData['options'],
+            'content' => $assetContent,
         ];
     }
 
