@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *  DevelopmentRelease.
  *
  * @ORM\Table(name="_progression_releases")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository")
  */
 class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
 {

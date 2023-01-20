@@ -28,7 +28,6 @@ return [
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class => ['all' => true],
     demosplan\DemosPlanDocumentBundle\DemosPlanDocumentBundle::class => ['all' => true],
     demosplan\DemosPlanFaqBundle\DemosPlanFaqBundle::class => ['all' => true],
-    demosplan\DemosPlanForumBundle\DemosPlanForumBundle::class => ['all' => true],
     demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class => ['all' => true],
     demosplan\DemosPlanMiscContentBundle\DemosPlanMiscContentBundle::class => ['all' => true],
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class => ['all' => true],

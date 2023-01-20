@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_entries")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository")
  */
 class ForumEntry extends CoreEntity implements UuidEntityInterface
 {

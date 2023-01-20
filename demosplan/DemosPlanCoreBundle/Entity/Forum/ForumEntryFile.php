@@ -18,7 +18,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_entry_files", indexes={@ORM\Index(name="_fef_entry_id__fef_order", columns={"_fef_entry_id", "_fef_order"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository")
  */
 class ForumEntryFile extends CoreEntity implements UuidEntityInterface
 {

@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_threads", indexes={@ORM\Index(name="fk__forum_topic_tfk_1", columns={"_ft_id"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository")
  */
 class ForumThread extends CoreEntity implements UuidEntityInterface
 {

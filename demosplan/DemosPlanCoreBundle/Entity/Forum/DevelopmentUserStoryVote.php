@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_progression_userstory_votes")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository")
  */
 class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 {

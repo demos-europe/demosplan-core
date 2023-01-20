@@ -18,7 +18,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_progression_userstories")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository")
  */
 class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
 {
