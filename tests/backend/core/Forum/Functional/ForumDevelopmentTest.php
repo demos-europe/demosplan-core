@@ -108,7 +108,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
 
         static::assertTrue($result);
 
-        //check entry
+        // check entry
         $entry = $this->sut->getRelease($releaseId);
         static::assertEquals($data['endDate'] * 1000, $entry['endDate']);
         static::assertEquals($data['title'], $entry['title']);
@@ -178,7 +178,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
             static::assertArrayHasKey('title', $release);
             static::assertTrue(is_string($release['title']));
         }
-        //eventuell noch andere Parameter, wenn sie definiert sind
+        // eventuell noch andere Parameter, wenn sie definiert sind
         static::assertArrayHasKey('startDate', $result[0]);
         static::assertTrue($this->isTimestamp($result[0]['startDate']));
         static::assertArrayHasKey('endDate', $result[0]);
@@ -222,7 +222,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
         static::assertEquals(3, count($result));
         static::assertTrue($result['status']);
 
-        //check entry
+        // check entry
         $entry = $this->sut->getUserStory($storyId);
         static::assertEquals($data['title'], $entry['title']);
         static::assertEquals($data['description'], $entry['description']);
@@ -259,7 +259,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
 
         static::assertTrue(is_array($result));
         static::assertEquals(2, count($result));
-        //release variable
+        // release variable
         static::assertArrayHasKey('release', $result);
         static::assertArrayHasKey('ident', $result['release']);
         $this->checkId($result['release']['ident']);
@@ -284,7 +284,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
         static::assertArrayHasKey('modifiedDate', $result['release']);
         static::assertTrue($this->isTimestamp($result['release']['modifiedDate']));
 
-        //userStory variable
+        // userStory variable
         static::assertArrayHasKey('userStories', $result);
         static::assertEquals(2, count($result['userStories']));
         $this->checkSingleUserStoryVariables($result['userStories'][0]);
@@ -357,7 +357,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
         static::assertArrayHasKey('votes', $result);
         static::assertTrue(is_array($result['votes']));
 
-        //checkVotes Variables
+        // checkVotes Variables
         // static::assertEquals('#',$result['votes']);
         static::assertArrayHasKey('ident', $result['votes'][0]);
         $this->checkId($result['votes'][0]['ident']);
@@ -397,7 +397,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
         $this->checkId($result['body']['votes'][0]['userStoryId']);
         static::assertEquals($userStories['userStories'][0]['ident'], $result['body']['votes'][0]['userStoryId']);
 
-        //checkVoteandUserStoryEntry
+        // checkVoteandUserStoryEntry
         $votes = $this->sut->getVotes($userStories['userStories'][0]['ident']);
         static::assertEquals(1, $votes['userStory']['onlineVotes']);
         static::assertEquals(2, count($votes['votes']));

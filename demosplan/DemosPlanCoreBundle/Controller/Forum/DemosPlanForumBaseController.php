@@ -77,11 +77,11 @@ class DemosPlanForumBaseController extends BaseController
     protected function getReleasePhases()
     {
         return [
-            'configuration' => [
+            'configuration'  => [
                 'name' => 'Konfiguration',
                 'key'  => 'configuration',
             ],
-            'voting_online' => [
+            'voting_online'  => [
                 'name' => 'Bepunktung',
                 'key'  => 'voting_online',
             ],
@@ -89,7 +89,7 @@ class DemosPlanForumBaseController extends BaseController
                 'name' => 'Sitzung vor Ort',
                 'key'  => 'voting_offline',
             ],
-            'closed' => [
+            'closed'         => [
                 'name' => 'Abgeschlossen',
                 'key'  => 'closed',
             ],
@@ -99,12 +99,12 @@ class DemosPlanForumBaseController extends BaseController
     public function getReleasePhasePermissions($releasePhase)
     {
         $permissionsForPhases = [
-            'configuration' => [
+            'configuration'  => [
                 'vote_online'     => false,
                 'vote_offline'    => false,
                 'new_threadEntry' => false,
             ],
-            'voting_online' => [
+            'voting_online'  => [
                 'vote_online'     => true,
                 'vote_offline'    => false,
                 'new_threadEntry' => true,
@@ -114,7 +114,7 @@ class DemosPlanForumBaseController extends BaseController
                 'vote_offline'    => true,
                 'new_threadEntry' => false,
             ],
-            'closed' => [
+            'closed'         => [
                 'vote_online'     => false,
                 'vote_offline'    => false,
                 'new_threadEntry' => false,

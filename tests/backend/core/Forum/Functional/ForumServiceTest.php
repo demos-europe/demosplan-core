@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Logic\Forum\ForumService;
+use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -43,7 +44,7 @@ class ForumServiceTest extends FunctionalTestCase
         $threadId = $this->fixtures->getReference('testForumThread1')->getIdent();
         $result = $this->sut->getThreadEntryList($threadId);
 
-        //check return value
+        // check return value
         static::assertTrue(is_array($result));
         static::assertEquals(2, count($result));
         static::assertArrayHasKey('ident', $result['thread']);
@@ -60,7 +61,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertEquals(1, count($result['entryList']));
         static::assertTrue(is_array($result['entryList']));
 
-        //zusaätzliche items
+        // zusaätzliche items
         static::assertArrayHasKey('userRoles', $result['entryList'][0]);
         static::assertTrue(is_string($result['entryList'][0]['userRoles']));
         static::assertArrayHasKey('threadClosed', $result['entryList'][0]);
@@ -69,7 +70,7 @@ class ForumServiceTest extends FunctionalTestCase
 
     public function testGetThreadEntryListWithEmptyParameters()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->getThreadEntryList('');
     }
@@ -84,7 +85,7 @@ class ForumServiceTest extends FunctionalTestCase
         $numberOfEntriesAfter = $this->countEntries(ForumEntry::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check return value
+        // check return value
         static::assertTrue($result['status']);
         static::assertArrayHasKey('body', $result);
 
@@ -110,7 +111,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertTrue(is_array($result['body']['files']));
         static::assertEquals($data['files'], $result['body']['files']);
 
-        //zusätzliche items
+        // zusätzliche items
         static::assertArrayHasKey('userRoles', $result['body']);
         static::assertTrue(is_string($result['body']['userRoles']));
         static::assertEquals($threadEntry->getUserRoles(), $result['body']['userRoles']);
@@ -128,7 +129,7 @@ class ForumServiceTest extends FunctionalTestCase
         $numberOfEntriesAfter = $this->countEntries(ForumEntry::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check return value
+        // check return value
         static::assertTrue($result['status']);
         static::assertArrayHasKey('body', $result);
         static::assertArrayHasKey('ident', $result['body']);
@@ -146,7 +147,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('threadClosed', $result['body']);
         static::assertTrue(is_bool($result['body']['threadClosed']));
 
-        //check content
+        // check content
         static::assertEquals($data['text'], $result['body']['text']);
         static::assertEquals(0, count($result['body']['files']));
         static::assertEquals($result['body']['userRoles'], $threadEntry->getUserRoles());
@@ -154,7 +155,7 @@ class ForumServiceTest extends FunctionalTestCase
 
     public function testUpdateThreadEntryWithEmptyParameters()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->updateThreadEntry('', []);
     }
@@ -168,7 +169,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertTrue(is_array($result));
         $this->checkSingleThreadEntryVariables($result);
 
-        //zusätzliche items
+        // zusätzliche items
         static::assertArrayHasKey('userRoles', $result);
         static::assertTrue(is_string($result['userRoles']));
         static::assertArrayHasKey('threadClosed', $result);
@@ -177,7 +178,7 @@ class ForumServiceTest extends FunctionalTestCase
 
     public function testGetThreadEntryWithEmptyParameters()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->getThreadEntry('');
     }
@@ -222,14 +223,14 @@ class ForumServiceTest extends FunctionalTestCase
 
     public function testGetThreadWithEmptyParameters()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->getThread('');
     }
 
     public function testDeleteForumFileWithEmptyParameters()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->deleteForumFile('');
     }
@@ -246,7 +247,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertTrue(is_string($entry['text']));
         static::assertArrayHasKey('threadId', $entry);
         $this->checkId($entry['threadId']);
-        //user
+        // user
         static::assertArrayHasKey('user', $entry);
         static::assertArrayHasKey('ident', $entry['user']);
         $this->checkId($entry['user']['ident']);
@@ -254,7 +255,7 @@ class ForumServiceTest extends FunctionalTestCase
         static::assertTrue(is_string($entry['user']['ufirstname']));
         static::assertArrayHasKey('ulastname', $entry['user']);
         static::assertTrue(is_string($entry['user']['ulastname']));
-        //files
+        // files
         static::assertArrayHasKey('files', $entry);
         static::assertTrue(is_array($entry['files']));
         if (0 < count($entry['files'])) {
@@ -365,7 +366,7 @@ class ForumServiceTest extends FunctionalTestCase
         $numberOfEntriesAfter = $this->countEntries(ForumEntryFile::class);
         static::assertEquals($numberOfEntriesBefore, $numberOfEntriesAfter + 1);
 
-        //check if entry has no file anymore
+        // check if entry has no file anymore
         $threadEntry = $this->sut->getThreadEntry($this->fixtures->getReference('testForumEntry2')->getIdent());
         static::assertEquals(0, count($threadEntry['files']));
     }
