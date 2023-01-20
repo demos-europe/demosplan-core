@@ -1,4 +1,13 @@
 /**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+/**
  * Initializes an input field enhancement that counts and displays available characters when there is `maxlength` applied
  * on a given input field or textarea. It is used in conjunction with the generic translation key 'input.text.maxlength'.
  * @constructor
