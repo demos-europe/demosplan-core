@@ -10,17 +10,21 @@
 // Dp libs -> initialize on mount of vue instance
 import {
   ActionMenu,
+  Confirm,
+  Sticky
+} from '@demos-europe/demosplan-utils'
+
+import {
+  addFormHiddenField,
   CharCount,
   CheckableItem,
-  Confirm,
   FloodControlField,
   FormActions,
   Pager,
-  Sticky,
-  Tabs,
+  removeFormHiddenField,
   ToggleAnything,
   Tooltips
-} from '@demos-europe/demosplan-utils'
+} from './libs'
 
 /*
  * Libs to be invoked after vue mounted
@@ -28,12 +32,13 @@ import {
  */
 export function loadLibs () {
   ActionMenu()
+  addFormHiddenField()
   CharCount()
   CheckableItem()
   Confirm()
   FloodControlField()
   FormActions()
-  Tabs()
+  removeFormHiddenField()
   ToggleAnything()
   Pager()
   Sticky()
