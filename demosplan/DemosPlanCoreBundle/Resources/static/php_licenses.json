@@ -216,16 +216,6 @@
     },
     {
         "license": "MIT",
-        "package": "league/flysystem",
-        "website": "https://github.com/thephpleague/flysystem"
-    },
-    {
-        "license": "MIT",
-        "package": "league/flysystem-bundle",
-        "website": "https://github.com/thephpleague/flysystem-bundle"
-    },
-    {
-        "license": "MIT",
         "package": "league/fractal",
         "website": "https://github.com/thephpleague/fractal"
     },

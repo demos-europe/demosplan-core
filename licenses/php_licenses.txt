@@ -41,8 +41,6 @@ jmikola/geojson: MIT
 jms/serializer-bundle: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
-league/flysystem: MIT
-league/flysystem-bundle: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
 lexik/jwt-authentication-bundle: MIT
