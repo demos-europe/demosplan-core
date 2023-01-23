@@ -130,7 +130,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { changeUrlforPager } from '@demos-europe/demosplan-utils'
+import { changeUrlforPager } from '../assessmentTable/utils/changeUrlforPager'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { DpPager } from '@demos-europe/demosplan-ui'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
