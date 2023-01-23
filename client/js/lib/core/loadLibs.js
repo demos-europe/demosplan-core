@@ -15,13 +15,11 @@ import {
 } from '@demos-europe/demosplan-utils'
 
 import {
-  addFormHiddenField,
   CharCount,
   CheckableItem,
   FloodControlField,
   FormActions,
   Pager,
-  removeFormHiddenField,
   ToggleAnything,
   Tooltips
 } from './libs'
@@ -32,13 +30,11 @@ import {
  */
 export function loadLibs () {
   ActionMenu()
-  addFormHiddenField()
   CharCount()
   CheckableItem()
   Confirm()
   FloodControlField()
   FormActions()
-  removeFormHiddenField()
   ToggleAnything()
   Pager()
   Sticky()
