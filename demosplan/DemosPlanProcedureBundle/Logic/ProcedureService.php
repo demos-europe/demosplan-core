@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use function array_key_exists;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;

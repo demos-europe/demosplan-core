@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;

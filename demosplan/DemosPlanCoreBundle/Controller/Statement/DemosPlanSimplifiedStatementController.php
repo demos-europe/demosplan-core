@@ -11,16 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Takes care of actions related to the simplified version of a Statement.
@@ -39,6 +39,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
      *
      * @throws MessageBagException
      * @throws UserNotFoundException
+     *
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
     public function createAction(

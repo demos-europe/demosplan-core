@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
 use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateEvent;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
-use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
