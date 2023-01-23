@@ -1,4 +1,13 @@
 /**
+ * (c) 2010-present DEMOS E-Partizipation GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+/**
  * Update the Url matching the pager
  * @param pager {Object<count, current_page>}
  *
