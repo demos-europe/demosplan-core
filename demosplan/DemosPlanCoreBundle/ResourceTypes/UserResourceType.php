@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -44,7 +45,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read DepartmentResourceType $department
  * @property-read RoleResourceType $roles
  */
-final class UserResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class UserResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, UserResourceTypeInterface
 {
     /**
      * @var ProcedureService
