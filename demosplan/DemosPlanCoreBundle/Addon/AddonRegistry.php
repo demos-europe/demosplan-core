@@ -39,9 +39,7 @@ class AddonRegistry implements Iterator, ArrayAccess
     public function boot(array $addonInfos = [])
     {
         if ([] !== $this->addonInfos) {
-            // TODO: throw exception? go into existential crisis? are dinosaurs even extinct?
-            // no they're not, have you heard about chickens?
-            return;
+            AddonException::immutableRegistry();
         }
 
         foreach ($addonInfos as $addonInfo) {
