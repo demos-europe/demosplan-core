@@ -1374,6 +1374,7 @@ class DemosPlanDocumentController extends BaseController
         CurrentProcedureService $currentProcedureService,
         DocumentHandler $documentHandler,
         EditorService $editorService,
+        ElementsService $elementsService,
         Request $request,
         $procedure,
         $elementId,
@@ -1454,6 +1455,10 @@ class DemosPlanDocumentController extends BaseController
             $orgaBranding = $brandingService->createOrgaBrandingFromProcedureId($procedureId);
             $templateVars['orgaBranding'] = $orgaBranding;
         }
+
+        // is the negative statement plannindocument category enabled?
+        $templateVars['planningDocumentsHasNegativeStatement'] =
+            $elementsService->hasNegativeReportElement($procedureId);
 
         $templateVars['procedure'] = $currentProcedureService->getProcedure();
 
