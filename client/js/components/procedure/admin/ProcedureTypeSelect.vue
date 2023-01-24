@@ -57,7 +57,7 @@ export default {
     },
 
     redirectToEditForm () {
-      window.location.href = Routing.generate('DemosPlan_procedureType_duplicate', { procedureTypeId: this.selectedProcedureTypeId, isCreate: true })
+      window.location.href = Routing.generate('DemosPlan_procedureType_duplicate', { isCreate: true, procedureTypeId: this.selectedProcedureTypeId })
     }
   }
 }

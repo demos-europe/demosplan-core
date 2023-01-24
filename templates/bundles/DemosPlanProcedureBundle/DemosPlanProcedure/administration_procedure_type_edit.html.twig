@@ -16,6 +16,7 @@
     {% else %}
         {% set selectedProcedureTypeId = '' %}
     {% endif %}
+    {{ dump('ab hier wird der request abgefeuert') }}
     {% set formAction = templateVars.isCreate is defined ? path('DemosPlan_procedureType_create_save') : path('DemosPlan_procedureType_edit_save', { procedureTypeId: selectedProcedureTypeId|default }) %}
     {% set isCreate = templateVars.isCreate is defined and templateVars.isCreate == true %}
 
@@ -61,6 +62,8 @@
                         attr: { tooltip: 'text.procedure.types.guests.only.tipp'|trans }
                     })
                 }}
+                {{ dump("
+Templates should only be responsible for mapping the state to the UI. Avoid placing tags with side-effects in your templates, such as <script>, as they will not be parsed.") }}
             </div>
             <h2 class="u-mt u-mb-0">{{ 'form.fields.and.hint.texts'|trans }}</h2>
             <div class="u-pt">
