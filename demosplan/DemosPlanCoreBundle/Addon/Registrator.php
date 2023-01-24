@@ -8,6 +8,7 @@ use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Yaml;
 
 final class Registrator
@@ -86,13 +87,9 @@ final class Registrator
     private function loadManifest(string $addonName): array
     {
         try {
-            // TODO: Fix manifest parsing
-            /*$config = Yaml::parseFile($this->installedAddons->getManifestPath($addonName));
-            $processor = new Processor();
-            $parsed = $processor->processConfiguration(new ManifestConfiguration(), [$config['demosplan_addon']]);
-            var_export($parsed);*/
+            $config = Yaml::parseFile($this->packageInformation->getManifestPath($addonName))[ManifestConfiguration::MANIFEST_ROOT];
 
-            return Yaml::parseFile($this->packageInformation->getManifestPath($addonName))[ManifestConfiguration::MANIFEST_ROOT];
+            return (new Processor())->processConfiguration(new ManifestConfiguration(), [$config]);
         } catch (Exception $e) {
             echo $e->getMessage();
             throw AddonException::invalidManifest($addonName);
