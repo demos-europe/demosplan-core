@@ -109,7 +109,7 @@ class DemosPlanAdminController extends BaseController
 
         $title = 'statistic';
         if ('html' === $format) {
-            return $this->renderTemplate('@DemosPlanAdmin/DemosPlanAdmin/statistics.html.twig', [
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
                 'templateVars' => $templateVars,
                 'title'        => $title,
             ]);
@@ -120,7 +120,7 @@ class DemosPlanAdminController extends BaseController
             return str_replace('"', '""', $string);
         });
 
-        $response = $this->renderTemplate('@DemosPlanAdmin/DemosPlanAdmin/statistics.csv.twig', [
+        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
             'part'         => $part,
