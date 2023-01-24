@@ -22,13 +22,21 @@
       {{ Translator.trans('export') }}
     </a>
 
+    <div class="u-mb text--right">
+      <dp-column-selector
+        :initial-selection="currentSelection"
+        :selectable-columns="selectableColumns"
+        @selection-changed="setCurrentSelection"
+        use-local-storage
+        local-storage-key="submitterList" />
+    </div>
+
     <dp-loading v-if="isLoading" />
     <template v-else>
       <dp-data-table
+        class="overflow-x-auto"
         v-if="items.length"
         :header-fields="headerFields"
-        is-resizable
-        is-truncatable
         :items="items"
         track-by="id">
         <template v-slot:statement="rowData">
@@ -42,7 +50,7 @@
           <div class="o-hellip__wrapper">
             <div
               v-text="internId"
-              class="o-hellip--nowrap text--right"
+              class="o-hellip--nowrap"
               v-tooltip="internId"
               dir="rtl" />
           </div>
@@ -59,13 +67,14 @@
 </template>
 
 <script>
-import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpSubmitterList',
 
   components: {
+    DpColumnSelector,
     DpDataTable,
     DpLoading
   },
@@ -79,17 +88,18 @@ export default {
 
   data () {
     return {
-      headerFields: [
-        { field: 'name', label: Translator.trans('name'), initialMaxWidth: 250 },
-        { field: 'email', label: Translator.trans('email'), initialMaxWidth: 200 },
-        { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city'), initialMaxWidth: 120 },
-        { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department'), initialMaxWidth: 200 },
-        { field: 'memo', label: Translator.trans('memo'), initialMinWidth: 100, initialMaxWidth: 200 },
-        { field: 'internId', label: Translator.trans('internId.shortened'), initialWidth: 80 },
-        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long'), initialWidth: 40 }
+      headerFieldsAvailable: [
+        { field: 'name', label: Translator.trans('name') },
+        { field: 'email', label: Translator.trans('email') },
+        { field: 'address', label: Translator.trans('city') },
+        { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
+        { field: 'memo', label: Translator.trans('memo') },
+        { field: 'internId', label: Translator.trans('internId.shortened') },
+        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
       ],
       isLoading: false,
-      items: []
+      items: [],
+      currentSelection: ['name', 'organisationAndDepartment', 'statement']
     }
   },
 
@@ -98,6 +108,12 @@ export default {
       return Routing.generate('dplan_admin_procedure_submitter_export', {
         procedureId: this.procedureId
       })
+    },
+    selectableColumns () {
+      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+    headerFields () {
+      return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     }
   },
 
@@ -127,7 +143,9 @@ export default {
               'isCitizen',
               'memo',
               'submitName',
-              'submitterEmailAddress'
+              'submitterEmailAddress',
+              'initialOrganisationHouseNumber',
+              'initialOrganisationStreet'
             ].join()
           }
         },
@@ -147,7 +165,7 @@ export default {
     /**
      * If an attribute is empty, replace it with '-' or don't display it
      * @param resourceObj
-     * @return {{organisationAndDepartment: *, name: *, postalCodeAndCity: (string|string), email: (*|string)}}
+     * @return {{organisationAndDepartment: *, name: *, address: (string|string), email: (*|string)}}
      */
     handleEmptyAttrs (resourceObj) {
       const {
@@ -162,7 +180,9 @@ export default {
         isCitizen,
         memo,
         submitName,
-        submitterEmailAddress
+        submitterEmailAddress,
+        initialOrganisationHouseNumber,
+        initialOrganisationStreet
       } = resourceObj.attributes
 
       return {
@@ -173,7 +193,7 @@ export default {
         memo: memo || '-',
         name: authorName || submitName || '-',
         organisationAndDepartment: this.handleOrgaAndDepartment(initialOrganisationDepartmentName, initialOrganisationName, isSubmittedByCitizen),
-        postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(initialOrganisationCity, initialOrganisationPostalCode),
+        address: this.handleOrgaAddress(initialOrganisationCity, initialOrganisationPostalCode, initialOrganisationHouseNumber, initialOrganisationStreet),
         statement: externId
       }
     },
@@ -188,15 +208,24 @@ export default {
       return initialOrganisationDepartmentName || '-'
     },
 
-    handleOrgaPostalCodeAndOrgaCity (initialOrganisationCity, initialOrganisationPostalCode) {
-      if (initialOrganisationPostalCode) {
-        return initialOrganisationCity ? initialOrganisationPostalCode + ' ' + initialOrganisationCity : initialOrganisationPostalCode
+    handleOrgaAddress (initialOrganisationCity, initialOrganisationPostalCode, initialOrganisationStreet, initialOrganisationHouseNumber) {
+      let fullAddress = ''
+      if (initialOrganisationStreet) {
+        fullAddress = initialOrganisationHouseNumber ? initialOrganisationHouseNumber + ' ' + initialOrganisationStreet : initialOrganisationStreet
       }
-      return initialOrganisationCity || '-'
+      if (initialOrganisationPostalCode) {
+        fullAddress += initialOrganisationStreet ? ', ' : ''
+        fullAddress += initialOrganisationCity ? initialOrganisationPostalCode + ' ' + initialOrganisationCity : initialOrganisationPostalCode
+      }
+      return fullAddress || '-'
     },
 
     SubmitterListItem (rowData) {
       return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
+    },
+
+    setCurrentSelection (selection) {
+      this.currentSelection = selection
     }
   },
   mounted () {
