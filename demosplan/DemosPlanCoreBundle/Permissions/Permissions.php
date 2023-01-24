@@ -932,22 +932,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     }
 
     /**
-     * Rechte, die rollenunabhängig gesetzt werden, wenn ein schreibender Zugriff auf das Verfahren besteht.
-     */
-    protected function setProcedurePermissionsetWrite(): void
-    {
-        $this->logger->debug('Set Permissionset write');
-        $this->permissions['feature_documents_new_statement']['enabled'] = true; // Planungsdokumente Neue Stellungnahme
-        $this->permissions['feature_map_new_statement']['enabled'] = true; // Planzeichnung Neue Stellungnahme
-        $this->permissions['feature_new_statement']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_new_statement_form']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_statements_draft_delete']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Loeschen
-        $this->permissions['feature_statements_draft_edit']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Bearbeiten
-        $this->permissions['feature_statements_draft_release']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Freigeben
-        $this->permissions['feature_statements_draft_relocate']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Neu verorten
-    }
-
-    /**
      * Rechte, die rollenunabhängig gesetzt werden, wenn ein lesender Zugriff auf das Verfahren besteht.
      */
     protected function setProcedurePermissionsetRead(): void

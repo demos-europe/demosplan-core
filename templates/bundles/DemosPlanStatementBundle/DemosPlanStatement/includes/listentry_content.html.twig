@@ -20,7 +20,7 @@
         </dd>
     {% endif %}
 
-    {% if hasPermission( 'field_statement_polygon' ) %}
+    {% if hasPermission( 'field_statement_location' ) %}
         <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.polygon|default|isNot(' color--grey')|prefixClass }}">
             {{ "location"|trans }}:
         </dt>
@@ -64,6 +64,7 @@
         </dd>
     {% endif %}
 
+    {% if hasPermission('feature_documents_new_statement') %}
         <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.paragraph.title|default()|isNot(' color--grey')|prefixClass }}">
             {{ "paragraph"|trans }}:
         </dt>
@@ -71,24 +72,25 @@
         <dd class="{{ 'layout__item o-hellip u-1-of-3 u-2-of-3-palm u-ml-0'|prefixClass }}{{ statement.paragraph.title|default()|isNot(' color--grey')|prefixClass }}">
             {{ statement.paragraph.title|default( "notspecified"|trans )|wysiwyg }}
         </dd>
+    {% endif %}
 
-        <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.file|isNot(' color--grey')|prefixClass }}">
-            {{ "attachments"|trans }}:
-        </dt>
-        <dd class="{{ 'layout__item u-1-of-3 u-2-of-3-palm u-ml-0 o-hellip'|prefixClass }}{{ statement.file|isNot(' color--grey')|prefixClass }}">
-            {% if statement.files|default([])|length > 0 %}
-                {% for file in statement.files %}
-                    <a
-                        target="_blank"
-                        rel="noopener"
-                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
-                        {{ file|getFile('name') }}
-                    </a><br>
-                {% endfor %}
-            {% else %}
-                {{ "notspecified"|trans }}
-            {% endif %}
-        </dd>
+    <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.file|isNot(' color--grey')|prefixClass }}">
+        {{ "attachments"|trans }}:
+    </dt>
+    <dd class="{{ 'layout__item u-1-of-3 u-2-of-3-palm u-ml-0 o-hellip'|prefixClass }}{{ statement.file|isNot(' color--grey')|prefixClass }}">
+        {% if statement.files|default([])|length > 0 %}
+            {% for file in statement.files %}
+                <a
+                    target="_blank"
+                    rel="noopener"
+                    href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                    {{ file|getFile('name') }}
+                </a><br>
+            {% endfor %}
+        {% else %}
+            {{ "notspecified"|trans }}
+        {% endif %}
+    </dd>
 
     {% if procedureStatementPriorityArea %}
         {% set priorityAreas = statement.statementAttributes.priorityAreaKey|default %}
