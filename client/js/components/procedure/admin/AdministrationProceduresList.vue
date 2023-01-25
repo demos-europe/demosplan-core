@@ -99,6 +99,14 @@
         <span v-text="Translator.trans('procedure.public.phase')" />
         <div v-text="Translator.trans('institution')" />
       </template>
+      <template
+        v-if="showStatementCount"
+        v-slot:header-count>
+        {{ Translator.trans('quantity') }}
+        <i
+          class="fa fa-question-circle u-pt-0_125 display--inline-block float--right"
+          v-tooltip="Translator.trans('procedures.statements.count.and.original')" />
+      </template>
 
       <template
         v-if="showInternalPhases"
@@ -197,7 +205,7 @@ export default {
           label: Translator.trans('name')
         },
         {
-          colClass: 'width-60',
+          colClass: 'width-85',
           field: 'count',
           isVisible: this.showStatementCount,
           label: Translator.trans('quantity')
@@ -264,7 +272,8 @@ export default {
             'internalEndDate',
             'internalPhaseIdentifier',
             'internalPhaseTranslationKey',
-            'originalStatementsCount'
+            'originalStatementsCount',
+            'statementsCount'
           ].join()
         },
         filter: {
@@ -285,7 +294,7 @@ export default {
           response.data.data.forEach(el => this.items.push({
             creationDate: formatDate(el.attributes.creationDate.date),
             creationDateRaw: el.attributes.creationDate.date,
-            count: el.attributes.originalStatementsCount > 0 ? el.attributes.originalStatementsCount : '0',
+            count: `${el.attributes.statementsCount} (${el.attributes.originalStatementsCount})`,
             name: el.attributes.name,
             externalName: el.attributes.externalName,
             externalEndDate: formatDate(el.attributes.externalEndDate.date),
