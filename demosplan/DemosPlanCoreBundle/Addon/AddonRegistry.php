@@ -42,14 +42,6 @@ class AddonRegistry implements ArrayAccess
         }
     }
 
-    /**
-     * Returns all available addons.
-     */
-    public function getAllAddons(): Collection
-    {
-        return $this->addons;
-    }
-
     public function getAddonInfos(): array
     {
         return $this->addonInfos;
