@@ -91,7 +91,7 @@ export default {
       headerFieldsAvailable: [
         { field: 'name', label: Translator.trans('name') },
         { field: 'email', label: Translator.trans('email') },
-        { field: 'address', label: Translator.trans('city') },
+        { field: 'address', label: Translator.trans('address') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
         { field: 'internId', label: Translator.trans('internId.shortened') },
@@ -173,49 +173,49 @@ export default {
         externId,
         internId,
         isSubmittedByCitizen,
-        initialOrganisationCity,
-        initialOrganisationDepartmentName,
-        initialOrganisationName,
-        initialOrganisationPostalCode,
+        initialOrganisationCity: city,
+        initialOrganisationDepartmentName: departmentName,
+        initialOrganisationName: organisationName,
+        initialOrganisationPostalCode: postalCode,
         isCitizen,
         memo,
         submitName,
-        submitterEmailAddress,
-        initialOrganisationHouseNumber,
-        initialOrganisationStreet
+        submitterEmailAddress: email,
+        initialOrganisationHouseNumber: houseNumber,
+        initialOrganisationStreet: street
       } = resourceObj.attributes
 
       return {
-        email: submitterEmailAddress || '-',
+        email: email || '-',
         id: resourceObj.id,
         internId: internId || '',
         isCitizen,
         memo: memo || '-',
         name: authorName || submitName || '-',
-        organisationAndDepartment: this.handleOrgaAndDepartment(initialOrganisationDepartmentName, initialOrganisationName, isSubmittedByCitizen),
-        address: this.handleOrgaAddress(initialOrganisationCity, initialOrganisationPostalCode, initialOrganisationHouseNumber, initialOrganisationStreet),
+        organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
+        address: this.handleOrgaAddress(city, postalCode, houseNumber, street),
         statement: externId
       }
     },
 
-    handleOrgaAndDepartment (initialOrganisationDepartmentName, initialOrganisationName, isSubmittedByCitizen) {
-      if (initialOrganisationName) {
+    handleOrgaAndDepartment (departmentName, organisationName, isSubmittedByCitizen) {
+      if (organisationName) {
         if (isSubmittedByCitizen) {
-          return initialOrganisationName
+          return organisationName
         }
-        return initialOrganisationDepartmentName ? initialOrganisationName + ', ' + initialOrganisationDepartmentName : initialOrganisationName
+        return departmentName ? organisationName + ', ' + departmentName : organisationName
       }
-      return initialOrganisationDepartmentName || '-'
+      return departmentName || '-'
     },
 
-    handleOrgaAddress (initialOrganisationCity, initialOrganisationPostalCode, initialOrganisationStreet, initialOrganisationHouseNumber) {
+    handleOrgaAddress (city, postalCode, street, houseNumber) {
       let fullAddress = ''
-      if (initialOrganisationStreet) {
-        fullAddress = initialOrganisationHouseNumber ? initialOrganisationHouseNumber + ' ' + initialOrganisationStreet : initialOrganisationStreet
+      if (street) {
+        fullAddress = houseNumber ? houseNumber + ' ' + street : street
       }
-      if (initialOrganisationPostalCode) {
-        fullAddress += initialOrganisationStreet ? ', ' : ''
-        fullAddress += initialOrganisationCity ? initialOrganisationPostalCode + ' ' + initialOrganisationCity : initialOrganisationPostalCode
+      if (postalCode) {
+        fullAddress += street ? ', ' : ''
+        fullAddress += city ? postalCode + ' ' + city : postalCode
       }
       return fullAddress || '-'
     },
