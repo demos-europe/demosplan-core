@@ -14,6 +14,8 @@ use function array_key_exists;
 use function array_merge;
 use function compact;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -25,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEvent;
 use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
@@ -696,7 +697,7 @@ class DemosPlanDocumentController extends BaseController
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
-        TraceableEventDispatcher $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         $procedure
     ) {
         $session = $request->getSession();
@@ -707,7 +708,7 @@ class DemosPlanDocumentController extends BaseController
         $requestPost = $request->request->all();
         if ($request->isMethod('POST')) {
             // if you need the event, this method returns it :)
-            $eventDispatcher->post(new ElementsAdminListSaveEvent($request));
+            $eventDispatcher->dispatch(new ElementsAdminListSaveEvent($request), ElementsAdminListSaveEventInterface::class);
         }
 
         // get title filter from configuration
