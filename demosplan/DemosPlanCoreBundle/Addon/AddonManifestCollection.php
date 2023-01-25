@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
-// TODO: find a better name for this!!!
 final class AddonManifestCollection
 {
     private const ADDONS_YAML = 'addons/addons.yaml';

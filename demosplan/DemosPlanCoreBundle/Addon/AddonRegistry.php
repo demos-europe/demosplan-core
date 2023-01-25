@@ -15,13 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use ArrayAccess;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
-use Iterator;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
  *
  * @template-implements ArrayAccess<string, AddonInfo>
- * @template-implements Iterator<string, AddonInfo>
  */
 class AddonRegistry implements ArrayAccess
 {
@@ -36,14 +34,20 @@ class AddonRegistry implements ArrayAccess
     public function boot(array $addonInfos = [])
     {
         if ([] !== $this->addonInfos) {
-            // TODO: throw exception? go into existential crisis? are dinosaurs even extinct?
-            // no they're not, have you heard about chickens?
-            return;
+            AddonException::immutableRegistry();
         }
 
         foreach ($addonInfos as $addonInfo) {
             $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
+    }
+
+    /**
+     * Returns all available addons.
+     */
+    public function getAllAddons(): Collection
+    {
+        return $this->addons;
     }
 
     public function getAddonInfos(): array
