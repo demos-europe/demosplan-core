@@ -5,7 +5,6 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
-// TODO: find a better name for this!!!
 final class AddonManifestCollection
 {
     private const ADDONS_YAML = 'addons/addons.yaml';
