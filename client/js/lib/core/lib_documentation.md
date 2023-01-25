@@ -7,7 +7,6 @@
 | FormActions.js | various methods to interact with forms | public and planning area |
 | GlobalEventListener | Add Event listeners, that have been added & initialized in mounted |
 | HighlightHashLink.js | used to highlight a currently active hashlink | used in faqlist.js (public) |
-| NotificationStoreAdapter.js | used to display flash messages | puplic and planning area |
 | Pager.js | used to support a twig macro pager | public and planning area |
 | Progress.js | used to display a progress bar | Map.vue |
 | Tabs.js | used to add tabbing behaviour | public area |
