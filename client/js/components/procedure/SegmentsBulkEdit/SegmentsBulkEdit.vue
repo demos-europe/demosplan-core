@@ -111,6 +111,22 @@
             :procedure-id="procedureId"
             :disabled="!hasSegments" />
         </action-stepper-action>
+
+        <!-- Assign places -->
+        <action-stepper-action
+          v-model="actions.assignPlace.checked"
+          id="selectAssignPlaceAction"
+          label="Schritte ändern..."
+        >
+          <dp-multiselect
+            class="width-300"
+            id="assignPlace"
+            :disabled="!hasPlaces"
+            :options="places"
+            v-model="actions.assignPlace.selected"
+            label="name"
+            track-by="id" />
+        </action-stepper-action>
       </div>
     </template>
 
@@ -158,6 +174,12 @@
           class="u-pv">
           <p v-html="addOrReplaceRecommendationMessage" />
           <p v-cleanhtml="actions.addRecommendations.text" />
+        </div>
+
+        <div
+          v-if="assignPlaceCheckedAndSelected"
+          class="u-pv">
+          <p>{{ actions.assignPlace.selected.name }}</p>
         </div>
       </div>
     </template>
@@ -264,6 +286,11 @@ export default {
           selected: [],
           checked: false,
           success: false
+        },
+        assignPlace: {
+          selected: [],
+          checked: false,
+          success: false
         }
       },
       assignableUsers: [],
@@ -271,7 +298,8 @@ export default {
       isLoading: true,
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       step: 1,
-      segments: []
+      segments: [],
+      places: []
     }
   },
 
@@ -320,6 +348,10 @@ export default {
       return this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
     },
 
+    assignPlaceCheckedAndSelected () {
+      return this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
+    },
+
     deleteTagsCheckedAndSelected () {
       return this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
     },
@@ -355,11 +387,15 @@ export default {
     },
 
     hasActions () {
-      return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0
+      return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0 || Object.values(this.actions.assignPlace.selected).length > 0
     },
 
     hasSegments () {
       return this.segments.length > 0
+    },
+
+    hasPlaces () {
+      return this.places.length > 0
     },
 
     tags () {
@@ -400,6 +436,10 @@ export default {
         params.assigneeId = this.actions.assignSegment.selected.id
       }
 
+      if (this.assignPlaceCheckedAndSelected) {
+        params.workflowPlaceId = this.actions.assignPlace.selected.id
+      }
+
       dpRpc('segment.bulk.edit', params)
         .then(checkResponse)
         .then((response) => {
@@ -409,12 +449,14 @@ export default {
           this.actions.deleteTags.success = rpcResult
           this.actions.addTags.success = rpcResult
           this.actions.addRecommendations.success = rpcResult
+          this.actions.assignPlace.success = rpcResult
         })
         .catch(() => {
           this.actions.assignSegment.success = false
           this.actions.deleteTags.success = false
           this.actions.addTags.success = false
           this.actions.addRecommendations.success = false
+          this.actions.assignPlace.success = false
         })
         .finally(() => {
           // Always delete saved selection to ensure that no action is processed more than one time
@@ -436,6 +478,21 @@ export default {
             }
           })
         })
+    },
+
+    fetchPlaces () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
+
+      return dpApi.get(url, { include: 'name' })
+        .then(response => {
+          this.places = response.data.data.map(place => {
+            return {
+              id: place.id,
+              name: place.attributes.name
+            }
+          })
+        })
+        .catch(err => console.error(err))
     },
 
     /**
@@ -490,6 +547,8 @@ export default {
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
+
+    promises.push(this.fetchPlaces())
 
     Promise.all(promises)
       .then(() => {
