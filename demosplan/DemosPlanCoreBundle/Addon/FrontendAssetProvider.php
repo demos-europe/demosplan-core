@@ -54,7 +54,7 @@ final class FrontendAssetProvider
                 return [];
             }
 
-            return $this->createAddonFrontendAssetsEntry($addonInfo->getName(), $hookData, $assetContent);
+            return $this->createAddonFrontendAssetsEntry($hookData, $assetContent);
         }, $this->registry->getAddonInfos());
     }
 
@@ -63,7 +63,7 @@ final class FrontendAssetProvider
      *
      * @return array<string, array{entry:string, options:array, content:string}>
      */
-    private function createAddonFrontendAssetsEntry(string $addonName, array $hookData, string $assetContent): array
+    private function createAddonFrontendAssetsEntry(array $hookData, string $assetContent): array
     {
         return [
             'entry'   => $hookData['entry'],
