@@ -46,11 +46,17 @@
             {{ rowData.statement }}
           </a>
         </template>
+        <template v-slot:address="rowData">
+          <div class="o-hellip--nowrap">
+            <span v-html="rowData.address" />
+          </div>
+        </template>
         <template v-slot:internId="{ internId }">
-          <div class="o-hellip__wrapper">
+          <div
+            class="o-hellip__wrapper">
             <div
               v-text="internId"
-              class="o-hellip--nowrap"
+              class="o-hellip--nowrap text--right"
               v-tooltip="internId"
               dir="rtl" />
           </div>
@@ -94,7 +100,7 @@ export default {
         { field: 'address', label: Translator.trans('address') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
-        { field: 'internId', label: Translator.trans('internId.shortened') },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
         { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
       ],
       isLoading: false,
@@ -172,20 +178,21 @@ export default {
         authorName,
         externId,
         internId,
-        isSubmittedByCitizen,
         initialOrganisationCity: city,
         initialOrganisationDepartmentName: departmentName,
+        initialOrganisationHouseNumber: houseNumber,
         initialOrganisationName: organisationName,
         initialOrganisationPostalCode: postalCode,
+        initialOrganisationStreet: street,
         isCitizen,
+        isSubmittedByCitizen,
         memo,
-        submitName,
         submitterEmailAddress: email,
-        initialOrganisationHouseNumber: houseNumber,
-        initialOrganisationStreet: street
+        submitName
       } = resourceObj.attributes
 
       return {
+        address: this.handleOrgaAddress(city, postalCode, houseNumber, street),
         email: email || '-',
         id: resourceObj.id,
         internId: internId || '',
@@ -193,7 +200,6 @@ export default {
         memo: memo || '-',
         name: authorName || submitName || '-',
         organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
-        address: this.handleOrgaAddress(city, postalCode, houseNumber, street),
         statement: externId
       }
     },
@@ -214,7 +220,7 @@ export default {
         fullAddress = houseNumber ? houseNumber + ' ' + street : street
       }
       if (postalCode) {
-        fullAddress += street ? ', ' : ''
+        fullAddress += street ? '<br>' : ''
         fullAddress += city ? postalCode + ' ' + city : postalCode
       }
       return fullAddress || '-'
