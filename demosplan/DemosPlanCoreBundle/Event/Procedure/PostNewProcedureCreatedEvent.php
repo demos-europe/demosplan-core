@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\EventConcernTrait;
 use Exception;
 
-class PostNewProcedureCreatedEvent extends DPlanEvent
+class PostNewProcedureCreatedEvent extends DPlanEvent implements PostNewProcedureCreatedEventInterface
 {
     use EventConcernTrait;
 
