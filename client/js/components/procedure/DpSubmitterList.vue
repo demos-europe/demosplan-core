@@ -46,9 +46,14 @@
             {{ rowData.statement }}
           </a>
         </template>
-        <template v-slot:address="rowData">
+        <template v-slot:street="rowData">
           <div class="o-hellip--nowrap">
-            <span v-html="rowData.address" />
+            <span v-html="rowData.street" />
+          </div>
+        </template>
+        <template v-slot:postalCodeAndCity="rowData">
+          <div class="o-hellip--nowrap">
+            <span v-html="rowData.postalCodeAndCity" />
           </div>
         </template>
         <template v-slot:internId="{ internId }">
@@ -97,7 +102,8 @@ export default {
       headerFieldsAvailable: [
         { field: 'name', label: Translator.trans('name') },
         { field: 'email', label: Translator.trans('email') },
-        { field: 'address', label: Translator.trans('address') },
+        { field: 'street', label: Translator.trans('street') },
+        { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
@@ -141,17 +147,17 @@ export default {
               'authorName',
               'externId',
               'internId',
-              'isSubmittedByCitizen',
               'initialOrganisationCity',
               'initialOrganisationDepartmentName',
               'initialOrganisationName',
               'initialOrganisationPostalCode',
+              'initialOrganisationHouseNumber',
+              'initialOrganisationStreet',
               'isCitizen',
+              'isSubmittedByCitizen',
               'memo',
               'submitName',
-              'submitterEmailAddress',
-              'initialOrganisationHouseNumber',
-              'initialOrganisationStreet'
+              'submitterEmailAddress'
             ].join()
           }
         },
@@ -171,7 +177,7 @@ export default {
     /**
      * If an attribute is empty, replace it with '-' or don't display it
      * @param resourceObj
-     * @return {{organisationAndDepartment: *, name: *, address: (string|string), email: (*|string)}}
+     * @return {{internId: (*|string), isCitizen: *, organisationAndDepartment: (*|string), street: (string|*), name: (*|string), statement: *, memo: (*|string), id, postalCodeAndCity: (string|*), email: (*|string)}}
      */
     handleEmptyAttrs (resourceObj) {
       const {
@@ -192,7 +198,6 @@ export default {
       } = resourceObj.attributes
 
       return {
-        address: this.handleOrgaAddress(city, postalCode, houseNumber, street),
         email: email || '-',
         id: resourceObj.id,
         internId: internId || '',
@@ -200,7 +205,9 @@ export default {
         memo: memo || '-',
         name: authorName || submitName || '-',
         organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
-        statement: externId
+        postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
+        statement: externId,
+        street: this.handleOrgaStreet(street, houseNumber)
       }
     },
 
@@ -214,24 +221,26 @@ export default {
       return departmentName || '-'
     },
 
-    handleOrgaAddress (city, postalCode, street, houseNumber) {
-      let fullAddress = ''
-      if (street) {
-        fullAddress = houseNumber ? houseNumber + ' ' + street : street
-      }
+    handleOrgaPostalCodeAndOrgaCity (city, postalCode) {
       if (postalCode) {
-        fullAddress += street ? '<br>' : ''
-        fullAddress += city ? postalCode + ' ' + city : postalCode
+        return city ? postalCode + ' ' + city : postalCode
       }
-      return fullAddress || '-'
+      return city || '-'
     },
 
-    SubmitterListItem (rowData) {
-      return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
+    handleOrgaStreet (street, houseNumber) {
+      if (street) {
+        return houseNumber ? street + ' ' + houseNumber : street
+      }
+      return '-'
     },
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+    },
+
+    SubmitterListItem (rowData) {
+      return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
     }
   },
   mounted () {
