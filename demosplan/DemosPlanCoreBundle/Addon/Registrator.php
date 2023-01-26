@@ -70,7 +70,7 @@ final class Registrator
         $content .= Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH);
 
         file_put_contents(
-            DemosPlanPath::getRootPath('addons/addons.yaml'),
+            DemosPlanPath::getRootPath(AddonManifestCollection::ADDONS_YAML),
             $content
         );
     }
