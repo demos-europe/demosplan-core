@@ -116,8 +116,7 @@
         <action-stepper-action
           v-model="actions.assignPlace.checked"
           id="selectAssignPlaceAction"
-          label="Schritte ändern..."
-        >
+          :label="Translator.trans('segments.bulk.edit.place.add')">
           <dp-multiselect
             class="width-300"
             id="assignPlace"
@@ -179,7 +178,8 @@
         <div
           v-if="assignPlaceCheckedAndSelected"
           class="u-pv">
-          <p>{{ actions.assignPlace.selected.name }}</p>
+          <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
+          <p v-cleanhtml="actions.assignPlace.selected.name" />
         </div>
       </div>
     </template>
@@ -216,6 +216,15 @@
           v-cleanhtml="actions.addRecommendations.text"
           class="u-mt-0_5" />
       </action-stepper-response>
+
+      <action-stepper-response
+        v-if="assignPlaceCheckedAndSelected"
+        :success="actions.assignPlace.success"
+        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', {count: segments.length})"
+        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', {count: segments.length})" />
+      <p
+        v-cleanhtml="actions.assignPlace.selected.name"
+        class="u-mt-0_5" />
     </template>
   </action-stepper>
 </template>
