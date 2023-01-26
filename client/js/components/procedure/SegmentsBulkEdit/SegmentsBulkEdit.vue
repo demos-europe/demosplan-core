@@ -437,7 +437,7 @@ export default {
       }
 
       if (this.assignPlaceCheckedAndSelected) {
-        params.workflowPlaceId = this.actions.assignPlace.selected.id
+        params.placeId = this.actions.assignPlace.selected.id
       }
 
       dpRpc('segment.bulk.edit', params)
