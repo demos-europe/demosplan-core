@@ -13,9 +13,8 @@
       {{ Translator.trans('explanation.list.of.submitters') }}
     </p>
 
-    <div class="flex flex-content-between u-pv-0_5">
+    <div class="flex flex-items-center u-pv-0_5">
       <a
-        class="u-pt-0_25"
         :href="exportSubmitterList">
         <i
           class="fa fa-download"
@@ -24,6 +23,7 @@
       </a>
 
       <dp-column-selector
+        class="flex-item-end"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
         @selection-changed="setCurrentSelection"
