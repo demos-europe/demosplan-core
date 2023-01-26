@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use GdImage;
 use Psr\Log\LoggerInterface;
 
 class TextIntoImageInserter
@@ -29,14 +30,11 @@ class TextIntoImageInserter
     /**
      * Simple helper method to put a given text into an image.
      *
-     * @param resource $image
-     * @param int      $imageHeight
-     * @param string   $text
-     * @param int      $textSize
-     *
-     * @return bool
+     * @param int    $imageHeight
+     * @param string $text
+     * @param int    $textSize
      */
-    public function insert($image, $imageHeight, $text, $textSize = 6)
+    public function insert(GdImage $image, $imageHeight, $text, $textSize = 6): bool
     {
         try {
             $pathToFont = DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/public/fonts/ptsansnarrow_regular/PTN57F-webfont.woff');

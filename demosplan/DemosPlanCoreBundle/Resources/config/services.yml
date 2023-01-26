@@ -31,6 +31,193 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+
+    DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
+
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
+
+    DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
+
+    DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
+
+    DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator
+
+    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\FileService
+
+    DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
+
+    DemosEurope\DemosplanAddon\Contracts\PlaceServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService
+
+    DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent
+
+    DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
+        class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
+
+#    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
+#       class:
+
+#    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionMetaInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler
+
+    DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface:
+        class: demosplan\DemosPlanCoreBundle\ValueObject\ValueObject
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+
+#    DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService
+
+    DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger
+
+    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
+        class: demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\PropertyUpdateAccessExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\ConcurrentEditionExceptionInterface:
+        class: DemosEurope\DemosplanAddon\Exception\ConcurrentEditionException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\PersistResourceExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Exception\PersistResourceException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Exception\ViolationsException
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface:
+        class: DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Services\ApiResourceService
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface:
+        class: DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\StatementService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
+        class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\File
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\CoreEntityInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Tag
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityChangeInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator
+
+    DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
+        class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
+
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
             -   name: data_collector
@@ -1135,10 +1322,6 @@ services:
         arguments: [[], "@event_dispatcher"]
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
-
-    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface: '@demosplan\DemosPlanCoreBundle\Logic\MessageBag'
-    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
-    DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver'
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.

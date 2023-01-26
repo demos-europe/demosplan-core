@@ -25,7 +25,15 @@ final class AddonAutoloading
     private static bool $autoloadingConfigured = false;
 
     /**
-     * Registers an autoload for classes from the addons autoload_classmap.
+     * Autoload classes from the addon classmap.
+     *
+     * We piggyback on composer's authoritative classmap to provide autoloading
+     * for the Addons. The general idea is, that demosplan-core's root composer.json
+     * defines the outer autoloading boundary, and it's `vendor/autoload.php` is loaded
+     * as the very first executed line in all entrypoints. By assuming that all
+     * dependencies of demosplan will always be found by these autoloaders, we can
+     * safely make a classname lookup here as only actual addon or addon-dependency classes
+     * will not have been found up until this point in the autolaoding chain.
      */
     public static function register(): void
     {
@@ -38,6 +46,7 @@ final class AddonAutoloading
             return;
         }
 
+        /** @var array<string, string> $classmap */
         $classmap = include_once $classMapPath;
 
         spl_autoload_register(static function (string $class) use ($classmap): void {

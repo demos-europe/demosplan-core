@@ -712,7 +712,7 @@ copy: "Kopieren"
 copy.to.procedure: "In ein anderes Verfahren kopieren"
 copyof: "Kopie von"
 copyright.source: "Copyright-Vermerk"
-copyright.sh: "Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
+copyright.sh: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 counties: "Kreise"
 counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
@@ -2572,6 +2572,7 @@ procedures.none: "Es sind noch keine Verfahren vorhanden."
 procedures.orga: "Verfahren Ihrer Organisation"
 procedures.participation.none: "Derzeit befinden sich keine Verfahren in Beteiligung."
 procedures.phase.overview: "Phasenübersicht aller Verfahren"
+procedures.statements.count.and.original: "Anzahl Stellungnahmen (Originalstellungnahmen)"
 procedures.statements.total: |
     {statementCount, plural,
         =1 {Eine Stellungnahme in {procedureCount} Verfahren}

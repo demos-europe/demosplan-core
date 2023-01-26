@@ -48,5 +48,8 @@ services:
         autowire: true
         autoconfigure: true
 
+    Tests\CoreApplication\Permissions\Permissions:
+        autowire: true
+
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'

@@ -16,6 +16,8 @@ use EFrane\ConsoleAdditions\Output\FileOutputInterface;
 use EFrane\ConsoleAdditions\Output\MultiplexedOutput;
 use EFrane\ConsoleAdditions\Output\NativeFileOutput;
 use Exception;
+use RuntimeException;
+use SebastianBergmann\Environment\Console;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,12 +37,15 @@ abstract class CoreCommand extends Command
         $this->parameterBag = $parameterBag;
     }
 
-    /**
-     * @return ConsoleApplication|\Symfony\Component\Console\Application|null
-     */
-    public function getApplication()
+    public function getApplication(): ConsoleApplication
     {
-        return parent::getApplication();
+        $application = parent::getApplication();
+
+        if (!($application instanceof ConsoleApplication)) {
+            throw new RuntimeException('Core commands must be registered to '.ConsoleApplication::class);
+        }
+
+        return $application;
     }
 
     /**
