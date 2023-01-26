@@ -13,16 +13,16 @@
       {{ Translator.trans('explanation.list.of.submitters') }}
     </p>
 
-    <a
-      class="u-mb"
-      :href="exportSubmitterList">
-      <i
-        class="fa fa-download"
-        aria-hidden="true" />
-      {{ Translator.trans('export') }}
-    </a>
+    <div class="flex flex-content-between u-pv-0_5">
+      <a
+        class="u-pt-0_25"
+        :href="exportSubmitterList">
+        <i
+          class="fa fa-download"
+          aria-hidden="true" />
+        {{ Translator.trans('export') }}
+      </a>
 
-    <div class="u-mb text--right">
       <dp-column-selector
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
