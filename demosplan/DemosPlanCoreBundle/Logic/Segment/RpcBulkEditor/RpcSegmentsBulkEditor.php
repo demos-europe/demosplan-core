@@ -68,67 +68,19 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    /**
-     * @var CurrentProcedureService
-     */
-    protected $currentProcedure;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    protected $currentUser;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    protected $jsonValidator;
-
-    /**
-     * @var RpcErrorGenerator
-     */
-    protected $errorGenerator;
-
+    protected CurrentProcedureService $currentProcedure;
+    protected CurrentUserInterface $currentUser;
+    protected JsonSchemaValidator $jsonValidator;
+    protected LoggerInterface $logger;
     protected PlaceService $placeService;
-
-    /**
-     * @var ProcedureService
-     */
-    protected $procedureService;
-
-    /**
-     * @var SegmentHandler
-     */
-    protected $segmentHandler;
-
-    /**
-     * @var SegmentValidator
-     */
-    protected $segmentValidator;
-
-    /**
-     * @var TagService
-     */
-    protected $tagService;
-
-    /**
-     * @var TagValidator
-     */
-    protected $tagValidator;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
+    protected ProcedureService $procedureService;
+    protected RpcErrorGenerator $errorGenerator;
+    protected SegmentHandler $segmentHandler;
+    protected SegmentValidator $segmentValidator;
+    protected TagService $tagService;
+    protected TagValidator $tagValidator;
+    protected UserHandler $userHandler;
+    private TransactionService $transactionService;
 
     public function __construct(
         CurrentProcedureService $currentProcedure,
