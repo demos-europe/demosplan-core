@@ -466,7 +466,9 @@ export default {
         'assignee',
         'attachments',
         'attachments.file',
-        'files'
+        'files',
+        'sourceAttachment',
+        'sourceAttachment.file'
       ]
 
       /*
@@ -559,6 +561,7 @@ export default {
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
+              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
@@ -591,6 +594,7 @@ export default {
             ].join(),
             StatementAttachment: [
               'file',
+              'filename',
               'type'
             ].join()
           },
