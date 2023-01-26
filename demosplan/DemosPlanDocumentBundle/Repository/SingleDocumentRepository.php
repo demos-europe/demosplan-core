@@ -81,10 +81,6 @@ class SingleDocumentRepository extends CoreRepository implements ArrayInterface
     /**
      * Kopiert alle SingleDocument (Planunterlagen) von einem Verfahren in ein anderes.
      *
-     * @param string $srcProcedureId
-     * @param string $destProcedureId
-     * @param array  $elementIdMapping
-     *
      * @throws Exception
      */
     public function copy(string $srcProcedureId, string $destProcedureId, array $elementIdMapping = []): void
@@ -98,7 +94,7 @@ class SingleDocumentRepository extends CoreRepository implements ArrayInterface
             }
 
             foreach ($documentsToCopy as $singleDocument) {
-                //there are no singleDocuments without elements:
+                // there are no singleDocuments without elements:
                 if (isset($elementIdMapping[$singleDocument->getElementId()])) {
                     $dstSingleDocument = clone $singleDocument;
                     $dstSingleDocument->setProcedure($destProcedure);

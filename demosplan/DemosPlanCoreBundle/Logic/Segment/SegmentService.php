@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -90,7 +91,7 @@ class SegmentService extends CoreService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function prepareAndSaveWithContentChange(array $segments, \DateTime $updateTime): void
+    public function prepareAndSaveWithContentChange(array $segments, DateTime $updateTime): void
     {
         if ([] === $segments) {
             return;
@@ -138,7 +139,7 @@ class SegmentService extends CoreService
      *
      * @see SegmentRepository::editSegmentRecommendations
      */
-    public function editSegmentRecommendations(array $segments, string $procedureId, string $recommendationText, bool $attach, User $user, string $entityType, \DateTime $updateTime): void
+    public function editSegmentRecommendations(array $segments, string $procedureId, string $recommendationText, bool $attach, User $user, string $entityType, DateTime $updateTime): void
     {
         // create and persist the content changes
         $contentChanges = $this->createRecommendationEditContentChangeEntries($entityType, $segments, $recommendationText, $attach, $user, $updateTime);
@@ -158,7 +159,7 @@ class SegmentService extends CoreService
      *
      * @return array<int, EntityContentChange>
      */
-    protected function createContentChanges(array $segments, \DateTime $updateTime): array
+    protected function createContentChanges(array $segments, DateTime $updateTime): array
     {
         $segmentChanges = $this->getSegmentChanges($segments);
 
@@ -257,7 +258,7 @@ class SegmentService extends CoreService
         bool $attach,
         string $entityType,
         User $changer,
-        \DateTime $creationDate
+        DateTime $creationDate
     ): EntityContentChange {
         $preUpdateValue = $segment->getRecommendation();
         $postUpdateValue = $attach
@@ -292,7 +293,7 @@ class SegmentService extends CoreService
      *
      * @return array<int, EntityContentChange>
      */
-    private function createRecommendationEditContentChangeEntries(string $entityType, array $segments, string $recommendationText, bool $attach, User $user, \DateTime $creationTime): array
+    private function createRecommendationEditContentChangeEntries(string $entityType, array $segments, string $recommendationText, bool $attach, User $user, DateTime $creationTime): array
     {
         return array_map(
             function (Segment $segment) use ($recommendationText, $attach, $entityType, $user, $creationTime): EntityContentChange {

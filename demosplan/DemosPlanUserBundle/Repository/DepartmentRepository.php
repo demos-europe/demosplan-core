@@ -184,19 +184,19 @@ class DepartmentRepository extends CoreRepository implements ArrayInterface
             $entity->setName($data['name']);
         }
 
-        //## Boolean
+        // ## Boolean
         if (array_key_exists('deleted', $data)) {
             $entity->setDeleted(true);
         } else {
             $entity->setDeleted(false);
         }
 
-        //## Address
+        // ## Address
         if (array_key_exists('address', $data)) {
             $entity->addAddress($data['address']);
         }
 
-        //## Organisation
+        // ## Organisation
         if (array_key_exists('organisation', $data) && $data['organisation'] instanceof Orga) {
             $entity->addOrga($data['organisation']);
         }

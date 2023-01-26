@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 
 class ProcedureListService extends CoreService
 {
@@ -85,7 +85,7 @@ class ProcedureListService extends CoreService
 
     public function generateProcedureBaseTemplateVars(array $templateVars, string $title): array
     {
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $this->breadcrumb->getContextualHelp($title);
         $templateVars['freeDiskSpaceAsString'] = '';
         $templateVars['freeDiskSpaceInBytes'] = 0;

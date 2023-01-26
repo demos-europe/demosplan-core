@@ -11,10 +11,12 @@
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\TwigToolsExtension;
+use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
+use Twig_SimpleFunction;
 
 /**
  * Teste TwigToolsExtension.
@@ -44,11 +46,11 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         try {
             $result = $this->sut->getFunctions();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof \Twig_SimpleFunction);
+            static::assertTrue($result[0] instanceof Twig_SimpleFunction);
             $callable = $result[0]->getCallable();
             static::assertTrue('getFormOption' === $callable[1]);
             static::assertTrue('getFormOption' === $result[0]->getName());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail(false);
         }
     }
@@ -69,7 +71,7 @@ class TwigToolsExtensionTest extends FunctionalTestCase
             $this->sut->setStaticVariable($variableKey, $variableValue);
             $result = $this->sut->getStaticVariable($variableKey);
             static::assertEquals($variableValue, $result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail();
         }
     }

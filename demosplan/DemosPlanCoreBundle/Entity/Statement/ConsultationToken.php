@@ -82,7 +82,6 @@ class ConsultationToken
      * @var string
      *
      * @Assert\NotNull
-     *
      * @ORM\Column(type="string", length=1024, nullable=false)
      */
     private $note = '';
@@ -97,7 +96,6 @@ class ConsultationToken
      *
      * @Assert\NotBlank()
      * @Assert\Regex("/^\w{8}$/")
-     *
      * @ORM\Column(type="string", length=8, nullable=false)
      */
     private $token = '';
@@ -133,6 +131,7 @@ class ConsultationToken
      *                original statements can not be deleted this property will never become `null`
      *
      * @Assert\NotBlank
+     *
      * @IsOriginalStatementConstraint
      *
      * @ORM\OneToOne(targetEntity=Statement::class)
@@ -155,7 +154,6 @@ class ConsultationToken
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $creationDate;
@@ -164,7 +162,6 @@ class ConsultationToken
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;

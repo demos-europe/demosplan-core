@@ -63,7 +63,7 @@ class MapImageToPolygonCropper
     ): MapLayer {
         $feature = $features->first();
 
-        [$polygonLeft, $polygonBottom, $polygonRight, $polygonTop,] = $this
+        [$polygonLeft, $polygonBottom, $polygonRight, $polygonTop] = $this
             ->getPolygonExtentCoordinates($feature);
 
         $cpp = $layerImage->getCpp();
@@ -135,7 +135,7 @@ class MapImageToPolygonCropper
                 }
             } else {
                 // If when cropping height < min-height we update the crop size to what min-height allows and don't need to treat the top border
-                //$cropCoordinatesBottom = $mapCoordinateHeight - $coordMinHeight;
+                // $cropCoordinatesBottom = $mapCoordinateHeight - $coordMinHeight;
                 $mapCoordinateHeight = $coordMinHeight;
             }
         }

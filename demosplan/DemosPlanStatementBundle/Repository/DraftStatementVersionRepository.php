@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Exception;
+use InvalidArgumentException;
 
 class DraftStatementVersionRepository extends CoreRepository implements ArrayInterface
 {
@@ -98,7 +100,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getOwnReleasedList($procedureId, User $user, $element, $search)
     {
@@ -146,7 +148,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
                 ->getQuery();
 
             return $queryDS->getResult();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get List getOwnReleasedList failed Message: ', [$e]);
             throw $e;
         }
@@ -157,14 +159,14 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             $em = $this->getEntityManager();
             if (!array_key_exists('pId', $data)) {
-                throw new \InvalidArgumentException('Trying to add a Draft statement without ProcedureKey pId');
+                throw new InvalidArgumentException('Trying to add a Draft statement without ProcedureKey pId');
             }
 
             $draftStatementVersion = $this->generateObjectValues(new DraftStatementVersion(), $data);
@@ -173,7 +175,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             $em->flush();
 
             return $draftStatementVersion;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create DraftStatementVersion failed Message: ', [$e]);
             throw $e;
         }
@@ -182,13 +184,13 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
     /**
      * Copy DraftStatementVersion from DraftStatement.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function createVersion(DraftStatement $draftStatement): DraftStatementVersion
     {
         try {
             if (!$draftStatement instanceof DraftStatement) {
-                throw new \Exception('DraftStatement to copyfrom has to be of Type DraftStatement');
+                throw new Exception('DraftStatement to copyfrom has to be of Type DraftStatement');
             }
             $em = $this->getEntityManager();
 
@@ -198,7 +200,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             $em->flush();
 
             return $draftStatementVersion;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create DraftStatementVersion failed Message: ', [$e]);
             throw $e;
         }
@@ -211,7 +213,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -226,7 +228,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
             $em->flush();
 
             return $draftStatementVersion;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update DraftStatementsVersion failed. Message: ', [$e]);
             throw $e;
         }

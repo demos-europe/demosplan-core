@@ -15,6 +15,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Exception;
+use InvalidArgumentException;
 
 class StatementAttributeRepository extends CoreRepository implements ArrayInterface
 {
@@ -32,10 +34,10 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
         try {
             $em = $this->getEntityManager();
             if (!(array_key_exists('stId', $data) ^ array_key_exists('dsId', $data) ^ array_key_exists('statement', $data) ^ array_key_exists('draftStatement', $data))) {
-                throw new \InvalidArgumentException('Trying to add a StatementAttribute without Statement- or DraftStatementId');
+                throw new InvalidArgumentException('Trying to add a StatementAttribute without Statement- or DraftStatementId');
             }
-            if (!(array_key_exists('type', $data))) {
-                throw new \InvalidArgumentException('Trying to add a StatementAttribute without type');
+            if (!array_key_exists('type', $data)) {
+                throw new InvalidArgumentException('Trying to add a StatementAttribute without type');
             }
 
             $statementAttribute = new StatementAttribute();
@@ -46,7 +48,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $em->flush();
 
             return $statementAttribute;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create StatementAttribute failed Message: ', [$e]);
             throw $e;
         }
@@ -64,7 +66,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $em->flush();
 
             return $statementAttribute;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Update StatementAttribute failed. Message: ', [$e]);
             throw $e;
@@ -82,7 +84,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $em->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete StatementAttribute failed ', [$e]);
 
             return false;
@@ -135,7 +137,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * @param string                   $type
      * @param string                   $value
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function addStatementAttribute($entity, $type, $value)
     {
@@ -162,7 +164,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $em->persist($sa);
             $em->persist($entity);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to add a StatementAttribute: ', [$e]);
             throw $e;
         }
@@ -179,7 +181,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * If value is not set, the method will delete each entry with the
      * given type
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function removeStatementAttribute($entity, $type, $value = null)
     {
@@ -194,7 +196,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
                 $em->persist($entity);
             }
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to add a StatementAttribute: ', [$e]);
             throw $e;
         }
@@ -205,7 +207,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @param DraftStatement $draftStatement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function removePriorityAreaAttributes($draftStatement)
     {
@@ -213,7 +215,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $this->removeStatementAttribute($draftStatement, 'priorityAreaKey');
             $this->removeStatementAttribute($draftStatement, 'priorityAreaType');
             $this->unsetNoLocation($draftStatement);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to remove priorityAreaAttributes: ', [$e]);
             throw $e;
         }
@@ -226,7 +228,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * @param DraftStatement $draftStatement
      * @param Statement      $statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copyStatementAttributes($draftStatement, $statement)
     {
@@ -240,7 +242,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $em = $this->getEntityManager();
             $em->persist($statement);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to copy StatementAttributes: ', [$e]);
             throw $e;
         }
@@ -250,7 +252,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * @param Statement|DraftStatement $entity
      * @param string                   $countyname
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addCounty($entity, $countyname)
     {
@@ -258,7 +260,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $this->removeCounty($entity);
             $this->addStatementAttribute($entity, 'county', $countyname);
             $this->unsetNoLocation($entity);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to set County : ', [$e]);
             throw $e;
         }
@@ -269,13 +271,13 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @param Statement|DraftStatement $entity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function removeCounty($entity)
     {
         try {
             $this->removeStatementAttribute($entity, 'county');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to remove county: ', [$e]);
             throw $e;
         }
@@ -286,7 +288,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @param Statement|DraftStatement $entity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setNoLocation($entity)
     {
@@ -294,7 +296,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
             $this->removeStatementAttribute($entity, 'county');
             $this->removeStatementAttribute($entity, 'community');
             $this->addStatementAttribute($entity, 'noLocation', '1');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to mark statement nonlocated: ', [$e]);
             throw $e;
         }
@@ -305,13 +307,13 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @param Statement|DraftStatement $entity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function unsetNoLocation($entity)
     {
         try {
             $this->removeStatementAttribute($entity, 'noLocation', '1');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to unmark statement nonlocated: ', [$e]);
             throw $e;
         }
@@ -321,13 +323,13 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * @param Statement $entity
      * @param string    $statementId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addFetchGeodataPending($entity, $statementId)
     {
         try {
             $this->addStatementAttribute($entity, 'fetchGeodataPending', $statementId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to set fetchGeodataPending : ', [$e]);
             throw $e;
         }
@@ -337,13 +339,13 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      * @param Statement $entity
      * @param string    $statementId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function removeFetchGeodataPending($entity, $statementId)
     {
         try {
             $this->removeStatementAttribute($entity, 'fetchGeodataPending', $statementId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to remove fetchGeodataPending : ', [$e]);
             throw $e;
         }
@@ -354,13 +356,13 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      *
      * @param Statement|DraftStatement $entity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function assertIsSupportedType($entity)
     {
         if (!(is_a($entity, \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement::class)
             ^ is_a($entity, \demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement::class))) {
-            throw new \Exception('Argument $entity must be Statement or DraftStatement');
+            throw new Exception('Argument $entity must be Statement or DraftStatement');
         }
     }
 }

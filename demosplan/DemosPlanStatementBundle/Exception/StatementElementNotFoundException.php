@@ -22,9 +22,6 @@ class StatementElementNotFoundException extends ResourceNotFoundException
         return new self('No matching element could be found.');
     }
 
-    /**
-     * @return StatementElementNotFoundException
-     */
     public static function createFromId(string $id): self
     {
         return new self("StatementElement with ID {$id} was not found.");

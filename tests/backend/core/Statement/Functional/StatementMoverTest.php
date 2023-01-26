@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanStatementBundle\Logic\StatementMover;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Tests\Base\FunctionalTestCase;
 
 class StatementMoverTest extends FunctionalTestCase
@@ -43,8 +43,6 @@ class StatementMoverTest extends FunctionalTestCase
 
     /**
      * @dataProvider getStatementsToMove
-     *
-     * @param $providerData
      */
     public function testRevertMoveStatement($providerData): void
     {
@@ -55,9 +53,9 @@ class StatementMoverTest extends FunctionalTestCase
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference($providerData['nameOfTargetProcedure']);
 
-        //check setup:
+        // check setup:
         static::assertNotEquals($statementToMove->getProcedureId(), $targetProcedure->getId());
-        //is possible, because will be deleted?!:
+        // is possible, because will be deleted?!:
         static::assertEmpty($statementToMove->getElement(), 'Cant move Statement with element(s).');
         static::assertEmpty($statementToMove->getDocument(), 'Cant move Statement with document(s).');
         static::assertEmpty($statementToMove->getParagraph(), 'Cant move Statement with paragraph(s).');
@@ -83,7 +81,7 @@ class StatementMoverTest extends FunctionalTestCase
             static::assertEmpty($statementToMove->getChildren());
         }
 
-        //execute move:
+        // execute move:
         $movedStatement = $this->sut->moveStatementToProcedure($statementToMove, $targetProcedure);
         static::assertInstanceOf(Statement::class, $movedStatement);
     }
@@ -100,7 +98,7 @@ class StatementMoverTest extends FunctionalTestCase
         $parentOfStatementToMove = $statementToMove->getParent();
         $originalOfStatementToMove = $statementToMove->getOriginal();
 
-        //checkSetUp
+        // checkSetUp
         static::assertNotEquals($targetProcedure->getId(), $statementToMove->getProcedureId(), 'invalid setup');
         static::assertFalse($statementToMove->wasMoved(), 'invalid setup');
         static::assertFalse($statementToMove->isClusterStatement(), 'invalid setup');
@@ -118,8 +116,8 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertTrue($movedStatement->getPlaceholderStatement()->isPlaceholder());
         static::assertFalse($movedStatement->getPlaceholderStatement()->getOriginal()->isPlaceholder());
 
-        //statement to move is same entity as moved statement,means: technically and actually moved
-        //Placeholder is a new created entity (copy) of the statementToMove
+        // statement to move is same entity as moved statement,means: technically and actually moved
+        // Placeholder is a new created entity (copy) of the statementToMove
         $placeholder = $movedStatement->getPlaceholderStatement();
         static::assertEquals($movedStatement->getId(), $statementToMove->getId());
         static::assertNotEquals($placeholder->getId(), $statementToMove->getId());
@@ -147,7 +145,7 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertEquals($sourceProcedure->getId(), $placeholder->getOriginal()->getProcedureId());
         static::assertEquals($sourceProcedure->getId(), $placeholder->getProcedureId());
 
-        //todo: check for children of original all in same procedure and assert count usw.
+        // todo: check for children of original all in same procedure and assert count usw.
         static::assertEquals($placeholder->getParentId(), $parentOfStatementToMove->getId());
         static::assertEquals($placeholder->getOriginalId(), $originalOfStatementToMove->getId());
         static::assertEquals($placeholder->getParentId(), $placeholder->getOriginalId());
@@ -164,8 +162,6 @@ class StatementMoverTest extends FunctionalTestCase
 
     /**
      * @dataProvider getStatementsToRemoveRelations
-     *
-     * @param $providerData
      */
     public function testRemoveRelationsOnMoveStatement($providerData): void
     {
@@ -176,7 +172,7 @@ class StatementMoverTest extends FunctionalTestCase
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference($providerData['nameOfTargetProcedure']);
 
-        //check setup:
+        // check setup:
         static::assertNotEquals($statementToMove->getProcedureId(), $targetProcedure->getId());
         static::assertFalse($statementToMove->isOriginal());
         static::assertTrue($statementToMove->getOriginal()->isOriginal());
@@ -202,7 +198,7 @@ class StatementMoverTest extends FunctionalTestCase
 
         $movedStatement = $this->sut->moveStatementToProcedure($statementToMove, $targetProcedure);
         static::assertInstanceOf(Statement::class, $movedStatement);
-        //if statementTo move has an element, movedStatement should have an element to:
+        // if statementTo move has an element, movedStatement should have an element to:
         if ('element' === $providerData['testCase']) {
             static::assertInstanceOf(Elements::class, $movedStatement->getElement());
             static::assertInstanceOf(Elements::class, $movedStatement->getOriginal()->getElement());
@@ -346,14 +342,12 @@ class StatementMoverTest extends FunctionalTestCase
 
     /**
      * @dataProvider getStatementsToMove
-     *
-     * @param $providerData
      */
     public function testMoveStatementCopyToProcedure($providerData): void
     {
         self::markSkippedForCIElasticsearchUnavailable();
 
-        //user not found exception
+        // user not found exception
 
         /** @var Statement $statementToMove */
         $statementToMove = $this->fixtures->getReference($providerData['nameOfStatementToMove']);
@@ -375,7 +369,7 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertEquals($statementToMove->getParentId(), $statementToMove->getOriginalId());
         static::assertInstanceOf(Statement::class, $statementToMove->getParent());
 
-        //check setup:
+        // check setup:
         if ('standard' === $providerData['testCase']) {
             static::assertEmpty($statementToMove->getChildren());
         }
@@ -417,17 +411,17 @@ class StatementMoverTest extends FunctionalTestCase
             ['externId' => $statementToMove->getExternId()]
         );
 
-        //return created placeHolder to remains in originProcedure
+        // return created placeHolder to remains in originProcedure
         $movedStatement = $this->sut->moveStatementToProcedure($statementToMove, $targetProcedure);
         $movedStatement = $this->statementService->getStatement($movedStatement->getId());
         $placeHolderStatement = $movedStatement->getPlaceholderStatement();
-        //check placeHolderStatement:
+        // check placeHolderStatement:
         static::assertInstanceOf(Statement::class, $placeHolderStatement);
         static::assertInstanceOf(Statement::class, $statementToMove->getOriginal());
         static::assertEquals($oldExternId, $placeHolderStatement->getExternId());
         static::assertEquals($targetProcedure->getId(), $placeHolderStatement->getMovedToProcedure()->getId());
 
-        //T13668
+        // T13668
         static::assertNotEquals(
             $statementToMove->getOriginalId(),
             $placeHolderStatement->getOriginalId(),
@@ -443,7 +437,7 @@ class StatementMoverTest extends FunctionalTestCase
         );
 
         static::assertNull($placeHolderStatement->getPlaceholderStatement());
-        //placeHolderStatement do not need any Fragmenst, Tags, ...:
+        // placeHolderStatement do not need any Fragmenst, Tags, ...:
         static::assertEmpty($placeHolderStatement->getVotes());
         static::assertEmpty($placeHolderStatement->getCounties());
         static::assertEmpty($placeHolderStatement->getMunicipalities());
@@ -451,24 +445,24 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertEmpty($placeHolderStatement->getFragments());
         static::assertEmpty($placeHolderStatement->getFiles());
         static::assertEmpty($placeHolderStatement->getTags());
-        //originalSTN will be stay in sourceProcedure, therefore the placeholder will get this as parent:
+        // originalSTN will be stay in sourceProcedure, therefore the placeholder will get this as parent:
         static::assertEquals($parentIdOfStatementBeforeMove, $placeHolderStatement->getParentId());
         static::assertEquals($amountOfChildrenOfStatementToMove, $placeHolderStatement->getChildren()->count());
 
-        //check movedStatement:
-        //related Entities, still there?
+        // check movedStatement:
+        // related Entities, still there?
         static::assertCount($fragmentsOfStatementToMove->count(), $statementToMove->getFragments());
         static::assertCount($amountOfCountiesOfStatementToMove, $statementToMove->getCounties());
         static::assertCount($amountOfMunicipalitiesOfStatementToMove, $statementToMove->getMunicipalities());
         static::assertCount($amountOfPriorityAreasOfStatementToMove, $statementToMove->getPriorityAreas());
         static::assertCount($amountOfVotesOfStatementToMove, $statementToMove->getVotes());
 
-        //on move statement to procedure, parent of statement will be set to new originalSTN
-        //$statementToMove will become a normal statement instead of a copystatement
-        //placeHolderStatement will be the copy
-        //in every case the moved statement will not have a parent
+        // on move statement to procedure, parent of statement will be set to new originalSTN
+        // $statementToMove will become a normal statement instead of a copystatement
+        // placeHolderStatement will be the copy
+        // in every case the moved statement will not have a parent
         static::assertEquals($statementToMove->getOriginal(), $statementToMove->getParent());
-        //in every case the moved statement will not have children
+        // in every case the moved statement will not have children
         static::assertEmpty($statementToMove->getChildren());
 
         static::assertEquals($statementToMove->getProcedureId(), $targetProcedure->getId());
@@ -478,10 +472,10 @@ class StatementMoverTest extends FunctionalTestCase
             $statementToMove->getPlaceholderStatement()->getProcedureId()
         );
 
-        //T13668 new original STN is in target Procedure:
+        // T13668 new original STN is in target Procedure:
         static::assertEquals($statementToMove->getOriginal()->getProcedureId(), $targetProcedure->getId());
 
-        //T13668 original STN is in target Procedure:
+        // T13668 original STN is in target Procedure:
         static::assertEquals($placeHolderStatement->getOriginal()->getProcedureId(), $sourceProcedure->getId());
         static::assertNotEquals($oldExternId, $statementToMove->getExternId());
 
@@ -492,10 +486,10 @@ class StatementMoverTest extends FunctionalTestCase
             static::assertEquals($newProcedureId, $fragment->getProcedureId());
         }
 
-        //on move Statement to procedure, all tags will be removed, because tags are bound by procedure
+        // on move Statement to procedure, all tags will be removed, because tags are bound by procedure
         static::assertEmpty($statementToMove->getTags());
 
-        //check amount of global Statements
+        // check amount of global Statements
         $numberOfStatements = $this->countEntries(
             Statement::class,
             ['externId' => $placeHolderStatement->getExternId()]

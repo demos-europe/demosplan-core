@@ -17,13 +17,11 @@ class ClusterStatementCopyNotImplementedException extends NotYetImplementedExcep
     /** @var string */
     protected $externId;
 
-    /** @param string $externId */
     public function setExternId(string $externId)
     {
         $this->externId = $externId;
     }
 
-    /** @return string */
     public function getExternId(): string
     {
         return $this->externId;

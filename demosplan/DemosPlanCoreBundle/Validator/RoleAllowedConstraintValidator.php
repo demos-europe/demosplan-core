@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\ConstraintValidator;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
 /**
  * @see RoleAllowedConstraint for usage as annotation

@@ -47,6 +47,6 @@ class AddonBuildFrontendCommand extends CoreCommand
             ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonInfo->getInstallPath())
             ->run();
 
-        return $consoleReturn === 0 ? self::SUCCESS : self::FAILURE;
+        return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;
     }
 }

@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class StatementAlreadyConnectedToGdprConsentRevokeTokenException extends \Exception
+use Exception;
+
+class StatementAlreadyConnectedToGdprConsentRevokeTokenException extends Exception
 {
     public static function createFromStatementId(string $statementId): StatementAlreadyConnectedToGdprConsentRevokeTokenException
     {

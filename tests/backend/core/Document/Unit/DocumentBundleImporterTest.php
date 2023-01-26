@@ -12,17 +12,18 @@ namespace Tests\Core\Document\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Routing\RouterInterface;
-use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Routing\RouterInterface;
+use Tests\Base\FunctionalTestCase;
 
 /**
  * Class DocumentBundleImporterTest.
@@ -240,7 +241,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         } catch (ServiceImporterException $e) {
             static::assertCount(3, $e->getErrorParagraphs());
             static::assertEquals('2. Überschrift 1', $e->getErrorParagraphs()[1]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail();
         }
 
@@ -310,7 +311,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
 
         try {
             $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail();
         }
 

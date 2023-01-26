@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Entity;
 
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
+use RuntimeException;
 use Tests\Base\UnitTestCase;
 
 class PermissionTest extends UnitTestCase
@@ -47,7 +48,7 @@ class PermissionTest extends UnitTestCase
      */
     public function testCannotChangeImmutableValues()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         $this->sut['label'] = 'New Label';
     }

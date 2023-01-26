@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\CoreApplication\Permissions;
 
-
 use demosplan\DemosPlanCoreBundle\Permissions\ProjectPermissions;
 
 class Permissions extends ProjectPermissions

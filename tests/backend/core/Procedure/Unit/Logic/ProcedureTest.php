@@ -11,9 +11,9 @@
 namespace Tests\Core\Procedure\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Exception;

@@ -88,7 +88,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         $roles = $this->helpers->askRoles($input, $output);
 
         try {
-            //add user to customer
+            // add user to customer
             $userToRegister->setDplanroles($roles, $customer);
             $this->userRepository->updateObject($userToRegister);
 

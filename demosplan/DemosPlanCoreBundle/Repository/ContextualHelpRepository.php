@@ -177,14 +177,14 @@ class ContextualHelpRepository extends CoreRepository implements ArrayInterface,
         $help = $query->getSingleResult();
 
         if (isset($data['text']) && !is_null($data['text'])) {
-            //is there a difference between old and new entry
+            // is there a difference between old and new entry
             if ($help->getText() != $data['text']) {
-                //if yes, update entry
+                // if yes, update entry
                 $help->setText($data['text']);
                 $this->getEntityManager()->persist($help);
                 $this->getEntityManager()->flush();
             }
-            //if no just return
+            // if no just return
             return true;
         }
 

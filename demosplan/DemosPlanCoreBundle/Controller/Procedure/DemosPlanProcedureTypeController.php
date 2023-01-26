@@ -65,7 +65,7 @@ class DemosPlanProcedureTypeController extends BaseController
                 'templateVars' => [
                     'procedureTypes' => $procedureTypeResources,
                 ],
-                'title' => 'procedure.types',
+                'title'        => 'procedure.types',
             ]
         );
     }
@@ -76,7 +76,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     path="verfahrenstypen/auswahl",
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -117,8 +116,8 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes' => $procedureTypeResources,
                     'isCreate'       => true,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.create',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.create',
             ]
         );
     }
@@ -133,7 +132,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws ResourceNotFoundException
@@ -185,8 +183,8 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes'  => $procedureTypeResources,
                     'isCreate'        => true,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.create',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.create',
             ]
         );
     }
@@ -198,7 +196,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -246,8 +243,8 @@ class DemosPlanProcedureTypeController extends BaseController
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.edit',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.edit',
             ]
         );
     }
@@ -389,7 +386,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"POST"},
      *     options={"expose": false}
      * )
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response

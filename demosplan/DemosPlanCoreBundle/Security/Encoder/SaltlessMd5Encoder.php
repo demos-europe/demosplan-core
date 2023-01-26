@@ -21,7 +21,7 @@ class SaltlessMd5Encoder extends BaseEncoder
 
     public function needsRehash(string $hashedPassword): bool
     {
-        //nothing needs to be rehashed into md5
+        // nothing needs to be rehashed into md5
         return false;
     }
 }

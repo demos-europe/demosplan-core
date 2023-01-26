@@ -15,7 +15,6 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 final class AddonInfo
 {
     /**
-     * @param string $name
      * @param array<string,mixed> $config
      */
     public function __construct(private string $name, private array $config, private PermissionInitializerInterface $permissionInitializer)

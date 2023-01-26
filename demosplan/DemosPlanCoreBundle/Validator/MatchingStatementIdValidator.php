@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -10,14 +12,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
-
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class MatchingStatementIdValidator extends ConstraintValidator
 {
-
     public function validate($value, Constraint $constraint): void
     {
         $this->validateTyped($value, $constraint);

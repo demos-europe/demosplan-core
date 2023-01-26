@@ -81,7 +81,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
                                 $this->addVote($data['userId'], $data['orgaId'], $vote);
                                 array_push($responseVoteList, $vote);
                             } else {
-                                //sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
+                                // sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
                                 array_push($responseVoteList, $this->addNumberOfVotes($vote, $votes[0]));
                             }
                             $this->recalculateAndUpdateVotesOfStory($vote['userStoryId']);

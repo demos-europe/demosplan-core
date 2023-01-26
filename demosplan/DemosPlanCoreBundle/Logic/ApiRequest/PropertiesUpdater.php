@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use function array_key_exists;
+
 use EDT\Querying\Contracts\PropertyPathInterface;
 
 class PropertiesUpdater

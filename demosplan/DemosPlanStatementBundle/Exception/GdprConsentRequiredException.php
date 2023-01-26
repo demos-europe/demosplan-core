@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class GdprConsentRequiredException extends \Exception
+use Exception;
+
+class GdprConsentRequiredException extends Exception
 {
 }
