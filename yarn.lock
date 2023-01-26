@@ -5625,10 +5625,10 @@ jsdom@^16.6.0:
     ws "^7.4.6"
     xml-name-validator "^3.0.0"
 
-jsdom@^21.0.0:
-  version "21.0.0"
-  resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-21.0.0.tgz#33e22f2fc44286e50ac853c7b7656c8864a4ea45"
-  integrity sha512-AIw+3ZakSUtDYvhwPwWHiZsUi3zHugpMEKlNPaurviseYoBqo0zBd3zqoUi3LPCNtPFlEP8FiW9MqCZdjb2IYA==
+jsdom@^21.1.0:
+  version "21.1.0"
+  resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-21.1.0.tgz#d56ba4a84ed478260d83bd53dc181775f2d8e6ef"
+  integrity sha512-m0lzlP7qOtthD918nenK3hdItSd2I+V3W9IrBcB36sqDwG+KnUs66IF5GY7laGWUnlM9vTsD0W1QwSEBYWWcJg==
   dependencies:
     abab "^2.0.6"
     acorn "^8.8.1"
@@ -7203,14 +7203,14 @@ prosemirror-keymap@^1.0.0, prosemirror-keymap@^1.1.2, prosemirror-keymap@^1.1.4:
     prosemirror-state "^1.0.0"
     w3c-keyname "^2.2.0"
 
-prosemirror-model@^1.0.0, prosemirror-model@^1.13.1, prosemirror-model@^1.16.0, prosemirror-model@^1.8.1:
+prosemirror-model@^1.0.0, prosemirror-model@^1.13.1, prosemirror-model@^1.16.0, prosemirror-model@^1.19.0, prosemirror-model@^1.8.1:
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.19.0.tgz#d7ad9a65ada0bb12196f64fe0dd4fc392c841c29"
   integrity sha512-/CvFGJnwc41EJSfDkQLly1cAJJJmBpZwwUJtwZPTjY2RqZJfM8HVbCreOY/jti8wTRbVyjagcylyGoeJH/g/3w==
   dependencies:
     orderedmap "^2.0.0"
 
-prosemirror-model@^1.18.1, prosemirror-model@^1.2.0:
+prosemirror-model@^1.18.1:
   version "1.18.3"
   resolved "https://registry.yarnpkg.com/prosemirror-model/-/prosemirror-model-1.18.3.tgz#d1026a78cff928fd600e90d87cf7d162e0a4e3fd"
   integrity sha512-yUVejauEY3F1r7PDy4UJKEGeIU+KFc71JQl5sNvG66CLVdKXRjhWpBW6KMeduGsmGOsw85f6EGrs6QxIKOVILA==
