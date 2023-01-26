@@ -48,12 +48,12 @@
         </template>
         <template v-slot:street="rowData">
           <div class="o-hellip--nowrap">
-            <span v-html="rowData.street" />
+            <span v-cleanhtml="rowData.street" />
           </div>
         </template>
         <template v-slot:postalCodeAndCity="rowData">
           <div class="o-hellip--nowrap">
-            <span v-html="rowData.postalCodeAndCity" />
+            <span v-cleanhtml="rowData.postalCodeAndCity" />
           </div>
         </template>
         <template v-slot:internId="{ internId }">
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
@@ -89,6 +89,8 @@ export default {
     DpDataTable,
     DpLoading
   },
+
+  directives: { cleanhtml: CleanHtml },
 
   props: {
     procedureId: {
