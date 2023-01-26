@@ -66,9 +66,12 @@ final class Registrator
             'addons' => $this->addons,
         ];
 
+        $content = '# This file is auto-generated and should not be edited manually unless you know what you\'re doing.';
+        $content .= Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH);
+
         file_put_contents(
-            DemosPlanPath::getRootPath('addons/addons.yaml'),
-            Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH)
+            DemosPlanPath::getRootPath(AddonManifestCollection::ADDONS_YAML),
+            $content
         );
     }
 

@@ -15,21 +15,16 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use ArrayAccess;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
-use Iterator;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
+ *
+ * @template-implements ArrayAccess<string, AddonInfo>
  */
-class AddonRegistry implements Iterator, ArrayAccess
+class AddonRegistry implements ArrayAccess
 {
     /** @var array<string, AddonInfo> */
     private array $addonInfos;
-    private int $iteratorIndex;
-
-    /**
-     * @var array<int, string>
-     */
-    private array $iteratorKeys;
 
     public function __construct()
     {
@@ -47,31 +42,11 @@ class AddonRegistry implements Iterator, ArrayAccess
         }
     }
 
-    public function current(): AddonInfo
+    public function getAddonInfos(): array
     {
-        return $this->addonInfos[$this->iteratorIndex];
+        return $this->addonInfos;
     }
 
-    public function next(): void
-    {
-        ++$this->iteratorIndex;
-    }
-
-    public function key(): mixed
-    {
-        return $this->iteratorKeys[$this->iteratorIndex];
-    }
-
-    public function valid(): bool
-    {
-        return array_key_exists($this->iteratorKeys[$this->iteratorIndex], $this->addonInfos);
-    }
-
-    public function rewind(): void
-    {
-        $this->iteratorIndex = 0;
-        $this->iteratorKeys = array_keys($this->addonInfos);
-    }
 
     public function offsetExists(mixed $offset): bool
     {

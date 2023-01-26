@@ -28,22 +28,24 @@ final class FrontendAssetProvider
      */
     public function getFrontendClassesForHook(string $hookName): array
     {
-        return array_map(function (array $item, string $key) use ($hookName) {
-            if (!array_key_exists('ui', $item['manifest'])) {
+        return array_map(function (AddonInfo $addonInfo) use ($hookName) {
+            if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
                 return [];
             }
-            $uiData = $item['manifest']['ui'];
 
-            if (!$item['enabled'] || !array_key_exists($hookName, $uiData['hooks'])) {
+            $uiData = $addonInfo->getUIHooks();
+
+            if (!array_key_exists($hookName, $uiData['hooks'])) {
                 return [];
             }
+
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = DemosPlanPath::getRootPath($item['install_path'].'/'.$uiData['manifest']);
+            $manifestPath = $addonInfo->getInstallPath().'/'.$uiData['manifest'];
 
             try {
                 $entryFile = $this->getAssetPathFromManifest($manifestPath, $hookData['entry']);
                 // Try to get the content of the actual asset
-                $entryFilePath = DemosPlanPath::getRootPath($item['install_path'].'/'.$entryFile);
+                $entryFilePath = $addonInfo->getInstallPath().'/dist/'.$entryFile;
                 $assetContent = file_get_contents($entryFilePath);
                 if (!$assetContent) {
                     return [];
@@ -52,8 +54,8 @@ final class FrontendAssetProvider
                 return [];
             }
 
-            return $this->createAddonFrontendAssetsEntry($key, $hookData, $assetContent);
-        }, $this->registry);
+            return $this->createAddonFrontendAssetsEntry($hookData, $assetContent);
+        }, $this->registry->getAddonInfos());
     }
 
     /**
@@ -61,14 +63,12 @@ final class FrontendAssetProvider
      *
      * @return array<string, array{entry:string, options:array, content:string}>
      */
-    private function createAddonFrontendAssetsEntry(string $key, array $hookData, string $assetContent): array
+    private function createAddonFrontendAssetsEntry(array $hookData, string $assetContent): array
     {
         return [
-            $key => [
-                'entry'   => $hookData['entry'],
-                'options' => $hookData['options'],
-                'content' => $assetContent,
-            ],
+            'entry'   => $hookData['entry'],
+            'options' => $hookData['options'],
+            'content' => $assetContent,
         ];
     }
 

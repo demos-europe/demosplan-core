@@ -1294,12 +1294,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "d3ae6a1a2f0beaa177defd413eb937d12cea06ae"
+                "reference": "999056e724bdc745c9009b99b9299efbbf7648e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/d3ae6a1a2f0beaa177defd413eb937d12cea06ae",
-                "reference": "d3ae6a1a2f0beaa177defd413eb937d12cea06ae",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/999056e724bdc745c9009b99b9299efbbf7648e0",
+                "reference": "999056e724bdc745c9009b99b9299efbbf7648e0",
                 "shasum": ""
             },
             "require": {
@@ -1311,11 +1311,11 @@
                 "php": "^7.4 || ^8.0",
                 "ramsey/uuid": "^4",
                 "sensio/framework-extra-bundle": "^6.1",
-                "symfony/dependency-injection": "^5.0",
+                "symfony/dependency-injection": "5.*.*",
                 "symfony/http-foundation": "5.*.*",
                 "symfony/security-bundle": "5.*.*",
-                "symfony/security-core": "^5.4",
-                "symfony/validator": "^5.0",
+                "symfony/security-core": "5.*.*",
+                "symfony/validator": "5.*.*",
                 "symfony/yaml": "5.*.*",
                 "tightenco/collect": "~8.83.0"
             },
@@ -1338,7 +1338,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
             },
-            "time": "2023-01-05T13:21:42+00:00"
+            "time": "2023-01-16T11:05:46+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

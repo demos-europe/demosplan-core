@@ -22,6 +22,11 @@ final class AddonInfo
     {
     }
 
+    public function isEnabled(): bool
+    {
+        return $this->config['enabled'];
+    }
+
     public function getInstallPath(): string
     {
         return $this->config['install_path'];
@@ -35,5 +40,15 @@ final class AddonInfo
     public function getPermissionInitializer(): PermissionInitializerInterface
     {
         return $this->permissionInitializer;
+    }
+
+    public function hasUIHooks(): bool
+    {
+        return array_key_exists('ui', $this->config['manifest']);
+    }
+
+    public function getUIHooks(): array
+    {
+        return $this->config['manifest']['ui'];
     }
 }

@@ -20,6 +20,7 @@ class LoadAddonInfoCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $addons = AddonManifestCollection::load();
+        $slugify = Slugify::create();
 
         $addonInfos = [];
 
@@ -37,8 +38,6 @@ class LoadAddonInfoCompilerPass implements CompilerPassInterface
             $addonInfoDefinition->setArgument('$name', $name);
             $addonInfoDefinition->setArgument('$config', $config);
             $addonInfoDefinition->setArgument('$permissionInitializer', $permissionInitializerDefinition);
-
-            $slugify = Slugify::create();
 
             $alias = '@demosplan_addon.'.$slugify->slugify($name);
             $container->setDefinition($alias, $addonInfoDefinition);

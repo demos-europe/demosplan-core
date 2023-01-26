@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
 
 final class AddonManifestCollection
 {
-    private const ADDONS_YAML = 'addons/addons.yaml';
+    public const ADDONS_YAML = 'addons/addons.yaml';
 
     public static function load(): array
     {
