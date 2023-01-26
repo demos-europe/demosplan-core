@@ -78,8 +78,8 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 
     public function validateRpcRequest(object $rpcRequest): void
     {
-        if (!property_exists($rpcRequest->params, 'hook')) {
-            throw new InvalidArgumentException('Missing parameter `hook`.');
+        if (!property_exists($rpcRequest->params, 'hookName')) {
+            throw new InvalidArgumentException('Missing parameter `hookName`.');
         }
     }
 
