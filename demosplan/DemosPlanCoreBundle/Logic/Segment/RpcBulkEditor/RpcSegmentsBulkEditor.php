@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -28,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
@@ -91,6 +93,8 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     protected $errorGenerator;
 
+    protected PlaceService $placeService;
+
     /**
      * @var ProcedureService
      */
@@ -131,6 +135,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         CurrentUserInterface $currentUser,
         LoggerInterface $logger,
         JsonSchemaValidator $jsonValidator,
+        PlaceService $placeService,
         ProcedureService $procedureService,
         RpcErrorGenerator $errorGenerator,
         SegmentHandler $segmentHandler,
@@ -145,6 +150,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         $this->logger = $logger;
         $this->jsonValidator = $jsonValidator;
         $this->errorGenerator = $errorGenerator;
+        $this->placeService = $placeService;
         $this->procedureService = $procedureService;
         $this->segmentHandler = $segmentHandler;
         $this->segmentValidator = $segmentValidator;
@@ -191,13 +197,14 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
                     $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
-                    // update entities with new tags and assignee
+                    // update entities with new tags, workfolwPlace and assignee
                     $addTagIds = $this->getValidTags($rpcRequest->params->addTagIds, $procedureId);
                     $removeTagIds = $this->getValidTags(
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
                     $assignee = $this->extractAssignee($rpcRequest);
+                    $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
                     foreach ($segments as $segment) {
                         /* @var Segment $segment */
@@ -205,6 +212,9 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $segment->removeTags($removeTagIds);
                         if (null !== $assignee) {
                             $segment->setAssignee($assignee);
+                        }
+                        if (null !== $workflowPlace) {
+                            $segment->setPlace($workflowPlace);
                         }
                     }
                     $resultSegments = array_merge($resultSegments, $segments);
@@ -343,6 +353,22 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         if (null !== $assignee && !$this->procedureService->isUserAuthorized($currentProcedureId, $assignee)) {
             throw new UserNotAssignableException();
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function extractWorkflowPlace(object $rpcRequest): ?Place
+    {
+        $workflowPlaceId = $this->extractWorkflowPlaceId($rpcRequest);
+        $workflowPlaceId = trim($workflowPlaceId);
+
+        return $workflowPlaceId !== '' ? $this->placeService->findWithCertainty($workflowPlaceId) : null;
+    }
+
+    private function extractWorkflowPlaceId(object $rpcRequest): string
+    {
+        return data_get($rpcRequest, 'params.placeId', '');
     }
 
     /**
