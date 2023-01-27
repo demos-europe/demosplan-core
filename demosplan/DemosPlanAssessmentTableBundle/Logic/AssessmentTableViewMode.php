@@ -77,7 +77,7 @@ final class AssessmentTableViewMode implements JsonSerializable
         return $this->viewMode;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'viewMode' => $this->viewMode,

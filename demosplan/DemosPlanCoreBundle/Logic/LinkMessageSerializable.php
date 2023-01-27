@@ -125,10 +125,7 @@ class LinkMessageSerializable extends MessageSerializable
         return $this;
     }
 
-    /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_merge(
             parent::jsonSerialize(),
