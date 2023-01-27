@@ -499,7 +499,7 @@ class ElasticSearchService extends CoreService
     /**
      * Convert Result to Legacy.
      *
-     * @param string $search
+     * @param string|null $search
      * @param array  $filters
      * @param array  $sort
      * @param string $resultKey

@@ -133,7 +133,7 @@ class ZipExportService
             $this->logger->warning('Could not add file to Zip',
                 [
                     'file'      => $filePath,
-                    'path'      => $zipPath ?? '',
+                    'path'      => $zipPath,
                     'exception' => $e->getMessage(),
                 ]);
         }
@@ -155,7 +155,6 @@ class ZipExportService
         string ...$fileStrings): void
     {
         foreach ($fileStrings as $fileString) {
-            $path = '';
             try {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($fileString);
 
@@ -174,7 +173,7 @@ class ZipExportService
                 $this->logger->warning('Could not add file to Zip',
                     [
                         'fileString' => $fileString ?? '',
-                        'path'       => $path ?? '',
+                        'path'       => '',
                     ]
                 );
             }
