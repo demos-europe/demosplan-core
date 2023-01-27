@@ -943,6 +943,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->permissions['feature_statements_released_email']['enabled'] = true; // Eigene Stellungnahmen (Freigaben) E-Mail
     }
 
+    protected function setProcedurePermissionsetWrite(): void
+    {
+        // hook that may be overridden
+    }
+
     /**
      * Prüfe, ob ein bestimmtes Permissionset für die Rolle in dem Verfahren gilt.
      *
