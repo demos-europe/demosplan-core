@@ -18,9 +18,6 @@ final class AddonBundleGenerator
     /**
      * Enable addons for all environments they can be enabled in
      * if they should be enabled at all.
-     *
-     * @param string $environment
-     * @return iterable
      */
     public function registerBundles(string $environment): iterable
     {

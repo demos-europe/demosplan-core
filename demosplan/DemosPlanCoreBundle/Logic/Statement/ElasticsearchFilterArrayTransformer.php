@@ -42,7 +42,6 @@ class ElasticsearchFilterArrayTransformer
     {
         $filter = [];
         if ((!\is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
-
             return $filter;
         }
 

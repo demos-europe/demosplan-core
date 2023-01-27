@@ -25,8 +25,6 @@ class PostcodeConstraintValidator extends ConstraintValidator
 
     /**
      * Incoming value of postcode can be string as well as integer.
-     *
-     * @param $value
      */
     private function validateTyped($value, PostcodeConstraint $constraint): void
     {

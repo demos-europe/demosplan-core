@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-class ContentEmailMismatchException extends \Exception
+use Exception;
+
+class ContentEmailMismatchException extends Exception
 {
 }

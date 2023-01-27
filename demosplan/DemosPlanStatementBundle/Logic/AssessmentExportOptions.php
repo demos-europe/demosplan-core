@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,8 +21,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 
 /**
  * A configuration container for export options of statements, original statements and fragments.
@@ -48,7 +48,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @const array
      */
-    const SECTIONS = [
+    public const SECTIONS = [
         'original_statements',
         'assessment_table',
         'fragment_list',
@@ -59,7 +59,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @const array
      */
-    const FORMATS = [
+    public const FORMATS = [
         'docx',
         'pdf',
         'xlsx',

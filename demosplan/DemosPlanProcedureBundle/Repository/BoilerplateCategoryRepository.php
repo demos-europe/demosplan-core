@@ -74,7 +74,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     {
         try {
             return $this->findOneBy(['id' => $boilerplateCategoryId]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
@@ -90,7 +90,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     {
         try {
             return $this->findOneBy(['title' => $boilerplateCategoryTitle]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
@@ -102,7 +102,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      *
      * @return BoilerplateCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($boilerplateCategory)
     {
@@ -110,7 +110,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             $em = $this->getEntityManager();
             $em->persist($boilerplateCategory);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add BoilerplateCategory failed: ', [$e]);
         }
 
@@ -124,9 +124,9 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      * @param array $data         - holds the content of the boilerplate, which is about to post
      * @param bool  $returnEntity
      *
-     * @throws \Exception
-     *
      * @return boilerplateCategory|bool - true if the object could be mapped to the DB, otherwise false
+     *
+     * @throws Exception
      */
     public function add(array $data, $returnEntity = false)
     {
@@ -159,16 +159,16 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     /**
      * Loads a specific boilerplateentry from the DB and edit this text and/or title.
      *
-     * @throws \Exception
-     *
      * @param string $id   - Identify the boilerplate, which is to be updated
      * @param array  $data - Contains the keys and values, which are to be updated
      *
      * @return bool - true, if the boilerpalte was updated, otherwise false
+     *
+     * @throws Exception
      */
     public function update($id, array $data)
     {
-        //boilerplate exsisting?
+        // boilerplate exsisting?
         $toUpdate = $this->get($id);
 
         if (null != $toUpdate) {
@@ -211,7 +211,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete BoilerplateCategory failed: ', [$e]);
         }
 
@@ -225,7 +225,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -239,7 +239,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete Boilerplate Categories of a procedure failed ', [$e]);
             throw $e;
         }
@@ -260,7 +260,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
         try {
             $this->getEntityManager()->persist($entity);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update BoilerplateCategory failed: ', [$e]);
 
             return false;

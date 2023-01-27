@@ -90,7 +90,7 @@ class ContentService extends CoreService
         $result = $sorted['list'];
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
-            //shorten the list of entries to the given limit
+            // shorten the list of entries to the given limit
             $result = array_slice($result, 0, $limit);
         }
 
@@ -116,6 +116,7 @@ class ContentService extends CoreService
         // Legacy Arrays
         $result = array_map([$this, 'convertToLegacy'], $globalContentEntries);
         $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+
         return $sorted['list'];
     }
 
@@ -165,7 +166,7 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->add($data);
-            //convert to Legacy Array
+            // convert to Legacy Array
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Anlegen eines GlobalContents: ', [$e]);
@@ -230,14 +231,14 @@ class ContentService extends CoreService
         try {
             $settings = $this->settingRepository->getAllSettings();
 
-            //Expected return value
+            // Expected return value
             $result = [];
 
-            //if there are no entries, return empty array
+            // if there are no entries, return empty array
             if (0 === count($settings)) {
                 return $result;
             }
-            //transform each entry to the expected array format
+            // transform each entry to the expected array format
             foreach ($settings as $setting) {
                 $setting = $this->entityHelper->toArray($setting);
                 $setting['created'] = $this->dateHelper->convertDateToString($setting['created']);
@@ -266,7 +267,7 @@ class ContentService extends CoreService
         $settings = $this->settingRepository->getSettingsByProcedureId($procedureId);
         $settings = collect($settings);
 
-        //casting string value of Settings into boolean
+        // casting string value of Settings into boolean
         foreach ($settings as $setting) {
             if ('true' === $setting->getContent()) {
                 $settingsAsArray[$setting->getKey()] = true;
@@ -296,17 +297,17 @@ class ContentService extends CoreService
                 $settings = $this->settingRepository->getSettingsByKeyAndSetting($key, $filter->asArray());
             }
 
-            //Expected return value
+            // Expected return value
             $result = [];
 
-            //if there are no entries, return empty array
+            // if there are no entries, return empty array
             if (is_null($settings) || 0 === count($settings)) {
                 return $result;
             }
             if (false === $legacy) {
                 return $settings;
             }
-            //transform each entry to the expected array format
+            // transform each entry to the expected array format
             foreach ($settings as $setting) {
                 $setting = $this->entityHelper->toArray($setting);
                 $setting['created'] = $this->dateHelper->convertDateToString($setting['created']);
@@ -335,14 +336,14 @@ class ContentService extends CoreService
         try {
             $settings = $this->settingRepository->get($key);
 
-            //Expected return value
+            // Expected return value
             $result = [];
 
-            //if there are no entries, return empty array
+            // if there are no entries, return empty array
             if (0 === count($settings)) {
                 return $result;
             }
-            //transform each entry to the expected array format
+            // transform each entry to the expected array format
             foreach ($settings as $setting) {
                 $setting = $this->entityHelper->toArray($setting);
                 $setting['created'] = $this->dateHelper->convertDateToString($setting['created']);
@@ -374,7 +375,7 @@ class ContentService extends CoreService
     public function setProcedureFieldCompletions($procedureId, $fieldCompletionsToEnable)
     {
         $numberOfSuccessfulUpdated = 0;
-        //allowed fields to mark as complete:
+        // allowed fields to mark as complete:
         $fieldCompletions = collect([
             'internalComplete',
             'phaseInternalComplete',
@@ -401,7 +402,7 @@ class ContentService extends CoreService
     }
 
     /**
-     * Saving of Setting(s), documented within the code below
+     * Saving of Setting(s), documented within the code below.
      *
      * @param string $key
      *
@@ -426,20 +427,20 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Bestimmt, ob die globale Sachdatenabfragenurl über einen Proxy
-             * angesprochen werden soll. Wird Nutzer- und Verfahrensunabhängig gesetzt
-             */
+                /*
+                 * Bestimmt, ob die globale Sachdatenabfragenurl über einen Proxy
+                 * angesprochen werden soll. Wird Nutzer- und Verfahrensunabhängig gesetzt
+                 */
             case 'globalFeatureInfoUrlProxyEnabled':
                 $putData = [
                     'content' => (string) $data['content'],
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Timestamp wann das Protokoll der Änderungen der Mastertöbliste von
-             * dem User das letzte mal gesehen wurde
-             */
+                /*
+                 * Timestamp wann das Protokoll der Änderungen der Mastertöbliste von
+                 * dem User das letzte mal gesehen wurde
+                 */
             case 'reportMastertoebRead':
                 $putData = [
                     'content' => (string) $data['content'],
@@ -447,10 +448,10 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Notification-Flag, wenn Verfahrensträger(Organisation) per Email
-             * über neue Statements informiert werden will
-             */
+                /*
+                 * Notification-Flag, wenn Verfahrensträger(Organisation) per Email
+                 * über neue Statements informiert werden will
+                 */
             case 'emailNotificationNewStatement':
                 $putData = [
                     'orgaId'  => $data['orgaId'],
@@ -458,10 +459,10 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Notification-Flag, when user wants to get notified by email
-             * about new released statements
-             */
+                /*
+                 * Notification-Flag, when user wants to get notified by email
+                 * about new released statements
+                 */
             case 'emailNotificationReleasedStatement':
                 $putData = [
                     'userId'  => $data['userId'],
@@ -469,13 +470,13 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Notification-Flag, wenn Institution über bald endende Beteiligungsphasen informiert werden will
-             */
+                /*
+                 * Notification-Flag, wenn Institution über bald endende Beteiligungsphasen informiert werden will
+                 */
             case 'emailNotificationEndingPhase':
-            /*
-             * Which kind of statement submit process is used for this organisation
-             */
+                /*
+                 * Which kind of statement submit process is used for this organisation
+                 */
             case 'submissionType':
                 $putData = [
                     'orgaId'  => $data['orgaId'],
@@ -483,33 +484,33 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Flag, dass das Planungsbüro und die interne Notiz gesetzt wurde
-             */
+                /*
+                 * Flag, dass das Planungsbüro und die interne Notiz gesetzt wurde
+                 */
             case 'internalComplete':
-            /*
-             * Flag, dass der Verfahrensschritt des Verfahrens als "erledigt" markiert wurde.
-             */
+                /*
+                 * Flag, dass der Verfahrensschritt des Verfahrens als "erledigt" markiert wurde.
+                 */
             case 'phaseInternalComplete':
-            /*
-             * Flag, dass der öffentliche Verfahrensschritt des Verfahrens als "erledigt" markiert wurde.
-             */
+                /*
+                 * Flag, dass der öffentliche Verfahrensschritt des Verfahrens als "erledigt" markiert wurde.
+                 */
             case 'phaseExternalComplete':
-            /*
-             * Flag, dass der Name und die Web-Adresse des Verfahrens als "erledigt" markiert wurde.
-             */
+                /*
+                 * Flag, dass der Name und die Web-Adresse des Verfahrens als "erledigt" markiert wurde.
+                 */
             case 'nameUrlComplete':
-            /*
-             * Flag, dass die Informationen zum Verfahren des Verfahrens als "erledigt" markiert wurde.
-             */
+                /*
+                 * Flag, dass die Informationen zum Verfahren des Verfahrens als "erledigt" markiert wurde.
+                 */
             case 'infoComplete':
-            /*
-             * Flag, dass das die Verortung des Verfahrens als "erledigt" markiert wurde.
-             */
+                /*
+                 * Flag, dass das die Verortung des Verfahrens als "erledigt" markiert wurde.
+                 */
             case 'locationComplete':
-            /*
-             * Flag, dass das die erweiterten Einstellungen zum Verfahren als "erledigt" markiert wurden.
-             */
+                /*
+                 * Flag, dass das die erweiterten Einstellungen zum Verfahren als "erledigt" markiert wurden.
+                 */
             case 'additionalComplete':
                 $putData = [
                     'procedureId' => $data['procedureId'],
@@ -517,9 +518,9 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Flag, dass das das Verfahren noch durch den MaintenanceService verortet werden muss
-             */
+                /*
+                 * Flag, dass das das Verfahren noch durch den MaintenanceService verortet werden muss
+                 */
             case 'needLocalization':
                 $putData = [
                     'procedureId' => $data['procedureId'],
@@ -527,10 +528,10 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Flag, dass das pro Verfahren und User speichert ob sich beteiligt wurde.
-             * User setzen diese flag selbstständig.
-             */
+                /*
+                 * Flag, dass das pro Verfahren und User speichert ob sich beteiligt wurde.
+                 * User setzen diese flag selbstständig.
+                 */
             case 'markedParticipated':
                 $putData = [
                     'procedureId' => $data['procedureId'],
@@ -539,9 +540,9 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Flag, dass sich Kartenlayer-Kategorien in dem Verfahren gegeseitig ausblenden.
-             */
+                /*
+                 * Flag, dass sich Kartenlayer-Kategorien in dem Verfahren gegeseitig ausblenden.
+                 */
             case 'layerGroupsAlternateVisibility':
                 $putData = [
                     'procedureId' => $data['procedureId'],
@@ -549,11 +550,11 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * User want to change his E-Mail-Address.
-             * Before actually changing email of user, the new E-Mail-Address has to be verified by the user.
-             * Therefore, the new E-Mail-Address will to be stored as setting, and changed if verified by user.
-             */
+                /*
+                 * User want to change his E-Mail-Address.
+                 * Before actually changing email of user, the new E-Mail-Address has to be verified by the user.
+                 * Therefore, the new E-Mail-Address will to be stored as setting, and changed if verified by user.
+                 */
             case 'changeEmail':
                 $putData = [
                     'userId'  => $data['userId'],
@@ -561,9 +562,9 @@ class ContentService extends CoreService
                 ];
                 $settingExists = true;
                 break;
-            /*
-             * Globale Sachdatenabfragenurl. Wird Nutzer- und Verfahrensunabhängig gesetzt
-             */
+                /*
+                 * Globale Sachdatenabfragenurl. Wird Nutzer- und Verfahrensunabhängig gesetzt
+                 */
             case 'globalFeatureInfoUrlFhhnet':
                 $putData = [
                     'content' => $data['content'],
@@ -571,10 +572,10 @@ class ContentService extends CoreService
                 $settingExists = true;
 
                 break;
-            /*
-             * Bestimmt, ob die globale Sachdatenabfragenurl über einen Proxy
-             * angesprochen werden soll. Wird Nutzer- und Verfahrensunabhängig gesetzt
-             */
+                /*
+                 * Bestimmt, ob die globale Sachdatenabfragenurl über einen Proxy
+                 * angesprochen werden soll. Wird Nutzer- und Verfahrensunabhängig gesetzt
+                 */
             case 'globalFeatureInfoUrlFhhnetProxyEnabled':
                 $putData = [
                     'content' => (string) $data['content'],
@@ -645,7 +646,7 @@ class ContentService extends CoreService
      */
     protected function convertToLegacy($singleGlobalContent): array
     {
-        //returnValue, if globalContent doesn't exist
+        // returnValue, if globalContent doesn't exist
         if (!$singleGlobalContent instanceof Entity\GlobalContent) {
             // Legacy returnvalues if no globalContent found
             return [];
@@ -656,7 +657,7 @@ class ContentService extends CoreService
         $rolesAsArray = $singleGlobalContent->getRoles()->map($toArrayClosure)->getValues();
         $categoriesAsArray = $singleGlobalContent->getCategories()->map($toArrayClosure)->getValues();
 
-        //Transform News into an array
+        // Transform News into an array
         $singleGlobalContent = $this->entityHelper->toArray($singleGlobalContent);
         $singleGlobalContent['roles'] = $rolesAsArray;
         $singleGlobalContent['categories'] = $categoriesAsArray;

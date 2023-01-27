@@ -510,20 +510,20 @@ class EditorServiceTest extends FunctionalTestCase
             'htmlAlternativeTextPlaceholder' => $this->sut::HTML_ALTERNATIVE_TEXT_PLACEHOLDER,
             'htmlImageWithHeightSettings'    => '&width=337&height=252',
 
-            'unimportantTextBeforeImage' => ['<p>Sodann ein Bild ', '</p>'],
-            'unimportantTextAfterImage'  => ['</p><p><b>Abbildung </b><b>', '</b><b> Ich bin die Superblume</b></p>'],
+            'unimportantTextBeforeImage'     => ['<p>Sodann ein Bild ', '</p>'],
+            'unimportantTextAfterImage'      => ['</p><p><b>Abbildung </b><b>', '</b><b> Ich bin die Superblume</b></p>'],
 
-            'htmlImageOpeningTag' => $this->sut::IMAGE_ID_OPENING_TAG,
-            'htmlImageClosingTag' => $this->sut::IMAGE_ID_CLOSING_TAG,
+            'htmlImageOpeningTag'            => $this->sut::IMAGE_ID_OPENING_TAG,
+            'htmlImageClosingTag'            => $this->sut::IMAGE_ID_CLOSING_TAG,
 
-            'editorAltTagOpen'           => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN,
-            'editorAltTagOpenInaccurate' => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE,
-            'editorAltTagClose'          => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE,
+            'editorAltTagOpen'               => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN,
+            'editorAltTagOpenInaccurate'     => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_OPEN_INACCURATE,
+            'editorAltTagClose'              => $this->sut::EDITOR_ALTERNATIVE_TEXT_TAG_CLOSE,
 
-            'htmlAltTagOpen'  => $this->sut::HTML_ALTERNATIVE_TEXT_TAG_OPEN,
-            'htmlAltTagClose' => $this->sut::HTML_ALTERNATIVE_TEXT_TAG_CLOSE,
+            'htmlAltTagOpen'                 => $this->sut::HTML_ALTERNATIVE_TEXT_TAG_OPEN,
+            'htmlAltTagClose'                => $this->sut::HTML_ALTERNATIVE_TEXT_TAG_CLOSE,
 
-            'alt_texts' => [
+            'alt_texts'                      => [
                 '',
                 'my alt text',
                 'second actual text',
@@ -533,7 +533,7 @@ class EditorServiceTest extends FunctionalTestCase
                 '',
                 'helloooooooooooo text',
             ],
-            'alt_texts_count' => 8,
+            'alt_texts_count'                => 8,
         ];
 
         return $mockData;

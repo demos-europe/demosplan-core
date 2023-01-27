@@ -39,7 +39,6 @@ class PasswordValidator
      */
     private $validator;
 
-
     public function __construct(ValidatorInterface $validator, ParameterBagInterface $parameterBag)
     {
         $this->validator = $validator;
@@ -60,6 +59,5 @@ class PasswordValidator
         );
 
         return $this->validator->validate($password, $passwordRequirements);
-
     }
 }

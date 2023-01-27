@@ -37,11 +37,11 @@ class ContainerInitCommand extends CoreCommand
     {
         $this
            ->setHelp(
-                <<<EOT
+               <<<EOT
 Perform startup tasks as an init container in kubernetes setup. Usage:
     php bin/<project> dplan:container:init
 EOT
-            );
+           );
     }
 
     /**
@@ -51,7 +51,6 @@ EOT
      */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $connection = $this->entityManager->getConnection();
         try {
             $connection->getDatabase();
@@ -60,10 +59,8 @@ EOT
             Batch::create($this->getApplication(), $output)
                 ->add('dplan:db:init --with-fixtures=ProdData --create-database')
                 ->run();
-
         }
 
         return 0;
     }
-
 }

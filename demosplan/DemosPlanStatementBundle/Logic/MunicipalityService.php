@@ -71,7 +71,7 @@ class MunicipalityService extends CoreService
     {
         try {
             $result = $this->municipalityRepository->get($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get Municipality with ID: '.$id.' failed: ', [$e]);
 
             return null;
