@@ -551,13 +551,14 @@ export default {
   },
 
   mounted () {
-    const promises = [this.listTagTopics({ include: 'tag' }), this.listTags({ include: 'topic' })]
+    const promises = [
+      this.listTagTopics({ include: 'tag' }),
+      this.listTags({ include: 'topic' }),
+      this.fetchPlaces()
+    ]
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
-
-    promises.push(this.fetchPlaces())
-
     Promise.all(promises)
       .then(() => {
         this.isLoading = false
