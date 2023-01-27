@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed9517915ae5d54bf21aa65020e8016f",
+    "content-hash": "fc3788c7164237878bc968c4b74f72a5",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -12987,16 +12987,16 @@
         },
         {
             "name": "symfony/form",
-            "version": "v5.4.17",
+            "version": "v5.4.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/form.git",
-                "reference": "6150f66dc921375a62e5da1cce3684aee657ddca"
+                "reference": "c29e6cccee469ca93db2dbc02a39c29312c5e362"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/form/zipball/6150f66dc921375a62e5da1cce3684aee657ddca",
-                "reference": "6150f66dc921375a62e5da1cce3684aee657ddca",
+                "url": "https://api.github.com/repos/symfony/form/zipball/c29e6cccee469ca93db2dbc02a39c29312c5e362",
+                "reference": "c29e6cccee469ca93db2dbc02a39c29312c5e362",
                 "shasum": ""
             },
             "require": {
@@ -13070,7 +13070,7 @@
             "description": "Allows to easily create, process and reuse HTML forms",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/form/tree/v5.4.17"
+                "source": "https://github.com/symfony/form/tree/v5.4.19"
             },
             "funding": [
                 {
@@ -13086,7 +13086,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-12-28T08:39:55+00:00"
+            "time": "2023-01-01T08:32:19+00:00"
         },
         {
             "name": "symfony/framework-bundle",
@@ -14080,16 +14080,16 @@
         },
         {
             "name": "symfony/options-resolver",
-            "version": "v6.2.0",
+            "version": "v6.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/options-resolver.git",
-                "reference": "d28f02acde71ff75e957082cd36e973df395f626"
+                "reference": "e8324d44f5af99ec2ccec849934a242f64458f86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/d28f02acde71ff75e957082cd36e973df395f626",
-                "reference": "d28f02acde71ff75e957082cd36e973df395f626",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/e8324d44f5af99ec2ccec849934a242f64458f86",
+                "reference": "e8324d44f5af99ec2ccec849934a242f64458f86",
                 "shasum": ""
             },
             "require": {
@@ -14127,7 +14127,7 @@
                 "options"
             ],
             "support": {
-                "source": "https://github.com/symfony/options-resolver/tree/v6.2.0"
+                "source": "https://github.com/symfony/options-resolver/tree/v6.2.5"
             },
             "funding": [
                 {
@@ -14143,7 +14143,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-11-02T09:08:04+00:00"
+            "time": "2023-01-01T08:38:09+00:00"
         },
         {
             "name": "symfony/password-hasher",
