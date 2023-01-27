@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanProcedureBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
+use Exception;
 
 class HashedQueryRepository extends CoreRepository
 {
@@ -27,7 +28,7 @@ class HashedQueryRepository extends CoreRepository
             $entityManager = $this->getEntityManager();
             $entityManager->persist($hashedQuery);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add new filterSet: ', [$e]);
         }
 
@@ -40,7 +41,7 @@ class HashedQueryRepository extends CoreRepository
             $entityManager = $this->getEntityManager();
             $entityManager->persist($hashedQuery);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not update filterSet: ', [$e]);
         }
     }
@@ -51,7 +52,7 @@ class HashedQueryRepository extends CoreRepository
             $entityManager = $this->getEntityManager();
             $entityManager->remove($hashedQuery);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not delete FilterSet '.$hashedQuery->getId().': ', [$e]);
         }
     }

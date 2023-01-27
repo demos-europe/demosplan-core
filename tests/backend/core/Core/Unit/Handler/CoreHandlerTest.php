@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Handler;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use stdClass;
 use Symfony\Component\HttpFoundation\FileBag;
 use Tests\Base\UnitTestCase;
 
@@ -83,7 +84,7 @@ class CoreHandlerTest extends UnitTestCase
     {
         self::markSkippedForCIIntervention();
 
-        $configService = new \stdClass();
+        $configService = new stdClass();
         $this->coreHandler->setDemosplanConfig($configService);
         static::assertEquals($configService, $this->coreHandler->getDemosplanConfig());
     }

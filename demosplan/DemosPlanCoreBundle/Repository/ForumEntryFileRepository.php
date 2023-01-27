@@ -135,7 +135,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
             throw new MissingDataException('Add entryFile failed: No files in given array');
         }
 
-        //data['files'] contains an array of strings?!
+        // data['files'] contains an array of strings?!
         $files = $data['files'];
         $addedFiles = [];
 

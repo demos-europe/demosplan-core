@@ -19,9 +19,9 @@ class UCFirstExtension extends ExtensionBase
         return [
             new TwigFilter(
                 'ucfirst', static function (
-                $string,
-                $encoding = 'UTF8'
-            ) {
+                    $string,
+                    $encoding = 'UTF8'
+                ) {
                     // http://stackoverflow.com/questions/31199959/twig-capitalize-makes-other-letters-small
                     $strlen = mb_strlen($string, $encoding);
                     $firstChar = mb_substr($string, 0, 1, $encoding);

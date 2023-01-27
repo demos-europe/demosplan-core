@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\MenuBuilder;
 
+use demosplan\DemosPlanCoreBundle\Event\ConfigureMenuEvent;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+
+use function is_string;
+
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -20,10 +26,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use demosplan\DemosPlanCoreBundle\Event\ConfigureMenuEvent;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use function is_string;
 
 class MenuBuilder
 {
@@ -50,8 +52,7 @@ class MenuBuilder
         ParameterBagInterface $parameterBag,
         RequestStack $requestStack,
         TranslatorInterface $translator
-    )
-    {
+    ) {
         $this->availableMenus = $parameterBag->get('menu_definitions');
         $this->currentProcedure = $currentProcedureService->getProcedure();
         $this->currentUserService = $currentUserService;
@@ -63,7 +64,7 @@ class MenuBuilder
     }
 
     /**
-     * Creates the sidemenu in the admin area
+     * Creates the sidemenu in the admin area.
      */
     public function createSideMenu(): ?ItemInterface
     {
@@ -130,7 +131,7 @@ class MenuBuilder
     }
 
     /**
-     * Adds a menu entry to a menu
+     * Adds a menu entry to a menu.
      *
      * @param array<string, mixed> $menuEntry
      */
@@ -141,8 +142,8 @@ class MenuBuilder
                 $menuEntry['label'] = $this->currentProcedure->getName();
             }
 
-            # check whether the menu entry has child menu entries
-            # check if the menuEntry is a submenu
+            // check whether the menu entry has child menu entries
+            // check if the menuEntry is a submenu
             if (isset($menuEntry['children']) && is_string($menuEntry['children'])) {
                 $submenuName = $menuEntry['children'];
                 if (isset($menuEntry['child_paths'])) {
@@ -175,8 +176,7 @@ class MenuBuilder
     /**
      * Checks for available children entries to iterate over them if applicable.
      *
-     * @param ItemInterface           $child
-     * @param array<string, mixed>    $menuEntry
+     * @param array<string, mixed> $menuEntry
      */
     private function createSubmenu(ItemInterface $child, array $menuEntry): void
     {
@@ -202,7 +202,7 @@ class MenuBuilder
     {
         $label = $this->translator->trans($menuEntry['label']);
 
-        # get route
+        // get route
         $route = $menuEntry['path'];
         $routeParams = $this->getRouteParameters($menuEntry);
 
@@ -212,10 +212,10 @@ class MenuBuilder
         $child = $parent->addChild($label, [
             'route'             => $route,
             'routeParameters'   => $routeParams,
-            'extras'            => $extras
+            'extras'            => $extras,
         ]);
 
-        # check for attributes and add them
+        // check for attributes and add them
         if (isset($menuEntry['list_item_attributes'])) {
             foreach ($menuEntry['list_item_attributes'] as $key => $value) {
                 $child->setAttribute($key, $value);
@@ -241,7 +241,7 @@ class MenuBuilder
      */
     private function hasCurrentUserAnyOfPermissions(array $menuEntry): bool
     {
-        # check whether permissions are required
+        // check whether permissions are required
         $userHasPermission = true;
         if (isset($menuEntry['permission'])) {
             if (is_string($menuEntry['permission'])) {
@@ -254,9 +254,10 @@ class MenuBuilder
     }
 
     /**
-     * Returns an array of key-value pairs for all given parameters that are actually available in the availableRouteParameters
+     * Returns an array of key-value pairs for all given parameters that are actually available in the availableRouteParameters.
      *
      * @param array<string, mixed> $menuEntry
+     *
      * @returns array<string, mixed>
      */
     private function getRouteParameters(array $menuEntry): array
@@ -264,7 +265,7 @@ class MenuBuilder
         $parameters = [];
 
         if (isset($menuEntry['path_params']) && is_array($menuEntry['path_params'])) {
-            # set parameters
+            // set parameters
             foreach ($menuEntry['path_params'] as $param) {
                 if (isset($this->availableRouteParameters[$param])) {
                     $parameters[$param] = $this->availableRouteParameters[$param];
@@ -275,7 +276,8 @@ class MenuBuilder
         return $parameters;
     }
 
-    private function isCurrentRouteAChildOf(array $menuEntry): bool {
+    private function isCurrentRouteAChildOf(array $menuEntry): bool
+    {
         $isChildRoute = false;
         if (isset($menuEntry['child_paths'])) {
             $currentRoute = $this->request->attributes->get('_route');
@@ -285,13 +287,15 @@ class MenuBuilder
                 }
             }
         }
+
         return $isChildRoute;
     }
 
     /**
-     * Returns an array of extras values either as they are or replaced by the corresponding availableRouteParameter
+     * Returns an array of extras values either as they are or replaced by the corresponding availableRouteParameter.
      *
      * @param array<string, mixed> $menuEntry
+     *
      * @return array<string, mixed>
      */
     private function getExtras(array $menuEntry): array

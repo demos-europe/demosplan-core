@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 
 class ForumEntryRepository extends CoreRepository implements ArrayInterface
@@ -50,7 +51,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getForumEntryList($threadId)
     {
@@ -70,7 +71,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
             $resultArray['thread'] = $relatedThread;
 
             return $resultArray;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Get list failed: Thread with ID: '.$threadId.' ', [$e]);
             throw $e;
         }
@@ -102,7 +103,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         foreach ($entries as $entry) {
             try {
                 $files = $forumEntryFileRepos->getFileResponsesAsString($entry->getIdent());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $files = [];
             }
             $entryResponse = $this->convertToEntryResponse($entry, $files);
@@ -242,7 +243,7 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
         }
 
         if (null !== $data['anonymise'] && $data['anonymise'] && null !== $toUpdate->getUser(
-            )) {
+        )) {
             $this->deleteRelatedFiles($entityId);
             $toUpdate->setUser(null);
         }
@@ -285,11 +286,11 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      *
      * @param string $entityId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($entityId)
     {
-        throw new \Exception('not used any more');
+        throw new Exception('not used any more');
     }
 
     /**

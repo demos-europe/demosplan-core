@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
-use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 
 class ValueObject implements JsonSerializable, ValueObjectInterface
 {

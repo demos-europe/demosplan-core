@@ -32,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
-use demosplan\DemosPlanCoreBundle\Services\SubdomainHandler;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
@@ -82,7 +81,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_complete_data",
      *     path="/willkommen"
      * )
-     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -284,7 +282,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_orga_toeblist_changes",
      *     path="/organisations/visibilitylog"
      * )
-     *
      * @DplanPermissions("area_report_invitable_institutionlistchanges")
      *
      * @return RedirectResponse|Response
@@ -309,14 +306,13 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_switch_language",
      *     path="/language"
      * )
-     *
      * @DplanPermissions("feature_plain_language")
      *
      * @return RedirectResponse
      */
     public function switchLanguageAction(EventDispatcherPostInterface $eventDispatcherPost, Request $request)
     {
-        //change url:
+        // change url:
         $event = new LanguageSwitchRequestEvent($request);
         try {
             $eventDispatcherPost->post($event);
@@ -325,11 +321,11 @@ class DemosPlanUserController extends BaseController
             $this->logger->warning('Could not successfully process LanguageSwitchEvent ', [$e]);
         }
 
-        //invert current locale set by setting current session:
+        // invert current locale set by setting current session:
         $languageKey = ('de' === $request->getSession()->get('_locale', 'de')) ? 'de_plain' : 'de';
         $request->getSession()->set('_locale', $languageKey);
 
-        //redirect to current page:
+        // redirect to current page:
         return $this->redirectBack($request);
     }
 
@@ -340,7 +336,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_portal",
      *     path="/portal/user"
      * )
-     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -385,7 +380,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_add",
      *     path="/user/add"
      * )
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @throws MessageBagException
@@ -420,7 +414,6 @@ class DemosPlanUserController extends BaseController
      *     methods={"POST"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -494,7 +487,6 @@ class DemosPlanUserController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -525,7 +517,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_edit",
      *     path="/user/edit"
      * )
-     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -581,7 +572,6 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/erstellen/{organisationId}",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -625,7 +615,7 @@ class DemosPlanUserController extends BaseController
         }
 
         $addressBookEntry = null;
-        //no violation? persist new entry
+        // no violation? persist new entry
         if (0 === $violations->count()) {
             try {
                 $addressBookEntry = $addressBookEntryService->createAddressBookEntry($addressBookEntryVO);
@@ -654,7 +644,6 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/loeschen/{organisationId}",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -686,7 +675,7 @@ class DemosPlanUserController extends BaseController
             $addressBookEntryService->deleteAddressBookEntries($addressBookEntryIds);
             $this->getMessageBag()->add('confirm', 'confirm.addressBookEntry.deleted');
         } catch (Exception $e) {
-            //while loop over addressbookentries, exception was thrown
+            // while loop over addressbookentries, exception was thrown
             $this->getMessageBag()->add('warning', 'warning.addressBookEntries.not.deleted');
         }
 
@@ -702,7 +691,6 @@ class DemosPlanUserController extends BaseController
      *     path="/portal/user/statements",
      *     options={"expose": true}
      * )
-     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent"})
      *
      * @return RedirectResponse|Response
@@ -732,7 +720,6 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_revoke_statement",
      *     path="/portal/user/statement/{statementId}/revoke"
      * )
-     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent_may_revoke"})
      *
      * @return RedirectResponse|Response

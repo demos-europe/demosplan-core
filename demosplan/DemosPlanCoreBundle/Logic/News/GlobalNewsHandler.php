@@ -14,6 +14,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use Exception;
+use ReflectionException;
 
 class GlobalNewsHandler extends CoreHandler
 {
@@ -34,7 +36,7 @@ class GlobalNewsHandler extends CoreHandler
      *
      * @param int|null $limit
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function getNewsList(User $user, $limit = null): array
     {
@@ -63,7 +65,7 @@ class GlobalNewsHandler extends CoreHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSingleNews($ident)
     {
@@ -77,7 +79,7 @@ class GlobalNewsHandler extends CoreHandler
      *
      * @return array|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addNews($data)
     {
@@ -93,7 +95,7 @@ class GlobalNewsHandler extends CoreHandler
      * @param string $sortedNewsIds
      *                              (Komma separierte Liste) / leer zum löschen
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setManualSortOfGlobalNews($sortedNewsIds): bool
     {
@@ -105,7 +107,7 @@ class GlobalNewsHandler extends CoreHandler
      *
      * @param array $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateNews($data): array
     {

@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Exception;
 
 class UpdateElasticaStatementPostListener
 {
@@ -142,7 +143,7 @@ class UpdateElasticaStatementPostListener
     {
         try {
             $this->searchIndexTaskService->addIndexTask($entityClass, $entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // catch exception to prevent bubbling
             // do not use Logging atm to save resources. Might be added later
         }

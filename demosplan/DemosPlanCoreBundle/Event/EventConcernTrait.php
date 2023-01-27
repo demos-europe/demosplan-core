@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
+use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use function array_key_exists;
+
 use function is_array;
 
 trait EventConcernTrait

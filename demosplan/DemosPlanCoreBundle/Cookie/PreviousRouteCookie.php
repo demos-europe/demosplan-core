@@ -11,8 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Cookie;
 
 use Carbon\Carbon;
+
 use function str_replace;
 use function strpos;
+
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 

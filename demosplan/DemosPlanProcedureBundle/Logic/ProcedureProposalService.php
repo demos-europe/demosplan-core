@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -21,7 +19,9 @@ use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use Exception;
 
 class ProcedureProposalService extends CoreService
 {
@@ -86,7 +86,7 @@ class ProcedureProposalService extends CoreService
         $object = new ProcedureProposal();
         $procedureProposalData['status'] = $object::STATUS['new'];
 
-        //load user via doctrine to ensure doctrine knowing this user is already existing
+        // load user via doctrine to ensure doctrine knowing this user is already existing
         $currentUser = $this->currentUser->getUser();
         $procedureProposalData['user'] = $this->userRepository->find($currentUser->getId());
 
@@ -114,7 +114,7 @@ class ProcedureProposalService extends CoreService
             'externalDesc' => $procedureProposal->getDescription(),
             'copymaster'   => $this->procedureService->calculateCopyMasterId(null),
             'settings'     => ['coordinate' => $procedureProposal->getCoordinate()],
-            'master'       => false, //this method creates procedures only (no blueprints)
+            'master'       => false, // this method creates procedures only (no blueprints)
             'orgaId'       => $user->getOrganisationId(),
             'orgaName'     => $user->getOrgaName(),
             'explanation'  => $procedureProposal->getAdditionalExplanation(),
@@ -123,7 +123,7 @@ class ProcedureProposalService extends CoreService
         $generatedProcedure = $this->getProcedureService()
             ->addProcedureEntity($procedureData, $user->getId());
 
-        //Localization by MaintenanceService:
+        // Localization by MaintenanceService:
         $procedureCoordinate = $generatedProcedure->getCoordinate();
         if ('' !== $procedureCoordinate && null !== $procedureCoordinate &&
             $this->currentUser->hasPermission('feature_procedures_located_by_maintenance_service')) {
@@ -145,7 +145,6 @@ class ProcedureProposalService extends CoreService
     {
         return $this->procedureProposalRepository->updateObject($procedureProposal);
     }
-
 
     protected function getProcedureService(): ProcedureService
     {

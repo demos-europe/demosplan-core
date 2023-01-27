@@ -10,11 +10,13 @@
 
 namespace Tests\Core\AssessmentTable;
 
+use DateTime;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class AssessmentHandlerTest extends FunctionalTestCase
@@ -44,7 +46,7 @@ class AssessmentHandlerTest extends FunctionalTestCase
      * StatementFragments can also have files. But they are not mentioned in T11544
      * -> exportType = statementsOnly.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAnonymousFileOnStatementsDoxcExport()
     {
@@ -61,13 +63,13 @@ class AssessmentHandlerTest extends FunctionalTestCase
         $file1->setApplication('FI');
         $file1->setMimetype('application/x-pdf');
         $file1->setMimetype('application/x-pdf');
-        $file1->setCreated(new \DateTime());
-        $file1->setModified(new \DateTime());
-        $file1->setValidUntil(new \DateTime());
+        $file1->setCreated(new DateTime());
+        $file1->setModified(new DateTime());
+        $file1->setValidUntil(new DateTime());
         $file1->setDeleted(0);
         $file1->setStatDown(0);
         $file1->setInfected(0);
-        $file1->setLastVScan(new \DateTime());
+        $file1->setLastVScan(new DateTime());
         $file1->setBlocked(0);
         $this->getEntityManager()->persist($file1);
         $statement->setFiles([$file1]);

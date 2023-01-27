@@ -11,8 +11,6 @@
 namespace demosplan\DemosPlanMapBundle\Services\GetFeatureInfo;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Exception;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
@@ -20,6 +18,9 @@ use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresLoggerTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use Exception;
+use SimpleXMLElement;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class GetFeatureInfo
 {
@@ -116,11 +117,11 @@ class GetFeatureInfo
             $serviceContent = $this->getServiceContent();
             try {
                 $url = $serviceContent->getSettingContent(
-                  'globalFeatureInfoUrl'
+                    'globalFeatureInfoUrl'
                 );
             } catch (HttpException $e) {
                 $this->logger->warning(
-                  'Setting globalFeatureInfoUrl nicht gefunden'
+                    'Setting globalFeatureInfoUrl nicht gefunden'
                 );
             }
         } elseif ($this->useDb()) {
@@ -207,12 +208,12 @@ class GetFeatureInfo
             $serviceContent = $this->getServiceContent();
             try {
                 $serviceContent->setSetting(
-                  'globalFeatureInfoUrl',
-                  ['content' => $url]
+                    'globalFeatureInfoUrl',
+                    ['content' => $url]
                 );
             } catch (HttpException $e) {
                 $this->logger->warning(
-                  'Setting globalFeatureInfoUrl could not be saved'
+                    'Setting globalFeatureInfoUrl could not be saved'
                 );
             }
         }
@@ -341,7 +342,7 @@ class GetFeatureInfo
                 case 'vorranggebiet':
                     $return = null;
                     if (200 === $response['responseCode'] && false === stripos('<ExceptionReport', $response['body'])) {
-                        $xml = new \SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
+                        $xml = new SimpleXMLElement($response['body'], null, null, 'http://www.opengis.net/wfs');
                         $xml->registerXPathNamespace('wfs', 'http://www.opengis.net/wfs');
                         $xml->registerXPathNamespace('gml', 'http://www.opengis.net/gml');
                         $xml->registerXPathNamespace('app', 'http://www.deegree.org/app');
@@ -426,7 +427,7 @@ class GetFeatureInfo
             $serviceContent = $this->getServiceContent();
             try {
                 $proxyEnabled = $serviceContent->getSettingContent(
-                  'globalFeatureInfoUrlProxyEnabled'
+                    'globalFeatureInfoUrlProxyEnabled'
                 );
             } catch (HttpException $e) {
                 $proxyEnabled = 0;
@@ -448,12 +449,12 @@ class GetFeatureInfo
             $serviceContent = $this->getServiceContent();
             try {
                 $serviceContent->setSetting(
-                  'globalFeatureInfoUrlProxyEnabled',
-                  ['content' => $proxyEnabled]
+                    'globalFeatureInfoUrlProxyEnabled',
+                    ['content' => $proxyEnabled]
                 );
             } catch (HttpException $e) {
                 $this->logger->warning(
-                  'Setting globalFeatureInfoUrlProxyEnabled could not be saved'
+                    'Setting globalFeatureInfoUrlProxyEnabled could not be saved'
                 );
             }
         }
@@ -535,5 +536,4 @@ class GetFeatureInfo
     {
         return $this->currentProcedureService->getProcedureArray();
     }
-
 }

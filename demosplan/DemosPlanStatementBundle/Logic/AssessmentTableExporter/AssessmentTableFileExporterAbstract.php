@@ -115,7 +115,7 @@ abstract class AssessmentTableFileExporterAbstract
                 case 'portraitWithFrags':
                 case 'landscapeWithFrags':
                     $templateName = 'export_fragments_anonymous';
-                // no break
+                    // no break
                 case 'landscape':
                 case 'portrait':
                 default:

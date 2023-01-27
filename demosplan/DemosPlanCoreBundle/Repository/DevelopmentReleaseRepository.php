@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 
 class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterface
 {
@@ -157,7 +158,7 @@ class DevelopmentReleaseRepository extends CoreRepository implements ArrayInterf
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
     {

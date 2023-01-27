@@ -75,7 +75,7 @@ class ParagraphVersionRepository extends CoreRepository implements ArrayInterfac
      */
     public function update($id, array $data)
     {
-        //Version could not be updated
+        // Version could not be updated
     }
 
     /**

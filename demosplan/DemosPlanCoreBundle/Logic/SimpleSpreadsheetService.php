@@ -82,29 +82,29 @@ class SimpleSpreadsheetService
         }
 
         $worksheet->setTitle($sheetTitle);
-        //set given columnTitles to fist column
+        // set given columnTitles to fist column
         $worksheet->fromArray($columnTitles, null, 'A1');
 
-        //get last filled column (end of table):
+        // get last filled column (end of table):
         $lastColumn = $worksheet->getHighestColumn();
-        //get alignment from first to last column
+        // get alignment from first to last column
         $globalAlignment = $worksheet->getStyle('A:'.$lastColumn)->getAlignment();
         $globalAlignment->setHorizontal('left');
         $globalAlignment->setVertical('top');
         $globalAlignment->setWrapText($wrapText);
 
-        ///set font of first column to bold
+        // /set font of first column to bold
         $worksheet->getStyle('A1:'.$lastColumn.'1')
             ->getFont()
             ->setBold(true);
 
-        //set font color of first column to white
+        // set font color of first column to white
         $worksheet->getStyle('A1:'.$lastColumn.'1')
             ->getFont()
             ->getColor()
             ->setRGB('FFFFFF');
 
-        //set background color of first column to grey
+        // set background color of first column to grey
         $worksheet->getStyle('A1:'.$lastColumn.'1')
             ->getFill()
             ->setFillType('solid')
@@ -112,14 +112,14 @@ class SimpleSpreadsheetService
             ->setRGB('A0A0A0');
 
         if ($wrapText) {
-            //set fixed columnDimensions to trigger wrapping of text
+            // set fixed columnDimensions to trigger wrapping of text
             $dimensions = $worksheet->getColumnDimensions();
             foreach ($dimensions as $dimension) {
                 $dimension->setWidth(50);
             }
         }
 
-        //T9490: decode because text was stored encoded in DB:
+        // T9490: decode because text was stored encoded in DB:
         foreach ($formattedData as $key => $dataSet) {
             if (array_key_exists('recommendation', $formattedData[$key])) {
                 $formattedData[$key]['recommendation'] = htmlspecialchars_decode($dataSet['recommendation']);

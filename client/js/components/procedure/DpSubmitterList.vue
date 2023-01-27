@@ -13,22 +13,30 @@
       {{ Translator.trans('explanation.list.of.submitters') }}
     </p>
 
-    <a
-      class="u-mb"
-      :href="exportSubmitterList">
-      <i
-        class="fa fa-download"
-        aria-hidden="true" />
-      {{ Translator.trans('export') }}
-    </a>
+    <div class="flex flex-items-center u-pv-0_5">
+      <a
+        :href="exportSubmitterList">
+        <i
+          class="fa fa-download"
+          aria-hidden="true" />
+        {{ Translator.trans('export') }}
+      </a>
+
+      <dp-column-selector
+        class="flex-item-end"
+        :initial-selection="currentSelection"
+        :selectable-columns="selectableColumns"
+        @selection-changed="setCurrentSelection"
+        use-local-storage
+        local-storage-key="submitterList" />
+    </div>
 
     <dp-loading v-if="isLoading" />
     <template v-else>
       <dp-data-table
+        class="overflow-x-auto"
         v-if="items.length"
         :header-fields="headerFields"
-        is-resizable
-        is-truncatable
         :items="items"
         track-by="id">
         <template v-slot:statement="rowData">
@@ -38,8 +46,19 @@
             {{ rowData.statement }}
           </a>
         </template>
+        <template v-slot:street="rowData">
+          <div class="o-hellip--nowrap">
+            <span v-cleanhtml="rowData.street" />
+          </div>
+        </template>
+        <template v-slot:postalCodeAndCity="rowData">
+          <div class="o-hellip--nowrap">
+            <span v-cleanhtml="rowData.postalCodeAndCity" />
+          </div>
+        </template>
         <template v-slot:internId="{ internId }">
-          <div class="o-hellip__wrapper">
+          <div
+            class="o-hellip__wrapper">
             <div
               v-text="internId"
               class="o-hellip--nowrap text--right"
@@ -59,16 +78,19 @@
 </template>
 
 <script>
-import { DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpSubmitterList',
 
   components: {
+    DpColumnSelector,
     DpDataTable,
     DpLoading
   },
+
+  directives: { cleanhtml: CleanHtml },
 
   props: {
     procedureId: {
@@ -79,17 +101,19 @@ export default {
 
   data () {
     return {
-      headerFields: [
-        { field: 'name', label: Translator.trans('name'), initialMaxWidth: 250 },
-        { field: 'email', label: Translator.trans('email'), initialMaxWidth: 200 },
-        { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city'), initialMaxWidth: 120 },
-        { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department'), initialMaxWidth: 200 },
-        { field: 'memo', label: Translator.trans('memo'), initialMinWidth: 100, initialMaxWidth: 200 },
-        { field: 'internId', label: Translator.trans('internId.shortened'), initialWidth: 80 },
-        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long'), initialWidth: 40 }
+      headerFieldsAvailable: [
+        { field: 'name', label: Translator.trans('name') },
+        { field: 'email', label: Translator.trans('email') },
+        { field: 'street', label: Translator.trans('street') },
+        { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city') },
+        { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
+        { field: 'memo', label: Translator.trans('memo') },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
       ],
       isLoading: false,
-      items: []
+      items: [],
+      currentSelection: ['name', 'organisationAndDepartment', 'statement']
     }
   },
 
@@ -98,6 +122,12 @@ export default {
       return Routing.generate('dplan_admin_procedure_submitter_export', {
         procedureId: this.procedureId
       })
+    },
+    selectableColumns () {
+      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+    headerFields () {
+      return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     }
   },
 
@@ -119,12 +149,14 @@ export default {
               'authorName',
               'externId',
               'internId',
-              'isSubmittedByCitizen',
               'initialOrganisationCity',
               'initialOrganisationDepartmentName',
               'initialOrganisationName',
               'initialOrganisationPostalCode',
+              'initialOrganisationHouseNumber',
+              'initialOrganisationStreet',
               'isCitizen',
+              'isSubmittedByCitizen',
               'memo',
               'submitName',
               'submitterEmailAddress'
@@ -147,52 +179,66 @@ export default {
     /**
      * If an attribute is empty, replace it with '-' or don't display it
      * @param resourceObj
-     * @return {{organisationAndDepartment: *, name: *, postalCodeAndCity: (string|string), email: (*|string)}}
+     * @return {{internId: (*|string), isCitizen: *, organisationAndDepartment: (*|string), street: (string|*), name: (*|string), statement: *, memo: (*|string), id, postalCodeAndCity: (string|*), email: (*|string)}}
      */
     handleEmptyAttrs (resourceObj) {
       const {
         authorName,
         externId,
         internId,
-        isSubmittedByCitizen,
-        initialOrganisationCity,
-        initialOrganisationDepartmentName,
-        initialOrganisationName,
-        initialOrganisationPostalCode,
+        initialOrganisationCity: city,
+        initialOrganisationDepartmentName: departmentName,
+        initialOrganisationHouseNumber: houseNumber,
+        initialOrganisationName: organisationName,
+        initialOrganisationPostalCode: postalCode,
+        initialOrganisationStreet: street,
         isCitizen,
+        isSubmittedByCitizen,
         memo,
-        submitName,
-        submitterEmailAddress
+        submitterEmailAddress: email,
+        submitName
       } = resourceObj.attributes
 
       return {
-        email: submitterEmailAddress || '-',
+        email: email || '-',
         id: resourceObj.id,
         internId: internId || '',
         isCitizen,
         memo: memo || '-',
         name: authorName || submitName || '-',
-        organisationAndDepartment: this.handleOrgaAndDepartment(initialOrganisationDepartmentName, initialOrganisationName, isSubmittedByCitizen),
-        postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(initialOrganisationCity, initialOrganisationPostalCode),
-        statement: externId
+        organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
+        postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
+        statement: externId,
+        street: this.handleOrgaStreet(street, houseNumber)
       }
     },
 
-    handleOrgaAndDepartment (initialOrganisationDepartmentName, initialOrganisationName, isSubmittedByCitizen) {
-      if (initialOrganisationName) {
+    handleOrgaAndDepartment (departmentName, organisationName, isSubmittedByCitizen) {
+      if (organisationName) {
         if (isSubmittedByCitizen) {
-          return initialOrganisationName
+          return organisationName
         }
-        return initialOrganisationDepartmentName ? initialOrganisationName + ', ' + initialOrganisationDepartmentName : initialOrganisationName
+        return departmentName ? organisationName + ', ' + departmentName : organisationName
       }
-      return initialOrganisationDepartmentName || '-'
+      return departmentName || '-'
     },
 
-    handleOrgaPostalCodeAndOrgaCity (initialOrganisationCity, initialOrganisationPostalCode) {
-      if (initialOrganisationPostalCode) {
-        return initialOrganisationCity ? initialOrganisationPostalCode + ' ' + initialOrganisationCity : initialOrganisationPostalCode
+    handleOrgaPostalCodeAndOrgaCity (city, postalCode) {
+      if (postalCode) {
+        return city ? postalCode + ' ' + city : postalCode
       }
-      return initialOrganisationCity || '-'
+      return city || '-'
+    },
+
+    handleOrgaStreet (street, houseNumber) {
+      if (street) {
+        return houseNumber ? street + ' ' + houseNumber : street
+      }
+      return '-'
+    },
+
+    setCurrentSelection (selection) {
+      this.currentSelection = selection
     },
 
     SubmitterListItem (rowData) {

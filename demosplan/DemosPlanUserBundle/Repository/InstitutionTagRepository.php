@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -10,17 +12,15 @@
 
 namespace demosplan\DemosPlanUserBundle\Repository;
 
-
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Exception;
 
 class InstitutionTagRepository extends CoreRepository implements ObjectInterface
 {
     /**
-     * @param $entityId
-     *
      * @return InstitutionTag|null
      */
     public function get($entityId)
@@ -60,6 +60,7 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
      * @param string $tagId
      *
      * @return bool
+     *
      * @throws ResourceNotFoundException
      */
     public function delete($tagId)
@@ -84,7 +85,7 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete statementVote failed: ', [$e]);
         }
 

@@ -14,9 +14,6 @@ use LogicException;
 
 class PermissionException extends LogicException
 {
-    /**
-     * @return PermissionException
-     */
     public static function invalidPermissionCheckOperator(string $operator): self
     {
         return new self("Invalid permission check operator: {$operator}");

@@ -11,16 +11,16 @@
 namespace Tests\Core\Survey\Unit;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use Symfony\Bridge\Monolog\Logger;
-use Tests\Base\UnitTestCase;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
+use Exception;
+use Symfony\Bridge\Monolog\Logger;
+use Tests\Base\UnitTestCase;
 
 class SurveyTestUtils extends UnitTestCase
 {
@@ -162,9 +162,6 @@ class SurveyTestUtils extends UnitTestCase
         return $jsonSchemaFilePath;
     }
 
-    /**
-     * @param $reference
-     */
     protected function getProcedureByReference(string $reference): Procedure
     {
         /** @var Procedure $procedure */
@@ -173,9 +170,6 @@ class SurveyTestUtils extends UnitTestCase
         return $procedure;
     }
 
-    /**
-     * @param $reference
-     */
     protected function getSurveyByReference(string $reference): Survey
     {
         /** @var Survey $survey */
@@ -184,9 +178,6 @@ class SurveyTestUtils extends UnitTestCase
         return $survey;
     }
 
-    /**
-     * @param $reference
-     */
     protected function getProcedureIdByReference(string $reference): string
     {
         $procedure = $this->getProcedureByReference($reference);

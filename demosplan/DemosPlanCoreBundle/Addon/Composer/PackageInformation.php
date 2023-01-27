@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon\Composer;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 
@@ -23,6 +22,11 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 final class PackageInformation
 {
     public const UNDEFINED_VERSION = '0.0.0.0';
+
+    /**
+     * Composer package type for addon packages.
+     */
+    public const ADDON_COMPOSER_TYPE = 'demosplan-addon';
 
     private array $addonPackages = [];
 
@@ -52,7 +56,7 @@ final class PackageInformation
         $this->addonPackages = array_filter(
             $packageListPath['versions'],
             static function (array $version): bool {
-                return AddonRegistry::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
+                return self::ADDON_COMPOSER_TYPE === strtolower($version['type'] ?? 'package');
             }
         );
     }

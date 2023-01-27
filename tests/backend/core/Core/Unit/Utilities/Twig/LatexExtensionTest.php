@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
+use Twig_SimpleFilter;
 
 /**
  * Teste LatexExtension
@@ -46,7 +47,7 @@ class LatexExtensionTest extends UnitTestCase
     {
         $result = $this->sut->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
         $callable = $result[0]->getCallable();
         static::assertTrue('latexFilter' === $callable[1]);
         static::assertTrue('latex' === $result[0]->getName());
@@ -256,7 +257,7 @@ class LatexExtensionTest extends UnitTestCase
         $this->assertTrue(15 === count($res));
         $this->assertStringContainsString('\includegraphics[width=18cm, height=11.870967741935cm]{6e5f465d-0400-4d1f-8768-703990a358d9}', $res[9]);
 
-        //too high
+        // too high
         $textToTest = "<p>Dann eine komplexe Tabelle</p><table>
 <tr>
 <td colspan='2' >Colspan2</td><td rowspan='2' >Rowspan2</td></tr>
@@ -272,7 +273,7 @@ class LatexExtensionTest extends UnitTestCase
         $this->assertTrue(15 === count($res));
         $this->assertStringContainsString('\includegraphics[width=3.4770912547529cm, height=26.7cm]{6e5f465d-0400-4d1f-8768-703990a358d9}', $res[9]);
 
-        //too high and too wide
+        // too high and too wide
         $textToTest = "<p>Dann eine komplexe Tabelle</p><table>
 <tr>
 <td colspan='2' >Colspan2</td><td rowspan='2' >Rowspan2</td></tr>
@@ -448,8 +449,8 @@ class LatexExtensionTest extends UnitTestCase
         $ul = $this->sut->latexFilter('<ul>');
         $ol = $this->sut->latexFilter('<ol>');
         $pattern = '/\\\begin{(itemize|enumerate)}/';
-        $partsExpectedToBeEqual = preg_replace($pattern,'',[$ul,$ol]);
-        self::assertCount(2,$partsExpectedToBeEqual);
+        $partsExpectedToBeEqual = preg_replace($pattern, '', [$ul, $ol]);
+        self::assertCount(2, $partsExpectedToBeEqual);
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
     }
 }

@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanSurveyBundle\Logic;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 
 class SurveyVoteHandler
 {

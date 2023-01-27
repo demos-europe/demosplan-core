@@ -13,14 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -29,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
@@ -37,6 +30,13 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Psr\Log\LoggerInterface;
 
 class StatementMover extends CoreService
 {
@@ -152,10 +152,10 @@ class StatementMover extends CoreService
             /** @var StatementRepository $statementRepository */
             $statementRepository = $this->entityManager->getRepository(Statement::class);
 
-            //only create placeholder if not already existing:
+            // only create placeholder if not already existing:
             if (null === $placeholderStatement) {
-                //create placeholder to remain in sourceProcedure as reference:
-                //todo: copy statement and use to move, instead to move incoming statement, because this way references can be stay
+                // create placeholder to remain in sourceProcedure as reference:
+                // todo: copy statement and use to move, instead to move incoming statement, because this way references can be stay
                 $placeholderStatement = $this->createPlaceholderStatement($statementToMove);
                 $placeholderStatement = $statementRepository->addObject(
                     $placeholderStatement
@@ -163,7 +163,7 @@ class StatementMover extends CoreService
             }
 
             $statementToMove->setProcedure($targetProcedure);
-            //handle procedure-unique internID:
+            // handle procedure-unique internID:
             $internIdIsUnique = $this->statementService->isInternIdUniqueForProcedure(
                 $statementToMove->getInternId(),
                 $targetProcedure->getId()
@@ -174,7 +174,7 @@ class StatementMover extends CoreService
                 $internIdToSet = null;
             }
 
-            //T13668: create new originalStatement to set on moveStatement
+            // T13668: create new originalStatement to set on moveStatement
             $copyOfOriginalStatementToMove = $statementRepository->copyOriginalStatement(
                 $originalStatement,
                 $targetProcedure,
@@ -186,7 +186,7 @@ class StatementMover extends CoreService
             $originalStatement->setChildren(null);
             $placeholderStatement->setParent($originalStatement);
 
-            //Includes new ExternId:
+            // Includes new ExternId:
             $newExternId = $copyOfOriginalStatementToMove->getExternId();
             $statementToMove->setOriginal($copyOfOriginalStatementToMove);
             // set parent to original because moving statement will lost his "copy status"
@@ -194,12 +194,12 @@ class StatementMover extends CoreService
             $statementToMove->setParent($copyOfOriginalStatementToMove);
             $statementToMove->setExternId($newExternId);
 
-            //in every case set statementElement, because null is not a valid value and only statementElement is
-            //safely available in each procedure
+            // in every case set statementElement, because null is not a valid value and only statementElement is
+            // safely available in each procedure
             $statementToMove->setElement($statementElement);
             $statementToMove->getOriginal()->setElement($statementElement);
 
-            //T12744:
+            // T12744:
             $this->statementCopyAndMoveService->handlePublicationOfStatement($statementToMove, $targetProcedure, $statementToMove);
 
             $statementToMove->setDocument(null);
@@ -212,7 +212,7 @@ class StatementMover extends CoreService
             $statementToMove->setChildren(null);
 
             // remove all tags, because tags are bound by procedure
-            //todo: maybe should attached to placeholder?
+            // todo: maybe should attached to placeholder?
             // Attaching tags on placeholder would save them an enable restore after revert moving of statement.
             // (on move back to origin procedure).
             // This behavior is not demanded, not intended and would be increase the complexity slightly.
@@ -227,13 +227,13 @@ class StatementMover extends CoreService
                 $this->statementHandler->deleteStatementFragment($fragment->getId(), true);
             }
 
-            //set placeholder and persist&flush statement to move:
+            // set placeholder and persist&flush statement to move:
             if (null === $statementToMove->getPlaceholderStatement()) {
                 $statementToMove->setPlaceholderStatement($placeholderStatement);
             }
 
             $updatedOriginalStatementToMove = null;
-            //check assignment before set, to ensure BE-Check of assignment will not be bypassed on move statement
+            // check assignment before set, to ensure BE-Check of assignment will not be bypassed on move statement
             $lockedByAssignment = $this->statementService->isStatementObjectLockedByAssignment($statementToMove);
             if (!$lockedByAssignment) {
                 $statementToMove->setAssignee(null);
@@ -241,7 +241,7 @@ class StatementMover extends CoreService
                     $statementToMove,
                     true
                 );
-                //update $originalStatement to persist changes:
+                // update $originalStatement to persist changes:
                 $updatedOriginalStatementToMove = $this->statementService->updateStatementFromObject(
                     $copyOfOriginalStatementToMove,
                     true,
@@ -254,7 +254,7 @@ class StatementMover extends CoreService
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
-            //delete version-history in the end to avoid generating new versions on process of moving
+            // delete version-history in the end to avoid generating new versions on process of moving
             if ($deleteVersionHistory) {
                 $this->entityContentChangeService->deleteByEntityIds([$statementToMove->getId()]);
                 $this->entityContentChangeService->deleteByEntityIds([$copyOfOriginalStatementToMove->getId()]);
@@ -342,11 +342,11 @@ class StatementMover extends CoreService
             return false;
         }
 
-        //do not check if feature_notification_citizen_statement_submitted is enabled
+        // do not check if feature_notification_citizen_statement_submitted is enabled
 
         if (!$this->permissions->hasPermission('feature_statement_move_to_foreign_procedure')
             && $sourceProcedure->getOrgaId() !== $targetProcedure->getOrgaId()) {
-            //error because should already be handled
+            // error because should already be handled
             $this->messageBag->add('warning', 'warning.deny.move.statement.to.foreign.procedure');
             $this->logger->warning(
                 'Cant move Statement: '.$statement->getExternId(
@@ -397,7 +397,7 @@ class StatementMover extends CoreService
     {
         $placeholderStatement = clone $statementToMove;
 
-        //remove related Entitycollections
+        // remove related Entitycollections
         $placeholderStatement->setFragments([]);
         $placeholderStatement->setVotes([]);
         $placeholderStatement->setTags([]);
@@ -407,20 +407,20 @@ class StatementMover extends CoreService
         $placeholderStatement->setFiles([]);
         $placeholderStatement->setInternId(null);
         $placeholderStatement->setMovedStatement($statementToMove);
-        $placeholderStatement->setExternId($statementToMove->getExternId()); //maybe Moved %externId%
+        $placeholderStatement->setExternId($statementToMove->getExternId()); // maybe Moved %externId%
         $placeholderStatement->setText('');
         $placeholderStatement = $this->statementService->setPublicVerified(
             $placeholderStatement,
             Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED
         );
 
-        //special case: statement to move is a parent-Statement
+        // special case: statement to move is a parent-Statement
         /** @var Statement $child */
         foreach ($statementToMove->getChildren() as $child) {
             $child->setParent($placeholderStatement);
         }
 
-        //special case: statement to move is a copy
+        // special case: statement to move is a copy
         $placeholderStatement->setParent($statementToMove->getParent());
 
         return $placeholderStatement;
@@ -441,7 +441,7 @@ class StatementMover extends CoreService
         );
         $this->reportService->persistAndFlushReportEntries($entry);
 
-        //same entry for targetProcedure, for case of deleting  source procedure:
+        // same entry for targetProcedure, for case of deleting  source procedure:
         $entry = $this->statementReportEntryFactory->createMovedStatementEntry(
             $movedStatement,
             $movedStatement->getProcedureId()

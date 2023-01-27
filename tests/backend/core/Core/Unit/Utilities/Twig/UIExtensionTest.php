@@ -11,9 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Tests\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\UIExtension;
-use Symfony\Contracts\Cache\CacheInterface;
 use Tests\Base\FunctionalTestCase;
-use Twig\Environment;
 
 /**
  * Needs to extend FunctionalTestCase as twig service is needed

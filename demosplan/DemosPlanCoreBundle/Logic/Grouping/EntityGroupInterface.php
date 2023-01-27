@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -31,7 +32,7 @@ interface EntityGroupInterface
     public function setEntry($key, $entry): void;
 
     /**
-     * @param string|int     $key
+     * @param string|int              $key
      * @param EntityGroupInterface<T> $subgroup
      */
     public function setSubgroup($key, EntityGroupInterface $subgroup): void;
