@@ -149,7 +149,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
                     $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
-                    // update entities with new tags, workfolwPlace and assignee
+                    // update entities with new tags, workflowPlace and assignee
                     $addTagIds = $this->getValidTags($rpcRequest->params->addTagIds, $procedureId);
                     $removeTagIds = $this->getValidTags(
                         $rpcRequest->params->removeTagIds,
