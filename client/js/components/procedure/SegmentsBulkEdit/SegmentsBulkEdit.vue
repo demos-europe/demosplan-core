@@ -157,28 +157,28 @@
         <div
           v-if="addTagsCheckedAndSelected"
           class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
         </div>
 
         <div
           v-if="deleteTagsCheckedAndSelected"
           class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length})" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length})" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
         </div>
 
         <div
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
           class="u-pv">
-          <p v-html="addOrReplaceRecommendationMessage" />
+          <p v-cleanhtml="addOrReplaceRecommendationMessage" />
           <p v-cleanhtml="actions.addRecommendations.text" />
         </div>
 
         <div
           v-if="assignPlaceCheckedAndSelected"
           class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
         </div>
       </div>
