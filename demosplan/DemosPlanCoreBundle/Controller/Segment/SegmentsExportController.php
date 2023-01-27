@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -38,7 +39,7 @@ class SegmentsExportController extends BaseController
      *     options={"expose": true})
      *
      * @throws StatementNotFoundException
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions("feature_segments_of_statement_list")
      */

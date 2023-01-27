@@ -15,10 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use demosplan\DemosPlanCoreBundle\Application\Header;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Throwable;
 use TusPhp\Cache\FileStore;
 use TusPhp\Events\UploadComplete;
 
@@ -103,7 +103,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         } catch (VirusFoundException $e) {
             $this->logger->error('Virus found in File ', [$e]);
             $fileId = '';
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Could not save uploaded File ', [$e]);
             $fileId = '';
         }

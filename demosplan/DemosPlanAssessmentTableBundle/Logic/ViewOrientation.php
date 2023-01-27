@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 class ViewOrientation
 {
     /** @var string */
-    const PORTRAIT_NAME = 'portrait';
+    public const PORTRAIT_NAME = 'portrait';
     /** @var string */
-    const LANDSCAPE_NAME = 'landscape';
+    public const LANDSCAPE_NAME = 'landscape';
 
     /** @var string */
     private $name;

@@ -14,9 +14,8 @@ namespace Tests\Core\Core\Functional;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\EventSubscriber\UserLoginSubscriber;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\EventSubscriber\UserLoginSubscriber;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Tests\Base\FunctionalTestCase;

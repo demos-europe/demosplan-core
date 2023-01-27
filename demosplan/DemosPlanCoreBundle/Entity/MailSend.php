@@ -68,6 +68,7 @@ class MailSend implements IntegerIdEntityInterface
      *             Length 10000 is a magic number until it is refactored to type="text".
      *             Type Text could not have a default value, so behaviour
      *             changes from return '' now to return null later
+     *
      * @ORM\Column(name="_ms_cc", type="string", length=10000, nullable=false, options={"default":""})
      */
     protected $cc = '';
@@ -81,6 +82,7 @@ class MailSend implements IntegerIdEntityInterface
      *             You have to change some columns to TEXT or BLOBs"
      *             Might be refactored to type="text" buut Type Text could not have a default value, so behaviour
      *             changes from return '' now to return null later
+     *
      * @ORM\Column(name="_ms_bcc", type="string", length=5, nullable=false, options={"default":""})
      */
     protected $bcc = '';
@@ -101,6 +103,7 @@ class MailSend implements IntegerIdEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_ms_created_date", type="datetime", nullable=false)
      */
@@ -151,6 +154,7 @@ class MailSend implements IntegerIdEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_ms_last_status_date", type="datetime", nullable=false)
      */

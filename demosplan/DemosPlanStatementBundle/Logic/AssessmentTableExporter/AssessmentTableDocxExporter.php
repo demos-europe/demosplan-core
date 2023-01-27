@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
+use Exception;
 
 class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
 {
@@ -65,7 +66,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
             ];
 
             return $file;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning($e);
             throw HandlerException::assessmentExportFailedException('docx');
         }

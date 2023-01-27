@@ -29,13 +29,18 @@ class AddonException extends RuntimeException
         return new self("Manifest for `{$addonName}` does not exist or is invalid");
     }
 
-    public static function unresolvableClass(string $class): self
-    {
-        return new self("Probable addon class `{$class}` could not be resolved by addon class loading.");
-    }
-
     public static function manifestEntryNotFound(string $entryName): self
     {
         return new self(sprintf('No entry found in manifest with name: "%s"', $entryName));
+    }
+
+    public static function immutableRegistry(): self
+    {
+        return new self('The addon registry is immutable after booting.');
+    }
+
+    public static function alreadyInstalled(): self
+    {
+        return new self("Du'h, it's already there.");
     }
 }

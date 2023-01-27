@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ContentEmailMismatchException;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ServiceStorage
@@ -36,7 +37,6 @@ class ServiceStorage
         MailService $service,
         TranslatorInterface $translator
     ) {
-
         $this->legacyFlashMessageCreator = $legacyFlashMessageCreator;
         $this->service = $service;
         $this->translator = $translator;
@@ -50,7 +50,7 @@ class ServiceStorage
      *
      * @throws ContentMandatoryFieldsException
      * @throws ContentEmailMismatchException
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendContactForm($request, $to): void
     {

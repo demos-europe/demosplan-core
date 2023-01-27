@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class CopyToProcedureNotAllowedException extends \Exception
+use Exception;
+
+class CopyToProcedureNotAllowedException extends Exception
 {
 }

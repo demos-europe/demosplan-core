@@ -153,7 +153,7 @@ class ParagraphExporter
 
         $pictures = $this->getPicturesFromText($content);
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), $pictures);
         $pdf = base64_decode($response);
         $this->logger->debug('Got Response: '.DemosPlanTools::varExport($pdf, true));

@@ -10,21 +10,7 @@
 
 namespace Tests\Base;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Doctrine\Common\DataFixtures\ReferenceRepository;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Liip\FunctionalTestBundle\Test\WebTestCase;
-use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
-use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
-use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Yaml\Yaml;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -47,6 +33,24 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Doctrine\Common\DataFixtures\ReferenceRepository;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Liip\FunctionalTestBundle\Test\WebTestCase;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionObject;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class FunctionalTestCase extends WebTestCase
 {
@@ -94,7 +98,7 @@ class FunctionalTestCase extends WebTestCase
         parent::tearDown();
 
         // avoid memory leaks
-        $refl = new \ReflectionObject($this);
+        $refl = new ReflectionObject($this);
 
         foreach ($refl->getProperties() as $prop) {
             if (!$prop->isStatic() && 0 !== \strncmp($prop->getDeclaringClass()->getName(), 'PHPUnit_', 8)) {
@@ -218,14 +222,14 @@ class FunctionalTestCase extends WebTestCase
     /**
      * Check if the given value is a timestamp of the current date.
      *
-     * @param \DateTime|int $timestamp Value to be checked
+     * @param DateTime|int $timestamp Value to be checked
      *
      * @return bool - true if the given parameter a timestamp of the current date, otherwise false
      */
     public function isCurrentTimestamp($timestamp)
     {
         $currentDate = strtotime(date('Y-m-d'));
-        if ($timestamp instanceof \DateTime) {
+        if ($timestamp instanceof DateTime) {
             $timestamp = $timestamp->getTimestamp();
         } else {
             $timestamp = 13 === strlen($timestamp) ? $timestamp / 1000 : $timestamp;
@@ -454,7 +458,7 @@ class FunctionalTestCase extends WebTestCase
             if (0 === strpos($methodName, 'get')) {
                 $attributeName = lcfirst(substr_replace($methodName, '', 0, $length));
                 if (property_exists($class, $attributeName) && !in_array($attributeName, $attributesToSkip, true)) {
-                    if ($object->$methodName() instanceof \DateTime
+                    if ($object->$methodName() instanceof DateTime
                         && is_int($objectAsArray[$attributeName])
                     ) {
                         static::assertEquals(
@@ -527,7 +531,7 @@ class FunctionalTestCase extends WebTestCase
             }
             $property = $mockMethodDefinition->getPropertyName();
             if (null !== $property) {
-                $mockReflection = new \ReflectionClass($classToMock);
+                $mockReflection = new ReflectionClass($classToMock);
                 $propertyReflection = $mockReflection->getProperty($property);
                 $propertyReflection->setAccessible(true);
                 $propertyReflection->setValue($mock, $returnValue);
@@ -669,12 +673,12 @@ class FunctionalTestCase extends WebTestCase
      *
      * @return mixed
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function invokeProtectedMethod(array $classAndMethod, ...$args)
     {
         [$class, $methodName] = $classAndMethod;
-        $class = new \ReflectionClass($class);
+        $class = new ReflectionClass($class);
         $method = $class->getMethod($methodName);
         $method->setAccessible(true);
 

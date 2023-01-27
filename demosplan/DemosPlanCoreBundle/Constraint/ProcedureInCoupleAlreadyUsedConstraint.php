@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -28,12 +30,12 @@ class ProcedureInCoupleAlreadyUsedConstraint extends Constraint
     /**
      * @var string
      */
-    public $targetProcedureMessage = "procedure.token.circular.coupling.target";
+    public $targetProcedureMessage = 'procedure.token.circular.coupling.target';
 
     /**
      * @var string
      */
-    public $sourceProcedureMessage = "procedure.token.circular.coupling.source";
+    public $sourceProcedureMessage = 'procedure.token.circular.coupling.source';
 
     public function validatedBy(): string
     {

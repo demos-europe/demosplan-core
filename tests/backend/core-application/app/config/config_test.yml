@@ -49,8 +49,7 @@ services:
         autoconfigure: true
 
     Tests\CoreApplication\Permissions\Permissions:
-        arguments:
-            $addonInfoProviders: !tagged_iterator { tag: 'dplan.addon_info_provider', default_index_method: 'getAddonIdentifier' }
+        autowire: true
 
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'

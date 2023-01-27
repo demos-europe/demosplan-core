@@ -36,13 +36,11 @@ class DemosPlanAdminController extends BaseController
      *     path="/statistik",
      *     defaults={"format": "html", "part": "all"},
      * )
-     *
      * @Route(
      *     name="DemosPlan_statistics_csv",
      *     path="/statistik/{part}/csv",
      *     defaults={"format": "csv"},
      * )
-     *
      * @DplanPermissions("area_statistics")
      *
      * @param string $part
@@ -66,11 +64,11 @@ class DemosPlanAdminController extends BaseController
 
         $procedureList = $procedureService->getProcedureFullList();
 
-        //Verfahrensschritte
+        // Verfahrensschritte
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
 
-        //T17387:
+        // T17387:
         $originalStatements = $statementService->getOriginalStatements();
         $amountOfProcedures = $procedureService->getAmountOfProcedures();
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
@@ -82,7 +80,7 @@ class DemosPlanAdminController extends BaseController
                 $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
                 $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
 
-                $procedureList['result'][$procedureData['id']] = $procedureData; //actually overwrite data
+                $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
 
                 // speichere die Anzahl der Phasen zwischen
                 if (0 < strlen($procedureData['phase'])) {

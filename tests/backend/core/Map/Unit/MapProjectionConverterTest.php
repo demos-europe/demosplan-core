@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Tests\Base\UnitTestCase;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use proj4php\Proj4php;
 use proj4php\Proj;
+use proj4php\Proj4php;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Tests\Base\UnitTestCase;
 
 class MapProjectionConverterTest extends UnitTestCase
 {
@@ -52,7 +52,7 @@ class MapProjectionConverterTest extends UnitTestCase
     public function testConvertGeoJsonToString(): void
     {
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
-        $currentGeoJson = $this->getFileContents($geoJsonFilesDir . '/geoJson2.json');
+        $currentGeoJson = $this->getFileContents($geoJsonFilesDir.'/geoJson2.json');
 
         $newGeoJson = $this->sut->convertGeoJsonPolygon(
             $currentGeoJson,
@@ -67,7 +67,7 @@ class MapProjectionConverterTest extends UnitTestCase
     public function testConvertGeoJsonToObject(): void
     {
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
-        $currentGeoJson = $this->getFileContents($geoJsonFilesDir . '/geoJson2.json');
+        $currentGeoJson = $this->getFileContents($geoJsonFilesDir.'/geoJson2.json');
 
         $newGeoJson = $this->sut->convertGeoJsonPolygon(
             $currentGeoJson,
@@ -109,16 +109,16 @@ class MapProjectionConverterTest extends UnitTestCase
 
     public function testConvertCoordinatesViewport(): void
     {
-        $viewport = new CoordinatesViewport(590156.0233245,5930712.8959695,600908.04482854,5941464.9174735);
+        $viewport = new CoordinatesViewport(590156.0233245, 5930712.8959695, 600908.04482854, 5941464.9174735);
         $convertedViewport = $this->sut->convertCoordinatesViewport(
             $viewport,
             MapService::EPSG_25832_PROJECTION_LABEL,
             MapService::PSEUDO_MERCATOR_PROJECTION_LABEL,
         );
-        $expectedViewport = new CoordinatesViewport(1153242.4985034275,7079321.2477863515,1171674.5046008124,7097063.301828073);
+        $expectedViewport = new CoordinatesViewport(1153242.4985034275, 7079321.2477863515, 1171674.5046008124, 7097063.301828073);
         self::assertEquals($expectedViewport, $convertedViewport);
 
-        $viewport = new CoordinatesViewport(590156.0233245,5930712.8959695,600908.04482854,5941464.9174735);
+        $viewport = new CoordinatesViewport(590156.0233245, 5930712.8959695, 600908.04482854, 5941464.9174735);
         $convertedViewport = $this->sut->convertCoordinatesViewport(
             $viewport,
             MapService::EPSG_25832_PROJECTION_LABEL,
@@ -153,17 +153,18 @@ class MapProjectionConverterTest extends UnitTestCase
         $this->assertEqualsWithDelta(7231944.5026638, $convertedCoordinate[1], self::DECIMAL_PRECISION);
     }
 
-    private function getExpectedGeoJson() {
+    private function getExpectedGeoJson()
+    {
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
-        $fileContents = $this->getFileContents($geoJsonFilesDir . '/convertedGeoJson2.json');
+        $fileContents = $this->getFileContents($geoJsonFilesDir.'/convertedGeoJson2.json');
 
-        return str_replace(["\n", "\t", " ", "\r"], '', trim($fileContents));
+        return str_replace(["\n", "\t", ' ', "\r"], '', trim($fileContents));
     }
 
     private function getFileContents(string $fullPath): string
     {
         if (!$fileContents = file_get_contents($fullPath)) {
-            throw new FileNotFoundException('File not found in path: ' . $fullPath);
+            throw new FileNotFoundException('File not found in path: '.$fullPath);
         }
 
         return $fileContents;

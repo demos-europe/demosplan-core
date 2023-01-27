@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
+use Exception;
 
 class ProcedureSubscriptionRepository extends CoreRepository implements ImmutableArrayInterface
 {
@@ -61,7 +62,7 @@ class ProcedureSubscriptionRepository extends CoreRepository implements Immutabl
             }
 
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not delete ProcedureSubscription: ', [$e]);
 
             return false;

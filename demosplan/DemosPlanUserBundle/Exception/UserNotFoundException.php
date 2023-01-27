@@ -36,5 +36,4 @@ class UserNotFoundException extends ResourceNotFoundException
     {
         return $this->userLogin;
     }
-
 }

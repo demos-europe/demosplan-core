@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\HasPermissionExtension;
+use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\UnitTestCase;
 
@@ -56,13 +57,13 @@ class HasPermissionExtensionTest extends UnitTestCase
             ->will(
                 static::returnCallback(function ($parameter) use ($permissions) {
                     switch ($parameter) {
-                    case 'permissions':
-                        return $permissions;
-                        break;
-                    default:
-                        return null;
-                        break;
-                }
+                        case 'permissions':
+                            return $permissions;
+                            break;
+                        default:
+                            return null;
+                            break;
+                    }
                 }));
 
         return $sessionMock;
@@ -86,7 +87,7 @@ class HasPermissionExtensionTest extends UnitTestCase
             $permissionToTest = ['f1', 'f2'];
             $result = $this->twigExtension->hasPermission($permissionToTest);
             static::assertTrue($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(false);
 
             return;

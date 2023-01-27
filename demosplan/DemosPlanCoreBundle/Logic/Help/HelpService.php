@@ -160,5 +160,4 @@ class HelpService extends CoreService
         $help = $repo->get($ident);
         $repo->delete($help);
     }
-
 }

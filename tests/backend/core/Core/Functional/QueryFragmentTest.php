@@ -137,7 +137,7 @@ class QueryFragmentTest extends FunctionalTestCase
     public function testInterfaceFiltersExternal()
     {
         $this->loginTestUser(LoadUserData::TEST_USER_CITIZEN);
-        //test available Filters structure without explicit scope
+        // test available Filters structure without explicit scope
         static::assertCount(0, $this->sut->getInterfaceFilters());
     }
 

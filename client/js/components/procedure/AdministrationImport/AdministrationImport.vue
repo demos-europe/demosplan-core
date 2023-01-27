@@ -32,7 +32,7 @@
 import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
+import { dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 
@@ -132,7 +132,54 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
+    },
+
+    /**
+     * Append a script tag to the head section which will be used to load a vue component dynamically
+     *
+     * @param {string} component
+     */
+    addComponentScript (component) {
+      const script = document.createElement('script')
+      script.id = component.name
+      script.type = 'text/javascript'
+      script.text = component.text
+
+      document.head.appendChild(script)
+      script.addEventListener('load', () => this.attachComponent(component))
+    },
+
+    /**
+     * Add component to this Vue wrapper component
+     */
+    addComponent (component) {
+      this.asyncComponents.push({
+        name: component.name,
+        permissions: component.permissions,
+        title: component.title
+      })
+    },
+
+    attachComponent (component) {
+      this.$options.components[component.name] = window[component.name]
+      const t = { ...component, component: this.$options.components[component.name] }
+      this.addComponent(t)
+    },
+
+    loadComponents (hookName) {
+      const params = {
+        hookName: hookName
+      }
+
+      dpRpc('addons.assets.load', params).then(response => {
+        this.addComponent(response)
+        this.addComponentScript(response)
+      })
     }
+  },
+
+  mounted () {
+    this.loadComponents('import.tabs')
   }
 }
 </script>

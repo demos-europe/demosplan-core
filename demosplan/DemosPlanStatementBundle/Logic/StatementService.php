@@ -4917,7 +4917,7 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     private function includeStatementFragments(array $allowedClasses): bool
     {
-        return \in_array(Statement::class, $allowedClasses, true);
+        return \in_array(StatementFragment::class, $allowedClasses, true);
     }
 
     /**
@@ -4932,7 +4932,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         if ($this->includeStatementFragments($entityClassesToInclude)) {
-            $explodedStatement->push($statement->getFragments());
+            $explodedStatement->push(...$statement->getFragments());
         }
 
         return $explodedStatement;

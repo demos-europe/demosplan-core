@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -17,9 +18,9 @@ use Knp\Menu\ItemInterface;
 class ConfigureMenuEvent extends DPlanEvent
 {
     private $menuName;
-    /** @var FactoryInterface  */
+    /** @var FactoryInterface */
     private $factory;
-    /** @var ItemInterface  */
+    /** @var ItemInterface */
     private $menu;
 
     public function __construct(string $menuName, FactoryInterface $factory, ItemInterface $menu)
