@@ -112,7 +112,7 @@
             :disabled="!hasSegments" />
         </action-stepper-action>
 
-        <!-- Assign places -->
+        <!-- Assign place -->
         <action-stepper-action
           v-model="actions.assignPlace.checked"
           id="selectAssignPlaceAction"
@@ -399,12 +399,12 @@ export default {
       return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0 || Object.values(this.actions.assignPlace.selected).length > 0
     },
 
-    hasSegments () {
-      return this.segments.length > 0
-    },
-
     hasPlaces () {
       return this.places.length > 0
+    },
+
+    hasSegments () {
+      return this.segments.length > 0
     },
 
     tags () {
@@ -491,8 +491,7 @@ export default {
 
     fetchPlaces () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
-
-      return dpApi.get(url, { include: 'name' })
+      return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
