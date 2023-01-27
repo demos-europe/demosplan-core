@@ -354,11 +354,9 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     /**
      * Set filename.
      *
-     * @param string $filename
-     *
      * @return File
      */
-    public function setFilename($filename)
+    public function setFilename(?string $filename)
     {
         $this->filename = $this->sanitizeFilename($filename);
 
@@ -367,10 +365,8 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
 
     /**
      * Get filename.
-     *
-     * @return string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         // do not allow invalid chars in Filenames
         $this->filename = $this->sanitizeFilename($this->filename);
@@ -390,12 +386,10 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
 
     /**
      * Strip invalid chars from filename.
-     *
-     * @param string $filename
      */
-    protected function sanitizeFilename($filename): string
+    protected function sanitizeFilename(?string $filename): string
     {
-        return str_ireplace(FileService::INVALID_FILENAME_CHARS, '', $filename);
+        return str_ireplace(FileService::INVALID_FILENAME_CHARS, '', $filename ?? '');
     }
 
     /**
