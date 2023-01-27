@@ -10,18 +10,19 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
-use function array_key_exists;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomerHandler extends CoreHandler
 {

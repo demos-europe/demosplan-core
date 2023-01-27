@@ -17,7 +17,7 @@ use Tests\Base\UnitTestCase;
 
 class BrandingRepositoryTest extends UnitTestCase
 {
-    /** @var BrandingRepository|null  */
+    /** @var BrandingRepository|null */
     protected $sut;
 
     protected function setUp(): void

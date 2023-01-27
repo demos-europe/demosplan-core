@@ -66,27 +66,27 @@ class MatomoApiTest extends FunctionalTestCase
     private function buildMockHttpClient()
     {
         $responseJson = json_encode([
-            "2021-08" => [],
-            "2021-09" => [
-                ["label" => "\/detail",
-                "nb_visits" => 6,
-                "nb_hits" => 6,
-                "sum_time_spent" => 235,
-                "nb_hits_with_time_generation" => 2,
-                "min_time_generation" => "0.275",
-                "max_time_generation" => "0.421",
-                "sum_daily_nb_uniq_visitors" => 3]
+            '2021-08' => [],
+            '2021-09' => [
+                ['label'                       => "\/detail",
+                'nb_visits'                    => 6,
+                'nb_hits'                      => 6,
+                'sum_time_spent'               => 235,
+                'nb_hits_with_time_generation' => 2,
+                'min_time_generation'          => '0.275',
+                'max_time_generation'          => '0.421',
+                'sum_daily_nb_uniq_visitors'   => 3],
             ],
-            "2021-10" => [],
-            "2021-11" => [
-                ["label" => "\/detail",
-                "nb_visits" => 4,
-                "nb_hits" => 4,
-                "sum_time_spent" => 235,
-                "nb_hits_with_time_generation" => 2,
-                "min_time_generation" => "0.275",
-                "max_time_generation" => "0.421",
-                "sum_daily_nb_uniq_visitors" => 2]
+            '2021-10' => [],
+            '2021-11' => [
+                ['label'                       => "\/detail",
+                'nb_visits'                    => 4,
+                'nb_hits'                      => 4,
+                'sum_time_spent'               => 235,
+                'nb_hits_with_time_generation' => 2,
+                'min_time_generation'          => '0.275',
+                'max_time_generation'          => '0.421',
+                'sum_daily_nb_uniq_visitors'   => 2],
             ],
         ], JSON_THROW_ON_ERROR);
 

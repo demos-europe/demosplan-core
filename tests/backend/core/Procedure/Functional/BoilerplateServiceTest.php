@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class BoilerplateServiceTest extends FunctionalTestCase
@@ -38,7 +39,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
     public function testGetBoilerplate()
     {
         $testProcedureId = $this->fixtures->getReference('testProcedure2')->getId();
-        //check the boilerplateList
+        // check the boilerplateList
         $boilerplateList = $this->sut->getBoilerplateList($testProcedureId);
         $expectedCount = $this->countEntries(Boilerplate::class, ['procedure' => $testProcedureId]);
         static::assertIsArray($boilerplateList);
@@ -54,12 +55,12 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
     public function testGetBoilerplateExceptions()
     {
-        //case: procedureId does not exist
+        // case: procedureId does not exist
         $boilerplateList = $this->sut->getBoilerplateList('FakeId');
         static::assertIsArray($boilerplateList);
         static::assertCount(0, $boilerplateList);
 
-        //case: procedureId empty
+        // case: procedureId empty
         $boilerplateList = $this->sut->getBoilerplateList('');
         static::assertIsArray($boilerplateList);
         static::assertCount(0, $boilerplateList);
@@ -75,32 +76,32 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
     public function testGetSingleBoilerplateException()
     {
-        //case: $boilerplateId = null
+        // case: $boilerplateId = null
         try {
             $boilerplate = $this->sut->getBoilerplate(null);
             $this->fail('case: boilerplateId = null');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(true);
         }
 
-        //case: $boilerplateId = non existing Id
+        // case: $boilerplateId = non existing Id
         try {
             $boilerplate = $this->sut->getBoilerplate('fakeId');
             $this->fail('case: boilerplateId = non existing Id');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(true);
         }
 
-        //case: $boilerplateId = ''
+        // case: $boilerplateId = ''
         try {
             $boilerplate = $this->sut->getBoilerplate('');
             $this->fail('case: boilerplateId empty');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(true);
         }
     }
 
-    //Check result, when Database is empty
+    // Check result, when Database is empty
     public function testWithEmptyDatabase()
     {
         $this->databaseTool->loadFixtures([]);
@@ -179,7 +180,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDeleteBoilerplate()
     {
@@ -193,11 +194,11 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
         static::assertEquals($numberOfEntriesBefore - 1, $numberOfEntriesAfter);
         static::assertNotNull($this->sut->getBoilerplate($doNotDelete->getIdent()));
-        //getBoilerplate wirft exception bei abfrage eines nicht existenten
+        // getBoilerplate wirft exception bei abfrage eines nicht existenten
         try {
             $this->sut->getBoilerplate($toDelete->getIdent());
             $this->fail('Expected Exception');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertEquals(0, $e->getCode());
         }
     }
@@ -234,7 +235,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         /** @var BoilerplateGroup $group */
         $group = $this->fixtures->getReference('testBoilerplateEmptyGroup');
 
-        //check setup:
+        // check setup:
         static::assertNull($boilerplate1->getGroup());
         static::assertEmpty($group->getBoilerplates());
 
@@ -251,7 +252,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         /** @var BoilerplateGroup $group */
         $group = $this->fixtures->getReference('testBoilerplateTestGroup1');
 
-        //check setup:
+        // check setup:
         static::assertEquals($group->getId(), $boilerplate1->getGroupId());
         static::assertContains($boilerplate1, $group->getBoilerplates());
 
@@ -269,7 +270,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         /** @var BoilerplateGroup $group */
         $group = $this->fixtures->getReference('testBoilerplateEmptyGroup');
 
-        //check setup:
+        // check setup:
         static::assertNull($boilerplate1->getGroup());
         static::assertNull($boilerplate2->getGroup());
         static::assertEmpty($group->getBoilerplates());
@@ -293,7 +294,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         $group = $this->fixtures->getReference('testBoilerplateEmptyGroup');
         $groupId = $group->getId();
 
-        //check setup:
+        // check setup:
         static::assertEmpty($group->getBoilerplates());
 
         $this->sut->deleteBoilerplateGroup($group);
@@ -307,7 +308,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         $group = $this->fixtures->getReference('testBoilerplateTestGroup2');
         $groupId = $group->getId();
         $relatedBoilerplateIds = [];
-        //check setup:
+        // check setup:
         static::assertNotEmpty($group->getBoilerplates());
         foreach ($group->getBoilerplates() as $relatedBoilerplate) {
             $relatedBoilerplateIds[] = $relatedBoilerplate->getId();

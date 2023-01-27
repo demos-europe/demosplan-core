@@ -10,17 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use DOMDocument;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use Exception;
-use Monolog\Logger;
-use Patchwork\Utf8;
-use Psr\Log\LoggerInterface;
-use ReflectionException;
-use SimpleXMLElement;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -32,6 +22,16 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use DOMDocument;
+use Exception;
+use Monolog\Logger;
+use Patchwork\Utf8;
+use Psr\Log\LoggerInterface;
+use ReflectionException;
+use SimpleXMLElement;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Tightenco\Collect\Support\Collection;
 
 abstract class UserMapperDataportGateway implements UserMapperInterface
 {
@@ -161,7 +161,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
          * 500 Nicht Implementiert
          * 1000 Unbekannter Fehler
          */
-        //Fehler abfangen wenn kein GetUserDataResult vorhanden ist
+        // Fehler abfangen wenn kein GetUserDataResult vorhanden ist
         if ('1' !== $result) {
             $this->logger->error('Authenticate failed, return code', [$result]);
             if ($this->globalConfig->isProxyEnabled()) {
@@ -189,10 +189,10 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             $dom->validateOnParse = true;
             $dom->loadXML($aResult);
 
-            //user data array
+            // user data array
             $uData = [];
 
-            //roles data array
+            // roles data array
             $rData = [];
 
             $modeID = 0;
@@ -204,7 +204,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
 
                 $xmlAttributes = [];
                 if ('3' == $modeID) {
-                    //Firmenkunde
+                    // Firmenkunde
                     $xmlAttributes = [
                         'USERID',
                         'MODEID',
@@ -246,7 +246,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
                         'CERTIFICATEID',
                     ];
                 } elseif ('2' == $modeID) {
-                    //Intranet
+                    // Intranet
                     $xmlAttributes = [
                         'USERID',
                         'MODEID',
@@ -269,7 +269,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
                         'USERPHONENUMBER',
                     ];
                 } elseif ('1' == $modeID) {
-                    //Bürger
+                    // Bürger
                     $xmlAttributes = [
                         'USERID',
                         'MODEID',
@@ -290,7 +290,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
                     ];
                 }
 
-                //Parse und trim die wichtigsten Parameter
+                // Parse und trim die wichtigsten Parameter
                 foreach ($xmlAttributes as $key) {
                     $uData[$key] = $searchNodeSingle->getAttribute($key);
                     $uData[$key] = $this->decode($uData[$key]);
@@ -298,16 +298,16 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
                 }
             }
 
-            //Parse die Rollen
+            // Parse die Rollen
             $roleXmlAttributes = ['ROLEID', 'ROLENAME', 'PERMISSION', 'ISDEFAULT'];
             $searchNode = $dom->getElementsByTagName('ROLES');
             $i = 0;
             foreach ($searchNode as $searchNodeSingle) {
-                //Parse und trim die wichtigsten Parameter
+                // Parse und trim die wichtigsten Parameter
                 $this->logger->debug('Parse role nr. '.$i);
                 foreach ($roleXmlAttributes as $key) {
                     $rData[$i][$key] = $searchNodeSingle->getAttribute($key);
-                    //Es können kodierte Zeichen enthalten sein
+                    // Es können kodierte Zeichen enthalten sein
                     $rData[$i][$key] = $this->decode($rData[$i][$key]);
                     $this->logger->debug('Recognized '.$key.': '.$rData[$i][$key]);
                 }
@@ -371,8 +371,8 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             $roles[] = Role::PROSPECT;
         }
 
-        //Wenn User Mode 1 gesetzt ist handelt es sich um einen Bürger
-        //dann ist die Bürgerrolle zu setzen
+        // Wenn User Mode 1 gesetzt ist handelt es sich um einen Bürger
+        // dann ist die Bürgerrolle zu setzen
         // compare with string '1' as it is parsed as a string from gatewaystring
         if ('1' === $this->data['user']['MODEID']) {
             $roles = [Role::CITIZEN];
@@ -589,7 +589,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         ];
         $address = $this->addressService->addAddress($orgaAddress);
 
-        //Anlegen einer Organisation
+        // Anlegen einer Organisation
         $orgaData = [
             'customer'             => $this->customerHandler->getCurrentCustomer(),
             'name'                 => $this->data['user']['COMPANYNAME'],
@@ -805,11 +805,11 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         );
         if (!$user instanceof User) {
             $this->logger->info('Try to add a new user');
-            //Anlegen des Nutzers
+            // Anlegen des Nutzers
             $user = $this->createUser($this->data['modeID']);
             $this->logger->info('Created new user');
         } else {
-            //Update des Nutzers wenn nötig
+            // Update des Nutzers wenn nötig
             $user = $this->updateUser($user);
         }
 
@@ -823,20 +823,20 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
     {
         $orga = $user->getOrga();
         if (!$orga instanceof Orga) {
-            //Auf Organisation prüfen
+            // Auf Organisation prüfen
             /** @var Orga[] $orgas */
             $orgas = $this->orgaService->getOrgaByFields(
                 ['gwId' => $this->data['user']['COMPANYID']]
             );
             if (empty($orgas)) {
-                //Anlegen einer Organisations Addresse
+                // Anlegen einer Organisations Addresse
                 $this->logger->info('Try to add a new orga');
                 $orga = $this->createOrga();
                 $this->logger->info('Added a new orga');
             } else {
                 $orga = $orgas[0];
             }
-            //Nutzer zur vorhandenen Organisation hinzufügen
+            // Nutzer zur vorhandenen Organisation hinzufügen
             $this->orgaService->orgaAddUser($orga->getId(), $user);
         }
 
@@ -849,21 +849,21 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
      */
     protected function handleCitizen(): User
     {
-        //Nutzer prüfen
+        // Nutzer prüfen
         $user = $this->userService->findDistinctUserByEmailOrLogin(
             $this->data['user']['LOGINNAME']
         );
         if (!$user instanceof User) {
-            //Anlegen des Nutzers
+            // Anlegen des Nutzers
             $this->logger->info('Try to add a new user');
             $user = $this->createUser($this->data['modeID']);
             $this->logger->info('User added', ['UserId' => $user->getId()]);
         } else {
-            //Update des Nutzers wenn nötig
+            // Update des Nutzers wenn nötig
             $this->logger->info('Update user Bürger');
             $user = $this->updateUser($user);
         }
-        //prüfe, ob Orga und Department gesetzt sind
+        // prüfe, ob Orga und Department gesetzt sind
         if (is_null($user->getOrga())) {
             // Zu Bürgerorga hinzufügen
             /** @var Orga[] $citizenOrga */
@@ -873,7 +873,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
                 $this->orgaService->orgaAddUser($citizenOrga[0]->getId(), $user);
             }
         }
-        //Auf Department prüfen
+        // Auf Department prüfen
         if (is_null($user->getDepartment())) {
             /** @var Department[] $citizenDepartments */
             $citizenDepartments = $this->userService->getDepartmentByFields(['name' => 'anonym']);

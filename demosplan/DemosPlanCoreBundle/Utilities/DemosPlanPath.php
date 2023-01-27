@@ -41,7 +41,7 @@ class DemosPlanPath
      */
     public static function getRootPath($path = ''): string
     {
-        return dirname(__FILE__, 4) . DIRECTORY_SEPARATOR . $path;
+        return dirname(__FILE__, 4).DIRECTORY_SEPARATOR.$path;
     }
 
     /**
@@ -63,7 +63,7 @@ class DemosPlanPath
             throw new RuntimeException('Could not determine temporary directory');
         }
 
-        return $tempDir . DIRECTORY_SEPARATOR . $path;
+        return $tempDir.DIRECTORY_SEPARATOR.$path;
     }
 
     public static function makeTemporaryDir(string $path = '', $mode = 0777): string
@@ -95,7 +95,7 @@ class DemosPlanPath
     public static function getTestPath(string $path = ''): string
     {
         return '' !== $path
-            ? self::getRootPath('tests') . '/' . $path
+            ? self::getRootPath('tests').'/'.$path
             : self::getRootPath('tests');
     }
 
@@ -113,7 +113,7 @@ class DemosPlanPath
 
             foreach ($objects as $object) {
                 if ('.' !== $object && '..' !== $object) {
-                    $pathToObject = $path . DIRECTORY_SEPARATOR . $object;
+                    $pathToObject = $path.DIRECTORY_SEPARATOR.$object;
 
                     if ('dir' === filetype($pathToObject)) {
                         self::recursiveRemovePath($pathToObject);
@@ -130,10 +130,8 @@ class DemosPlanPath
             $deleted = rmdir($path);
 
             if (false === $deleted) {
-                throw new RuntimeException('Could not delete Dir ' . $path);
+                throw new RuntimeException('Could not delete Dir '.$path);
             }
         }
     }
 }
-
-

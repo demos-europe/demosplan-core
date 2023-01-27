@@ -36,7 +36,6 @@ class OriginalStatementAnonymization
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $created;
@@ -46,7 +45,6 @@ class OriginalStatementAnonymization
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="anonymizations")
      * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
-     *
      * @IsOriginalStatementConstraint()
      */
     protected $statement;

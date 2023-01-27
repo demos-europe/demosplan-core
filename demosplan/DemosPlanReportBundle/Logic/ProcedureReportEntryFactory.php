@@ -13,17 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanReportBundle\Logic;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 {
@@ -46,10 +46,10 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $mailSubject
     ): ReportEntry {
         $data = [
-            'recipients' => $recipients,
+            'recipients'  => $recipients,
             'ccAddresses' => $ccAddresses,
-            'phase' => $phase,
-            'ident' => $procedureId,
+            'phase'       => $phase,
+            'ident'       => $procedureId,
             'mailSubject' => $mailSubject,
         ];
 
@@ -70,9 +70,9 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $mailSubject
     ): ReportEntry {
         $data = [
-            'recipients' => $recipientsWithEmail,
-            'phase' => $phase,
-            'ident' => $procedureId,
+            'recipients'  => $recipientsWithEmail,
+            'phase'       => $phase,
+            'ident'       => $procedureId,
             'mailSubject' => $mailSubject,
         ];
 
@@ -104,7 +104,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     {
         $data = [
             'newStartDate' => $procedure->getPublicParticipationStartDateTimestamp(),
-            'newEndDate' => $procedure->getPublicParticipationEndDateTimestamp(),
+            'newEndDate'   => $procedure->getPublicParticipationEndDateTimestamp(),
         ];
 
         $entry = $this->createReportEntry();
@@ -216,9 +216,9 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         User $user
     ): ReportEntry {
         $message = [
-            'ident' => $procedureId,
-            'group' => ReportEntry::GROUP_PROCEDURE,
-            'category' => ReportEntry::CATEGORY_UPDATE,
+            'ident'        => $procedureId,
+            'group'        => ReportEntry::GROUP_PROCEDURE,
+            'category'     => ReportEntry::CATEGORY_UPDATE,
             'externalDesc' => $externalDescription,
         ];
 
@@ -239,11 +239,11 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $statementMailAddresses
     ): ReportEntry {
         $message = [
-            'procedureId' => $procedureId,
-            'ident' => $procedureId,
+            'procedureId'   => $procedureId,
+            'ident'         => $procedureId,
             'receiverCount' => count($statementMailAddresses),
-            'mailSubject' => $preparationMail->getMailSubject(),
-            'mailBody' => $preparationMail->getMailBody(),
+            'mailSubject'   => $preparationMail->getMailSubject(),
+            'mailBody'      => $preparationMail->getMailBody(),
         ];
 
         $entry = $this->createReportEntry();

@@ -16,6 +16,6 @@ class DraftStatementNotFoundException extends ResourceNotFoundException
 {
     public static function createFromId(string $id): DraftStatementNotFoundException
     {
-        return new self("DraftStatement with the ID ${id} was not found.");
+        return new self("DraftStatement with the ID {$id} was not found.");
     }
 }

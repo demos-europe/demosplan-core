@@ -127,7 +127,7 @@ class DateExtension extends ExtensionBase
 
         // Wurde ein Timestamp mit Millisekunden übergeben?
         if (10 < strlen($timestamp)) {
-            //schneide die Millisekunden weg
+            // schneide die Millisekunden weg
             $timestamp = substr($timestamp, 0, 10);
         }
 

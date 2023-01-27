@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanUserBundle\Logic\MasterToebService;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class MasterToebServiceTest extends FunctionalTestCase
@@ -63,7 +64,7 @@ class MasterToebServiceTest extends FunctionalTestCase
 
     public function testGetSingleMasterToebWithNotExistingId()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->getMasterToeb('');
     }
@@ -84,7 +85,7 @@ class MasterToebServiceTest extends FunctionalTestCase
 
     public function testDeleteSingleMasterToebWithNotExistingId()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->deleteMasterToeb('');
     }
@@ -99,7 +100,7 @@ class MasterToebServiceTest extends FunctionalTestCase
 
     public function testAddMasterToebWithEmptyDataArray()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->addMasterToeb([]);
     }
@@ -117,7 +118,7 @@ class MasterToebServiceTest extends FunctionalTestCase
         $numberOfEntriesAfter = $this->countEntries(MasterToeb::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check entry
+        // check entry
         $masterToeb = $this->fixtures->getReference('testMasterToeb2');
         $updatedMasterToeb = $this->sut->getMasterToeb($masterToeb->getIdent());
         static::assertEquals($data['departmentName'], $updatedMasterToeb->getDepartmentName());
@@ -193,7 +194,7 @@ class MasterToebServiceTest extends FunctionalTestCase
 
     public function testUpdateMasterToebWithEmptyDataArray()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->updateMasterToeb('', []);
     }
@@ -354,10 +355,10 @@ class MasterToebServiceTest extends FunctionalTestCase
             ->get($sourceOrga->getIdent());
         static::assertNull($sourceOrga);
 
-        //shadoworga hat gwid von source orga
+        // shadoworga hat gwid von source orga
         static::assertEquals($gwId, $masterToeb->getOrga()->getGwId());
 
-        //$masterToebOrga hat jetzt direkt die user von vorher + die user der source
+        // $masterToebOrga hat jetzt direkt die user von vorher + die user der source
         foreach ($usersOfMasterToebBefore as $user) {
             static::assertContains($user, $usersOfMasterToebAfter);
         }
@@ -365,7 +366,7 @@ class MasterToebServiceTest extends FunctionalTestCase
             static::assertContains($user, $usersOfMasterToebAfter);
         }
 
-        //mastertoeb hat jetzt im department, alle user: die von vorher + alle user aller departments der source orga
+        // mastertoeb hat jetzt im department, alle user: die von vorher + alle user aller departments der source orga
         foreach ($usersOfMasterToebDepartmentBefore as $user) {
             static::assertContains($user, $usersOfMasterToebDepartmentAfter);
         }
@@ -373,7 +374,7 @@ class MasterToebServiceTest extends FunctionalTestCase
             static::assertContains($user, $usersOfMasterToebDepartmentAfter);
         }
 
-        //es sind genauso viel user im department wie direkt der masterToebOrga zugeordnet
+        // es sind genauso viel user im department wie direkt der masterToebOrga zugeordnet
         static::assertEquals(sizeof($usersOfMasterToebDepartmentAfter), sizeof($usersOfMasterToebAfter));
 
         $usersOfsourceOrgaDepartmentAfter = [];
@@ -388,7 +389,7 @@ class MasterToebServiceTest extends FunctionalTestCase
             $usersOfsourceOrgaDepartmentAfter
         );
 
-        //es ist kein department mehr der source orga zugeordnet
+        // es ist kein department mehr der source orga zugeordnet
         $allDepartments = $this->sut->getDoctrine()->getRepository(Department::class)->findAll();
         foreach ($allDepartments as $department) {
             if (null === $department->getOrga()) {
@@ -397,7 +398,7 @@ class MasterToebServiceTest extends FunctionalTestCase
             static::assertNotEquals($department->getOrga()->getIdent(), $sourceOrgaId);
         }
 
-        //if newOrga exists with given MasterToebId
+        // if newOrga exists with given MasterToebId
         $newOrgaCreated = false;
         $result = $this->sut->getDoctrine()->getRepository(Orga::class)->find($masterToeb->getIdent());
         if (0 === count($result)) {

@@ -22,17 +22,24 @@ class ManifestConfiguration implements ConfigurationInterface
         $tree = new TreeBuilder(self::MANIFEST_ROOT);
         $rootChildren = $tree->getRootNode()->children();
 
-        $rootChildren->scalarNode('humanName')->defaultValue('');
-        $rootChildren->scalarNode('vendor')->defaultValue('');
-        $rootChildren->scalarNode('description')->defaultValue('');
-        $rootChildren->scalarNode('entry')->defaultValue('');
+        $rootChildren->scalarNode('humanName')->defaultValue('')->end();
+        $rootChildren->scalarNode('vendor')->defaultValue('')->end();
+        $rootChildren->scalarNode('description')->defaultValue('')->end();
+        $rootChildren->scalarNode('entry')->isRequired()->end();
+        $rootChildren->scalarNode('permissionInitializer')->isRequired()->end();
 
         $ui = $rootChildren->arrayNode('ui')->children();
         $ui->scalarNode('manifest')->defaultValue('');
         $ui->arrayNode('hooks')
             ->useAttributeAsKey('name')
-            ->scalarPrototype()
-            ->end();
+            ->arrayPrototype()
+            ->children()
+                ->scalarNode('entry')->end()
+                ->arrayNode('options')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end()
+        ->end();
 
         return $tree;
     }

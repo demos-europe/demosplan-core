@@ -28,6 +28,7 @@ class StatementAnonymizeController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
+     *
      * @Route(
      *     path="/procedure/{procedureId}/statement/{statementId}/anonymize",
      *     name="DemosPlan_statement_anonymize_view",

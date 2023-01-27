@@ -14,7 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Images;
 
 use function array_merge;
 use function call_user_func_array;
+
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
+
 use function imagecolorallocate;
 use function imagecreatetruecolor;
 use function imagefill;

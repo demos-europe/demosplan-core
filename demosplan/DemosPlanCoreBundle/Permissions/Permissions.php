@@ -13,11 +13,11 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 use function array_key_exists;
 use function collect;
 
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -130,7 +130,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
      */
     public function __construct(
-        iterable $addonInfoProviders,
+        AddonRegistry $addonRegistry,
         CustomerService $currentCustomerProvider,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
@@ -140,12 +140,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureRepository $procedureRepository,
         ValidatorInterface $validator
     ) {
-        $this->addonPermissionInitializers = array_map(
-            fn (
-                AbstractAddonInfoProvider $infoProvider
-            ): PermissionInitializerInterface => $infoProvider->getPermissionInitializer(),
-            iterator_to_array($addonInfoProviders)
-        );
+        $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;

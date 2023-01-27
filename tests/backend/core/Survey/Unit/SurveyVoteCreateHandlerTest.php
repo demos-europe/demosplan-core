@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteCreateHandler;
 use Exception;
-use Tests\Core\Survey\Unit\SurveyVoteTestUtils;
 
 class SurveyVoteCreateHandlerTest extends SurveyVoteTestUtils
 {

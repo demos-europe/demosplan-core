@@ -124,7 +124,6 @@ class FaqResourceTypeTest extends JsonApiTest
         $faq = $this->getReference(LoadFaqData::FAQ_PLANNER_BB);
         $user = $this->getUserReference(LoadUserData::TEST_USER_CONTENT_EDITOR);
 
-
         $previouslyPublicVisible = $faq->hasRoleGroupCode(Role::GGUEST);
         $previousInstitutionVisible = $faq->hasRoleGroupCode(Role::GPSORG);
         $previousPlannerVisible = $faq->hasRoleGroupCode(Role::GLAUTH);
