@@ -336,7 +336,7 @@ useful info about the component:
             edit-label="fragment.edit"
             mark
             strikethrough
-            obscure
+            :obscure="hasPermission('feature_obscure_text')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="text" />
@@ -380,10 +380,9 @@ useful info about the component:
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@demos-europe/demosplan-utils'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
