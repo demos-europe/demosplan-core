@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -24,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_elements")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository")
  */
-class Elements extends CoreEntity implements UuidEntityInterface
+class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {
     public const ELEMENTS_CATEGORY_MAP = 'map'; // like "Planzeichnung"
     public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; // like "Gesamtstellungnahme" or "Fehlanzeige"
