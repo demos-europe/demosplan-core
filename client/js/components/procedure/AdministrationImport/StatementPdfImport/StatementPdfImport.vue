@@ -16,6 +16,7 @@
     <dp-upload-files
       ref="uploader"
       id="statementUpload"
+      file-route="core_file"
       allowed-file-types="pdf"
       :max-file-size="100000000"
       :max-number-of-files="maxNumberOfFiles"

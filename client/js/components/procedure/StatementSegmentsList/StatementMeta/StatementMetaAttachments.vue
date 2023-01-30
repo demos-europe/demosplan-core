@@ -38,6 +38,7 @@
         v-else />
       <dp-upload-files
         :class="editable ? '' : 'pointer-events-none opacity-7'"
+        file-route="core_file"
         ref="uploadStatementAttachment"
         id="uploadStatementAttachment"
         name="uploadStatementAttachment"
