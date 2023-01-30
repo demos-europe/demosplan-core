@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
@@ -210,7 +211,10 @@ class ServiceStorage
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
     {
         /** @var PreNewProcedureCreatedEvent $procedureFileSubmitEvent */
-        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(new PreNewProcedureCreatedEvent($data));
+        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(
+            new PreNewProcedureCreatedEvent($data),
+            PreNewProcedureCreatedEventInterface::class
+        );
         $criticalEventConcernMessages = $procedureFileSubmitEvent->getCriticalEventConcernMessages();
         if ([] !== $criticalEventConcernMessages) {
             $preNewProcedureCreatedEventConcernException = new PreNewProcedureCreatedEventConcernException();
