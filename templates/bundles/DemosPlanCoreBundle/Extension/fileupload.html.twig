@@ -38,6 +38,7 @@
         :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
         :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
         :chunk-size="{{ chunksize|default('Infinity') }}"
+        file-route="core_file"
         name="{{ field_name|default }}"
         :max-file-size="{{ maxfilesize }}"
         :max-number-of-files="{{ maxfiles|default(1) }}"
