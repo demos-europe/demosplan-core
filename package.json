@@ -61,7 +61,7 @@
     "dompurify": "^2.4.3",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",
-    "intl-messageformat": "^10.2.5",
+    "intl-messageformat": "^10.3.0",
     "ismobilejs": "^1.1.1",
     "jquery": "^3.6.3",
     "js-base64": "^3.7.4",
