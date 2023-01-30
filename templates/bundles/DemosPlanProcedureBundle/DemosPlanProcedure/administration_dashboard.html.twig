@@ -63,8 +63,11 @@
                 {% if hasPermission('area_statement_segmentation') %}
                     {# show segments assigned to current user #}
                     <dp-dashboard-task-card
+                        current-user-id="{{ currentUser.id }}"
                         procedure-id="{{ procedure }}"
-                        current-user-id="{{ currentUser.id }}">
+                        resource-list-route="api_resource_list"
+                        segment-list-hash-update-route="dplan_rpc_segment_list_query_update"
+                        segments-list-route="dplan_segments_list">
                     </dp-dashboard-task-card>
 
                     {# show currently segmentable statements #}
