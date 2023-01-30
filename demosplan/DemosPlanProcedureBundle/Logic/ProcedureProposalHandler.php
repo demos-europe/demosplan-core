@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
@@ -19,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
+use Exception;
 
 class ProcedureProposalHandler extends CoreHandler
 {
@@ -55,7 +55,7 @@ class ProcedureProposalHandler extends CoreHandler
     public function addProcedureProposal(array $incomingData): ProcedureProposal
     {
         $sanitizationSettings = [
-            'strip_tags' => [
+            'strip_tags'  => [
                 'name',
                 'description',
                 'coordinate',
@@ -64,7 +64,7 @@ class ProcedureProposalHandler extends CoreHandler
                 'additionalExplanation',
                 'uploadedFiles',
             ],
-            'files' => [
+            'files'       => [
                 'uploadedFiles',
             ],
         ];

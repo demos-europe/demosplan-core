@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-class StatementAlreadySegmentedException extends \Exception
+use Exception;
+
+class StatementAlreadySegmentedException extends Exception
 {
     public function __construct(string $frontedMsg)
     {

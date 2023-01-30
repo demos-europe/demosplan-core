@@ -10,11 +10,10 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
+use Exception;
 
 class UserFilterSetRepository extends CoreRepository
 {
@@ -45,7 +44,7 @@ class UserFilterSetRepository extends CoreRepository
             $entityManager = $this->getEntityManager();
             $entityManager->persist($entity);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not add new filterSet: ', [$e]);
 
             return false;
@@ -65,7 +64,7 @@ class UserFilterSetRepository extends CoreRepository
             $entityManager = $this->getEntityManager();
             $entityManager->persist($entity);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not update filterSet: ', [$e]);
 
             return false;
@@ -87,7 +86,7 @@ class UserFilterSetRepository extends CoreRepository
             $entityManager->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Could not delete UserFilterSet', ['id' => $userFilterSet->getId(), 'exception' => $e]);
         }
 

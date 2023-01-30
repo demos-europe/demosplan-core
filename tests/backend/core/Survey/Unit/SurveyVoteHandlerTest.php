@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
-use Tests\Core\Survey\Unit\SurveyVoteTestUtils;
 
 class SurveyVoteHandlerTest extends SurveyVoteTestUtils
 {

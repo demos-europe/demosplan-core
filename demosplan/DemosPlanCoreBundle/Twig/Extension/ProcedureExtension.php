@@ -13,18 +13,18 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\TwigFunction;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 
 /**
  * Procedure specific functions.
@@ -112,7 +112,7 @@ class ProcedureExtension extends ExtensionBase
             )
         );
 
-        //return external/public phaseName
+        // return external/public phaseName
         $phase = is_null($givenPhase) ? $procedure->getPublicParticipationPhase() : $givenPhase;
         if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
             return $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
@@ -120,7 +120,7 @@ class ProcedureExtension extends ExtensionBase
 
         $internalPhase = is_null($givenPhase) ? $procedure->getPhase() : $givenPhase;
 
-        //return internal phaseName
+        // return internal phaseName
         return $this->globalConfig->getPhaseNameWithPriorityInternal($internalPhase);
     }
 
@@ -220,7 +220,7 @@ class ProcedureExtension extends ExtensionBase
      */
     public function getEndDate($procedure, $type = 'auto')
     {
-        if (false === $procedure instanceof Procedure){
+        if (false === $procedure instanceof Procedure) {
             if (!is_array($procedure)
                 || (
                     is_array($procedure)

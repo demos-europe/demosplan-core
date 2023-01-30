@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SearchField;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SortField;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
@@ -56,7 +55,7 @@ class QueryProcedureTest extends FunctionalTestCase
     public function testAvailableFiltersExternal(): void
     {
         $this->loginTestUser(LoadUserData::TEST_USER_CITIZEN);
-        //test available Filters structure without explicit scope
+        // test available Filters structure without explicit scope
         $availableFiltersDefault = $this->sut->getAvailableFilters();
         static::assertCount(11, $availableFiltersDefault);
         static::assertInstanceOf(
@@ -73,12 +72,12 @@ class QueryProcedureTest extends FunctionalTestCase
         static::assertEquals('orgaName', $availableFiltersDefault[10]->getName());
         static::assertEquals('orgaName.raw', $availableFiltersDefault[10]->getField());
 
-        //test available Filters structure with explicit scope
+        // test available Filters structure with explicit scope
         $this->sut->setScope(QueryProcedure::SCOPE_EXTERNAL);
         $availableFiltersExternal = $this->sut->getAvailableFilters();
         static::assertEquals($availableFiltersDefault, $availableFiltersExternal);
 
-        //test available Filters structure with explicit internal scope
+        // test available Filters structure with explicit internal scope
         $this->sut->setScope(QueryProcedure::SCOPE_INTERNAL);
         $availableFiltersInternal = $this->sut->getAvailableFilters();
         static::assertNotEquals($availableFiltersDefault, $availableFiltersInternal);
@@ -145,7 +144,7 @@ class QueryProcedureTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $this->loginTestUser(LoadUserData::TEST_USER_CITIZEN);
-        //test available Filters structure without explicit scope
+        // test available Filters structure without explicit scope
         $interfaceFilters = $this->sut->getInterfaceFilters();
         // municipalCode is set to display:false
         static::assertCount(4, $interfaceFilters);
@@ -159,12 +158,12 @@ class QueryProcedureTest extends FunctionalTestCase
         );
         static::assertEquals('orgaName', $interfaceFilters[3]->getName());
 
-        //test available Filters structure with explicit scope
+        // test available Filters structure with explicit scope
         $this->sut->setScope(QueryProcedure::SCOPE_EXTERNAL);
         $interfaceFiltersExternal = $this->sut->getInterfaceFilters();
         static::assertEquals($interfaceFilters, $interfaceFiltersExternal);
 
-        //test available Filters structure with explicit internal scope
+        // test available Filters structure with explicit internal scope
         $this->sut->setScope(QueryProcedure::SCOPE_INTERNAL);
         $interfaceFiltersInternal = $this->sut->getInterfaceFilters();
         static::assertNotEquals($interfaceFilters, $interfaceFiltersInternal);
@@ -215,7 +214,7 @@ class QueryProcedureTest extends FunctionalTestCase
         static::assertCount(1, $availableFiltersDefault);
     }
 
-    //#######################
+    // #######################
 
     public function testGetAvailableSearch(): void
     {
@@ -697,8 +696,6 @@ class QueryProcedureTest extends FunctionalTestCase
 
     /**
      * @dataProvider getInvalidConfigurations
-     *
-     * @param $invalidConfiguation
      */
     public function testInvalidConfiguration($invalidConfiguation): void
     {
@@ -719,7 +716,7 @@ class QueryProcedureTest extends FunctionalTestCase
         $stub = $this->getElasticsearchQueryDefinitionMock($validConfiguration);
         $queryProcedure = new QueryProcedure($stub, $this->translator, $this->currentUser);
         $availableFields = $queryProcedure->getAvailableSearch()->getAvailableFields();
-        $availableFieldNames = array_map(static function(SearchField $field): string {
+        $availableFieldNames = array_map(static function (SearchField $field): string {
             return $field->getName();
         }, $availableFields);
         self::assertCount($amountAvailableFields, $availableFields);
@@ -775,43 +772,43 @@ class QueryProcedureTest extends FunctionalTestCase
         return [
             [[
                 'procedure' => [
-                    'filter' => [],
-                    'sort' => [],
+                    'filter'       => [],
+                    'sort'         => [],
                     'sort_default' => [
                         'internal' => [],
                     ],
-                    'search' => [
-                        'all' => [
-                            'text' => []
+                    'search'       => [
+                        'all'     => [
+                            'text' => [],
                         ],
                         'planner' => [
-                            'text' => [],
-                            'recommendation' => []
-                        ]
-                    ]
+                            'text'           => [],
+                            'recommendation' => [],
+                        ],
+                    ],
                 ],
             ],
                 3,
-                ['text', 'recommendation']
+                ['text', 'recommendation'],
             ],
             [[
                 'procedure' => [
-                    'filter' => [],
-                    'sort' => [],
+                    'filter'       => [],
+                    'sort'         => [],
                     'sort_default' => [
                         'internal' => [],
                     ],
-                    'search' => [
-                        'all' => [],
+                    'search'       => [
+                        'all'     => [],
                         'planner' => [
-                            'text' => [],
-                            'recommendation' => []
-                        ]
-                    ]
-                ]
+                            'text'           => [],
+                            'recommendation' => [],
+                        ],
+                    ],
+                ],
             ],
                 2,
-                ['text', 'recommendation']
+                ['text', 'recommendation'],
             ],
         ];
     }

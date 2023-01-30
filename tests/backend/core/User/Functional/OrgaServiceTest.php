@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class OrgaServiceTest extends FunctionalTestCase
@@ -57,7 +58,7 @@ class OrgaServiceTest extends FunctionalTestCase
         $this->testAddress = $this->fixtures->getReference('testAddress');
     }
 
-    //################## Orga ######################
+    // ################## Orga ######################
 
     public function testAddOrgaWithAddress()
     {
@@ -174,7 +175,7 @@ class OrgaServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetOrga()
     {
@@ -198,7 +199,7 @@ class OrgaServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetOrgaList(): void
     {
@@ -226,7 +227,7 @@ class OrgaServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetOrgaAddress()
     {

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormNewProcedureEven
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormParagraphAdminImportOptionEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use Exception;
 use Twig\Environment;
 use Twig\TwigFunction;
 
@@ -64,7 +65,7 @@ class ExecuteAddonExtension extends ExtensionBase
      * @return string
      *
      * @throws InvalidDataException
-     * @throws \Exception
+     * @throws Exception
      */
     public function extensionPointMarkup($name, $variables = [])
     {

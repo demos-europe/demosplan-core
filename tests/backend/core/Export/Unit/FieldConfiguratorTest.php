@@ -143,7 +143,7 @@ class FieldConfiguratorTest extends UnitTestCase
 
         $id = $exportConfig->getId();
         $this->sut->delete($exportConfig);
-        //DB-Entry deleted?
+        // DB-Entry deleted?
         static::assertNull($this->sut->get($id));
 
         static::assertCount(0, $testProcedure->getExportFieldsConfigurations());
@@ -219,13 +219,13 @@ class FieldConfiguratorTest extends UnitTestCase
         static::assertSame($amountOfProceduresBefore + 1, $amountOfProceduresAfter);
         static::assertSame($amountOfExportFieldConfigurationBefore + 1, $amountOfExportFieldConfigurationAfter);
 
-        //reload and check new created procedure:
+        // reload and check new created procedure:
         $newCreatedProcedure = $this->find(Procedure::class, $newCreatedProcedure->getId());
         static::assertCount(1, $newCreatedProcedure->getExportFieldsConfigurations());
         static::assertNotSame($masterExportConfig->getId(), $newCreatedProcedure->getDefaultExportFieldsConfiguration()->getId());
         static::assertSame($newCreatedProcedure->getId(), $newCreatedProcedure->getDefaultExportFieldsConfiguration()->getProcedure()->getId());
 
-        //reload and check master:
+        // reload and check master:
         $masterBlueprint = $this->getTestMasterBlueprint();
         static::assertCount(1, $masterBlueprint->getExportFieldsConfigurations());
         static::assertSame($masterExportConfig->getId(), $masterBlueprint->getDefaultExportFieldsConfiguration()->getId());

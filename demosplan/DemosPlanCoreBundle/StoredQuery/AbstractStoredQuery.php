@@ -63,7 +63,7 @@ abstract class AbstractStoredQuery implements StoredQueryInterface
              * which is exactly our last index :)
              *
              */
-            $result .= self::DIGEST_CHARACTERS[(ord($hash[$ii]) & 0x3F)];
+            $result .= self::DIGEST_CHARACTERS[ord($hash[$ii]) & 0x3F];
         }
 
         return $result;

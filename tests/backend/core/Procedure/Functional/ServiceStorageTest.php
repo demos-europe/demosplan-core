@@ -15,9 +15,9 @@ namespace Tests\Core\Procedure\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Tests\Base\FunctionalTestCase;
 
 class ServiceStorageTest extends FunctionalTestCase
@@ -80,8 +80,6 @@ class ServiceStorageTest extends FunctionalTestCase
 
     /**
      * @dataProvider exceptionDataProvider()
-     *
-     * @param $procedureData
      */
     public function testInvalidArgumentExceptionOnAdministrationNewHandler($procedureData): void
     {

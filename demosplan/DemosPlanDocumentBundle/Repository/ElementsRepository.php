@@ -10,27 +10,26 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Repository;
 
+use function array_key_exists;
+use function collect;
+
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\Common\Collections\ArrayCollection;
+use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
-use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
-use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
-use function array_key_exists;
-use function collect;
 
 class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
@@ -477,21 +476,21 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
         }
 
         if (!$this->permissions->hasPermissions($permissions, 'OR')) {
-            //neither public nor institution -> no access rights at all -> false
+            // neither public nor institution -> no access rights at all -> false
             return [];
         }
 
         $permissionFilteredElements = collect($elements)->filter(function (Elements $element) use ($permissions) {
             if ($element->hasPermission(null)) {
-                //current element has no needed permission, therefore no further checks are necessary
+                // current element has no needed permission, therefore no further checks are necessary
                 return true;
             }
 
             foreach ($permissions as $permissionString) {
                 // if one of needed permissions is required AND set for current user, element can be add to the result-set
                 if ($this->permissions->hasPermission($permissionString) && $element->hasPermission(
-                        $permissionString
-                    )) {
+                    $permissionString
+                )) {
                     return true;
                 }
             }
@@ -518,5 +517,4 @@ class ElementsRepository extends FluentRepository implements ArrayInterface, Obj
 
         return $queryBuilder->getQuery()->getResult();
     }
-
 }

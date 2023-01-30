@@ -26,7 +26,6 @@ class InstitutionTagController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_institution_tag_manage")
      */
     public function getInstitutionTagManagement(): Response

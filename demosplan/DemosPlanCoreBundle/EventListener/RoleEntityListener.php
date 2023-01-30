@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\PostLoad;
+use LogicException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RoleEntityListener
@@ -36,7 +37,7 @@ class RoleEntityListener
         $codeMap = Role::ROLE_CODE_NAME_MAP;
 
         if (!isset($codeMap[$code])) {
-            throw new \LogicException('Invalid role code.');
+            throw new LogicException('Invalid role code.');
         }
 
         $role->setName($this->translator->trans($codeMap[$code]));

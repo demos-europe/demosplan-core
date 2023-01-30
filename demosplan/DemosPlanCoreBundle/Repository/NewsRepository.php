@@ -98,13 +98,13 @@ class NewsRepository extends CoreRepository implements ArrayInterface
             $news = $this->generateObjectValues(new News(), $data);
 
             $em->persist($news);
-            //is ist a manual sorted list?
+            // is ist a manual sorted list?
             $type = 'news';
             $manualSortScope = 'procedure:'.$news->getPId();
             /** @var ManualListSortRepository $manualListSortRepos */
             $manualListSortRepos = $em->getRepository(ManualListSort::class);
             $manualListSort = $manualListSortRepos->getManualListSort($news->getPId(), $manualSortScope, $type);
-            //if it is, add new item to list
+            // if it is, add new item to list
             if (null !== $manualListSort) {
                 $identList = $manualListSort->getIdents();
                 $identList = $news->getIdent().','.$identList;
@@ -363,7 +363,7 @@ class NewsRepository extends CoreRepository implements ArrayInterface
             $em->flush();
 
             return $news;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update News Object failed Reason: ', [$e]);
             throw $e;
         }

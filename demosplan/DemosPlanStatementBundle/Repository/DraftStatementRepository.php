@@ -26,6 +26,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Exception;
+use InvalidArgumentException;
 
 class DraftStatementRepository extends CoreRepository implements ArrayInterface
 {
@@ -83,14 +85,14 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return DraftStatement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             $em = $this->getEntityManager();
             if (!array_key_exists('pId', $data)) {
-                throw new \InvalidArgumentException('Trying to add a Draft statement without ProcedureKey pId');
+                throw new InvalidArgumentException('Trying to add a Draft statement without ProcedureKey pId');
             }
 
             $draftStatement = $this->generateObjectValues(new DraftStatement(), $data);
@@ -101,7 +103,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
 
             $nextExternId = $statementRepository->getNextValidExternalIdForProcedure($data['pId']);
 
-            //Anfangswert für Nummern soll 1000 sein
+            // Anfangswert für Nummern soll 1000 sein
             $number = ($nextExternId < 1000) ? 1000 : $nextExternId;
             $draftStatement->setNumber($number);
 
@@ -109,7 +111,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $em->flush();
 
             return $draftStatement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create DraftStatement failed Message: ', [$e]);
             throw $e;
         }
@@ -173,8 +175,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setDocument($data['document']);
         }
         if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) && 0 < strlen(
-                $data['documentId']
-            )
+            $data['documentId']
+        )
         ) {
             $entity->setDocument(
                 $em->getReference(SingleDocumentVersion::class, $data['documentId'])
@@ -240,8 +242,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         }
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
         if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) && 0 < strlen(
-                $data['paragraphId']
-            )
+            $data['paragraphId']
+        )
         ) {
             $entity->setParagraph(
                 $em->getReference(ParagraphVersion::class, $data['paragraphId'])
@@ -372,7 +374,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return DraftStatement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -386,7 +388,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $em->flush();
 
             return $draftStatement;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Update DraftStatement failed. Message: ', [$e]);
             throw $e;
@@ -400,7 +402,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return DraftStatement|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($draftStatementId)
     {
@@ -414,7 +416,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($entityId)
     {
@@ -426,7 +428,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteObject($draftStatement)
     {
@@ -435,7 +437,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete DraftStatementEntry failed Reason: ', [$e]);
             throw $e;
         }
