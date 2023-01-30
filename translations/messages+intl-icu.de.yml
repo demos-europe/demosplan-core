@@ -159,7 +159,7 @@ assessmenttable.view.mode.default: "Keine Gliederung"
 assessmenttable.view.mode.tags: "Nach Schlagworten"
 assessmenttable.view.mode.elements: "Nach Planungsdokumenten"
 assign: "Zuweisen"
-assign.for.editing: "Zur Bearbeitung zuweisen"
+assign.for.editing: "Zur Bearbeitung zuweisen..."
 assign.to.me: 'Mir zuweisen'
 assigned: 'Zugewiesen'
 assigned.to: "Bearbeitet durch"
