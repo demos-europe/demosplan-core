@@ -315,7 +315,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         $workflowPlaceId = $this->extractWorkflowPlaceId($rpcRequest);
         $workflowPlaceId = trim($workflowPlaceId);
 
-        return $workflowPlaceId !== '' ? $this->placeService->findWithCertainty($workflowPlaceId) : null;
+        return '' !== $workflowPlaceId ? $this->placeService->findWithCertainty($workflowPlaceId) : null;
     }
 
     private function extractWorkflowPlaceId(object $rpcRequest): string
