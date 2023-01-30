@@ -398,7 +398,13 @@ export default {
     },
 
     hasActions () {
-      return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0 || Object.values(this.actions.assignPlace.selected).length > 0
+      const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
+      const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
+      const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
+      const assignSegmentAction = this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
+      const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
+
+      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction
     },
 
     hasPlaces () {
