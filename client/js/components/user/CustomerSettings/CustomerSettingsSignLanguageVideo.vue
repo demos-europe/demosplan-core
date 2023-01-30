@@ -48,6 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
+        file-route="core_file"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
@@ -80,7 +81,7 @@
 
 <script>
 import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpButton, DpInput , DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInput, DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
