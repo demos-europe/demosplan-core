@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Exception;
 
 class TagRepository extends CoreRepository implements ObjectInterface
 {
@@ -28,7 +29,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get tag failed: ', [$e]);
 
             return null;
@@ -42,7 +43,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
      *
      * @return Tag
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($tag)
     {
@@ -50,7 +51,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
             $em = $this->getEntityManager();
             $em->persist($tag);
             $em->flush($tag);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add tag failed: ', [$e]);
 
             throw $e;
@@ -64,9 +65,9 @@ class TagRepository extends CoreRepository implements ObjectInterface
      *
      * @param string $entityId
      *
-     * @throws InvalidArgumentException
-     *
      * @return bool
+     *
+     * @throws InvalidArgumentException
      */
     public function deleteById($entityId)
     {
@@ -93,7 +94,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete Tag failed: ', [$e]);
         }
 
@@ -123,7 +124,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
             $em = $this->getEntityManager();
             $em->persist($tag);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update tag failed: ', [$e]);
 
             return false;

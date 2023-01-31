@@ -187,8 +187,7 @@
 <script>
 import { CleanHtml, DpFlyout, DpHeightLimit } from '@demos-europe/demosplan-ui'
 import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { mapGetters, mapState } from 'vuex'
-
+import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'OriginalStatementsTableItem',
@@ -301,6 +300,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations('statement', [
+      'updateStatement'
+    ]),
+
     formatDate (date) {
       return formatDate(date)
     },

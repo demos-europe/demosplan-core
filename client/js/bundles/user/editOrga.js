@@ -14,7 +14,7 @@
 import { DpAccordion, DpEditor } from '@demos-europe/demosplan-ui'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
-import UrlPreview from '@DpJs/lib/user/UrlPreview'
+import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = {
   DpAccordion,

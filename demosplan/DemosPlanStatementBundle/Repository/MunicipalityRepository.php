@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
+use InvalidArgumentException;
 
 class MunicipalityRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -31,7 +33,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get municipality failed: ', [$e]);
 
             return null;
@@ -43,14 +45,14 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             $em = $this->getEntityManager();
             if (!array_key_exists('name', $data)) {
-                throw new \InvalidArgumentException('Trying to add a Municipality without Name');
+                throw new InvalidArgumentException('Trying to add a Municipality without Name');
             }
 
             $municipality = $this->generateObjectValues(new Municipality(), $data);
@@ -58,7 +60,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
             $em->flush();
 
             return $municipality;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Municipality failed Message: ', [$e]);
             throw $e;
         }
@@ -71,7 +73,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return Municipality
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($municipality)
     {
@@ -79,7 +81,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
             $em = $this->getEntityManager();
             $em->persist($municipality);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add municipality failed: ', [$e]);
         }
 
@@ -110,7 +112,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
         try {
             $this->getEntityManager()->persist($municipality);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update municipality failed: ', [$e]);
 
             return false;
@@ -124,9 +126,9 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -140,9 +142,9 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
      *
      * @param Municipality $toDelete
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function delete($toDelete)
     {
@@ -157,7 +159,7 @@ class MunicipalityRepository extends CoreRepository implements ArrayInterface, O
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete municipality failed: ', [$e]);
         }
 

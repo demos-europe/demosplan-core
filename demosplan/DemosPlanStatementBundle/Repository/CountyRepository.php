@@ -19,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
+use Exception;
+use InvalidArgumentException;
 
 class CountyRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -33,7 +35,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get county failed: ', [$e]);
 
             return null;
@@ -45,14 +47,14 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\County
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             $em = $this->getEntityManager();
             if (!\array_key_exists('name', $data)) {
-                throw new \InvalidArgumentException('Trying to add a County without Name');
+                throw new InvalidArgumentException('Trying to add a County without Name');
             }
 
             $county = $this->generateObjectValues(new County(), $data);
@@ -60,7 +62,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
             $em->flush();
 
             return $county;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create County failed Message: ', [$e]);
             throw $e;
         }
@@ -73,7 +75,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @return County
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($county)
     {
@@ -81,7 +83,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
             $em = $this->getEntityManager();
             $em->persist($county);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add county failed: ', [$e]);
         }
 
@@ -121,7 +123,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
         try {
             $this->getEntityManager()->persist($county);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update county failed: ', [$e]);
 
             return false;
@@ -135,9 +137,9 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -151,9 +153,9 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @param County $toDelete
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function delete($toDelete)
     {
@@ -166,7 +168,7 @@ class CountyRepository extends CoreRepository implements ArrayInterface, ObjectI
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete county failed: ', [$e]);
         }
 

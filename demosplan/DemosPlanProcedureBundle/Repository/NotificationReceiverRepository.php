@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
+use Exception;
 
 class NotificationReceiverRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -53,7 +54,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get county failed: ', [$e]);
 
             return null;
@@ -65,7 +66,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      *
      * @return NotificationReceiver
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $receiverArray)
     {
@@ -76,7 +77,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
             $em->flush();
 
             return $receiver;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create NotificationReceiver failed Message: ', [$e]);
             throw $e;
         }
@@ -145,7 +146,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete notificationReceiver failed: ', [$e]);
         }
 
@@ -159,7 +160,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      *
      * @return NotificationReceiver
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($receiver)
     {
@@ -167,7 +168,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
             $em = $this->getEntityManager();
             $em->persist($receiver);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add notificationReceiver failed: ', [$e]);
         }
 
@@ -186,7 +187,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
         try {
             $this->getEntityManager()->persist($receiver);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update notificationReceiver failed: ', [$e]);
 
             return false;
@@ -199,7 +200,7 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
      * @param string $blueprintId
      * @param string $procedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copy($blueprintId, $procedureId)
     {

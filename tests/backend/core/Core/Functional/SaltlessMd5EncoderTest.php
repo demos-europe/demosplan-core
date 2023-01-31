@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,7 +11,6 @@ declare(strict_types=1);
  */
 
 namespace Tests\Core\Core\Functional;
-
 
 use demosplan\DemosPlanCoreBundle\Security\Encoder\SaltlessMd5Encoder;
 use Tests\Base\FunctionalTestCase;

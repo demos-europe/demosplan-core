@@ -14,17 +14,11 @@ use RuntimeException;
 
 class UpdateException extends RuntimeException
 {
-    /**
-     * @return UpdateException
-     */
     public static function alreadyRunning(): self
     {
         return new self('Update already running. If this is not true, delete file update.lock');
     }
 
-    /**
-     * @return UpdateException
-     */
     public static function branchSwitchNotAllowed(): self
     {
         return new self('Checkout branch when performing dplan:update in dev mode is invalid');

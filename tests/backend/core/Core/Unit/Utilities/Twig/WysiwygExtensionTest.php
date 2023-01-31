@@ -12,7 +12,9 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\WysiwygExtension;
+use Exception;
 use Tests\Base\UnitTestCase;
+use Twig_SimpleFilter;
 
 /**
  * Teste WysiwygExtension
@@ -39,11 +41,11 @@ class WysiwygExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
             $callable = $result[0]->getCallable();
             static::assertTrue('wysiwygFilter' === $callable[1]);
             static::assertTrue('wysiwyg' === $result[0]->getName());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(false);
 
             return;

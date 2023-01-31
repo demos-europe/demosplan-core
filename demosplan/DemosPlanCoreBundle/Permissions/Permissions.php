@@ -13,11 +13,11 @@ namespace demosplan\DemosPlanCoreBundle\Permissions;
 use function array_key_exists;
 use function collect;
 
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -130,7 +130,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
      */
     public function __construct(
-        iterable $addonInfoProviders,
+        AddonRegistry $addonRegistry,
         CustomerService $currentCustomerProvider,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
@@ -140,12 +140,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureRepository $procedureRepository,
         ValidatorInterface $validator
     ) {
-        $this->addonPermissionInitializers = array_map(
-            fn (
-                AbstractAddonInfoProvider $infoProvider
-            ): PermissionInitializerInterface => $infoProvider->getPermissionInitializer(),
-            iterator_to_array($addonInfoProviders)
-        );
+        $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
@@ -929,22 +924,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $this->logger->debug('Permissionset: '.self::PROCEDURE_PERMISSIONSET_HIDDEN);
 
         return self::PROCEDURE_PERMISSIONSET_HIDDEN;
-    }
-
-    /**
-     * Rechte, die rollenunabhängig gesetzt werden, wenn ein schreibender Zugriff auf das Verfahren besteht.
-     */
-    protected function setProcedurePermissionsetWrite(): void
-    {
-        $this->logger->debug('Set Permissionset write');
-        $this->permissions['feature_documents_new_statement']['enabled'] = true; // Planungsdokumente Neue Stellungnahme
-        $this->permissions['feature_map_new_statement']['enabled'] = true; // Planzeichnung Neue Stellungnahme
-        $this->permissions['feature_new_statement']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_new_statement_form']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_statements_draft_delete']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Loeschen
-        $this->permissions['feature_statements_draft_edit']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Bearbeiten
-        $this->permissions['feature_statements_draft_release']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Freigeben
-        $this->permissions['feature_statements_draft_relocate']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Neu verorten
     }
 
     /**

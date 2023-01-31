@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanSurveyBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+use Exception;
 
 class SurveyVoteRepository extends CoreRepository
 {
@@ -21,7 +22,7 @@ class SurveyVoteRepository extends CoreRepository
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function findByProcedure(Procedure $procedure)
     {
@@ -46,7 +47,7 @@ class SurveyVoteRepository extends CoreRepository
             }
 
             return $arrayOfObjects;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(sprintf(
                 'Get list of SurveyVotes for procedure "%s" failed: ',
                 $procedure->getId()

@@ -37,9 +37,6 @@ class UnregisteredInvitationReportEntryData extends ValueObject
         $this->mailSubject = $mailSubject;
     }
 
-    /**
-     * @return UnregisteredInvitationReportEntryData
-     */
     public static function createFromArray(array $reportEntryMessage): self
     {
         $self = new self(

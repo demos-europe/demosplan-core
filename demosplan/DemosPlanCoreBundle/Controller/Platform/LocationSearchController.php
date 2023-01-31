@@ -62,7 +62,7 @@ class LocationSearchController extends BaseController
                 'suggestions' => $suggestions,
             ];
 
-            //return result as JSON
+            // return result as JSON
             return new JsonResponse($response);
         } catch (Exception $e) {
             return $this->handleAjaxError($e);

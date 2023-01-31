@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Exception;
 
-class FilterHashException extends \RuntimeException
+use RuntimeException;
+
+class FilterHashException extends RuntimeException
 {
     /**
      * @param string $field

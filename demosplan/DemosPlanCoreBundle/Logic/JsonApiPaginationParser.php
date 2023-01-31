@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 
 /**
  * Parses the pagination array from a JsonApi Request and
- * provides it as APIPagination object
+ * provides it as APIPagination object.
  *
  * @see APIPagination
  */

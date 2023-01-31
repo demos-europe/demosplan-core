@@ -482,7 +482,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $elementToSwitch->setOrder(6);
         $elementToSwitch->setProcedure($this->getReference('testProcedure2'));
         $elementToSwitch->setEnabled(true);
-        $elementToSwitch->setDesignatedSwitchDate(Carbon::now()); //should be found
+        $elementToSwitch->setDesignatedSwitchDate(Carbon::now()); // should be found
         $elementToSwitch->setDeleted(false);
         $elementToSwitch->setParent($element1);
 
@@ -497,7 +497,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $elementToNotSwitch->setOrder(6);
         $elementToNotSwitch->setProcedure($this->getReference('testProcedure2'));
         $elementToNotSwitch->setEnabled(true);
-        $elementToNotSwitch->setDesignatedSwitchDate(Carbon::now()->addDays(17)); //should not be found
+        $elementToNotSwitch->setDesignatedSwitchDate(Carbon::now()->addDays(17)); // should not be found
         $elementToNotSwitch->setDeleted(false);
         $elementToNotSwitch->setParent($element1);
 

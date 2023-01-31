@@ -26,6 +26,7 @@ class BoilerplateVO extends ValueObject
 
     /**
      * @var string
+     *
      * @Assert\NotBlank(message = "boilerplate.title.not.blank")
      * @Assert\Length(
      *      min = 1,
@@ -46,6 +47,7 @@ class BoilerplateVO extends ValueObject
 
     /**
      * @var string
+     *
      * @Assert\NotBlank(message = "Der Text darf nicht leer sein")
      */
     protected $text;

@@ -56,20 +56,20 @@ class EntityHelperTest extends FunctionalTestCase
 
     public function testToArray(): void
     {
-        //test Statement to Array:
+        // test Statement to Array:
         $objectToConvert = $this->fixtures->getReference('testStatement');
 
         $this->checkIfArrayHasEqualDataToObject($this->sut->toArray($objectToConvert), $objectToConvert, [Statement::class]);
 
-        //test Procedure to Array:
+        // test Procedure to Array:
         $objectToConvert = $this->fixtures->getReference('testProcedure2');
         $this->checkIfArrayHasEqualDataToObject($this->sut->toArray($objectToConvert), $objectToConvert, [Procedure::class]);
 
-        //test DraftStatement to Array:
+        // test DraftStatement to Array:
         $objectToConvert = $this->fixtures->getReference('testDraftStatement');
         $this->checkIfArrayHasEqualDataToObject($this->sut->toArray($objectToConvert), $objectToConvert, [DraftStatement::class]);
 
-        //test Tag to Array:
+        // test Tag to Array:
         $objectToConvert = $this->fixtures->getReference('testFixtureTag_1');
         $this->checkIfArrayHasEqualDataToObject($this->sut->toArray($objectToConvert), $objectToConvert, [Tag::class]);
     }
