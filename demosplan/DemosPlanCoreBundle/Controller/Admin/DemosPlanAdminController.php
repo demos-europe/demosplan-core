@@ -41,6 +41,7 @@ class DemosPlanAdminController extends BaseController
      *     path="/statistik/{part}/csv",
      *     defaults={"format": "csv"},
      * )
+     *
      * @DplanPermissions("area_statistics")
      *
      * @param string $part
