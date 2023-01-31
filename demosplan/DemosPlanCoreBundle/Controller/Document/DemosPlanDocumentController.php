@@ -710,7 +710,10 @@ class DemosPlanDocumentController extends BaseController
         $requestPost = $request->request->all();
         if ($request->isMethod('POST')) {
             // if you need the event, this method returns it :)
-            $eventDispatcher->dispatch(new ElementsAdminListSaveEvent($request), ElementsAdminListSaveEventInterface::class);
+            $eventDispatcher->dispatch(
+                new ElementsAdminListSaveEvent($request),
+                ElementsAdminListSaveEventInterface::class
+            );
         }
 
         // get title filter from configuration
