@@ -49,6 +49,9 @@
     {% if dataCy is defined %}
         data-cy="{{ dataCy }}"
     {% endif %}
+    {% if boilerplateListRoute|default != '' %}
+        boilerplate-list-route="{{ boilerplateListRoute }}"
+    {% endif %}
     {% if procedureId|default != '' %}
         procedure-id="{{ procedureId }}"
     {% endif %}

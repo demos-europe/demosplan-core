@@ -105,6 +105,7 @@
                                 :entity-id="JSON.parse('{{ statement.id|json_encode|e('js') }}')"
                                 hidden-input="r_recommendation"
                                 procedure-id="{{ templateVars.table.procedure.ident }}"
+                                boilerplate-list-route="DemosPlan_procedure_boilerplate_list"
                                 :toolbar-items="{
                                     boilerPlate: 'consideration',
                                     linkButton: true
