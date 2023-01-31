@@ -103,6 +103,7 @@
             id="addRecommendationTipTap"
             editor-id="recommendationText"
             v-model="actions.addRecommendations.text"
+            boilerplate-list-route="DemosPlan_procedure_boilerplate_list"
             :toolbar-items="{
               boilerPlate: 'consideration',
               fullscreenButton: true,

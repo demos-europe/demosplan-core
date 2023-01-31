@@ -99,6 +99,7 @@
       <div v-else>
         <dp-editor
           editor-id="recommendationText"
+          boilerplate-list-route="DemosPlan_procedure_boilerplate_list"
           :toolbar-items="{
             boilerPlate: 'consideration',
             fullscreenButton: false,
