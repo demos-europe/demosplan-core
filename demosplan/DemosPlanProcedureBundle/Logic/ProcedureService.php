@@ -10,11 +10,10 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
@@ -35,7 +34,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\NewProcedureAdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
-use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
@@ -117,6 +115,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
+
+use function array_key_exists;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {

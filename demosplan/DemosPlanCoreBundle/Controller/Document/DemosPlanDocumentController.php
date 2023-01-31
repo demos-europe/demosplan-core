@@ -10,12 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
-use function array_key_exists;
-use function array_merge;
-use function compact;
-
 use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -57,17 +52,10 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
-
-use function explode;
-use function is_array;
-
 use Pagerfanta\Adapter\ArrayAdapter;
 use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
-
-use function set_time_limit;
-
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -75,10 +63,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+
+use function array_key_exists;
+use function array_merge;
+use function compact;
+use function explode;
+use function is_array;
+use function set_time_limit;
 
 /**
  * Seitenausgabe Planunterlagen.
@@ -126,6 +122,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_element",
      *     path="/verfahren/{procedure}/verwalten/element/{elementId}",
      * )
+     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -294,6 +291,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_edit",
      *     path="/verfahren/{procedure}/verwalten/paragraph/{documentID}",
      * )
+     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -399,6 +397,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_new",
      *     path="/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}",
      * )
+     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -487,6 +486,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_singledocument_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}"
      * )
+     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -565,6 +565,7 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -680,6 +681,7 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -791,6 +793,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_element_import",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/import"
      * )
+     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
      * @param string $procedure
@@ -1074,6 +1077,7 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @return Response
@@ -1233,6 +1237,7 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_elements_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/new"
      * )
+     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_edit"})
      *
      * @param string $procedure
@@ -1857,6 +1862,7 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/zipfiles",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_element_export")
      *
      * @return RedirectResponse|StreamedResponse
