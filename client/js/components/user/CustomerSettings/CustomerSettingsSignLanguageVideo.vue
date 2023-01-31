@@ -154,7 +154,7 @@ export default {
     },
 
     async saveVideo () {
-      const fileIds = await getFileIdsByHash([this.video.file])
+      const fileIds = await getFileIdsByHash([this.video.file], 'api_resource_list')
 
       const payload = {
         type: 'SignLanguageOverviewVideo',

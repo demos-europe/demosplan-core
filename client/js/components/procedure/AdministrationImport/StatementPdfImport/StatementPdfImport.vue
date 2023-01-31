@@ -67,7 +67,7 @@ export default {
   methods: {
     async createAnnotatedStatementPdf () {
       if (this.fileHashes.length) {
-        const ids = await getFileIdsByHash(this.fileHashes)
+        const ids = await getFileIdsByHash(this.fileHashes, 'api_resource_list')
 
         this.isProcessing = true
         const uploadPromises = ids.map(id => {
