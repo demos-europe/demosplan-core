@@ -52,6 +52,7 @@ import TileLayer from 'ol/layer/Tile'
 import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import {getArea, getLength} from 'ol/sphere.js';
 
 /* eslint-disable no-undef */
 
@@ -1378,6 +1379,28 @@ export default {
         measureTooltipsArray.push(measureTooltip)
       }
 
+      const formatArea = function (polygon) {
+        const area = getArea(polygon);
+        let output;
+        if (area > 10000) {
+          output = Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
+        } else {
+          output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
+        }
+        return output;
+      }
+
+      const formatLength = function (line) {
+        const length = getLength(line);
+        let output;
+        if (length > 100) {
+          output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
+        } else {
+          output = Math.round(length * 100) / 100 + ' ' + 'm';
+        }
+        return output;
+      }
+
       createMeasureTooltip()
 
       //  Define vars to init interactions
@@ -1419,18 +1442,35 @@ export default {
             map.addInteraction(measure)
           })
         })
+        let sketch
+        let listener
         measure.on('drawstart', evt => {
-          createMeasureTooltip()
+          sketch = evt.feature
+          let tooltipCoord = evt.coordinate
+          listener = sketch.getGeometry().on('change', function (evt) {
+            const geom = evt.target;
+            let output;
+            if (geom instanceof GPolygon) {
+              output = formatArea(geom);
+              tooltipCoord = geom.getInteriorPoint().getCoordinates();
+            } else if (geom instanceof GLineString) {
+              output = formatLength(geom);
+              tooltipCoord = geom.getLastCoordinate();
+            }
+            measureTooltipElement.innerHTML = output;
+            measureTooltip.setPosition(tooltipCoord);
+          });
+          // createMeasureTooltip()
           /*
            * SetTimeout(function() {
            *     + '<span class="c-map__measure-hint">Doppelklicken, um die Messung abzuschließen.</small>';
            *     $( measureTooltipElement ).find('span').addClass('is-hidden');
            * }, 4000);
            */
-          $(map.getViewport()).on('mousemove', {
-            type: measureTool.measuretype,
-            measureFeature: evt.feature
-          }, showMeasureOutput)
+          // $(map.getViewport()).on('mousemove', {
+          //   type: measureTool.measuretype,
+          //   measureFeature: evt.feature
+          // }, showMeasureOutput)
 
           if (measureTool.button === '#measureRadiusButton') {
             doubleClickListener = map.on('dblclick', event => {
@@ -1449,6 +1489,7 @@ export default {
             const radiusFeature = new Feature({ geometry: radiusGeometry })
             measureSource.addFeature(radiusFeature)
             unByKey(doubleClickListener)
+            unByKey(listener)
           }
         })
       })
