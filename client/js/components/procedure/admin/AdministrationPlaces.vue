@@ -329,6 +329,7 @@ export default {
           workflowPlaceId: placeData.moved.element.id,
           newWorkflowPlaceIndex: placeData.moved.newIndex
         },
+        'rpc_generic_post',
         this.procedureId
       ).then(() => {
         dplan.notify.confirm(Translator.trans('confirm.saved'))

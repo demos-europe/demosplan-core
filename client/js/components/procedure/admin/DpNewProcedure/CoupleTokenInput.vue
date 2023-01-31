@@ -53,7 +53,7 @@ export default {
     async validateToken (token) {
       if (token.length > (this.tokenLength - 1)) {
         const notification = {}
-        const response = await dpRpc('procedure.token.usage', { token: token })
+        const response = await dpRpc('procedure.token.usage', { token: token }, 'rpc_generic_post')
         const sourceProcedure = response.data[0].result.sourceProcedure
         const targetProcedure = response.data[0].result.targetProcedure
 

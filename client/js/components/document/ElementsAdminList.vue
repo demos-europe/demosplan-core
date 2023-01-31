@@ -316,7 +316,7 @@ export default {
         elementId: elementId,
         newIndex: index,
         parentId: parentId
-      })
+      }, 'rpc_generic_post')
         .then((response) => {
           /*
            * The response of the rpc should be an object with the elementIds as key

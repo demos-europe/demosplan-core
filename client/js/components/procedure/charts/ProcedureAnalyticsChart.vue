@@ -94,7 +94,7 @@ export default {
 
   methods: {
     fetchProcedureAnalyticsData () {
-      dpRpc('procedure.analytics.retrieve', { procedureId: this.procedureId })
+      dpRpc('procedure.analytics.retrieve', { procedureId: this.procedureId }, 'rpc_generic_post')
         .then(response => {
           this.statistics = response.data[0]?.result || {}
           this.isLoading = false

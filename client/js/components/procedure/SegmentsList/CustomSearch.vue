@@ -75,7 +75,7 @@
 
 <script>
 import { checkResponse, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpCheckbox, DpDetails, DpFlyout, DpIcon, DpInput  } from '@demos-europe/demosplan-ui'
+import { DpButton, DpCheckbox, DpDetails, DpFlyout, DpIcon, DpInput } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
 export default {
@@ -180,7 +180,7 @@ export default {
      * Set the fields that may be searched in for a given entity.
      */
     setFields () {
-      dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
+      dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition, 'rpc_generic_post')
         .then(checkResponse)
         .then((response) => {
           const fields = response[0].result

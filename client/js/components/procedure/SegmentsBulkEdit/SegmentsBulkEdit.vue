@@ -401,7 +401,7 @@ export default {
         params.assigneeId = this.actions.assignSegment.selected.id
       }
 
-      dpRpc('segment.bulk.edit', params)
+      dpRpc('segment.bulk.edit', params, 'rpc_generic_post')
         .then(checkResponse)
         .then((response) => {
           const rpcResult = this.getRpcResult(response)

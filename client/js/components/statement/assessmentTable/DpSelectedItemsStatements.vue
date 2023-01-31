@@ -271,7 +271,7 @@ export default {
         .map(el => el.id)
 
       if (params.statementIds.length > 0) {
-        dpRpc('statements.bulk.copy', params)
+        dpRpc('statements.bulk.copy', params, 'rpc_generic_post')
           .then(checkResponse)
           .then((response) => {
             if (response[0].error) {

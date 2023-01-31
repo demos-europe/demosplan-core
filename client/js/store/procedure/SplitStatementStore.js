@@ -464,7 +464,7 @@ const SplitStatementStore = {
      * @param id {String} statement id
      */
     splitStatementAction ({ state }, id) {
-      dpRpc('segment.statement', { statementId: id })
+      dpRpc('segment.statement', { statementId: id }, 'rpc_generic_post')
         .catch(err => console.error(err))
     }
   },
