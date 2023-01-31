@@ -462,18 +462,14 @@ export default {
         .then((response) => {
           const rpcResult = this.getRpcResult(response)
 
-          this.actions.addRecommendations.success = rpcResult
-          this.actions.addTags.success = rpcResult
-          this.actions.assignPlace.success = rpcResult
-          this.actions.assignSegment.success = rpcResult
-          this.actions.deleteTags.success = rpcResult
+          for (const property in this.actions) {
+            this.actions[property].success = rpcResult
+          }
         })
         .catch(() => {
-          this.actions.addRecommendations.success = false
-          this.actions.addTags.success = false
-          this.actions.assignPlace.success = false
-          this.actions.assignSegment.success = false
-          this.actions.deleteTags.success = false
+          for (const property in this.actions) {
+            this.actions[property].success = false
+          }
         })
         .finally(() => {
           // Always delete saved selection to ensure that no action is processed more than one time
