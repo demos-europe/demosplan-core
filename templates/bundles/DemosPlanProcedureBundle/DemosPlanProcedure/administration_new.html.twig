@@ -14,6 +14,8 @@
         {% endif %}
     {% endif %}
 
+    {% block hint %} {% endblock %}
+
     {% set procedureTypes = templateVars.procedureTypes|map(el => { name: el.name, id: el.id, description: el.description }) %}
 
     <dp-new-procedure
