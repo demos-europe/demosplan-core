@@ -3471,7 +3471,8 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             $aggregations = $resultSet->getAggregations();
-            if (0 === $result['hits']['total']) {
+            $totalHits = $result['hits']['total'];
+            if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
                 $aggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty($aggregations, $userFilters);
             }
 
