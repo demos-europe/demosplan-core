@@ -106,7 +106,7 @@
             linkButton: true,
             recommendationButton: segment.hasRelationship('tags')
           }"
-          similar-recommendations-route="api_resource_list"
+          :similar-recommendations-route="Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })"
           :procedure-id="procedureId"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)"
