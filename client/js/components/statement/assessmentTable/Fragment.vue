@@ -56,18 +56,18 @@ useful info about the component:
           :current-user-id="currentUserId"
           entity="fragment"
           :entity-id="fragment.id"
-          :editable="hasPermission('feature_statement_assignment') ? (currentUserId === fragment.assignee.id) : true"
+          :editable="hasPermission('feature_statement_assignment') ? (currentUserId === fragment.assignee?.id) : true"
           :extern-id="fragment.displayId"
-          :fragment-assignee-id="fragment.assignee.id"
+          :fragment-assignee-id="fragment.assignee?.id"
           :statement-id="statement.id"
           @fragment-delete="deleteFragment" />
       </div><!--
    --><dp-claim
         class="c-at-item__row-icon display--inline-block"
         entity-type="fragment"
-        :assigned-id="(fragment.assignee.id || '')"
-        :assigned-name="(fragment.assignee.name || '')"
-        :assigned-organisation="(fragment.assignee.orgaName || '')"
+        :assigned-id="(fragment.assignee?.id || '')"
+        :assigned-name="(fragment.assignee?.name || '')"
+        :assigned-organisation="(fragment.assignee?.orgaName || '')"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
@@ -325,7 +325,7 @@ useful info about the component:
      --><div class="display--flex">
           <tiptap-edit-text
             title="fragment.text"
-            class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right "
+            class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right"
             :initial-text="fragmentText"
             :entity-id="fragment.id"
             :initial-is-shortened="false"
@@ -403,21 +403,6 @@ export default {
   },
 
   props: {
-    procedureId: {
-      required: true,
-      type: String
-    },
-
-    initialFragment: {
-      required: true,
-      type: Object
-    },
-
-    statement: {
-      type: Object,
-      required: true
-    },
-
     currentUserId: {
       type: String,
       required: true
@@ -431,31 +416,38 @@ export default {
     fragmentId: {
       type: String,
       required: true
+    },
+
+    initialFragment: {
+      required: true,
+      type: Object
+    },
+
+    procedureId: {
+      required: true,
+      type: String
+    },
+
+    statement: {
+      type: Object,
+      required: true
     }
   },
 
   data () {
     return {
       editing: false,
+      forwardTags: false,
       notifyOrga: false,
       reviewerEditing: false,
-      updatingClaimState: false,
       tagsEditing: false,
-      forwardTags: false
+      updatingClaimState: false
     }
   },
 
   computed: {
     ...mapState('assessmentTable', ['statementFormDefinitions']),
     ...mapState('fragment', ['sideBarInitialized']),
-
-    fragmentCreatedDate () {
-      return formatDate(this.fragment.created)
-    },
-
-    isClaimed () {
-      return hasPermission('feature_statement_assignment') ? this.fragment.assignee.id === this.currentUserId : true
-    },
 
     /**
      * Checks if user has permission to edit consideration
@@ -521,6 +513,10 @@ export default {
       return Base64.encode(text)
     },
 
+    fragmentCreatedDate () {
+      return formatDate(this.fragment.created)
+    },
+
     fragmentSelected: {
       get () {
         return hasOwnProp(this.selectedFragments, this.fragment.id)
@@ -542,12 +538,30 @@ export default {
       return Base64.encode(this.fragment.text)
     },
 
-    selectedElementParagraph () {
-      return this.paragraph[this.fragment.elementId] || []
+    isClaimed () {
+      /*
+      * Some projects do not have the claim opportunity
+      * if the permission 'feature_statement_assignment' is activated,
+      * a statement or fragment is claimed if an assignee exist
+      * and the assignee should be the logged user so that a statement or fragment(='Datensatz') is claimed
+      * after claiming it the statement or fragment is editable for this user
+      * if this permission is not activated, the statement or fragment looks like already is claimed,
+      * so that any user can edit this part without claim because in the projects without this permission,
+      * there is no other opportunity that different user could have claimed this statement or fragment
+      */
+      if(hasPermission('feature_statement_assignment')) {
+        return this.fragment.assignee && this.fragment.assignee.id === this.currentUserId
+      } else {
+        return true
+      }
     },
 
     selectedElementFile () {
       return this.documents[this.fragment.elementId] || []
+    },
+
+    selectedElementParagraph () {
+      return this.paragraph[this.fragment.elementId] || []
     },
 
     showLocationRow () {
@@ -591,21 +605,38 @@ export default {
   methods: {
     ...mapActions('fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
-    deleteFragment (fragmentId) {
-      if (dpconfirm(Translator.trans('check.fragment.delete'))) {
-        this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId: fragmentId })
-      }
-    },
-
-    saveFragment (data) {
-      // When add new Tags and checkbox of forwardTagsStatement is checked, then save all of changes
+    addTags (data) {
+      // When add new Tags and checkbox of forwardTagsStatement is checked
       if (hasOwnProp(data, 'tags')) {
         if (this.forwardTags === true) {
           data.forwardTagsStatement = true
         }
         this.tagsEditing = false
       }
+    },
 
+    checkStatusOfReviewer (data) {
+      if (hasOwnProp(data, 'departmentId')) {
+        // If reviewer is changed and orga should be notified, add a new query param (this is used later in store, where the request is sent)
+        if (this.notifyOrga === true) {
+          data.notifyReviewer = true
+        }
+        // If reviewer is set, we have to correctly update assignment and automatically change fragment status
+        if (data.departmentId !== '') {
+          data.lastClaimed = this.currentUserId
+          data.status = 'fragment.status.assignedToFB'
+        }
+        this.reviewerEditing = false
+      }
+    },
+
+    deleteFragment (fragmentId) {
+      if (dpconfirm(Translator.trans('check.fragment.delete'))) {
+        this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId: fragmentId })
+      }
+    },
+
+    resetParagraph (data) {
       //  When element is saved and selected element has no paragraphs, reset paragraph (which holds the currently selected paragraph) and file to avoid situation, that a paragraph/file from other element is selected
       if (hasOwnProp(data, 'elementId')) {
         data.paragraphParentId = ''
@@ -619,19 +650,12 @@ export default {
           this.$refs.documentParentId.$data.selectedBefore = ''
         }
       }
+    },
 
-      if (hasOwnProp(data, 'departmentId')) {
-        // If reviewer is changed and orga should be notified, add a new query param (this is used later in store, where the request is sent)
-        if (this.notifyOrga === true) {
-          data.notifyReviewer = true
-        }
-        // If reviewer is set, we have to correctly update assignment and automatically change fragment status
-        if (data.departmentId !== '') {
-          data.lastClaimed = this.currentUserId
-          data.status = 'fragment.status.assignedToFB'
-        }
-        this.reviewerEditing = false
-      }
+    saveFragment (data) {
+      this.addTags(data)
+      this.resetParagraph(data)
+      this.checkStatusOfReviewer(data)
 
       //  ********** FIRE STORE UPDATE ACTION **********
       this.updateFragmentAction(data).then((updated) => {
@@ -640,56 +664,8 @@ export default {
         for (const field in updated) {
           updatedField = field
 
-          // If tags are changed, we have to add the tag content to recommendation text field
-          if (field === 'tags') {
-            // This string will concatenate all tags' texts we want to later add to consideration/considerationAdvice
-            let textToBeAdded = ''
-            // First we have to know which field we want to update (which field is visible)
-            let fieldToUpdate = ''
-            if (this.$refs.consideration) {
-              fieldToUpdate = this.$refs.consideration
-            } else if (this.$refs.considerationAdvice) {
-              fieldToUpdate = this.$refs.considerationAdvice
-            }
-
-            // Then we fire a request for each tag - we return an array of promises to wait until all requests are finished
-            const tags = Object.values(updated.tags).map(tag => {
-              return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
-                tag: tag.id,
-                procedure: this.fragment.procedureId
-              }))
-                .then(data => {
-                  if (data.data.code === 100 && data.data.success) {
-                    // If the tag's text is already in consideration, we don't want to add it again
-                    if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
-                      return false
-                    } else {
-                      textToBeAdded += '<p>' + data.data.body + '</p>'
-                      return Promise.resolve(true)
-                    }
-                  }
-                })
-            })
-
-            // After all requests are completed we can add the tag texts to Begründungsfeld
-            Promise.all(tags).then(() => {
-              if (textToBeAdded !== '') {
-                if (fieldToUpdate.$data.fullText !== 'k.A.') {
-                  fieldToUpdate.$data.fullText += textToBeAdded
-                } else {
-                  fieldToUpdate.$data.fullText = textToBeAdded
-                }
-
-                fieldToUpdate.$data.isEditing = true
-                dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
-              }
-            })
-          }
-
-          // Update short and full texts in TiptapEditText.vue
-          if (field === 'text' || field === 'consideration' || field === 'considerationAdvice') {
-            this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field: field })
-          }
+          this.updateField(field, updated)
+          this.updateTextTipTap(field)
 
           //  Unset loading state of saved field
           if (this.$refs[field]) {
@@ -711,6 +687,8 @@ export default {
             }
           }
         }
+
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.fragmentId, 'fragment')
@@ -740,14 +718,14 @@ export default {
       this.updatingClaimState = true
 
       // Last claimed user is only needed if departmentId is set and we want to unassign the fragment. Only then we need the info who was the last assignee to be able to assign the fragment back. Last claimed is also saved when we assign the fragment to department, but this happens in another action (update fragment). therefore, if departmentId === '' and fragment is claimed, ignoreLastClaimed should be false (because when we click on the user icon we want the fragment to be still assigned to department, and not freigegeben). In all other cases should be true.
-      const shouldIgnoreLastClaimed = this.fragment.departmentId === '' && hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId
+      const shouldIgnoreLastClaimed = this.fragment.departmentId === '' && hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId
 
       const assigneeData = {
         fragmentId: this.fragmentId,
         statementId: this.statement.id,
         ignoreLastClaimed: shouldIgnoreLastClaimed,
-        assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId ? '' : this.currentUserId),
-        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee.id === this.currentUserId) && { lastClaimed: this.currentUserId })
+        assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId),
+        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee?.id === this.currentUserId) && { lastClaimed: this.currentUserId })
       }
 
       this.setAssigneeAction(assigneeData)
@@ -755,10 +733,55 @@ export default {
           this.updatingClaimState = false
           this.$root.$emit('entity:updated', this.fragment.id, 'fragment')
 
-          if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id !== this.currentUserId) {
+          if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== this.currentUserId) {
             this.reviewerEditing = false
           }
         })
+    },
+
+    updateField (field, updated) {
+      // If tags are changed, we have to add the tag content to recommendation text field
+      if (field === 'tags') {
+        // This string will concatenate all tags' texts we want to later add to consideration/considerationAdvice
+        let textToBeAdded = ''
+        // First we have to know which field we want to update (which field is visible)
+        let fieldToUpdate = ''
+        if (this.$refs.consideration) {
+          fieldToUpdate = this.$refs.consideration
+        } else if (this.$refs.considerationAdvice) {
+          fieldToUpdate = this.$refs.considerationAdvice
+        }
+
+        this.updateTag(data, fieldToUpdate, textToBeAdded, updated)
+      }
+    },
+
+    updateTag(data, fieldToUpdate, textToBeAdded, updated) {
+      // Then we fire a request for each tag - we return an array of promises to wait until all requests are finished
+      Object.values(updated.tags).map(tag => {
+        return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
+          tag: tag.id,
+          procedure: this.fragment.procedureId
+        }))
+          .then(data => {
+            if (data.data.code === 100 && data.data.success) {
+              // If the tag's text is already in consideration, we don't want to add it again
+              if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
+                return false
+              } else {
+                textToBeAdded += '<p>' + data.data.body + '</p>'
+                return Promise.resolve(true)
+              }
+            }
+          })
+      })
+    },
+
+    updateTextTipTap (field) {
+      // Update short and full texts in TipTapEditText.vue
+      if (field === 'text' || field === 'consideration' || field === 'considerationAdvice') {
+        this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field: field })
+      }
     }
   }
 }

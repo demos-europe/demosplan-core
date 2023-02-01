@@ -93,22 +93,46 @@ export default {
   name: 'DpSelectDocument',
 
   props: {
+    documents: {
+      required: true,
+      type: Object,
+      default: () => ({})
+    },
+
     elements: {
       required: true,
       type: Array,
       default: () => []
     },
 
+    elementsInputName: {
+      required: false,
+      type: String,
+      default: 'r_element'
+    },
+
+    fileInputName: {
+      required: false,
+      type: String,
+      default: 'r_document'
+    },
+
     paragraphs: {
-      type: Object,
       required: true,
+      type: Object,
       default: () => ({})
     },
 
-    documents: {
-      type: Object,
-      required: true,
-      default: () => ({})
+    paragraphsInputName: {
+      required: false,
+      type: String,
+      default: 'r_paragraph'
+    },
+
+    selectboxWrapperClasses: {
+      required: false,
+      type: String,
+      default: ''
     },
 
     selectedElementId: {
@@ -118,18 +142,6 @@ export default {
     },
 
     selectedElementTitle: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    selectedParagraphId: {
-      required: false,
-      type: String,
-      default: ''
-    },
-
-    selectedParagraphTitle: {
       required: false,
       type: String,
       default: ''
@@ -147,25 +159,13 @@ export default {
       default: ''
     },
 
-    elementsInputName: {
+    selectedParagraphId: {
       required: false,
       type: String,
-      default: 'r_element'
+      default: ''
     },
 
-    paragraphsInputName: {
-      required: false,
-      type: String,
-      default: 'r_paragraph'
-    },
-
-    fileInputName: {
-      required: false,
-      type: String,
-      default: 'r_document'
-    },
-
-    selectboxWrapperClasses: {
+    selectedParagraphTitle: {
       required: false,
       type: String,
       default: ''
@@ -190,6 +190,7 @@ export default {
      * @return {boolean}
      */
     elementsHasFiles () {
+      console.log('documents', this.documents[this.currentElementId])
       return Array.isArray(this.documents[this.currentElementId])
     },
 
@@ -222,17 +223,17 @@ export default {
   },
 
   watch: {
-    elementsHasParagraph (hasParagraph) {
-      if (hasParagraph === false) {
-        this.currentParagraphTitle = ''
-        this.currentParagraphId = ''
-      }
-    },
-
     elementsHasFiles (hasFiles) {
       if (hasFiles === false) {
         this.currentFileTitle = ''
         this.currentFileId = ''
+      }
+    },
+
+    elementsHasParagraph (hasParagraph) {
+      if (hasParagraph === false) {
+        this.currentParagraphTitle = ''
+        this.currentParagraphId = ''
       }
     }
   }
