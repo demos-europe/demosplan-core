@@ -65,9 +65,11 @@
                     <dp-dashboard-task-card
                         current-user-id="{{ currentUser.id }}"
                         procedure-id="{{ procedure }}"
-                        filter-hash-updated-route="dplan_rpc_segment_list_query_update"
-                        :resource-list-route="Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })"
-                        :user-filtered-route="Routing.generate('dplan_segments_list', { procedureId: {{ procedure.id }} })">
+                        :routes="{
+                            filterHashUpdatedRoute: 'dplan_rpc_segment_list_query_update',
+                            resourceListRoute: Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }),
+                            userFilteredRoute: Routing.generate('dplan_segments_list', { procedureId: {{ procedure.id }} })
+                        }">
                     </dp-dashboard-task-card>
 
                     {# show currently segmentable statements #}
