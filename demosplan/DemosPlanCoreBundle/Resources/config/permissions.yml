@@ -2253,6 +2253,7 @@ feature_use_data_input_orga:
     loginRequired: false
 feature_use_plis:
     description: 'Fetch procedure bounding box from external service plis'
+    expose: true
     label: 'Fetch procedure bounding box from external service plis'
     loginRequired: true
 feature_use_xplanbox:

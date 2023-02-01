@@ -18,13 +18,14 @@
   </div>
 </template>
 <script>
-import { DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'BimschgAntrag',
 
   components: {
+    DpLabel,
     DpUploadFiles
   },
 

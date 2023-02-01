@@ -310,6 +310,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     name="DemosPlan_procedure_administration_get",
      *     path="/verfahren/verwalten",
      *     methods={"GET"},
+     *     options={"expose": true},
      * )
      * @DplanPermissions("area_admin_procedures")
      *

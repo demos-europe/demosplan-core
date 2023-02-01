@@ -36,11 +36,9 @@
     <input type="hidden" name="r_externalDesc" value="">
     <input type="hidden" name="r_mapExtent" value="">
     <fieldset>
-      <!-- To wrap markup only if it exists, we have to first check if it outputs anything.-->
-      <!--      {% set formNewProcedureMarkup = extensionPointMarkup('formNewProcedure') %}-->
-      <!--      {% if formNewProcedureMarkup != '' %}-->
+      <!-- ADDON -->
         <bimschg-antrag />
-      <!--      {% endif %}-->
+      <!-- ADDON -->
       <dp-form-row>
 <!--        TODO correct permission? -->
         <div v-if="hasPermission('feature_use_plis')">
@@ -63,8 +61,8 @@
           v-else
           data-cy="newProcedureTitle"
           id="r_name"
-          :label="{ text: Translator.trans('name'), hint: Translator.trans('input.text.maxlength') }"
-          maxlength="200"
+          :label="{ text: Translator.trans('name') }"
+          :maxlength="200"
           name="r_name"
           required
           type="text" />
@@ -83,48 +81,50 @@
           @select="setBlueprintData" />
       </dp-form-row>
 
-      {# Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. #}
-      {% if templateVars.procedureTypes|length > 1 %}
-      <dp-label
-        :text="Translator.trans('text.procedures.type')"
-        :hint="Translator.trans('text.procedures.types.hint')"
-        for="r_procedure_type"
-        :required="true"></dp-label>
-      <dp-multiselect
-        class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
-        :options="procedureTypes"
-        v-model="currentProcedureType"
-        track-by="id"
-        label="name"
-        required>
-        <template v-slot:option="props">
-          {% verbatim %}
-          {{ props.option.name }}<br>
-          <span class="font-size-small">{{ props.option.description}}</span>
-          {% endverbatim %}
-        </template>
-      </dp-multiselect>
-      <input type="hidden" :value="currentProcedureTypeId" name="r_procedure_type"/>
-      {% else %}
-      {# There should always be at least one procedureType defined #}
-      <input type="hidden" name="r_procedure_type" value="{{ (templateVars.procedureTypes|first).id }}">
-      {% endif %}
+<!--      {# Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. #}-->
+      <div v-if="procedureTypes.length > 1">
+        <dp-label
+          for="r_procedure_type"
+          :hint="Translator.trans('text.procedures.types.hint')"
+          :text="Translator.trans('text.procedures.type')"
+          required />
+        <dp-multiselect
+          v-model="currentProcedureType"
+          class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
+          label="name"
+          :options="procedureTypes"
+          required
+          track-by="id">
+          <template v-slot:option="props">
+            {{ props.option.name }}<br>
+            <span class="font-size-small">{{ props.option.description }}</span>
+          </template>
+        </dp-multiselect>
+        <input
+          type="hidden"
+          name="r_procedure_type"
+          :value="currentProcedureTypeId">
+      </div>
+<!--      {# There should always be at least one procedureType defined #}-->
+      <input
+        v-else
+        name="r_procedure_type"
+        type="hidden"
+        :value="procedureTypes[0].id">
 
       <dp-form-row>
         <dp-input
           id="main-email"
           data-cy="agencyMainEmailAddress"
           :label="{
-                            hint: Translator.trans('explanation.organisation.email.procedure.agency'),
-                            text: Translator.trans('email.procedure.agency')
-                        }"
+            hint: Translator.trans('explanation.organisation.email.procedure.agency'),
+            text: Translator.trans('email.procedure.agency')
+          }"
           name="agencyMainEmailAddress[fullAddress]"
           required
           type="email"
-          :value="mainEmail">
-        </dp-input>
+          :value="mainEmail" />
       </dp-form-row>
-
       <dp-form-row>
         <dp-text-area
           :hint="internalNote.hint"
@@ -161,34 +161,39 @@
       </div>
 
       <div v-if="hasPermission('feature_procedure_couple_by_token')">
-        <h3 class="weight--normal color--grey u-mt-1_5">{{ 'procedure.couple_token.vht.title'|trans }}</h3>
-        <div> {{ 'procedure.couple_token.vht.info'|trans }}</div>
+        <h3
+          class="weight--normal color--grey u-mt-1_5"
+          v-text="Translator.trans('procedure.couple_token.vht.title')" />
+        <div v-text="Translator.trans('procedure.couple_token.vht.info')" />
 
         <dp-inline-notification
-          message="{{ 'procedure.couple_token.vht.inline_notification'|trans }}"
-          type="warning">
-        </dp-inline-notification>
+          :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
+          type="warning" />
 
         <couple-token-input
-          token-length="{{ constant('demosplan\\DemosPlanCoreBundle\\Entity\\Procedure\\ProcedureCoupleToken::TOKEN_LENGTH') }}">
-        </couple-token-input>
+          :token-length="tokenLength" />
       </div>
 
-      {% set cancelPath = path('DemosPlan_procedure_administration_get') %}
-      {{ uiComponent('button-row', {
-      primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewProcedure'] }),
-      secondary: uiComponent('button', { color: 'secondary', href: cancelPath })
-    }) }}
-      <dp-button-row
-        :href="Routing.generate('DemosPlan_procedure_administration_get')"
-        :primary="true"
-        :secondary="true" />
+      <div class="space-inline-s text--right">
+        <dp-button
+          id="saveBtn"
+          :text="Translator.trans('save')"
+          type="submit"
+          @click.prevent="$emit('primary-action')"
+          data-cy="saveNewProcedure" />
+        <dp-button
+          color="secondary"
+          :href="Routing.generate('DemosPlan_procedure_administration_get')"
+          :text="Translator.trans('abort')"
+          @click.prevent="$emit('secondary-action')" />
+      </div>
     </fieldset>
   </form>
 </template>
 
 <script>
 import {
+  DpButton,
   DpDateRangePicker,
   DpFormRow,
   DpInlineNotification,
@@ -207,6 +212,7 @@ export default {
   components: {
     BimschgAntrag,
     CoupleTokenInput,
+    DpButton,
     DpDateRangePicker,
     DpFormRow,
     DpInput,
@@ -268,6 +274,18 @@ export default {
       type: Array,
       required: true,
       default: () => []
+    },
+
+    token: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    tokenLength: {
+      type: length,
+      required: false,
+      default: 12
     }
   },
 
