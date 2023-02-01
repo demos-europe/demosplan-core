@@ -154,7 +154,7 @@ export default {
     },
 
     async saveVideo () {
-      const fileIds = await getFileIdsByHash([this.video.file], 'api_resource_list')
+      const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {
         type: 'SignLanguageOverviewVideo',
