@@ -615,6 +615,22 @@ export default {
       }
     },
 
+    addTagsToConsideration (textToBeAdded, fieldToUpdate) {
+      // After all requests are completed we can add the tag texts to Begründungsfeld
+      Promise.all(tags).then(() => {
+        if (textToBeAdded !== '') {
+          if (fieldToUpdate.$data.fullText !== 'k.A.') {
+            fieldToUpdate.$data.fullText += textToBeAdded
+          } else {
+            fieldToUpdate.$data.fullText = textToBeAdded
+          }
+          fieldToUpdate.$data.isEditing = true
+          dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
+        }
+      })
+    }
+    },
+
     checkStatusOfReviewer (data) {
       if (hasOwnProp(data, 'departmentId')) {
         // If reviewer is changed and orga should be notified, add a new query param (this is used later in store, where the request is sent)
@@ -753,10 +769,11 @@ export default {
         }
 
         this.updateTag(data, fieldToUpdate, textToBeAdded, updated)
+        this.addTagsToConsideration(textToBeAdded, fieldToUpdate)
       }
     },
 
-    updateTag(data, fieldToUpdate, textToBeAdded, updated) {
+    updateTag (data, fieldToUpdate, textToBeAdded, updated) {
       // Then we fire a request for each tag - we return an array of promises to wait until all requests are finished
       Object.values(updated.tags).map(tag => {
         return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
