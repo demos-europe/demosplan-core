@@ -409,7 +409,7 @@ export default {
         submitterCity: submitterCity
       }
 
-      return dpRpc('consultationToken.manual.create', params, 'rpc_generic_post')
+      return dpRpc('consultationToken.manual.create', params)
         .then(response => {
           if (response.status === 200) {
             this.resetCreateForm()

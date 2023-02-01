@@ -133,7 +133,7 @@ export default {
       dpRpc('procedure.locate', {
         latitude: this.latitude,
         longitude: this.longitude
-      }, 'rpc_generic_post')
+      })
         .then(checkResponse)
         .then(response => {
           this.lookupStatus = LookupStatus.DONE

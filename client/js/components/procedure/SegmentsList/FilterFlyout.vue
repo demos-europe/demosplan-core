@@ -371,7 +371,7 @@ export default {
         params.searchPhrase = null
       }
 
-      return dpRpc('segments.facets.list', params, 'rpc_generic_post', 'filterList')
+      return dpRpc('segments.facets.list', params, 'filterList')
         .then(response => checkResponse(response))
         .then(response => {
           const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null

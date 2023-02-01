@@ -754,7 +754,7 @@ export default {
         const params = this.getParamsForBulkShare()
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
-        dpRpc('statement.procedure.sync', params, 'rpc_generic_post')
+        dpRpc('statement.procedure.sync', params)
           .then(checkResponse)
           .then((response) => {
             /*

@@ -163,7 +163,7 @@ export default {
         elementIds: this.elements
       }
 
-      dpRpc('planning.document.category.bulk.edit', params, 'rpc_generic_post')
+      dpRpc('planning.document.category.bulk.edit', params)
         .then(checkResponse)
         .then((response) => {
           this.actions.setEnabled.success = (hasOwnProp(response, 0) && hasOwnProp(response[0], 'result'))

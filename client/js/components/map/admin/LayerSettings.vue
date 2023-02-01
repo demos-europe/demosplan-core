@@ -397,7 +397,7 @@ export default {
 
       const url = this.handleUrlParams(this.url)
       let parser = null
-      dpRpc('map.get_capabilities', { url }, 'rpc_generic_post')
+      dpRpc('map.get_capabilities', { url })
         .then(response => {
           this.serviceType = (response.data['0'].result.type === 'wmts') ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()

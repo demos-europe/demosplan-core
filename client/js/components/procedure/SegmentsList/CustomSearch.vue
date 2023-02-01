@@ -180,7 +180,7 @@ export default {
      * Set the fields that may be searched in for a given entity.
      */
     setFields () {
-      dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition, 'rpc_generic_post')
+      dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
         .then(checkResponse)
         .then((response) => {
           const fields = response[0].result

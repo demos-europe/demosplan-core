@@ -171,7 +171,7 @@ export default {
         hookName: hookName
       }
 
-      dpRpc('addons.assets.load', params, 'rpc_generic_post')
+      dpRpc('addons.assets.load', params)
         .then(response => {
           this.addComponent(response)
           this.addComponentScript(response)
