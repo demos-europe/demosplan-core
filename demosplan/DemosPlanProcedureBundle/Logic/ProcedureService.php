@@ -10,11 +10,10 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
@@ -116,6 +115,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
+
+use function array_key_exists;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -1101,7 +1102,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']));
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                PostNewProcedureCreatedEventInterface::class
+            );
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
