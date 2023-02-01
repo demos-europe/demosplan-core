@@ -149,7 +149,19 @@ export default {
             const contentKey = addon.entry + '.umd.js'
             const content = addon.content[contentKey]
 
-            this.$options.components[addon.entry] = eval(content)
+            /**
+             * The evaluation of the response content automatically binds the vue component
+             * to the window object. This way we can implement it in vue's internals to render
+             * the component.
+             */
+            eval(content)
+            this.$options.components[addon.entry] = window[addon.entry].default
+
+            this.asyncComponents.push({
+              name: addon.entry,
+              permissions: ['feature_statements_import_excel'],
+              title: addon.options.title
+            })
           }
       })
     },
