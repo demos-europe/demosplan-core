@@ -59,6 +59,12 @@
           "minLength": 36,
           "maxLength": 36
         },
+        "placeId": {
+          "$id": "#/properties/PlaceId",
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36
+        },
         "recommendationTextEdit": {
           "$id": "#recommendationTextEdit",
           "type": "object",
