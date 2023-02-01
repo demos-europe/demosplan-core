@@ -135,12 +135,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             if (isset($resElements['documents'])) {
                 $templateVars['documents'] = $resElements['documents'];
+            } else {
+                // assure that at least one planningCategory Group is present if no documents are available
+                $templateVars['documents'][$statement->getElementId()] = [];
             }
             if (isset($resElements['elements'])) {
                 $templateVars['elements'] = $resElements['elements'];
             }
             if (isset($resElements['paragraph'])) {
                 $templateVars['paragraph'] = $resElements['paragraph'];
+            } else {
+                // assure that at least one planningCategory Group is present if no paragraph are available
+                $templateVars['paragraph'][$statement->getElementId()] = [];
             }
 
             $templateVars['availableTags'] = $statementHandler->getTopicsAndTagsOfProcedureAsArray($procedureId);
