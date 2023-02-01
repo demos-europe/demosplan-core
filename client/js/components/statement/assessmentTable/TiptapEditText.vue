@@ -32,7 +32,7 @@
         :entity-id="entityId"
         :editor-id="editorId"
         v-model="fullText"
-        boilerplate-list-route="DemosPlan_procedure_boilerplate_list"
+        :boilerplate-list-route="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
         :toolbar-items="{
           boilerPlate: boilerPlate ? 'consideration' : '',
           insertAndDelete: insertAndDelete,

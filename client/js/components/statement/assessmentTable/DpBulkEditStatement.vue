@@ -94,7 +94,7 @@
           <dp-editor
             :value="options.recommendation.value"
             @input="updateRecommendationText"
-            boilerplate-list-route="DemosPlan_procedure_boilerplate_list"
+            :boilerplate-list-route="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
             :toolbar-items="{ boilerPlate: 'consideration' }"
             ref="recommendation"
             :procedure-id="procedureId" />
