@@ -310,6 +310,40 @@ export default {
       this.map.addOverlay(this.popupoverlay)
     },
 
+    addTerritoryLayer () {
+      //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
+      if (!this.hasTerritoryWMS && this.procedureSettings.territory.length > 0 && this.procedureSettings.territory !== '{}') {
+        //  Read GeoJson features
+        const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
+
+        const territoryLayer = new VectorLayer({
+          name: 'territory',
+          source: new VectorSource({
+            projection: this.mapprojection,
+            features: features
+          }),
+          style: new Style({
+            stroke: new Stroke({
+              color: '#000000',
+              width: 3,
+              lineDash: [4, 4]
+            })
+          })
+        })
+        territoryLayer.id = 'territoryLayer'
+        this.map.addLayer(territoryLayer)
+
+        this.scope = territoryLayer
+
+        //  Add behavior to button inside map.
+        this.addCustomLayerToggleButton({
+          id: 'territorySwitcher',
+          layerName: 'territory',
+          activated: true
+        })
+      }
+    },
+
     addXMLPartToString (xml, needle, string) {
       const stringToAdd = this.getXMLPart(xml, needle)
 
@@ -677,37 +711,7 @@ export default {
 
       this.map.getLayerGroup().set('name', 'Root')
 
-      //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (!this.hasTerritoryWMS && this.procedureSettings.territory.length > 0 && this.procedureSettings.territory !== '{}') {
-        //  Read GeoJson features
-        const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
-
-        const territoryLayer = new VectorLayer({
-          name: 'territory',
-          source: new VectorSource({
-            projection: this.mapprojection,
-            features: features
-          }),
-          style: new Style({
-            stroke: new Stroke({
-              color: '#000000',
-              width: 3,
-              lineDash: [4, 4]
-            })
-          })
-        })
-        territoryLayer.id = 'territoryLayer'
-        this.map.addLayer(territoryLayer)
-
-        this.scope = territoryLayer
-
-        //  Add behavior to button inside map.
-        this.addCustomLayerToggleButton({
-          id: 'territorySwitcher',
-          layerName: 'territory',
-          activated: true
-        })
-      }
+      this.addTerritoryLayer()
 
       /*
        * #########################################################
