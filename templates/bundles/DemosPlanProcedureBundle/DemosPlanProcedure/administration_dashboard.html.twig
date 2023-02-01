@@ -64,12 +64,7 @@
                     {# show segments assigned to current user #}
                     <dp-dashboard-task-card
                         current-user-id="{{ currentUser.id }}"
-                        procedure-id="{{ procedure }}"
-                        :routes="{
-                            filterHashUpdatedRoute: 'dplan_rpc_segment_list_query_update',
-                            resourceListRoute: Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }),
-                            userFilteredRoute: Routing.generate('dplan_segments_list', { procedureId: {{ procedure.id }} })
-                        }">
+                        procedure-id="{{ procedure }}">
                     </dp-dashboard-task-card>
 
                     {# show currently segmentable statements #}
