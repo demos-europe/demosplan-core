@@ -129,6 +129,26 @@ export default {
       bPlan: {},
       hasTerritoryWMS: false,
       map: null,
+      measureTools: [
+        {
+          button: '#measureLineButton',
+          active: 'measureline',
+          interaction: 'LineString',
+          measuretype: 'length'
+        },
+        {
+          button: '#measurePolygonButton',
+          active: 'measurepolygon',
+          interaction: 'Polygon',
+          measuretype: 'area'
+        },
+        {
+          button: '#measureRadiusButton',
+          active: 'measureradius',
+          interaction: 'Circle',
+          measuretype: 'radius'
+        }
+      ],
       measureTooltip: null,
       measureTooltipCoord: null,
       measureTooltipElement: null,
@@ -308,6 +328,63 @@ export default {
       this.map.addLayer(this.baseLayerGroup)
       this.map.addLayer(this.overlayLayerGroup)
       this.map.addOverlay(this.popupoverlay)
+    },
+
+    addMeasureTools (drawStyle) {
+      const measureSource = new VectorSource({ projection: this.mapprojection })
+
+      //  Define vars to init interactions
+      const measureLayer = new VectorLayer({
+        name: 'measureLayer',
+        source: measureSource,
+        style: drawStyle
+      })
+      this.map.addLayer(measureLayer)
+      //  Attach measure interaction to elements
+      this.measureTools.forEach(measureTool => {
+        const measure = drawInteraction(measureSource, measureTool.interaction)
+        let doubleClickListener
+        let sketch
+        let listener
+
+        $(measureTool.button).on('click', el => {
+          handleButtonInteraction(measureTool.active, measureTool.button, () => {
+            this.map.addInteraction(measure)
+          })
+        })
+
+        measure.on('drawstart', evt => {
+          sketch = evt.feature
+          this.measureTooltipCoord = evt.coordinate
+
+          listener = sketch.getGeometry().on('change', evt => {
+            this.setMeasureTooltip(evt)
+          })
+
+          this.createMeasureTooltip()
+
+          if (measureTool.button === '#measureRadiusButton') {
+            doubleClickListener = this.map.on('dblclick', event => {
+              event.preventDefault()
+              measure.finishDrawing()
+            })
+          }
+        })
+
+        // On circle drawend add feature with radius line
+        measure.on('drawend', evt => {
+          if (measureTool.button === '#measureRadiusButton' && evt.feature.getGeometry().getType() === 'Circle') {
+            const center = evt.feature.getGeometry().getCenter()
+            const lastPoint = evt.feature.getGeometry().getLastCoordinate()
+            const radiusGeometry = new GLineString([center, lastPoint])
+            const radiusFeature = new Feature({ geometry: radiusGeometry })
+            measureSource.addFeature(radiusFeature)
+            unByKey(doubleClickListener)
+            unByKey(listener)
+          }
+        })
+      })
+
     },
 
     addTerritoryLayer () {
@@ -1347,83 +1424,9 @@ export default {
        * #########################################################
        * Kartenwerkzeuge: measure features
        */
-
       this.createMeasureTooltip()
 
-      //  Define vars to init interactions
-      const measureSource = new VectorSource({ projection: this.mapprojection })
-      const measureLayer = new VectorLayer({
-        name: 'measureLayer',
-        source: measureSource,
-        style: drawStyle
-      })
-      this.map.addLayer(measureLayer)
-
-      const measureTools = [
-        {
-          button: '#measureLineButton',
-          active: 'measureline',
-          interaction: 'LineString',
-          measuretype: 'length'
-        },
-        {
-          button: '#measurePolygonButton',
-          active: 'measurepolygon',
-          interaction: 'Polygon',
-          measuretype: 'area'
-        },
-        {
-          button: '#measureRadiusButton',
-          active: 'measureradius',
-          interaction: 'Circle',
-          measuretype: 'radius'
-        }
-      ]
-
-      //  Attach measure interaction to elements
-      measureTools.forEach(measureTool => {
-        const measure = drawInteraction(measureSource, measureTool.interaction)
-        let doubleClickListener
-        let sketch
-        let listener
-
-        $(measureTool.button).on('click', el => {
-          handleButtonInteraction(measureTool.active, measureTool.button, () => {
-            this.map.addInteraction(measure)
-          })
-        })
-
-        measure.on('drawstart', evt => {
-          sketch = evt.feature
-          this.measureTooltipCoord = evt.coordinate
-
-          listener = sketch.getGeometry().on('change', evt => {
-            this.setMeasureTooltip(evt)
-          })
-
-          this.createMeasureTooltip()
-
-          if (measureTool.button === '#measureRadiusButton') {
-            doubleClickListener = this.map.on('dblclick', event => {
-              event.preventDefault()
-              measure.finishDrawing()
-            })
-          }
-        })
-
-        // On circle drawend add feature with radius line
-        measure.on('drawend', evt => {
-          if (measureTool.button === '#measureRadiusButton' && evt.feature.getGeometry().getType() === 'Circle') {
-            const center = evt.feature.getGeometry().getCenter()
-            const lastPoint = evt.feature.getGeometry().getLastCoordinate()
-            const radiusGeometry = new GLineString([center, lastPoint])
-            const radiusFeature = new Feature({ geometry: radiusGeometry })
-            measureSource.addFeature(radiusFeature)
-            unByKey(doubleClickListener)
-            unByKey(listener)
-          }
-        })
-      })
+      this.addMeasureTools(drawStyle)
 
       /*
        * #########################################################
