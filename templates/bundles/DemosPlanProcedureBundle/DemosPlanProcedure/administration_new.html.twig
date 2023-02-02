@@ -14,169 +14,33 @@
         {% endif %}
     {% endif %}
 
+    {% block hint %} {% endblock %}
+
     {% set procedureTypes = templateVars.procedureTypes|map(el => { name: el.name, id: el.id, description: el.description }) %}
 
+    {#  To correctly inform planners about which fields are inherited from the selected procedure template,
+                    all fields activated in a certain project are passed to the respective translation string. #}
+    {% set procedureTemplateFields = [
+        { name: 'planningagency', active: hasPermission('field_procedure_adjustments_planning_agency') },
+        { name: 'authorized.users', active: hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') },
+        { name: 'internalnote', active: true },
+        { name: 'email.procedure.agency', active:  true },
+        { name: 'email.address.more', active: true },
+        { name: 'procedure.pictogram', active: hasPermission(['field_procedure_pictogram', 'area_public_participation']) },
+        { name: 'linkbox', active: hasPermission('field_procedure_linkbox') },
+        { name: 'public.participation.contact', active: hasPermission('field_procedure_contact_person') },
+        { name: 'procedure.notifyCountry', active: hasPermission('feature_statement_notify_counties') }
+    ]|filter(field => field.active)|map(field => field.name|trans)|join(', ') %}
+
     <dp-new-procedure
-        inline-template
         {% if copyMasterOptions is defined and masterBlueprintId is defined %}
+            :blueprint-hint="Translator.trans('procedure.template.fields', { fields: JSON.parse('{{ procedureTemplateFields|json_encode|e('js', 'utf-8') }}') })"
             :blueprint-options="JSON.parse('{{ copyMasterOptions|json_encode|e('js', 'utf-8') }}')"
             master-blueprint-id="{{ masterBlueprintId }}"
         {% endif %}
-        :procedure-types="JSON.parse('{{ procedureTypes|json_encode|e('js', 'utf-8') }}')">
-        <form name="xsubmititem" action="{{ path('DemosPlan_procedure_new') }}" enctype="multipart/form-data" method="post" data-dp-validate>
-            <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
-            <input type="hidden" name="action" value="new">
-            <input type="hidden" name="r_master" value="false">
-            {# allow publishing of Statements by default #}
-            <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
-
-            <fieldset>
-              {# To wrap markup only if it exists, we have to first check if it outputs anything. #}
-                {% set formNewProcedureMarkup = extensionPointMarkup('formNewProcedure') %}
-                {% if formNewProcedureMarkup != '' %}
-                    <div class="u-mb-0_75">
-                        {{ formNewProcedureMarkup|raw }}
-                    </div>
-                {% endif %}
-
-                {{ uiComponent('form.row', {
-                    elements: [
-                        {
-                            label: { text: 'name'|trans },
-                            control: { name: 'r_name', attributes: ['data-cy=newProcedureTitle'] },
-                            id: 'r_name',
-                            type: 'text',
-                            maxCharCount: 200,
-                            required: true
-                        }
-                    ]
-                }) }}
-
-                {#  To correctly inform planners about which fields are inherited from the selected procedure template,
-                    all fields activated in a certain project are passed to the respective translation string. #}
-                {% set procedureTemplateFields = [
-                    { name: 'planningagency', active: hasPermission('field_procedure_adjustments_planning_agency') },
-                    { name: 'authorized.users', active: hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') },
-                    { name: 'internalnote', active: true },
-                    { name: 'email.procedure.agency', active:  true },
-                    { name: 'email.address.more', active: true },
-                    { name: 'procedure.pictogram', active: hasPermission(['field_procedure_pictogram', 'area_public_participation']) },
-                    { name: 'linkbox', active: hasPermission('field_procedure_linkbox') },
-                    { name: 'public.participation.contact', active: hasPermission('field_procedure_contact_person') },
-                    { name: 'procedure.notifyCountry', active: hasPermission('feature_statement_notify_counties') }
-                ]|filter(field => field.active)|map(field => field.name|trans)|join(', ') %}
-
-                {% if hasPermission('feature_procedure_templates') %}
-                    {% block master %}
-                        <dp-form-row>
-                            <dp-select
-                                id="blueprint"
-                                :label="{
-                                    hint: Translator.trans('procedure.template.fields', { fields: JSON.parse('{{ procedureTemplateFields|json_encode|e('js', 'utf-8') }}') }),
-                                    text: Translator.trans('master')
-                                }"
-                                name="r_copymaster"
-                                :options="blueprintOptions"
-                                :selected="masterBlueprintId"
-                                @select="setBlueprintData">
-                            </dp-select>
-                        </dp-form-row>
-                    {% endblock %}
-                {% endif %}
-
-                {# Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. #}
-                {% if templateVars.procedureTypes|length > 1 %}
-                    <dp-label
-                        :text="Translator.trans('text.procedures.type')"
-                        :hint="Translator.trans('text.procedures.types.hint')"
-                        for="r_procedure_type"
-                        :required="true"></dp-label>
-                    <dp-multiselect
-                        class="layout__item u-1-of-1 u-pl-0 u-mb display--inline-block"
-                        :options="procedureTypes"
-                        v-model="currentProcedureType"
-                        track-by="id"
-                        label="name"
-                        required>
-                        <template v-slot:option="props">
-                            {% verbatim %}
-                                {{ props.option.name }}<br>
-                                <span class="font-size-small">{{ props.option.description}}</span>
-                            {% endverbatim %}
-                        </template>
-                    </dp-multiselect>
-                    <input type="hidden" :value="currentProcedureTypeId" name="r_procedure_type"/>
-                {% else %}
-                    {# There should always be at least one procedureType defined #}
-                    <input type="hidden" name="r_procedure_type" value="{{ (templateVars.procedureTypes|first).id }}">
-                {% endif %}
-
-                <dp-form-row>
-                    <dp-input
-                        id="main-email"
-                        data-cy="agencyMainEmailAddress"
-                        :label="{
-                            hint: Translator.trans('explanation.organisation.email.procedure.agency'),
-                            text: Translator.trans('email.procedure.agency')
-                        }"
-                        name="agencyMainEmailAddress[fullAddress]"
-                        required
-                        type="email"
-                        :value="mainEmail">
-                    </dp-input>
-                </dp-form-row>
-
-                <dp-form-row>
-                    <dp-text-area
-                        id="r_description"
-                        name="r_description"
-                        label="{{ 'internalnote'|trans }}"
-                        :value="description"
-                        reduced-height>
-                    </dp-text-area>
-                </dp-form-row>
-
-                {% block period %}
-                    <div class="u-mb-0_75">
-                        {{ uiComponent('form.label', {
-                            text: 'period'|trans,
-                            id: 'startdate',
-                            required: hasPermission('feature_auto_switch_to_procedure_end_phase')
-                        }) }}
-                        <dp-date-range-picker
-                            class="u-2-of-4"
-                            start-id="startdate"
-                            start-name="r_startdate"
-                            end-id="enddate"
-                            end-name="r_enddate"
-                            :required="Boolean({{ hasPermission('feature_auto_switch_to_procedure_end_phase')|default(false) }})"
-                            :calendars-after="2"
-                            :enforce-plausible-dates="true">
-                        </dp-date-range-picker>
-                    </div>
-                {% endblock period %}
-
-                {% if hasPermission('feature_procedure_couple_by_token') %}
-                    <h3 class="weight--normal color--grey u-mt-1_5">{{ 'procedure.couple_token.vht.title'|trans }}</h3>
-                    <div> {{ 'procedure.couple_token.vht.info'|trans }}</div>
-
-                    <dp-inline-notification
-                        message="{{ 'procedure.couple_token.vht.inline_notification'|trans }}"
-                        type="warning">
-                    </dp-inline-notification>
-
-                    <couple-token-input
-                        token-length="{{ constant('demosplan\\DemosPlanCoreBundle\\Entity\\Procedure\\ProcedureCoupleToken::TOKEN_LENGTH') }}">
-                    </couple-token-input>
-                {% endif %}
-
-                {% set cancelPath = path('DemosPlan_procedure_administration_get') %}
-                {{ uiComponent('button-row', {
-                    primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewProcedure'] }),
-                    secondary: uiComponent('button', { color: 'secondary', href: cancelPath })
-                }) }}
-            </fieldset>
-        </form>
+        :procedure-types="JSON.parse('{{ procedureTypes|json_encode|e('js', 'utf-8') }}')"
+        token="{{ form._token.vars.value }}"
+        :token-length="{{ constant('demosplan\\DemosPlanCoreBundle\\Entity\\Procedure\\ProcedureCoupleToken::TOKEN_LENGTH') }}">
     </dp-new-procedure>
 {% endblock component_part %}
 
