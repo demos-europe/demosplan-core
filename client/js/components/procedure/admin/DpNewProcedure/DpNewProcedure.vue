@@ -46,8 +46,7 @@
         value="">
     </div>
     <fieldset>
-      <!-- ADDON -->
-        <bimschg-antrag />
+      <!-- ADDON BimschgAntrag -->
       <!-- ADDON -->
       <div v-if="hasPermission('feature_use_plis')">
         <dp-form-row>
@@ -218,14 +217,12 @@ import {
   DpSelect,
   DpTextArea
 } from '@demos-europe/demosplan-ui'
-import BimschgAntrag from './BimschgAntrag'
 import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpNewProcedure',
   components: {
-    BimschgAntrag,
     CoupleTokenInput,
     DpButton,
     DpDateRangePicker,
