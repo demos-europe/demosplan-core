@@ -25,9 +25,9 @@
                                     hidden-input="r_text"
                                     procedure-id="{{ templateVars.table.procedure.ident }}"
                                     :toolbar-items="{
-                                        insertAndDelete: true,
+                                        mark: true,
                                         obscure: hasPermission('feature_obscure_text'),
-                                        mark: true
+                                        strikethrough: true
                                     }"
                                     :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">
                                 </dp-editor>
