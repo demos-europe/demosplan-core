@@ -252,10 +252,9 @@ export default {
      */
     allowedRolesForOrga () {
       let allowedRoles = this.rolesInRelationshipFormat
-
-      if (this.currentUserOrga.id !== '' && hasOwnProp(this.$store.state.orga.items[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-        allowedRoles = Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
-      } else if (this.currentUserOrga.id !== '' && !hasOwnProp(this.$store.state.orga.items[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+      if (this.currentUserOrga.id !== '' && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+      } else if (this.currentUserOrga.id !== '' && !hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
       return allowedRoles
@@ -337,6 +336,9 @@ export default {
       return new Promise((resolve, reject) => resolve(true))
     },
 
+    /**
+     *  Handle cases in which allowedRoles are missing in the orga relationships (after user update action)
+     */
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = []
       this.getOrganisations().then(() => {
