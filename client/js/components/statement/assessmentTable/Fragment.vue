@@ -341,38 +341,42 @@ useful info about the component:
             @field:save="saveFragment"
             ref="text" />
 
-          <tiptap-edit-text
-            v-if="editableConsiderationAdvice"
-            title="fragment.considerationAdvice"
-            class="c-styled-html u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
-            :initial-text="fragmentConsideration"
-            :entity-id="fragment.id"
-            :initial-is-shortened="false"
-            :procedure-id="procedureId"
-            full-text-fetch-route=""
-            field-key="fragment.considerationAdvice"
-            :editable="isClaimed && editableConsiderationAdvice"
-            edit-label="fragment.considerationAdvice"
-            height-limit-element-label="fragment"
-            @field:save="saveFragment"
-            ref="considerationAdvice"
-            data-cy="considerationAdvice" />
-          <tiptap-edit-text
-            v-else
-            title="fragment.consideration"
-            class="u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
-            :initial-text="fragmentConsideration"
-            :entity-id="fragment.id"
-            :procedure-id="procedureId"
-            :initial-is-shortened="false"
-            full-text-fetch-route=""
-            field-key="consideration"
-            :editable="isClaimed && editableConsideration"
-            edit-label="fragment.consideration"
-            height-limit-element-label="fragment"
-            @field:save="saveFragment"
-            ref="consideration"
-            data-cy="fragmentConsideration" />
+        <tiptap-edit-text
+          v-if="editableConsiderationAdvice"
+          title="fragment.considerationAdvice"
+          class="c-styled-html u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
+          :initial-text="fragmentConsideration"
+          :entity-id="fragment.id"
+          :initial-is-shortened="false"
+          :procedure-id="procedureId"
+          full-text-fetch-route=""
+          field-key="fragment.considerationAdvice"
+          :editable="isClaimed && editableConsiderationAdvice"
+          edit-label="fragment.considerationAdvice"
+          link-button
+          :boiler-plate="hasPermission('area_admin_boilerplates')"
+          height-limit-element-label="fragment"
+          @field:save="saveFragment"
+          ref="considerationAdvice"
+          data-cy="considerationAdvice" />
+        <tiptap-edit-text
+          v-else
+          title="fragment.consideration"
+          class="u-mt-0_25 u-1-of-2 u-ph-0_5 u-pb-0_5"
+          :initial-text="fragmentConsideration"
+          :entity-id="fragment.id"
+          :procedure-id="procedureId"
+          :initial-is-shortened="false"
+          full-text-fetch-route=""
+          field-key="consideration"
+          :editable="isClaimed && editableConsideration"
+          edit-label="fragment.consideration"
+          height-limit-element-label="fragment"
+          link-button
+          :boiler-plate="hasPermission('area_admin_boilerplates')"
+          @field:save="saveFragment"
+          ref="consideration"
+          data-cy="fragmentConsideration" />
         </div>
       </div>
     </article>
