@@ -54,7 +54,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['accessibilityExplanation'] = $accessibilityExplanation;
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/accessibility_explanation.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/accessibility_explanation.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'accessibility',
@@ -76,7 +76,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/sign_language.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/sign_language.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'signLanguage',
@@ -115,7 +115,7 @@ class DemosPlanMiscContentController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/imprint.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/imprint.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.imprint',
@@ -154,7 +154,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['orgaDataProtectionTexts'] = $orgaHandler->getDataProtectionMunicipalities($customer);
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/data_protection.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/data_protection.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.dataProtection',
@@ -482,7 +482,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/simple_language.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/simple_language.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'language.simple',
