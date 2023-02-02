@@ -31,34 +31,43 @@
       type="hidden"
       name="r_publicParticipationPublicationEnabled"
       value="1">
-<!--    bobhh only -->
-    <input type="hidden" name="r_name" value="">
-    <input type="hidden" name="r_externalDesc" value="">
-    <input type="hidden" name="r_mapExtent" value="">
+    <div v-if="hasPermission('feature_use_plis')">
+      <input
+        type="hidden"
+        name="r_name"
+        value="">
+      <input
+        type="hidden"
+        name="r_externalDesc"
+        value="">
+      <input
+        type="hidden"
+        name="r_mapExtent"
+        value="">
+    </div>
     <fieldset>
       <!-- ADDON -->
         <bimschg-antrag />
       <!-- ADDON -->
-      <dp-form-row>
-<!--        TODO correct permission? -->
-        <div v-if="hasPermission('feature_use_plis')">
+      <div v-if="hasPermission('feature_use_plis')">
+        <dp-form-row>
           <dp-select
             id="r_plisId"
             :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
             name="r_plisId"
             :options="plisNameOptions" />
-
-          <dl class="u-nojs-hide--block">
-            <dt
-              v-text="Translator.trans('public.participation.desc')"
-              class="weight--bold" />
-            <dd
-              id="js__plisPlanungsanlass"
-              class="list-style-none" />
-          </dl>
-        </div>
+        </dp-form-row>
+        <dl class="u-nojs-hide--block">
+          <dt
+            v-text="Translator.trans('public.participation.desc')"
+            class="weight--bold" />
+          <dd
+            id="js__plisPlanungsanlass"
+            class="list-style-none" />
+        </dl>
+      </div>
+      <dp-form-row v-else>
         <dp-input
-          v-else
           data-cy="newProcedureTitle"
           id="r_name"
           :label="{ text: Translator.trans('name') }"
@@ -127,16 +136,14 @@
       </dp-form-row>
       <dp-form-row>
         <dp-text-area
-          :hint="internalNote.hint"
-          :id="internalNote.id"
-          :name="internalNote.name"
-          :label="internalNote.label"
-          :value="internalNote.value"
-          :reduced-height="internalNote.reducedHeight" />
+          v-bind="{
+            ...internalNote
+          }" />
       </dp-form-row>
 
-      <div class="u-mb-0_75">
-<!--        TODO can permission be used for bobhh? -->
+      <div
+        v-if="hasPermission('feature_procedure_period')"
+        class="u-mb-0_75">
         <dp-label
           for="startdate"
           :hint="periodHint"
@@ -158,6 +165,14 @@
           v-if="hasPermission('feature_use_plis')"
           class="hide-visually flash"
           id="js__statusBox" />
+      </div>
+      <div v-else>
+        <input
+          type="hidden"
+          name="r_startdate">
+        <input
+          type="hidden"
+          name="r_enddate">
       </div>
 
       <div v-if="hasPermission('feature_procedure_couple_by_token')">
