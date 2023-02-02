@@ -156,11 +156,10 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-utils'
+import { mapActions, mapGetters, mapState } from 'vuex'
+import { dpApi, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-utils'
 import { DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
-import { sortAlphabetically } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpUserFormFields',
@@ -252,9 +251,14 @@ export default {
      * - user is set: roles for current organisation
      */
     allowedRolesForOrga () {
-      return (this.currentUserOrga.id === '')
-        ? this.rolesInRelationshipFormat
-        : Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
+      let allowedRoles = this.rolesInRelationshipFormat
+
+      if (this.currentUserOrga.id !== '' && hasOwnProp(this.$store.state.orga.items[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        allowedRoles = Object.values(this.$store.state.orga.items[this.currentUserOrga.id].relationships.allowedRoles.list())
+      } else if (this.currentUserOrga.id !== '' && !hasOwnProp(this.$store.state.orga.items[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
+      }
+      return allowedRoles
     },
 
     currentOrgaDepartments () {
@@ -285,6 +289,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('orga', {
+      organisationList: 'list'
+    }),
+
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
@@ -327,6 +335,18 @@ export default {
       }
 
       return new Promise((resolve, reject) => resolve(true))
+    },
+
+    getOrgaAllowedRoles (orgaId) {
+      let allowedRoles = []
+      this.getOrganisations().then(() => {
+        allowedRoles = this.$store.state.orga.items[orgaId].relationships.allowedRoles
+      })
+      return allowedRoles
+    },
+
+    getOrganisations () {
+      return this.organisationList({ include: ['allowedRoles'].join() })
     },
 
     /**
