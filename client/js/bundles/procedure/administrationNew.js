@@ -32,7 +32,7 @@ initialize(components)
       }
     })
 
-    if (PROJECT === 'bobhh') {
+    if (hasPermission('feature_use_plis')) {
       CreateProcedure()
     }
   })
