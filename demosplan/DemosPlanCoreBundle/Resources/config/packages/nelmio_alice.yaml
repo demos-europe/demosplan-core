@@ -1,0 +1,13 @@
+when@dev: &dev
+    nelmio_alice:
+        locale: 'de_DE'
+        functions_blacklist:
+            - 'current'
+            - 'shuffle'
+            - 'date'
+            - 'time'
+            - 'file'
+            - 'md5'
+            - 'sha1'
+
+when@test: *dev
