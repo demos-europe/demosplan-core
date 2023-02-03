@@ -239,12 +239,39 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         return $this->customerCounties;
     }
 
+    public function addCustomerCounty(CustomerCounty $customerCounty): void
+    {
+        // Adding the new customer county here
+        if (!$this->customerCounties->contains($customerCounty)) {
+            $this->customerCounties->add($customerCounty);
+        }
+        // Adding this county to the customer county if not already the case
+        if ($this !== $customerCounty->getCustomer()) {
+            $customerCounty->setCustomer($this);
+        }
+    }
+
+    public function removeCustomerCounty(CustomerCounty $customerCounty): void
+    {
+        $this->customerCounties->removeElement($customerCounty);
+    }
+
     /**
      * @param Collection<int, CustomerCounty> $customerCounties
      */
     public function setCustomerCounties(Collection $customerCounties): void
     {
         $this->customerCounties = $customerCounties;
+
+        // Update owning sides
+        $self = $this;
+        $this->customerCounties->map(static function (CustomerCounty $customerCounty) use ($self) {
+            if ($self !== $customerCounty->getCustomer()) {
+                $customerCounty->setCustomer($self);
+            }
+
+            return $customerCounty;
+        });
     }
 
     public function getName(): string

@@ -104,7 +104,17 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface
 
     public function setCounty(County $county): self
     {
-        $this->county = $county;
+        if ($county !== $this->county) {
+            // Remove old county on that side
+            $this->county->removeCustomerCounty($this);
+
+            $this->county = $county;
+
+            // Add the new customer county if necessary
+            if (!$county->getCustomerCounties()->contains($this)) {
+                $county->getCustomerCounties()->add($this);
+            }
+        }
 
         return $this;
     }
