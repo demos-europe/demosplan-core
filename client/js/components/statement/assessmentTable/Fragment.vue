@@ -56,7 +56,7 @@ useful info about the component:
           :current-user-id="currentUserId"
           entity="fragment"
           :entity-id="fragment.id"
-          :editable="hasPermission('feature_statement_assignment') ? (currentUserId === fragment.assignee?.id) : true"
+          :editable="isClaimed"
           :extern-id="fragment.displayId"
           :fragment-assignee-id="fragment.assignee?.id"
           :statement-id="statement.id"
