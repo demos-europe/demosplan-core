@@ -96,13 +96,15 @@
                         label: { text: 'email.body'|trans },
                         control: {
                             value: templateVars.emailText|default,
-                            boilerplateListRoute: 'DemosPlan_procedure_boilerplate_list',
                             boilerPlate: 'email',
                             toolbarItems: { headings: [1,2,3] },
                             hiddenInput: 'r_emailText',
                             linkButton: true,
                             procedureId: procedureId,
-                            ref: 'r_emailText'
+                            ref: 'r_emailText',
+                            routes: {
+                                boilerplateListRoute: path('DemosPlan_procedure_boilerplate_list', { 'procedure': procedureId })
+                            }
                         },
                         type: 'editor',
                         id: 'r_emailText',

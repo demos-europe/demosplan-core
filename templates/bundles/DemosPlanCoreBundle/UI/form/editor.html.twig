@@ -49,9 +49,6 @@
     {% if dataCy is defined %}
         data-cy="{{ dataCy }}"
     {% endif %}
-    {% if boilerplateListRoute|default != '' %}
-        boilerplate-list-route="{{ boilerplateListRoute }}"
-    {% endif %}
     {% if procedureId|default != '' %}
         procedure-id="{{ procedureId }}"
     {% endif %}
@@ -77,6 +74,10 @@
     {% endif %}
     {% if readonly|default is same as true %}
         readonly
+    {% endif %}
+    {# Needed to get the Route, when any of Props in routes prop are enabled in the DpEditor #}
+    {% if routes != {} %}
+        :routes="JSON.parse('{{ routes|json_encode|e('js', 'utf-8') }}')"
     {% endif %}
     {# This can be moved into `attributes` since it is not part of the DpTiptap.vue api. #}
     {% if ref|default != '' %}

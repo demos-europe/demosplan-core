@@ -247,7 +247,9 @@
                         linkButton: true,
                         editorId: 'newsText',
                         ref: 'r_text',
-                        boilerplateListRoute: 'DemosPlan_procedure_boilerplate_list',
+                        routes: {
+                            boilerplateListRoute: path('DemosPlan_procedure_boilerplate_list', { 'procedure': procedure })
+                        },
                         boilerPlate: 'news.notes'
                     },
                     id: 'r_text',

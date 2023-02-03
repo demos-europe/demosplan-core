@@ -165,11 +165,13 @@
           v-model="customer.overviewDescriptionInSimpleLanguage"
           :headings="[2,3,4]"
           hidden-input="r_simpleLanguage"
-          file-route="core_file"
           :toolbar-items="{
             fullscreenButton: true,
             imageButton: true,
             linkButton: true
+          }"
+          :routes="{
+            fileRoute: Routing.generate('core_file')
           }" />
       </customer-settings-section>
 

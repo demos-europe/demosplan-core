@@ -118,11 +118,13 @@
             id="addRecommendationTipTap"
             editor-id="recommendationText"
             v-model="actions.addRecommendations.text"
-            :boilerplate-list-route="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
             :toolbar-items="{
               boilerPlate: 'consideration',
               fullscreenButton: true,
               linkButton: true
+            }"
+            :routes="{
+              boilerplateListRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
             }"
             :procedure-id="procedureId"
             :disabled="!hasSegments" />

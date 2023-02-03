@@ -99,14 +99,16 @@
       <div v-else>
         <dp-editor
           editor-id="recommendationText"
-          :boilerplate-list-route="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
           :toolbar-items="{
             boilerPlate: 'consideration',
             fullscreenButton: false,
             linkButton: true,
             recommendationButton: segment.hasRelationship('tags')
           }"
-          :similar-recommendations-route="Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })"
+          :routes="{
+            boilerplateListRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId }),
+            similarRecommendationsRoute: Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
+          }"
           :procedure-id="procedureId"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)"

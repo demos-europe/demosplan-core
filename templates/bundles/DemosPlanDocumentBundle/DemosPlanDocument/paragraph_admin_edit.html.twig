@@ -72,12 +72,14 @@
             class="u-mb"
             hidden-input="r_text"
             ref="r_text"
-            file-route="core_file"
             :toolbar-items="{
                 imageButton: true,
                 insertAndDelete: true,
                 linkButton: true,
                 table: true
+            }"
+            :routes="{
+              fileRoute: Routing.generate('core_file')
             }"
             procedure-id="{{ procedure }}"
             :required="true">
