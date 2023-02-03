@@ -1,0 +1,97 @@
+demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure:
+    master_blueprint_demos:
+        # We need to create a correct master blueprint
+    master_blueprint_test:
+        # same as above, but different customer
+    procedure_{1..5}:
+        # Let's generate a couple of procedures just in case we need them
+
+demosplan\DemosPlanCoreBundle\Entity\File:
+    file_logo:
+        id: '<uuid()>'
+        ident: '<uuid()>'
+        hash: '<sha1()>'
+        name: 'customer_branding_logo'
+        description: '<paragraph(2, true)>'
+        path: 'some\path\to\something'
+        filename: 'customer_branding_logo'
+        tags: 'Tags?'
+        author: '<name()>'
+        application: ''
+        mimetype: ''
+        deleted: false
+        statDown: 0
+        infected: false
+        blocked: false
+        size: '<randomNumber(6, true)>'
+        # This is going to be a problem
+        procedure: '@procedure_1'
+    file_sign_language_customer_demos:
+        # Imagine stuff here
+
+demosplan\DemosPlanCoreBundle\Entity\Branding:
+    branding_{@customer_*}:
+        id: '<uuid()>'
+        cssvars: '<text()>'
+        logo: '@file_logo'
+
+demosplan\DemosPlanCoreBundle\Entity\User\Customer:
+    customer_{demos, test}:
+        id: '<uuid()>'
+        # This should be empty at the beginning and be filled by the other side of the relationship
+        # customerCounties: ''
+        name: '<current()>'
+        subdomain: '<current()>'
+        imprint: '<paragraphs(5, true)>'
+        # These are a thing of their own, not to be done as prototyping
+        # orgas: ???
+        # userRoles:
+        # orgaStatuses:
+        dataProtection: '<paragraphs(5, true)>'
+        termsOfUse: '<paragraphs(5, true)>'
+        xplanning: '<paragraphs(3, true)>'
+        # This needs a Blueprint
+        defaultProcedureBlueprint: '@master_blueprint_<current()>'
+        mapAttribution: '<paragraphs(3, true)>'
+        baseLayerUrl: '<url()>' # If we go further with Alice, we should build our own generators for stuff like this
+        baseLayerLayers: 'onmaps_graustufen, webatlasde'
+        # Needs a branding entity
+        branding: '@branding_<current()>'
+        accessibilityExplanation: '<paragraphs(3, true)>'
+        # Needs an optional Video entity, but that entity needs a customer, so it can't be available here already...
+        # signLanguageOverviewVideo:
+        signLanguageOverviewDescription: '<paragraphs(3, true)>'
+        overviewDescriptionInSimpleLanguage: '<paragraphs(4, true)>'
+
+demosplan\DemosPlanCoreBundle\Entity\Video:
+    sign_language_{@customer_*}:
+        id: '<uuid()>'
+        # This needs a user, but I don't want to touch that just yet
+        # uploader:
+        customerContext:
+        file: '@file_sign_language_<current()>'
+        title: 'Sign language video <current()>'
+        description: '<paragraph(2, true)>'
+
+demosplan\DemosPlanCoreBundle\Entity\Statement\County:
+    county_{1..10}:
+        id: '<uuid()>'
+        # This should be empty at the beginning and be filled by the other side of the relationship
+        # customerCounties:
+        name: '<county()>'
+        email: '<email()>'
+        # These are a thing of their own, not to be done as prototyping
+        #statements:
+        #statementFragments:
+
+demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty:
+    customer_county_{1..5}:
+        id: '<uuid()>'
+        customer: '@customer_demos'
+        county: '@county_*'
+        eMailAddress: '<email()>'
+    customer_county_{6..10}:
+        id: '<uuid()>'
+        customer: '@customer_test'
+        county: '@county_*'
+        eMailAddress: '<email()>'
