@@ -133,6 +133,7 @@
         "escapestudios/symfony2-coding-standard": "^3.4",
         "friendsofphp/php-cs-fixer": "^v3.0",
         "goetas-webservices/xsd2php": "^0.4",
+        "hautelook/alice-bundle": "^2.11",
         "liip/functional-test-bundle": "^4",
         "liip/test-fixtures-bundle": "^2.0.1",
         "php-parallel-lint/php-console-highlighter": "^0.5",
