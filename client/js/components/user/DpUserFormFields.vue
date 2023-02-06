@@ -338,23 +338,25 @@ export default {
       return new Promise((resolve, reject) => resolve(true))
     },
 
+    fetchOrgaById (orgaId) {
+      const url = Routing.generate('dplan_api_orga_get', { id: orgaId })
+
+      return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
+    },
+
     /**
      *  Handle cases in which allowedRoles are missing in the orga relationships (after user update action)
      */
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
-      this.getOrgaById(orgaId).then((orga) => {
-        this.updateOrga(orga.data.data)
+      this.fetchOrgaById(orgaId).then((orga) => {
+        this.setOrga(orga.data.data)
         if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
           allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
         }
       })
-      return allowedRoles
-    },
 
-    getOrgaById (orgaId) {
-      const url = Routing.generate('dplan_api_orga_get', { id: orgaId })
-      return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
+      return allowedRoles
     },
 
     /**
@@ -451,8 +453,45 @@ export default {
       }
     },
 
-    updateOrga (payload) {
-      this.setItem({ ...payload, id: payload.id })
+    setOrga (payload) {
+      const payloadRel = payload.relationships
+      const payloadWithNewType = {
+        ...payload,
+        id: payload.id,
+        attributes: {
+          ...payload.attributes
+        },
+        // We have to hack it like this, because the types for relationships have to be in camelCase and not in PascalCase
+        relationships: {
+          allowedRoles: {
+            data: payloadRel.allowedRoles?.data[0].id
+              ? payloadRel.allowedRoles?.data.map(el => {
+                return {
+                  ...el,
+                  type: 'role'
+                }
+              })
+              : null
+          },
+          currentSlug: {
+            data: {
+              id: payloadRel.currentSlug.data.id,
+              type: 'slug'
+            }
+          },
+          departments: {
+            data: payloadRel.departments?.data[0].id
+              ? payloadRel.departments?.data.map(el => {
+                return {
+                  ...el,
+                  type: 'department'
+                }
+              })
+              : null
+          }
+        }
+      }
+      this.setItem(payloadWithNewType)
     }
   },
 
