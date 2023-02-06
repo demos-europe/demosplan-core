@@ -159,7 +159,7 @@ assessmenttable.view.mode.default: "Keine Gliederung"
 assessmenttable.view.mode.tags: "Nach Schlagworten"
 assessmenttable.view.mode.elements: "Nach Planungsdokumenten"
 assign: "Zuweisen"
-assign.for.editing: "Zur Bearbeitung zuweisen"
+assign.for.editing: "Zur Bearbeitung zuweisen..."
 assign.to.me: 'Mir zuweisen'
 assigned: 'Zugewiesen'
 assigned.to: "Bearbeitet durch"
@@ -2808,6 +2808,10 @@ segments.assigned.now: |
         other {Aktuell sind Ihnen <strong>#</strong> Abschnitte zur Bearbeitung zugewiesen.}
     }
 segments.bulk.edit: "Abschnitte bearbeiten"
+segments.bulk.edit.place.add: "Bearbeitungsschritt ändern..."
+segments.bulk.edit.place.assigned.description: "Die ausgewählten Abschnitte werden auf folgenden Bearbeitungsschritt geändert:"
+segments.bulk.edit.place.assigned.error: "Folgender Bearbeitungsschritt konnte bei {count} Abschnitten <em>nicht geändert werden</em>:"
+segments.bulk.edit.place.assigned.success: "Folgender Bearbeitungsschritt wurde bei {count} Abschnitten <em>geändert</em>:"
 segments.bulk.edit.segments.assigned.error: "Bei der Zuweisung der Abschnitte ist ein Fehler aufgetreten."
 segments.bulk.edit.segments.assigned.success: "Die Zuweisung der Abschnitte wurde erfolgreich geändert."
 segments.bulk.edit.tags.add: "Schlagworte hinzufügen..."

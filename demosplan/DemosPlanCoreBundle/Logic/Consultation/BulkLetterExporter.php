@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Export\XlsxExporter;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class BulkLetterExporter extends XlsxExporter
@@ -99,12 +100,17 @@ class BulkLetterExporter extends XlsxExporter
     {
         $sheet = $this->spreadsheet->getActiveSheet();
 
-        $sheet->getDefaultColumnDimension()->setWidth(24);
-
         // Set column to display as date
         $sheet->getStyle('J:J')
             ->getNumberFormat()
             ->setFormatCode('dd.mm.yyyy');
+        $sheet->getStyle('J:J')
+            ->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+        $sheet->getDefaultColumnDimension()->setWidth(24);
+        // T25539 The Date does not seem to care about a default width - it needs to be told extra
+        $sheet->getColumnDimension('J')->setWidth(24);
     }
 
     /**
