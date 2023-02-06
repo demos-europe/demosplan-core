@@ -22,12 +22,18 @@ export default {
   name: 'AddonWrapper',
 
   props: {
+    /**
+     * The hookName prop will be used to load an addon via the generic rpc route.
+     */
     hookName: {
       type: String,
       required: true,
       default: ''
     },
 
+    /**
+     * The addonProps prop will be binded to the addon component to add props dynamically.
+     */
     addonProps: {
       type: Object,
       required: false,
