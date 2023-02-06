@@ -156,7 +156,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { dpApi, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-utils'
 import { DpMultiselect } from '@demos-europe/demosplan-ui'
 import qs from 'qs'
@@ -292,6 +292,8 @@ export default {
       organisationList: 'list'
     }),
 
+    ...mapMutations('orga', ['setItem']),
+
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
@@ -340,15 +342,19 @@ export default {
      *  Handle cases in which allowedRoles are missing in the orga relationships (after user update action)
      */
     getOrgaAllowedRoles (orgaId) {
-      let allowedRoles = []
-      this.getOrganisations().then(() => {
-        allowedRoles = this.$store.state.orga.items[orgaId].relationships.allowedRoles
+      let allowedRoles = this.rolesInRelationshipFormat
+      this.getOrgaById(orgaId).then((orga) => {
+        this.updateOrga(orga.data.data)
+        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+        }
       })
       return allowedRoles
     },
 
-    getOrganisations () {
-      return this.organisationList({ include: ['allowedRoles'].join() })
+    getOrgaById (orgaId) {
+      const url = Routing.generate('dplan_api_orga_get', { id: orgaId })
+      return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
     },
 
     /**
@@ -443,6 +449,10 @@ export default {
       if (this.isDepartmentSet === false) {
         this.setDefaultDepartment(userOrga)
       }
+    },
+
+    updateOrga (payload) {
+      this.setItem({ ...payload, id: payload.id })
     }
   },
 
