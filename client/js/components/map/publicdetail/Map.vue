@@ -1493,7 +1493,6 @@ export default {
         //  Unselect tools
         $(this.prefixClass('.c-map__tool, .c-map__tool-simple')).removeClass(this.prefixClass('is-active'))
 
-        // resetMeasureOutput()
         this.resetPopup()
 
         if (reset === true) {
