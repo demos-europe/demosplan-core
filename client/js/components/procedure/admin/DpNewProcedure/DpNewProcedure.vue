@@ -140,9 +140,7 @@
           }" />
       </dp-form-row>
 
-      <div
-        v-if="hasPermission('feature_procedure_period')"
-        class="u-mb-0_75">
+      <div class="u-mb-0_75">
         <dp-label
           for="startdate"
           :hint="periodHint"
@@ -164,14 +162,6 @@
           v-if="hasPermission('feature_use_plis')"
           class="hide-visually flash"
           id="js__statusBox" />
-      </div>
-      <div v-else>
-        <input
-          type="hidden"
-          name="r_startdate">
-        <input
-          type="hidden"
-          name="r_enddate">
       </div>
 
       <div v-if="hasPermission('feature_procedure_couple_by_token')">

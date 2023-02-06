@@ -1483,11 +1483,6 @@ feature_procedure_legal_notice_write:
     label: 'Define legal notice for procedure'
     loginRequired: true
     parent: area_main_procedures
-feature_procedure_period:
-    description: 'Enables to specify a start and end date (period) for a new procedure.'
-    expose: true
-    label: 'Enable period for new procedure'
-    loginRequired: true
 feature_procedure_planning_area_match:
     description: 'Check planning areas. Show popup on map if user clicked outside of the procedure''s planning area. Enables setting planningArea in Map settings.'
     expose: true
