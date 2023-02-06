@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import vue from 'vue'
 import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
@@ -96,10 +95,8 @@ export default {
 
   data () {
     return {
-      addons: [],
       activeTabId: '',
-      asyncComponents: [],
-      addonString: ''
+      asyncComponents: []
     }
   },
 
