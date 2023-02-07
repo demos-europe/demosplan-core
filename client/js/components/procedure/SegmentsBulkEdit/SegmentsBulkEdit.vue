@@ -38,6 +38,21 @@
             track-by="id" />
         </action-stepper-action>
 
+        <!-- Assign place/status -->
+        <action-stepper-action
+          v-model="actions.assignPlace.checked"
+          id="selectAssignPlaceAction"
+          :label="Translator.trans('segments.bulk.edit.place.add')">
+          <dp-multiselect
+            class="width-300"
+            id="assignPlace"
+            :disabled="!hasPlaces"
+            :options="places"
+            v-model="actions.assignPlace.selected"
+            label="name"
+            track-by="id" />
+        </action-stepper-action>
+
         <!-- Add tags -->
         <action-stepper-action
           v-model="actions.addTags.checked"
@@ -54,21 +69,6 @@
             group-values="tags"
             group-label="title"
             :group-select="false" />
-        </action-stepper-action>
-
-        <!-- Assign place/status -->
-        <action-stepper-action
-          v-model="actions.assignPlace.checked"
-          id="selectAssignPlaceAction"
-          :label="Translator.trans('segments.bulk.edit.place.add')">
-          <dp-multiselect
-            class="width-300"
-            id="assignPlace"
-            :disabled="!hasPlaces"
-            :options="places"
-            v-model="actions.assignPlace.selected"
-            label="name"
-            track-by="id" />
         </action-stepper-action>
 
         <!-- Remove tags -->
