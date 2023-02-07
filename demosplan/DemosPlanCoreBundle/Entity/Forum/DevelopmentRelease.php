@@ -20,6 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *  DevelopmentRelease.
  *
  * @ORM\Table(name="_progression_releases")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository")
  */
 class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
@@ -28,8 +29,11 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_pr_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -59,6 +63,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pr_start_date", type="datetime", nullable=true)
      */
     protected $startDate;
@@ -74,6 +79,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_pr_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
@@ -82,6 +88,7 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pr_create_date", type="datetime", nullable=false)
      */
     protected $createDate;

@@ -19,6 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_threads", indexes={@ORM\Index(name="fk__forum_topic_tfk_1", columns={"_ft_id"})})
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository")
  */
 class ForumThread extends CoreEntity implements UuidEntityInterface
@@ -27,8 +28,11 @@ class ForumThread extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_ft_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -65,6 +69,7 @@ class ForumThread extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_ft_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -73,6 +78,7 @@ class ForumThread extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_ft_modified_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
