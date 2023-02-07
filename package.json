@@ -45,7 +45,7 @@
     "@demos-europe/demosplan-utils": "^0",
     "@demos-europe/dp-consent": "^1.1.2",
     "@efrane/vuex-json-api": "0.0.38",
-    "@masterportal/masterportalapi": "^2.10.0",
+    "@masterportal/masterportalapi": "^2.12.0",
     "@sentry/browser": "^7.36.0",
     "@sentry/integrations": "^7.36.0",
     "@sentry/tracing": "^7.34.0",

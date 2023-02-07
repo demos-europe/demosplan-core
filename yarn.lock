@@ -1500,15 +1500,15 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.10.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.11.0.tgz#f635b41f1e7f5e8c1d3b1a1fb28576f65a7d6f2f"
-  integrity sha512-28HsU65JiEOX8IGPt6N4r0sAHDO3Q5TcZZEfYTu8SPXpmoWO1qftgUZlH+bEVT14iBNWn+BplMMxJ+0zRTaCiQ==
+"@masterportal/masterportalapi@^2.12.0":
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.12.0.tgz#772223d270ed4ca3109b764066ee57d95d9877ee"
+  integrity sha512-U55kjY/Dw5AVWSoda4Ovxe2Hr7VPJnBsMII43JsCRx3TZ8Q8jKOjWhWuRwkPxazHWuu57TyojKuZQpJVDZnZZw==
   dependencies:
-    core-js "^3.24.0"
+    core-js "^3.27.1"
     ol "7.1.0"
     olcs "^2.13.1"
-    proj4 "^2.8.0"
+    proj4 "^2.8.1"
     xml2js "^0.4.23"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
@@ -2870,7 +2870,7 @@ core-js-compat@^3.25.1:
   dependencies:
     browserslist "^4.21.4"
 
-core-js@3, core-js@^3.24.0, core-js@^3.26.1, core-js@^3.27.2, core-js@^3.6.5:
+core-js@3, core-js@^3.26.1, core-js@^3.27.1, core-js@^3.27.2, core-js@^3.6.5:
   version "3.27.2"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.27.2.tgz#85b35453a424abdcacb97474797815f4d62ebbf7"
   integrity sha512-9ashVQskuh5AZEZ1JdQWp1GqSoC1e1G87MzRqg2gIfVAQ7Qn9K+uFj8EcniUFA4P2NLZfV+TOlX1SzoKfo+s7w==
@@ -7135,7 +7135,7 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-proj4@^2.8.0, proj4@^2.8.1:
+proj4@^2.8.1:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.8.1.tgz#9605cb8e8c83005c1eae3417e4b8b4050cbeee50"
   integrity sha512-KK/bgM6oIwxdpeCaJ/JK3V1D8LMQCKKKzndab4/pYQNd+NVKTcddUNtds053Q110GxTALXVjx98L9f5q8xPVXQ==
