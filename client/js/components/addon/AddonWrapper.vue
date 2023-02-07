@@ -49,11 +49,7 @@ export default {
 
   methods: {
     loadComponents(hookName) {
-      const params = {
-        hookName: hookName
-      }
-
-      dpRpc('addons.assets.load', params)
+      dpRpc('addons.assets.load', { hookName: hookName })
         .then(response => checkResponse(response))
         .then(response => {
           const result = response[0].result
