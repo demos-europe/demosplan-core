@@ -48,8 +48,8 @@ export default {
   },
 
   methods: {
-    loadComponents(hookName) {
-      dpRpc('addons.assets.load', { hookName: hookName })
+    loadComponents() {
+      dpRpc('addons.assets.load', { hookName: this.hookName })
         .then(response => checkResponse(response))
         .then(response => {
           const result = response[0].result
@@ -69,7 +69,7 @@ export default {
   },
 
   mounted () {
-    this.loadComponents(this.hookName)
+    this.loadComponents()
   }
 }
 </script>
