@@ -48,7 +48,7 @@
     "@masterportal/masterportalapi": "^2.10.0",
     "@sentry/browser": "^7.36.0",
     "@sentry/integrations": "^7.36.0",
-    "@sentry/tracing": "^7.34.0",
+    "@sentry/tracing": "^7.36.0",
     "@uppy/core": "^3.0.5",
     "@uppy/drag-drop": "^3.0.1",
     "@uppy/progress-bar": "^3.0.0",
