@@ -11,7 +11,7 @@
   <div>
     <component
       :is="component"
-      v-bind="getCurrentProperties()"
+      v-bind="addonProps"
     />
   </div>
 </template>
@@ -48,10 +48,6 @@ export default {
   },
 
   methods: {
-    getCurrentProperties() {
-      return this.addonProps
-    },
-
     loadComponents(hookName) {
       const params = {
         hookName: hookName
