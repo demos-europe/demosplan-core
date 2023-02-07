@@ -124,6 +124,9 @@ class DemosPlanAdminController extends BaseController
             'title'        => $title,
             'part'         => $part,
         ]);
+        // T25516 UTF-8-MB for MS-excel umlauts support
+        $bom = chr(0xEF).chr(0xBB).chr(0xBF);
+        $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
