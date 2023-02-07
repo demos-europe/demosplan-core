@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
 
+use EDT\ConditionFactory\ConditionGroupFactoryInterface;
 use function collect;
 
 use DateTime;
@@ -104,10 +105,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      * @var CustomerService
      */
     protected $currentCustomerService;
-    /**
-     * @var ConditionFactoryInterface
-     */
-    protected $conditionFactory;
+
+    protected DqlConditionFactory $conditionFactory;
 
     private TypeProviderInterface $typeProvider;
 
