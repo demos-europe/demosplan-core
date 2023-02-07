@@ -158,7 +158,7 @@ function transformStatementStructure ({ el, includes, meta }) {
               .filter(incl => incl.type === 'StatementAttachment')
               .filter(incl => statement[relationKey][0].id === incl.id)
 
-            if (hasOwnProp(attachment[0], 'relationship')) {
+            if (hasOwnProp(attachment[0], 'relationships')) {
               const sourceAttachment = includes
                 .filter(incl => incl.type === 'File')
                 .filter(incl => attachment[0].relationships.file.data.id === incl.id)
@@ -456,6 +456,8 @@ export default {
 
     /**
      * Get statements
+     * attachments are `Originalstellungnahme-Anhang` and can be only one file
+     * files are `weitere Anhänge`
      * @param {Object} data
      */
     getStatementAction ({ commit, state, rootState }, data) {
