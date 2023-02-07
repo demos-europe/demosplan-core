@@ -289,7 +289,10 @@ class ExportReportService extends CoreService
                 ReportEntry::CATEGORY_COPY,
                 ReportEntry::CATEGORY_DELETE_ATTACHMENTS,
                 ReportEntry::CATEGORY_DELETE_TEXT_FIELD_HISTORY,
+                ReportEntry::CATEGORY_DELETE,
                 ReportEntry::CATEGORY_MOVE,
+                ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE,
+                ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET,
             ]
         );
 

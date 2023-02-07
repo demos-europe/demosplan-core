@@ -26,7 +26,7 @@
                                     procedure-id="{{ templateVars.table.procedure.ident }}"
                                     :toolbar-items="{
                                         insertAndDelete: true,
-                                        obscure: true,
+                                        obscure: hasPermission('feature_obscure_text'),
                                         mark: true
                                     }"
                                     :value="JSON.parse('{{ statement.text|json_encode|e('js') }}')">

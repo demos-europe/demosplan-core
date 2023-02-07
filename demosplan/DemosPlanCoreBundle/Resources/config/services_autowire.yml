@@ -25,17 +25,13 @@ services:
         resource: '../../../../demosplan/DemosPlanDocumentBundle/*'
         exclude: '../../../../demosplan/DemosPlanDocumentBundle/{Entity,Tests}'
 
-    demosplan\DemosPlanFaqBundle\:
-        resource: '../../../../demosplan/DemosPlanFaqBundle/*'
-        exclude: '../../../../demosplan/DemosPlanFaqBundle/{Entity,Tests}'
+    demosplan\DemosPlanForumBundle\:
+        resource: '../../../../demosplan/DemosPlanForumBundle/*'
+        exclude: '../../../../demosplan/DemosPlanForumBundle/{Entity,Tests}'
 
     demosplan\DemosPlanMapBundle\:
         resource: '../../../../demosplan/DemosPlanMapBundle/*'
         exclude: '../../../../demosplan/DemosPlanMapBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanMiscContentBundle\:
-        resource: '../../../../demosplan/DemosPlanMiscContentBundle/*'
-        exclude: '../../../../demosplan/DemosPlanMiscContentBundle/{Entity,Tests}'
 
     demosplan\DemosPlanProcedureBundle\:
         resource: '../../../../demosplan/DemosPlanProcedureBundle/*'
