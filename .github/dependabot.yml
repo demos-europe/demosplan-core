@@ -22,6 +22,10 @@ updates:
             - ">= 27"
 
       # Is Vue 3 only
+      -   dependency-name: vue
+          versions:
+            - ">= 2.7.14"
+            -
       - dependency-name: vue-loader
         versions:
             - ">= 16"
