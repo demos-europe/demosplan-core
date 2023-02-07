@@ -33,10 +33,8 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementAttachmentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-
-
     public function __construct(
-        private readonly FileService  $fileService,
+        private readonly FileService $fileService,
         private readonly StatementResourceType $statementResourceType
     ) {
     }
