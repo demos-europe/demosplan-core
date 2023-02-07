@@ -251,22 +251,28 @@ export default {
      * - user is set: roles for current organisation
      */
     allowedRolesForOrga () {
-      let allowedRoles = this.rolesInRelationshipFormat
-      if (this.currentUserOrga.id !== '' && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+      let allowedRoles
+
+      if (this.currentUserOrga.id === '') {
+        allowedRoles = this.rolesInRelationshipFormat
+      } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
         allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
-      } else if (this.currentUserOrga.id !== '' && !hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+      } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
+
       return allowedRoles
     },
 
     currentOrgaDepartments () {
       const departments = sortAlphabetically(Object.values(this.currentUserOrga.departments), 'name')
       const noDepartmentIdx = departments.findIndex(el => el.name === Translator.trans('department.none'))
+
       if (noDepartmentIdx > -1) {
         const noDepartment = departments.splice(noDepartmentIdx, 1)[0]
         departments.unshift(noDepartment)
       }
+
       return departments
     },
 
@@ -349,6 +355,7 @@ export default {
      */
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
+
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
         if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
@@ -465,7 +472,7 @@ export default {
         relationships: {
           allowedRoles: {
             data: payloadRel.allowedRoles?.data[0].id
-              ? payloadRel.allowedRoles?.data.map(el => {
+              ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
                   type: 'role'
@@ -481,7 +488,7 @@ export default {
           },
           departments: {
             data: payloadRel.departments?.data[0].id
-              ? payloadRel.departments?.data.map(el => {
+              ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
                   type: 'department'
@@ -491,6 +498,7 @@ export default {
           }
         }
       }
+
       this.setItem(payloadWithNewType)
     }
   },
