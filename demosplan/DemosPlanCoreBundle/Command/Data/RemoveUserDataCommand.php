@@ -920,7 +920,7 @@ class RemoveUserDataCommand extends CoreCommand
 
         $messageEncoded = true;
         $message = $report->getMessageDecoded(false);
-        if ([] === $message || !is_array($message)) {
+        if ([] === $message) {
             $message = $report->getMessage();
             $messageEncoded = false;
         }
@@ -1020,41 +1020,8 @@ class RemoveUserDataCommand extends CoreCommand
             'versions'                    => '-', // ??
         ];
 
-        if (is_array($message) && !empty($message)) {
-            foreach ($keysToOverwrite as $key => $value) {
-                if (array_key_exists($key, $message)) {
-                    $message[$key] = $this->anonymize($message[$key], $keysToOverwrite[$key]);
-                }
-            }
-
-            foreach ($message as $subArray) {
-                if (is_array($subArray) && !empty($subArray)) {
-                    foreach ($keysToOverwrite as $key => $value) {
-                        if (array_key_exists($key, $subArray)) {
-                            $subArray[$key] = $this->anonymize($subArray[$key], $keysToOverwrite[$key]);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (is_array($incoming) && !empty($incoming)) {
-            foreach ($keysToOverwrite as $key => $value) {
-                if (array_key_exists($key, $incoming)) {
-                    $incoming[$key] = $this->anonymize($incoming[$key], $keysToOverwrite[$key]);
-                }
-            }
-
-            foreach ($incoming as $subArray) {
-                if (is_array($subArray) && !empty($subArray)) {
-                    foreach ($keysToOverwrite as $key => $value) {
-                        if (array_key_exists($key, $subArray)) {
-                            $subArray[$key] = $this->anonymize($subArray[$key], $keysToOverwrite[$key]);
-                        }
-                    }
-                }
-            }
-        }
+        $message = $this->anonymizeNestedArray($message, $keysToOverwrite);
+        $incoming = $this->anonymizeNestedArray($incoming, $keysToOverwrite);
 
         $message = $messageEncoded ? Json::encode($message, JSON_UNESCAPED_UNICODE) : $message;
         $incoming = $incomingEncoded ? Json::encode($incoming, JSON_UNESCAPED_UNICODE) : $incoming;
@@ -1163,5 +1130,32 @@ class RemoveUserDataCommand extends CoreCommand
         $this->currentProgressBar = $this->initializeProgressBar(count($allEntries));
 
         return $allEntries;
+    }
+
+    /**
+     * Anonymize certain keys in a nested array using the $keysToOverwrite
+     */
+    private function anonymizeNestedArray(array|string $message, array $keysToOverwrite): array|string
+    {
+        if (is_array($message)) {
+            $message = $this->anonymizeArray($keysToOverwrite, $message);
+
+            foreach ($message as $subArray) {
+                if (is_array($subArray) && !empty($subArray)) {
+                    $message = $this->anonymizeArray($keysToOverwrite, $subArray);
+                }
+            }
+        }
+        return $message;
+    }
+
+    private function anonymizeArray(array $keysToOverwrite, array $message): array
+    {
+        foreach ($keysToOverwrite as $key => $value) {
+            if (array_key_exists($key, $message)) {
+                $message[$key] = $this->anonymize($message[$key], $value);
+            }
+        }
+        return $message;
     }
 }
