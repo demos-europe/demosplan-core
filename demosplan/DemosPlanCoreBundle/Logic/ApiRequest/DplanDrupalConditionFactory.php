@@ -14,6 +14,11 @@ use EDT\ConditionFactory\PathsBasedConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
+/**
+ * This class is only needed temporary to fix a bug in a third-party dependency. After the `demos-europe/edt-...`
+ * dependencies has been updated to `^0.17`, this class can be removed and its usages replaced with
+ * `PredefinedDrupalConditionFactory`.
+ */
 class DplanDrupalConditionFactory extends PredefinedDrupalConditionFactory
 {
     public function __construct(private PathsBasedConditionFactoryInterface $conditionFactory)
