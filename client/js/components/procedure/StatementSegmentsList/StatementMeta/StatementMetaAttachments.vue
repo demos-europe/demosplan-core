@@ -38,9 +38,8 @@
         v-else />
       <dp-upload-files
         :class="editable ? '' : 'pointer-events-none opacity-7'"
-        :file-route="{
-          router: Routing.generate,
-          path: 'core_file'
+        :get-file-by-hash="(hash) => {
+          return Routing.generate('core_file', { hash: hash })
         }"
         ref="uploadStatementAttachment"
         id="uploadStatementAttachment"

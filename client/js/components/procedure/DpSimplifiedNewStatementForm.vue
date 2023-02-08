@@ -312,9 +312,8 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          :file-route="{
-            router: Routing.generate,
-            path: 'core_file'
+          :get-file-by-hash="(hash) => {
+            return Routing.generate('core_file', { hash: hash })
           }"
           name="r_attachment_original"
           allowed-file-types="all"

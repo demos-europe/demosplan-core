@@ -171,7 +171,7 @@
             linkButton: true
           }"
           :routes="{
-            fileRoute: Routing.generate('core_file')
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }" />
       </customer-settings-section>
 

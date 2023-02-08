@@ -2,9 +2,8 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-zip-video"
-        :file-route="{
-            router: Routing.generate,
-            path: 'core_file'
+        :get-file-by-hash="(hash) => {
+           return Routing.generate('core_file', { hash: hash })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.zip.mp4'),
@@ -21,9 +20,8 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-video"
-        :file-route="{
-            router: Routing.generate,
-            path: 'core_file'
+        :get-file-by-hash="(hash) => {
+           return Routing.generate('core_file', { hash: hash })
         }"
         :label="{
           hint: Translator.trans('file.upload.pdf.mp4'),

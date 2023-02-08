@@ -35,9 +35,8 @@
       enctype="multipart/form-data">
       <dp-upload-files
         allowed-file-types="xls"
-        :file-route="{
-          router: Routing.generate,
-          path: 'core_file'
+        :get-file-by-hash="(hash) => {
+          return Routing.generate('core_file', { hash: hash })
         }"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
