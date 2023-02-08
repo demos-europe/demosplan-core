@@ -42,6 +42,13 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
         $operators['IS NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNull($path);
         $operators['IS NOT NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNotNull($path);
 
+        $operators[self::FALSE] = fn (
+            array $path, $conditionValue
+        ): PathsBasedInterface => $this->conditionFactory->false();
+        $operators[self::NOT_SIZE] = fn (
+            array $path, $conditionValue
+        ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($conditionValue, $path);
+
         return $operators;
     }
 }
