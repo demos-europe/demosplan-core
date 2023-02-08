@@ -41,14 +41,13 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
-
-use function strlen;
-
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
+use function strlen;
 
 /**
  * dplan:data:remove-user-data.
@@ -1133,7 +1132,7 @@ class RemoveUserDataCommand extends CoreCommand
     }
 
     /**
-     * Anonymize certain keys in a nested array using the $keysToOverwrite
+     * Anonymize certain keys in a nested array using the $keysToOverwrite.
      */
     private function anonymizeNestedArray(array|string $message, array $keysToOverwrite): array|string
     {
@@ -1146,6 +1145,7 @@ class RemoveUserDataCommand extends CoreCommand
                 }
             }
         }
+
         return $message;
     }
 
@@ -1156,6 +1156,7 @@ class RemoveUserDataCommand extends CoreCommand
                 $message[$key] = $this->anonymize($message[$key], $value);
             }
         }
+
         return $message;
     }
 }
