@@ -353,6 +353,8 @@ useful info about the component:
             field-key="fragment.considerationAdvice"
             :editable="isClaimed && editableConsiderationAdvice"
             edit-label="fragment.considerationAdvice"
+            link-button
+            :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="considerationAdvice"
@@ -369,6 +371,8 @@ useful info about the component:
             field-key="consideration"
             :editable="isClaimed && editableConsideration"
             edit-label="fragment.consideration"
+            link-button
+            :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="consideration"
