@@ -1081,9 +1081,9 @@
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
 "@demos-europe/demosplan-ui@^0":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.9.tgz#7f004ca51419cbc53995d0e963bc264e45980e22"
-  integrity sha512-I7sPP8ijyoTz6JsQvALnyjWc9G9leCjbLiOLQzZJjLYcQgmDeOmi1hr9WyQHHRss96+Bs2zLD84I6cRvth9L/g==
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.10.tgz#0481d70122db55c07dfd4d33606eb5a1be260a2e"
+  integrity sha512-WIMsYP1t75qZT2FINCQQV+PG3VPtnYHQqMOgVe+3BX5d4bXV7Jq6qSrcsSr6hM/RelbgNp0jc4QEM07nBDd1mg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@demos-europe/demosplan-utils" "^0"
@@ -2633,10 +2633,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426, caniuse-lite@^1.0.30001450:
-  version "1.0.30001450"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001450.tgz#022225b91200589196b814b51b1bbe45144cf74f"
-  integrity sha512-qMBmvmQmFXaSxexkjjfMvD5rnDL0+m+dUMZKoDYsGG8iZN29RuYh9eRoMvKsT6uMAWlyUUGDEQGJJYjzCIO9ew==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426, caniuse-lite@^1.0.30001451:
+  version "1.0.30001451"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001451.tgz#2e197c698fc1373d63e1406d6607ea4617c613f1"
+  integrity sha512-XY7UbUpGRatZzoRft//5xOa69/1iGJRBlrieH6QYrkKLIFn3m7OVEJ81dSrKoy2BnKsdbX5cLrOispZNYo9v2w==
 
 chalk@4.1.2, chalk@^4.0.0, chalk@^4.1.0:
   version "4.1.2"
