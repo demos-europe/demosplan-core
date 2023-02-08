@@ -35,7 +35,10 @@
       enctype="multipart/form-data">
       <dp-upload-files
         allowed-file-types="xls"
-        file-route="core_file"
+        :file-route="{
+          router: Routing.generate,
+          path: 'core_file'
+        }"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"

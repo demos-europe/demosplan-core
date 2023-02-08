@@ -312,7 +312,10 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          file-route="core_file"
+          :file-route="{
+            router: Routing.generate,
+            path: 'core_file'
+          }"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"

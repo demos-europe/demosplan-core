@@ -26,7 +26,10 @@
         <dp-upload-files
           allowed-file-types="img"
           id="r_customerLogo"
-          file-route="core_file"
+          :file-route="{
+            router: Routing.generate,
+            path: 'core_file'
+          }"
           :max-file-size="200000"
           :max-number-of-files="1"
           needs-hidden-input
