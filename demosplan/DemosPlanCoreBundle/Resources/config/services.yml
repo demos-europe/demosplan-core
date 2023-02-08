@@ -1265,7 +1265,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1276,9 +1276,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
@@ -1320,3 +1320,5 @@ services:
 
     # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
+
+

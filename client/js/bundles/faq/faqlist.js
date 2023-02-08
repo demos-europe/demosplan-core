@@ -12,7 +12,7 @@
  */
 
 import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
-import highlightActiveLinks from '@DpJs/lib/core/libs'
+import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
