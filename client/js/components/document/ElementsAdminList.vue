@@ -55,9 +55,9 @@
       :options="treeListOptions"
       :tree-data="treeData"
       ref="treeList"
-      @draggable-change="saveNewSort"
+      @draggable:change="saveNewSort"
       @node-selection-change="nodeSelectionChange"
-      @tree-data-change="updateTreeData">
+      @tree:change="updateTreeData">
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -258,7 +258,7 @@ export default {
         }
 
         // Push item to correct position in map
-        if (node.attributes.parentId !== null) {
+        if (node.attributes.parentId) {
           list.find(el => el.id === node.attributes.parentId)?.children.push(node)
         } else {
           roots.push(node)
