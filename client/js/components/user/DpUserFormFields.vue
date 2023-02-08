@@ -344,15 +344,17 @@ export default {
       return new Promise((resolve, reject) => resolve(true))
     },
 
+    /**
+     *  Handle cases in which organisation lost allowedRoles from the relationships after user update action
+     *  a separate method is used to avoid fetching allowedRoles by mounting (DpUserList component fetches orga.allowedRoles)
+     *  @param types {String}
+     */
     fetchOrgaById (orgaId) {
       const url = Routing.generate('dplan_api_orga_get', { id: orgaId })
 
       return dpApi.get(url, { include: ['allowedRoles', 'departments'].join() })
     },
 
-    /**
-     *  Handle cases in which allowedRoles are missing in the orga relationships (after user update action)
-     */
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
 
