@@ -125,10 +125,13 @@ export default {
 
   data () {
     return {
+      activeclickcontrol: null,
       autocompleteOptions: [],
       bPlan: {},
       hasTerritoryWMS: false,
+      dragZoomAlways: new DragZoom({ condition: () => true }),
       map: null,
+      mapSingleClickListener: null,
       measureTools: [
         {
           button: '#measureLineButton',
@@ -330,25 +333,25 @@ export default {
       this.map.addOverlay(this.popupoverlay)
     },
 
-    addMeasureTools (drawStyle) {
+    addMeasureTools () {
       const measureSource = new VectorSource({ projection: this.mapprojection })
 
       //  Define vars to init interactions
       const measureLayer = new VectorLayer({
         name: 'measureLayer',
         source: measureSource,
-        style: drawStyle
+        style: this.drawStyle()
       })
       this.map.addLayer(measureLayer)
       //  Attach measure interaction to elements
       this.measureTools.forEach(measureTool => {
-        const measure = drawInteraction(measureSource, measureTool.interaction)
+        const measure = this.drawInteraction(measureSource, measureTool.interaction)
         let doubleClickListener
         let sketch
         let listener
 
         $(measureTool.button).on('click', el => {
-          handleButtonInteraction(measureTool.active, measureTool.button, () => {
+          this.handleButtonInteraction(measureTool.active, measureTool.button, () => {
             this.map.addInteraction(measure)
           })
         })
@@ -782,8 +785,6 @@ export default {
     },
 
     doAllTheOtherExcitingStuff () {
-      let activeclickcontrol, mapSingleClickListener
-
       this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
 
       this.map.getLayerGroup().set('name', 'Root')
@@ -937,7 +938,8 @@ export default {
           if (event.type === 'keydown' && event.keyCode !== 13) {
             return
           }
-          handleButtonInteraction('criteria', '#criteriaButton', () => { mapSingleClickListener = this.map.on('singleclick', queryCriteria) })
+          this.handleButtonInteraction('criteria', '#criteriaButton', () => {
+            this.mapSingleClickListener = this.map.on('singleclick', queryCriteria) })
         })
       }
 
@@ -1038,61 +1040,13 @@ export default {
 
         //  Add 'queryArea' button behavior
         $('#queryAreaButton').on('click touchstart', () => {
-          handleButtonInteraction('queryarea', '#queryAreaButton', () => {
-            mapSingleClickListener = this.map.on('singleclick', queryArea)
+          this.handleButtonInteraction('queryarea', '#queryAreaButton', () => {
+            this.mapSingleClickListener = this.map.on('singleclick', queryArea)
           })
         })
 
         //  Bind 'queryArea' behavior to click on map when initially loading
-        mapSingleClickListener = this.map.on('singleclick', queryArea)
-      }
-
-      /*
-       * #########################################################
-       * Draw: utils
-       */
-
-      const drawFillSelector = $(this.prefixClass('.c-map__draw-fill'))
-      const fill = new Fill({
-        color: drawFillSelector.css('color')
-      })
-      const stroke = lineDash => {
-        return new Stroke({
-          color: $(this.prefixClass('.c-map__draw-stroke')).css('color'),
-          width: 1,
-          lineDash: lineDash || 0
-        })
-      }
-      //  Styles for drawing in progress
-      const drawStyle = new Style({
-        fill: fill,
-        stroke: stroke([10]),
-        image: new Circle({
-          radius: 5,
-          fill: new Fill({
-            color: drawFillSelector.css('color')
-          }),
-          stroke: stroke()
-        })
-      })
-      //  Styles for finished drawings
-      const drawDoneStyle = new Style({
-        fill: fill,
-        stroke: stroke(),
-        image: new Circle({
-          radius: 5,
-          fill: new Fill({
-            color: $(this.prefixClass('.c-map__draw-image')).css('color')
-          })
-        })
-      })
-      //  Function to generate draw interaction
-      const drawInteraction = (source, type) => {
-        return new Draw({
-          source: source,
-          type: type,
-          style: drawStyle
-        })
+        this.mapSingleClickListener = this.map.on('singleclick', queryArea)
       }
 
       /*
@@ -1112,7 +1066,7 @@ export default {
         name: 'drawVector',
         title: 'draw',
         type: 'draw',
-        style: drawDoneStyle
+        style: this.drawDoneStyle()
       })
       this.map.addLayer(mapdrawvector)
 
@@ -1139,14 +1093,14 @@ export default {
 
       //  Attach drawing interactions to elements
       drawTools.forEach(drawTool => {
-        const drawing = drawInteraction(mapdrawsource, drawTool.interaction)
+        const drawing = this.drawInteraction(mapdrawsource, drawTool.interaction)
 
         $(drawTool.button).on('pointerup keydown', event => {
           // For keyboard events, do only execute when enter was pressed
           if (event.type === 'keydown' && event.keyCode !== 13) {
             return
           }
-          handleButtonInteraction(drawTool.active, drawTool.button, () => {
+          this.handleButtonInteraction(drawTool.active, drawTool.button, () => {
             this.map.addInteraction(drawing)
             $('#saveStatementButton').addClass(this.prefixClass('is-visible'))
           })
@@ -1414,9 +1368,9 @@ export default {
         if (event.type === 'keydown' && event.keyCode !== 13) {
           return
         }
-        activateMarkLocationButton($(this))
-        handleButtonInteraction('marklocation', '#markLocationButton, [data-maptools-id="markLocationButtonResponsive"]', () => {
-          mapSingleClickListener = this.map.on('singleclick', mapMarkLocation)
+        this.activateMarkLocationButton($(this))
+        this.handleButtonInteraction('marklocation', '#markLocationButton, [data-maptools-id="markLocationButtonResponsive"]', () => {
+          this.mapSingleClickListener = this.map.on('singleclick', mapMarkLocation)
         })
       })
 
@@ -1426,104 +1380,26 @@ export default {
        */
       this.createMeasureTooltip()
 
-      this.addMeasureTools(drawStyle)
+      this.addMeasureTools()
 
       /*
        * #########################################################
        * Kartenwerkzeuge: DragZoom control
        */
 
-      const dragZoomAlways = new DragZoom({ condition: () => true })
 
       //  Add DragZoom control
       $('#dragZoomButton').on('click', el => {
-        handleButtonInteraction('dragzoom', '#dragZoomButton', () => {
-          mapSingleClickListener = this.map.addInteraction(dragZoomAlways)
+        this.handleButtonInteraction('dragzoom', '#dragZoomButton', () => {
+          this.mapSingleClickListener = this.map.addInteraction(this.dragZoomAlways)
           $('#dragZoomButton').addClass(this.prefixClass('is-active'))
         })
       })
 
       // Remove measure drawings
       $('#measureRemoveButton').on('pointerup', el => {
-        removeOtherInteractions(true)
+        this.removeOtherInteractions(true)
       })
-
-      /*
-       * ##########################################################
-       * utility functions
-       */
-
-      const handleButtonInteraction = (active, element, callback) => {
-        removeOtherInteractions()
-        //  Toggle #queryAreaButton inactive
-        if (active !== 'queryarea' && dplan.procedureStatementPriorityArea) {
-          window.dplan.statement.activateQueryAreaButton($('#queryAreaButton'), true)
-        }
-        if (activeclickcontrol !== active) {
-          callback()
-          $(element).addClass(this.prefixClass('is-active'))
-          activeclickcontrol = active
-        } else {
-          activeclickcontrol = ''
-
-          if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
-            mapSingleClickListener = this.map.on('singleclick', queryArea)
-          }
-        }
-        this.$root.$emit('changeActive')
-      }
-
-      const removeOtherInteractions = (reset) => {
-        this.map.getInteractions().forEach(interaction => {
-          if (interaction instanceof Draw) {
-            this.map.removeInteraction(interaction)
-          } else if (interaction instanceof DragZoom) {
-            this.map.removeInteraction(dragZoomAlways)
-            $('#dragZoomButton').removeClass(this.prefixClass('is-active'))
-          }
-        })
-
-        //  Remove mapSingleClickListener event listener
-        unByKey(mapSingleClickListener)
-
-        //  Hide drawpoint stn button
-        $('#saveStatementButton').removeClass(this.prefixClass('is-visible'))
-        $(this.prefixClass('.js__mapcontrol')).removeClass(this.prefixClass('is-active'))
-
-        //  Unselect tools
-        $(this.prefixClass('.c-map__tool, .c-map__tool-simple')).removeClass(this.prefixClass('is-active'))
-
-        this.resetPopup()
-
-        if (reset === true) {
-          // Clear source for measuring layer
-          measureSource.clear()
-          // Remove all measure tooltips
-          if (this.measureTooltipsArray.length > 0) {
-            this.measureTooltipsArray.forEach(tt => this.map.removeOverlay(tt))
-            this.measureTooltipsArray = []
-          }
-          this.$root.$emit('changeActive')
-        }
-      }
-
-      const activateMarkLocationButton = el => {
-        if (el.hasClass(this.prefixClass('is-activated'))) {
-          el.removeClass(this.prefixClass('is-activated'))
-          //  Also change html when element is a big actionbutton
-          if (el.prop('tagName') === 'H2') {
-            el.html('Ort markieren')
-            el.parent().find(this.prefixClass('.c-actionbox__arrow')).remove()
-          }
-        } else {
-          el.addClass(this.prefixClass('is-activated'))
-          //  Also change html when element is a big actionbutton
-          if (el.prop('tagName') === 'H2') {
-            el.html('Ort markieren...')
-            el.parent().append('<i class="' + this.prefixClass('fa fa-2x fa-long-arrow-right c-actionbox__arrow') + '" aria-hidden="true"></i>')
-          }
-        }
-      }
 
       // Set trigger for adding custom layers
       this.$root.$on('addCustomlayer', (layerdata) => {
@@ -1577,10 +1453,58 @@ export default {
       window.redrawMap = () => this.redrawMap()
     },
 
-    doStatementAction (event) {
+    doStatementAction () {
       // Window.dplan.statement.toggleFormFromMap(event)
       this.popupoverlay.setPosition(undefined)
       this.$root.$emit('update-statement-form-map-data', this.statementActionFields)
+    },
+
+    drawFillSelector (selector) {
+      return $(this.prefixClass(selector)).css('color')
+    },
+
+    //  Styles for finished drawings
+    drawDoneStyle () {
+      return new Style({
+        fill: this.fill(),
+        stroke: this.stroke(),
+        image: new Circle({
+          radius: 5,
+          fill: new Fill({
+            color: this.drawFillSelector('.c-map__draw-image')
+          })
+        })
+      })
+    },
+
+    //  Function to generate draw interaction
+    drawInteraction (source, type) {
+      return new Draw({
+        source: source,
+        type: type,
+        style: this.drawStyle()
+      })
+    },
+
+    //  Styles for drawing in progress
+    drawStyle () {
+      return new Style({
+        fill: this.fill(),
+        stroke: this.stroke([10]),
+        image: new Circle({
+          radius: 5,
+          fill: new Fill({
+            color: this.drawFillSelector('.c-map__draw-fill')
+          }),
+          stroke: this.stroke()
+        })
+      })
+    },
+
+    fill () {
+      return new Fill({
+        color: this.drawFillSelector('.c-map__draw-fill')
+      })
     },
 
     findBy (layer, key, value) {
@@ -1688,6 +1612,78 @@ export default {
         string = $xmlFromNeedle.text()
       }
       return string
+    },
+
+    handleButtonInteraction (active, element, callback) {
+      this.removeOtherInteractions()
+      //  Toggle #queryAreaButton inactive
+      if (active !== 'queryarea' && dplan.procedureStatementPriorityArea) {
+        window.dplan.statement.activateQueryAreaButton($('#queryAreaButton'), true)
+      }
+      if (this.activeclickcontrol !== active) {
+        callback()
+        $(element).addClass(this.prefixClass('is-active'))
+        this.activeclickcontrol = active
+      } else {
+        this.activeclickcontrol = ''
+
+        if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
+          this.mapSingleClickListener = this.map.on('singleclick', queryArea)
+        }
+      }
+      this.$root.$emit('changeActive')
+    },
+
+    removeOtherInteractions (reset) {
+      this.map.getInteractions().forEach(interaction => {
+        if (interaction instanceof Draw) {
+          this.map.removeInteraction(interaction)
+        } else if (interaction instanceof DragZoom) {
+          this.map.removeInteraction(this.dragZoomAlways)
+          $('#dragZoomButton').removeClass(this.prefixClass('is-active'))
+        }
+      })
+
+      //  Remove mapSingleClickListener event listener
+      unByKey(this.mapSingleClickListener)
+
+      //  Hide drawpoint stn button
+      $('#saveStatementButton').removeClass(this.prefixClass('is-visible'))
+      $(this.prefixClass('.js__mapcontrol')).removeClass(this.prefixClass('is-active'))
+
+      //  Unselect tools
+      $(this.prefixClass('.c-map__tool, .c-map__tool-simple')).removeClass(this.prefixClass('is-active'))
+
+      this.resetPopup()
+
+      if (reset === true) {
+        // Clear source for measuring layer
+        measureSource.clear()
+        // Remove all measure tooltips
+        if (this.measureTooltipsArray.length > 0) {
+          this.measureTooltipsArray.forEach(tt => this.map.removeOverlay(tt))
+          this.measureTooltipsArray = []
+        }
+        this.$root.$emit('changeActive')
+      }
+    },
+
+    activateMarkLocationButton (el) {
+      if (el.hasClass(this.prefixClass('is-activated'))) {
+        el.removeClass(this.prefixClass('is-activated'))
+        //  Also change html when element is a big actionbutton
+        if (el.prop('tagName') === 'H2') {
+          el.html('Ort markieren')
+          el.parent().find(this.prefixClass('.c-actionbox__arrow')).remove()
+        }
+      } else {
+        el.addClass(this.prefixClass('is-activated'))
+        //  Also change html when element is a big actionbutton
+        if (el.prop('tagName') === 'H2') {
+          el.html('Ort markieren...')
+          el.parent().append('<i class="' + this.prefixClass('fa fa-2x fa-long-arrow-right c-actionbox__arrow') + '" aria-hidden="true"></i>')
+        }
+      }
     },
 
     restoreCustomAjaxHeaders () {
@@ -1997,6 +1993,14 @@ export default {
         })
 
       this.autocompleteOptions = searchResults
+    },
+
+    stroke (lineDash) {
+      return new Stroke({
+        color: this.drawFillSelector('.c-map__draw-stroke'),
+        width: 1,
+        lineDash: lineDash || 0
+      })
     },
 
     toggleCustomLayerButton ({ element, layerName, visible }) {
