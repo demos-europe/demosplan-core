@@ -20,6 +20,7 @@
     strikethrough {Boolean}      set to true to enable a line through option in editor. default false
 #}
 {% set omitPrefix  = omitCssPrefix ?? true %}
+{% set routes = routes|default({}) %}
 {% set toolbarItems = toolbarItems|default({}) %}
 {% if headings|default is iterable and headings|length > 0 %}
     {% set toolbarItems = toolbarItems|merge({ 'headings': headings }) %}
