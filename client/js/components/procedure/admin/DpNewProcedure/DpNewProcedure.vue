@@ -51,7 +51,7 @@
         class="hide-visually"
         v-text="Translator.trans('procedure.data')" />
 
-      <addon-wrapper hook-name="bimschg.request" />
+      <addon-wrapper hook-name="procedure.fields" />
 
       <template v-if="hasPermission('feature_use_plis')">
         <dp-form-row>
