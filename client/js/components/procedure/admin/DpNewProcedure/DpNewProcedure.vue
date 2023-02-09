@@ -146,7 +146,7 @@
       <div class="u-mb-0_75">
         <dp-label
           for="startdate"
-          :hint="periodHint"
+          :hint="Translator.trans('explanation.date.procedure')"
           :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
           :text="Translator.trans('period')" />
 
@@ -263,12 +263,6 @@ export default {
       type: String,
       required: false,
       default: () => ''
-    },
-
-    periodHint: {
-      type: String,
-      required: false,
-      default: ''
     },
 
     plisNameOptions: {
