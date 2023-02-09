@@ -18,9 +18,13 @@
         :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
-        route="DemosPlan_procedure_public_suggest_procedure_location_json"
+        :route="(searchString) => {
+          return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
+            maxResults: 12,
+            query: searchString
+          })
+        }"
         :height="'34px'"
-        :additional-route-params="{ maxResults: 12 }"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"

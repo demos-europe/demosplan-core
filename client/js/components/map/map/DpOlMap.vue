@@ -71,13 +71,12 @@
               :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="(additionalRouteParams, queryParam) => {
+              :route="(searchString) => {
                 return Routing.generate(_options.autoSuggest.serviceUrlPath, {
-                  additionalRouteParams,
-                  queryParam: queryParam
+                  filterByExtent: JSON.stringify(maxExtent),
+                  query: searchString
                 })
               }"
-              :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent) }"
               label="value"
               :placeholder="Translator.trans('autocomplete.label')"
               track-by="value"
