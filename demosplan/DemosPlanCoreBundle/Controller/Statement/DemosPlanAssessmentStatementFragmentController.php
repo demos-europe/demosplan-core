@@ -135,12 +135,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             if (isset($resElements['documents'])) {
                 $templateVars['documents'] = $resElements['documents'];
+            } else {
+                // assure that at least one planningCategory Group is present if no documents are available
+                $templateVars['documents'][$statement->getElementId()] = [];
             }
             if (isset($resElements['elements'])) {
                 $templateVars['elements'] = $resElements['elements'];
             }
             if (isset($resElements['paragraph'])) {
                 $templateVars['paragraph'] = $resElements['paragraph'];
+            } else {
+                // assure that at least one planningCategory Group is present if no paragraph are available
+                $templateVars['paragraph'][$statement->getElementId()] = [];
             }
 
             $templateVars['availableTags'] = $statementHandler->getTopicsAndTagsOfProcedureAsArray($procedureId);
@@ -176,6 +182,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     name="DemosPlan_statement_fragment_list_fragment_archived_reviewer",
      *     path="/datensatz/liste/archive"
      * )
+     *
      *  @DplanPermissions({"area_statement_fragments_department_archive","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|Response
@@ -262,6 +269,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/datensatz/liste",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
@@ -372,6 +380,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     defaults={"isReviewer": true},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
@@ -444,6 +453,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     methods={"POST"},
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_admin_assessmenttable","feature_statements_fragment_edit"})
      *
      * @param string $fragmentId
@@ -496,6 +506,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param string $procedure
@@ -523,6 +534,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
      *
      * @param string $statementId
@@ -561,6 +573,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Fragment Statement into multiple slices.
      *
      * @DplanPermissions({"area_statements_fragment", "feature_statements_fragment_add"})
+     *
      * @Route(
      *     name="DemosPlan_statement_fragment_add",
      *     path="/verfahren/{procedure}/fragment/{statementId}/add"
@@ -655,6 +668,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     name="DemosPlan_statement_fragment_update_redirect",
      *     path="/datensatz/update",
      * )
+     *
      *  @DplanPermissions({"area_statements_fragment","feature_statements_fragment_edit"})
      *
      * @param bool $isReviewer
@@ -742,6 +756,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Returns fragment data for a statement on the assessment table.
      *
      * @DplanPermissions("area_admin_assessmenttable")
+     *
      * @Route(
      *     name="DemosPlan_assessment_statement_fragments_ajax",
      *     path="/_ajax/assessment/{procedureId}/{statementId}",
@@ -819,6 +834,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/datensatz/liste/export",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements_fragment")
      *
      * @param Request $request ;
