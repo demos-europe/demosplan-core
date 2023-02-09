@@ -132,6 +132,7 @@ export default {
       dragZoomAlways: new DragZoom({ condition: () => true }),
       map: null,
       mapSingleClickListener: null,
+      measureSource: new VectorSource({ projection: this.mapprojection }),
       measureTools: [
         {
           button: '#measureLineButton',
@@ -334,18 +335,16 @@ export default {
     },
 
     addMeasureTools () {
-      const measureSource = new VectorSource({ projection: this.mapprojection })
-
-      //  Define vars to init interactions
       const measureLayer = new VectorLayer({
         name: 'measureLayer',
-        source: measureSource,
+        source: this.measureSource,
         style: this.drawStyle()
       })
+
       this.map.addLayer(measureLayer)
       //  Attach measure interaction to elements
       this.measureTools.forEach(measureTool => {
-        const measure = this.drawInteraction(measureSource, measureTool.interaction)
+        const measure = this.drawInteraction(this.measureSource, measureTool.interaction)
         let doubleClickListener
         let sketch
         let listener
@@ -381,7 +380,7 @@ export default {
             const lastPoint = evt.feature.getGeometry().getLastCoordinate()
             const radiusGeometry = new GLineString([center, lastPoint])
             const radiusFeature = new Feature({ geometry: radiusGeometry })
-            measureSource.addFeature(radiusFeature)
+            this.measureSource.addFeature(radiusFeature)
             unByKey(doubleClickListener)
             unByKey(listener)
           }
@@ -1658,7 +1657,7 @@ export default {
 
       if (reset === true) {
         // Clear source for measuring layer
-        measureSource.clear()
+        this.measureSource.clear()
         // Remove all measure tooltips
         if (this.measureTooltipsArray.length > 0) {
           this.measureTooltipsArray.forEach(tt => this.map.removeOverlay(tt))
