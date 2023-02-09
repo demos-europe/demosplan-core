@@ -726,6 +726,8 @@ export default {
           }
         }
 
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.fragmentId, 'fragment')
 
