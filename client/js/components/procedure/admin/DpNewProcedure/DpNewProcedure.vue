@@ -9,11 +9,12 @@
 
 <template>
   <form
-    name="xsubmititem"
     :action="Routing.generate('DemosPlan_procedure_new')"
+    data-dp-validate="newProcedureForm"
     enctype="multipart/form-data"
     method="post"
-    data-dp-validate>
+    name="xsubmititem"
+    ref="newProcedureForm">
     <input
       type="hidden"
       name="_token"
@@ -188,19 +189,19 @@
           id="saveBtn"
           :text="Translator.trans('save')"
           type="submit"
-          @click.prevent="$emit('primary-action')"
+          @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
           data-cy="saveNewProcedure" />
         <dp-button
           color="secondary"
           :href="Routing.generate('DemosPlan_procedure_administration_get')"
-          :text="Translator.trans('abort')"
-          @click.prevent="$emit('secondary-action')" />
+          :text="Translator.trans('abort')" />
       </div>
     </fieldset>
   </form>
 </template>
 
 <script>
+import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
 import {
   DpButton,
   DpDateRangePicker,
@@ -214,7 +215,6 @@ import {
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
-import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpNewProcedure',
@@ -231,6 +231,8 @@ export default {
     DpSelect,
     DpTextArea
   },
+
+  mixins: [dpValidateMixin],
 
   props: {
     blueprintOptions: {
@@ -317,6 +319,10 @@ export default {
       )
         .then(({ data }) => data.data.attributes)
         .catch(() => this.emptyBlueprintData) // When the request fails planners will have to fill in an address manually
+    },
+
+    submit () {
+      this.$refs.newProcedureForm.submit()
     }
   }
 }

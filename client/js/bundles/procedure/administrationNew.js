@@ -13,15 +13,12 @@
 
 import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpNewProcedure }
 
 initialize(components)
   .then(() => {
-    dpValidate()
-
     // Prevent multiple form submits
     document.addEventListener('customValidationPassed', (e) => {
       const form = e.detail.form
