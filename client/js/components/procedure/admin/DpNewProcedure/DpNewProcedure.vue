@@ -138,9 +138,11 @@
       </dp-form-row>
       <dp-form-row>
         <dp-text-area
-          v-bind="{
-            ...internalNote
-          }" />
+          :hint="Translator.trans('internalnote.visibility.hint')"
+          id="r_desc"
+          :label="Translator.trans('internalnote')"
+          name="r_desc"
+          reduced-height />
       </dp-form-row>
 
       <div class="u-mb-0_75">
@@ -241,22 +243,6 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
-    },
-
-    internalNote: {
-      type: Object,
-      required: false,
-      default: () => ({
-        hint: '',
-        id: 'r_description',
-        label: Translator.trans('internalnote'),
-        name: 'r_description',
-        reducedHeight: true,
-        value: ''
-      }),
-      validator: (prop) => {
-        return Object.keys(prop).every(key => ['hint', 'id', 'label', 'name', 'reducedHeight', 'value'].includes(key))
-      }
     },
 
     masterBlueprintId: {
