@@ -47,10 +47,11 @@
     </div>
     <fieldset>
       <legend
-          class="hide-visually"
-          v-text="Translator.trans('procedure.data')" />
+        class="hide-visually"
+        v-text="Translator.trans('procedure.data')" />
 
       <addon-wrapper hook-name="bimschg.request" />
+
       <div v-if="hasPermission('feature_use_plis')">
         <dp-form-row>
           <dp-select
@@ -78,7 +79,6 @@
           required
           type="text" />
       </dp-form-row>
-      <!--      {% block master %}-->
       <dp-form-row v-if="hasPermission('feature_procedure_templates')">
         <dp-select
           id="blueprint"
@@ -92,7 +92,7 @@
           @select="setBlueprintData" />
       </dp-form-row>
 
-<!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
+      <!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
       <div v-if="procedureTypes.length > 1">
         <dp-label
           for="r_procedure_type"
@@ -116,7 +116,7 @@
           name="r_procedure_type"
           :value="currentProcedureTypeId">
       </div>
-<!--      {# There should always be at least one procedureType defined #}-->
+      <!-- There should always be at least one procedureType defined -->
       <input
         v-else
         name="r_procedure_type"
