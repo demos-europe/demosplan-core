@@ -206,7 +206,7 @@ import {
   DpSelect,
   DpTextArea
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '../../../addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
 import { dpApi } from '@demos-europe/demosplan-utils'
 
