@@ -19,7 +19,7 @@
     {% set procedureTypes = templateVars.procedureTypes|map(el => { name: el.name, id: el.id, description: el.description }) %}
 
     {#  To correctly inform planners about which fields are inherited from the selected procedure template,
-                    all fields activated in a certain project are passed to the respective translation string. #}
+        all fields activated in a certain project are passed to the respective translation string. #}
     {% set procedureTemplateFields = [
         { name: 'planningagency', active: hasPermission('field_procedure_adjustments_planning_agency') },
         { name: 'authorized.users', active: hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') },
@@ -34,7 +34,7 @@
 
     <dp-new-procedure
         {% if copyMasterOptions is defined and masterBlueprintId is defined %}
-            :blueprint-hint="Translator.trans('procedure.template.fields', { fields: JSON.parse('{{ procedureTemplateFields|json_encode|e('js', 'utf-8') }}') })"
+            :procedure-template-hint="Translator.trans('procedure.template.fields', { fields: JSON.parse('{{ procedureTemplateFields|json_encode|e('js', 'utf-8') }}') })"
             :blueprint-options="JSON.parse('{{ copyMasterOptions|json_encode|e('js', 'utf-8') }}')"
             master-blueprint-id="{{ masterBlueprintId }}"
         {% endif %}

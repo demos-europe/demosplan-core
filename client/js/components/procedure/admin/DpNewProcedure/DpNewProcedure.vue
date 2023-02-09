@@ -83,7 +83,7 @@
         <dp-select
           id="blueprint"
           :label="{
-            hint: blueprintHint,
+            hint: procedureTemplateHint,
             text: Translator.trans('master')
           }"
           name="r_copymaster"
@@ -233,12 +233,6 @@ export default {
   },
 
   props: {
-    blueprintHint: {
-      type: String,
-      required: false,
-      default: ''
-    },
-
     blueprintOptions: {
       type: Array,
       required: false,
@@ -255,6 +249,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    procedureTemplateHint: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     procedureTypes: {
