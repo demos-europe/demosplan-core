@@ -154,7 +154,7 @@
           end-name="r_enddate"
           :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
           :calendars-after="2"
-          :enforce-plausible-dates="true">
+          enforce-plausible-dates>
         </dp-date-range-picker>
 
         <p
