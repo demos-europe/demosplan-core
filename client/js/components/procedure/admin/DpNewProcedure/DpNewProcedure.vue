@@ -60,7 +60,7 @@
             name="r_plisId"
             :options="plisNameOptions" />
         </dp-form-row>
-        <dl class="u-nojs-hide--block">
+        <dl>
           <dt
             v-text="Translator.trans('public.participation.desc')"
             class="weight--bold" />
