@@ -46,6 +46,10 @@
         value="">
     </div>
     <fieldset>
+      <legend
+          class="hide-visually"
+          v-text="Translator.trans('procedure.data')" />
+
       <addon-wrapper hook-name="bimschg.request" />
       <div v-if="hasPermission('feature_use_plis')">
         <dp-form-row>
