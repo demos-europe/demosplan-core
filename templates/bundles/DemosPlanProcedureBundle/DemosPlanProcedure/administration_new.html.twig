@@ -14,7 +14,7 @@
         {% endif %}
     {% endif %}
 
-    {% block hint %} {% endblock %}
+    <p class="u-mb">{{ "text.procedure.new"|trans }}</p>
 
     {% set procedureTypes = templateVars.procedureTypes|map(el => { name: el.name, id: el.id, description: el.description }) %}
 
