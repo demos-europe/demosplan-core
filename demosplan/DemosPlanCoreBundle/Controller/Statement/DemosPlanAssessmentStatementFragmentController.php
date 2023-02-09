@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
-use function collect;
-
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
@@ -40,13 +36,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
-
-use function http_build_query;
-use function is_array;
-use function str_replace;
-use function strlen;
-use function strpos;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,6 +43,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_merge;
+use function collect;
+use function http_build_query;
+use function is_array;
+use function str_replace;
+use function strlen;
+use function strpos;
 
 /**
  * Class DemosPlanAssessmentStatementFragmentController
@@ -86,6 +84,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/verfahren/{procedure}/fragment/{statementId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
      *
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
