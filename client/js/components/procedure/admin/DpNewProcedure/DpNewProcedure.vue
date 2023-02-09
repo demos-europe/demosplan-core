@@ -31,7 +31,7 @@
       type="hidden"
       name="r_publicParticipationPublicationEnabled"
       value="1">
-    <div v-if="hasPermission('feature_use_plis')">
+    <template v-if="hasPermission('feature_use_plis')">
       <input
         type="hidden"
         name="r_name"
@@ -44,7 +44,7 @@
         type="hidden"
         name="r_mapExtent"
         value="">
-    </div>
+    </template>
     <fieldset>
       <legend
         class="hide-visually"
@@ -52,7 +52,7 @@
 
       <addon-wrapper hook-name="bimschg.request" />
 
-      <div v-if="hasPermission('feature_use_plis')">
+      <template v-if="hasPermission('feature_use_plis')">
         <dp-form-row>
           <dp-select
             id="r_plisId"
@@ -68,7 +68,7 @@
             id="js__plisPlanungsanlass"
             class="list-style-none" />
         </dl>
-      </div>
+      </template>
       <dp-form-row v-else>
         <dp-input
           data-cy="newProcedureTitle"
@@ -93,7 +93,7 @@
       </dp-form-row>
 
       <!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
-      <div v-if="procedureTypes.length > 1">
+      <template v-if="procedureTypes.length > 1">
         <dp-label
           for="r_procedure_type"
           :hint="Translator.trans('text.procedures.types.hint')"
@@ -115,7 +115,7 @@
           type="hidden"
           name="r_procedure_type"
           :value="currentProcedureTypeId">
-      </div>
+      </template>
       <!-- There should always be at least one procedureType defined -->
       <input
         v-else
@@ -169,7 +169,7 @@
           id="js__statusBox" />
       </div>
 
-      <div v-if="hasPermission('feature_procedure_couple_by_token')">
+      <template v-if="hasPermission('feature_procedure_couple_by_token')">
         <h3
           class="weight--normal color--grey u-mt-1_5"
           v-text="Translator.trans('procedure.couple_token.vht.title')" />
@@ -181,7 +181,7 @@
 
         <couple-token-input
           :token-length="tokenLength" />
-      </div>
+      </template>
 
       <div class="space-inline-s text--right">
         <dp-button
