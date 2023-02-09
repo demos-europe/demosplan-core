@@ -1329,4 +1329,4 @@ services:
     # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
-
+    EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
