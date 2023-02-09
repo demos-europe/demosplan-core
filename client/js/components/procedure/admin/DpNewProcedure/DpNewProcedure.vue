@@ -88,7 +88,7 @@
           @select="setBlueprintData" />
       </dp-form-row>
 
-<!--      {# Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. #}-->
+<!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
       <div v-if="procedureTypes.length > 1">
         <dp-label
           for="r_procedure_type"
