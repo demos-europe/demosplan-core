@@ -407,21 +407,6 @@ export default {
   },
 
   props: {
-    procedureId: {
-      required: true,
-      type: String
-    },
-
-    initialFragment: {
-      required: true,
-      type: Object
-    },
-
-    statement: {
-      type: Object,
-      required: true
-    },
-
     currentUserId: {
       type: String,
       required: true
@@ -435,17 +420,30 @@ export default {
     fragmentId: {
       type: String,
       required: true
+    },
+
+    initialFragment: {
+      required: true,
+      type: Object
+    },
+    procedureId: {
+      required: true,
+      type: String
+    },
+    statement: {
+      type: Object,
+      required: true
     }
   },
 
   data () {
     return {
       editing: false,
+      forwardTags: false,
       notifyOrga: false,
       reviewerEditing: false,
-      updatingClaimState: false,
       tagsEditing: false,
-      forwardTags: false
+      updatingClaimState: false,
     }
   },
 
