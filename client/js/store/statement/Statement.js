@@ -219,6 +219,7 @@ export default {
     procedureId: '',
     selectedElements: {},
     pagination: {},
+    persistStatementSelection: true,
     initStatements: [],
     statementGrouping: {}
   },
@@ -245,7 +246,7 @@ export default {
         statement.assignee = { id: '', name: '', orgaName: '', uId: '' }
       }
 
-      if (hasOwnProp(state.selectedElements, statement.id)) {
+      if (hasOwnProp(state.selectedElements, statement.id) && state.persistStatementSelection) {
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
         selectedEntries[state.procedureId][statement.id].assignee = statement.assignee
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
@@ -276,7 +277,8 @@ export default {
     replaceElementSelection (state, elements) {
       Vue.set(state, 'selectedElements', elements)
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements'))
-      if (hasOwnProp(selectedEntries, state.procedureId)) {
+
+      if (hasOwnProp(selectedEntries, state.procedureId) && state.persistStatementSelection) {
         selectedEntries[state.procedureId] = elements
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
@@ -342,6 +344,10 @@ export default {
       Vue.set(state, 'pagination', Object.assign(state.pagination, value))
     },
 
+    updatePersistStatementSelection (state, value) {
+      Vue.set(state, 'persistStatementSelection', value)
+    },
+
     /**
      *
      * @param {Object} data
@@ -357,9 +363,11 @@ export default {
         Vue.set(state.selectedElements[data.id], 'assignee', data.assignee)
         state.selectedElements = { ...state.selectedElements }
 
-        const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
-        selectedEntries[state.procedureId][data.id].assignee = data.assignee
-        sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+        if (state.persistStatementSelection) {
+          const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+          selectedEntries[state.procedureId][data.id].assignee = data.assignee
+          sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+        }
       }
 
       //  Return early if no statements are found
@@ -390,7 +398,9 @@ export default {
 
       selectedEntries[state.procedureId][data.id] = { ...data }
 
-      sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+      if (state.persistStatementSelection) {
+        sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+      }
       commit('addElementToSelection', data)
       performance.mark('selection-end')
       performance.measure('selection-duration', 'selection-start', 'selection-end')
@@ -618,9 +628,11 @@ export default {
             refinedStatements[transformedStatement.id] = transformedStatement
           })
 
-          const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
-          selectedEntries[state.procedureId] = { ...selectedEntries[state.procedureId], ...sessionStorageUpdates }
-          sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+          if (state.persistStatementSelection) {
+            const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+            selectedEntries[state.procedureId] = { ...selectedEntries[state.procedureId], ...sessionStorageUpdates }
+            sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
+          }
 
           commit('setStatements', refinedStatements)
 
@@ -745,8 +757,13 @@ export default {
     },
 
     setSelectionAction ({ state, commit }, { status, statements }) {
-      const selectedElements = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+      let selectedElements = {}
       let currentSelection = {}
+
+      if (state.persistStatementSelection) {
+        selectedElements = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+      }
+
       if (hasOwnProp(selectedElements, state.procedureId)) {
         currentSelection = selectedElements[state.procedureId]
       }
@@ -761,8 +778,11 @@ export default {
         }
       }
 
-      selectedElements[state.procedureId] = currentSelection
-      sessionStorage.setItem('selectedElements', JSON.stringify(selectedElements))
+      if (state.persistStatementSelection) {
+        selectedElements[state.procedureId] = currentSelection
+        sessionStorage.setItem('selectedElements', JSON.stringify(selectedElements))
+      }
+
       commit('setSelectedElements', currentSelection)
 
       return Promise.resolve(true)
