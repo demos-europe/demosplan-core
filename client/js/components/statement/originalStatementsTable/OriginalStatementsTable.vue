@@ -80,7 +80,7 @@
 
     <table
       :aria-label="Translator.trans('statements.original')"
-      v-if="false === isLoading && Object.keys(statements).length"
+      v-else-if="Object.keys(statements).length"
       class="c-at-orig">
       <colgroup>
         <col class="width-10p">
@@ -128,7 +128,7 @@
     </table>
 
     <dp-inline-notification
-      v-else-if="!isLoading"
+      v-else
       :message="Translator.trans('explanation.noentries')"
       type="info" />
   </form>
