@@ -105,8 +105,11 @@ export default {
 
     ...mapGetters('filter', ['selectedFilterOptions']),
 
-    ...mapState('fragment', ['fragments']),
+    ...mapState('assessmentTable', ['assessmentBase']),
+
     ...mapState('filter', ['currentSearch']),
+
+    ...mapState('fragment', ['fragments']),
 
     filteredFragmentsLength () {
       if (!this.fragments[this.statementId]) {
@@ -138,11 +141,11 @@ export default {
     },
 
     showFragmentResults () {
-      // Evaluates to true if there are any selected filters that apply to fragments
-      const hasFragmentFilters = this.selectedFilterOptions.length ? typeof (this.selectedFilterOptions.find(filter => filter.type !== 'statement')) !== 'undefined' : false
+      const hasInitialFragmentFilters = this.hasFragmentFilters(this.assessmentBase.appliedFilters)
+      const hasFragmentFilters = this.hasFragmentFilters(this.selectedFilterOptions)
 
-      // The search may influence fragment results. Therefore display fragmentResults when a search term is used
-      return hasFragmentFilters || this.currentSearch.length > 0
+      // The search may influence fragment results. Therefor display fragmentResults when a search term is used
+      return hasInitialFragmentFilters || hasFragmentFilters || this.currentSearch.length > 0
     },
 
     totalFragmentsLength () {
@@ -157,6 +160,10 @@ export default {
   },
 
   methods: {
+    hasFragmentFilters (filters) {
+      return filters.length ? filters.some((filter) => filter.type !== 'statement') : false
+    },
+
     showAllFragments () {
       this.allFragmentsShown = !this.allFragmentsShown
       this.$emit('fragments:showall', this.allFragmentsShown)

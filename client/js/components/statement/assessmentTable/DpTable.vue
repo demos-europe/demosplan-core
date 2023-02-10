@@ -765,6 +765,7 @@ export default {
             if (hasPermission('area_statements_fragment')) {
               this.setProcedureIdForFragment(this.procedureId)
             }
+
             this.triggerApiCallForStatements()
           })
           .then(() => {
