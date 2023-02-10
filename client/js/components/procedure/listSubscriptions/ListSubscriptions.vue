@@ -24,7 +24,7 @@
         label="value"
         :options="postalCodeOptions"
         :placeholder="Translator.trans('autocomplete.label')"
-        :route="(searchString) => {
+        :route-generator="(searchString) => {
           return Routing.generate('core_suggest_location_json', {
             maxResults: 50,
             query: searchString

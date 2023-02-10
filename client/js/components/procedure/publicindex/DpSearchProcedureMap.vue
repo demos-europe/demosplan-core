@@ -18,7 +18,7 @@
         :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
-        :route="(searchString) => {
+        :route-generator="(searchString) => {
           return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
             maxResults: 12,
             query: searchString

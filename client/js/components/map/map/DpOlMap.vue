@@ -71,7 +71,7 @@
               :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="(searchString) => {
+              :route-generator="(searchString) => {
                 return Routing.generate(_options.autoSuggest.serviceUrlPath, {
                   filterByExtent: JSON.stringify(maxExtent),
                   query: searchString
