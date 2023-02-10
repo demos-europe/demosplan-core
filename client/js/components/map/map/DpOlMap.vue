@@ -71,7 +71,7 @@
               :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="_options.autoSuggest.serviceUrlPath"
+              :route-generator="_options.autoSuggest.serviceUrlPath"
               :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent) }"
               label="value"
               :placeholder="Translator.trans('autocomplete.label')"
