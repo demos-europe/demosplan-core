@@ -124,7 +124,7 @@
               linkButton: true
             }"
             :routes="{
-              boilerplateListRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
             }"
             :procedure-id="procedureId"
             :disabled="!hasSegments" />

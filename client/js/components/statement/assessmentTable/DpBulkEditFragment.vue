@@ -98,7 +98,7 @@
             :value="options.consideration.value"
             :toolbar-items="{ boilerPlate: 'consideration' }"
             :routes="{
-              boilerplateListRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
             }"
             @input="updateConsiderationText"
             ref="consideration"

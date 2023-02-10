@@ -106,7 +106,7 @@
             recommendationButton: segment.hasRelationship('tags')
           }"
           :routes="{
-            boilerplateListRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId }),
+            boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId }),
             similarRecommendationsRoute: Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
           }"
           :procedure-id="procedureId"
