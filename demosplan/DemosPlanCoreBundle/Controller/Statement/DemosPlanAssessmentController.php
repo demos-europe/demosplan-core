@@ -249,40 +249,14 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId): Response
-    {
-        $statement = $statementHandler->getStatement($statementId);
-        $procedure = $procedureService->getProcedure($procedureId);
+        string $statementId
+    ): Response {
+        $statement = $statementHandler->getStatementWithCertainty($statementId);
+        $procedure = $procedureService->getProcedureWithCertainty($procedureId);
+
         $templateVars = [];
         $templateVars['table']['statement'] = $statement;
-
-        $templateVars['table']['procedure'] = null;
-        if (null !== $statement) {
-            $templateVars['table']['procedure'] = $procedure;
-        }
-
-        $templateVars['sendFinalEmail'] = true;
-
-        // wenn es Mitzeichner gibt, dann wird die Option "Schlussmitteilung versenden" plus Extra-Erklärung im template wieder einblendet
-        $templateVars['finalEmailOnlyToVoters'] = false;
-        if (array_key_exists('feedback', $templateVars['table']['statement'])) {
-            switch ($templateVars['table']['statement']['feedback']) {
-                case 'snailmail':
-                    if (empty($templateVars['table']['statement']['votes'])) {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = false;
-                    } else {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = true;
-                        $templateVars['finalEmailOnlyToVoters'] = true;
-                    }
-                    break;
-                case 'email':
-                    $templateVars['table']['statement']['feedback'] = $translator->trans('via.mail');
-                    $templateVars['sendFinalEmail'] = true;
-                    break;
-            }
-        }
+        $templateVars['table']['procedure'] = $procedure;
 
         $title = 'statement.view';
         $breadcrumb->addItem(
