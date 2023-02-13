@@ -162,7 +162,7 @@ export default {
 
   methods: {
     hasFragmentFilters (filters) {
-      return filters.length ? filters.some((filter) => filter.type !== 'statement') : false
+      return filters.length ? filters.some(filter => filter.type === 'fragment') : false
     },
 
     showAllFragments () {
