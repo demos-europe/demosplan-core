@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanForumBundle\Logic\ForumHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Forum\ForumHandler;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

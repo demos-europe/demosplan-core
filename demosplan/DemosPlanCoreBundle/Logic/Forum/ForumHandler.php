@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanForumBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -695,7 +695,7 @@ class ForumHandler extends CoreHandler
         if (isset($mailTemplateVars['userStory'])) {
             $vars['mailbody'] = $this->twig
                 ->load(
-                    '@DemosPlanForum/DemosPlanForum/development_send_moderator_notification_email.html.twig'
+                    '@DemosPlanCore/DemosPlanForum/development_send_moderator_notification_email.html.twig'
                 )->renderBlock(
                     'body_plain',
                     ['templateVars' => $mailTemplateVars]
@@ -704,7 +704,7 @@ class ForumHandler extends CoreHandler
             // Ansonsten, handelt es sich um einen Beitrag aus dem Forum, dann hole ein dieses template
             $vars['mailbody'] = $this->twig
             ->load(
-                '@DemosPlanForum/DemosPlanForum/forum_send_moderator_notification_email.html.twig'
+                '@DemosPlanCore/DemosPlanForum/forum_send_moderator_notification_email.html.twig'
             )->renderBlock(
                 'body_plain',
                 ['templateVars' => $mailTemplateVars]
@@ -759,7 +759,7 @@ class ForumHandler extends CoreHandler
         // hole das template für die Email an den Author
         $vars['mailbody'] = $this->twig
             ->load(
-                '@DemosPlanForum/DemosPlanForum/forum_send_author_notification_email.html.twig'
+                '@DemosPlanCore/DemosPlanForum/forum_send_author_notification_email.html.twig'
             )->renderBlock(
                 'body_plain',
                 ['templateVars' => $mailTemplateVars]

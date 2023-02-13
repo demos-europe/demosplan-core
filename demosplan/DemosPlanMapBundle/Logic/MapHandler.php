@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +33,7 @@ class MapHandler extends CoreHandler
      */
     private $entityManager;
 
-    public function __construct(MapService $mapService, MessageBag $messageBag, EntityManagerInterface $entityManager)
+    public function __construct(MapService $mapService, MessageBagInterface $messageBag, EntityManagerInterface $entityManager)
     {
         $this->mapService = $mapService;
         parent::__construct($messageBag);
