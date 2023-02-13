@@ -1,17 +1,10 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
-{# if there are statement votes ("Mitzeichner"), then the option "Schlussmitteilung versenden" plus corresponding hint will be shown #}
-{% set templateVars.sendFinalEmail = true %}
-{% set templateVars.finalEmailOnlyToVoters = false %}
+{% set sendFinalEmail = true %}
 {% if templateVars.table.statement.feedback == 'snailmail' %}
-  {% set templateVars.table.statement.feedback = "via.post"|trans %}
   {% if templateVars.table.statement.votes is empty %}
-    {% set templateVars.sendFinalEmail = false %}
-  {% else %}
-    {% set templateVars.finalEmailOnlyToVoters = true %}
+    {% set sendFinalEmail = false %}
   {% endif %}
-{% elseif templateVars.table.statement.feedback == 'email' %}
-    {% set templateVars.table.statement.feedback = "via.email"|trans %}
 {% endif %}
 
 {% set statement = templateVars.table.statement %}
@@ -319,7 +312,7 @@
                                     {{ "author.misc"|trans }}
                                 </span><!--
                              --><span class="layout__item u-5-of-8">
-                                    {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+                                    {% if sendFinalEmail == false %}
                                         {{ "statement.final.send.postal"|trans }}<br>
                                     {% endif %}
                                     {{ statement.meta.orgaEmail|default('----') }}
