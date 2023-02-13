@@ -67,7 +67,7 @@ final class FrontendAssetProvider
             return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());
 
-        return array_filter($assetList, fn (array $assetInfo) => count($assetInfo) !== 0);
+        return array_filter($assetList, fn (array $assetInfo) => 0 !== count($assetInfo));
     }
 
     /**
