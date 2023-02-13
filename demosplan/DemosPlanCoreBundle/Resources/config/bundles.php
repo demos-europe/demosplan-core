@@ -31,7 +31,6 @@ return [
     Symfony\Bundle\SecurityBundle\SecurityBundle::class                                => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class                                        => ['all' => true],
     Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle::class                            => ['all' => true],
-    demosplan\DemosPlanAdminBundle\DemosPlanAdminBundle::class                         => ['all' => true],
     demosplan\DemosPlanAssessmentTableBundle\DemosPlanAssessmentTableBundle::class     => ['all' => true],
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class                           => ['all' => true],
     demosplan\DemosPlanDocumentBundle\DemosPlanDocumentBundle::class                   => ['all' => true],
