@@ -67,6 +67,8 @@ export default {
             const contentKey = addon.entry + '.umd.js'
             const content = addon.content[contentKey]
 
+            // While eval generally is a BADIDEA, we really need to evaluate the code we're
+            // adding dynamically to use the provided addon's script henceforth.
             eval(content)
             this.$options.components[addon.entry] = window[addon.entry].default
 
