@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
-
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -38,15 +35,15 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-
-use function strcmp;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
+use function array_merge;
+use function strcmp;
 use function usort;
 
 /**
@@ -73,6 +70,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_assessment_set_statement_assignment",
      *     path="/assignment/statement/{entityId}/{assignOrUnassign}",
      * )
+     *
      * @DplanPermissions("feature_statement_assignment")
      *
      * @throws Exception
@@ -126,6 +124,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_orga_list",
      *     path="/statement/manual/list/{procedureId}",
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -163,6 +162,7 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/statement/new/manual/{procedureId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -239,6 +239,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_statement_single_view",
      *     path="procedure/{procedureId}/statement/{statementId}/dataInput"
      * )
+     *
      * @DplanPermissions("feature_statement_data_input_orga")
      *
      * @throws Exception
@@ -287,6 +288,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_single_statement_view",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}"
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -314,6 +316,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_detach_statement",
      *     path="/verfahren/{procedure}/cluster/statement/{statementId}/detach",
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -343,6 +346,7 @@ class DemosPlanAssessmentController extends BaseController
      *     name="DemosPlan_cluster_resolve",
      *     path="/verfahren/{procedure}/cluster/resolve/{headStatementId}",
      * )
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @throws Exception
@@ -372,6 +376,7 @@ class DemosPlanAssessmentController extends BaseController
      *     path="/_ajax/assessment/{procedureId}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_procedure_get_base_data")
      */
     public function assessmentBaseAjaxAction(
