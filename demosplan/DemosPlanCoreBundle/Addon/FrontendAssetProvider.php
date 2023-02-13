@@ -27,7 +27,7 @@ final class FrontendAssetProvider
      */
     public function getFrontendClassesForHook(string $hookName): array
     {
-        return array_map(function (AddonInfo $addonInfo) use ($hookName) {
+        $assetList = array_map(function (AddonInfo $addonInfo) use ($hookName) {
             if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
                 return [];
             }
@@ -66,6 +66,8 @@ final class FrontendAssetProvider
 
             return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());
+
+        return array_filter($assetList, fn (array $assetInfo) => count($assetInfo) !== 0);
     }
 
     /**
