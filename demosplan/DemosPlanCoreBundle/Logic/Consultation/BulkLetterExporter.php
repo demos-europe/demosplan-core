@@ -77,9 +77,10 @@ class BulkLetterExporter extends XlsxExporter
         foreach ($tokenList as $token) {
             $statement = $token->getStatement();
             $statementMeta = $statement->getMeta();
-            $authorName = '' !== $statementMeta->getSubmitName() ? $statementMeta->getSubmitName() : $statementMeta->getAuthorName();
+            $authorName = '' !== $statementMeta->getSubmitName() ?
+                $statementMeta->getSubmitName() : $statementMeta->getAuthorName();
             $author = trim($statement->getAuthorName());
-            $email = '' !== $author && !$statement->hasDefaultGuestUser()
+            $email = '' !== $author && !$statement->isAnonymous()
                 ? $statement->getSubmitterEmailAddress()
                 : User::ANONYMOUS_USER_DEPARTMENT_NAME;
             $sheet->setCellValue('A'.$i, $authorName);

@@ -19,7 +19,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_entries")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository")
  */
 class ForumEntry extends CoreEntity implements UuidEntityInterface
 {
@@ -27,8 +28,11 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_fe_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -37,6 +41,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
      * @var ForumThread
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread")
+     *
      * @ORM\JoinColumn(name="_f_thread_id", referencedColumnName="_ft_id", nullable=false, onDelete="CASCADE")
      */
     protected $thread;
@@ -50,6 +55,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")
      */
     protected $user;
@@ -79,6 +85,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_fe_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -87,6 +94,7 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_fe_modified_date", type="datetime", nullable=false)
      */
     protected $modifyDate;

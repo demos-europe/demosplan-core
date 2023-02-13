@@ -14,6 +14,7 @@ use BadMethodCallException;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Controller\AssessmentTable\DemosPlanAssessmentTableController;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
@@ -84,7 +84,7 @@ class AssessmentTableServiceStorage
     protected $fileService;
 
     /**
-     * @var MessageBag
+     * @var MessageBagInterface
      */
     protected $messageBag;
 
@@ -123,7 +123,7 @@ class AssessmentTableServiceStorage
         GlobalConfigInterface $config,
         IndexManager $indexManager,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         PrepareReportFromProcedureService $prepareReportFromProcedureService,
         StatementAttachmentService $statementAttachmentService,
@@ -148,7 +148,7 @@ class AssessmentTableServiceStorage
         $this->currentUser = $currentUser;
     }
 
-    protected function getMessageBag(): MessageBag
+    protected function getMessageBag(): MessageBagInterface
     {
         return $this->messageBag;
     }

@@ -23,7 +23,7 @@ class LegacyFlashMessageCreator
      */
     private $translator;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface
+     * @var MessageBagInterface
      */
     private $messageBag;
 

@@ -80,7 +80,7 @@
                     {% endif %}
 
                     {% for userStory in templateVars.userStoryList %}
-                        {% include '@DemosPlanForum/DemosPlanForum/development_release_story_list_card.html.twig' with {
+                        {% include '@DemosPlanCore/DemosPlanForum/development_release_story_list_card.html.twig' with {
                             userStory:      userStory,
                             route:          path('DemosPlan_forum_development_userstory_detail', {'storyId': userStory.ident}),
                             permissions:    templateVars.phasePermissions,

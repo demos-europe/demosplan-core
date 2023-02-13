@@ -676,14 +676,6 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanForumBundle\Logic\ForumHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-        lazy: true
-
-    demosplan\DemosPlanForumBundle\Logic\ForumService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-        lazy: true
-
     demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler

@@ -167,8 +167,8 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
-              :class="`${ assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
-              :disabled="synchronized"
+              :class="`${ !synchronized || assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
               {{ Translator.trans('delete') }}
