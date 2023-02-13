@@ -65,9 +65,9 @@
                     data-cy="fragmentTopicsTags"
                 >
                     <template v-slot:option="props">
-                        <span v-if="props.option.$isLabel">
-                            <strong>{% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}</strong>
-                        </span>
+                        <strong v-if="props.option.$isLabel">
+                            {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
+                        </strong>
                         <span v-else>
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </span>
