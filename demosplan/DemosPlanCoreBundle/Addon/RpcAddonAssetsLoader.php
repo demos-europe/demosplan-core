@@ -24,16 +24,13 @@ use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    private PermissionsInterface $permissions;
     private RpcErrorGenerator $errorGenerator;
     private FrontendAssetProvider $assetProvider;
 
     public function __construct(
         FrontendAssetProvider $assetProvider,
-        PermissionsInterface $permissions,
         RpcErrorGenerator $errorGenerator)
     {
-        $this->permissions = $permissions;
         $this->errorGenerator = $errorGenerator;
         $this->assetProvider = $assetProvider;
     }
