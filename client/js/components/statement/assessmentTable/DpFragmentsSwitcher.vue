@@ -140,12 +140,13 @@ export default {
       return text
     },
 
+    /**
+     * Determine whether to show the "Die Suche ergab X Treffer in Y Datensätzen" UI.
+     * This should happen if results are filtered, or a search term is applied.
+     * @type {boolean}
+     */
     showFragmentResults () {
-      const hasInitialFragmentFilters = this.hasFragmentFilters(this.assessmentBase.appliedFilters)
-      const hasFragmentFilters = this.hasFragmentFilters(this.selectedFilterOptions)
-
-      // The search may influence fragment results. Therefor display fragmentResults when a search term is used
-      return hasInitialFragmentFilters || hasFragmentFilters || this.currentSearch.length > 0
+      return this.hasFragmentFilters(this.assessmentBase.appliedFilters) || this.currentSearch.length > 0
     },
 
     totalFragmentsLength () {
