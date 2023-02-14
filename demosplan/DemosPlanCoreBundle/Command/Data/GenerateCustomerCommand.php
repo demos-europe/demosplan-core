@@ -99,8 +99,8 @@ class GenerateCustomerCommand extends CoreCommand
             $name = $this->askCustomerName($input, $output);
             $subdomain = $this->askSubdomain($input, $output);
         } else {
-            $name = $config['name'];
-            $subdomain = $config['subdomain'];
+            $name = $config[CustomerConfiguration::NAME];
+            $subdomain = $config[CustomerConfiguration::SUBDOMAIN];
         }
 
         $customer = new Customer($name, $subdomain);
@@ -186,9 +186,6 @@ class GenerateCustomerCommand extends CoreCommand
             $this->reservedSubdomains
         );
 
-        return $processor->processConfiguration(
-            $databaseConfiguration,
-            [$config]
-        );
+        return $processor->processConfiguration($databaseConfiguration, [$config]);
     }
 }
