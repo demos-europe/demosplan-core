@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
@@ -61,6 +62,33 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
         $output = $commandTester->getDisplay();
         // Command warned that customer already exists
         static::assertStringContainsString('This name is already used as a customer', $output);
+    }
+
+    public function testWithConfig(): void
+    {
+        $commandTester = $this->getCommandTester();
+        $commandTester->setInputs([]);
+
+        $customers = $this->getCustomers('foobar');
+        self::assertEmpty($customers);
+
+        $commandTester->execute([], ['config' => 'tests/backend/core/Core/Functional/res/tagFilterNames.yaml']);
+
+        $customers = $this->getCustomers('foobar');
+        self::assertNotEmpty($customers);
+    }
+
+    /**
+     * @return list<Customer>
+     */
+    private function getCustomers(string $subdomain): array
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->from(Customer::class, 'customer')
+            ->where('subdomain = :subdomain')
+            ->setParameter('subdomain', $subdomain)
+            ->getQuery()
+            ->getResult();
     }
 
     private function getCommandTester(): CommandTester
