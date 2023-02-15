@@ -116,13 +116,9 @@ class LoadUserData extends TestFixture
 
     public const TEST_USER_2_PLANNER_ADMIN = 'testUser2';
 
-    public const DEFAULT_PW_HASH = '2308912f941bd13be84578fa73877453f0e3eef455e6674aee57c78cd354fda94087762e9ea4d5e7a56a330f824edf7d125950ce7e5fda7080b34fe1836a0b4e';
-    private OrgaService $orgaService;
-
-    public function __construct(EntityManagerInterface $entityManager, OrgaService $orgaService)
+    public function __construct(EntityManagerInterface $entityManager, private readonly OrgaService $orgaService)
     {
         parent::__construct($entityManager);
-        $this->orgaService = $orgaService;
     }
 
     public function load(ObjectManager $manager)
