@@ -169,11 +169,11 @@ class GenerateCustomerCommand extends CoreCommand
      */
     private function getConfig(InputInterface $input): ?array
     {
-        if (!$input->hasOption(self::CONFIG_OPTION)) {
+        $configPath = $input->getOption(self::CONFIG_OPTION);
+        if (null === $configPath) {
             return null;
         }
 
-        $configPath = $input->getOption(self::CONFIG_OPTION);
         if (!is_string($configPath)) {
             $type = gettype($configPath);
             throw new InvalidArgumentException("Value of 'config' option must be a string, '$type' given.");

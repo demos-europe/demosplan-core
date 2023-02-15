@@ -14,7 +14,9 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
 
@@ -22,13 +24,12 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 {
     public function testSuccessfulExecute(): void
     {
-        self::markSkippedForCIIntervention();
-
         $commandTester = $this->getCommandTester();
 
+        $newCustomerName = 'New Customer';
         $commandTester->setInputs(
             [
-                'New Customer',
+                $newCustomerName,
                 'new',
             ]
         );
@@ -39,13 +40,11 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
         // the output of the command in the console
         $output = $commandTester->getDisplay();
-        static::assertStringContainsString('Customer successfully created', $output);
+        static::assertStringContainsString("Customer '$newCustomerName' was successfully created", $output);
     }
 
     public function testInvalidDuplicateCustomerExecute(): void
     {
-        self::markSkippedForCIIntervention();
-
         $commandTester = $this->getCommandTester();
 
         // use three inputs, as we want to test whether first input is marked as existing customer
@@ -72,10 +71,39 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
         $customers = $this->getCustomers('foobar');
         self::assertEmpty($customers);
 
-        $commandTester->execute([], ['config' => 'tests/backend/core/Core/Functional/res/tagFilterNames.yaml']);
+        $commandTester->execute(['--config' => 'tests/backend/core/Core/Functional/res/customerConfig1.yaml']);
 
         $customers = $this->getCustomers('foobar');
         self::assertNotEmpty($customers);
+    }
+
+    public function testWithMissingConfig(): void
+    {
+        $this->expectException(InvalidOptionException::class);
+        $commandTester = $this->getCommandTester();
+        $commandTester->execute(['--config' => null]);
+    }
+
+    /**
+     * @dataProvider getInvalidConfigs()
+     */
+    public function testWithInvalidConfig(mixed $config): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $commandTester = $this->getCommandTester();
+        $commandTester->execute(['--config' => $config]);
+    }
+
+    /**
+     * @return list<array{0: mixed}>
+     */
+    public function getInvalidConfigs(): array
+    {
+        return [
+            [1],
+            [0],
+            [-1],
+        ];
     }
 
     /**
@@ -84,8 +112,9 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
     private function getCustomers(string $subdomain): array
     {
         return $this->getEntityManager()->createQueryBuilder()
+            ->select('customer')
             ->from(Customer::class, 'customer')
-            ->where('subdomain = :subdomain')
+            ->where('customer.subdomain = :subdomain')
             ->setParameter('subdomain', $subdomain)
             ->getQuery()
             ->getResult();
