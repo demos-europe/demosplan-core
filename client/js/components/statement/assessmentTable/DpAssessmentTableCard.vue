@@ -1175,7 +1175,7 @@ export default {
     },
 
     toggleMapModal (drawingData) {
-      this.$root.$emit('toggleModal', drawingData)
+      this.$root.$emit('toggleMapModal', drawingData)
     },
 
     toggleSelection () {

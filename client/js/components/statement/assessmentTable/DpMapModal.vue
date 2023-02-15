@@ -91,7 +91,7 @@ export default {
   },
 
   mounted() {
-    this.$root.$on('toggleModal', (drawingData) => {
+    this.$root.$on('toggleMapModal', (drawingData) => {
       this.toggleModal(drawingData)
     })
   }
