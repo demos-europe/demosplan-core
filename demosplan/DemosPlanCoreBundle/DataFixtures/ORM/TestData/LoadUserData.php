@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class LoadUserData extends TestFixture
@@ -116,6 +117,14 @@ class LoadUserData extends TestFixture
     public const TEST_USER_2_PLANNER_ADMIN = 'testUser2';
 
     public const DEFAULT_PW_HASH = '2308912f941bd13be84578fa73877453f0e3eef455e6674aee57c78cd354fda94087762e9ea4d5e7a56a330f824edf7d125950ce7e5fda7080b34fe1836a0b4e';
+    private OrgaService $orgaService;
+
+
+    public function __construct(EntityManagerInterface $entityManager, OrgaService $orgaService)
+    {
+        parent::__construct($entityManager);
+        $this->orgaService = $orgaService;
+    }
 
     public function load(ObjectManager $manager)
     {
@@ -989,7 +998,7 @@ class LoadUserData extends TestFixture
             '_o_name',
             User::ANONYMOUS_USER_ORGA_NAME
         );
-        $orgaBuerger = $this->getContainer()->get(OrgaService::class)->getOrga(User::ANONYMOUS_USER_ORGA_ID);
+        $orgaBuerger = $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID);
 
         $orgaBuerger->addUser($this->getReference(self::TEST_USER_CITIZEN));
         $orgaBuerger->addDepartment($this->getReference(self::TEST_DEPARTMENT));
