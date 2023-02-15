@@ -39,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class LoadProcedureData extends TestFixture implements DependentFixtureInterface
@@ -65,6 +66,14 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     private $testOrgaFP;
     private $testUser;
 
+    public function __construct(EntityManagerInterface $entityManager, GlobalConfigInterface $globalConfig)
+    {
+        parent::__construct($entityManager);
+
+        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
+        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
+    }
+
     public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
@@ -73,9 +82,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $this->testOrgaFP = $this->getReference('testOrgaFP');
         /* @var User $testUser */
         $this->testUser = $this->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
-        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
-        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
 
         // Erstelle die Masterblaupause.
         // sie hat eine festgeschriebene Id, kann aber nicht ohne weiteres via doctrine
