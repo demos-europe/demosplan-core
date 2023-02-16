@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 return [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     BabDev\PagerfantaBundle\BabDevPagerfantaBundle::class => ['all' => true],
@@ -23,14 +31,11 @@ return [
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Yectep\PhpSpreadsheetBundle\PhpSpreadsheetBundle::class => ['all' => true],
-    demosplan\DemosPlanAdminBundle\DemosPlanAdminBundle::class => ['all' => true],
+
     demosplan\DemosPlanAssessmentTableBundle\DemosPlanAssessmentTableBundle::class => ['all' => true],
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class => ['all' => true],
     demosplan\DemosPlanDocumentBundle\DemosPlanDocumentBundle::class => ['all' => true],
-    demosplan\DemosPlanFaqBundle\DemosPlanFaqBundle::class => ['all' => true],
-    demosplan\DemosPlanForumBundle\DemosPlanForumBundle::class => ['all' => true],
     demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class => ['all' => true],
-    demosplan\DemosPlanMiscContentBundle\DemosPlanMiscContentBundle::class => ['all' => true],
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class => ['all' => true],
     demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class => ['all' => true],
     demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class => ['all' => true],
