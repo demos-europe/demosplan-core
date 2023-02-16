@@ -171,57 +171,60 @@
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
-          <p
-            aria-hidden="true"
-            :class="prefixClass('u-mb-0_25 weight--bold display--inline-block')">
-            {{ Translator.trans('element.assigned') }}
-          </p>
-          <p
-            aria-hidden="true"
-            :class="prefixClass('u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
-            <template v-if="formData.r_element_id !== ''">
+          <div
+            :class="prefixClass('c-statement__section')">
+            <p
+              aria-hidden="true"
+              :class="prefixClass('u-mb-0_25 weight--bold display--inline-block')">
+              {{ Translator.trans('element.assigned') }}
+            </p>
+            <p
+              aria-hidden="true"
+              :class="prefixClass('u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
+              <template v-if="formData.r_element_id !== ''">
+                <button
+                  @click="gotoTab('procedureDetailsDocumentlist')"
+                  :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
+                  <i
+                    aria-hidden="true"
+                    :class="prefixClass('fa fa-pencil')" />
+                  {{ Translator.trans('document.reference.change') }}
+                </button>
+                <span :class="prefixClass('hide-lap-up')" />
+                <button
+                  @click="removeDocumentRelation"
+                  :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
+                  :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
+                  <i
+                    aria-hidden="true"
+                    :class="prefixClass('fa fa-trash')" />
+                  {{ Translator.trans('document.reference.delete') }}
+                </button>
+              </template>
               <button
+                v-else
                 @click="gotoTab('procedureDetailsDocumentlist')"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
+                :class="prefixClass('btn--blank o-link--default text--left')">
                 <i
                   aria-hidden="true"
-                  :class="prefixClass('fa fa-pencil')" />
-                {{ Translator.trans('document.reference.change') }}
+                  :class="prefixClass('fa fa-plus')" />
+                {{ Translator.trans('element.assign') }}
               </button>
-              <span :class="prefixClass('hide-lap-up')" />
-              <button
-                @click="removeDocumentRelation"
-                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
-                <i
-                  aria-hidden="true"
-                  :class="prefixClass('fa fa-trash')" />
-                {{ Translator.trans('document.reference.delete') }}
-              </button>
-            </template>
-            <button
-              v-else
-              @click="gotoTab('procedureDetailsDocumentlist')"
-              :class="prefixClass('btn--blank o-link--default text--left')">
-              <i
-                aria-hidden="true"
-                :class="prefixClass('fa fa-plus')" />
-              {{ Translator.trans('element.assign') }}
-            </button>
-          </p>
-          <p
-            v-if="formData.r_element_id !== ''"
-            aria-hidden="true"
-            :class="[prefixClass('u-mb-0_5 u-ph-0_5 u-pv-0_25'), highlighted.documents ? prefixClass(' animation--bg-highlight-grey--light-2') : prefixClass('bg-color--grey-light-2')]">
-            {{ Translator.trans('document') }}: {{ formData.r_element_title }}
-            <br>
-            <template v-if="formData.r_paragraph_id !== ''">
-              {{ Translator.trans('paragraph') }}: {{ formData.r_paragraph_title }}
-            </template>
-            <template v-if="formData.r_document_id !== ''">
-              {{ Translator.trans('file') }}: {{ formData.r_document_title }}
-            </template>
-          </p>
+            </p>
+            <p
+              v-if="formData.r_element_id !== ''"
+              aria-hidden="true"
+              :class="[prefixClass('u-mb-0_5 u-ph-0_5 u-pv-0_25'), highlighted.documents ? prefixClass(' animation--bg-highlight-grey--light-2') : prefixClass('bg-color--grey-light-2')]">
+              {{ Translator.trans('document') }}: {{ formData.r_element_title }}
+              <br>
+              <template v-if="formData.r_paragraph_id !== ''">
+                {{ Translator.trans('paragraph') }}: {{ formData.r_paragraph_title }}
+              </template>
+              <template v-if="formData.r_document_id !== ''">
+                {{ Translator.trans('file') }}: {{ formData.r_document_title }}
+              </template>
+            </p>
+          </div>
         </template>
 
         <!-- location reference -->
