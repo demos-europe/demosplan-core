@@ -88,25 +88,21 @@ class Helpers
 
     public function askCustomer(InputInterface $input, OutputInterface $output): Customer
     {
-        $availableCustomer = collect($this->customerRepository->findAll());
-        $customerSelection = $availableCustomer
-            ->filter(function (Customer $customer): bool {
-                return in_array($customer->getSubdomain(), $this->globalConfig->getSubdomainsAllowed(), true);
-            })
-            ->mapWithKeys(function (Customer $customer): array {
-                $name = $customer->getName();
-                $subdomain = $customer->getSubdomain();
+        $availableCustomers = collect($this->customerRepository->findAll());
+        $mappedCustomerInformation = $availableCustomers->mapWithKeys(function (Customer $customer): array {
+            $name = $customer->getName();
+            $subdomain = $customer->getSubdomain();
 
-                return [$subdomain => $name];
-            })
+            return [$subdomain => $name];
+        })
             ->toArray();
         $questionCustomer = new ChoiceQuestion(
             'Please select a customer: ',
-            $customerSelection
+            $mappedCustomerInformation
         );
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
-        return $availableCustomer->first(function (Customer $customer) use ($answer) {
+        return $availableCustomers->first(function (Customer $customer) use ($answer) {
             return $answer === $customer->getSubdomain();
         });
     }
