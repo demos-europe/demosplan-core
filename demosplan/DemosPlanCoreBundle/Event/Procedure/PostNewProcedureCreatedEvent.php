@@ -45,10 +45,4 @@ class PostNewProcedureCreatedEvent extends DPlanEvent implements PostNewProcedur
     {
         return $this->token;
     }
-
-    public function addCriticalConcern(string $key, string $eventConcernText, Exception $e)
-    {
-        $eventConcern = new EventConcern($eventConcernText, $e);
-        $this->addCriticalEventConcern($key, $eventConcern);
-    }
 }

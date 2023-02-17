@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
+use Exception;
 use function array_key_exists;
 
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
@@ -69,5 +70,11 @@ trait EventConcernTrait
         }
 
         return false;
+    }
+
+    public function addCriticalConcern(string $key, string $eventConcernText, Exception $e): void
+    {
+        $eventConcern = new EventConcern($eventConcernText, $e);
+        $this->addCriticalEventConcern($key, $eventConcern);
     }
 }
