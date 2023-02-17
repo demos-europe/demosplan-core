@@ -14,7 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInte
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\EventConcernTrait;
-use Exception;
 
 class PostNewProcedureCreatedEvent extends DPlanEvent implements PostNewProcedureCreatedEventInterface
 {
