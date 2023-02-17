@@ -10,6 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use function array_key_exists;
 use function array_map;
 
@@ -579,8 +584,16 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private $advancedSupport;
 
-    public function __construct(ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    /**
+     * @var array<non-empty-string, non-empty-string>
+     */
+    private $mainPageExternalLinks;
+
+    public function __construct(
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
+    ) {
         $this->setParams($params, $translator);
     }
 
@@ -835,6 +848,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->procedureUserRestrictedAccess = $parameterBag->get('procedure_user_restricted_access');
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
+
+        $this->mainPageExternalLinks = $this->getValidatedMainPageExternalLinks($parameterBag);
     }
 
     /**
@@ -1817,5 +1832,42 @@ class GlobalConfig implements GlobalConfigInterface
     public function isAdvancedSupport(): bool
     {
         return $this->advancedSupport;
+    }
+
+    public function getMainPageExternalLinks(): array
+    {
+        return $this->mainPageExternalLinks;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function getValidatedMainPageExternalLinks(ParameterBagInterface $parameterBag): array
+    {
+        $mainPageExternalLinks = $parameterBag->get('main_page_external_links');
+        $violations = $this->validator->validate($this->mainPageExternalLinks, [
+            new Type('array'),
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+                new Url(),
+            ]),
+        ]);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        $mainPageExternalUrls = array_keys($mainPageExternalLinks);
+        $violations->addAll($this->validator->validate($mainPageExternalUrls, [
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+            ]),
+        ]));
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        return $mainPageExternalLinks;
     }
 }
