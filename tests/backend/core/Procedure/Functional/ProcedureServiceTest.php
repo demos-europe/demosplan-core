@@ -105,7 +105,8 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminList(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([],
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
             null,
             $user,
             null,
@@ -138,7 +139,8 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Is there even one with both closed?
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([],
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
                 null,
                 $this->getUserReference(
                     LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
@@ -170,7 +172,8 @@ class ProcedureServiceTest extends FunctionalTestCase
         // Also test default exclude :)
         $procedures = [];
         try {
-            $procedures = $this->sut->getProcedureAdminList([],
+            $procedures = $this->sut->getProcedureAdminList(
+                [],
                 null,
                 $this->getUserReference(
                     LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
@@ -200,7 +203,8 @@ class ProcedureServiceTest extends FunctionalTestCase
     {
         $blaupause = $this->fixtures->getReference('masterBlaupause');
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([],
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
             null,
             $user,
             ['name' => 'desc'],
@@ -227,7 +231,8 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListPlanningOffice(): void
     {
         $user = $this->getUserReference('testUserPlanningOffice');
-        $procedureList = $this->sut->getProcedureAdminList([],
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
             null,
             $user,
             null,
@@ -256,7 +261,8 @@ class ProcedureServiceTest extends FunctionalTestCase
     public function testGetProcedureAdminListSearch(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $procedureList = $this->sut->getProcedureAdminList([],
+        $procedureList = $this->sut->getProcedureAdminList(
+            [],
             'two',
             $user,
             null,

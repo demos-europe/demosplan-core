@@ -2606,7 +2606,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
         $filters = null === $procedureIdToExclude ? [] : ['procedureIdToExclude' => $procedureIdToExclude];
-        $accessibleProcedures = $this->getProcedureAdminList($filters,
+        $accessibleProcedures = $this->getProcedureAdminList(
+            $filters,
             null,
             $user,
             ['name' => 'ASC'],
