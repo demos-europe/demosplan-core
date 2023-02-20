@@ -103,11 +103,7 @@ class FloodControlService extends CoreService
             $totaltime = time() - $loadtime;
             if ($totaltime < $this->globalConfig->getHoneypotTimeout()) {
                 $this->getLogger()->info('FloodControl: Honeypot form has been submitted too fast');
-                $this->messageBag->add(
-                    'warning',
-                    'Das Formular wurde zu schnell abgeschickt.
-                    Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
-                );
+                $this->messageBag->add('warning','warning.floodcontrol.timeout');
                 throw new HoneypotException('Honeypot form has been submitted too fast');
             }
         } else {
