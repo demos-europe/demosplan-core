@@ -13,7 +13,7 @@ namespace Tests\Core\Forum\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
-use demosplan\DemosPlanForumBundle\Logic\ForumService;
+use demosplan\DemosPlanCoreBundle\Logic\Forum\ForumService;
 use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;

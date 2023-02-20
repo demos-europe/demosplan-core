@@ -44,7 +44,7 @@
         :group-label="groupLabel"
         :group-select="groupSelect">
         <template v-slot:option="{ option }">
-          <span v-if="option.$isLabel"><strong>{{ option.$groupLabel }}</strong></span>
+          <strong v-if="option.$isLabel">{{ option.$groupLabel }}</strong>
           <span v-else>{{ option.name }}</span>
         </template>
         <template v-slot:tag="props">

@@ -11,11 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
@@ -60,7 +60,7 @@ abstract class BaseController extends AbstractController
     protected $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     /**
-     * @var MessageBag
+     * @var MessageBagInterface
      */
     protected $messageBag;
 
@@ -115,7 +115,7 @@ abstract class BaseController extends AbstractController
      *
      * @required
      */
-    public function setMessageBag(MessageBag $messageBag): void
+    public function setMessageBag(MessageBagInterface $messageBag): void
     {
         $this->messageBag = $messageBag;
     }
@@ -140,7 +140,7 @@ abstract class BaseController extends AbstractController
         $this->initializeService = $initializeService;
     }
 
-    protected function getMessageBag(): MessageBag
+    protected function getMessageBag(): MessageBagInterface
     {
         return $this->messageBag;
     }

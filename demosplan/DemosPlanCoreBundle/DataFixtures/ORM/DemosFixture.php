@@ -16,30 +16,14 @@ use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class DemosFixture extends AbstractFixture implements ContainerAwareInterface
+abstract class DemosFixture extends AbstractFixture
 {
-    /**
-     * @var ContainerInterface|null
-     */
-    private $container;
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-    }
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    public function getContainer()
-    {
-        return $this->container;
     }
 
     /**

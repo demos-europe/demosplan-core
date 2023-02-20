@@ -41,6 +41,7 @@ class DemosPlanAdminController extends BaseController
      *     path="/statistik/{part}/csv",
      *     defaults={"format": "csv"},
      * )
+     *
      * @DplanPermissions("area_statistics")
      *
      * @param string $part
@@ -107,7 +108,7 @@ class DemosPlanAdminController extends BaseController
 
         $title = 'statistic';
         if ('html' === $format) {
-            return $this->renderTemplate('@DemosPlanAdmin/DemosPlanAdmin/statistics.html.twig', [
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
                 'templateVars' => $templateVars,
                 'title'        => $title,
             ]);
@@ -118,11 +119,14 @@ class DemosPlanAdminController extends BaseController
             return str_replace('"', '""', $string);
         });
 
-        $response = $this->renderTemplate('@DemosPlanAdmin/DemosPlanAdmin/statistics.csv.twig', [
+        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
             'part'         => $part,
         ]);
+        // T25516 UTF-8-MB for MS-excel umlauts support
+        $bom = chr(0xEF).chr(0xBB).chr(0xBF);
+        $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));
