@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class AsynchronousStateException extends \Exception
+use Exception;
+
+class AsynchronousStateException extends Exception
 {
 }

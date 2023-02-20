@@ -12,15 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
+use function array_shift;
+use function count;
+
 use demosplan\DemosPlanAssessmentTableBundle\Logic\ArraySorterInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use function array_shift;
-use function count;
+
 use function is_countable;
 use function key;
 use function reset;
+
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
@@ -91,22 +94,22 @@ abstract class EntityGrouper
      * Sort the given groups and their subgroups by the given {@link ArraySorterInterface}s.
      *
      * @param array<int|string,EntityGroupInterface<T>>                            $entityGroups The array of groups to be sorted. The given
-     *                                                                                  array will be returned in the order applied by
-     *                                                                                  the first sorter given in the sorter array. The
-     *                                                                                  contained subgroups will be sorted as well
-     *                                                                                  according to the remaining sorters given in the
-     *                                                                                  sorter array.
+     *                                                                                           array will be returned in the order applied by
+     *                                                                                           the first sorter given in the sorter array. The
+     *                                                                                           contained subgroups will be sorted as well
+     *                                                                                           according to the remaining sorters given in the
+     *                                                                                           sorter array.
      * @param array<int|string,ArraySorterInterface<EntityGroupInterface<T>>|null> $sorters      The sorters to use for sorting. Each element is
-     *                                                                                  used for a specific layer. So the first sorter
-     *                                                                                  is applied to the given array of
-     *                                                                                  {@link EntityGroupInterface}s. The second sorter is
-     *                                                                                  applied to the subgroups of the
-     *                                                                                  {@link EntityGroupInterface}s given. The third sorter is
-     *                                                                                  applied to the subgroups of the subgroups and
-     *                                                                                  so on. If an element in the array is null the
-     *                                                                                  sorting will be skipped for that layer. If
-     *                                                                                  there are less sorters than layers the
-     *                                                                                  remaining layers will be skipped as well.
+     *                                                                                           used for a specific layer. So the first sorter
+     *                                                                                           is applied to the given array of
+     *                                                                                           {@link EntityGroupInterface}s. The second sorter is
+     *                                                                                           applied to the subgroups of the
+     *                                                                                           {@link EntityGroupInterface}s given. The third sorter is
+     *                                                                                           applied to the subgroups of the subgroups and
+     *                                                                                           so on. If an element in the array is null the
+     *                                                                                           sorting will be skipped for that layer. If
+     *                                                                                           there are less sorters than layers the
+     *                                                                                           remaining layers will be skipped as well.
      *
      * @return array<int|string,EntityGroupInterface<T>>
      */
@@ -139,7 +142,6 @@ abstract class EntityGrouper
      * @param CoreEntity[]            $entities
      * @param string[]                $groupingFields
      * @param string[][]              $stopGroupingForKeys
-     *
      * @param EntityGroupInterface<T> $group
      */
     public function fillEntitiesIntoGroupStructure(array $entities, array $groupingFields, EntityGroupInterface $group, array $stopGroupingForKeys = []): void
@@ -157,30 +159,30 @@ abstract class EntityGrouper
     /**
      * Places a single entity inside the given {@link EntityGroupInterface}.
      *
-     * @param EntityGroupInterface<T> $group             The group the given entity is placed in. The entity may be placed directly in the group or in one of its subgroups (at any depth).
-     * @param T                       $entity            the entity to be placed inside the given {@link EntityGroupInterface}
-     * @param string[]                $entityFieldsToUse Controls the resulting group structure.
-     *                                            Each element in this array represents a layer of the resulting tree.
-     *                                            For example if the array is empty the given entity will be placed
-     *                                            directly as entry in the given {@link EntityGroupInterface}. If there is one element
-     *                                            in the array the given {@link EntityGroupInterface} will contain one or multiple subgroups
-     *                                            which itself however will not contain additional subgroups.
-     *                                            The key of an element determines the field of the entity to use to determine the target
-     *                                            group. For example if the element has the key 'getTagId' there must be a getter in the
-     *                                            entity with the name 'getTagId'. From the value of that entity field (eg. '3') a group is created
-     *                                            (if it does not already exist) and the entity is placed as entry in that group.
-     *                                            If the field exists but its value is null the internal key {@link MISSING_GROUP_KEY} will be used instead.
-     *                                            The value of the element in the entityFieldsToUse array will be used
-     *                                            similarly to retrieve a value from the entity. However that value will be used
-     *                                            as the title of the group instead of its ID. For example if the value of the element
-     *                                            is 'getTagName' there must be a getter in the entity with the name 'getTagName'. The value of that
-     *                                            entity field (eg. 'Work in Progress') will be used as the name of the group if it does not already
-     *                                            exist. That means the first entity added to a group will determine its title.
-     *                                            If the value of the field is null the value of the translation key 'filter.noAssignment' will be used instead.
-     * @param string[][]     $stopGroupingForKeys Use this to stop the grouping for an entity early and
-     *                                            not dive into subgroups. The keys in this array define the key used to read a value from
-     *                                            an entity. Each value in the array for each key defines a key for which a group will be created,
-     *                                            however that group will not be further divided into subgroups, even if defined by $entityFieldsToUse.
+     * @param EntityGroupInterface<T> $group               The group the given entity is placed in. The entity may be placed directly in the group or in one of its subgroups (at any depth).
+     * @param T                       $entity              the entity to be placed inside the given {@link EntityGroupInterface}
+     * @param string[]                $entityFieldsToUse   Controls the resulting group structure.
+     *                                                     Each element in this array represents a layer of the resulting tree.
+     *                                                     For example if the array is empty the given entity will be placed
+     *                                                     directly as entry in the given {@link EntityGroupInterface}. If there is one element
+     *                                                     in the array the given {@link EntityGroupInterface} will contain one or multiple subgroups
+     *                                                     which itself however will not contain additional subgroups.
+     *                                                     The key of an element determines the field of the entity to use to determine the target
+     *                                                     group. For example if the element has the key 'getTagId' there must be a getter in the
+     *                                                     entity with the name 'getTagId'. From the value of that entity field (eg. '3') a group is created
+     *                                                     (if it does not already exist) and the entity is placed as entry in that group.
+     *                                                     If the field exists but its value is null the internal key {@link MISSING_GROUP_KEY} will be used instead.
+     *                                                     The value of the element in the entityFieldsToUse array will be used
+     *                                                     similarly to retrieve a value from the entity. However that value will be used
+     *                                                     as the title of the group instead of its ID. For example if the value of the element
+     *                                                     is 'getTagName' there must be a getter in the entity with the name 'getTagName'. The value of that
+     *                                                     entity field (eg. 'Work in Progress') will be used as the name of the group if it does not already
+     *                                                     exist. That means the first entity added to a group will determine its title.
+     *                                                     If the value of the field is null the value of the translation key 'filter.noAssignment' will be used instead.
+     * @param string[][]              $stopGroupingForKeys Use this to stop the grouping for an entity early and
+     *                                                     not dive into subgroups. The keys in this array define the key used to read a value from
+     *                                                     an entity. Each value in the array for each key defines a key for which a group will be created,
+     *                                                     however that group will not be further divided into subgroups, even if defined by $entityFieldsToUse.
      *
      * @return int number of times the given entity was added to a group
      */

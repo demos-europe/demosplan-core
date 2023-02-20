@@ -10,9 +10,10 @@
 
 namespace Tests\Core\Report\Functional;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use Tests\Base\FunctionalTestCase;
 
@@ -70,7 +71,7 @@ class ReportServiceTest extends FunctionalTestCase
         static::assertEquals('test', $data->getMessage());
         static::assertEquals('tesst', $data->getIncoming());
         static::assertEquals($customer->getId(), $data->getCustomer()->getId());
-        static::assertInstanceOf(\DateTime::class, $data->getCreated());
+        static::assertInstanceOf(DateTime::class, $data->getCreated());
         $this->isCurrentTimestamp($data->getCreated());
 
         $amountOfReportEntriesAfter = $this->countEntries(ReportEntry::class);

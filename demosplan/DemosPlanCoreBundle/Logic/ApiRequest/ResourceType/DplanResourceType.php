@@ -13,9 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use Carbon\Carbon;
-
-use function collect;
-
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
@@ -32,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
@@ -48,14 +44,14 @@ use EDT\Wrapping\Contracts\Types\ExposableRelationshipTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
 use EDT\Wrapping\Properties\UpdatableRelationship;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
-
-use function in_array;
-use function is_array;
-
 use IteratorAggregate;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function collect;
+use function in_array;
+use function is_array;
 
 /**
  * @template T of object
@@ -104,10 +100,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      * @var CustomerService
      */
     protected $currentCustomerService;
-    /**
-     * @var ConditionFactoryInterface
-     */
-    protected $conditionFactory;
+
+    protected DqlConditionFactory $conditionFactory;
 
     private TypeProviderInterface $typeProvider;
 

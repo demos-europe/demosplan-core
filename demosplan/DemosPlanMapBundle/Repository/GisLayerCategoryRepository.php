@@ -23,6 +23,8 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Exception;
+use InvalidArgumentException;
 
 class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -33,13 +35,13 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($entityId)
     {
         try {
             return $this->findOneBy(['id' => $entityId]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to get GisLayerCategory: ', [$e]);
             throw $e;
         }
@@ -50,23 +52,23 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             if (false === array_key_exists('name', $data)) {
-                throw new \InvalidArgumentException('Trying to add a GisLayerCategory without name');
+                throw new InvalidArgumentException('Trying to add a GisLayerCategory without name');
             }
 
             if (false === array_key_exists('procedureId', $data) && 36 === strlen($data['procedureId'])) {
-                throw new \InvalidArgumentException('Trying to add a GisLayerCategory without procedure');
+                throw new InvalidArgumentException('Trying to add a GisLayerCategory without procedure');
             }
 
             $gisLayerCategory = $this->generateObjectValues(new GisLayerCategory(), $data);
 
             return $this->addObject($gisLayerCategory);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create GisLayerCategory failed Message: ', [$e]);
             throw $e;
         }
@@ -79,7 +81,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($gisLayerCategory)
     {
@@ -89,7 +91,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             $manager->flush();
 
             return $gisLayerCategory;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Add gisLayerCategory failed Message: ', [$e]);
             throw $e;
         }
@@ -102,7 +104,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($gisLayerCategoryId, array $data)
     {
@@ -119,7 +121,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateObject($gisLayerCategory)
     {
@@ -140,7 +142,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      * @throws GisLayerCategoryNotFoundException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($categoryIdToDelete): bool
     {
@@ -287,13 +289,13 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayerCategory|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getRootLayerCategory($procedureId)
     {
         try {
             return $this->findOneBy(['procedure' => $procedureId, 'parent' => null]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to get root GisLayerCategory: ', [$e]);
             throw $e;
         }
@@ -306,7 +308,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -319,7 +321,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete GisLayerCategories of a procedure failed ', [$e]);
             throw $e;
         }
@@ -331,7 +333,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      * @return array
      *
      * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
+     * @throws Exception
      */
     protected function copyChildren(GisLayerCategory $sourceCategory, Procedure $newProcedure)
     {
@@ -349,7 +351,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             $newCategory->setModifyDate(null);
             $entityManager->persist($newCategory);
 
-            //resetted copied children with last copied!: bug!:
+            // resetted copied children with last copied!: bug!:
             $copiedChildrenOfCurrentCategory = $this->copyChildren($childOfSourceCategory, $newProcedure);
             if (0 < count($copiedChildrenOfCurrentCategory)) {
                 $newCategory->setChildren($copiedChildrenOfCurrentCategory);
@@ -370,7 +372,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      * @param string $sourceProcedureId
      * @param string $newProcedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copy($sourceProcedureId, $newProcedureId)
     {
@@ -383,17 +385,17 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             /** @var GisLayerCategory $sourceGisLayerRootCategory */
             $sourceGisLayerRootCategory = $this->getRootLayerCategory($sourceProcedureId);
 
-            //"create" new rootCategory for new Procedure:
+            // "create" new rootCategory for new Procedure:
             $newGisLayerRootCategory = clone $sourceGisLayerRootCategory;
             $newGisLayerRootCategory->setId(null);
             $newGisLayerRootCategory->setProcedure($newProcedure);
             $newGisLayerRootCategory->setCreateDate(null);
             $newGisLayerRootCategory->setModifyDate(null);
-            //persist here, to be persisted for related children and gislayers
+            // persist here, to be persisted for related children and gislayers
             $entityManager->persist($newGisLayerRootCategory);
             $entityManager->flush();
 
-            //get children of source and attach to new
+            // get children of source and attach to new
             $copiedChildren = $this->copyChildren($sourceGisLayerRootCategory, $newProcedure);
             if (0 < count($copiedChildren)) {
                 $newGisLayerRootCategory->setChildren($copiedChildren);
@@ -404,9 +406,9 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
 
             $entityManager->flush();
 
-            //set visibilityGroups of all gisLayers of new procedure:
+            // set visibilityGroups of all gisLayers of new procedure:
             $this->resetVisibilityGroupIdsOfProcedure($newProcedureId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Copy gis failed. Message: ', [$e]);
             throw $e;
         }
@@ -420,7 +422,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      */
     public function resetVisibilityGroupIdsOfProcedure($procedureId)
     {
-        //replace to gisLayer visibilityGroup IDs to new one, to avoid mixing with blueprint ids
+        // replace to gisLayer visibilityGroup IDs to new one, to avoid mixing with blueprint ids
         $entityManager = $this->getEntityManager();
         $gisLayerRepository = $entityManager->getRepository(GisLayer::class);
 
@@ -442,7 +444,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
      *
      * @return GisLayer[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function copyGisLayersOfCategory(GisLayerCategory $sourceCategory, GisLayerCategory $newCategory)
     {
@@ -467,7 +469,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
                 if (false === is_null($newGis->getVisibilityGroupId())) {
                 }
 
-                //first persist to ensure id is available
+                // first persist to ensure id is available
                 $entityManager->persist($newGis);
 
                 if (null !== $sourceGisLayer->getContextualHelp()) {
@@ -482,7 +484,7 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
             $entityManager->flush();
 
             return $gisLayers;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Copy gis failed. Message: ', [$e]);
             throw $e;
         }

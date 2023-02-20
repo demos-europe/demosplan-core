@@ -33,13 +33,6 @@ class MessageBag implements MessageBagInterface
     ];
 
     /**
-     * Keeps an Instance of $this to be used in statically called context.
-     *
-     * @var MessageBag
-     */
-    protected static $self;
-
-    /**
      * @var Collection
      */
     protected $messages;
@@ -59,26 +52,7 @@ class MessageBag implements MessageBagInterface
             ->map(static function () {
                 return collect();
             });
-
-        self::$self = $this;
         $this->translator = $translator;
-    }
-
-    /**
-     * Call MessageBag:add() from a static context.
-     *
-     * @param string $message #TranslationKey
-     * @param string $domain  #TranslationDomain
-     *
-     * @throws MessageBagException
-     */
-    public static function addMessage(
-        string $severity,
-        string $message,
-        array $params = [],
-        string $domain = 'messages'
-    ) {
-        self::$self->add($severity, $message, $params, $domain);
     }
 
     /**

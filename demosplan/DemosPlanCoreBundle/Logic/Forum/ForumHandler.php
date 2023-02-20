@@ -8,13 +8,8 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanForumBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Exception;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Twig\Environment;
-use UnexpectedValueException;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,8 +17,12 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Exception;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class ForumHandler extends CoreHandler
 {
@@ -107,7 +106,7 @@ class ForumHandler extends CoreHandler
     {
         $threadEntryUpdated = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
             $mandatoryError = [
                 'type'    => 'error',
@@ -124,8 +123,8 @@ class ForumHandler extends CoreHandler
             $threadEntryUpdated['text'] = $data['r_text'];
         }
         if (array_key_exists('r_files', $data) && !empty($data['r_files'])) {
-            //falls nur ein File hochgeladen wurde, kommt nur ein string vom import zurück,
-            //der noch in einen array umgewandelt werden muss
+            // falls nur ein File hochgeladen wurde, kommt nur ein string vom import zurück,
+            // der noch in einen array umgewandelt werden muss
             if (!is_array($data['r_files'])) {
                 $data['r_files'] = [$data['r_files']];
             }
@@ -135,10 +134,10 @@ class ForumHandler extends CoreHandler
         $result = $this->forumService->updateThreadEntry($threadEntry['ident'], $threadEntryUpdated);
 
         if (true == $result['status']) {
-            //Schicke eine Benachrichtigungsemail
+            // Schicke eine Benachrichtigungsemail
             $dataForEmail = $result['body'];
             $dataForEmail['isNew'] = false;
-            //Falls es ein Eintrag zur User Story ist, gebe die Daten dazu mit
+            // Falls es ein Eintrag zur User Story ist, gebe die Daten dazu mit
             if (isset($data['userStory'])) {
                 $dataForEmail['userStory'] = $data['userStory'];
             }
@@ -164,7 +163,7 @@ class ForumHandler extends CoreHandler
     {
         $threadEntry = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_text', $data) || '' === trim($data['r_text'])) {
             $mandatoryError = [
                 'type'    => 'error',
@@ -181,8 +180,8 @@ class ForumHandler extends CoreHandler
             $threadEntry['text'] = $data['r_text'];
         }
         if (array_key_exists('r_files', $data) && !empty($data['r_files'])) {
-            //falls nur ein File hochgeladen wurde, kommt nur ein string vom import zurück,
-            //der noch in einen array umgewandelt werden muss
+            // falls nur ein File hochgeladen wurde, kommt nur ein string vom import zurück,
+            // der noch in einen array umgewandelt werden muss
             if (!is_array($data['r_files'])) {
                 $data['r_files'] = [$data['r_files']];
             }
@@ -194,11 +193,11 @@ class ForumHandler extends CoreHandler
 
         $result = $this->forumService->addThreadEntry($threadId, $threadEntry);
 
-        //Wenn erfolgreich, dann schicke eine Benachrichtigungsemail
+        // Wenn erfolgreich, dann schicke eine Benachrichtigungsemail
         if (true === $result['status']) {
             $dataForEmail = $result['body'];
             $dataForEmail['isNew'] = true;
-            //Falls es ein Eintrag zur User Story ist, gebe die Daten dazu mit
+            // Falls es ein Eintrag zur User Story ist, gebe die Daten dazu mit
             if (isset($data['userStory'])) {
                 $dataForEmail['userStory'] = $data['userStory'];
             }
@@ -221,18 +220,18 @@ class ForumHandler extends CoreHandler
      */
     public function threadEntryUpdateWithDeletedPlaceholder($threadEntry)
     {
-        //wenn nicht dann lösche die Inhalte des Beitrags und setze die delete-Flag
+        // wenn nicht dann lösche die Inhalte des Beitrags und setze die delete-Flag
         $data = [];
         $data['anonymise'] = true;
 
         if (true == $threadEntry['editableByUser']) {
-            //falls Autor, dann gebe Platzhaltertext für Autor aus
+            // falls Autor, dann gebe Platzhaltertext für Autor aus
             $data['text'] = 'Verfasser';
         } else {
-            //ansonsten  Platzhaltertext für Moderation
+            // ansonsten  Platzhaltertext für Moderation
             $data['text'] = 'Moderator';
         }
-        //die Beiträge  werden mit leeren Variablen überschrieben um einen Platzhalter zu generieren
+        // die Beiträge  werden mit leeren Variablen überschrieben um einen Platzhalter zu generieren
         return $this->forumService->updateThreadEntry($threadEntry['ident'], $data);
     }
 
@@ -277,7 +276,7 @@ class ForumHandler extends CoreHandler
         $release = [];
         $mandatoryErrors = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -336,7 +335,7 @@ class ForumHandler extends CoreHandler
         $release = [];
         $mandatoryErrors = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -414,7 +413,7 @@ class ForumHandler extends CoreHandler
                 $votes[] = ['userStoryId' => $key, 'numberOfVotes' => intval($userStory)];
             }
         }
-        //Überprüfe, ob das Limit eingehalten wird, wenn nicht gebe Meldung zurück
+        // Überprüfe, ob das Limit eingehalten wird, wenn nicht gebe Meldung zurück
         if ($sumVotes > $limitForVotes) {
             $exceededVotes = $sumVotes - $limitForVotes;
 
@@ -435,7 +434,7 @@ class ForumHandler extends CoreHandler
     {
         $result = [];
         $errorMessages = [];
-        //Übergebe dem Service für jede userStory die offlineVotes
+        // Übergebe dem Service für jede userStory die offlineVotes
         $userStories = $offlineVotes;
         foreach ($userStories as $key => $userStory) {
             $data['offlineVotes'] = $userStory;
@@ -492,7 +491,7 @@ class ForumHandler extends CoreHandler
     {
         $userStory = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
             $mandatoryError = [
                 'type'    => 'error',
@@ -535,7 +534,7 @@ class ForumHandler extends CoreHandler
     {
         $userStory = [];
 
-        //Überprüfe Pflichtfelder
+        // Überprüfe Pflichtfelder
         if (!array_key_exists('r_title', $data) || '' === trim($data['r_title'])) {
             $mandatoryError = [
                 'type'    => 'error',
@@ -614,39 +613,39 @@ class ForumHandler extends CoreHandler
      */
     protected function sentNotificationEmail($data)
     {
-        //hole alle User mit der Rolle Moderator
+        // hole alle User mit der Rolle Moderator
         $role = Role::BOARD_MODERATOR;
         $allUsersWithRole = $this->userService->getUsersOfRole($role);
 
-        //Flag für Mail an Author of starterEntry(Thread)
+        // Flag für Mail an Author of starterEntry(Thread)
         $notificationForAuthor = false;
 
-        //wenn es sich nicht um einen ersten Beitrag handelt, hole ihn
+        // wenn es sich nicht um einen ersten Beitrag handelt, hole ihn
         if (true != $data['initialEntry'] && !isset($data['userStory'])) {
-            //hole den ersten Beitrag
+            // hole den ersten Beitrag
             $entryListForThread = $this->forumService->getThread($data['threadId']);
             $firstEntry = $entryListForThread['starterEntry'];
 
-            //Generiere eine Teaser vom ersten Beitragstext
-            //bereinige die Textvariable von Tags
+            // Generiere eine Teaser vom ersten Beitragstext
+            // bereinige die Textvariable von Tags
             $entryTextNoTags = strip_tags($firstEntry['text']);
             if (0 < strlen($entryTextNoTags)) {
-                //Kürze den Text und speicher das Ergebnis in der MailVariable
+                // Kürze den Text und speicher das Ergebnis in der MailVariable
                 $shortText = substr($entryTextNoTags, 0, 150).'...';
                 $data['firstEntryText'] = $shortText;
             }
-            //Prüfe, ob Autor des starterEntry ungleich des Autors vom neuen Threadentry ist, wenn ja dann setze flag auf true
+            // Prüfe, ob Autor des starterEntry ungleich des Autors vom neuen Threadentry ist, wenn ja dann setze flag auf true
             if ($entryListForThread['starterEntry']['user']['ident'] != $data['user']['ident']) {
                 $notificationForAuthor = true;
                 $data['starterEntryAuthor'] = $entryListForThread['starterEntry']['user'];
             }
         }
 
-        //generiere eine Teaser vom Beitragstext
-        //bereinige die Textvariable von Tags
+        // generiere eine Teaser vom Beitragstext
+        // bereinige die Textvariable von Tags
         $entryTextNoTags = strip_tags($data['text']);
         if (0 < strlen($entryTextNoTags)) {
-            //Kürze den Text und speicher das Ergebnis in der MailVariable
+            // Kürze den Text und speicher das Ergebnis in der MailVariable
             $shortText = substr($entryTextNoTags, 0, 150).'...';
             $data['text'] = $shortText;
         }
@@ -655,14 +654,14 @@ class ForumHandler extends CoreHandler
         $mailTemplateVars = $data;
         $vars['mailsubject'] =
           $this->translator->trans('email.subject.forum.notification');
-        //Schicke eine Email an die Moderatoren, dass im Forum/Weiterentwicklung Beiträge veröffentlicht/aktualisiert wurden
+        // Schicke eine Email an die Moderatoren, dass im Forum/Weiterentwicklung Beiträge veröffentlicht/aktualisiert wurden
         $this->sendNotificationEmailToModerator(
             $mailTemplateVars,
             $vars,
             $allUsersWithRole
         );
 
-        //Schicke eine Email an den Autor des StarterEntry, wenn er Benachrichtigungen aktiviert hat und wenn Beitrag nicht zu einer UserStory geschrieben wurde
+        // Schicke eine Email an den Autor des StarterEntry, wenn er Benachrichtigungen aktiviert hat und wenn Beitrag nicht zu einer UserStory geschrieben wurde
         if (isset($data['starterEntryAuthor']) && true == $notificationForAuthor && !isset($data['userStory'])) {
             $this->sendNotificationEmailToAuthor($data, $mailTemplateVars, $vars);
         }
@@ -692,26 +691,26 @@ class ForumHandler extends CoreHandler
         $vars,
         $allUsersWithRole
     ) {
-        //Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
+        // Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
         if (isset($mailTemplateVars['userStory'])) {
             $vars['mailbody'] = $this->twig
                 ->load(
-                    '@DemosPlanForum/DemosPlanForum/development_send_moderator_notification_email.html.twig'
+                    '@DemosPlanCore/DemosPlanForum/development_send_moderator_notification_email.html.twig'
                 )->renderBlock(
                     'body_plain',
                     ['templateVars' => $mailTemplateVars]
                 );
         } else {
-            //Ansonsten, handelt es sich um einen Beitrag aus dem Forum, dann hole ein dieses template
+            // Ansonsten, handelt es sich um einen Beitrag aus dem Forum, dann hole ein dieses template
             $vars['mailbody'] = $this->twig
             ->load(
-                '@DemosPlanForum/DemosPlanForum/forum_send_moderator_notification_email.html.twig'
+                '@DemosPlanCore/DemosPlanForum/forum_send_moderator_notification_email.html.twig'
             )->renderBlock(
                 'body_plain',
                 ['templateVars' => $mailTemplateVars]
             );
         }
-        //Schicke die Email an alle Moderatoren
+        // Schicke die Email an alle Moderatoren
         foreach ($allUsersWithRole as $user) {
             // wenn das Flag gesetzt ist, dass er keine Emails haben möchte, eben nicht
             if (!$user->getForumNotification()) {
@@ -757,10 +756,10 @@ class ForumHandler extends CoreHandler
             return;
         }
 
-        //hole das template für die Email an den Author
+        // hole das template für die Email an den Author
         $vars['mailbody'] = $this->twig
             ->load(
-                '@DemosPlanForum/DemosPlanForum/forum_send_author_notification_email.html.twig'
+                '@DemosPlanCore/DemosPlanForum/forum_send_author_notification_email.html.twig'
             )->renderBlock(
                 'body_plain',
                 ['templateVars' => $mailTemplateVars]
@@ -788,20 +787,20 @@ class ForumHandler extends CoreHandler
      */
     public function checkPermission($threadEntry, User $user, PermissionsInterface $permissions)
     {
-        //Rechte zum Editieren/Löschen überprüfen
-        //Darf er den Beitrag noch(zeitl. Limit) bearbeiten und ist er auch der Autor?
+        // Rechte zum Editieren/Löschen überprüfen
+        // Darf er den Beitrag noch(zeitl. Limit) bearbeiten und ist er auch der Autor?
         $threadEntry['limitToEdit'] = $threadEntry['createDate'] / 1000 + (60 * 60);
-        //Bearbeitungsmodus-Flag
+        // Bearbeitungsmodus-Flag
         $threadEntry['editableByUser'] = false;
         $timeNow = time();
         if ($threadEntry['limitToEdit'] > $timeNow && ($threadEntry['user']['ident'] == $user->getId())) {
             $threadEntry['editableByUser'] = true;
         }
-        //ist der Thread geschlossen, verfällt für user das recht zum editieren
+        // ist der Thread geschlossen, verfällt für user das recht zum editieren
         if (true == $threadEntry['threadClosed']) {
             $threadEntry['editableByUser'] = false;
         }
-        //oder hat der User das generelle Recht (Moderator)
+        // oder hat der User das generelle Recht (Moderator)
         $threadEntry['editableByModerator'] = $permissions->hasPermission('feature_forum_dev_release_edit');
 
         return $threadEntry;

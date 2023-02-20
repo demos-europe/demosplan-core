@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -18,12 +19,12 @@ use TusPhp\Response;
 
 class TusCors implements TusMiddleware
 {
-
-    public function handle(Request $request, Response $response) {
+    public function handle(Request $request, Response $response)
+    {
         $headers = $response->getHeaders();
 
-        $headers['Access-Control-Allow-Headers'] .= ', '. Header::FILE_HASH .', '. Header::FILE_ID;
-        $headers['Access-Control-Expose-Headers'] .= ', '. Header::FILE_HASH .', '. Header::FILE_ID;
+        $headers['Access-Control-Allow-Headers'] .= ', '.Header::FILE_HASH.', '.Header::FILE_ID;
+        $headers['Access-Control-Expose-Headers'] .= ', '.Header::FILE_HASH.', '.Header::FILE_ID;
 
         $response->replaceHeaders($headers);
     }

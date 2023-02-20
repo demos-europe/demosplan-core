@@ -167,7 +167,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
      */
     public function getSettingsByKeyAndSetting($key, $setting)
     {
-        //finde eintrag mit den werten von setting
+        // finde eintrag mit den werten von setting
         $setting['key'] = $key;
         $settingKeys = ['procedureId', 'orgaId', 'userId'];
         foreach ($settingKeys as $settingKey) {
@@ -202,27 +202,27 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     {
         $updated = false;
 
-        if (null != ($settingRequest->getKey())) {
+        if (null != $settingRequest->getKey()) {
             $toUpdate->setKey($settingRequest->getKey());
             $updated = true;
         }
 
-        if (null !== ($settingRequest->getContent())) {
+        if (null !== $settingRequest->getContent()) {
             $toUpdate->setContent($settingRequest->getContent());
             $updated = true;
         }
 
-        if (null != ($settingRequest->getOrga())) {
+        if (null != $settingRequest->getOrga()) {
             $toUpdate->setOrga($settingRequest->getOrga());
             $updated = true;
         }
 
-        if (null != ($settingRequest->getProcedure())) {
+        if (null != $settingRequest->getProcedure()) {
             $toUpdate->setProcedure($settingRequest->getProcedure());
             $updated = true;
         }
 
-        if (null != ($settingRequest->getUser())) {
+        if (null != $settingRequest->getUser()) {
             $toUpdate->setUser($settingRequest->getUser());
             $updated = true;
         }

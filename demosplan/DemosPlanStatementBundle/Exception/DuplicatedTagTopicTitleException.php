@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class DuplicatedTagTopicTitleException extends \Exception
+use Exception;
+
+class DuplicatedTagTopicTitleException extends Exception
 {
     /**
      * @return static

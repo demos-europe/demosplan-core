@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
@@ -23,9 +24,12 @@ class OrganisationUpdateSubscriber extends BaseEventSubscriber
      */
     protected $draftStatementService;
 
-    public function __construct(DraftStatementService $draftStatementService)
+    protected MessageBagInterface $messageBag;
+
+    public function __construct(DraftStatementService $draftStatementService, MessageBagInterface $messageBag)
     {
         $this->draftStatementService = $draftStatementService;
+        $this->messageBag = $messageBag;
     }
 
     public static function getSubscribedEvents(): array
@@ -45,9 +49,9 @@ class OrganisationUpdateSubscriber extends BaseEventSubscriber
             && Orga::STATEMENT_SUBMISSION_TYPE_SHORT == $orgaUpdated->getSubmissionType()) {
             $success = $this->draftStatementService->resetDraftStatementsOfProceduresOfOrga($event->getOrganisationUpdated());
             if ($success) {
-                MessageBag::addMessage('confirm', 'confirm.statement.orgaedit.submissiontype.short');
+                $this->messageBag->add('confirm', 'confirm.statement.orgaedit.submissiontype.short');
             } else {
-                MessageBag::addMessage('error', 'error.statement.orgaedit.submissiontype.short');
+                $this->messageBag->add('error', 'error.statement.orgaedit.submissiontype.short');
             }
         }
 
@@ -55,7 +59,7 @@ class OrganisationUpdateSubscriber extends BaseEventSubscriber
         if ($orgaBefore->getSubmissionType() != $orgaUpdated->getSubmissionType()
             && Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT == $orgaUpdated->getSubmissionType()) {
             // Nothing to do but tell user that resetting worked
-            MessageBag::addMessage('confirm', 'confirm.statement.orgaedit.submissiontype.default');
+            $this->messageBag->add('confirm', 'confirm.statement.orgaedit.submissiontype.default');
         }
     }
 }

@@ -41,6 +41,7 @@ class FileNameSanitizerTest extends UnitTestCase
     public function getInvalidChars()
     {
         $expected = 'myawesomefile.pdf';
+
         return [
             ['myawesomefile&%.pdf', $expected],
             [':myawesomefile.pdf', $expected],

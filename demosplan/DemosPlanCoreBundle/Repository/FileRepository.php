@@ -220,6 +220,7 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
     /**
      * @return array<string, string>
+     *
      * @throws ORMException
      */
     public function copy(string $blueprintId, string $destinationProcedureId): array
@@ -242,7 +243,6 @@ class FileRepository extends CoreRepository implements ArrayInterface, ObjectInt
         $this->getEntityManager()->flush();
 
         return $fileStringMapping;
-
     }
 
     public function copyFile(File $fileToCopy): File

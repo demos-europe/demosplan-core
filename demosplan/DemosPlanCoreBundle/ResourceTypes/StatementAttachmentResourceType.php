@@ -33,22 +33,10 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementAttachmentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
     public function __construct(
-        FileService $fileService,
-        StatementResourceType $statementResourceType
+        private readonly FileService $fileService,
+        private readonly StatementResourceType $statementResourceType
     ) {
-        $this->statementResourceType = $statementResourceType;
-        $this->fileService = $fileService;
     }
 
     public static function getName(): string
@@ -82,7 +70,7 @@ final class StatementAttachmentResourceType extends DplanResourceType implements
     {
         // The access to an attachment is allowed only if access to the corresponding
         // statement is granted.
-        return $this->statementResourceType->buildAccessCondition($this->statement);
+        return $this->statementResourceType->buildAccessCondition($this->statement, true);
     }
 
     protected function getProperties(): array

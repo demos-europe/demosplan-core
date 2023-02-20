@@ -22,6 +22,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Throwable;
 
 class ModifyTestuserDefaultPasswordCommand extends CoreCommand
 {
@@ -68,7 +69,7 @@ class ModifyTestuserDefaultPasswordCommand extends CoreCommand
             $output->writeln('Updated '.$testUsers->count().' users with default password.', OutputInterface::VERBOSITY_NORMAL);
 
             return Command::SUCCESS;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Print Exception
             $output->writeln(
                 'Something went wrong: '.$e->getMessage(),

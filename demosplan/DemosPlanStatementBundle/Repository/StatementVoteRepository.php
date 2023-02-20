@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Repository;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
@@ -19,6 +20,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
+use InvalidArgumentException;
 
 class StatementVoteRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -39,7 +42,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return StatementVote
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -50,9 +53,9 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
 
                 return $this->addObject($vote);
             } else {
-                throw new \InvalidArgumentException('Trying to add a StatementVote without related Statement.');
+                throw new InvalidArgumentException('Trying to add a StatementVote without related Statement.');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create StatementVote failed Message: ', [$e]);
             throw $e;
         }
@@ -65,7 +68,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return StatementVote
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($statementVote)
     {
@@ -75,7 +78,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
             $manager->flush();
 
             return $this->get($statementVote);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Add StatementVoteObject failed Message: ', [$e]);
             throw $e;
         }
@@ -88,7 +91,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return StatementVote
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -97,7 +100,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
             $vote = $this->generateObjectValues($vote, $data);
 
             return $this->updateObject($vote);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Update StatementVote failed.', [$e]);
             throw $e;
@@ -111,7 +114,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return StatementVote
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateObject($statementVote)
     {
@@ -121,7 +124,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
             $em->flush();
 
             return $statementVote;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update StatementVote failed. Message: ', [$e]);
             throw $e;
         }
@@ -147,7 +150,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete statementVote failed: ', [$e]);
         }
 
@@ -262,13 +265,13 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getByUserId($userId, $deleted = false, $active = true)
     {
         try {
             return $this->findBy(['user' => $userId, 'deleted' => $deleted, 'active' => $active]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get Statementvotes failed Message: ', [$e]);
             throw $e;
         }
@@ -281,7 +284,7 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
      *
      * @return bool - false if Exception occurs, otherwise true
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function clearByUserId($userId)
     {
@@ -300,11 +303,11 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
                 $vote->setUserMail(null);
                 $vote->setUserPostcode(null);
                 $vote->setUserCity(null);
-                $vote->setDeletedDate(new \DateTime());
+                $vote->setDeletedDate(new DateTime());
                 $manager->persist($vote);
             }
             $manager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Clear StatementVotes by userId failed Message: ', [$e]);
             throw $e;
         }

@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class AssessmentExportOptionsException extends \LogicException
+use LogicException;
+
+class AssessmentExportOptionsException extends LogicException
 {
     public static function missingSectionException($sectionName)
     {

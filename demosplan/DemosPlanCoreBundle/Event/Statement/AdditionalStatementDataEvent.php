@@ -1,5 +1,8 @@
 <?php
 
+
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -7,8 +10,6 @@
  *
  * All rights reserved
  */
-
-declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
@@ -22,6 +23,7 @@ class AdditionalStatementDataEvent extends DPlanEvent
     /**
      * The array containing all the data to update a given statement.
      * Subscribers need to check for the existence of relevant keys.
+     *
      * @var array<string, mixed>
      */
     private array $data;
@@ -32,17 +34,11 @@ class AdditionalStatementDataEvent extends DPlanEvent
         $this->data = $data;
     }
 
-    /**
-     * @return Statement
-     */
     public function getStatement(): Statement
     {
         return $this->statement;
     }
 
-    /**
-     * @param Statement $statement
-     */
     public function setStatement(Statement $statement): void
     {
         $this->statement = $statement;

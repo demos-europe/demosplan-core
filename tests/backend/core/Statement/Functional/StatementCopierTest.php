@@ -55,7 +55,7 @@ class StatementCopierTest extends FunctionalTestCase
         $numberOfMunicipalitiesBefore = count($testStatement->getMunicipalities());
         $totalAmountOfMunicipalitiesBefore = $this->countEntries(Municipality::class);
 
-        //create new statement with valid values to ensure persisting to DB is working
+        // create new statement with valid values to ensure persisting to DB is working
         $data = [
             'text'           => '<p>zuzuzuzzu</p>',
             'phase'          => 'configuration',
@@ -72,14 +72,14 @@ class StatementCopierTest extends FunctionalTestCase
         $newStatement = $this->statementService->newStatement($data);
 
         $newStatement = $this->sut->copyMunicipalities($testStatement, $newStatement);
-        //trigger cascading persist of votes by persist of statement:
+        // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->statementService->getStatementPublicRepository()->updateObject($newStatement);
 
         static::assertCount($numberOfMunicipalitiesBefore, $testStatement->getMunicipalities());
         static::assertCount($numberOfMunicipalitiesBefore, $newStatement->getMunicipalities());
 
-        //assert same amount after and before, because one localization can associated to many statements
-        //therefore there is no need to actually copy localisation data
+        // assert same amount after and before, because one localization can associated to many statements
+        // therefore there is no need to actually copy localisation data
         $totalAmountOfMunicipalitiesAfter = $this->countEntries(Municipality::class);
         static::assertSame($totalAmountOfMunicipalitiesBefore, $totalAmountOfMunicipalitiesAfter);
     }
@@ -94,7 +94,7 @@ class StatementCopierTest extends FunctionalTestCase
         $numberOfPriorityAreasBefore = count($testStatement->getPriorityAreas());
         $totalAmountOfPriorityAreasBefore = $this->countEntries(PriorityArea::class);
 
-        //create new statement with valid values to ensure persisting to DB is working
+        // create new statement with valid values to ensure persisting to DB is working
         $data = [
             'text'           => '<p>zuzuzuzzu</p>',
             'phase'          => 'configuration',
@@ -112,14 +112,14 @@ class StatementCopierTest extends FunctionalTestCase
 
         $statementCopier = self::$container->get(StatementCopier::class);
         $newStatement = $statementCopier->copyPriorityAreas($testStatement, $newStatement);
-        //trigger cascading persist of votes by persist of statement:
+        // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->sut->getStatementPublicRepository()->updateObject($newStatement);
 
         static::assertCount($numberOfPriorityAreasBefore, $testStatement->getPriorityAreas());
         static::assertCount($numberOfPriorityAreasBefore, $newStatement->getPriorityAreas());
 
-        //assert same amount after and before, because one localization can associated to many statements
-        //therefore there is no need to actually copy localisation data
+        // assert same amount after and before, because one localization can associated to many statements
+        // therefore there is no need to actually copy localisation data
         $totalAmountOfPriorityAreasAfter = $this->countEntries(PriorityArea::class);
         static::assertSame($totalAmountOfPriorityAreasBefore, $totalAmountOfPriorityAreasAfter);
     }
@@ -130,12 +130,12 @@ class StatementCopierTest extends FunctionalTestCase
 
         $testStatement = $this->getStatementReference('testStatement2');
 
-        //check setup:
+        // check setup:
         static::assertNotEmpty($testStatement->getTags());
         $amountOfTagsOfStatementBefore = count($testStatement->getTags());
         $totalAmountOfTagsBefore = $this->countEntries(Tag::class);
 
-        //create new statement with valid values to ensure persisting to DB is working
+        // create new statement with valid values to ensure persisting to DB is working
         $data = [
             'text'           => '<p>zuzuzuzzu</p>',
             'phase'          => 'configuration',
@@ -155,14 +155,14 @@ class StatementCopierTest extends FunctionalTestCase
         $statementCopier = self::$container->get(StatementCopier::class);
         $newStatement = $statementCopier->copyTags($testStatement, $newStatement);
 
-        //trigger cascading persist of votes by persist of statement:
+        // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->sut->getStatementPublicRepository()->updateObject($newStatement);
 
         static::assertCount($amountOfTagsOfStatementBefore, $testStatement->getTags());
         static::assertCount($amountOfTagsOfStatementBefore, $newStatement->getTags());
 
-        //assert same amount after and before, because one tag can be associated to many statements
-        //therefore there is no need to actually copy tags
+        // assert same amount after and before, because one tag can be associated to many statements
+        // therefore there is no need to actually copy tags
         $totalAmountOfTagsAfter = $this->countEntries(Tag::class);
         static::assertSame($totalAmountOfTagsBefore, $totalAmountOfTagsAfter);
     }
@@ -177,7 +177,7 @@ class StatementCopierTest extends FunctionalTestCase
         $numberOfCountiesBefore = count($testStatement->getCounties());
         $totalAmountOfCountiesBefore = $this->countEntries(County::class);
 
-        //create new statement with valid values to ensure persisting to DB is working
+        // create new statement with valid values to ensure persisting to DB is working
         $data = [
             'text'           => '<p>zuzuzuzzu</p>',
             'phase'          => 'configuration',
@@ -195,14 +195,14 @@ class StatementCopierTest extends FunctionalTestCase
 
         $statementCopier = self::$container->get(StatementCopier::class);
         $newStatement = $statementCopier->copyCounties($testStatement, $newStatement);
-        //trigger cascading persist of votes by persist of statement:
+        // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->sut->getStatementPublicRepository()->updateObject($newStatement);
 
         static::assertCount($numberOfCountiesBefore, $testStatement->getCounties());
         static::assertCount($numberOfCountiesBefore, $newStatement->getCounties());
 
-        //assert same amount after and before, because one localization can associated to many statements
-        //therefore there is no need to actually copy localisation data
+        // assert same amount after and before, because one localization can associated to many statements
+        // therefore there is no need to actually copy localisation data
         $totalAmountOfCountiesAfter = $this->countEntries(County::class);
         static::assertSame($totalAmountOfCountiesBefore, $totalAmountOfCountiesAfter);
     }

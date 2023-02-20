@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
+use function collect;
+
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
@@ -22,7 +24,6 @@ use EDT\Wrapping\Contracts\AccessException;
 use Enqueue\Util\UUID;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
-use function collect;
 
 class FacetFactory
 {

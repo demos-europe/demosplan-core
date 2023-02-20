@@ -23,35 +23,15 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 class CountyNotificationData extends ValueObject
 {
     /**
-     * @var string|null
-     */
-    private $orgaName;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $procedure;
-
-    /**
-     * @var array<int,string>
-     */
-    private $files;
-
-    /**
-     * @var PdfFile
-     */
-    private $pdfResult;
-
-    /**
      * @param array<string, mixed> $procedure
-     * @param array<int,string>    $files
+     * @param array<int, string>   $files
      */
-    public function __construct(?string $orgaName, array $procedure, array $files, PdfFile $pdfResult)
-    {
-        $this->orgaName = $orgaName;
-        $this->procedure = $procedure;
-        $this->files = $files;
-        $this->pdfResult = $pdfResult;
+    public function __construct(
+        protected ?string $orgaName,
+        protected array $procedure,
+        protected array $files,
+        protected PdfFile $pdfResult
+    ) {
         $this->lock();
     }
 }

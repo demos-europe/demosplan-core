@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanForumBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
@@ -16,9 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 
 class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInterface
 {
@@ -56,7 +56,7 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
                 throw new EntityNotFoundException("Get Userstories failed: Given releaseId: .$releaseId.not found.");
             }
 
-            //select Order:
+            // select Order:
             if (0 === strcmp($relatedRelease->getPhase(), 'voting_online')) {
                 $list = $this->findBy(['release' => $releaseId]);
                 shuffle($list);
@@ -69,7 +69,7 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
             }
 
             return ['release' => $relatedRelease, 'userStories' => $list];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Fehler beim Abruf der Userstories zu Release : '.$releaseId.' ', [$e]);
 
             return ['release' => [], 'userStories' => []];
@@ -84,7 +84,7 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
      *
      * @return array DevelopmentUserStory[]
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getListOrderByTotalVotes($releaseId, $sortDir = 'DESC')
     {
@@ -100,7 +100,7 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
                 ->getQuery();
 
             return $query->getResult();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get getListOrderByTotalVotes failed: ', [$e]);
             throw $e;
         }

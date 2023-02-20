@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanForumBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
 
@@ -81,7 +80,7 @@ class DevelopmentUserStoryVoteRepository extends CoreRepository implements Array
                                 $this->addVote($data['userId'], $data['orgaId'], $vote);
                                 array_push($responseVoteList, $vote);
                             } else {
-                                //sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
+                                // sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
                                 array_push($responseVoteList, $this->addNumberOfVotes($vote, $votes[0]));
                             }
                             $this->recalculateAndUpdateVotesOfStory($vote['userStoryId']);

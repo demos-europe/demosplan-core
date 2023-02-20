@@ -44,9 +44,9 @@ trait RepositoryLegacyShizzle
     }
 
     /**
-     * @throws
-     *
      * @param string $entityId
+     *
+     * @throws
      */
     public function delete($entityId)
     {
@@ -57,9 +57,9 @@ trait RepositoryLegacyShizzle
     }
 
     /**
-     * @throws
-     *
      * @param CoreEntity $entity
+     *
+     * @throws
      */
     public function generateObjectValues($entity, array $data)
     {
@@ -72,9 +72,9 @@ trait RepositoryLegacyShizzle
     /**
      * @param string $entityId
      *
-     * @throws
-     *
      * @return CoreEntity|void
+     *
+     * @throws
      */
     public function get($entityId)
     {
