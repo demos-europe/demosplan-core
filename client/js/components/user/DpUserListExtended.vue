@@ -141,7 +141,7 @@ export default {
     }),
 
     deleteSingelUser (id) {
-      if (dpconfirm(Translator.trans('check.user.delete')) === false) {
+      if (dpconfirm(Translator.trans('check.user.delete', { count: 1 })) === false) {
         return
       }
 
