@@ -3131,11 +3131,13 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
                 $statementMustIds = \array_unique($statementMustIds);
                 $shouldQuery = new BoolQuery();
-                $shouldQuery->addShould(
-                    $this->searchService->getElasticaTermsInstance(
-                        'id',
-                        $statementMustIds
-                    ));
+                foreach ($statementMustIds as $statementMustId) {
+                    $shouldQuery->addShould(
+                        $this->searchService->getElasticaTermsInstance(
+                            'id',
+                            $statementMustId
+                        ));
+                }
                 // add search query as a should request as we already found statements
                 // that have the searchstring at their fragment
                 if ($searchQuery instanceof AbstractQuery) {
