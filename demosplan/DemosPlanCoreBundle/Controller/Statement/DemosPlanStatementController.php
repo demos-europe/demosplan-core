@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_filter;
-use function array_key_exists;
-use function array_map;
-
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -71,23 +67,8 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-
-use const ENT_QUOTES;
-
 use Exception;
-
-use function explode;
-use function html_entity_decode;
-use function implode;
-use function in_array;
-use function is_array;
-
 use RuntimeException;
-
-use function sprintf;
-use function strip_tags;
-use function strlen;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -99,6 +80,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -186,6 +168,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/endfassungenCitizen/pdf",
      *     defaults={"title": "statements.final.own", "type": "finalCitizen"}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $procedure
@@ -214,7 +197,7 @@ class DemosPlanStatementController extends BaseController
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure, $itemsToExport);
 
         if ('' === $file->getContent()) {
-            throw new \RuntimeException('PDF-Export fehlgeschlagen');
+            throw new RuntimeException('PDF-Export fehlgeschlagen');
         }
 
         // Bürger und Gäste bekommen den externen Namen angezeigt
@@ -242,11 +225,12 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/toeb",
      *     defaults={"templateName": "list_public"}
      * )
+     *
      * @DplanPermissions("area_statements_public")
      *
      * @return RedirectResponse|Response|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function otherCompaniesListAction(
         Request $request,
@@ -322,12 +306,13 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_submit",
      *     path="/verfahren/{procedure}/stellungnahmen/public/submit"
      * )
+     *
      * @DplanPermissions({"feature_new_statement", "area_statements_draft"})
      *
      * @param string $_route
      *
      * @throws MessageBagException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function submitPublicStatementAction(
         MapService $mapService,
@@ -583,6 +568,7 @@ class DemosPlanStatementController extends BaseController
      *      },
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @param string      $_route
@@ -590,7 +576,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function listAction(
         BrandingService $brandingService,
@@ -808,7 +794,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // add orga to be able to use short submission
             $templateVars['orga'] = $orgaHandler->getOrga($this->currentUser->getUser()->getOrganisationId());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // just go on
         }
 
@@ -845,13 +831,14 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_vote",
      *     path="/verfahren/{procedure}/stellungnahmen/public/{statementID}/vote"
      * )
+     *
      * @DplanPermissions("feature_statements_vote_may_vote")
      *
      * @param string $procedure Procedure Id
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function votePublicStatementAction(
         BrandingService $brandingService,
@@ -932,6 +919,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_like",
      *     path="/verfahren/{procedure}/stellungnahmen/public/{statementId}/vote/anonymous",
      * )
+     *
      * @DplanPermissions("feature_statements_like_may_like")
      *
      * @param string $procedure
@@ -939,7 +927,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function likePublicStatementAction(
         EventDispatcherPostInterface $eventDispatcherPost,
@@ -959,7 +947,7 @@ class DemosPlanStatementController extends BaseController
 
         try {
             $eventDispatcherPost->post($event);
-        } catch (CookieException|\Exception $e) {
+        } catch (CookieException|Exception $e) {
             return $response;
         }
 
@@ -988,7 +976,7 @@ class DemosPlanStatementController extends BaseController
      *
      * initially use area_demosplan, specific permissions are checked below
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @DplanPermissions("area_demosplan")
      */
@@ -1004,14 +992,14 @@ class DemosPlanStatementController extends BaseController
     ) {
         try {
             if (!$this->permissions->hasPermissionsetWrite()) {
-                throw new \Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
+                throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
 
             if (!\array_key_exists('action', $requestPost) || 'statementpublicnew' === !$requestPost['action']) {
-                throw new \Exception('cannot handle request');
+                throw new Exception('cannot handle request');
             }
 
             $this->logger->debug(
@@ -1063,7 +1051,7 @@ class DemosPlanStatementController extends BaseController
 
                 try {
                     $eventDispatcherPost->post($event);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     return $this->renderJson([], 100, false);
                 }
 
@@ -1126,7 +1114,7 @@ class DemosPlanStatementController extends BaseController
 
             // return result as JSON
             return $this->renderJson($responseBody);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleAjaxError($e);
         }
     }
@@ -1138,11 +1126,12 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_participation_published",
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}"
      * )
+     *
      * @DplanPermissions("area_statements_public_published_public")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function publicStatementDetailAction(
         StatementService $statementService,
@@ -1176,11 +1165,12 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/{statementID}/edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_statements_draft","feature_statements_draft_edit"})
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function editStatementAction(
         FileUploadService $fileUploadService,
@@ -1258,7 +1248,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function sendStatementAction(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
     {
@@ -1378,7 +1368,7 @@ class DemosPlanStatementController extends BaseController
                     'title'        => 'statements.send.per.email',
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -1393,6 +1383,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_versiondetail",
      *     path="/verfahren/{procedure}/stellungnahmen/{statementID}/version/{versionID}"
      * )
+     *
      * @DplanPermissions("feature_statements_draft_versions")
      *
      * @param string $procedure   ID of the Procedure
@@ -1401,7 +1392,7 @@ class DemosPlanStatementController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException|UserNotFoundException
-     * @throws \Exception
+     * @throws Exception
      */
     public function versionsOfStatementAction(
         Request $request,
@@ -1450,6 +1441,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}/publish",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * @param string $procedure
@@ -1496,6 +1488,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}/unpublish",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * Ziehe die Veröffentlichung der Stellungnahme für andere TöB zurück.
@@ -1548,6 +1541,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/rest/draftStatement/get/{procedureId}/{draftStatementId}",
      *     options={"expose": true})
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @param string $procedureId      Needed for initializing
@@ -1555,7 +1549,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getDraftStatementAjaxAction(DocumentHandler $documentHandler, Request $request, StatementHandler $statementHandler, string $procedureId, $draftStatementId)
     {
@@ -1582,6 +1576,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_get_count_internal",
      *     path="/rest/statement/count/{procedure}",
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @return JsonResponse
@@ -1608,7 +1603,7 @@ class DemosPlanStatementController extends BaseController
         $session = $request->getSession();
 
         if (null === $session) {
-            throw new \BadMethodCallException('Can not save draftListFilters, because the session is null');
+            throw new BadMethodCallException('Can not save draftListFilters, because the session is null');
         }
 
         $draftFilterList = $session->get('draftListFilters');
@@ -1682,12 +1677,12 @@ class DemosPlanStatementController extends BaseController
         $session = $request->getSession();
 
         if (null === $session) {
-            throw new \BadMethodCallException('Can not get draftListFilters, because the session is null');
+            throw new BadMethodCallException('Can not get draftListFilters, because the session is null');
         }
 
         $templateName = $request->get('templateName');
         if (null === $templateName) {
-            throw new \BadMethodCallException('Could not get templateName from Request. Therefore unable to resolve filters from session.');
+            throw new BadMethodCallException('Could not get templateName from Request. Therefore unable to resolve filters from session.');
         }
 
         $draftFilterList = $session->get('draftListFilters') ?? [];
@@ -1841,14 +1836,14 @@ class DemosPlanStatementController extends BaseController
      *
      * @return Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function createPdfDraftStatement($draftStatementList, $type, Procedure $procedure, $itemsToExport = null)
     {
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure->getId(), $itemsToExport);
 
         if ('' === $file->getContent()) {
-            throw new \Exception('PDF-Export fehlgeschlagen');
+            throw new Exception('PDF-Export fehlgeschlagen');
         }
 
         $filename = $procedure->getName().$file->getName();
@@ -1889,7 +1884,7 @@ class DemosPlanStatementController extends BaseController
                 $procedure,
                 $itemsToExport
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('exportStatementList failed: '.$e);
             $this->getMessageBag()->add('error', 'error.pdf.generation');
         }
@@ -1926,7 +1921,7 @@ class DemosPlanStatementController extends BaseController
                 'confirm',
                 $translator->trans('confirm.statement.deleted')
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.delete')
@@ -1949,7 +1944,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws MessageBagException
      */
     protected function releaseStatement($procedure, array $statementIds, $procedureArray)
@@ -1991,7 +1986,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function saveManualsort(Request $request, TranslatorInterface $translator, $_route, $procedure)
     {
@@ -2032,7 +2027,7 @@ class DemosPlanStatementController extends BaseController
      *
      * @return RedirectResponse
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -2123,7 +2118,7 @@ class DemosPlanStatementController extends BaseController
      * @return RedirectResponse
      *
      * @throws MessageBagException
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function submitStatement(
         Request $request,
@@ -2237,7 +2232,7 @@ class DemosPlanStatementController extends BaseController
                 }
             } catch (TimeoutException $e) {
                 $this->getMessageBag()->add('error', 'error.timeout');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->getMessageBag()->add('error', 'error.statements.marked.submitted');
                 $this->logger->warning("Error while submitting statements: $e");
             }
@@ -2255,7 +2250,7 @@ class DemosPlanStatementController extends BaseController
      * @param string $_route
      * @param string $procedure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function sendStatement(Request $request, TranslatorInterface $translator, $_route, $procedure): RedirectResponse
     {
@@ -2348,7 +2343,7 @@ class DemosPlanStatementController extends BaseController
     /**
      * @param string $procedure
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function submitPublicStatementPdfExportHandling(CurrentProcedureService $currentProcedureService, $procedure, DraftStatementHandler $draftStatementHandler, User $demosplanUser, ParameterBag $requestPost): array
     {
@@ -2479,7 +2474,7 @@ class DemosPlanStatementController extends BaseController
      *     options={"expose": true})
      *
      * @throws ProcedureNotFoundException
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions("area_admin_statement_list")
      */
@@ -2519,7 +2514,7 @@ class DemosPlanStatementController extends BaseController
      * )
      *
      * @throws ProcedureNotFoundException
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions({"feature_statements_import_excel"})
      */
@@ -2592,7 +2587,7 @@ class DemosPlanStatementController extends BaseController
                     $this->getMessageBag()->add('error', $error);
                 }
                 break;
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',

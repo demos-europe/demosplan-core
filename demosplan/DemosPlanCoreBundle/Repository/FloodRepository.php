@@ -10,9 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Flood;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
+use Exception;
+use UnexpectedValueException;
 
 class FloodRepository extends CoreRepository implements ImmutableArrayInterface, ImmutableObjectInterface
 {
@@ -31,7 +34,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
     /**
      * @return Flood[]|null
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function getAllOfIdentifier(?string $identifier, ?string $event): ?array
     {
@@ -46,7 +49,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -54,7 +57,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
             $entity = new Flood();
             $entity = $this->generateObjectValues($entity, $data);
             $this->addObject($entity);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Flood-Entity failed. Message: ', [$e]);
             throw $e;
         }
@@ -67,7 +70,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($entity)
     {
@@ -75,7 +78,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
             $manager = $this->getEntityManager();
             $manager->persist($entity);
             $manager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create Flood-Entity failed. Message: ', [$e]);
             throw $e;
         }
@@ -98,7 +101,7 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
             $query->getQuery()->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Could not delete Flood-Entry: ', [$e]);
         }
 
@@ -115,10 +118,10 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
             $query = $em->createQueryBuilder()
                 ->delete('FloodControl:Flood', 'f')
                 ->andWhere('f.expires < :now')
-                ->setParameter('now', new \DateTime('NOW'));
+                ->setParameter('now', new DateTime('NOW'));
 
             $query->getQuery()->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // do not use monolog as this function is called by maintenance task
             // this may lead to excessive logfile sizes
         }

@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
+use Exception;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FloodControlEventSubscriber implements EventSubscriberInterface
@@ -84,7 +85,7 @@ class FloodControlEventSubscriber implements EventSubscriberInterface
      * Perform Cleanup operations when the maintenance-service triggers
      * the dplan.maintenance event.
      *
-     * @throws \Exception $exception
+     * @throws Exception $exception
      */
     public function onMaintenance(AddonMaintenanceEvent $event): void
     {

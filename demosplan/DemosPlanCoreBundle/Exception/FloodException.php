@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-class FloodException extends \UnexpectedValueException
+use UnexpectedValueException;
+
+class FloodException extends UnexpectedValueException
 {
 }

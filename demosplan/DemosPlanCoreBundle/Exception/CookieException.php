@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-class CookieException extends \UnexpectedValueException
+use UnexpectedValueException;
+
+class CookieException extends UnexpectedValueException
 {
 }

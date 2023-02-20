@@ -10,12 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="plugin_flood")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FloodRepository")
  */
 class Flood extends CoreEntity implements UuidEntityInterface
@@ -24,8 +26,11 @@ class Flood extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="fid", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -45,15 +50,16 @@ class Flood extends CoreEntity implements UuidEntityInterface
     protected $identifier;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="create")
      */
     protected $created;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="expires", type="datetime", nullable=false)
      */
@@ -97,7 +103,7 @@ class Flood extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -105,7 +111,7 @@ class Flood extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $created
+     * @param DateTime $created
      */
     public function setCreated($created)
     {
@@ -113,7 +119,7 @@ class Flood extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getExpires()
     {
@@ -121,7 +127,7 @@ class Flood extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $expires
+     * @param DateTime $expires
      */
     public function setExpires($expires)
     {

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DateInterval;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -22,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
+use Exception;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Tightenco\Collect\Support\Collection;
@@ -248,7 +251,7 @@ class FloodControlService extends CoreService
         $entries = [];
         try {
             $entries = $this->floodRepository->getAllOfIdentifier($identifier, $floodEvent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('FloodControl: Could not get floodcontrol objects: ', [$e]);
         }
 
@@ -260,12 +263,12 @@ class FloodControlService extends CoreService
                 $flood = new Flood();
                 $flood->setEvent($floodEvent);
                 $flood->setIdentifier($identifier);
-                $expires = new \DateTime('now');
-                $expires->add(new \DateInterval('PT3600S'));
+                $expires = new DateTime('now');
+                $expires->add(new DateInterval('PT3600S'));
                 $flood->setExpires($expires);
                 $this->floodRepository->addObject($flood);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e instanceof IpFloodException) {
                 throw $e;
             }
