@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
@@ -64,6 +61,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection as IlluminateCollection;
+
+use function array_key_exists;
 
 class UserService extends CoreService
 {
@@ -1677,7 +1676,7 @@ class UserService extends CoreService
     {
         $allowedCharactersCount = count($allowedCharacters);
         $string = '';
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $position = random_int(1, $allowedCharactersCount);
             $string .= $allowedCharacters[$position - 1];
         }
