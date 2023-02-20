@@ -12,9 +12,9 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
+use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
+use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\plugins\FloodControl\Exception\HoneypotException;
-use demosplan\plugins\FloodControl\Logic\FloodControlService;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -10,11 +10,11 @@
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\plugins\FloodControl\Exception\CookieException;
-use demosplan\plugins\FloodControl\Exception\IpFloodException;
-use demosplan\plugins\FloodControl\Logic\FloodControlService;
+use demosplan\DemosPlanCoreBundle\Exception\CookieException;
+use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
+use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\FunctionalTestCase;
