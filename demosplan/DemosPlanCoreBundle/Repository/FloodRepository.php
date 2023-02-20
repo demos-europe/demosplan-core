@@ -96,9 +96,13 @@ class FloodRepository extends CoreRepository implements ImmutableArrayInterface,
                 ->setParameter('fid', $entityId);
 
             $query->getQuery()->execute();
+
+            return true;
         } catch (\Exception $e) {
             $this->logger->warning('Could not delete Flood-Entry: ', [$e]);
         }
+
+        return false;
     }
 
     /**
