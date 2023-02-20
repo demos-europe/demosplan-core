@@ -46,21 +46,9 @@ class FloodControlService extends CoreService
     public const IP_FLOOD_THRESHOLD = 50;
 
     /**
-     * Time in seconds a user needs to need to fill out a form.
-     *
-     * @var int
-     */
-    public const HONEYPOT_TIMEOUT = 5;
-
-    /**
      * Cookie key to use for floodrelated tasks.
      */
     public const COOKIE_KEY = 'dplan-flood';
-
-    /**
-     * @var int
-     */
-    protected $honeypotTimeout;
 
     /**
      * @var int
@@ -79,11 +67,9 @@ class FloodControlService extends CoreService
         FloodRepository $floodRepository,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        $honeypotTimeout = self::HONEYPOT_TIMEOUT,
         $ipFloodThreshold = self::IP_FLOOD_THRESHOLD
     ) {
         $this->floodRepository = $floodRepository;
-        $this->honeypotTimeout = $honeypotTimeout;
         $this->ipFloodThreshold = $ipFloodThreshold;
         $this->globalConfig = $globalConfig;
         $this->twig = $twig;
@@ -116,17 +102,13 @@ class FloodControlService extends CoreService
         if ($request->request->has('r_loadtime')) {
             $loadtime = $request->request->get('r_loadtime');
             $totaltime = time() - $loadtime;
-            if ($totaltime < $this->honeypotTimeout) {
+            if ($totaltime < $this->globalConfig->getHoneypotTimeout()) {
                 $this->getLogger()->info('FloodControl: Honeypot form has been submitted too fast');
-                // @todo how to register translations from plugins?
-                try {
-                    $this->messageBag->add(
-                        'warning',
-                        'Das Formular wurde zu schnell abgeschickt.
-                        Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
-                    );
-                } catch (MessageBagException $e) {
-                }
+                $this->messageBag->add(
+                    'warning',
+                    'Das Formular wurde zu schnell abgeschickt.
+                    Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
+                );
                 throw new HoneypotException('Honeypot form has been submitted too fast');
             }
         } else {

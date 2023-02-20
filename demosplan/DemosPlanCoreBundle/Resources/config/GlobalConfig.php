@@ -296,6 +296,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @var bool
      */
     protected $honeypotDisabled;
+    protected int $honeypotTimeout;
     /**
      * @var array
      */
@@ -714,6 +715,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
+        $this->honeypotTimeout = $parameterBag->get('honeypot_timeout');
 
         // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
@@ -1156,6 +1158,10 @@ class GlobalConfig implements GlobalConfigInterface
     public function isHoneypotDisabled(): bool
     {
         return filter_var($this->honeypotDisabled, FILTER_VALIDATE_BOOLEAN);
+    }
+    public function getHoneypotTimeout(): int
+    {
+        return $this->honeypotTimeout;
     }
 
     public function getMaintenanceKey(): string

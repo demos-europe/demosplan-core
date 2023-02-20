@@ -340,6 +340,8 @@ parameters:
 
     # disable honeypot check
     honeypot_disabled: false
+    # minimum time needed to fill out form fields to slow down brute force
+    honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
 
