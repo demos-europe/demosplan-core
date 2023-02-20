@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use function array_key_exists;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -66,6 +67,8 @@ use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 class UserService extends CoreService
 {
+    private const HEX_CHARS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
     /**
      * The hash function that is being used to generate password hashes.
      */
@@ -1002,6 +1005,19 @@ class UserService extends CoreService
         return $roles;
     }
 
+    public function createMasterUserForCustomer(string $userLogin, Customer $customer): User
+    {
+        return $this->userRepository->add([
+            'firstname'    => '',
+            'lastname'     => '',
+            'email'        => $userLogin,
+            'login'        => $userLogin,
+            'password'     => $this->generateRandomString(128, self::HEX_CHARS),
+            'customer'     => $customer,
+            'roles'        => [Role::CUSTOMER_MASTER_USER],
+        ]);
+    }
+
     /**
      * @return array<int, string>
      */
@@ -1644,5 +1660,28 @@ class UserService extends CoreService
     protected function isNotDefaultDepartment(Department $department): bool
     {
         return 'Keine Abteilung' !== $department->getName();
+    }
+
+    /**
+     * Generates a cryptographically random string.
+     *
+     * The implementation is probably slower and more greedy for randomness than necessary, but as
+     * it is intended for the creation of customers on container-build it is seldom used and
+     * performance is not a concern.
+     *
+     * @param list<string> $allowedCharacters
+     *
+     * @throws Exception
+     */
+    private function generateRandomString(int $length, array $allowedCharacters): string
+    {
+        $allowedCharactersCount = count($allowedCharacters);
+        $string = '';
+        for ($i = 0; $i < $length; $i++) {
+            $position = random_int(1, $allowedCharactersCount);
+            $string .= $allowedCharacters[$position - 1];
+        }
+
+        return $string;
     }
 }

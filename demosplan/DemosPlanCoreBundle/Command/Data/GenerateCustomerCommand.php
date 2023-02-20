@@ -13,15 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\CustomerConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,15 +25,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Yaml\Yaml;
 
 use function in_array;
 use function is_string;
 
 class GenerateCustomerCommand extends CoreCommand
 {
-    private const CONFIG_OPTION = 'config';
+    private const OPTION_NAME = 'name';
+    private const OPTION_SUBDOMAIN = 'subdomain';
 
     protected static $defaultName = 'dplan:data:generate-customer';
     protected static $defaultDescription = 'Creates a new customer';
@@ -55,37 +50,32 @@ class GenerateCustomerCommand extends CoreCommand
     private array $reservedSubdomains;
 
     public function __construct(
-        private readonly CustomerRepository $customerRepository,
-        private readonly ValidatorInterface $validator,
+        private readonly CustomerService $customerService,
+        private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag,
         string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
-
-        $existingCustomers = $customerRepository->findAll();
-
-        $this->reservedNames = array_map(
-            static fn (Customer $customer): string => $customer->getName(),
-            $existingCustomers
-        );
-        $this->reservedSubdomains = array_map(
-            static fn (Customer $customer): string => $customer->getSubdomain(),
-            $existingCustomers
-        );
+        $reservedCustomers = $this->customerService->getReservedCustomerNamesAndSubdomains();
+        $this->reservedNames = array_column($reservedCustomers, 0);
+        $this->reservedSubdomains = array_column($reservedCustomers, 1);
     }
 
     protected function configure(): void
     {
         parent::configure();
-
-        $this->addUsage('foobar'); // FIXME
-
         $this->addOption(
-            self::CONFIG_OPTION,
-            'c',
+            self::OPTION_NAME,
+            'i',
             InputOption::VALUE_REQUIRED,
-            'Provide a YAML config file containing properties to be set in the generated customer. If a config is given it must contain the required parameters (\'name\' and \'subdomain\'). If no config is given the parameters will be asked interactively.'
+            'The name of the customer to be created. If omitted it will be asked interactively.'
+        );
+        $this->addOption(
+            self::OPTION_SUBDOMAIN,
+            's',
+            InputOption::VALUE_REQUIRED,
+            'The subdomain of the customer to be created. If omitted it will be asked interactively.'
         );
     }
 
@@ -94,24 +84,20 @@ class GenerateCustomerCommand extends CoreCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
-        $config = $this->getConfig($input);
-        if (null === $config) {
+        $name = $input->getOption(self::OPTION_NAME);
+        if (null === $name) {
             $name = $this->askCustomerName($input, $output);
-            $subdomain = $this->askSubdomain($input, $output);
-        } else {
-            $name = $config[CustomerConfiguration::NAME];
-            $subdomain = $config[CustomerConfiguration::SUBDOMAIN];
         }
 
-        $customer = new Customer($name, $subdomain);
-        $violations = $this->validator->validate($customer);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
+        $subdomain = $input->getOption(self::OPTION_SUBDOMAIN);
+        if (null === $subdomain) {
+            $subdomain = $this->askSubdomain($input, $output);
         }
 
         try {
             // create customer
-            $this->customerRepository->updateObject($customer);
+            $customer = $this->customerService->createCustomer($name, $subdomain);
+            $this->entityManager->flush();
 
             $output->writeln(
                 "Customer '$name' was successfully created.",
@@ -133,14 +119,7 @@ class GenerateCustomerCommand extends CoreCommand
     private function askCustomerName(InputInterface $input, OutputInterface $output): string
     {
         $questionName = new Question('Please enter the full name of the customer:', 'default');
-
-        $questionName->setValidator(function ($answer) {
-            if (in_array($answer, $this->reservedNames, true)) {
-                throw new EntryAlreadyExistsException('This name is already used as a customer, please choose another one.');
-            }
-
-            return $answer;
-        });
+        $questionName->setValidator([$this, 'assertFreeName']);
 
         return $this->helper->ask($input, $output, $questionName);
     }
@@ -148,44 +127,34 @@ class GenerateCustomerCommand extends CoreCommand
     private function askSubdomain(InputInterface $input, OutputInterface $output): string
     {
         $questionSubdomain = new Question('Please enter the Subdomain of the customer:', 'default');
-
-        $questionSubdomain->setValidator(function ($answer) {
-            if (in_array($answer, $this->reservedSubdomains, true)) {
-                throw new EntryAlreadyExistsException('This subdomain is already used as a customer, please choose another one.');
-            }
-
-            return $answer;
-        });
+        $questionSubdomain->setValidator([$this, 'assertFreeSubdomain']);
 
         return $this->helper->ask($input, $output, $questionSubdomain);
     }
 
-    /**
-     * Loads, parses and validates the config if it is given as option in the input.
-     *
-     * @return array<string, mixed>|null the loaded config as associative array or `null` if no config path was given
-     *
-     * @throws Exception if the config path or config content is invalid
-     */
-    private function getConfig(InputInterface $input): ?array
+    public function assertFreeName(mixed $name): string
     {
-        $configPath = $input->getOption(self::CONFIG_OPTION);
-        if (null === $configPath) {
-            return null;
+        if (!is_string($name)) {
+            throw new InvalidArgumentException('Customer name must be a string.');
         }
 
-        if (!is_string($configPath)) {
-            $type = gettype($configPath);
-            throw new InvalidArgumentException("Value of 'config' option must be a string, '$type' given.");
+        if (in_array($name, $this->reservedNames, true)) {
+            throw new EntryAlreadyExistsException('This name is already used as a customer, please choose another one.');
         }
 
-        $config = Yaml::parseFile(DemosPlanPath::getRootPath($configPath));
-        $processor = new Processor();
-        $databaseConfiguration = new CustomerConfiguration(
-            $this->reservedNames,
-            $this->reservedSubdomains
-        );
+        return $name;
+    }
 
-        return $processor->processConfiguration($databaseConfiguration, [$config]);
+    public function assertFreeSubdomain(mixed $subdomain): string
+    {
+        if (!is_string($subdomain)) {
+            throw new InvalidArgumentException('Customer subdomain must be a string.');
+        }
+
+        if (in_array($subdomain, $this->reservedSubdomains, true)) {
+            throw new EntryAlreadyExistsException('This subdomain is already used as a customer, please choose another one.');
+        }
+
+        return $subdomain;
     }
 }

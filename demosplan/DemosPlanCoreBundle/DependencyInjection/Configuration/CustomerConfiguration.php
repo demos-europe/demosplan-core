@@ -17,8 +17,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class CustomerConfiguration implements ConfigurationInterface
 {
-    public const NAME = 'name';
-    public const SUBDOMAIN = 'subdomain';
+    public const NAME = 'customerName';
+    public const SUBDOMAIN = 'customerSubdomain';
+    public const USER_LOGIN = 'userLogin';
 
     /**
      * @param list<string> $reservedNames
@@ -51,6 +52,8 @@ class CustomerConfiguration implements ConfigurationInterface
                         ->thenInvalid('Customer subdomain is already in use.')
                     ->end()
                 ->end()
+                ->scalarNode(self::USER_LOGIN)
+                    ->cannotBeEmpty()
             ->end();
 
         return $treeBuilder;

@@ -14,14 +14,13 @@ namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use InvalidArgumentException;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
 
 class GenerateCustomerCommandTest extends FunctionalTestCase
 {
+    use CommandTesterTrait;
+
     public function testSuccessfulExecute(): void
     {
         $commandTester = $this->getCommandTester();
@@ -63,46 +62,29 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
         static::assertStringContainsString('This name is already used as a customer', $output);
     }
 
-    public function testWithConfig(): void
+    /**
+     * @dataProvider getCustomerTestData()
+     */
+    public function testWithNameAndSubdomain(string $customerName, string $customerSubdomain): void
     {
         $commandTester = $this->getCommandTester();
-        $commandTester->setInputs([]);
-
-        $customers = $this->getCustomers('foobar');
+        $customers = $this->getCustomers($customerSubdomain);
         self::assertEmpty($customers);
 
-        $commandTester->execute(['--config' => 'tests/backend/core/Core/Functional/res/customerConfig1.yaml']);
+        $commandTester->execute([
+            '--name'      => $customerName,
+            '--subdomain' => $customerSubdomain,
+        ]);
 
-        $customers = $this->getCustomers('foobar');
-        self::assertNotEmpty($customers);
+        $customers = $this->getCustomers($customerSubdomain);
+        self::assertCount(1, $customers);
     }
 
-    public function testWithMissingConfig(): void
-    {
-        $this->expectException(InvalidOptionException::class);
-        $commandTester = $this->getCommandTester();
-        $commandTester->execute(['--config' => null]);
-    }
-
-    /**
-     * @dataProvider getInvalidConfigs()
-     */
-    public function testWithInvalidConfig(mixed $config): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $commandTester = $this->getCommandTester();
-        $commandTester->execute(['--config' => $config]);
-    }
-
-    /**
-     * @return list<array{0: mixed}>
-     */
-    public function getInvalidConfigs(): array
+    public function getCustomerTestData()
     {
         return [
-            [1],
-            [0],
-            [-1],
+            ['foobar', 'foobar'],
+            ['Foobar', 'foobar'],
         ];
     }
 
@@ -122,11 +104,6 @@ class GenerateCustomerCommandTest extends FunctionalTestCase
 
     private function getCommandTester(): CommandTester
     {
-        $kernel = self::bootKernel();
-        $application = new Application($kernel);
-
-        $command = $application->find('dplan:data:generate-customer');
-
-        return new CommandTester($command);
+        return $this->getCommandTesterByName(self::bootKernel(), 'dplan:data:generate-customer');
     }
 }

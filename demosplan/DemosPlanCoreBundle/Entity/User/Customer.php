@@ -327,9 +327,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, UserRoleInCustomer>|UserRoleInCustomer[]
+     * @return Collection<int, UserRoleInCustomer>
      */
-    public function getUserRoles()
+    public function getUserRoles(): Collection
     {
         return $this->userRoles;
     }
