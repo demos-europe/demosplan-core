@@ -1184,7 +1184,7 @@ class StatementFragmentService extends CoreService
                 // special format:
                 // tags:
                 $decoded = Json::decodeToMatchingType($latestVersion['tagAndTopicNames']);
-                $topics = $decoded ?? [];
+                $topics = is_array($decoded) ? $decoded : [];
                 $tagsOfVersion = \collect([]);
                 foreach ($topics as $topicTitle => $tags) {
                     $newTag = \collect([]);
@@ -1199,7 +1199,7 @@ class StatementFragmentService extends CoreService
                 // counties:
                 $result[$key]['counties'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['countyNamesAsJson']);
-                $countyNames = $decoded ?? [];
+                $countyNames = is_array($decoded) ? $decoded : [];
                 foreach ($countyNames as $countyName) {
                     $result[$key]['counties'][]['name'] = $countyName;
                 }
@@ -1207,7 +1207,7 @@ class StatementFragmentService extends CoreService
                 // municipalities:
                 $result[$key]['municipalities'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['municipalityNamesAsJson']);
-                $municipalityNames = $decoded ?? [];
+                $municipalityNames = is_array($decoded) ? $decoded : [];
                 foreach ($municipalityNames as $municipalityName) {
                     $result[$key]['municipalities'][]['name'] = $municipalityName;
                 }
@@ -1215,7 +1215,7 @@ class StatementFragmentService extends CoreService
                 // priorityAreas:
                 $result[$key]['priorityAreas'] = [];
                 $decoded = Json::decodeToMatchingType($latestVersion['priorityAreaNamesAsJson']);
-                $priorityAreaKeys = $decoded ?? [];
+                $priorityAreaKeys = is_array($decoded) ? $decoded : [];
                 foreach ($priorityAreaKeys as $priorityAreaKey) {
                     $result[$key]['priorityAreas'][]['key'] = $priorityAreaKey;
                 }

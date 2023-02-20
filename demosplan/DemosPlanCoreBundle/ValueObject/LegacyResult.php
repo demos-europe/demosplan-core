@@ -55,7 +55,7 @@ class LegacyResult extends ValueObject
         $this->filterSet = $filterSet;
         $this->sortingSet = $sortingSet;
         $this->total = $total;
-        $this->search = $search ?? '';
+        $this->search = $search;
     }
 
     public function toArray(): array

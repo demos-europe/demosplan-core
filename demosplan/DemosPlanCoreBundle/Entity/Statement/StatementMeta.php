@@ -307,7 +307,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     public function getSubmitLastName(): string
     {
         $pieces = explode(' ', $this->submitName);
-        if (is_array($pieces) && !empty($pieces)) {
+        if (1 !== count($pieces)) {
             return $pieces[count($pieces) - 1];
         }
 
@@ -387,7 +387,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     public function getCaseWorkerLastName()
     {
         $pieces = explode(' ', $this->caseWorkerName);
-        if (is_array($pieces) && !empty($pieces)) {
+        if (1 !== count($pieces)) {
             return $pieces[count($pieces) - 1];
         }
 
