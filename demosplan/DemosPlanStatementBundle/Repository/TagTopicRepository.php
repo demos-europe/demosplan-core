@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 
 class TagTopicRepository extends CoreRepository implements ObjectInterface
 {
@@ -30,7 +31,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get TagTopic failed: ', [$e]);
 
             return null;
@@ -44,7 +45,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
      *
      * @return TagTopic
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($tagTopic)
     {
@@ -52,7 +53,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
             $em = $this->getEntityManager();
             $em->persist($tagTopic);
             $em->flush($tagTopic);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add TagTopic failed: ', [$e]);
 
             throw $e;
@@ -73,7 +74,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
         try {
             $this->getEntityManager()->persist($tagTopic);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update TagTopic failed: ', [$e]);
 
             return false;
@@ -87,9 +88,9 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -116,7 +117,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete TagTopic failed: ', [$e]);
         }
 
@@ -162,7 +163,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
      * @param string    $sourceProcedureId
      * @param Procedure $newProcedure
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @internal param $newProcedureId
      */
@@ -189,7 +190,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
             }
 
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Copy tags failed. Message: ', [$e]);
             throw $e;
         }

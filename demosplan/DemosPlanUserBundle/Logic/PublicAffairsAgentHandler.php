@@ -69,7 +69,7 @@ class PublicAffairsAgentHandler extends CoreHandler
         $expectedType = 'publicAffairsAgent';
         $actualType = $resourceIdentifierObject->getType();
         if ($expectedType !== $actualType) {
-            throw new InvalidArgumentException("expected ${expectedType} for all resourceIdentifierObjects, got ${actualType}");
+            throw new InvalidArgumentException("expected {$expectedType} for all resourceIdentifierObjects, got {$actualType}");
         }
 
         return $this->getFromId($resourceIdentifierObject->getId());

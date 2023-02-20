@@ -88,6 +88,12 @@ export default {
       this.drawingData = drawingData
       this.$refs.mapModal.toggle()
     }
+  },
+
+  mounted() {
+    this.$root.$on('toggleMapModal', (drawingData) => {
+      this.toggleModal(drawingData)
+    })
   }
 }
 </script>

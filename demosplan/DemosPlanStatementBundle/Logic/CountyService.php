@@ -56,6 +56,7 @@ class CountyService extends CoreService
             return $this->getCounties();
         } catch (Exception $e) {
             $this->logger->warning('Exception on getting all counties of current customer', ['exception' => $e]);
+
             return [];
         }
     }

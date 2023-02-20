@@ -45,7 +45,7 @@
         "dompdf/dompdf": "^2.0.1",
         "efrane/console-additions": "^0.6.1",
         "efrane/tus-bundle": "^0.5",
-        "egulias/email-validator": "^3.1",
+        "egulias/email-validator": "^4.0",
         "enqueue/elastica-bundle": "^0.13",
         "enqueue/enqueue-bundle": "^0.10",
         "enqueue/fs": "^0.10",

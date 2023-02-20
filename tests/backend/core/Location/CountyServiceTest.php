@@ -55,7 +55,7 @@ class CountyServiceTest extends FunctionalTestCase
         static::assertContains($testCounty1, $result);
         static::assertContains($testCounty2, $result);
 
-        //test sorting
+        // test sorting
         static::assertSame('Kreis 1', $result[0]->getName());
         static::assertSame('Kreis 2', $result[1]->getName());
         static::assertSame('Nordfriesland', $result[2]->getName());

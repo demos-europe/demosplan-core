@@ -17,6 +17,7 @@ use EDT\PathBuilding\End;
 
 /**
  * @template T of object
+ *
  * @template-extends DplanResourceType<T>
  *
  * @property-read End              $ident

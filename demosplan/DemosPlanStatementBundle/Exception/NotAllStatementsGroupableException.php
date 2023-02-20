@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class NotAllStatementsGroupableException extends \Exception
+use Exception;
+
+class NotAllStatementsGroupableException extends Exception
 {
     public static function create(): NotAllStatementsGroupableException
     {

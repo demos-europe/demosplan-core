@@ -10,14 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Psr\Log\LoggerInterface;
-use ReflectionException;
-use Twig\Environment;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Exception;
+use Psr\Log\LoggerInterface;
+use ReflectionException;
+use Twig\Environment;
 
 class ServiceOutput
 {
@@ -81,7 +82,7 @@ class ServiceOutput
      * @param int|null    $limit
      * @param array       $roles
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     // @improve T24347
     public function newsListHandler($procedure, $manualSortScope, $limit = null, $roles = []): array
@@ -115,7 +116,7 @@ class ServiceOutput
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generatePdf($procedure, $manualSortScope, $title)
     {
@@ -141,7 +142,7 @@ class ServiceOutput
             ]
         );
 
-        //Generiere das PDF
+        // Generiere das PDF
         // Gibt es in den News Bilder?
         $pictures = [];
         $i = 0;
@@ -157,7 +158,7 @@ class ServiceOutput
         }
         $this->logger->debug('Send Content to tex2pdf consumer: '.DemosPlanTools::varExport($content, true));
 
-        //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
         $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content), $pictures);
         $pdf = base64_decode($response);
 

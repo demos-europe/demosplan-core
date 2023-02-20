@@ -14,16 +14,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DateInterval;
 use DateTime;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -37,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
@@ -47,6 +39,14 @@ use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class StatementCopier extends CoreService
 {
@@ -168,7 +168,7 @@ class StatementCopier extends CoreService
         $doctrineConnection->beginTransaction();
 
         // 1. Copy related Original Statement
-        //handle procedure-unique internID:
+        // handle procedure-unique internID:
         $internIdIsUnique = $this->statementService->isInternIdUniqueForProcedure(
             $sourceStatement->getInternId(),
             $targetProcedure->getId()
@@ -179,7 +179,7 @@ class StatementCopier extends CoreService
             $internIdToSet = null;
         }
 
-        //Includes new ExternId:
+        // Includes new ExternId:
         $copiedOriginalStatement = $this->statementRepository->copyOriginalStatement(
             $sourceStatement->getOriginal(),
             $targetProcedure,
@@ -203,9 +203,9 @@ class StatementCopier extends CoreService
         $copiedStatement->setSubmit($sourceStatement->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $sourceStatement->getMeta();
         $copiedStatement->setMeta($newStatementMeta);
-        //detach from Placeholder
+        // detach from Placeholder
         $copiedStatement->setPlaceholderStatement(null);
-        //statement to copy should never have a related moved statement!
+        // statement to copy should never have a related moved statement!
         $copiedStatement->setMovedStatement(null);
 
         $copiedStatement->setText($sourceStatement->getText());
@@ -263,7 +263,7 @@ class StatementCopier extends CoreService
         $copiedStatement->setDocument(null);
         $copiedStatement->setParagraph(null);
 
-        //is it reasonable to copy children too?
+        // is it reasonable to copy children too?
         $copiedStatement->setChildren(null);
 
         // remove all tags, because procedure specific -> impossible to keep:
@@ -286,7 +286,7 @@ class StatementCopier extends CoreService
         // explicitly call getStatement to get updated files
         $addedStatement = $this->statementService->getStatement($copiedStatement->getId());
 
-        //copy in the end to avoid doctrine error of not existing related statement
+        // copy in the end to avoid doctrine error of not existing related statement
         $this->statementFragmentService->copyStatementFragments(
             $sourceStatement->getFragments(),
             $addedStatement,
@@ -400,7 +400,7 @@ class StatementCopier extends CoreService
      */
     private function copyStatementFiles(Statement $copiedStatement, Statement $statementToCopy, string $targetProcedureId): void
     {
-        //ensure loading files of statement by getting statement via getStatement(), because this way the realted Files will be loaded.
+        // ensure loading files of statement by getting statement via getStatement(), because this way the realted Files will be loaded.
         $relatedFiles = $this->fileService->getEntityFileString(
             Statement::class,
             $statementToCopy->getId(),
@@ -470,7 +470,7 @@ class StatementCopier extends CoreService
         );
         $this->reportService->persistAndFlushReportEntries($sourceReport);
 
-        //same entry for targetProcedure, for case of deleting  source procedure:
+        // same entry for targetProcedure, for case of deleting  source procedure:
         $targetReport = $this->statementReportEntryFactory->createStatementCopiedEssentialsEntry(
             $sourceStatement,
             $copiedStatement,
@@ -503,18 +503,18 @@ class StatementCopier extends CoreService
             return false;
         }
 
-        //do not check if feature_notification_citizen_statement_submitted is enabled
+        // do not check if feature_notification_citizen_statement_submitted is enabled
         if (!$this->permissions->hasPermission('feature_statement_copy_to_foreign_procedure')) {
             $currentUser = $this->currentUser->getUser();
             $hasPlannerRole = $currentUser->hasRole(Role::PRIVATE_PLANNING_AGENCY);
             $authorizedPlanningOffices = collect($targetProcedure->getPlanningOfficesIds());
 
-            //neither authorized by ownership nor by planningagency?
+            // neither authorized by ownership nor by planningagency?
             if ($sourceProcedure->getOrgaId() !== $targetProcedure->getOrgaId()
                 && ($hasPlannerRole && !$authorizedPlanningOffices->containsStrict(
-                        $currentUser->getOrganisationId()
-                    ))) {
-                //error because should already be handled
+                    $currentUser->getOrganisationId()
+                ))) {
+                // error because should already be handled
                 $this->messageBag->add('warning', 'warning.deny.copy.statement.to.foreign.procedure');
                 $this->getLogger()->warning(
                     'Cant copy Statement: '.$statement->getExternId(
@@ -594,7 +594,7 @@ class StatementCopier extends CoreService
             $newStatement->setSubmit($statement->getSubmitObject()->add(new DateInterval('PT1S')));
             $newStatementMeta = clone $statement->getMeta();
             $newStatement->setMeta($newStatementMeta);
-            //remove direct reference to placeholderStatement:
+            // remove direct reference to placeholderStatement:
             $newStatement->setPlaceholderStatement(null);
             // copy attachments
             $originalAttachments = $statement->getAttachments();
@@ -609,8 +609,8 @@ class StatementCopier extends CoreService
                 $newStatement->setOriginal($statement);
             }
 
-            //T15852 + T14880:
-            //in each case reset public verified to ensure FP has to check each new statement
+            // T15852 + T14880:
+            // in each case reset public verified to ensure FP has to check each new statement
             if (!$newStatement->isManual() && in_array($newStatement->getPublicVerified(), [
                     Statement::PUBLICATION_APPROVED,
                     Statement::PUBLICATION_REJECTED,
@@ -706,7 +706,7 @@ class StatementCopier extends CoreService
         bool $ignoreCluster = false,
         bool $ignoreReviewer = false
     ): bool {
-        //check here for clustermember instead for cluster flag, because on create new cluster a statement will be created, marked as cluster and  have to be copied.
+        // check here for clustermember instead for cluster flag, because on create new cluster a statement will be created, marked as cluster and  have to be copied.
         if (false === $ignoreCluster && $statement->isClusterStatement()) {
             $this->messageBag->add(
                 'warning',
@@ -721,13 +721,13 @@ class StatementCopier extends CoreService
             throw $exception;
         }
 
-        //T7137: avoid copy Statement if statement or fragments are not claimed by current user
+        // T7137: avoid copy Statement if statement or fragments are not claimed by current user
         // or fragments are assigned to orga
         if (true === $this->permissions->hasPermission('feature_statement_assignment')) {
             // check for claim of statement
             if (!$this->assignService->isStatementObjectAssignedToCurrentUser($statement)
                 && null !== $statement->getAssignee()) {
-                //stn kann nicht kopiert werden, weil statement nicht von dem current user geclaimed ist
+                // stn kann nicht kopiert werden, weil statement nicht von dem current user geclaimed ist
                 $this->messageBag->add(
                     'warning',
                     'statement.copy.not.claimed.by.current.user',
@@ -739,7 +739,7 @@ class StatementCopier extends CoreService
 
             // check for claim of fragments of statement
             if (!$this->statementFragmentService->areAllFragmentsClaimedByCurrentUser($statement->getId())) {
-                //stn kann nicht copiert werden, weil datensätze nicht alle vom current user claimed sind!
+                // stn kann nicht copiert werden, weil datensätze nicht alle vom current user claimed sind!
                 $this->messageBag->add(
                     'warning',
                     'statement.copy.fragments.not.claimed.by.current.user',

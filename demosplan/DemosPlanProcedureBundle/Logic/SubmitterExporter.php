@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Export\XlsxExporter;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tightenco\Collect\Support\Collection;
 
@@ -57,10 +58,10 @@ class SubmitterExporter extends XlsxExporter
         $sheet->setCellValue('A1', $this->translator->trans('name'));
         $sheet->setCellValue('B1', $this->translator->trans('organisation'));
         $sheet->setCellValue('C1', $this->translator->trans('department'));
-        $sheet->setCellValue('D1', $this->translator->trans('postalcode'));
-        $sheet->setCellValue('E1', $this->translator->trans('city'));
-        $sheet->setCellValue('F1', $this->translator->trans('street'));
-        $sheet->setCellValue('G1', $this->translator->trans('street.number'));
+        $sheet->setCellValue('D1', $this->translator->trans('street'));
+        $sheet->setCellValue('E1', $this->translator->trans('street.number'));
+        $sheet->setCellValue('F1', $this->translator->trans('postalcode'));
+        $sheet->setCellValue('G1', $this->translator->trans('city'));
         $sheet->setCellValue('H1', $this->translator->trans('email'));
         $sheet->setCellValue('I1', $this->translator->trans('internId.plural'));
         $sheet->setCellValue('J1', $this->translator->trans('id.plural'));
@@ -77,10 +78,10 @@ class SubmitterExporter extends XlsxExporter
             $this->createCellValue('A', $offset, 'submitterName', $statementGroup);
             $this->createCellValue('B', $offset, 'organisationName', $statementGroup);
             $this->createCellValue('C', $offset, 'departmentName', $statementGroup);
-            $this->createCellValue('D', $offset, 'organisationPostalCode', $statementGroup);
-            $this->createCellValue('E', $offset, 'organisationCity', $statementGroup);
-            $this->createCellValue('F', $offset, 'street', $statementGroup);
-            $this->createCellValue('G', $offset, 'houseNumber', $statementGroup);
+            $this->createCellValue('D', $offset, 'street', $statementGroup);
+            $this->createCellValue('E', $offset, 'houseNumber', $statementGroup);
+            $this->createCellValue('F', $offset, 'organisationPostalCode', $statementGroup);
+            $this->createCellValue('G', $offset, 'organisationCity', $statementGroup);
             $this->createCellValue('H', $offset, 'emailAddress', $statementGroup);
             $this->createCellValue('I', $offset, 'internId', $statementGroup);
             $this->createCellValue('J', $offset, 'externId', $statementGroup);
@@ -91,9 +92,15 @@ class SubmitterExporter extends XlsxExporter
     private function setDataFormat(): void
     {
         $sheet = $this->spreadsheet->getActiveSheet();
-
-        $sheet->getStyle('1:1')->getFont()->setBold(true);
         $sheet->getDefaultColumnDimension()->setWidth(20);
+        $sheet->getStyle('1:1')->getFont()->setBold(true);
+        $sheet->getStyle('E:F')
+            ->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getColumnDimension('E')
+            ->setWidth(20);
+        $sheet->getColumnDimension('F')
+            ->setWidth(20);
     }
 
     /**
@@ -132,9 +139,9 @@ class SubmitterExporter extends XlsxExporter
                 .$statement->getMeta()->getHouseNumber()
                 .$statement->getMeta()->getSubmitName();
 
-            //do not group in case of different location data are given
+            // do not group in case of different location data are given
             if ('' === $statement->getOrgaPostalCode() || '' === $statement->getOrgaCity() || '' === $statement->getOrgaStreet()) {
-                $key .= $statement->getId(); //just add the ID to avoid grouping but keep key for sorting alphabetically
+                $key .= $statement->getId(); // just add the ID to avoid grouping but keep key for sorting alphabetically
             }
 
             $organisationName = '';

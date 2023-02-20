@@ -34,7 +34,6 @@ class SurveyController extends BaseController
      *     name="dplan_survey_new",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/neu")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -86,7 +85,6 @@ class SurveyController extends BaseController
      *     name="dplan_survey_create",
      *     methods="POST",
      *     path="/verfahren/{procedureId}/umfrage/create")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -131,7 +129,6 @@ class SurveyController extends BaseController
      *     name="dplan_survey_edit",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}/edit")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -173,7 +170,6 @@ class SurveyController extends BaseController
      *     name="dplan_survey_update",
      *     methods="POST",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}/update")
-     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -215,7 +211,6 @@ class SurveyController extends BaseController
      *     name="dplan_survey_show",
      *     methods="GET",
      *     path="/verfahren/{procedureId}/umfrage/{surveyId}")
-     *
      * @DplanPermissions("area_survey")
      *
      * @throws MessageBagException

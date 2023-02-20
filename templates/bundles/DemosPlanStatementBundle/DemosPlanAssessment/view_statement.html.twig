@@ -1,5 +1,12 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
+{% set sendFinalEmail = true %}
+{% if templateVars.table.statement.feedback == 'snailmail' %}
+  {% if templateVars.table.statement.votes is empty %}
+    {% set sendFinalEmail = false %}
+  {% endif %}
+{% endif %}
+
 {% set statement = templateVars.table.statement %}
 {% set procedure = templateVars.table.procedure.id %}
 
@@ -305,7 +312,7 @@
                                     {{ "author.misc"|trans }}
                                 </span><!--
                              --><span class="layout__item u-5-of-8">
-                                    {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+                                    {% if sendFinalEmail == false %}
                                         {{ "statement.final.send.postal"|trans }}<br>
                                     {% endif %}
                                     {{ statement.meta.orgaEmail|default('----') }}

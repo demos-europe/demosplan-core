@@ -14,9 +14,6 @@ namespace Tests\Core\Statement\Functional;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Symfony\Component\Finder\SplFileInfo;
-use Tests\Base\FunctionalTestCase;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -27,6 +24,9 @@ use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Symfony\Component\Finder\SplFileInfo;
+use Tests\Base\FunctionalTestCase;
 
 class StatementExcelImporterTest extends FunctionalTestCase
 {
@@ -60,7 +60,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
         $this->setProcedureAndLogin();
 
         $testFile = $this->getFileReference('statements_as_xlsx_wrong_worksheetName');
-        //hack to access modified file:
+        // hack to access modified file:
         $fileInfo = new SplFileInfo(
             $testFile->getPath().'/'.$testFile->getHash().'.xlsx',
             '',
@@ -91,7 +91,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
         $generatedStatements = $this->sut->getGeneratedStatements();
         static::assertCount(4, $generatedStatements);
 
-        //because of no persisting or flushing, there should be the same amount of Statements in the Database
+        // because of no persisting or flushing, there should be the same amount of Statements in the Database
         static::assertCount($numberOfStatementsBefore, $this->getEntries(Statement::class));
         static::assertCount($numberOfStatementMetasBefore, $this->getEntries(StatementMeta::class));
         $sheetCounter = 0;
@@ -120,7 +120,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
             'E-Mail'              => 'my@email.address',
             'PLZ'                 => 15645,
             'Ort'                 => 'mein Ort',
-            'Einreichungsdatum'   => '03:05:1999', //invalid DateFormat
+            'Einreichungsdatum'   => '03:05:1999', // invalid DateFormat
             'Verfassungsdatum'    => '03/05/1999',
             'Art der Einreichung' => 'E-Mail',
             'Eingangsnummer'      => 'ui788',
@@ -155,7 +155,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
         $generatedStatements = $this->sut->getGeneratedStatements();
         static::assertCount(4, $generatedStatements);
 
-        //because of no persisting or flushing, there should be the same amount of Statements in the Database
+        // because of no persisting or flushing, there should be the same amount of Statements in the Database
         static::assertCount($numberOfStatementsBefore, $this->getEntries(Statement::class));
         static::assertCount($numberOfStatementMetasBefore, $this->getEntries(StatementMeta::class));
         $sheetCounter = 0;
@@ -214,7 +214,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
         static::assertEquals($statementsData[$sheetCounter][$rowCounter]['Hausnummer'] ?? '', $generatedStatement->getMeta()->getHouseNumber(), 'houseNumber');
         static::assertEquals($statementsData[$sheetCounter][$rowCounter]['Straße'] ?? '', $generatedStatement->getMeta()->getOrgaStreet(), 'street');
 
-        //because of manual statement, this has to be null:
+        // because of manual statement, this has to be null:
         static::assertNull($generatedStatement->getOrganisationName(), "name of related organisation ({$generatedStatement->getExternId()})");
 
         if (Statement::EXTERNAL === $generatedStatement->getPublicStatement()) {
@@ -241,8 +241,8 @@ class StatementExcelImporterTest extends FunctionalTestCase
         $incomingSubmitType = $this->sut->mapSubmitType($statementsData[$sheetCounter][$rowCounter]['Art der Einreichung'] ?? 'Unbekannt');
         static::assertEquals($incomingSubmitType, $generatedStatement->getSubmitType(), 'submitType');
 
-        //check for not ex externId:
+        // check for not ex externId:
         $entries = $this->getEntries(Statement::class, ['externId' => $generatedStatement->getExternId()]);
-        static::assertEmpty($entries); //should be empty, because non of the generated Statements are persisted yet.
+        static::assertEmpty($entries); // should be empty, because non of the generated Statements are persisted yet.
     }
 }

@@ -357,34 +357,34 @@ class LoadMapData extends TestFixture implements DependentFixtureInterface
         /** @var Procedure $masterBlueprint2 */
         $masterBlueprint2 = $this->getReference('masterBlaupause2');
 
-        //lvl0: rootCategory:
+        // lvl0: rootCategory:
         $gisLayerCategory0 = new GisLayerCategory();
         $gisLayerCategory0->setName('root testgisLayerCategory0 for Blaupause2');
         $gisLayerCategory0->setProcedure($masterBlueprint2);
         $manager->persist($gisLayerCategory0);
 
-        //lvl1
+        // lvl1
         $gisLayerCategory1 = new GisLayerCategory();
         $gisLayerCategory1->setName('testgisLayerCategory1 for Blaupause2');
         $gisLayerCategory1->setProcedure($masterBlueprint2);
         $gisLayerCategory1->setParent($gisLayerCategory0);
         $manager->persist($gisLayerCategory1);
 
-        //lvl2
+        // lvl2
         $gisLayerCategory2 = new GisLayerCategory();
         $gisLayerCategory2->setName('testgisLayerCategory2 for Blaupause2');
         $gisLayerCategory2->setProcedure($masterBlueprint2);
         $gisLayerCategory2->setParent($gisLayerCategory1);
         $manager->persist($gisLayerCategory2);
 
-        //lvl3
+        // lvl3
         $gisLayerCategory3 = new GisLayerCategory();
         $gisLayerCategory3->setName('testgisLayerCategory3 for Blaupause2');
         $gisLayerCategory3->setProcedure($masterBlueprint2);
         $gisLayerCategory3->setParent($gisLayerCategory2);
         $manager->persist($gisLayerCategory3);
 
-        //in lvl2:
+        // in lvl2:
         $gisLayer8 = new GisLayer();
         $gisLayer8->setBplan(false);
         $gisLayer8->setDefaultVisibility(false);
@@ -405,7 +405,7 @@ class LoadMapData extends TestFixture implements DependentFixtureInterface
         $gisLayer8->setCategory($gisLayerCategory2);
         $manager->persist($gisLayer8);
 
-        //in lvl3:
+        // in lvl3:
         $gisLayer9 = new GisLayer();
         $gisLayer9->setBplan(false);
         $gisLayer9->setDefaultVisibility(false);

@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Functional;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class MailTest extends FunctionalTestCase
@@ -276,7 +277,7 @@ class MailTest extends FunctionalTestCase
 
     public function testSendMailException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->sut->sendMail('', '', '', '', '', '', '', '');
     }
 

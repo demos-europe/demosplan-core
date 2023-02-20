@@ -10,16 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
+use function array_key_exists;
+
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Elastica\Query\AbstractQuery as AbstractQueryES;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
-use function array_key_exists;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Elastica\Query\AbstractQuery as AbstractQueryES;
+
 use function in_array;
 use function is_array;
+
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractQuery
 {
@@ -179,7 +182,6 @@ abstract class AbstractQuery
                     $titleKey,
                     $boost
                 );
-
             }
         }
 
@@ -787,8 +789,6 @@ abstract class AbstractQuery
 
     /**
      * @param string $scope
-     *
-     * @return AbstractQuery
      */
     public function addScope($scope): self
     {

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -47,5 +46,4 @@ class ProcedureCategoryService extends CoreService
 
         return $array;
     }
-
 }

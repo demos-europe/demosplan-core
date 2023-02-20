@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -21,6 +20,7 @@ use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Doctrine\ORM\NoResultException;
+use Exception;
 
 class SubmitterService extends CoreService
 {
@@ -65,7 +65,7 @@ class SubmitterService extends CoreService
      * @param PreparationMailVO $preparationMail
      * @param string            $procedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendPreparationMailToStatementSubmittersFromUserId(
         $fromUser,
@@ -107,7 +107,7 @@ class SubmitterService extends CoreService
      * @param PreparationMailVO $preparationMail
      *
      * @throws SendMailException
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendPreparationMailToUserId($userId, $preparationMail)
     {
@@ -142,5 +142,4 @@ class SubmitterService extends CoreService
     {
         return $this->procedureRepository->getStatementMailAddressesCountForProcedure($procedureId);
     }
-
 }

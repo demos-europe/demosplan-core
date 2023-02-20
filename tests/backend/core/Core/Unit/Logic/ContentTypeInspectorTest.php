@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\Logic;
 
-
 use demosplan\DemosPlanCoreBundle\Logic\ContentTypeInspector;
+use LogicException;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\Base\UnitTestCase;
 
@@ -21,7 +21,7 @@ class ContentTypeInspectorTest extends UnitTestCase
 {
     public function testThrowsWithoutContentType(): void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         new ContentTypeInspector(new Request());
     }

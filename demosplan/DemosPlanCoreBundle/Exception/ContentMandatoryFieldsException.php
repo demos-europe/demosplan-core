@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
+use Exception;
 use Throwable;
 
-class ContentMandatoryFieldsException extends \Exception
+class ContentMandatoryFieldsException extends Exception
 {
     /** @var array<int, string> */
     private $mandatoryFieldMessages;

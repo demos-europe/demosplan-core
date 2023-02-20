@@ -20,7 +20,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class SamlAuthenticationSuccessHandler extends ParentSamlAuthenticationSuccessHandler
 {
-
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): Response
     {
         /** @var User $user */

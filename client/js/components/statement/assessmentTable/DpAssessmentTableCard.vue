@@ -564,7 +564,7 @@
                 :editable="isClaimed"
                 edit-label="statement.edit"
                 mark
-                obscure
+                :obscure="hasPermission('feature_obscure_text')"
                 strikethrough
                 height-limit-element-label="statement"
                 @field:save="data => saveStatement(data, 'attribute', 'text')"
@@ -735,10 +735,9 @@
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@demos-europe/demosplan-utils'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
@@ -1176,7 +1175,7 @@ export default {
     },
 
     toggleMapModal (drawingData) {
-      this.$parent.$refs.mapModal.toggleModal(drawingData)
+      this.$root.$emit('toggleMapModal', drawingData)
     },
 
     toggleSelection () {

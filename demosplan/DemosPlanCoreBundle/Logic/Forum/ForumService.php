@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanForumBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
@@ -19,12 +19,12 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository;
-use demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository;
-use demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository;
-use demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository;
-use demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository;
-use demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -631,7 +631,7 @@ class ForumService extends CoreService
             [$this->sortMethodFactory->propertyDescending(['userStory', 'ident'])]
         );
 
-        $votes = array_map([\demosplan\DemosPlanForumBundle\Logic\ForumService::class, 'convertToLegacy'], $votesObjects);
+        $votes = array_map([__CLASS__, 'convertToLegacy'], $votesObjects);
 
         return [
             'userStory' => $userStory,

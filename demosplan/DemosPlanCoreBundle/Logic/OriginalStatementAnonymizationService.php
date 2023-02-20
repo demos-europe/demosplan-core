@@ -68,5 +68,4 @@ class OriginalStatementAnonymizationService extends CoreService
     {
         $this->originalStatementAnonymizationRepository->persistAndDelete([$statementAnonymization], []);
     }
-
 }

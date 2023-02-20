@@ -17,7 +17,7 @@
         :toolbar-items="{
             strikethrough: true,
             mark: true,
-            obscure: true
+            obscure: hasPermission('feature_obscure_text')
          }"
         v-model="fragmentText">
     </dp-editor>
@@ -65,9 +65,9 @@
                     data-cy="fragmentTopicsTags"
                 >
                     <template v-slot:option="props">
-                        <span v-if="props.option.$isLabel">
+                        <strong v-if="props.option.$isLabel">
                             {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
-                        </span>
+                        </strong>
                         <span v-else>
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </span>

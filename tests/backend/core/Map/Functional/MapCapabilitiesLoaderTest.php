@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapCapabilitiesLoader;
+use string;
 use Tests\Base\FunctionalTestCase;
 
 class MapCapabilitiesLoaderTest extends FunctionalTestCase
@@ -40,7 +41,7 @@ class MapCapabilitiesLoaderTest extends FunctionalTestCase
     }
 
     /**
-     * @return \string[][]
+     * @return string[][]
      */
     public function evaluateCapabilitiesDataProvider(): array
     {

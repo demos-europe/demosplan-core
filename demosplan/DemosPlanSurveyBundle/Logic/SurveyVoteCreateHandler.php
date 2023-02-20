@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanSurveyBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
+use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Exception;

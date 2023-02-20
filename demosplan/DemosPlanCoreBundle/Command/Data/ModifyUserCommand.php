@@ -107,7 +107,7 @@ class ModifyUserCommand extends CoreCommand
         /** @var array<int, string> $allowedRoles */
         $allowedRoles = $this->parameterBag->get('roles_allowed');
 
-        //avoid system-role:
+        // avoid system-role:
         $allowedRoles = collect($allowedRoles)->mapWithKeys(static function (string $roleName) {
             return [$roleName => $roleName];
         })->forget(Role::GUEST)->all();
@@ -116,7 +116,7 @@ class ModifyUserCommand extends CoreCommand
             return [$item->getId() => $item->getId()];
         });
 
-        //avoid system-user:
+        // avoid system-user:
         $usersIdsToExclude->put(User::ANONYMOUS_USER_ID, User::ANONYMOUS_USER_ID);
 
         foreach ($allowedRoles as $role) {
@@ -144,7 +144,7 @@ class ModifyUserCommand extends CoreCommand
                 $user->setPassword(md5($this->standardPassword));
             });
 
-            //add filtered + updated users to list of changed users
+            // add filtered + updated users to list of changed users
             $changedUsers = $changedUsers->merge($updatedUsers);
 
             // exclude filtered + updated users in further execution to get a more distinct result

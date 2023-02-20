@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanDocumentBundle\Repository;
 
 use function array_key_exists;
+
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -477,7 +478,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
             $copiedParagraph->setDeleted($paragraphToCopy->getDeleted());
             $copiedParagraph->setVisible($paragraphToCopy->getVisible());
             $copiedParagraph->setLockReason($paragraphToCopy->getLockReason());
-            $copiedParagraph->setParent($paragraphToCopy->getParent());//Will be used and fixed later
+            $copiedParagraph->setParent($paragraphToCopy->getParent()); // Will be used and fixed later
             $copiedParagraph->setModifyDate(new DateTime());
             $copiedParagraph->setCreateDate(new DateTime());
             $copiedParagraph->setDeleteDate(new DateTime());

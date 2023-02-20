@@ -55,10 +55,10 @@ class AssessmentExportOptionsTest extends FunctionalTestCase
     public function testMergeOptionsMerges()
     {
         $options = [
-            'defaults' => [
+            'defaults'            => [
                 'print' => true,
             ],
-            'assessment_table' => [
+            'assessment_table'    => [
                 'print' => false,
             ],
             'original_statements' => [],

@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class UserServiceTest extends FunctionalTestCase
@@ -380,7 +381,7 @@ class UserServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('Fachplanung-Planungsbüro', $roles);
     }
 
-    //################## Orga ######################
+    // ################## Orga ######################
 
     public function testUpdateOrga()
     {
@@ -461,7 +462,7 @@ class UserServiceTest extends FunctionalTestCase
 
         // check that no Orgasetting submissionType in Settings exist
         $data = [
-            'submission_type' => Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT,
+            'submission_type'    => Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT,
 
             // some random values to be able to update
             'name'               => 'newName',
@@ -487,7 +488,7 @@ class UserServiceTest extends FunctionalTestCase
 
         // create a submissionType
         $data = [
-            'submission_type' => Orga::STATEMENT_SUBMISSION_TYPE_SHORT,
+            'submission_type'    => Orga::STATEMENT_SUBMISSION_TYPE_SHORT,
 
             // some random values to be able to update
             'name'               => 'newName',
@@ -515,7 +516,7 @@ class UserServiceTest extends FunctionalTestCase
 
         // Delete Setting again
         $data = [
-            'submission_type' => Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT,
+            'submission_type'    => Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT,
 
             // some random values to be able to update
             'name'               => 'newName',
@@ -587,7 +588,7 @@ class UserServiceTest extends FunctionalTestCase
         static::assertNull($deletedOrga);
     }
 
-    //################## Department ######################
+    // ################## Department ######################
 
     public function testGetDepartment()
     {
@@ -623,7 +624,7 @@ class UserServiceTest extends FunctionalTestCase
 
     public function testUpdateDepartmentAddressDoubled()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $data = [
             'address' => $this->testAddress,
@@ -718,7 +719,7 @@ class UserServiceTest extends FunctionalTestCase
         static::assertNull($deletedDepartment);
     }
 
-    //################## Address ######################
+    // ################## Address ######################
 
     public function testGetAddress()
     {
@@ -816,13 +817,13 @@ class UserServiceTest extends FunctionalTestCase
     /**
      * dataProvider changePasswordData.
      */
-    public function testChangePassword(/*$userId, $oldPassword, $newPassword, $success*/)
+    public function testChangePassword(/* $userId, $oldPassword, $newPassword, $success */)
     {
         self::markSkippedForCIIntervention();
 
         try {
             $this->sut->changePassword($userId, $oldPassword, $newPassword);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($success) {
                 static::assertTrue(false);
             }

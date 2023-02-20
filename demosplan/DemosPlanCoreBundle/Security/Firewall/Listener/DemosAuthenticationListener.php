@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Firewall\Listener;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Exception;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -53,7 +54,7 @@ class DemosAuthenticationListener
         $user = null;
         try {
             $user = $this->userService->getSingleUser($session->get('userId'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // when this really fails just try other options
             // in any case AnonymousUser is set later on
         }
@@ -71,7 +72,6 @@ class DemosAuthenticationListener
         if (null === $user || 'anon.' === $user) {
             $user = new AnonymousUser();
         }
-
 
         $authToken = new DemosToken($user);
         $authToken->setUser($user);

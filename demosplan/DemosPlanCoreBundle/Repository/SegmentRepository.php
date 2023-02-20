@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\ORMException;
+use Exception;
 
 class SegmentRepository extends CoreRepository
 {
@@ -35,7 +36,7 @@ class SegmentRepository extends CoreRepository
     /**
      * Add Entityobject to database.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject(Segment $segment): Segment
     {
@@ -46,7 +47,7 @@ class SegmentRepository extends CoreRepository
             $manager->flush();
 
             return $segment;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
         }
@@ -87,7 +88,7 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function get(string $entityId): ?Segment
     {

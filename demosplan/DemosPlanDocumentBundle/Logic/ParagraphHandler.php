@@ -107,8 +107,8 @@ class ParagraphHandler extends CoreHandler
             // set max possible order only if no parent paragraph is set
             if (!array_key_exists('r_parentId', $data) && 0 < strlen($data['r_parentId'])) {
                 $document['order'] = $this->service->getMaxOrderFromElement(
-                        $document['elementId']
-                    ) + 1;
+                    $document['elementId']
+                ) + 1;
             }
         }
 

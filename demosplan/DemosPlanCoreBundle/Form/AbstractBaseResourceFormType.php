@@ -20,6 +20,7 @@ use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Traversable;
 
 abstract class AbstractBaseResourceFormType extends AbstractType implements DataMapperInterface
 {
@@ -37,8 +38,8 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
      * Fills all fields of the form structure with the corresponding data from the default data object.
      * Existing forms are based on the definition in the extending form type.
      *
-     * @param WrapperObject                $viewData
-     * @param FormInterface[]|\Traversable $forms
+     * @param WrapperObject               $viewData
+     * @param FormInterface[]|Traversable $forms
      *
      * @throws QueryException
      * @throws ReflectionException
@@ -64,8 +65,8 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
     }
 
     /**
-     * @param FormInterface[]|\Traversable $forms
-     * @param WrapperObject                $viewData
+     * @param FormInterface[]|Traversable $forms
+     * @param WrapperObject               $viewData
      *
      * @throws QueryException
      * @throws ReflectionException

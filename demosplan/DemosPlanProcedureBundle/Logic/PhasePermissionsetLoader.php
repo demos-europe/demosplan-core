@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 

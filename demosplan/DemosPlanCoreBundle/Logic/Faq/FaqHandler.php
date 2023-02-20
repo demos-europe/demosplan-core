@@ -216,7 +216,7 @@ class FaqHandler extends CoreHandler
      */
     public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
     {
-        //improve:
+        // improve:
         // Sanitize and validate fields
         $mandatoryErrors = false;
         if (!array_key_exists('r_enable', $data) || '' === trim($data['r_enable'])) {
@@ -368,7 +368,7 @@ class FaqHandler extends CoreHandler
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
-        //filter: custom categories only
+        // filter: custom categories only
         return $allFaqCategories->filter(
             static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
                 return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
@@ -453,7 +453,7 @@ class FaqHandler extends CoreHandler
      */
     public function isCategoryTitleUnique($title)
     {
-        //check for already existing category by
+        // check for already existing category by
         $category = $this->entityManager
             ->getRepository(Category::class)
             ->findOneBy(['title' => $title]);

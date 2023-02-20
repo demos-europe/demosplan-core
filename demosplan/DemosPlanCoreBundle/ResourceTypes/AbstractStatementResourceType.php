@@ -324,7 +324,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
                 }),
         ];
 
-        //this information is needed in FE to show a hint of this statement was given anonymously
+        // this information is needed in FE to show a hint of this statement was given anonymously
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $properties[] = $this->createAttribute($this->anonymous)->readable();
         }

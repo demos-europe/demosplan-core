@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use TypeError;
 

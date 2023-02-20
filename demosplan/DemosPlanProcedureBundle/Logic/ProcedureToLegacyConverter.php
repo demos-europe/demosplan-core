@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use function collect;
+
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
