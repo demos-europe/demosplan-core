@@ -121,28 +121,30 @@
           </div>
         </template>
 
-        <label
-          for="statementText"
-          :class="prefixClass('u-mb-0_5 weight--bold')">
-          {{ Translator.trans('statement.detail.form.statement_text') }}
-          <span
-            v-if="formData.r_isNegativeReport !== '1'"
-            aria-hidden="true">
-            *
-          </span>
-        </label>
-        <dp-editor
-          class="u-mb-0_5"
-          hidden-input="r_text"
-          id="statementText"
-          :toolbar-items="{
-            mark: true,
-            strikethrough: true
-          }"
-          ref="statementEditor"
-          :required="formData.r_isNegativeReport !== '1'"
-          :value="formData.r_text || ''"
-          @input="val => setStatementData({r_text: val})" />
+        <div :class="prefixClass('c-statement__text')">
+          <label
+            for="statementText"
+            :class="prefixClass('u-mb-0_5 weight--bold')">
+            {{ Translator.trans('statement.detail.form.statement_text') }}
+            <span
+              v-if="formData.r_isNegativeReport !== '1'"
+              aria-hidden="true">
+              *
+            </span>
+          </label>
+          <dp-editor
+            class="u-mb-0_5"
+            hidden-input="r_text"
+            id="statementText"
+            :toolbar-items="{
+              mark: true,
+              strikethrough: true
+            }"
+            ref="statementEditor"
+            :required="formData.r_isNegativeReport !== '1'"
+            :value="formData.r_text || ''"
+            @input="val => setStatementData({r_text: val})" />
+        </div>
         <div
           v-if="loggedIn === false"
           :class="prefixClass('u-mb')">
