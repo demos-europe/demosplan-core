@@ -92,6 +92,7 @@ class ReorderEntityListByInteger
         return $entities->filter(
             static function (SortableInterface $entity) use ($lowIndex, $highIndex): bool {
                 $entityIndex = $entity->getSortIndex();
+
                 return $entityIndex >= $lowIndex
                     && $entityIndex <= $highIndex;
             }
@@ -100,7 +101,7 @@ class ReorderEntityListByInteger
 
     /**
      * having the application in mind - movedUp checks if you drag an item from the list upwards
-     * example:
+     * example:.
      *
      * dog (index 0)                                       ⬆     spider (index 0)
      * cat (index 1)                                       ⬆     dog (index 1)
@@ -121,6 +122,7 @@ class ReorderEntityListByInteger
         $addToIndex = $this->movedUp() ? 1 : -1;
         $entities->forAll(function (int $key, SortableInterface $entity) use ($addToIndex): bool {
             $this->changeAffectedIndexOfEntity($entity, $addToIndex);
+
             return true;
         });
     }
@@ -168,6 +170,7 @@ class ReorderEntityListByInteger
             static function (int $key, SortableInterface $entity) use ($indexModifier): bool {
                 $currentIndex = $entity->getSortIndex();
                 $entity->setSortIndex($currentIndex + $indexModifier);
+
                 return true;
             }
         );

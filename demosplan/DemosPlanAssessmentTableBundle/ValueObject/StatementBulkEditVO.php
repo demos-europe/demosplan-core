@@ -29,6 +29,7 @@ class StatementBulkEditVO extends ValueObject
 
     /**
      * @var string
+     *
      * @Assert\Length(min=1)
      */
     protected $recommendationAddition;

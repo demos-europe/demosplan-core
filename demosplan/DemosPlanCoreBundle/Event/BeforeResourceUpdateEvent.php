@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 
 /**
- *
  * The event that is used to notify listeners/subscribers before an update of an object of
  * a resource type.
  *

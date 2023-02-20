@@ -25,6 +25,7 @@ use EDT\Querying\FluentQueries\SortDefinition;
 
 /**
  * @template T of object
+ *
  * @template-extends FluentQuery<T>
  */
 class DqlFluentQuery extends FluentQuery

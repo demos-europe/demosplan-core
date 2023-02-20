@@ -192,7 +192,7 @@ class MasterToebRepository extends CoreRepository implements ArrayInterface
             $sourceOrga = $orgaRepository->find($organisationId);
             $mergeResponse = $this->createMergeResponse($sourceOrga, $masterToeb);
 
-            //setzte neue GWID auf masterToeb Organisation
+            // setzte neue GWID auf masterToeb Organisation
             $sourceOrgaGwId = $sourceOrga->getGwId();
             $sourceOrga->setGwId(null);
             $sourceOrgaDepartmentGwId = null;
@@ -212,14 +212,14 @@ class MasterToebRepository extends CoreRepository implements ArrayInterface
                 ]
             );
 
-            //Lade alle Userlisten der Departments der Organisation
+            // Lade alle Userlisten der Departments der Organisation
             $departmentUsersList = [];
             foreach ($orgaDepartments as $singleDepartment) {
                 $departmentUsersList[] = $singleDepartment->getUsers();
                 $sourceOrgaDepartmentGwId = $singleDepartment->getGwId();
             }
 
-            //Füge alle User aller Departments aus der SourceOrga der MT-Orga hinzu (also dem Department und der Orga)
+            // Füge alle User aller Departments aus der SourceOrga der MT-Orga hinzu (also dem Department und der Orga)
             foreach ($departmentUsersList as $singleDepartmentUserList) {
                 foreach ($singleDepartmentUserList as $singleDepartmentUser) {
                     $this->logger->info('Add Department user to new Orga and department',
@@ -232,8 +232,8 @@ class MasterToebRepository extends CoreRepository implements ArrayInterface
                 }
             }
 
-            //Lade alle User der Orga, die direkt der Orga zugeornet sind
-            //Füge alle User der SourceOrga der MT-Orga hinzu (also dem Department und der Orga)
+            // Lade alle User der Orga, die direkt der Orga zugeornet sind
+            // Füge alle User der SourceOrga der MT-Orga hinzu (also dem Department und der Orga)
             foreach ($orgaUsers as $singleOrgaUser) {
                 $this->logger->info('Add Orga user to new Orga and department',
                     [
@@ -256,7 +256,7 @@ class MasterToebRepository extends CoreRepository implements ArrayInterface
                 $entityManager->remove($departmentsOfSourceOrga);
             }
 
-            //detach users from (old) sourceOrga:
+            // detach users from (old) sourceOrga:
             foreach ($orgaUsers as $oldOrgaUser) {
                 $sourceOrga->removeUser($oldOrgaUser);
             }

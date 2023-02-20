@@ -17,7 +17,7 @@ class LoadMailTemplateData extends ProdFixture
 {
     public function load(ObjectManager $manager)
     {
-        //array was exported with HeidiSQL and modified afterwards
+        // array was exported with HeidiSQL and modified afterwards
         $mailTemplates = [
             [ // row #0
                 'label'    => 'register',

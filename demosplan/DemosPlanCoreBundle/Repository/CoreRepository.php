@@ -451,7 +451,7 @@ abstract class CoreRepository extends ServiceEntityRepository
      */
     public function wysiwygFilter($text, $additionalAllowedTags = [])
     {
-        //sort alphabetically:
+        // sort alphabetically:
         $allowedTags = collect(
             [
                 'a',

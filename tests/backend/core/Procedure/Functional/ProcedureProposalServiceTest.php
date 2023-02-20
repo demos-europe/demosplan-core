@@ -72,8 +72,8 @@ class ProcedureProposalServiceTest extends FunctionalTestCase
         static::assertNotEquals($this->testProcedureProposal->getDescription(), $newProcedure->getDesc());
         static::assertEquals($this->testProcedureProposal->getCoordinate(), $newProcedure->getCoordinate());
 
-        //todo:
-        //static::assertEquals($this->testProcedureProposal->getFiles(), $newProcedure->getFiles());
+        // todo:
+        // static::assertEquals($this->testProcedureProposal->getFiles(), $newProcedure->getFiles());
     }
 
     /**

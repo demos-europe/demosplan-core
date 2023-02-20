@@ -121,7 +121,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      *
      * @return FunctionInterface<bool>
      */
-    public function buildAccessCondition(StatementResourceType $pathStartResourceType): FunctionInterface
+    public function buildAccessCondition(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): FunctionInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -140,21 +140,25 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         );
         $allowedProcedureIds[] = $procedure->getId();
 
-        return $this->conditionFactory->allConditionsApply(
+        $conditions = [
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
-            // Normally the path to the relationship would suffice for a NULL check, but the ES
-            // provides the 'original.id' path only hence we need the path to the ID to support
-            // ES queries beside Doctrine.
-            $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             $this->conditionFactory->propertyHasAnyOfValues(
                 $allowedProcedureIds,
                 $pathStartResourceType->procedure->id
-            )
-        );
+            ),
+        ];
+        if (!$allowOriginals) {
+            // Normally the path to the relationship would suffice for a NULL check, but the ES
+            // provides the 'original.id' path only hence we need the path to the ID to support
+            // ES queries beside Doctrine.
+            $conditions[] = $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id);
+        }
+
+        return $this->conditionFactory->allConditionsApply(...$conditions);
     }
 
     public function updateObject(object $object, array $properties): ResourceChange

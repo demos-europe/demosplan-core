@@ -74,22 +74,22 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
     demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:

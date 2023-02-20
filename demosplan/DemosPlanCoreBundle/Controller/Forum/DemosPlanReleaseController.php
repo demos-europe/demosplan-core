@@ -36,6 +36,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development",
      *     path="/development"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @return RedirectResponse|Response
@@ -72,7 +73,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_index.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_index.html.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
         ]);
@@ -85,6 +86,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_new",
      *     path="/development/release/new"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @return RedirectResponse|Response
@@ -115,7 +117,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releasePhases'] = $releasePhases;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.new',
         ]);
@@ -128,6 +130,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_edit",
      *     path="/development/{releaseId}/edit"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @param string $releaseId
@@ -161,7 +164,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['token'] = $tokenForDelete;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.edit',
         ]);
@@ -174,6 +177,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_delete",
      *     path="/development/delete/{releaseId}/{token}"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @param string $releaseId
@@ -212,6 +216,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_list",
      *     path="/development/release/list"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @return RedirectResponse|Response
@@ -231,7 +236,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releaseList'] = $storageResult;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.list',
         ]);
@@ -244,6 +249,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_detail",
      *     path="/development/{releaseId}"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $releaseId
@@ -290,7 +296,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $title = $templateVars['release']['title'];
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
         ]);
@@ -303,6 +309,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_voting",
      *     path="/development/{releaseId}/voting"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $releaseId
@@ -391,6 +398,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_new",
      *     path="/development/{releaseId}/story/new"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
@@ -422,7 +430,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releaseId'] = $releaseId;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story.new',
         ]);
@@ -435,6 +443,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_edit",
      *     path="/development/{releaseId}/story/edit/{storyId}"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
@@ -475,7 +484,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $release = $this->forumHandler->getSingleRelease($releaseId);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story.edit',
         ]);
@@ -488,6 +497,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_delete",
      *     path="/development/{releaseId}/story/delete/{storyId}/{token}"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_story_edit")
      *
      * @param string $releaseId
@@ -522,6 +532,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_detail",
      *     path="/development/story/{storyId}"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
@@ -589,7 +600,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['entries'] = $storageResultEntries;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story',
         ]);
@@ -602,6 +613,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_threadentry_new",
      *     path="/development/{storyId}/entry/new"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
@@ -653,7 +665,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['story'] = $storageResultStory;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.new',
         ]);
@@ -666,6 +678,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_threadentry_edit",
      *     path="/development/{storyId}/entry/{threadEntryId}/edit"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
@@ -758,7 +771,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $release = $this->forumHandler->getSingleRelease($storageResultStory['releaseId']);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.edit',
         ]);
@@ -771,6 +784,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_userstory_threadentry_delete",
      *     path="/development/{storyId}/entry/{threadEntryId}/delete/{token}"
      * )
+     *
      * @DplanPermissions("area_development")
      *
      * @param string $storyId
@@ -829,6 +843,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *     name="DemosPlan_forum_development_release_export",
      *     path="/development/{releaseId}/export"
      * )
+     *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
      * @return RedirectResponse|Response
@@ -873,11 +888,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             return str_replace('"', '""', $string);
         });
 
-        $response = $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_export.csv.twig', [
+        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_export.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.delete',
         ]);
-
+        // T25516 UTF-8-MB for MS-excel umlauts support
+        $bom = chr(0xEF).chr(0xBB).chr(0xBF);
+        $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));

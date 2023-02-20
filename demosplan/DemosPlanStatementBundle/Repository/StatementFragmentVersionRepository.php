@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NoResultException;
+use Exception;
 
 class StatementFragmentVersionRepository extends CoreRepository implements ObjectInterface
 {
@@ -29,7 +30,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get StatementFragmentVersion failed: ', [$e]);
 
             return null;
@@ -43,7 +44,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @return StatementFragmentVersion
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($fragmentVersion)
     {
@@ -51,9 +52,9 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
             $manager = $this->getEntityManager();
             $manager->persist($fragmentVersion);
             $manager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add StatementFragmentVersion failed: ', [$e]);
-            throw new \Exception('Could not add StatementFragmentVersion');
+            throw new Exception('Could not add StatementFragmentVersion');
         }
 
         return $fragmentVersion;
@@ -71,7 +72,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
         try {
             $this->getEntityManager()->persist($statementFragmentVersion);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update StatementFragmentVersion failed: ', [$e]);
 
             return false;
@@ -85,9 +86,9 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -104,7 +105,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -117,7 +118,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete StatementFragmentVersions of a procedure failed ', [$e]);
             throw $e;
         }
@@ -128,9 +129,9 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
      *
      * @param StatementFragmentVersion $toDelete
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function delete($toDelete)
     {
@@ -145,7 +146,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete StatementFragmentVersion failed: ', [$e]);
         }
 

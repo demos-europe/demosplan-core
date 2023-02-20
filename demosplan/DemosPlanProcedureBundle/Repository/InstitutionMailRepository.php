@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableArrayInterface;
+use Exception;
 
 class InstitutionMailRepository extends CoreRepository implements ImmutableArrayInterface
 {
@@ -37,7 +38,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -61,7 +62,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
             $em->flush();
 
             return $institutionMail;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update Procedure failed Reason: ', [$e]);
             throw $e;
         }
@@ -74,7 +75,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
      *
      * @return bool - true if successfully deleted, otherwise false
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($entity)
     {
@@ -89,7 +90,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
 
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete InstitutionMail failed Reason: ', [$e]);
             throw $e;
         }

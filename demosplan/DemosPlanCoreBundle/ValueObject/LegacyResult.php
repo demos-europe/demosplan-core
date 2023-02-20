@@ -58,7 +58,6 @@ class LegacyResult extends ValueObject
         $this->search = $search ?? '';
     }
 
-
     public function toArray(): array
     {
         return [

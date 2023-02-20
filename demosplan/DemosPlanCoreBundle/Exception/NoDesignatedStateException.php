@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-class NoDesignatedStateException extends \Exception
+use Exception;
+
+class NoDesignatedStateException extends Exception
 {
 }

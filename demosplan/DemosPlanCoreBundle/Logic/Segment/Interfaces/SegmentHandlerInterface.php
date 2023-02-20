@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 
@@ -30,7 +31,7 @@ interface SegmentHandlerInterface
     /**
      * @param array<Segment> $segments
      */
-    public function updateObjects(array $segments, \DateTime $updateTime): void;
+    public function updateObjects(array $segments, DateTime $updateTime): void;
 
     public function addSegments(array $segments): void;
 

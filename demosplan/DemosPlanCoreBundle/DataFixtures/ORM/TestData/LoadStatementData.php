@@ -136,7 +136,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatement1', $statement1);
         $manager->persist($statement1);
 
-        //add Fragments
+        // add Fragments
         $fragmentTexts = collect(['First Fragment', 'Second Fragment', 'Third Fragment']);
         $fragmentTexts->each(function ($text, $offset) use ($manager, $statement) {
             $statementFragment = new StatementFragment();
@@ -379,7 +379,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('childTestStatement2', $statement5);
         $manager->persist($statement5);
 
-        //SN andere Orga
+        // SN andere Orga
         $statement3 = new Statement();
         $statement3->setElement($testElement);
         $statement3->setExternId('1003');
@@ -399,7 +399,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatementOtherOrga', $statement3);
         $manager->persist($statement3);
 
-        //SN für Abwägungstabelle
+        // SN für Abwägungstabelle
         $statement4 = new Statement();
         $statement4->setExternId('1003');
         $statement4->setMeta((new StatementMeta())->setStatement($statement4));
@@ -417,7 +417,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatementNotOriginal', $statement4);
         $manager->persist($statement4);
 
-        //SN für Abwägungstabelle
+        // SN für Abwägungstabelle
         $statement6 = new Statement();
         $statement6->setAssignee($testUser);
         $statement6->setElement($testElement);
@@ -458,7 +458,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatementAssigned7', $statement7);
         $manager->persist($statement7);
 
-        //Cluster Statement01
+        // Cluster Statement01
         $clusterStatement01 = new Statement();
         $clusterStatement01->setAssignee($testUser);
         $clusterStatement01->setClusterStatement(true);
@@ -473,7 +473,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('clusterStatement 1', $clusterStatement01);
         $manager->persist($clusterStatement01);
 
-        //Cluster Statement1
+        // Cluster Statement1
         $clusterStatement1 = new Statement();
         $clusterStatement1->setAssignee($testUser);
         $clusterStatement1->setCluster([$statement7]);
@@ -516,7 +516,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatementAssigned11', $statement11);
         $manager->persist($statement11);
 
-        //Cluster Statement2
+        // Cluster Statement2
         $clusterStatement2 = new Statement();
         $clusterStatement2->setAssignee($testUser);
         $clusterStatement2->setCluster([$statement10, $statement11]);
@@ -869,7 +869,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testStatementWithFile', $statementWithFile);
         $manager->persist($statementWithFile);
 
-        //Cluster Statement3: unassigned Cluster
+        // Cluster Statement3: unassigned Cluster
         $clusterStatement3 = new Statement();
         $clusterStatement3->setCluster([$statement22]);
         $clusterStatement3->setExternId('C1013');

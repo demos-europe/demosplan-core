@@ -29,7 +29,7 @@ class LoadMigrationVersionData extends ProdFixture
         $finder->files()->in(__DIR__.'/../../../DoctrineMigrations/');
 
         foreach ($finder as $file) {
-            //Version20161011100406
+            // Version20161011100406
             $filename = $file->getFilename();
             $versionNumbers[] = substr($filename, 7, strlen($filename) - 11);
         }

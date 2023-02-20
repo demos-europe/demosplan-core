@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectRepository;
 
 class RepositoryHelper
 {
@@ -28,11 +27,6 @@ class RepositoryHelper
         $this->managerRegistry = $managerRegistry;
     }
 
-    /**
-     * @param string $entityClass
-     *
-     * @return CoreRepository
-     */
     public function getRepository(string $entityClass): CoreRepository
     {
         return $this->managerRegistry->getRepository($entityClass);

@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use Throwable;
 
 class ConfigParametersDataCollector extends DataCollector
 {
@@ -38,7 +39,7 @@ class ConfigParametersDataCollector extends DataCollector
     public function collect(
         Request $request,
         Response $response,
-        \Throwable $exception = null
+        Throwable $exception = null
     ) {
         $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static function ($item) {
             return $item['url'];

@@ -106,5 +106,4 @@ class GenerateCustomerCommand extends CoreCommand
 
         return $this->helper->ask($input, $output, $questionSubdomain);
     }
-
 }

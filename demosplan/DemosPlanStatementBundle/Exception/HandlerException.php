@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class HandlerException extends \Exception
+use Exception;
+
+class HandlerException extends Exception
 {
     public static function fragmentExportFailedException($format)
     {

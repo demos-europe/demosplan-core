@@ -26,7 +26,7 @@ class ArrayHelper
         $this->logger = $logger;
     }
 
-    //@improve T15851
+    // @improve T15851
     /**
      * If the given $dataArray has a key composed of given $keyPrefix and given $key,
      * the value of this key will put into the given $objectiveArray to the $key.
@@ -37,7 +37,6 @@ class ArrayHelper
      * @param string $keyPrefix      string used as prefix for the $key for access a specific data in the given $dataArray
      *
      * @return array updated $objectiveArray
-     *
      */
     public function addToArrayIfKeyExists($objectiveArray, $dataArray, $key, $keyPrefix = 'r_'): array
     {

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
+use RuntimeException;
 
 /**
  * Handle the storage and retrieval of `StoredQueryInterface`.
@@ -102,7 +103,7 @@ class StoredQueryType extends JsonType
         AbstractPlatform $platform
     ): string {
         if (!is_a($value, StoredQueryInterface::class)) {
-            throw new \RuntimeException('This field can only handle '.StoredQueryInterface::class.' as data');
+            throw new RuntimeException('This field can only handle '.StoredQueryInterface::class.' as data');
         }
 
         $combinedValue = [

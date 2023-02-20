@@ -14,6 +14,7 @@ use Closure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Faker\Provider\Base;
 use Faker\Provider\de_DE\Text;
+
 use function strlen;
 
 /**

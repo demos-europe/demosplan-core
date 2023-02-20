@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 
 class EntityContentChangeDisplayHandler extends CoreHandler
@@ -19,7 +20,7 @@ class EntityContentChangeDisplayHandler extends CoreHandler
      */
     protected $entityContentChangeDisplayService;
 
-    public function __construct(EntityContentChangeDisplayService $entityContentChangeDisplayService, MessageBag $messageBag)
+    public function __construct(EntityContentChangeDisplayService $entityContentChangeDisplayService, MessageBagInterface $messageBag)
     {
         $this->entityContentChangeDisplayService = $entityContentChangeDisplayService;
         parent::__construct($messageBag);

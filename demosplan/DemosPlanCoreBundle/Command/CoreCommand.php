@@ -17,7 +17,6 @@ use EFrane\ConsoleAdditions\Output\MultiplexedOutput;
 use EFrane\ConsoleAdditions\Output\NativeFileOutput;
 use Exception;
 use RuntimeException;
-use SebastianBergmann\Environment\Console;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
