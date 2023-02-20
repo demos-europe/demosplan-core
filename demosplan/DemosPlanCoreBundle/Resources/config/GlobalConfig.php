@@ -10,18 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use function array_key_exists;
-use function array_map;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
+use function array_map;
 use function explode;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -29,18 +29,12 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
-
-use RuntimeException;
-
 use function strncasecmp;
 use function strpos;
 use function substr;
-
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface
 {
@@ -296,6 +290,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @var bool
      */
     protected $honeypotDisabled;
+    protected int $honeypotTimeout;
     /**
      * @var array
      */
@@ -714,6 +709,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
+        $this->honeypotTimeout = $parameterBag->get('honeypot_timeout');
 
         // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
@@ -1156,6 +1152,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function isHoneypotDisabled(): bool
     {
         return filter_var($this->honeypotDisabled, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function getHoneypotTimeout(): int
+    {
+        return $this->honeypotTimeout;
     }
 
     public function getMaintenanceKey(): string
