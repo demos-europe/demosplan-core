@@ -10,28 +10,24 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use Symfony\Component\Validator\Constraints\All;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function array_key_exists;
-use function array_map;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_key_exists;
+use function array_map;
 use function explode;
-
-use const FILTER_VALIDATE_BOOLEAN;
-
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -39,12 +35,12 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
-
 use function strncasecmp;
 use function strpos;
 use function substr;
-
 use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface
 {

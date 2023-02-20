@@ -24,11 +24,10 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
-
-use function str_replace;
-
 use Symfony\Component\HttpFoundation\Request;
 use Tightenco\Collect\Support\Collection;
+
+use function str_replace;
 
 class DefaultTwigVariablesService
 {
