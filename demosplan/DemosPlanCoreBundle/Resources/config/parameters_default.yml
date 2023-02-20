@@ -475,7 +475,7 @@ parameters:
     # Note that the data will be used in the frontend directly, i.e. no measures against potentially harmful
     # scripts is taken if such thing is used here.
     # It can be used as follows:
-    # main_page_external_links:
+    # external_links:
     #     Name of some website: https://link-to-the-website.net
     #     Some other website: https://link-to-some-other-website.net
-    main_page_external_links: []
+    external_links: []

@@ -215,7 +215,7 @@ class DefaultTwigVariablesService
             'urlPathPrefix'                    => $this->globalConfig->getUrlPathPrefix(),
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
-            'main_page_external_links'         => $this->globalConfig->getMainPageExternalLinks(),
+            'externalLinks'                    => $this->globalConfig->getExternalLinks(),
         ];
     }
 
