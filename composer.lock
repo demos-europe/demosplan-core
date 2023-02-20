@@ -5864,16 +5864,16 @@
         },
         {
             "name": "jmikola/geojson",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jmikola/geojson.git",
-                "reference": "8a0c5a88098bc70d05a4cb491ed77303ce9ff075"
+                "reference": "3699d2be8961f2c2f20b33041b6f0608d2cf4332"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jmikola/geojson/zipball/8a0c5a88098bc70d05a4cb491ed77303ce9ff075",
-                "reference": "8a0c5a88098bc70d05a4cb491ed77303ce9ff075",
+                "url": "https://api.github.com/repos/jmikola/geojson/zipball/3699d2be8961f2c2f20b33041b6f0608d2cf4332",
+                "reference": "3699d2be8961f2c2f20b33041b6f0608d2cf4332",
                 "shasum": ""
             },
             "require": {
@@ -5884,7 +5884,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^9.5",
                 "scrutinizer/ocular": "^1.8.1",
-                "slevomat/coding-standard": "^7.0",
+                "slevomat/coding-standard": "^8.0",
                 "squizlabs/php_codesniffer": "^3.6"
             },
             "type": "library",
@@ -5917,9 +5917,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jmikola/geojson/issues",
-                "source": "https://github.com/jmikola/geojson/tree/1.1.1"
+                "source": "https://github.com/jmikola/geojson/tree/1.1.2"
             },
-            "time": "2022-04-10T23:56:18+00:00"
+            "time": "2023-02-20T01:27:38+00:00"
         },
         {
             "name": "jms/metadata",
