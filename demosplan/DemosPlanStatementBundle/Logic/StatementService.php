@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function array_map;
-
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -145,6 +143,8 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
+
+use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface
 {
