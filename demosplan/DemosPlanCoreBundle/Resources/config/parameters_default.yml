@@ -142,12 +142,7 @@ parameters:
     database_port: "3306"
 
     #RabbitMQ setting with default values
-    rabbitmq_host:     "localhost"
-    rabbitmq_port:     "5672"
-    rabbitmq_user:     ""
-    rabbitmq_password: ""
-    rabbitmq_vhost:    "/"
-
+    rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
     rabbitmq_routing_disabled: false
 
     # dsn used for sending emails https://symfony.com/doc/current/mailer.html#transport-setup
