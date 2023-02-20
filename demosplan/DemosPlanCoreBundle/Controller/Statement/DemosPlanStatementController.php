@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_filter;
-use function array_key_exists;
-use function array_map;
-
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -31,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Event\GuestStatementSubmittedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\CookieException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -70,23 +67,8 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-
-use const ENT_QUOTES;
-
 use Exception;
-
-use function explode;
-use function html_entity_decode;
-use function implode;
-use function in_array;
-use function is_array;
-
 use RuntimeException;
-
-use function sprintf;
-use function strip_tags;
-use function strlen;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -186,6 +168,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/endfassungenCitizen/pdf",
      *     defaults={"title": "statements.final.own", "type": "finalCitizen"}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $procedure
@@ -204,7 +187,7 @@ class DemosPlanStatementController extends BaseController
     ) {
         $itemsToExport = null;
         $draftStatementList = [];
-        $filename = sprintf('_%s.pdf', $translator->trans('statement'));
+        $filename = \sprintf('_%s.pdf', $translator->trans('statement'));
         // Dass die Stellungnahme gedruckt werden darf, muss an aufrufender Stelle implementiert werden
         $requestGet = $request->query->all();
         if (isset($requestGet['sId'])) {
@@ -223,7 +206,7 @@ class DemosPlanStatementController extends BaseController
 
         $procedureObject = $currentProcedureService->getProcedure();
         if ($procedureObject instanceof Procedure) {
-            $procedureName = in_array($roles[0], $rolesforExternalName, true) ?
+            $procedureName = \in_array($roles[0], $rolesforExternalName, true) ?
                 $procedureObject->getExternalName() :
                 $procedureObject->getName();
             $filename = $procedureName.$filename;
@@ -242,6 +225,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/toeb",
      *     defaults={"templateName": "list_public"}
      * )
+     *
      * @DplanPermissions("area_statements_public")
      *
      * @return RedirectResponse|Response|null
@@ -322,6 +306,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_submit",
      *     path="/verfahren/{procedure}/stellungnahmen/public/submit"
      * )
+     *
      * @DplanPermissions({"feature_new_statement", "area_statements_draft"})
      *
      * @param string $_route
@@ -365,7 +350,7 @@ class DemosPlanStatementController extends BaseController
             if ($request->getSession()->has('singleStatementId')
                 && '' !== $request->getSession()->get('singleStatementId')) {
                 // query draft statement statement from request
-                if (!array_key_exists('item_check', $inData) || !is_array($inData['item_check'])) {
+                if (!\array_key_exists('item_check', $inData) || !\is_array($inData['item_check'])) {
                     $inData['item_check'] = [];
                 }
 
@@ -425,7 +410,7 @@ class DemosPlanStatementController extends BaseController
             $inData['feedback'] = 'email';
 
             // Behandle die Stellungnahme (Einreichung, Freigabe)
-            if (array_key_exists('action', $inData) && 'confirmSubmitPublicStatement' === $inData['action']) {
+            if (\array_key_exists('action', $inData) && 'confirmSubmitPublicStatement' === $inData['action']) {
                 $invalidGprCheck = $this->invalidGdprCheck($inData);
                 $invalidPrivacyCheck = $this->invalidPrivacyCheck($inData);
                 $invalidLocalityCheck = $this->invalidLocalityCheck($inData);
@@ -440,7 +425,7 @@ class DemosPlanStatementController extends BaseController
                 $showConfirmWithPublicationDelay = false;
 
                 $gdprConsentReceived =
-                    array_key_exists('r_gdpr_consent', $inData)
+                    \array_key_exists('r_gdpr_consent', $inData)
                     && 'on' === $inData['r_gdpr_consent'];
                 foreach ($inData['item_check'] as $statementToRelease) {
                     // Speichern der neuen Formulardaten
@@ -583,6 +568,7 @@ class DemosPlanStatementController extends BaseController
      *      },
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @param string      $_route
@@ -690,7 +676,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // zurueckweisen verarbeiten
-        if ($requestPost->has('statement_reject') && 0 < strlen($requestPost->get('statement_reject'))) {
+        if ($requestPost->has('statement_reject') && 0 < \strlen($requestPost->get('statement_reject'))) {
             return $this->rejectStatement($request, $translator, $currentProcedure, $requestPost->get('statement_reject'), $userService);
         }
 
@@ -845,6 +831,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_vote",
      *     path="/verfahren/{procedure}/stellungnahmen/public/{statementID}/vote"
      * )
+     *
      * @DplanPermissions("feature_statements_vote_may_vote")
      *
      * @param string $procedure Procedure Id
@@ -873,7 +860,7 @@ class DemosPlanStatementController extends BaseController
         // Mitzeichnen einer Stellungnahme
 
         $requestPost = $request->request->all();
-        if (array_key_exists('action', $requestPost) && 'confirmVotePublicStatement' === $requestPost['action']) {
+        if (\array_key_exists('action', $requestPost) && 'confirmVotePublicStatement' === $requestPost['action']) {
             // Füge dem Statement eine Mitzeichnung hinzu
             $isVoteCast = $statementService->addVote($statementID, $this->currentUser->getUser());
 
@@ -932,6 +919,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_like",
      *     path="/verfahren/{procedure}/stellungnahmen/public/{statementId}/vote/anonymous",
      * )
+     *
      * @DplanPermissions("feature_statements_like_may_like")
      *
      * @param string $procedure
@@ -959,7 +947,7 @@ class DemosPlanStatementController extends BaseController
 
         try {
             $eventDispatcherPost->post($event);
-        } catch (Exception $e) {
+        } catch (CookieException|Exception $e) {
             return $response;
         }
 
@@ -1010,7 +998,7 @@ class DemosPlanStatementController extends BaseController
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
 
-            if (!array_key_exists('action', $requestPost) || 'statementpublicnew' === !$requestPost['action']) {
+            if (!\array_key_exists('action', $requestPost) || 'statementpublicnew' === !$requestPost['action']) {
                 throw new Exception('cannot handle request');
             }
 
@@ -1071,7 +1059,7 @@ class DemosPlanStatementController extends BaseController
                 $statementHandler->setDisplayNotices(false);
 
                 $fullEmailAddress = '';
-                if ($request->request->has('r_email') && 0 < strlen($requestPost['r_email'])) {
+                if ($request->request->has('r_email') && 0 < \strlen($requestPost['r_email'])) {
                     $fullEmailAddress = $requestPost['r_email'];
                 }
 
@@ -1138,6 +1126,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_public_participation_published",
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}"
      * )
+     *
      * @DplanPermissions("area_statements_public_published_public")
      *
      * @return RedirectResponse|Response
@@ -1176,6 +1165,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahmen/{statementID}/edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions({"area_statements_draft","feature_statements_draft_edit"})
      *
      * @return RedirectResponse|Response
@@ -1192,7 +1182,7 @@ class DemosPlanStatementController extends BaseController
         $urlFragment = '';
 
         $inData = $this->prepareIncomingData($request, 'statementedit');
-        if (array_key_exists('action', $inData) && 'statementedit' === $inData['action']) {
+        if (\array_key_exists('action', $inData) && 'statementedit' === $inData['action']) {
             // Formulardaten einsammeln
 
             $requestPost = $request->request->all();
@@ -1202,28 +1192,28 @@ class DemosPlanStatementController extends BaseController
             }
 
             // Lösche ggf. Zuweisungen
-            if (array_key_exists('delete_element', $requestPost)) {
+            if (\array_key_exists('delete_element', $requestPost)) {
                 $inData['r_elementID'] = '';
                 $inData['r_documentID'] = '';
                 $inData['r_paragraphID'] = '';
             }
-            if (array_key_exists('delete_document', $requestPost)) {
+            if (\array_key_exists('delete_document', $requestPost)) {
                 $inData['r_documentID'] = '';
             }
-            if (array_key_exists('delete_paragraph', $requestPost)) {
+            if (\array_key_exists('delete_paragraph', $requestPost)) {
                 $inData['r_paragraphID'] = '';
             }
             // Setze Zuweisungen neu
-            if (array_key_exists('r_element_new', $requestPost) && 0 < strlen($requestPost['r_element_new'])) {
+            if (\array_key_exists('r_element_new', $requestPost) && 0 < \strlen($requestPost['r_element_new'])) {
                 $inData['r_elementID'] = $requestPost['r_element_new'];
                 $inData['r_documentID'] = '';
                 $inData['r_paragraphID'] = '';
 
-                if (array_key_exists('r_paragraph_'.$inData['r_elementID'].'_new', $requestPost)) {
+                if (\array_key_exists('r_paragraph_'.$inData['r_elementID'].'_new', $requestPost)) {
                     $inData['r_paragraphID'] = $requestPost['r_paragraph_'.$inData['r_elementID'].'_new'];
                 }
 
-                if (array_key_exists('r_document_'.$inData['r_elementID'].'_new', $requestPost)) {
+                if (\array_key_exists('r_document_'.$inData['r_elementID'].'_new', $requestPost)) {
                     $inData['r_documentID'] = $requestPost['r_document_'.$inData['r_elementID'].'_new'];
                 }
             }
@@ -1232,8 +1222,8 @@ class DemosPlanStatementController extends BaseController
             $inData['procedureId'] = $procedure;
             $storageResult = $this->draftStatementHandler->updateDraftStatement($inData);
 
-            if (false !== $storageResult && array_key_exists('id', $storageResult) &&
-                !array_key_exists('mandatoryfieldwarning', $storageResult)
+            if (false !== $storageResult && \array_key_exists('id', $storageResult) &&
+                !\array_key_exists('mandatoryfieldwarning', $storageResult)
             ) {
                 $messageBag->add('confirm', $translator->trans('confirm.statement.saved'));
                 $urlFragment = '#'.$storageResult['id'];
@@ -1265,7 +1255,7 @@ class DemosPlanStatementController extends BaseController
         try {
             // Send Statement kann von meheren Stellen aus angesprungen werden. Es muss daher der Ursprungsort mitgegeben werden und dahin zuruckgesprungen werden
             $requestPost = $request->query->all();
-            if (array_key_exists('target', $requestPost) && 'released_group' === $requestPost['target']) {
+            if (\array_key_exists('target', $requestPost) && 'released_group' === $requestPost['target']) {
                 $target = 'DemosPlan_statement_list_released_group';
                 $permission = 'feature_statements_released_group_email';
                 $area = 'area_statements_released';
@@ -1282,7 +1272,7 @@ class DemosPlanStatementController extends BaseController
                         ),
                     ]
                 );
-            } elseif (array_key_exists('target', $requestPost) && 'released' === $requestPost['target']) {
+            } elseif (\array_key_exists('target', $requestPost) && 'released' === $requestPost['target']) {
                 $target = 'DemosPlan_statement_list_released';
                 $permission = 'feature_statements_released_email';
                 $area = 'area_statements_released';
@@ -1292,7 +1282,7 @@ class DemosPlanStatementController extends BaseController
                         'url'   => $this->generateUrl('DemosPlan_statement_list_released', ['procedure' => $procedure]),
                     ]
                 );
-            } elseif (array_key_exists('target', $requestPost) && 'final_group' === $requestPost['target']) {
+            } elseif (\array_key_exists('target', $requestPost) && 'final_group' === $requestPost['target']) {
                 $target = 'DemosPlan_statement_list_final_group';
                 $permission = 'feature_statements_final_email';
                 $area = 'area_statements_final';
@@ -1348,9 +1338,9 @@ class DemosPlanStatementController extends BaseController
                 'statement_document'       => $statementDocument,
                 'statement_paragraph'      => $statementParagraph,
                 'statement_singleDocument' => $statementSingleDocument,
-                'statement_text'           => html_entity_decode(
-                    strip_tags($draftStatement['text']),
-                    ENT_QUOTES,
+                'statement_text'           => \html_entity_decode(
+                    \strip_tags($draftStatement['text']),
+                    \ENT_QUOTES,
                     'utf-8'
                 ),
             ];
@@ -1393,6 +1383,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_versiondetail",
      *     path="/verfahren/{procedure}/stellungnahmen/{statementID}/version/{versionID}"
      * )
+     *
      * @DplanPermissions("feature_statements_draft_versions")
      *
      * @param string $procedure   ID of the Procedure
@@ -1450,6 +1441,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}/publish",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * @param string $procedure
@@ -1496,6 +1488,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/verfahren/{procedure}/stellungnahme/{statementID}/unpublish",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_released_group_submit")
      *
      * Ziehe die Veröffentlichung der Stellungnahme für andere TöB zurück.
@@ -1548,6 +1541,7 @@ class DemosPlanStatementController extends BaseController
      *     path="/rest/draftStatement/get/{procedureId}/{draftStatementId}",
      *     options={"expose": true})
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @param string $procedureId      Needed for initializing
@@ -1582,6 +1576,7 @@ class DemosPlanStatementController extends BaseController
      *     name="DemosPlan_statement_get_count_internal",
      *     path="/rest/statement/count/{procedure}",
      * )
+     *
      * @DplanPermissions("area_statements")
      *
      * @return JsonResponse
@@ -1614,15 +1609,15 @@ class DemosPlanStatementController extends BaseController
         $draftFilterList = $session->get('draftListFilters');
 
         // Initialize if not exists
-        if (!is_array($draftFilterList)) {
+        if (!\is_array($draftFilterList)) {
             $draftFilterList = [];
         }
 
-        if (!array_key_exists($procedureId, $draftFilterList)) {
+        if (!\array_key_exists($procedureId, $draftFilterList)) {
             $draftFilterList[$procedureId] = [];
         }
 
-        if (!array_key_exists($templateName, $draftFilterList[$procedureId])) {
+        if (!\array_key_exists($templateName, $draftFilterList[$procedureId])) {
             $draftFilterList[$procedureId][$templateName] = null;
         }
 
@@ -1764,7 +1759,7 @@ class DemosPlanStatementController extends BaseController
         $request = $request->request->all();
 
         foreach ($incomingFields[$action] as $key) {
-            if (array_key_exists($key, $request)) {
+            if (\array_key_exists($key, $request)) {
                 $result[$key] = $request[$key];
             }
         }
@@ -1797,8 +1792,8 @@ class DemosPlanStatementController extends BaseController
     {
         // replace the phase name that is stored within the draftStatement
         foreach ($draftStatementList as $key => $draftStatementArrayFormat) {
-            if (array_key_exists('phase', $draftStatementArrayFormat)
-                && array_key_exists('publicDraftStatement', $draftStatementArrayFormat)
+            if (\array_key_exists('phase', $draftStatementArrayFormat)
+                && \array_key_exists('publicDraftStatement', $draftStatementArrayFormat)
             ) {
                 $draftStatementList[$key]['phase'] = $this->globalConfig->getPhaseNameWithPriorityExternal($draftStatementArrayFormat['phase']);
                 if (DraftStatement::INTERNAL === $draftStatementArrayFormat['publicDraftStatement']
@@ -1879,7 +1874,7 @@ class DemosPlanStatementController extends BaseController
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->get('item_check');
         if (null !== $itemsToExport && 0 < count($itemsToExport)) {
-            $itemsToExport = implode(',', $itemsToExport);
+            $itemsToExport = \implode(',', $itemsToExport);
         }
 
         try {
@@ -2182,7 +2177,7 @@ class DemosPlanStatementController extends BaseController
                 $gdprConsentReceived = 'on' === $requestPost->get('r_gdpr_consent');
                 $statementHandler->submitStatement($requestPost->get('item_check'), $receiverId, false, $gdprConsentReceived);
                 $statementNumbers = $statementHandler->getDraftStatementNumbers($requestPost->get('item_check'));
-                $numberstring = implode(', ', $statementNumbers);
+                $numberstring = \implode(', ', $statementNumbers);
 
                 $this->getMessageBag()->add('confirm', 'confirm.statements.marked.submitted');
                 $this->getMessageBag()->addChoice(
@@ -2269,7 +2264,7 @@ class DemosPlanStatementController extends BaseController
         $this->permissions->checkPermission('feature_statements_final_email');
 
         try {
-            $to = $this->getEmailAddresses($translator, explode(',', $requestPost->get('sendasemail_recipient')));
+            $to = $this->getEmailAddresses($translator, \explode(',', $requestPost->get('sendasemail_recipient')));
         } catch (InvalidArgumentException $e) {
             return $this->redirectToRoute(
                 'DemosPlan_statement_send',
@@ -2322,8 +2317,8 @@ class DemosPlanStatementController extends BaseController
     private function getEmailAddresses(TranslatorInterface $translator, array $emailAddresses): array
     {
         // trim whitespaces
-        $to = array_map('\trim', $emailAddresses);
-        $to = array_filter($to);
+        $to = \array_map('\trim', $emailAddresses);
+        $to = \array_filter($to);
         if (0 === count($to)) {
             $this->getMessageBag()->add(
                 'error',
@@ -2331,7 +2326,7 @@ class DemosPlanStatementController extends BaseController
             );
             throw new InvalidArgumentException('missing email address');
         }
-        $to = array_filter($to, function ($emailTo) {
+        $to = \array_filter($to, function ($emailTo) {
             return filter_var($emailTo, FILTER_VALIDATE_EMAIL);
         });
         if (0 === count($to)) {
@@ -2372,7 +2367,7 @@ class DemosPlanStatementController extends BaseController
             $chosenDraftStatements = [];
             foreach ($outputResult->getStatementList() as $draftStatement) {
                 // wenn kein Statement zurückgegeben wird, zeige sie nicht an
-                if (!in_array($draftStatement['ident'], $itemsToExport, true)) {
+                if (!\in_array($draftStatement['ident'], $itemsToExport, true)) {
                     continue;
                 }
                 $chosenDraftStatements[] = $draftStatement;
@@ -2384,14 +2379,14 @@ class DemosPlanStatementController extends BaseController
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->get('item_check');
 
-        if (is_array($itemsToExport) && 0 < count($itemsToExport)) {
-            $itemsToExport = implode(',', $itemsToExport);
+        if (\is_array($itemsToExport) && 0 < count($itemsToExport)) {
+            $itemsToExport = \implode(',', $itemsToExport);
         } else {
             $exportIds = [];
             foreach ($chosenDraftStatements as $draftStatement) {
                 $exportIds[] = $draftStatement['ident'];
             }
-            $itemsToExport = implode(',', $exportIds);
+            $itemsToExport = \implode(',', $exportIds);
         }
 
         $procedureObject = $currentProcedureService->getProcedureWithCertainty();
@@ -2411,7 +2406,7 @@ class DemosPlanStatementController extends BaseController
             $this->permissions->hasPermission('feature_statement_gdpr_consent_submit');
 
         $gdprConfirmed =
-            array_key_exists('r_gdpr_consent', $inData)
+            \array_key_exists('r_gdpr_consent', $inData)
             && 'on' === $inData['r_gdpr_consent'];
 
         if ($mustValidateConfirmedGdpr && !$gdprConfirmed) {
@@ -2431,7 +2426,7 @@ class DemosPlanStatementController extends BaseController
     protected function invalidPrivacyCheck(array $inData): bool
     {
         $privacyConfirmed =
-            array_key_exists('r_privacy', $inData)
+            \array_key_exists('r_privacy', $inData)
             && 'on' === $inData['r_privacy'];
 
         if (!$privacyConfirmed) {
@@ -2455,7 +2450,7 @@ class DemosPlanStatementController extends BaseController
             $this->permissions->hasPermission('feature_require_locality_confirmation');
 
         $localityConfirmed =
-            array_key_exists('r_confirm_locality', $inData)
+            \array_key_exists('r_confirm_locality', $inData)
             && 'on' === $inData['r_confirm_locality'];
 
         if ($mustValidateLocalityConfirmed && !$localityConfirmed) {
@@ -2539,7 +2534,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // recreate uploaded array
-        $uploads = explode(',', $requestPost['uploadedFiles']);
+        $uploads = \explode(',', $requestPost['uploadedFiles']);
 
         foreach ($uploads as $uploadHash) {
             $file = $fileService->getFileInfo($uploadHash);
@@ -2628,15 +2623,15 @@ class DemosPlanStatementController extends BaseController
         $submit = 'submit';
         $request = $request->request->all();
 
-        if (array_key_exists($action, $request)) {
+        if (\array_key_exists($action, $request)) {
             $filters->setAction($request[$action]);
         }
 
-        if (array_key_exists($flip_status, $request)) {
+        if (\array_key_exists($flip_status, $request)) {
             $filters->setFlipStatus($request[$flip_status]);
         }
 
-        if (array_key_exists($submit, $request)) {
+        if (\array_key_exists($submit, $request)) {
             $filters->setSubmitOfIncomingListField($request[$submit]);
         }
 
