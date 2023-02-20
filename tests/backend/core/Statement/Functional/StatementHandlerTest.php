@@ -39,7 +39,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use Doctrine\ORM\EntityNotFoundException;
-use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\Filesystem\Filesystem;
@@ -75,7 +74,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         // create test request, just so we have a request to attach the mock session to
         $request = new Request([], [], [], [], [], [], json_encode([
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]));
         // add mocked session
         $request->setSession($this->getSessionMock());
@@ -114,7 +113,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEmpty($this->testStatementFragment->getPriorityAreas());
         static::assertNotEmpty($this->testStatementFragment->getMunicipalities());
 
-        //that means NO AreaInformation will be deleted:
+        // that means NO AreaInformation will be deleted:
         $inputData = [
             'priorityAreas'  => [$this->fixtures->getReference('testPriorityArea1')->getId(), $this->fixtures->getReference('testPriorityArea2')->getId()],
             'counties'       => [$this->fixtures->getReference('testCounty1')->getId(), $this->fixtures->getReference('testCounty2')->getId()],
@@ -129,13 +128,13 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testCalculateDeletingNotExistingAreaInformation()
     {
-        //used Fragment has no areaInformation!:
+        // used Fragment has no areaInformation!:
         static::assertEmpty($this->testStatementFragment->getCounties());
         static::assertEmpty($this->testStatementFragment->getPriorityAreas());
         static::assertEmpty($this->testStatementFragment->getMunicipalities());
 
-        //the following AreaInformation will NOT be deleted:
-        //conflicting input: county which will not deleted is not even in the fragment
+        // the following AreaInformation will NOT be deleted:
+        // conflicting input: county which will not deleted is not even in the fragment
         $inputData = [
             'priorityAreas'  => [],
             'counties'       => [$this->fixtures->getReference('testCounty1')->getId()],
@@ -156,7 +155,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEmpty($this->testStatementFragment->getPriorityAreas());
         static::assertNotEmpty($this->testStatementFragment->getMunicipalities());
 
-        //the following AreaInformation will NOT be deleted:
+        // the following AreaInformation will NOT be deleted:
         $inputData = [
             'priorityAreas'  => [$this->fixtures->getReference('testPriorityArea1')->getId()],
             'counties'       => [$this->fixtures->getReference('testCounty1')->getId()],
@@ -182,7 +181,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEmpty($this->testStatementFragment->getPriorityAreas());
         static::assertNotEmpty($this->testStatementFragment->getMunicipalities());
 
-        //the following AreaInformation will NOT be deleted:
+        // the following AreaInformation will NOT be deleted:
         $inputData = [
             'priorityAreas'  => [],
             'counties'       => [],
@@ -216,7 +215,7 @@ class StatementHandlerTest extends FunctionalTestCase
             [$fragment]);
 
         static::assertInstanceOf(Collection::class, $resultCollection);
-        //expect 4 arrays: $isolatedPriorityAreaIds, $isolatedMunicipalityIds, $isolatedCountyIds, $isolatedTagIds
+        // expect 4 arrays: $isolatedPriorityAreaIds, $isolatedMunicipalityIds, $isolatedCountyIds, $isolatedTagIds
         static::assertCount(4, $resultCollection);
 
         static::assertInstanceOf(Collection::class, $resultCollection['priorityAreas']);
@@ -299,7 +298,7 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_counties'       => [$testCounty1->getId(), $testCounty2->getId()],
         ];
 
-        //related Statement already have 3 area informations
+        // related Statement already have 3 area informations
         $relatedStatement = $this->sut->getStatement($fragment->getStatementId());
         static::assertNotContains($testPriorityArea2, $relatedStatement->getPriorityAreas());
         static::assertNotContains($testMunicipality2, $relatedStatement->getMunicipalities());
@@ -318,7 +317,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $result = $this->sut->updateStatementFragment($fragment->getId(), $inputData, false);
         static::assertInstanceOf(StatementFragment::class, $result);
 
-        //related Statement have now the 3 new area informations of the related fragment, too:
+        // related Statement have now the 3 new area informations of the related fragment, too:
         $relatedStatement = $this->sut->getStatement($result->getStatementId());
         static::assertContains($testMunicipality1, $relatedStatement->getMunicipalities());
         static::assertContains($testMunicipality2, $relatedStatement->getMunicipalities());
@@ -358,7 +357,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertContains($testMunicipality1, $relatedStatement->getMunicipalities());
         static::assertContains($testCounty1, $relatedStatement->getCounties());
 
-        //fragment are filled?
+        // fragment are filled?
         static::assertCount(1, $fragment->getPriorityAreas());
         static::assertCount(1, $fragment->getMunicipalities());
         static::assertCount(1, $fragment->getCounties());
@@ -371,7 +370,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->logIn($user);
         $this->sut->setAssigneeOfStatementFragment($fragment, $user);
 
-        //delete all areaInformation of the related Fragment:
+        // delete all areaInformation of the related Fragment:
         $result = $this->sut->updateStatementFragment(
             $fragment->getId(),
             [
@@ -383,10 +382,10 @@ class StatementHandlerTest extends FunctionalTestCase
 
         static::assertInstanceOf(StatementFragment::class, $result);
 
-        //fragment have no more areainformation
+        // fragment have no more areainformation
         static::assertEmpty($fragment->getPriorityAreas());
 
-        //the statement should be still have the areainformation:
+        // the statement should be still have the areainformation:
         $relatedStatement = $this->sut->getStatement($result->getStatementId());
         static::assertContains($testPriorityArea1, $relatedStatement->getPriorityAreas());
         static::assertNotContains($testPriorityArea2, $relatedStatement->getPriorityAreas());
@@ -443,10 +442,9 @@ class StatementHandlerTest extends FunctionalTestCase
     }
 
     /**
-     * @param $request
-     *
      * @throws Exception
      * @throws Throwable
+     *
      * @dataProvider dataProviderValidationErrorNewStatement
      */
     public function testValidationerrorNewPublicStatement($request)
@@ -481,7 +479,7 @@ class StatementHandlerTest extends FunctionalTestCase
      *
      * @throws Exception
      */
-    public function testUpdateStatementFragmentData(/* $providerData*/)
+    public function testUpdateStatementFragmentData(/* $providerData */)
     {
         self::markSkippedForCIIntervention();
 
@@ -532,7 +530,7 @@ class StatementHandlerTest extends FunctionalTestCase
             // for providing new Data <copy>
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_currentUserName' => 'userName',
                         'r_vote'            => 'full',
                     ],
@@ -543,10 +541,10 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //zuweisen von fragment zu einem reviewer, welcher dann Empfehlungen von Begründung und abgeben kann.
+            // zuweisen von fragment zu einem reviewer, welcher dann Empfehlungen von Begründung und abgeben kann.
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_reviewer' => 'department',
                     ],
                     'expectedData' => [
@@ -556,10 +554,10 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //set Vote
+            // set Vote
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_vote' => 'full',
                     ],
                     'expectedData' => [
@@ -568,10 +566,10 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //Set consideration
+            // Set consideration
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_consideration' => 'consideration text',
                     ],
                     'expectedData' => [
@@ -625,10 +623,10 @@ class StatementHandlerTest extends FunctionalTestCase
         $id = $this->fixtures->getReference('testStatementFragment1')->getId();
 
         return [
-            //abgeben einer Empfehlung, wobei der userName nicht gespeicherst wird.
+            // abgeben einer Empfehlung, wobei der userName nicht gespeicherst wird.
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_currentUserName' => 'userName',
                         'r_vote_advice'     => 'full',
                     ],
@@ -642,11 +640,11 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //zurückweisen eines Datensatzes, wobei die departmentId auf null gesetzt werden soll und die abgegebene
-            //considerationAdvice in das consideration feld kopiert werden soll
+            // zurückweisen eines Datensatzes, wobei die departmentId auf null gesetzt werden soll und die abgegebene
+            // considerationAdvice in das consideration feld kopiert werden soll
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_notify'         => 'destinationDepartment',
                         'r_departmentName' => 'archivedNameOfDepartment',
                         'r_orgaName'       => 'archivedNameOfOrga',
@@ -664,10 +662,10 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //set Vote
+            // set Vote
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_vote_advice' => 'full',
                     ],
                     'expectedData' => [
@@ -680,10 +678,10 @@ class StatementHandlerTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            //Set consideration
+            // Set consideration
             [
                 [
-                    'data' => [
+                    'data'         => [
                         'r_consideration' => 'consideration text',
                     ],
                     'expectedData' => [
@@ -750,8 +748,8 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_element'                => $testElementId1,
 //            'r_paragraph' => 'neuer Text eines frisch erstellen Datensatzes.',
 //            'r_document' => 'neuer Text eines frisch erstellen Datensatzes.',
-            'statementId' => $statementId,
-            'procedureId' => $procedureId,
+            'statementId'              => $statementId,
+            'procedureId'              => $procedureId,
         ];
 
         $newFragment = $this->sut->createStatementFragment($fragmentData);
@@ -773,13 +771,13 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //get fragment
+        // get fragment
 
-        //get text
-        //add tag
+        // get text
+        // add tag
 
-        //get fragment
-        //get text assert ++
+        // get fragment
+        // get text assert ++
 
 //        $data['r_tags'] = [''];
 //        $statementFragmentData['consideration'] = '';
@@ -820,7 +818,7 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //load reference fragment
+        // load reference fragment
         $fragment = $this->getStatementFragmentReference('testStatementFragmentFilled1');
         $tag1 = $this->getTagReference('testFixtureTag_1');
         $tag2 = $this->getTagReference('testFixtureTag_2');
@@ -840,7 +838,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->logIn($user);
         $this->sut->setAssigneeOfStatementFragment($fragment, $user);
 
-        //add tags
+        // add tags
         $result = $this->sut->updateStatementFragment(
             $fragment->getId(),
             ['r_tags' => [$tag1->getId(), $tag2->getId()]],
@@ -897,14 +895,14 @@ class StatementHandlerTest extends FunctionalTestCase
         $fragment = $this->sut->getStatementFragment($fragmentId);
         static::assertEquals($user, $fragment->getAssignee());
 
-        //test "stealing" the Statement
+        // test "stealing" the Statement
         /** @var User $user2 */
         $user2 = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
         $this->sut->setAssigneeOfStatementFragment($fragment, $user2);
         $fragment = $this->sut->getStatementFragment($fragmentId);
         static::assertEquals($user2, $fragment->getAssignee());
 
-        //test "unlock" the Statement
+        // test "unlock" the Statement
         $this->sut->setAssigneeOfStatementFragment($fragment);
         $fragment = $this->sut->getStatementFragment($fragmentId);
         static::assertNull($fragment->getAssignee());
@@ -922,14 +920,14 @@ class StatementHandlerTest extends FunctionalTestCase
         $statement = $this->sut->getStatement($statementId);
         static::assertEquals($user, $statement->getAssignee());
 
-        //test "stealing" the Statement
+        // test "stealing" the Statement
         /** @var User $user2 */
         $user2 = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
         $this->sut->setAssigneeOfStatement($statement, $user2);
         $statement = $this->sut->getStatement($statementId);
         static::assertEquals($user2, $statement->getAssignee());
 
-        //test "unlock" the Statement
+        // test "unlock" the Statement
         $this->sut->setAssigneeOfStatement($statement);
         $statement = $this->sut->getStatement($statement->getId());
         static::assertNull($statement->getAssignee());
@@ -1153,7 +1151,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedStatement->getText(), $updatedText);
         static::assertEquals($updatedStatement->getPriority(), $updatedPriority);
         static::assertEquals($updatedStatement->getExternId(), $updatedExternId);
-        //intern id only gets from original statement -> null
+        // intern id only gets from original statement -> null
 //        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
         static::assertEquals($updatedStatement->getPhase(), $updatedPhase);
         static::assertEquals($updatedStatement->getStatus(), $updatedStatus);
@@ -1172,7 +1170,7 @@ class StatementHandlerTest extends FunctionalTestCase
         /** @var StatementMeta[] $statementMetas */
         $statementMetas = $this->getEntries(StatementMeta::class, ['submitUId' => $testUser->getid()]);
 
-        //only find statements which are originals and submitter == testuser:
+        // only find statements which are originals and submitter == testuser:
         $statementsToBeFound = [];
         foreach ($statementMetas as $meta) {
             if ($meta->getStatement()->isOriginal()
@@ -1205,7 +1203,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statementMetas = $this->getEntries(StatementMeta::class, ['submitUId' => $sessionUserId]);
         static::assertCount(0, $statementMetas);
 
-        //new Statement by userXY
+        // new Statement by userXY
         $data = [
             'r_title'                 => 'newTitle',
             'r_internId'              => 'id123',
@@ -1250,7 +1248,7 @@ class StatementHandlerTest extends FunctionalTestCase
             'postalCode'   => '12345',
         ];
 
-        //new Statement by userXY
+        // new Statement by userXY
         $data = [
             'r_title'                      => 'test similar statement submitters',
             'r_internId'                   => 'id123334',
@@ -1321,7 +1319,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statementsToCluster = [$statement1, $statement2, $statement3, $statement4];
         $statementIdsToCluster = [$statement1->getId(), $statement2->getId(), $statement3->getId(), $statement4->getId()];
 
-        //filter assigned statements -> not "clusterable"
+        // filter assigned statements -> not "clusterable"
         foreach ($statementsToCluster as $statement) {
             if ($statement->getAssignee() === $this->testUser) {
                 $statementsClaimedByCurrentUser->push($statement);
@@ -1331,8 +1329,8 @@ class StatementHandlerTest extends FunctionalTestCase
         $claimedStatementsAlreadyClustered = 0;
         /** @var Statement $claimedStatement */
         foreach ($statementsClaimedByCurrentUser as $claimedStatement) {
-            //Statements die bereits in einem Cluster sind, werde nur umgehangen.
-            //Dadurch ändert sich nicht die Gesamtanzahl von Statemnts in der DB, die einem Clsuter zugewiesen sind.
+            // Statements die bereits in einem Cluster sind, werde nur umgehangen.
+            // Dadurch ändert sich nicht die Gesamtanzahl von Statemnts in der DB, die einem Clsuter zugewiesen sind.
             if ($claimedStatement->isInCluster()) {
                 ++$claimedStatementsAlreadyClustered;
             }
@@ -1362,7 +1360,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement[] $totalAmountOfStatementsAfter */
         $totalAmountOfStatementsAfter = $this->countEntries(Statement::class);
-        //Cluster is a special Type of an ordinary Statement, DB should have two more rows for original and assessmenttable
+        // Cluster is a special Type of an ordinary Statement, DB should have two more rows for original and assessmenttable
         static::assertEquals($totalAmountOfStatementsBefore + 2, $totalAmountOfStatementsAfter);
 
         /** @var Statement[] $allStatementsAfterClustering */
@@ -1375,7 +1373,7 @@ class StatementHandlerTest extends FunctionalTestCase
             }
         }
 
-        //Only statements which are assigned to current user can be clustered and should be member of the cluster now.
+        // Only statements which are assigned to current user can be clustered and should be member of the cluster now.
         static::assertEquals(
             $totalAmountOfMemberOfClusterBefore + count($statementsClaimedByCurrentUser),
             $totalAmountOfMemberOfCluster
@@ -1391,11 +1389,11 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement $statement */
         foreach ($statementsClaimedByCurrentUser as $statement) {
-            //reload Statement
+            // reload Statement
             $statement = $this->sut->getStatement($statement->getId());
 
             static::assertTrue($statement->isInCluster());
-            //richtiges HeadStatement?
+            // richtiges HeadStatement?
             static::assertEquals($clusterHeadStatement->getText(), $statement->getHeadStatement()->getText());
             static::assertEquals($clusterHeadStatement->getExternId(), $statement->getHeadStatement()->getExternId());
             static::assertEquals($clusterHeadStatement->getProcedureId(), $statement->getHeadStatement()->getProcedureId());
@@ -1440,7 +1438,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($statement1->getVoteStk(), $clusterHeadStatement->getVoteStk());
         static::assertEquals($statement1->getFiles(), $clusterHeadStatement->getFiles());
 
-        //todo: test without permission !
+        // todo: test without permission !
     }
 
     /**
@@ -1518,7 +1516,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         static::assertCount(1, $clusterStatement->getCluster());
 
-        //check assumption:
+        // check assumption:
         static::assertEquals($statement7->getId(), $clusterStatement->getCluster()[0]->getId());
         static::assertContains($statement7, $clusterStatement->getCluster());
         static::assertEquals($statement7->getHeadStatement(), $clusterStatement);
@@ -1528,7 +1526,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($clusterStatement->getAssignee(), $user);
 
         static::assertEquals($statement6->getAssignee(), $user);
-        //add statement to cluster:
+        // add statement to cluster:
         $result = $this->sut->addStatementToCluster($clusterStatement, $statement6);
         static::assertNotFalse($result);
         static::assertInstanceOf(Statement::class, $result);
@@ -1536,13 +1534,13 @@ class StatementHandlerTest extends FunctionalTestCase
         $clusterStatement = $this->sut->getStatement($clusterStatement->getId());
         $statement6 = $this->sut->getStatement($statement6->getId());
 
-        //check added Statement and cluster:
+        // check added Statement and cluster:
         static::assertCount(2, $clusterStatement->getCluster());
         static::assertNull($clusterStatement->getHeadStatement());
         static::assertEquals($clusterStatement, $statement6->getHeadStatement());
 
-        //todo: check for not assigned!:
-        //check for statement is not longer reachable in "normal way" -> should not appearing in lists and CO.
+        // todo: check for not assigned!:
+        // check for statement is not longer reachable in "normal way" -> should not appearing in lists and CO.
     }
 
     public function testDetachStatementFromCluster()
@@ -1563,14 +1561,14 @@ class StatementHandlerTest extends FunctionalTestCase
 
         $totalAmountOfStatementsBefore = $this->countEntries(Statement::class);
 
-        //check assumption:
+        // check assumption:
         static::assertEquals($statement7->getId(), $clusterStatement->getCluster()[0]->getId());
         static::assertContains($statement7, $clusterStatement->getCluster());
         static::assertEquals($statement7->getHeadStatement(), $clusterStatement);
         static::assertEquals($statement7->getText(), $clusterStatement->getCluster()[0]->getText());
         static::assertNull($clusterStatement->getHeadStatement());
 
-        //add statement to cluster:
+        // add statement to cluster:
         $successful = $this->sut->addStatementToCluster($clusterStatement, $statement6);
         static::assertNotFalse($successful);
         static::assertInstanceOf(Statement::class, $successful);
@@ -1578,12 +1576,12 @@ class StatementHandlerTest extends FunctionalTestCase
         $clusterStatement = $this->sut->getStatement($clusterStatement->getId());
         $statement6 = $this->sut->getStatement($statement6->getId());
 
-        //check added Statement and cluster:
+        // check added Statement and cluster:
         static::assertCount(2, $clusterStatement->getCluster());
         static::assertNull($clusterStatement->getHeadStatement());
         static::assertEquals($clusterStatement, $statement6->getHeadStatement());
 
-        //remove 1 of 2 clustersElements
+        // remove 1 of 2 clustersElements
         $successful = $this->sut->detachStatementFromCluster($statement7);
         static::assertTrue($successful);
 
@@ -1596,7 +1594,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNull($statement7->getHeadStatement());
         static::assertFalse($statement7->isInCluster());
 
-        //removing the last element of the cluster should result in deleting the cluster/headStatement itself
+        // removing the last element of the cluster should result in deleting the cluster/headStatement itself
         $successful = $this->sut->detachStatementFromCluster($statement6);
         static::assertTrue($successful);
 
@@ -1611,7 +1609,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($totalAmountOfStatementsBefore - 1,
             $this->countEntries(Statement::class));
 
-        //todo: test without permission?
+        // todo: test without permission?
     }
 
     public function testUpdateClusterMember()
@@ -1620,7 +1618,7 @@ class StatementHandlerTest extends FunctionalTestCase
         // unable to get featrues, user, and sessionId via mocking,
         // because these are getting via the "get()", but with different parameters. No idea how to mock different results.
 
-        //should be blocked because statement is member of cluster
+        // should be blocked because statement is member of cluster
         /** @var Statement $memberOfCluster */
         $memberOfCluster = $this->fixtures->getReference('testStatementAssigned7');
         static::assertTrue($memberOfCluster->isInCluster());
@@ -1661,7 +1659,7 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIElasticsearchUnavailable();
 
-        //all statements of the cluster will be "normal" statements again
+        // all statements of the cluster will be "normal" statements again
         $allStatementsBefore = $this->getEntries(Statement::class);
         $totalAmountOfStatementsBefore = count($allStatementsBefore);
         $totalAmountOfClusterBefore = 0;
@@ -1681,7 +1679,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $headStatementId = $headStatement->getId();
         $statementsOfCluster = collect($headStatement->getCluster());
 
-        //execute resolving:
+        // execute resolving:
         $successful = $this->sut->resolveCluster($headStatement);
 
         $allStatementsAfter = $this->getEntries(Statement::class);
@@ -1775,7 +1773,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statementMetas = $this->getEntries(StatementMeta::class, ['submitUId' => $sessionUserId]);
         static::assertCount(0, $statementMetas);
 
-        //new Statement by userXY
+        // new Statement by userXY
         $data = [
             'r_title'          => 'newTitle',
             'r_externId'       => 'id123',
@@ -1814,12 +1812,12 @@ class StatementHandlerTest extends FunctionalTestCase
         // execute function to test:
         $statement1->addChild($statement2);
 
-        //update and load entities:
+        // update and load entities:
         $this->sut->updateStatementObject($statement1);
         $statement1 = $this->sut->getStatement($statement1->getId());
         $statement2 = $this->sut->getStatement($statement2->getId());
 
-        //assertions
+        // assertions
         static::assertCount(1, $statement1->getChildren());
         static::assertEquals($statement2, $statement1->getChildren()[0]);
         static::assertNotNull($statement2->getParent());
@@ -1832,7 +1830,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statement1 = $this->fixtures->getReference('testStatement1');
         /** @var Statement $statement2 */
         $statement2 = $this->fixtures->getReference('testStatement2');
-        //prepare:
+        // prepare:
         $statement1->addChild($statement2);
         $this->sut->updateStatementObject($statement1);
         $statement1 = $this->sut->getStatement($statement1->getId());
@@ -1845,12 +1843,12 @@ class StatementHandlerTest extends FunctionalTestCase
         // execute function to test:
         $statement1->removeChild($statement2);
 
-        //update and load entities:
+        // update and load entities:
         $this->sut->updateStatementObject($statement1);
         $statement1 = $this->sut->getStatement($statement1->getId());
         $statement2 = $this->sut->getStatement($statement2->getId());
 
-        //assertions:
+        // assertions:
         static::assertNull($statement2->getParent());
         static::assertEmpty($statement1->getChildren());
     }
@@ -1874,12 +1872,12 @@ class StatementHandlerTest extends FunctionalTestCase
         // execute function to test:
         $statement2->setParent($statement1);
 
-        //update and load entities:
+        // update and load entities:
         $this->sut->updateStatementObject($statement1);
         $statement1 = $this->sut->getStatement($statement1->getId());
         $statement2 = $this->sut->getStatement($statement2->getId());
 
-        //assertions
+        // assertions
         static::assertCount(1, $statement1->getChildren());
         static::assertEquals($statement2, $statement1->getChildren()[0]);
         static::assertNotNull($statement2->getParent());
@@ -1908,13 +1906,13 @@ class StatementHandlerTest extends FunctionalTestCase
         // execute function to test:
         $statement1->setChildren([$statement2, $statement3]);
 
-        //update and load entities:
+        // update and load entities:
         $this->sut->updateStatementObject($statement1);
         $statement1 = $this->sut->getStatement($statement1->getId());
         $statement2 = $this->sut->getStatement($statement2->getId());
         $statement3 = $this->sut->getStatement($statement3->getId());
 
-        //assertions
+        // assertions
         static::assertCount(2, $statement1->getChildren());
         static::assertContains($statement2, $statement1->getChildren());
         static::assertContains($statement3, $statement1->getChildren());
@@ -1931,7 +1929,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $cluster1 = $this->fixtures->getReference('clusterStatement1');
         $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
-        //reset assigment
+        // reset assigment
         $this->sut->setAssigneeOfStatement($cluster1);
 
         $updatedCluster1 = $this->sut->getStatement($cluster1->getId());
@@ -1943,7 +1941,7 @@ class StatementHandlerTest extends FunctionalTestCase
             static::assertNull($element->getAssignee());
         }
 
-        //set assigment to testuser
+        // set assigment to testuser
         $this->sut->setAssigneeOfStatement($updatedCluster1, $testUser);
 
         static::assertEquals($testUser, $updatedCluster1->getAssignee());
@@ -1991,7 +1989,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($this->testUser, $statementWithFragments->getAssignee());
         static::assertEquals($this->testUser, $anotherStatement->getAssignee());
         static::assertNotEmpty($statementWithFragments->getFragments());
-        //means: that Fragment is assigned to reviewer: -> clustering this statement should be denied
+        // means: that Fragment is assigned to reviewer: -> clustering this statement should be denied
         static::assertInstanceOf(Department::class, $statementWithFragments->getFragments()[0]->getDepartment());
         static::assertSame($statementWithFragments->getProcedureId(), $anotherStatement->getProcedureId());
 
@@ -2034,13 +2032,13 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEquals($clusterStatement->getProcedureId(), $copiedCluster->getProcedureId());
 
         $amountOfClusterAfter = $this->countEntries(Statement::class, ['clusterStatement' => true]);
-        //originalSTN + STN will be marked as cluster statements
+        // originalSTN + STN will be marked as cluster statements
         static::assertEquals($amountOfClusterBefore + 2, $amountOfClusterAfter);
 
         $amountOfClusterInSourceProcedureAfter = $this->countEntries(Statement::class, ['clusterStatement' => true, 'procedure' => $sourceProcedure->getId()]);
         $amountOfClusterInTargetProcedureAfter = $this->countEntries(Statement::class, ['clusterStatement' => true, 'procedure' => $targetProcedure->getId()]);
         static::assertEquals($amountOfClusterInSourceProcedureBefore, $amountOfClusterInSourceProcedureAfter);
-        //originalSTN + STN will be marked as cluster statements
+        // originalSTN + STN will be marked as cluster statements
         static::assertEquals($amountOfClusterInTargetProcedureBefore + 2, $amountOfClusterInTargetProcedureAfter);
     }
 
@@ -2141,7 +2139,7 @@ class StatementHandlerTest extends FunctionalTestCase
         }
     }
 
-    //------------------------------------Hilfsmethoden------------------------------------
+    // ------------------------------------Hilfsmethoden------------------------------------
 
     /**
      * @return PHPUnit_Framework_MockObject_MockObject
@@ -2185,8 +2183,6 @@ class StatementHandlerTest extends FunctionalTestCase
      * @param bool $priorityArea
      * @param bool $fragmentAdd
      * @param bool $cluster
-     *
-     * @return Session
      */
     protected function getSessionMock($county = true,
         $municipality = true,
@@ -2275,13 +2271,13 @@ class StatementHandlerTest extends FunctionalTestCase
         $departmentId = $this->fixtures->getReference('testDepartment')->getId();
 
         return [
-            //vote & reviewer
+            // vote & reviewer
             [['r_reviewer' => $departmentId, 'r_vote_advice' => 'full']],
             // reset reviewer
             [['r_reviewer' => '', 'r_vote_advice' => 'full']],
-            //vote only
+            // vote only
             [['r_vote_advice' => 'full']],
-            //reviewer only
+            // reviewer only
             [['r_reviewer' => $departmentId]],
         ];
     }
@@ -2309,26 +2305,26 @@ class StatementHandlerTest extends FunctionalTestCase
         $fragment = $this->fixtures->getReference('testStatementFragmentFilled1');
         static::assertNull($fragment->getDepartmentId());
 
-        //to ensure update will not fail because of assignment
+        // to ensure update will not fail because of assignment
         $this->sut->setAssigneeOfStatementFragment($fragment, $this->testUser);
         $this->logIn($this->testUser);
 
         $isVoteAdviceGiven = array_key_exists('r_vote_advice', $providerData);
         $isReviewerGiven = array_key_exists('r_reviewer', $providerData);
 
-        //to ensure difference
+        // to ensure difference
         if ($isVoteAdviceGiven) {
             static::assertNotEquals($providerData['r_vote_advice'], $fragment->getVoteAdvice());
         }
 
         $updatedFragment = $this->sut->updateStatementFragment($fragment->getId(), $providerData, false);
 
-        //successfully updated?
+        // successfully updated?
         static::assertInstanceOf(StatementFragment::class, $updatedFragment);
 
         // actually assertions
         if ($isReviewerGiven && $isVoteAdviceGiven) {
-            //only the voteAdvice should be saved
+            // only the voteAdvice should be saved
             static::assertEquals($providerData['r_vote_advice'], $fragment->getVoteAdvice());
 //            assertNotEquals do not differentiate between '' and null
             static::assertNotSame($providerData['r_reviewer'], $fragment->getDepartmentId());
@@ -2430,7 +2426,7 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //prepare:
+        // prepare:
         /** @var StatementFragment $fragment */
         $fragment = $this->fixtures->getReference('testStatementFragmentAssignedToDepartment');
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());
@@ -2451,7 +2447,7 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //prepare:
+        // prepare:
         /** @var StatementFragment $fragment */
         $fragment = $this->fixtures->getReference('testStatementFragmentAssignedToDepartment');
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());
@@ -2479,7 +2475,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $fragment->getProcedure()->getOrga()->setEmail2(null);
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());
 
-        //Bearbeitung des Datensatzes abschliessen von Fachbehörde
+        // Bearbeitung des Datensatzes abschliessen von Fachbehörde
         $updatedFragment = $this->sut->updateStatementFragment($fragment->getId(),
             [
                 'r_notify'         => 'on',
@@ -2530,7 +2526,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testFragmentStateSetVerified()
     {
-        //prepare:
+        // prepare:
         /** @var StatementFragment $fragment */
         $fragment = $this->fixtures->getReference('testStatementFragmentAssignedToDepartment');
         static::assertEquals('fragment.status.assignedToFB', $fragment->getStatus());
@@ -2669,7 +2665,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $relatedElementOfParagraph = $paragraphToSet->getElement();
         static::assertEquals($elementToSet, $relatedElementOfParagraph);
 
-        //testParagraph1 is part of testElement1
+        // testParagraph1 is part of testElement1
         $updateData = [
             'ident'       => $fragment->getId(),
             'r_paragraph' => $paragraphToSet,
@@ -2732,7 +2728,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedFragment->getElement(), $relatedElementOfParagraph);
         // --------------------------------------------------------------------
 
-        //testParagraph1 is part of testElement1
+        // testParagraph1 is part of testElement1
         $updateData = [
             'ident'       => $fragment->getId(),
             'text'        => 'updated Text 78789784568656489654',
@@ -2786,15 +2782,15 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        //low priority: not implemented yet
+        // low priority: not implemented yet
 
-        //get procedure with statements
-        //select single statement
-        //$this->sut->moveStatementToProcedure($statement, $procedure)
+        // get procedure with statements
+        // select single statement
+        // $this->sut->moveStatementToProcedure($statement, $procedure)
 
-        //check: parentcluster, statements, fragments, originalSN, procedureneu, procedureold,
-        //still have same fragments, related fragments in new procedure?
-        //original STN in oldprocedure?
+        // check: parentcluster, statements, fragments, originalSN, procedureneu, procedureold,
+        // still have same fragments, related fragments in new procedure?
+        // original STN in oldprocedure?
     }
 
     public function testGetAllowedVoteValues()
@@ -2856,7 +2852,7 @@ class StatementHandlerTest extends FunctionalTestCase
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
 
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $copiedStatement = $this->sut->copyStatementToProcedure($testStatement, $targetProcedure);
@@ -2864,7 +2860,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getProcedureId());
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getOriginal()->getProcedureId());
         static::assertEquals($targetProcedure->getId(), $copiedStatement->getElement()->getProcedure()->getId());
-        //will not work because of testdata?:
+        // will not work because of testdata?:
 //        static::assertContains($copiedStatement, $copiedStatement->getOriginal()->getChildren());
 //        static::assertNotContains($testStatement, $copiedStatement->getOriginal()->getChildren());
 //        static::assertContains($testStatement, $testStatement->getOriginal()->getChildren());
@@ -2881,7 +2877,7 @@ class StatementHandlerTest extends FunctionalTestCase
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
 
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $amountOfStatementsBefore = $this->countEntries(Statement::class);
@@ -2906,7 +2902,7 @@ class StatementHandlerTest extends FunctionalTestCase
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
 
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $amountOfReportsOfSourceProcedureBefore = $this->countEntries(ReportEntry::class, ['identifier' => $sourceProcedure->getId()]);
@@ -2933,7 +2929,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEmpty($testStatement->getFragments());
         $amountOfFragmentOfSourceStatement = $testStatement->getFragments()->count();
 
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $copiedStatement = $this->sut->copyStatementToProcedure($testStatement, $targetProcedure);
@@ -2959,7 +2955,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
         $testStatement = $statementService->addFilesToStatementObject([$fileString], $testStatement);
         static::assertNotEmpty($testStatement->getFiles());
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $copiedStatement = $this->sut->copyStatementToProcedure($testStatement, $targetProcedure);
@@ -2993,7 +2989,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $testStatement->setMapFile($fileString);
         $testStatement = $statementService->updateStatementFromObject($testStatement);
         static::assertNotEmpty($testStatement->getMapFile());
-        //check setup: targetProcedure != sourceProcedure
+        // check setup: targetProcedure != sourceProcedure
         static::assertNotEquals($targetProcedure->getId(), $sourceProcedure->getId());
 
         $copiedStatement = $this->sut->copyStatementToProcedure($testStatement, $targetProcedure);
@@ -3024,7 +3020,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $tagAlreadyPresent = $this->fixtures->getReference('testFixtureTag_2');
         static::assertCount(1, $statement->getTags());
         static::assertSame($tagAlreadyPresent, $statement->getTags()->first());
-        $resourceLinkage = (new ResourceLinkageFactory)->createFromJsonRequestString(
+        $resourceLinkage = (new ResourceLinkageFactory())->createFromJsonRequestString(
             sprintf(
                 '{"data": [{ "type": "Tag", "id": "%s" }]}',
                 $tagAlreadyPresent->getId()

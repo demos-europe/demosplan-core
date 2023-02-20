@@ -49,7 +49,7 @@ class ManualListSorter
             'list'   => $result,
         ];
 
-        //fetch the sort order from DB
+        // fetch the sort order from DB
         $manualSort = $this->manualListSortRepository->findOneBy(
             ['context' => $manualSortScope, 'pId' => $procedureId, 'namespace' => $namespace]
         );
@@ -72,5 +72,4 @@ class ManualListSorter
     {
         return $this->manualListSortRepository->setManualSort($context, $data);
     }
-
 }

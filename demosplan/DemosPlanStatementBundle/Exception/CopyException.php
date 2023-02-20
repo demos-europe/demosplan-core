@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class CopyException extends \Exception
+use Exception;
+
+class CopyException extends Exception
 {
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
-use DemosEurope\DemosplanAddon\Configuration\AbstractAddonInfoProvider;
 use demosplan\DemosPlanCoreBundle\DataGenerator\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
@@ -37,8 +36,6 @@ final class ServiceTagAutoconfigurator
      */
     public const RPC_METHOD_SOLVERS = 'dplan.rpc.method.solver';
 
-    public const ADDON_INFO_PROVIDER = 'dplan.addon_info_provider';
-
     /**
      * Generators for faked contents of several file formats.
      *
@@ -50,7 +47,6 @@ final class ServiceTagAutoconfigurator
         self::DEPLOYMENT_STRATEGIES => StrategyInterface::class,
         self::FAKE_DATA_GENERATOR   => DataGeneratorInterface::class,
         self::RPC_METHOD_SOLVERS    => RpcMethodSolverInterface::class,
-        self::ADDON_INFO_PROVIDER   => AbstractAddonInfoProvider::class,
     ];
 
     public static function configure(ContainerBuilder $containerBuilder): void

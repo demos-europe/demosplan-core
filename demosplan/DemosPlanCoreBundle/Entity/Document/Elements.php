@@ -36,6 +36,8 @@ class Elements extends CoreEntity implements UuidEntityInterface
     public const FILE_TYPE_ANSCHREIBEN_BETEILIGUNGSVERFAHREN = 'Anschreiben Beteiligungsverfahren';
     public const FILE_TYPE_ANTRAGS_AUFTRAGSDOKUMENTE = 'Antrags- und Auftragsdokumente (Veranstaltung)';
     public const FILE_TYPE_ARBEITSKREISPAPIER = 'Arbeitskreispapier I und II';
+    public const FILE_TYPE_ARBEITSKREISPAPIER_I = 'AKI-Papier';
+    public const FILE_TYPE_ARBEITSKREISPAPIER_II = 'AKII-Papier';
     public const FILE_TYPE_AUBS_DRITTER_BLATT = 'AuBS 3er-Blatt';
     public const FILE_TYPE_AUFHEBUNGSBESCHLUSS = 'Aufhebungsbeschluss';
     public const FILE_TYPE_AUFSTELLUNGSBESCHLUSS = 'Aufstellungsbeschluss';
@@ -47,7 +49,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
     public const FILE_TYPE_BESCHLUSS_ZUR_LAPRO_ANDERUNG = 'Beschluss zur Lapro-Änderung';
     public const FILE_TYPE_DRUCKSACHE = 'Drucksache';
     public const FILE_TYPE_DURCHFUHRUNGSVERTRAG = 'Durchführungsvertrag';
-    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'Ergänzende Unterlage';
+    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'ergänzende Unterlage';
     public const FILE_TYPE_ERSCHLIESSUNGSVERTRAG = 'Erschließungsvertrag';
     public const FILE_TYPE_FESTSTELLUNG_PLANREIFE = 'Feststellung Planreife';
     public const FILE_TYPE_FESTSTELLUNGSBESCHLUSS = 'Feststellungsbeschluss';
@@ -71,7 +73,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
     public const FILE_TYPE_PLANZEICHNUNG = 'Planzeichnung';
     public const FILE_TYPE_PRAESENTATION = 'Präsentation';
     public const FILE_TYPE_SCHLUSSMITTEILUNG = 'Schlussmitteilung';
-    public const FILE_TYPE_SCOPING_PAPIER = 'Scoping-Papier';
+    public const FILE_TYPE_SCOPING_PAPIER = 'Scopingpapier';
     public const FILE_TYPE_SCOPING_PROTOKOLL = 'Scoping-Protokoll';
     public const FILE_TYPE_SITZUNGSUNTERLAGE = 'Sitzungsunterlage';
     public const FILE_TYPE_SONSTIGE_UNTERLAGE = 'sonstige Unterlage';

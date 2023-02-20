@@ -18,7 +18,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_forum_entry_files", indexes={@ORM\Index(name="_fef_entry_id__fef_order", columns={"_fef_entry_id", "_fef_order"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository")
  */
 class ForumEntryFile extends CoreEntity implements UuidEntityInterface
 {
@@ -26,8 +27,11 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_fef_id", type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -43,6 +47,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
      * @var ForumEntry
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry")
+     *
      * @ORM\JoinColumn(name="_fef_entry_id", referencedColumnName="_fe_id", onDelete="CASCADE")
      */
     protected $entry;
@@ -51,6 +56,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_fef_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -59,6 +65,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_fef_modified_date", type="datetime", nullable=false)
      */
     protected $modifyDate;

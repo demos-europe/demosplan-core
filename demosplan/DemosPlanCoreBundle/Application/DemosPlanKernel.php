@@ -12,7 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Application;
 
 use function array_merge;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
+use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
@@ -102,15 +103,8 @@ class DemosPlanKernel extends Kernel
             }
         }
 
-        // Register all addons
-        $addonRegistry = new AddonRegistry();
-
-        foreach ($addonRegistry->getAllAddons() as $addonData) {
-            $class = $addonData['manifest']['entry'];
-            if (class_exists($class, true)) {
-                yield new $class($addonData['enabled']);
-            }
-        }
+        $addonBundleGenerator = new AddonBundleGenerator();
+        yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
     protected function configureRoutes(RouteCollectionBuilder $routes): void
@@ -292,6 +286,7 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new RpcMethodSolverPass());
         $container->addCompilerPass(new MenusLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
     }
 
     public function getActiveProject(): string

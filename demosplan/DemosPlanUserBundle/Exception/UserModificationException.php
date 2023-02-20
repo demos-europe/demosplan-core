@@ -16,8 +16,6 @@ class UserModificationException extends LogicException
 {
     /**
      * @param mixed $roles
-     *
-     * @return UserModificationException
      */
     public static function rolesMustBeArray($roles): self
     {

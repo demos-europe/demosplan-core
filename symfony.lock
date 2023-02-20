@@ -68,6 +68,9 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
+    "demos-europe/demosplan-addon": {
+        "version": "dev-main"
+    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },
@@ -400,30 +403,11 @@
     "lcobucci/jwt": {
         "version": "3.4.5"
     },
-    "league/flysystem": {
-        "version": "2.2.0"
-    },
-    "league/flysystem-bundle": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "446659fccbea4a0076de3d59268fc7d478c48296"
-        },
-        "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/flysystem.yaml",
-            "var/storage/.gitignore"
-        ]
-    },
     "league/fractal": {
         "version": "0.19.2"
     },
     "league/html-to-markdown": {
         "version": "5.0.0"
-    },
-    "league/mime-type-detection": {
-        "version": "1.7.0"
     },
     "lexik/jwt-authentication-bundle": {
         "version": "2.5",

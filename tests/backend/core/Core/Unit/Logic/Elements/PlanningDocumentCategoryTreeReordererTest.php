@@ -86,7 +86,6 @@ class PlanningDocumentCategoryTreeReordererTest extends FunctionalTestCase
         self::assertSame(0, $category->getOrder());
         self::assertSame($newParent, $category->getParent());
         self::assertContains($category, $newParent->getChildren());
-
     }
 
     public function testUpdateEntitiesWithMoveToRoot(): void

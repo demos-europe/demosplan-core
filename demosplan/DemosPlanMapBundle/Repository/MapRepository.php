@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Exception;
 
 class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -29,7 +30,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($id)
     {
@@ -37,7 +38,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $repo = $this->getEntityManager()->getRepository(GisLayer::class);
 
             return $repo->findOneBy(['ident' => $id]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Failed to fetch map: ', [$e]);
             throw $e;
         }
@@ -73,7 +74,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -115,7 +116,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $em->flush();
 
             return $newGisLayer;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('GisLayer could not be added. ', [$e]);
             throw $e;
         }
@@ -142,7 +143,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer|null - null, if the given array is null or has no content, otherwise the GisLayer with the content from the given array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function updateGisFromHash(GisLayer $gis, $data)
     {
@@ -205,7 +206,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
         if (array_key_exists('default', $data)) {
             $gis->setDefaultVisibility($data['default']);
 
-            //set default of all group member
+            // set default of all group member
             if (!is_null($gis->getVisibilityGroupId())) {
                 $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId());
                 foreach ($gisLayers as $gisLayer) {
@@ -218,7 +219,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
         if (array_key_exists('defaultVisibility', $data)) {
             $gis->setDefaultVisibility($data['defaultVisibility']);
 
-            //set default of all group member
+            // set default of all group member
             if (!is_null($gis->getVisibilityGroupId())) {
                 $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId());
                 foreach ($gisLayers as $gisLayer) {
@@ -248,7 +249,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gis->setVisibilityGroupId($data['visibilityGroupId']);
         }
 
-        //Diesen Layer in der Karte anzeigen.
+        // Diesen Layer in der Karte anzeigen.
         if (array_key_exists('visible', $data)) {
             $gis->setEnabled($data['visible']);
         }
@@ -289,7 +290,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $gis->setTreeOrder($data['treeOrder']);
         }
 
-        //mapOrder = order atm:
+        // mapOrder = order atm:
         if (array_key_exists('order', $data)) {
             $gis->setOrder($data['order']);
         }
@@ -322,7 +323,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      * @param GisLayer $item
      * @param array    $data
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function updateRelatedGis($item, $data)
     {
@@ -345,7 +346,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             foreach ($listToUpdate as $layer) {
                 $this->updateGisFromHash($layer, $dataWithoutPId);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
         }
@@ -356,7 +357,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateByArray($data)
     {
@@ -371,7 +372,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             }
 
             return $this->updateGisFromHash($toUpdate, $data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('GisLayer could not be updated. ', [$e]);
             throw $e;
         }
@@ -403,7 +404,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($gisLayerId)
     {
@@ -421,7 +422,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete Gis Layer failed Reason: ', [$e]);
             throw $e;
         }
@@ -434,7 +435,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -447,7 +448,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete Gis Layers of a procedure failed ', [$e]);
             throw $e;
         }
@@ -461,7 +462,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return bool true, if all given IDs were successful reordered, otherwise false
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function reOrderGisLayers($gisLayerIds): bool
     {
@@ -484,9 +485,9 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             }
             $this->getEntityManager()->flush();
 
-            //Gaußsche Summenformel:
+            // Gaußsche Summenformel:
             return (($size * $size + $size) / 2) === $checkSum;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('GisLayer could not be reordered. ', [$e]);
             throw $e;
         }
@@ -533,10 +534,10 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
         if (array_key_exists('order', $data)) {
             $gisLayer->setOrder($data['order']);
         }
-        //ProcedureId kommt als "pId"
+        // ProcedureId kommt als "pId"
         if (array_key_exists('pId', $data) && 36 === strlen($data['pId'])) {
             $gisLayer->setProcedureId($data['pId']);
-            //only if not global GisLayer:
+            // only if not global GisLayer:
             if (array_key_exists('category', $data) && 36 === strlen($data['category'])) {
                 $gisLayer->setCategory($this->getEntityManager()->getReference(GisLayerCategory::class, $data['category']));
             } else {
@@ -615,7 +616,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return CoreEntity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -641,7 +642,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
     /**
      * @param GisLayer $gisLayer
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateObject($gisLayer): GisLayer
     {
@@ -650,7 +651,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             $this->_em->flush();
 
             return $gisLayer;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Update Object of GisLayer failed. Message: ', [$e]);
             throw $e;
         }
@@ -671,7 +672,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
      *
      * @return GisLayer[][] $groupedGisLayers
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getGisLayerVisibilityGroupsOfProcedure($procedureId)
     {
@@ -692,7 +693,7 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
             }
 
             return $groupedGisLayers;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get GisLayerVisibilityGroups of a procedure failed ', [$e]);
             throw $e;
         }

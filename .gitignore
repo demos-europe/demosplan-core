@@ -1,5 +1,6 @@
 .idea/
 */vendor
+addons
 node_modules
 yarn-error.log
 docker-compose.yml

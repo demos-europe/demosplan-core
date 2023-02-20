@@ -27,7 +27,7 @@ class DemosPlanTools
     public static function varExport($expression, $return = false)
     {
         try {
-            //if object generate array to limit the "level of information to the first level
+            // if object generate array to limit the "level of information to the first level
             if (is_object($expression)) {
                 $expression = self::toArray($expression);
 

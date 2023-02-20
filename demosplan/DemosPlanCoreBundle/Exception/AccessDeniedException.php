@@ -17,8 +17,6 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
 {
     /**
      * @param array<int, string> $permissions
-     *
-     * @return AccessDeniedException
      */
     public static function missingPermissions(User $user = null, array $permissions = []): self
     {
@@ -40,9 +38,6 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
         return new self("Der Zugriff ist nicht gestattet $additionalUserData");
     }
 
-    /**
-     * @return AccessDeniedException
-     */
     public static function missingPermission(string $permission, User $user = null): self
     {
         $additionalUserData = '';

@@ -99,6 +99,15 @@
         <span v-text="Translator.trans('procedure.public.phase')" />
         <div v-text="Translator.trans('institution')" />
       </template>
+      <template
+        v-if="showStatementCount"
+        v-slot:header-count>
+        {{ Translator.trans('quantity') }}
+        <dp-icon
+          v-tooltip="Translator.trans('procedures.statements.count')"
+          icon="info"
+          size="small" />
+      </template>
 
       <template
         v-if="showInternalPhases"
@@ -122,6 +131,15 @@
         </div>
       </template>
 
+      <template
+        v-if="showStatementCount"
+        v-slot:count="{ statementsCount, originalStatementsCount }">
+        <div
+          v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
+          v-text="statementsCount"
+          class="text--center" />
+      </template>
+
       <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
         <div
           class="float--left u-m-0">
@@ -140,7 +158,7 @@
 
 <script>
 import { dpApi, formatDate } from '@demos-europe/demosplan-utils'
-import { DpButton, DpDataTable, DpLoading, DpSearchField, DpSelect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDataTable, DpIcon, DpLoading, DpSearchField, DpSelect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationProceduresList',
@@ -148,6 +166,7 @@ export default {
   components: {
     DpButton,
     DpDataTable,
+    DpIcon,
     DpLoading,
     DpSearchField,
     DpSelect
@@ -197,7 +216,7 @@ export default {
           label: Translator.trans('name')
         },
         {
-          colClass: 'width-60',
+          colClass: 'width-85',
           field: 'count',
           isVisible: this.showStatementCount,
           label: Translator.trans('quantity')
@@ -264,7 +283,8 @@ export default {
             'internalEndDate',
             'internalPhaseIdentifier',
             'internalPhaseTranslationKey',
-            'originalStatementsCount'
+            'originalStatementsCount',
+            'statementsCount'
           ].join()
         },
         filter: {
@@ -285,7 +305,6 @@ export default {
           response.data.data.forEach(el => this.items.push({
             creationDate: formatDate(el.attributes.creationDate.date),
             creationDateRaw: el.attributes.creationDate.date,
-            count: el.attributes.originalStatementsCount > 0 ? el.attributes.originalStatementsCount : '0',
             name: el.attributes.name,
             externalName: el.attributes.externalName,
             externalEndDate: formatDate(el.attributes.externalEndDate.date),
@@ -294,7 +313,9 @@ export default {
             id: el.id,
             internalEndDate: formatDate(el.attributes.internalEndDate.date),
             internalPhase: el.attributes.internalPhaseTranslationKey,
-            internalStartDate: formatDate(el.attributes.internalStartDate.date)
+            internalStartDate: formatDate(el.attributes.internalStartDate.date),
+            originalStatementsCount: el.attributes.originalStatementsCount,
+            statementsCount: el.attributes.statementsCount
           }))
           this.isLoading = false
         })
@@ -315,6 +336,12 @@ export default {
 
     setSelectedItems (items) {
       this.selectedItems = items
+    },
+
+    statementsTooltipCount (statementsCount, originalStatementsCount) {
+      const statements = Translator.trans('procedures.statements.count.description', { statements: statementsCount })
+      const originalStatements = Translator.trans('procedures.statements.count.original.description', { statements: originalStatementsCount })
+      return `${statements.trim()}, ${originalStatements.trim()}`
     }
   },
 

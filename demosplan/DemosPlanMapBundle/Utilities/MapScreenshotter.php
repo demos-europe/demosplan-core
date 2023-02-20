@@ -15,13 +15,6 @@ namespace demosplan\DemosPlanMapBundle\Utilities;
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use Exception;
-use GeoJson\GeoJson;
-use Intervention\Image\ImageManager;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Tightenco\Collect\Support\Collection;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\TextIntoImageInserter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
@@ -36,7 +29,15 @@ use demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger;
 use demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use Exception;
+use GdImage;
+use GeoJson\GeoJson;
+use geoPHP;
+use Intervention\Image\ImageManager;
+use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Component\Filesystem\Filesystem;
+use Tightenco\Collect\Support\Collection;
 
 class MapScreenshotter
 {
@@ -195,8 +196,8 @@ class MapScreenshotter
                 return $this->makeScreenshotWmts($polygon, $copyrightText);
             } else {
                 if (null === $copyrightText) {
-                    $copyrightText = 'Kartengrundlage:'.
-                        ' © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                    $copyrightText = '© basemap.de BKG (www.basemap.de) /'.
+                    'LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
                 }
 
                 $geoJsonString = $this->getGeoJsonString($polygon);
@@ -224,18 +225,15 @@ class MapScreenshotter
      *
      * @param string[] $wmsUrls
      *
-     * @return resource
-     *
      * @throws Exception
      */
-    public function makeScreenshotWms(Collection $geo, array $wmsUrls, string $copyrightText)
+    public function makeScreenshotWms(Collection $geo, array $wmsUrls, string $copyrightText): GdImage
     {
         /* einheitliche BBOX setzen */
         $bbox = $this->viewport->left.','.$this->viewport->bottom.','.$this->viewport->right.','.$this->viewport->top;
         $image = $this->preparePlaceholderMapWms();
-        $image = $this->imageManager->make(
-            $this->getLayersTilesAndMergeThemIntoMap($wmsUrls, $bbox, $image)
-        );
+        $this->getLayersTilesAndMergeThemIntoMap($wmsUrls, $bbox, $image);
+        $image = $this->imageManager->make($image);
 
         $mapLayer = new MapLayer(
             new CoordinatesViewport(
@@ -266,7 +264,7 @@ class MapScreenshotter
     ): ?string {
         try {
             $copyrightText = $copyrightText
-                ?? 'Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
+                ?? '© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)';
 
             $features = $this
                 ->geoJsonToFeaturesConverter
@@ -360,7 +358,7 @@ class MapScreenshotter
     /**
      * Uses the GD library.
      */
-    private function preparePlaceholderMapWms()
+    private function preparePlaceholderMapWms(): GdImage
     {
         $image = imagecreatetruecolor($this->width, $this->height);
         $white = imagecolorallocate($image, 255, 255, 255);
@@ -374,7 +372,7 @@ class MapScreenshotter
      */
     public function getBoundingBox(string $geoJsonString, $viewport): stdClass
     {
-        $geoPhp = \geoPHP::load($geoJsonString);
+        $geoPhp = geoPHP::load($geoJsonString);
         $bBox = $geoPhp->getBBox();
 
         $viewport = $this->setViewportDimensions($bBox, $viewport);
@@ -392,11 +390,9 @@ class MapScreenshotter
      * @param string $path
      * @param string $type
      *
-     * @return resource|false liefert eine image-handle oder false zurück
-     *
      * @throws Exception
      */
-    private function getImage($path, $type = '')
+    private function getImage($path, $type = ''): GdImage|false
     {
         // Bild-Typ ermitteln, wenn nicht mit übergeben
         if (empty($type)) {
@@ -437,16 +433,9 @@ class MapScreenshotter
     }
 
     /**
-     * saveImage()
      * save to disk and tell the client where they can pick it up.
-     *
-     * @param resource $image
-     * @param string   $file
-     * @param string   $format
-     *
-     * @return bool
      */
-    private function saveImage($image, $file, $format)
+    private function saveImage(GdImage $image, string $file, string $format): bool
     {
         switch ($format) {
             case 'PNG':
@@ -462,22 +451,17 @@ class MapScreenshotter
         return false;
     }
 
-    /**
-     * imagecopymergeAlpha().
-     *
-     * @param mixed $dst_im
-     * @param mixed $src_im
-     * @param mixed $dst_x
-     * @param mixed $dst_y
-     * @param mixed $src_x
-     * @param mixed $src_y
-     * @param mixed $src_w
-     * @param mixed $src_h
-     * @param mixed $opacity
-     */
-    private function imagecopymergeAlpha($dst_im, $src_im, $dst_x, $dst_y,
-                                         $src_x, $src_y, $src_w, $src_h, $opacity)
-    {
+    private function imagecopymergeAlpha(
+        GdImage $dst_im,
+        GdImage $src_im,
+        int $dst_x,
+        int $dst_y,
+        int $src_x,
+        int $src_y,
+        int $src_w,
+        int $src_h,
+        int $opacity
+    ): void {
         // Zwischenbild erzeugen
         $cut = imagecreatetruecolor($src_w, $src_h);
         // Quell- und Zielbild hineinkopieren (zuerst Ziel, dann Quelle)
@@ -485,8 +469,7 @@ class MapScreenshotter
         imagecopy($cut, $src_im, 0, 0, $src_x, $src_y, $src_w, $src_h);
 
         // Zwischenbild in Zielbild kopieren
-        imagecopymerge($dst_im, $cut, $dst_x, $dst_y, $src_x, $src_y, $src_w,
-                       $src_h, $opacity);
+        imagecopymerge($dst_im, $cut, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $opacity);
     }
 
     private function getTemporaryPath(): string
@@ -495,13 +478,10 @@ class MapScreenshotter
     }
 
     /**
-     * @param resource $image
-     *
      * @throws Exception
      */
-    private function saveImageToFile($image): string
+    private function saveImageToFile(GdImage $image): string
     {
-        $this->assertResource($image);
         $format = $this->outputFormat;
         $file = $this->getTemporaryPath().md5(microtime().random_int(0, mt_getrandmax())).'.'.$format;
         $this->saveImage($image, $file, $format);
@@ -510,20 +490,16 @@ class MapScreenshotter
     }
 
     /**
-     * @param resource $image
-     *
-     * @return mixed $image
-     *
      * @throws Exception
      */
-    private function getLayersTilesAndMergeThemIntoMap(array $wmsUrls, string $bbox, $image)
+    private function getLayersTilesAndMergeThemIntoMap(array $wmsUrls, string $bbox, GdImage $image): void
     {
         foreach ($wmsUrls as $tile) {
             $tile['url'] .= "&bbox=$bbox&width=$this->width&height=$this->height";
 
             $tempFile = $this->getTemporaryPath().'/tmp_wms_'.md5(
-                    microtime().random_int(0, mt_getrandmax())
-                ).'.png';
+                microtime().random_int(0, mt_getrandmax())
+            ).'.png';
 
             $wmsUrl = str_replace(' ', '%20', trim($tile['url']));
             $imageContent = $this->urlFileReader->getFileContents($wmsUrl);
@@ -551,13 +527,11 @@ class MapScreenshotter
             }
             @unlink($tempFile);
         }
-
-        return $image;
     }
 
     protected function adjustPictureSize(float $top, stdClass $viewport, float $bottom, float $left, float $right): void
     {
-        //Anpassen der Bildhöhe wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
+        // Anpassen der Bildhöhe wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
         if ($this->height < $this->minHeight) {
             $height = ($this->minHeight - $this->height) / 2;
             $viewport->top = $top + $height;
@@ -565,7 +539,7 @@ class MapScreenshotter
             $this->height = $this->minHeight;
         }
 
-        //Anpassen der Bildbreite wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
+        // Anpassen der Bildbreite wenn die ausgerechnete Höhe nicht der minimal Höhe entspricht
         if ($this->width < $this->minWidth) {
             $width = ($this->minWidth - $this->width) / 2;
             $viewport->left = $left - $width;
@@ -573,22 +547,10 @@ class MapScreenshotter
             $this->width = $this->minWidth;
         }
 
-        //Anpassen der Bildbreite und -höhe wenn die maximale Größe überschritten wird
+        // Anpassen der Bildbreite und -höhe wenn die maximale Größe überschritten wird
         if ($this->width > $this->maxWidth || $this->height > $this->maxHeight) {
             $this->adjustPictureSizeWhenTooBig($top, $viewport, $bottom, $left, $right);
         }
-    }
-
-    /**
-     * @param resource $resource
-     */
-    public function assertResource($resource): bool
-    {
-        if (false === is_resource($resource)) {
-            throw new InvalidArgumentException(sprintf('Argument must be a valid resource type. %s given.', gettype($resource)));
-        }
-
-        return true;
     }
 
     /**

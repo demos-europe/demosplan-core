@@ -17,9 +17,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
  */
 class CustomerNotFoundException extends ResourceNotFoundException
 {
-    /**
-     * @return CustomerNotFoundException
-     */
     public static function noSubdomain(string $subdomain): self
     {
         return new self("No customer with the subdomain {$subdomain} was found.");

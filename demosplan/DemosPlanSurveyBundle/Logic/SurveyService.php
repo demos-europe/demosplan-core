@@ -89,12 +89,11 @@ class SurveyService extends CoreService
                 );
                 $statistics['votes']['negative']['percent'] = round(
                     $statistics['votes']['negative']['sum'] / $statistics['votes']['sum'] * 100,
-                1
+                    1
                 );
             }
         }
 
         return $statistics;
     }
-
 }

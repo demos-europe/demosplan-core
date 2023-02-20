@@ -35,7 +35,7 @@ class QueryStatementTest extends FunctionalTestCase
     public function testAvailableFiltersExternal(): void
     {
         $this->loginTestUser(LoadUserData::TEST_USER_CITIZEN);
-        //test available Filters structure without explicit scope
+        // test available Filters structure without explicit scope
         $availableFiltersDefault = $this->sut->getAvailableFilters();
         static::assertCount(0, $availableFiltersDefault);
     }
@@ -70,7 +70,7 @@ class QueryStatementTest extends FunctionalTestCase
     public function testInterfaceFiltersExternal(): void
     {
         $this->loginTestUser(LoadUserData::TEST_USER_CITIZEN);
-        //test available Filters structure without explicit scope
+        // test available Filters structure without explicit scope
         $interfaceFilters = $this->sut->getInterfaceFilters();
         // municipalCode is set to display:false
         static::assertCount(0, $interfaceFilters);

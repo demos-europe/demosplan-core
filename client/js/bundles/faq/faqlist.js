@@ -11,9 +11,9 @@
  * This is the entrypoint for faqlist.html.twig
  */
 
-import { highlightActiveLinks } from '@demos-europe/demosplan-utils'
-import { initialize } from '@DpJs/InitVue'
 import { DpRegisterFlyout } from '@demos-europe/demosplan-ui'
+import { highlightActiveLinks } from '@DpJs/lib/core/libs'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpRegisterFlyout

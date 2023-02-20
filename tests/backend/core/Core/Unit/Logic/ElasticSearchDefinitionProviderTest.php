@@ -11,9 +11,10 @@
 namespace Tests\Project\Core\Unit\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use Tests\Base\UnitTestCase;
 use demosplan\DemosPlanCoreBundle\Logic\ElasticSearchDefinitionProvider;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use InvalidArgumentException;
+use Tests\Base\UnitTestCase;
 
 class ElasticSearchDefinitionProviderTest extends UnitTestCase
 {
@@ -34,7 +35,7 @@ class ElasticSearchDefinitionProviderTest extends UnitTestCase
 
     public function testGetAvailableFieldsInputError(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->sut->getAvailableFields('statementSegment', 'filter', 'planner');
     }
 
@@ -48,53 +49,53 @@ class ElasticSearchDefinitionProviderTest extends UnitTestCase
     private function getExpectedResult(): array
     {
         return [
-            "text" => "segment.text",
-            "externId" => "segment.external_id",
-            "recommendation" => "segment.recommendation",
-            "parentStatement.externId" => "statement.external_id"
+            'text'                     => 'segment.text',
+            'externId'                 => 'segment.external_id',
+            'recommendation'           => 'segment.recommendation',
+            'parentStatement.externId' => 'statement.external_id',
         ];
     }
 
     private function getEsMockData(): array
     {
         return [
-            "statementSegment" => [
-                "search" => [
-                    "all" => [
-                        "text" => ""
+            'statementSegment' => [
+                'search' => [
+                    'all'     => [
+                        'text' => '',
                     ],
-                    "planner" => [
-                        "text" => [
-                            "field" => "text.text",
-                            "titleKey" => "segment.text",
-                            "boost" => 0.5
+                    'planner' => [
+                        'text'            => [
+                            'field'    => 'text.text',
+                            'titleKey' => 'segment.text',
+                            'boost'    => 0.5,
                         ],
-                        "externId" => [
-                            "titleKey" => "segment.external_id",
+                        'externId'        => [
+                            'titleKey' => 'segment.external_id',
                         ],
-                        "recommendation" => [
-                            "titleKey" => "segment.recommendation",
+                        'recommendation'  => [
+                            'titleKey' => 'segment.recommendation',
                         ],
-                        "parentStatement" => [
-                            "memo" => [
-                                "field" => "parentStatement.memo",
-                                "titleKey" => "memo",
-                                "permission" => "field_statement_memo"
+                        'parentStatement' => [
+                            'memo'     => [
+                                'field'      => 'parentStatement.memo',
+                                'titleKey'   => 'memo',
+                                'permission' => 'field_statement_memo',
                             ],
-                            "externId" => [
-                                "field" => "parentStatement.externId",
-                                "titleKey" => "statement.external_id",
+                            'externId' => [
+                                'field'    => 'parentStatement.externId',
+                                'titleKey' => 'statement.external_id',
                             ],
-                            "orgaName" => [
-                                "field" => "parentStatement.meta.orgaName",
-                                "boost" => 0.2,
-                                "titleKey" => "organisation.name",
-                                "permission" => "feature_institution_participation"
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                            'orgaName' => [
+                                'field'      => 'parentStatement.meta.orgaName',
+                                'boost'      => 0.2,
+                                'titleKey'   => 'organisation.name',
+                                'permission' => 'feature_institution_participation',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 }

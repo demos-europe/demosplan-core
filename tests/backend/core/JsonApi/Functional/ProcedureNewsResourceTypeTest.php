@@ -171,7 +171,6 @@ class ProcedureNewsResourceTypeTest extends JsonApiTest
         return [
             [
                 [Role::GLAUTH, Role::GPSORG],
-
             ],
             [
                 [Role::GPSORG],

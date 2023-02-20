@@ -15,9 +15,9 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
-use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use Tests\Base\FunctionalTestCase;
 
 class FaqHandlerTest extends FunctionalTestCase
@@ -113,7 +113,7 @@ class FaqHandlerTest extends FunctionalTestCase
 
     public function testAddFAQWithEmptyDataArray()
     {
-        //Data for new layer
+        // Data for new layer
         $singleFaq = $this->sut->addOrUpdateFaq([]);
         self::assertNull($singleFaq);
     }
@@ -147,7 +147,7 @@ class FaqHandlerTest extends FunctionalTestCase
         $singleFaq1 = $this->fixtures->getReference(LoadFaqData::FAQ_PLANNER);
         $newTitle = 'Faq1 Title verändert';
 
-        //Data for new layer
+        // Data for new layer
         $singleFaq1->setTitle($newTitle);
         $singleFaq1->setText('Ich bin der Text der Faq4');
         $singleFaq1->setEnabled(true);
@@ -157,11 +157,11 @@ class FaqHandlerTest extends FunctionalTestCase
         $numberOfEntriesBefore = $this->countEntries(Faq::class);
         $singleFaq = $this->sut->updateFAQ($singleFaq1);
 
-        //check entries of DB
+        // check entries of DB
         $numberOfEntriesAfter = $this->countEntries(Faq::class);
         static::assertEquals($numberOfEntriesAfter, $numberOfEntriesBefore);
 
-        //check return value
+        // check return value
         self::assertEquals($newTitle, $singleFaq->getTitle());
     }
 
@@ -187,15 +187,15 @@ class FaqHandlerTest extends FunctionalTestCase
         static::assertEquals($testFaq->getCategory()->getTitle(), $referenceCategory->getTitle());
         static::assertEquals($testFaq->getCategory()->getType(), $referenceCategory->getType());
 
-        //chance object:
+        // chance object:
         $referenceCategory->setTitle('newTitle');
         $referenceCategory->setType(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY[0]);
 
-        //execute update:
+        // execute update:
         $updatedCategory = $this->sut->updateFaqCategory($referenceCategory);
         static::assertInstanceOf(FaqCategory::class, $updatedCategory);
 
-        //get updated category from DB
+        // get updated category from DB
         $updatedCategory = $this->sut->getFaqCategory($referenceCategory->getId());
         static::assertEquals($updatedCategory->getTitle(), 'newTitle');
         static::assertEquals($updatedCategory->getType(), FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY[0]);

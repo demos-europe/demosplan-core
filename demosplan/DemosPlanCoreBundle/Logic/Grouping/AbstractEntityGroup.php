@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 
 /**
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+ *
  * @template-implements EntityGroupInterface<T>
  */
 class AbstractEntityGroup implements EntityGroupInterface

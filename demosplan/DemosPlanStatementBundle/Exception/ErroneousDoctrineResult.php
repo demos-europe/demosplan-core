@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class ErroneousDoctrineResult extends \Exception
+use Exception;
+
+class ErroneousDoctrineResult extends Exception
 {
 }

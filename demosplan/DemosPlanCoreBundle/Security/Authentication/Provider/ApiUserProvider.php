@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ApiUserProvider implements UserProviderInterface
 {

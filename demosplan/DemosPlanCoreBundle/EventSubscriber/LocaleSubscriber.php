@@ -38,10 +38,10 @@ class LocaleSubscriber extends BaseEventSubscriber
             return;
         }
 
-        //in case of switching language and stay in dplan space:
-        //is $local set on this request?
+        // in case of switching language and stay in dplan space:
+        // is $local set on this request?
         if ($locale = $request->attributes->get(self::LOCALE_REQUEST_KEY)) {
-            //set into session
+            // set into session
             $request->getSession()->set(self::LOCALE_REQUEST_KEY, $locale);
         } else {
             // if no explicit locale has been set on this request, use one from the session

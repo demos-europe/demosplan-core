@@ -70,7 +70,7 @@ class StatementStatistic extends ValueObject
         $this->totalAmountOfProcedures = $amountOfProcedures;
 
         foreach ($allOriginalStatements as $originalStatement) {
-            //guestStatements:
+            // guestStatements:
             if (null === $this->getSubmitterId($originalStatement)) {
                 ++$this->totalAmountOfGuestStatements;
 
@@ -79,7 +79,7 @@ class StatementStatistic extends ValueObject
                 }
                 ++$this->amountOfGuestStatementsOfProcedure[$originalStatement['procedureId']];
 
-            //InstitutionStatements:
+            // InstitutionStatements:
             } elseif ($this->isCreatedByInvitableInstitution($originalStatement)) {
                 ++$this->totalAmountOfInstitutionStatements;
 
@@ -88,7 +88,7 @@ class StatementStatistic extends ValueObject
                 }
                 ++$this->amountOfInstitutionStatementsOfProcedure[$originalStatement['procedureId']];
 
-            //citizenStatements:
+            // citizenStatements:
             } elseif ($this->isCreatedByCitizen($originalStatement)) {
                 ++$this->totalAmountOfCitizenStatements;
 
@@ -190,14 +190,14 @@ class StatementStatistic extends ValueObject
      */
     protected function getSubmitterId(array $statementData): ?string
     {
-        //internal:
+        // internal:
         if (Statement::INTERNAL === $statementData['publicStatement']) {
-            //on internal statements, submitUId on meta should be always filled.
+            // on internal statements, submitUId on meta should be always filled.
             return $statementData['submitUId'];
         }
 
-        //external:
-        //on external statements, the author is always the submitter
+        // external:
+        // on external statements, the author is always the submitter
         return User::ANONYMOUS_USER_ID === $statementData['userId'] ? null : $statementData['userId'];
     }
 

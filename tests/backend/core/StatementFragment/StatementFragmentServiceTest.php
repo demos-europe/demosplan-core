@@ -10,6 +10,8 @@
 
 namespace Tests\Core\StatementFragment;
 
+use function collect;
+
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -22,12 +24,12 @@ use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
+use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 use Tests\Core\Statement\Functional\Procedure;
 use Tests\Core\Statement\Functional\Statement;
 use Tightenco\Collect\Support\Collection;
-use function collect;
 
 class StatementFragmentServiceTest extends FunctionalTestCase
 {
@@ -53,9 +55,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
      * @var string
      */
     private $consideration = 'oh doch!';
-    /**
-     * @var
-     */
+
     private $voteAdvice = 'updated voteAdvice';
     /**
      * @var string
@@ -274,7 +274,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
      * Gemeinden, mehreren Voranggebieten oder einer beliebigen Kombination
      * der o.g. Optionen.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testUpdateStatementFragmentWithoutSchnutzing()
     {
@@ -300,7 +300,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertEquals($storedCounties, $updatedFragment->getCounties());
         static::assertEquals($storedMunicipalities, $updatedFragment->getMunicipalities());
 
-        //check the version, which should be created on update of statementFragment:
+        // check the version, which should be created on update of statementFragment:
         $fragmentVersion = $this->sut->getStatementFragmentVersionsOfFragment($updatedFragment->getId());
         static::assertCount(1, $fragmentVersion);
 
@@ -395,20 +395,20 @@ class StatementFragmentServiceTest extends FunctionalTestCase
 
         static::assertNull($testFragment->getAssignee());
 
-        //normal update should fail, because no assignee:
+        // normal update should fail, because no assignee:
         $testFragment->setText('updatedText2435');
         $result = $this->sut->updateStatementFragment($testFragment);
         if (false !== $result) {
             static::fail('Should be false');
         }
 
-        //assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
+        // assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $testFragment->setAssignee($user);
         $result = $this->sut->updateStatementFragment($testFragment, true);
         static::assertInstanceOf(StatementFragment::class, $result);
 
-        //with assigned user == current user, it should work
+        // with assigned user == current user, it should work
         $testFragment->setText('updatedText666');
         $result = $this->sut->updateStatementFragment($testFragment);
         static::assertInstanceOf(StatementFragment::class, $result);
@@ -428,19 +428,19 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         static::assertNull($testFragment->getAssignee());
 
-        //normal update should fail, because no assignee:
+        // normal update should fail, because no assignee:
         $testFragment->setText('updatedText2435');
         $result = $this->sut->updateStatementFragment($testFragment);
         if (false !== $result) {
             static::fail('Should be false');
         }
 
-        //assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
+        // assign user with ignoring lock (normally via statementHandler->setAssigneeOfStatement())
         $testFragment->setAssignee($user);
         $result = $this->sut->updateStatementFragment($testFragment, true);
         static::assertInstanceOf(StatementFragment::class, $result);
 
-        //with assigned user == current user, it should work
+        // with assigned user == current user, it should work
         $testFragment->setText('updatedText666');
         $result = $this->sut->updateStatementFragment($testFragment);
         static::assertInstanceOf(StatementFragment::class, $result);
@@ -472,7 +472,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $updatedFragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertSame($this->considerationAdvice, $updatedFragment->getConsiderationAdvice());
         static::assertSame($this->consideration, $updatedFragment->getConsideration());
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 1, $currentNumberOfVersions);
 
@@ -482,7 +482,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $updatedFragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertSame($this->considerationAdvice, $updatedFragment->getConsiderationAdvice());
         static::assertNull($updatedFragment->getConsideration());
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 2, $currentNumberOfVersions);
 
@@ -492,7 +492,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $updatedFragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertNull($updatedFragment->getConsiderationAdvice());
         static::assertNull($updatedFragment->getConsideration());
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 3, $currentNumberOfVersions);
 
@@ -697,9 +697,9 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         $fragmentId = $fragment->getId();
 
-        //get initial empty:
+        // get initial empty:
         static::assertEmpty($fragment->getCounties());
-        //add county + get county:
+        // add county + get county:
         /** @var County $testCounty */
         $testCounty = $this->getReference('testCounty1');
         static::assertEmpty($fragment->getCounties());
@@ -710,10 +710,10 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertCount(1, $fragment->getCounties());
 
-        //get county from fragment:
+        // get county from fragment:
         static::assertCount(1, $fragment->getCounties());
         static::assertContains($testCounty, $fragment->getCounties());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(1, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[0]->getStatementFragment()->getId());
@@ -727,13 +727,13 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertContains($testCounty, $fragment->getCounties());
         static::assertContains($fragment, $testCounty->getStatementFragments());
 
-        //remove county from fragment
+        // remove county from fragment
         $data = ['id' => $fragmentId, 'counties' => []];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertEmpty($fragment->getCounties());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(2, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[1]->getStatementFragment()->getId());
@@ -746,9 +746,9 @@ class StatementFragmentServiceTest extends FunctionalTestCase
 
 //        //add county to fragment
 //        static::assertEmpty($fragment->getCounties());
-////        $fragment->addCounty($testCounty);
-////        $counties = $fragment->getCounties();
-////        $counties->add($testCounty);
+        // //        $fragment->addCounty($testCounty);
+        // //        $counties = $fragment->getCounties();
+        // //        $counties->add($testCounty);
 //        $data = ['counties' => [$testCounty]];
 //        $this->sut->updateStatementFragment($fragmentId, $data);
 //        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
@@ -766,12 +766,12 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $procedureId = $this->getProcedureReference('testProcedure')->getId();
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         $fragmentId = $fragment->getId();
-        //get initial empty:
+        // get initial empty:
         static::assertEmpty($fragment->getMunicipalities());
         /** @var Municipality $testMunicipality */
         $testMunicipality = $this->getReference('testMunicipality1');
 
-        //add Municipality + get Municipality:
+        // add Municipality + get Municipality:
         $data = ['id' => $fragmentId, 'municipalities' => [$testMunicipality->getId()]];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -779,10 +779,10 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertCount(1, $fragment->getMunicipalities());
         static::assertContains($testMunicipality, $fragment->getMunicipalities());
 
-        //get Municipality from fragment:
+        // get Municipality from fragment:
         static::assertCount(1, $fragment->getMunicipalities());
         static::assertContains($testMunicipality, $fragment->getMunicipalities());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(1, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[0]->getStatementFragment()->getId());
@@ -793,13 +793,13 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $relatedVersions[0]->getMunicipalityNamesAsJson()
         );
 
-        //remove Municipality from fragment
+        // remove Municipality from fragment
         $data = ['id' => $fragmentId, 'municipalities' => []];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertCount(0, $fragment->getMunicipalities());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(2, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[1]->getStatementFragment()->getId());
@@ -811,7 +811,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         );
 
 //        //add Municipality to fragment
-////        $fragment->addMunicipality($testMunicipality);
+        // //        $fragment->addMunicipality($testMunicipality);
 //        $municipalities = $fragment->getMunicipalities();
 //        $municipalities->add($testMunicipality);
 //        $data = ['municipalities' => $municipalities];
@@ -831,10 +831,10 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         $fragmentId = $fragment->getId();
 
-        //get initial empty:
+        // get initial empty:
         static::assertEmpty($fragment->getPriorityAreas());
 
-        //add PriorityArea + get PriorityArea:
+        // add PriorityArea + get PriorityArea:
         $testPriorityArea = $this->getReference('testPriorityArea1');
         $data = ['id' => $fragmentId, 'priorityAreas' => [$testPriorityArea->getId()]];
         static::assertCount(0, $fragment->getPriorityAreas());
@@ -843,7 +843,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertCount(1, $fragment->getPriorityAreas());
         static::assertContains($testPriorityArea, $fragment->getPriorityAreas());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(1, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[0]->getStatementFragment()->getId());
@@ -851,17 +851,17 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             collect($fragment->getPriorityAreaKeys())->toJson(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             $relatedVersions[0]->getPriorityAreaKeysAsJson());
 
-        //get PriorityArea from fragment:
+        // get PriorityArea from fragment:
         static::assertCount(1, $fragment->getPriorityAreas());
         static::assertContains($testPriorityArea, $fragment->getPriorityAreas());
 
-        //remove PriorityArea from fragment
+        // remove PriorityArea from fragment
         $data = ['id' => $fragment->getId(), 'priorityAreas' => []];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertNotContains($testPriorityArea, $fragment->getPriorityAreas());
-        //check version:
+        // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(2, $relatedVersions);
         static::assertEquals($fragmentId, $relatedVersions[1]->getStatementFragment()->getId());
@@ -873,7 +873,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         );
 
 //        //add PriorityArea to fragment
-////        $fragment->addPriorityArea($testPriorityArea);
+        // //        $fragment->addPriorityArea($testPriorityArea);
 //        $priorityAreas = $fragment->getPriorityAreas();
 //        $priorityAreas->add($testPriorityArea);
 //        $data = ['priorityAreas' => $priorityAreas];
@@ -970,13 +970,13 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragmentId = $this->getStatementFragmentReference('testStatementFragment10')->getId();
         $fragment = $this->sut->getStatementFragment($fragmentId);
 
-        //setup test data
+        // setup test data
         $fragment->setAssignee(null);
         $this->sut->updateStatementFragment($fragment, true);
         $fragment = $this->sut->getStatementFragment($fragmentId);
         static::assertNull($fragment->getAssignee());
 
-        //execute deletion
+        // execute deletion
         $deleted = $this->sut->deleteStatementFragment($fragmentId);
         static::assertTrue($deleted);
         static::assertNull($this->sut->getStatementFragment($fragmentId));
@@ -990,13 +990,13 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $fragmentId = $this->getStatementFragmentReference('testStatementFragment10')->getId();
         $fragment = $this->sut->getStatementFragment($fragmentId);
 
-        //setup test data
+        // setup test data
         $fragment->setAssignee($currentUserOfMockedSession);
         $this->sut->updateStatementFragment($fragment, true);
         $fragment = $this->sut->getStatementFragment($fragmentId);
         static::assertEquals($currentUserOfMockedSession, $fragment->getAssignee());
 
-        //execute deletion
+        // execute deletion
         $deleted = $this->sut->deleteStatementFragment($fragmentId);
         static::assertTrue($deleted);
         static::assertNull($this->sut->getStatementFragment($fragmentId));
@@ -1004,7 +1004,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
 
     protected function enableStatementClusterFeature()
     {
-        //modify permissions for test
+        // modify permissions for test
         $permissions = $this->getMockSession()->get('permissions');
         $permissions['feature_statement_cluster']['enabled'] = true;
         $this->getMockSession()->set('permissions', $permissions);
@@ -1012,7 +1012,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
 
     protected function enableStatementAssignmentFeature()
     {
-        //modify permissions for test
+        // modify permissions for test
         $permissions = $this->getMockSession()->get('permissions');
         $permissions['feature_statement_assignment']['enabled'] = true;
         $this->getMockSession()->set('permissions', $permissions);
@@ -1199,7 +1199,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $amountOfContentChangesOfVoteAdviceBefore,
             $amountOfContentChangesOfVoteAdviceAfter
         );
-        //and do not copy voteAdvice into vote, therefore no new version for vote:
+        // and do not copy voteAdvice into vote, therefore no new version for vote:
         static::assertSame($amountOfContentChangesOfVoteBefore, $amountOfContentChangesOfVoteAfter);
     }
 
@@ -1243,7 +1243,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $amountOfContentChangesOfConsiderationAdviceBefore,
             $amountOfContentChangesOfConsiderationAdviceAfter
         );
-        //but a version consideration,because considerationAdvice was copied into consideration in case of copyConsiderationAdviceToConsideration
+        // but a version consideration,because considerationAdvice was copied into consideration in case of copyConsiderationAdviceToConsideration
         static::assertSame(
             $amountOfContentChangesOfConsiderationBefore + 1,
             $amountOfContentChangesOfConsiderationAfter
@@ -1318,7 +1318,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $relatedFragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertSame($inputString1, $relatedFragment->getVoteAdvice());
         static::assertSame($inputString2, $relatedFragment->getVote());
-        //check if not have changed:
+        // check if not have changed:
         static::assertSame(
             $testDepartment->getName(),
             $relatedFragment->getArchivedDepartmentName()
@@ -1437,7 +1437,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $initialNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertEmpty($newFragment->getTags());
 
-        //remove ONE tag (set 2 of 3):
+        // remove ONE tag (set 2 of 3):
         $data = ['id' => $newFragmentId, 'tags' => [$tags[1], $tags[2]]];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -1447,17 +1447,17 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertContains($tags[1], $currentTags);
         static::assertContains($tags[2], $currentTags);
         static::assertNotContains($tags[0], $currentTags);
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 1, $currentNumberOfVersions);
 
-        //remove all tags:
+        // remove all tags:
         $data = ['id' => $newFragmentId, 'tags' => []];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
         $updatedFragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertCount(0, $updatedFragment->getTags());
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 2, $currentNumberOfVersions);
     }
@@ -1482,7 +1482,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertCount(2, $updatedFragment->getTags());
         static::assertContains($tags[0], $updatedFragment->getTags());
         static::assertContains($tags[1], $updatedFragment->getTags());
-        //test version
+        // test version
         $currentNumberOfVersions = $this->countEntries(StatementFragmentVersion::class);
         static::assertSame($initialNumberOfVersions + 1, $currentNumberOfVersions);
     }
@@ -1557,7 +1557,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             'statementId' => $relatedStatement->getId(),
         ];
 
-        //first new Statement
+        // first new Statement
         $statementFragment = $this->sut->createStatementFragment($data);
         static::assertInstanceOf(StatementFragment::class, $statementFragment);
         static::assertSame('00001', $statementFragment->getDisplayId());
@@ -1578,7 +1578,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         );
         static::assertEquals($statementFragment, $lastVersion->getStatementFragment());
 
-        //should have the counties, municipalities and priorityAreas of the relatedStatement
+        // should have the counties, municipalities and priorityAreas of the relatedStatement
         static::assertEquals($relatedStatement->getCounties(), $relatedStatement->getCounties());
         static::assertEquals($relatedStatement->getMunicipalities(), $relatedStatement->getMunicipalities());
         static::assertEquals($relatedStatement->getPriorityAreas(), $relatedStatement->getPriorityAreas());

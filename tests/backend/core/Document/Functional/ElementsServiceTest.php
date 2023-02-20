@@ -18,6 +18,7 @@ use demosplan\DemosPlanDocumentBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class ElementsServiceTest extends FunctionalTestCase
@@ -40,9 +41,6 @@ class ElementsServiceTest extends FunctionalTestCase
         $this->testProcedureId = $this->fixtures->getReference('testProcedure')->getId();
     }
 
-    /**
-     * @param $elementArray
-     */
     private function checkElementArray($elementArray)
     {
         static::assertArrayHasKey('ident', $elementArray);
@@ -270,7 +268,7 @@ class ElementsServiceTest extends FunctionalTestCase
 
         $elementsOfProcedure = $this->sut->getElementsListObjects($testProcedure->getId());
 
-        //get highest order number:
+        // get highest order number:
         $highestOrder = 1;
         foreach ($elementsOfProcedure as $element) {
             if (is_numeric($element->getOrder()) && $element->getOrder() > $highestOrder) {
@@ -314,7 +312,7 @@ class ElementsServiceTest extends FunctionalTestCase
         $this->checkElementArray($addedElement);
         static::assertArrayHasKey('ident', $addedElement);
         $this->checkId($addedElement['ident']);
-        //order of new created element is checked with testCalculateNextElementOrder()
+        // order of new created element is checked with testCalculateNextElementOrder()
         static::assertEquals($data['title'], $addedElement['title']);
         static::assertEquals($data['text'], $addedElement['text']);
         static::assertEquals($data['icon'], $addedElement['icon']);
@@ -325,7 +323,7 @@ class ElementsServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('children', $addedElement);
 
         $children = collect($parent->getChildren());
-        //parent do not know about the new child!?:
+        // parent do not know about the new child!?:
         static::assertEquals($numberOfChildrenBefore, $children->count());
         $resultElement = $this->sut->getElementObject($addedElement['ident']);
         static::assertFalse($children->contains($resultElement));
@@ -558,7 +556,7 @@ class ElementsServiceTest extends FunctionalTestCase
         );
 
         $notMapElementIdsWithoutParents = [];
-        //remove elements with category 'map'
+        // remove elements with category 'map'
         foreach ($elementsWithoutParents as $element) {
             if ('map' !== $element->getCategory()) {
                 $notMapElementIdsWithoutParents[] = $element->getId();
@@ -610,7 +608,7 @@ class ElementsServiceTest extends FunctionalTestCase
             ['order' => 'ASC']
         );
 
-        //getElementsListObjects() with given organisationId, should also return, elements, without specific
+        // getElementsListObjects() with given organisationId, should also return, elements, without specific
         $expectedElementIdsOfOrganisation = [];
         foreach ($elementsOfProcedure as $element) {
             if (true === in_array($testOrganisation, $element->getOrganisations()->toArray()) || 0 === count($element->getOrganisations())) {
@@ -626,7 +624,7 @@ class ElementsServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetEnabledFileAndParagraphElements(): void
     {
@@ -664,7 +662,7 @@ class ElementsServiceTest extends FunctionalTestCase
     /**
      * In case of $isOwner is true, filtering for given organisation should be ignored.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetOwnElements()
     {
@@ -725,7 +723,7 @@ class ElementsServiceTest extends FunctionalTestCase
             }
         }
 
-        //expect some data, otherwise, the test data setup is not meaningful
+        // expect some data, otherwise, the test data setup is not meaningful
         static::assertNotEmpty($expectedElementIds);
         static::assertNotEmpty($elementIds);
 

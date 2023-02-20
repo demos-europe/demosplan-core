@@ -47,16 +47,17 @@
       :value="pageSize">
 
     <dp-pager
+      v-if="pagination.hasOwnProperty('current_page')"
       :class="{ 'visibility--hidden': isLoading }"
       class="u-pt-0_5 text--right u-1-of-1"
       :current-page="pagination.current_page"
-      :total-pages="Math.ceil((pagination.count / pagination.per_page))"
-      :total-items="pagination.count"
-      :per-page="pagination.per_page < pagination.count ? pagination.per_page : pagination.count"
+      :total-pages="pagination.total_pages"
+      :total-items="pagination.total"
+      :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
       @size-change="handleSizeChange"
-      :key="'pager1_' + pagination.current_page + '_' + pagination.per_page" />
+      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
     <dp-export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
@@ -72,9 +73,14 @@
       name="filter"
       v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
 
+    <!-- If there are statements, display statement list -->
+    <dp-loading
+      v-if="isLoading"
+      class="u-mt u-ml" />
+
     <table
       :aria-label="Translator.trans('statements.original')"
-      v-if="Object.keys(statements).length"
+      v-else-if="Object.keys(statements).length"
       class="c-at-orig">
       <colgroup>
         <col class="width-10p">
@@ -122,23 +128,24 @@
     </table>
 
     <dp-inline-notification
-      v-else-if="!isLoading"
+      v-else
       :message="Translator.trans('explanation.noentries')"
       type="info" />
   </form>
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
-import { changeUrlforPager } from '@demos-europe/demosplan-utils'
+import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
-import { DpPager } from '@demos-europe/demosplan-ui'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
   name: 'OriginalStatementsTable',
 
   components: {
+    DpLoading,
     DpExportModal,
     DpInlineNotification: async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
@@ -161,7 +168,7 @@ export default {
       required: true
     },
 
-    pagination: {
+    initPagination: {
       type: Object,
       required: false,
       default: () => ({
@@ -185,14 +192,15 @@ export default {
       currentTableView: 'expanded',
       filterHash: this.initFilterHash,
       isLoading: true,
-      pageSize: this.pagination.per_page
+      pageSize: this.initPagination.count
     }
   },
 
   computed: {
     ...mapState('statement', [
       'statements',
-      'selectedElements'
+      'selectedElements',
+      'pagination'
     ]),
 
     ...mapGetters('statement', [
@@ -214,9 +222,30 @@ export default {
       'getStatementAction',
       'removeFromSelectionAction',
       'resetSelection',
-      'setSelectedElementsAction',
       'setSelectionAction'
     ]),
+
+    ...mapMutations('statement', [
+      'updatePagination',
+      'updatePersistStatementSelection'
+    ]),
+
+    ...mapMutations('assessmentTable', [
+      'setProperty'
+    ]),
+
+    /**
+     * Update the Url matching the pager
+     * @param pager
+     */
+    changeUrl (pager) {
+      const newUrl = changeUrlforPager(pager)
+
+      window.history.pushState({
+        html: newUrl.join('?'),
+        pageTitle: document.title
+      }, document.title, newUrl.join('?'))
+    },
 
     copyStatements () {
       if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
@@ -228,8 +257,17 @@ export default {
     },
 
     handlePageChange (newPage) {
-      const newUrl = changeUrlforPager(Object.assign(this.pagination, { current_page: newPage, count: this.pagination.per_page }))
-      window.location.href = newUrl.join('?')
+      const tmpPager = Object.assign(this.pagination, {
+        current_page: newPage,
+        count: this.pagination.per_page
+      })
+      this.updatePagination(tmpPager)
+      this.changeUrl(tmpPager)
+      this.setProperty({
+        prop: 'isLoading',
+        val: true
+      })
+      this.triggerApiCallForStatements()
     },
 
     handleSizeChange (newSize) {
@@ -265,13 +303,10 @@ export default {
       return this.getStatementAction({
         filterHash: this.filterHash,
         procedureId: this.procedureId,
-        pagination: { current_page: this.pagination.current_page, count: this.pagination.per_page },
+        pagination: this.pagination,
         view_mode: '',
         sort: ''
       })
-        .then(response => {
-          this.setSelectionAction(response)
-        })
     },
 
     updateFilterHash (hash) {
@@ -285,6 +320,12 @@ export default {
   },
 
   mounted () {
+    // Disable sessionStorage for statements within this view.
+    this.updatePersistStatementSelection(false)
+
+    this.updatePagination(this.initPagination)
+    this.changeUrl(this.initPagination)
+
     this.applyBaseData(this.procedureId)
       .then(() => {
         return this.triggerApiCallForStatements()
@@ -294,7 +335,6 @@ export default {
       })
 
     this.$root.$on('toggle-select-all', () => {
-      console.log('toggle all')
       this.allCheckboxesToggled = !this.allCheckboxesToggled
       this.toggleAllCheckboxes()
     })
