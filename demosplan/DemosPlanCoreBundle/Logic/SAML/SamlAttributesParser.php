@@ -43,5 +43,6 @@ class SamlAttributesParser
         if (array_key_exists('surname', $this->samlAttributes)) {
             $this->user->setLastname($this->samlAttributes['surname'][0]);
         }
+        $this->user->setProvidedByIdentityProvider(true);
     }
 }

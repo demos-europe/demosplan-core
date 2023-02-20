@@ -29,7 +29,7 @@ class PublicParticipationEndDateSorter extends ProcedureTimestampSorter
      *
      * @param Procedure $procedure
      */
-    protected function getEntityTimestamp($procedure/*, $key*/): int
+    protected function getEntityTimestamp($procedure/* , $key */): int
     {
         return $procedure->getPublicParticipationEndDateTimestamp();
     }
@@ -39,7 +39,7 @@ class PublicParticipationEndDateSorter extends ProcedureTimestampSorter
      *
      * @param array $procedure
      */
-    protected function getLegacyArrayTimestamp($procedure/*, $key*/): int
+    protected function getLegacyArrayTimestamp($procedure/* , $key */): int
     {
         return $procedure['publicParticipationEndDateTimestamp'];
     }

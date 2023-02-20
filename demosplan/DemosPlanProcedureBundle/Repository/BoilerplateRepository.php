@@ -20,6 +20,8 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Exception;
+use InvalidArgumentException;
 
 class BoilerplateRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -64,7 +66,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      * @param string|Procedure $sourceProcedureId - identifies the blueprint procedure
      * @param Procedure        $newProcedure      - the new created procedure object
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function copyBoilerplates($sourceProcedureId, $newProcedure)
     {
@@ -80,7 +82,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
 
             /** @var Boilerplate $blueprintBoilerplate */
             foreach ($boilerplates as $blueprintBoilerplate) {
-                //clone boilerplate without category relation:
+                // clone boilerplate without category relation:
                 $newBoilerplate = new Boilerplate();
                 $newBoilerplate->setText($blueprintBoilerplate->getText());
                 $newBoilerplate->setTitle($blueprintBoilerplate->getTitle());
@@ -148,7 +150,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
             }
 
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Copy Boilerplate failed. Message: ', [$e]);
             throw $e;
         }
@@ -159,9 +161,9 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @param string $boilerplateId
      *
-     * @throws \Exception
-     *
      * @return Boilerplate|null
+     *
+     * @throws Exception
      */
     public function get($boilerplateId)
     {
@@ -174,9 +176,9 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @param array $data - holds the content of the boilerplate, which is about to post
      *
-     * @throws \Exception
-     *
      * @return Boilerplate
+     *
+     * @throws Exception
      */
     public function add(array $data)
     {
@@ -185,7 +187,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
         }
 
         if (!array_key_exists('title', $data) || !array_key_exists('text', $data)) {
-            throw new \InvalidArgumentException('Title and Text needed for creating Boilerplate');
+            throw new InvalidArgumentException('Title and Text needed for creating Boilerplate');
         }
 
         $boilerplate = new Boilerplate();
@@ -216,16 +218,16 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
     /**
      * Loads a specific boilerplateentry from the DB and edit this text and/or title.
      *
-     * @throws \Exception
-     *
      * @param string $id   - Identify the boilerplate, which is to be updated
      * @param array  $data - Contains the keys and values, which are to be updated
      *
      * @return bool - true, if the boilerpalte was updated, otherwise false
+     *
+     * @throws Exception
      */
     public function update($id, array $data)
     {
-        //boilerplate exsisting?
+        // boilerplate exsisting?
         $toUpdate = $this->get($id);
 
         if (null !== $toUpdate) {
@@ -263,9 +265,9 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @param string $id - Identify the boilerplate, which is to be deleted
      *
-     * @throws \Exception
-     *
      * @return bool - true, if the boilerplate was found and deleted, otherwise false
+     *
+     * @throws Exception
      */
     public function delete($id): bool
     {
@@ -290,7 +292,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @param string $procedureId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function unsetAllCategories($procedureId)
     {
@@ -307,7 +309,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -321,7 +323,7 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete all Boilerplates of a procedure failed ', [$e]);
             throw $e;
         }
@@ -330,11 +332,11 @@ class BoilerplateRepository extends CoreRepository implements ArrayInterface, Ob
     /**
      * @param \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate $entity
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateObjectValues($entity, array $data)
     {
-        throw new \Exception('Method not implemented');
+        throw new Exception('Method not implemented');
     }
 
     /**

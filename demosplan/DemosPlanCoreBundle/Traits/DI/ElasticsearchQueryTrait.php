@@ -22,15 +22,15 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Elastica\Aggregation\Missing;
 use Elastica\Exception\ClientException;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Exists;
 use Elastica\Query\Prefix;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Exception;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Traversable;
 
@@ -44,9 +44,9 @@ trait ElasticsearchQueryTrait
     use RequiresTranslatorTrait;
 
     /**
-     * @var Type
+     * @var Index
      */
-    protected $search;
+    protected $index;
 
     /** @var array */
     protected $labelMaps = [];
@@ -61,7 +61,9 @@ trait ElasticsearchQueryTrait
      */
     private function areSortsAvailable(array $sorts, array $availableSorts): bool
     {
-        $getSortname = function ($sort) {return $sort->getName(); };
+        $getSortname = function ($sort) {
+            return $sort->getName();
+        };
 
         $availableSortNames = array_map($getSortname, $availableSorts);
         $sortNames = array_map($getSortname, $sorts);
@@ -83,13 +85,13 @@ trait ElasticsearchQueryTrait
      *                               in the actual entities but still want other information like
      *                               the aggregations
      * @param int           $page
-     * @param Type|null     $esType  if set this will be used instead of {@link search}
+     * @param Index|null    $index   if set this will be used instead of {@link index}
      */
     public function getElasticsearchResult(
-        $esQuery,
-        $limit = -1,
-        $page = 1,
-        Type $esType = null): array
+              $esQuery,
+              $limit = -1,
+              $page = 1,
+        Index $index = null): array
     {
         $result = [];
 
@@ -113,11 +115,11 @@ trait ElasticsearchQueryTrait
             $query = new Query();
             $query->setQuery($boolQuery);
 
-            //generate Aggregation
+            // generate Aggregation
             $query = $this->buildAggregation($esQuery, $query);
 
             // Sorting
-            //default
+            // default
             $esSortFields = [];
             $sorts = $esQuery->getSort();
             $availableSorts = $esQuery->getAvailableSorts();
@@ -136,7 +138,7 @@ trait ElasticsearchQueryTrait
 
             $this->getLogger()->debug('Elasticsearch Procedure Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
-            $search = $esType ?? $this->search;
+            $search = $index ?? $this->index;
             $elasticaAdapter = new ElasticaAdapter($search, $query);
             $paginator = new DemosPlanPaginator($elasticaAdapter);
             $paginator->setLimits($this->paginatorLimits);
@@ -287,33 +289,33 @@ trait ElasticsearchQueryTrait
     /**
      * @param BoolQuery     $boolQuery
      * @param AbstractQuery $esQuery
-     * @param array         $boolMustFilter
-     * @param array         $boolMustNotFilter
+     * @param array         $boolMustFilters
+     * @param array         $boolMustNotFilters
      */
-    public function buildFilterMust($boolQuery, $esQuery, $boolMustFilter = [], $boolMustNotFilter = []): BoolQuery
+    public function buildFilterMust($boolQuery, $esQuery, $boolMustFilters = [], $boolMustNotFilters = []): BoolQuery
     {
         foreach ($esQuery->getFiltersMust() as $filter) {
             if ($filter instanceof FilterMissing) {
-                $boolMustNotFilter[] = $this->getExistsQuery($filter);
+                $boolMustNotFilters[] = $this->getExistsQuery($filter);
             }
             if ($filter instanceof Filter) {
-                $boolMustFilter[] = $this->getTermsQuery($filter);
+                $boolMustFilters[] = $this->getTermsQuery($filter);
             }
             if ($filter instanceof FilterPrefix) {
-                $boolMustFilter[] = $this->getPrefixQuery($filter);
+                $boolMustFilters[] = $this->getPrefixQuery($filter);
             }
         }
-        if (0 < count($boolMustFilter)) {
-            $boolQuery->addMust($boolMustFilter);
+        if (0 < count($boolMustFilters)) {
+            array_map([$boolQuery, 'addMust'], $boolMustFilters);
         }
-        if (0 < count($boolMustNotFilter)) {
-            $boolQuery->addMustNot($boolMustNotFilter);
+        if (0 < count($boolMustNotFilters)) {
+            array_map([$boolQuery, 'addMustNot'], $boolMustNotFilters);
         }
         if (0 < count($esQuery->getFilterMustNotQueries())) {
-            $boolQuery->addMustNot($esQuery->getFilterMustNotQueries());
+            array_map([$boolQuery, 'addMustNot'], $esQuery->getFilterMustNotQueries());
         }
         if (0 < count($esQuery->getFilterMustQueries())) {
-            $boolQuery->addMust($esQuery->getFilterMustQueries());
+            array_map([$boolQuery, 'addMust'], $esQuery->getFilterMustQueries());
         }
 
         return $boolQuery;
@@ -338,7 +340,7 @@ trait ElasticsearchQueryTrait
         }
 
         if (0 < count($boolShouldFilter)) {
-            $boolQuery->addShould($boolShouldFilter);
+            array_map([$boolQuery, 'addShould'], $boolShouldFilter);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);
         }
 
@@ -620,8 +622,8 @@ trait ElasticsearchQueryTrait
         return $this->generateFilterValue($bucket, $noAssignment);
     }
 
-    public function getSearch(): Type
+    public function getIndex(): Index
     {
-        return $this->search;
+        return $this->index;
     }
 }

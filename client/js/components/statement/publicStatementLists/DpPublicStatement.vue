@@ -159,7 +159,9 @@
           {{ document }}
         </div>
       </div><!--
-   --><div class="u-1-of-1 c-public-statement__content-item">
+   --><div
+        v-if="hasPermission('feature_documents_new_statement')"
+        class="u-1-of-1 c-public-statement__content-item">
         <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
           {{ Translator.trans('paragraph') }}
         </div><!--
@@ -238,9 +240,8 @@
 </template>
 
 <script>
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import { CleanHtml, DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
-import { DpFlyout, DpInlineNotification, DpTableCard } from '@demos-europe/demosplan-ui/components/core'
 import { mapState } from 'vuex'
 
 export default {

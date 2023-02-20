@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use GuzzleHttp\Exception\InvalidArgumentException;
+use RuntimeException;
 use Tightenco\Collect\Support\Collection;
 use Twig\TwigFunction;
 
@@ -31,7 +32,6 @@ class WebpackBundleExtension extends ExtensionBase
 
         // extracted vendors
         'd3.js',
-        'tiptap.js',
         'ol.js',
         'leaflet.js',
         'jquery-3.5.1.min.js',
@@ -187,7 +187,7 @@ class WebpackBundleExtension extends ExtensionBase
             try {
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
             } catch (InvalidArgumentException $e) {
-                throw new \RuntimeException(<<<ERR
+                throw new RuntimeException(<<<ERR
 The manifest
 
     $manifestFile

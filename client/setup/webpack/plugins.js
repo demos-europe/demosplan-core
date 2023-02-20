@@ -89,6 +89,10 @@ const webpackDefaultPlugins = [
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/pdf`,
         to: `${config.projectRoot}/web/pdf`,
         noErrorOnMissing: true
+      },
+      {
+        from: resolveDir('node_modules/@demos-europe/demosplan-ui/dist'),
+        to: `${config.projectRoot}/web/js/bundles`
       }
     ]
   }),
@@ -96,8 +100,8 @@ const webpackDefaultPlugins = [
 
   // Provide configured Vue and Bus instances to all modules
   new webpack.ProvidePlugin({
-    Vue: ['@DemosPlanCoreBundle/VueConfigCore', 'default'],
-    Bus: ['@DemosPlanCoreBundle/VueConfigBus', 'default']
+    Vue: ['@DpJs/VueConfigCore', 'default'],
+    Bus: ['@DpJs/VueConfigBus', 'default']
   })
 ]
 

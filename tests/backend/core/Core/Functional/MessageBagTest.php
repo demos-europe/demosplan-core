@@ -10,7 +10,6 @@
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\Message;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Tests\Base\FunctionalTestCase;
 use Tightenco\Collect\Support\Collection;

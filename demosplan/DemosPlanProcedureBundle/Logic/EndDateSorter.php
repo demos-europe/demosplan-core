@@ -29,7 +29,7 @@ class EndDateSorter extends ProcedureTimestampSorter
      *
      * @param Procedure $procedure
      */
-    protected static function getEntityTimestamp($procedure/*, $key*/): int
+    protected static function getEntityTimestamp($procedure/* , $key */): int
     {
         return $procedure->getEndDateTimestamp();
     }
@@ -39,7 +39,7 @@ class EndDateSorter extends ProcedureTimestampSorter
      *
      * @param array $procedure
      */
-    protected static function getLegacyArrayTimestamp($procedure/*, $key*/): int
+    protected static function getLegacyArrayTimestamp($procedure/* , $key */): int
     {
         return $procedure['endDateTimestamp'];
     }

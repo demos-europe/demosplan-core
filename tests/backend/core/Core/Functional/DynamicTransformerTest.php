@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputTransformation\DynamicTransformer;
 use EDT\JsonApi\OutputTransformation\IncludeDefinition;
@@ -179,7 +179,6 @@ class DynamicTransformerTest extends JsonApiTest
         self::markSkippedForCIIntervention();
         // Can be enabled after an exception is thrown again instead of just showing a warning.
 
-
         $procedure = $this->getProcedureReference(
             LoadProcedureData::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE
         );
@@ -232,7 +231,6 @@ class DynamicTransformerTest extends JsonApiTest
         return [
             // #0
             [
-
                 [
                     'include'           => 'owningOrganisation.customers',
                     'fields[Procedure]' => 'owningOrganisation',
@@ -245,7 +243,6 @@ class DynamicTransformerTest extends JsonApiTest
             ],
             // #1
             [
-
                 [
                     'include'           => 'owningOrganisation.customers.signLanguageOverviewVideo',
                     'fields[Procedure]' => 'owningOrganisation',
@@ -260,7 +257,6 @@ class DynamicTransformerTest extends JsonApiTest
             ],
             // #2
             [
-
                 [
                     'include'           => 'owningOrganisation.customers.branding',
                     'fields[Procedure]' => 'owningOrganisation',
@@ -275,7 +271,6 @@ class DynamicTransformerTest extends JsonApiTest
             ],
             // #3
             [
-
                 [
                     'include'           => 'owningOrganisation',
                     'fields[Procedure]' => 'owningOrganisation',

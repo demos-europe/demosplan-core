@@ -14,16 +14,15 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
+use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler;
-use demosplan\DemosPlanNewsBundle\Logic\NewsHandler;
-use demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService;
-use demosplan\DemosPlanNewsBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
@@ -65,7 +64,6 @@ class DemosPlanNewsController extends BaseController
         $this->procedureNewsService = $procedureNewsService;
     }
 
-
     /**
      * Check, whether News is Global or not.
      *
@@ -83,29 +81,28 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_public_detail",
      *     path="/verfahren/{procedure}/public/aktuelles/{newsID}"
      * )
-     *
      * @DplanPermissions("area_public_participation")
      *
      * @param string $procedure Procedure Id
      *
      * @return Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newsPublicDetailAction(
         BrandingService $brandingService,
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         string $newsID,
-        string $procedure)
-    {
+        string $procedure
+    ) {
         // @improve T14613
         $procedureId = $procedure;
 
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = [
-            'news'      => $this->procedureNewsService->getSingleNews($newsID),
-            'procedure' => $procedureId,
+            'news'                  => $this->procedureNewsService->getSingleNews($newsID),
+            'procedure'             => $procedureId,
             // Verfahrensname holen und an das Template übergeben
             'procedureExternalName' => $currentProcedureService->getProcedureWithCertainty()->getExternalName(),
         ];
@@ -116,7 +113,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/public_newsdetail.html.twig',
+            '@DemosPlanCore/DemosPlanNews/public_newsdetail.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,
@@ -132,7 +129,6 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news_export",
      *     path="/news/export"
      * )
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
@@ -158,7 +154,6 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_export",
      *     path="/verfahren/{procedure}/aktuelles/export"
      * )
-     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
@@ -184,7 +179,6 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news",
      *     path="/news"
      * )
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return Response
@@ -194,9 +188,9 @@ class DemosPlanNewsController extends BaseController
     public function newsListGlobalIndexAction(
         Breadcrumb $breadcrumb,
         CurrentUserService $currentUserService,
-        TranslatorInterface $translator)
-    {
-        //Reichere die breadcrumb mit einem extraItem an
+        TranslatorInterface $translator
+    ) {
+        // Reichere die breadcrumb mit einem extraItem an
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('misc.information', [], 'page-title'),
@@ -220,7 +214,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         $templateVars = [
-            'list' => [
+            'list'           => [
                 'newslist' => $newsList,
             ],
             'pressList'      => $pressList,
@@ -229,7 +223,7 @@ class DemosPlanNewsController extends BaseController
 
         return $this->renderTemplate(
             // globale Newslist ausgeloggt
-            '@DemosPlanNews/DemosPlanNews/globalnewslist_list_index.html.twig',
+            '@DemosPlanCore/DemosPlanNews/globalnewslist_list_index.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'news.global',
@@ -244,12 +238,11 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_news_news_public",
      *     path="/verfahren/{procedure}/public/aktuelles"
      * )
-     *
      * @DplanPermissions("area_news")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newsPublicListAction(Request $request, CurrentProcedureService $currentProcedureService, CurrentUserService $currentUserService, string $procedure)
     {
@@ -268,7 +261,7 @@ class DemosPlanNewsController extends BaseController
             // Logo holen und an das Template übergeben
             $procedureArray = $currentProcedureService->getProcedureArray();
             $templateVars = [
-                'list' => [
+                'list'      => [
                     'newslist' => $sResult['result'],
                 ],
                 'procedure' => $procedure,
@@ -276,14 +269,14 @@ class DemosPlanNewsController extends BaseController
             ];
 
             return $this->renderTemplate(
-                '@DemosPlanNews/DemosPlanNews/public_newslist.html.twig',
+                '@DemosPlanCore/DemosPlanNews/public_newslist.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
                     'title'        => 'news',
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
@@ -296,7 +289,6 @@ class DemosPlanNewsController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/aktuelles",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_news")
      *
      * @return RedirectResponse|Response
@@ -321,7 +313,7 @@ class DemosPlanNewsController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_list.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -338,7 +330,6 @@ class DemosPlanNewsController extends BaseController
      *     path="/news/verwalten",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
@@ -357,13 +348,13 @@ class DemosPlanNewsController extends BaseController
 
         $templateVars = [
             'list' => [
-                //avoid duplicate content:
+                // avoid duplicate content:
                 'newslist' => collect($sortedMergedResult['list'])->unique()->toArray(),
             ],
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_list.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => null,
@@ -382,7 +373,7 @@ class DemosPlanNewsController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'newsnew' => [
+            'newsnew'  => [
                 'action',
                 'r_title',
                 'r_description',
@@ -439,16 +430,14 @@ class DemosPlanNewsController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_news_administration_news_new_post",
      *     path="/verfahren/{procedure}/verwalten/aktuelles/neu",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_news")
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newsAdminNewAction(
         Breadcrumb $breadcrumb,
@@ -458,7 +447,7 @@ class DemosPlanNewsController extends BaseController
         TranslatorInterface $translator,
         string $procedure
     ) {
-        //reichere die breadcrumb mit extraItem an (hier procedure news)
+        // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('news.admin', [], 'page-title'),
@@ -486,18 +475,16 @@ class DemosPlanNewsController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_news_administration_news_edit_post",
      *     path="/verfahren/{procedure}/verwalten/aktuelles/{newsID}",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_news")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function newsAdminEditAction(
         Breadcrumb $breadcrumb,
@@ -506,9 +493,9 @@ class DemosPlanNewsController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         string $newsID,
-        string $procedure)
-    {
-        //reichere die breadcrumb mit extraItem an (hier procedure news)
+        string $procedure
+    ) {
+        // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('news.admin', [], 'page-title'),
@@ -534,18 +521,16 @@ class DemosPlanNewsController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_globalnews_administration_news_edit_post",
      *     path="/news/{newsID}/edit",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function globalnewsAdminEditAction(
         Breadcrumb $breadcrumb,
@@ -555,13 +540,13 @@ class DemosPlanNewsController extends BaseController
         TranslatorInterface $translator,
         string $newsID
     ) {
-        //reichere die breadcrumb mit extraItem an (hier global news)
+        // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
-                [
-                    'title' => $translator->trans('news.global.admin', [], 'page-title'),
-                    'url'   => $this->generateUrl('DemosPlan_globalnews_administration_news'),
-                ]
-            );
+            [
+                'title' => $translator->trans('news.global.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_globalnews_administration_news'),
+            ]
+        );
 
         $success = $this->handleNewsAdminEditPostRequest($request, $fileUploadService, $this->globalNewsHandler);
         if (true === $success) {
@@ -578,18 +563,16 @@ class DemosPlanNewsController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_globalnews_administration_news_new_post",
      *     path="/news/neu",
      *     methods={"POST"}
      * )
-     *
      * @DplanPermissions("area_admin_globalnews")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function globalnewsAdminNewAction(
         Breadcrumb $breadcrumb,
@@ -598,7 +581,7 @@ class DemosPlanNewsController extends BaseController
         Request $request,
         TranslatorInterface $translator
     ) {
-        //reichere die breadcrumb mit extraItem an (hier global news)
+        // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('news.global.admin', [], 'page-title'),
@@ -624,7 +607,6 @@ class DemosPlanNewsController extends BaseController
      *     name="DemosPlan_globalnews_news_detail",
      *     path="/news/{newsID}"
      * )
-     *
      * @DplanPermissions("area_globalnews")
      *
      * @return RedirectResponse|Response
@@ -639,7 +621,7 @@ class DemosPlanNewsController extends BaseController
             'procedure' => null,
         ];
 
-        //Reichere die breadcrumb mit zusätzl. items an
+        // Reichere die breadcrumb mit zusätzl. items an
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('news.global', [], 'page-title'),
@@ -648,7 +630,7 @@ class DemosPlanNewsController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/newsdetail.html.twig',
+            '@DemosPlanCore/DemosPlanNews/newsdetail.html.twig',
             [
                 'procedure'    => null,
                 'templateVars' => $templateVars,
@@ -701,6 +683,7 @@ class DemosPlanNewsController extends BaseController
      * @param string|null                            $procedure
      *
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     *
      * @DplanPermissions("area_admin_news")
      */
     protected function handleNewsAdminEditPostRequest(Request $request, FileUploadService $fileUploadService, $updater, $procedure = null): bool
@@ -793,17 +776,17 @@ class DemosPlanNewsController extends BaseController
         $news = $newsGetter->getSingleNews($newsId);
         $templateVars = ['news' => $news];
 
-        //hole die Textbausteine
+        // hole die Textbausteine
         $templateVars['boilerplates'] = $procedureService->getBoilerplatesOfCategory($procedure, 'news.notes');
         $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedure, 'news.notes');
 
-        //Gebe dem Template die Info, ob es sich um eine globale News handelt
+        // Gebe dem Template die Info, ob es sich um eine globale News handelt
         if ($this->isGlobalNews($procedure)) {
             $templateVars['isGlobal'] = true;
         }
 
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_edit.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -823,18 +806,18 @@ class DemosPlanNewsController extends BaseController
     {
         $templateVars['procedure'] = $procedure;
 
-        //hole die Textbausteine
+        // hole die Textbausteine
         $templateVars['boilerplates'] = $procedureService->getBoilerplatesOfCategory($procedure, 'news.notes');
         $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedure, 'news.notes');
 
-        //Gebe dem Template die Info, ob es sich um eine globale News handelt
+        // Gebe dem Template die Info, ob es sich um eine globale News handelt
         if ($this->isGlobalNews($procedure)) {
             $templateVars['isGlobal'] = true;
         }
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanNews/DemosPlanNews/news_admin_new.html.twig',
+            '@DemosPlanCore/DemosPlanNews/news_admin_new.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -851,7 +834,7 @@ class DemosPlanNewsController extends BaseController
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 
         if ('' === $pdfContent) {
-            throw new \Exception('PDF-Export fehlgeschlagen');
+            throw new Exception('PDF-Export fehlgeschlagen');
         }
 
         $response = new Response($pdfContent, 200);

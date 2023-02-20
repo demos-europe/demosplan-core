@@ -11,10 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,16 +26,18 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Elements extends CoreEntity implements UuidEntityInterface
 {
-    public const ELEMENTS_CATEGORY_MAP = 'map'; //like "Planzeichnung"
-    public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; //like "Gesamtstellungnahme" or "Fehlanzeige"
+    public const ELEMENTS_CATEGORY_MAP = 'map'; // like "Planzeichnung"
+    public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; // like "Gesamtstellungnahme" or "Fehlanzeige"
     public const ELEMENTS_CATEGORY_FILE = 'file'; // like "Ergänzende Unterlagen" or "Landschaftsplan-Änderung"
-    public const ELEMENTS_CATEGORY_PARAGRAPH = 'paragraph'; //like "Begründung" or "Textliche Festsetzungen"
+    public const ELEMENTS_CATEGORY_PARAGRAPH = 'paragraph'; // like "Begründung" or "Textliche Festsetzungen"
     public const ELEMENTS_CATEGORY_CATEGORY = 'category'; // created element by customer
 
     public const FILE_TYPE_ANSCHREIBEN = 'Anschreiben';
     public const FILE_TYPE_ANSCHREIBEN_BETEILIGUNGSVERFAHREN = 'Anschreiben Beteiligungsverfahren';
     public const FILE_TYPE_ANTRAGS_AUFTRAGSDOKUMENTE = 'Antrags- und Auftragsdokumente (Veranstaltung)';
     public const FILE_TYPE_ARBEITSKREISPAPIER = 'Arbeitskreispapier I und II';
+    public const FILE_TYPE_ARBEITSKREISPAPIER_I = 'AKI-Papier';
+    public const FILE_TYPE_ARBEITSKREISPAPIER_II = 'AKII-Papier';
     public const FILE_TYPE_AUBS_DRITTER_BLATT = 'AuBS 3er-Blatt';
     public const FILE_TYPE_AUFHEBUNGSBESCHLUSS = 'Aufhebungsbeschluss';
     public const FILE_TYPE_AUFSTELLUNGSBESCHLUSS = 'Aufstellungsbeschluss';
@@ -47,7 +49,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
     public const FILE_TYPE_BESCHLUSS_ZUR_LAPRO_ANDERUNG = 'Beschluss zur Lapro-Änderung';
     public const FILE_TYPE_DRUCKSACHE = 'Drucksache';
     public const FILE_TYPE_DURCHFUHRUNGSVERTRAG = 'Durchführungsvertrag';
-    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'Ergänzende Unterlage';
+    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'ergänzende Unterlage';
     public const FILE_TYPE_ERSCHLIESSUNGSVERTRAG = 'Erschließungsvertrag';
     public const FILE_TYPE_FESTSTELLUNG_PLANREIFE = 'Feststellung Planreife';
     public const FILE_TYPE_FESTSTELLUNGSBESCHLUSS = 'Feststellungsbeschluss';
@@ -71,7 +73,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
     public const FILE_TYPE_PLANZEICHNUNG = 'Planzeichnung';
     public const FILE_TYPE_PRAESENTATION = 'Präsentation';
     public const FILE_TYPE_SCHLUSSMITTEILUNG = 'Schlussmitteilung';
-    public const FILE_TYPE_SCOPING_PAPIER = 'Scoping-Papier';
+    public const FILE_TYPE_SCOPING_PAPIER = 'Scopingpapier';
     public const FILE_TYPE_SCOPING_PROTOKOLL = 'Scoping-Protokoll';
     public const FILE_TYPE_SITZUNGSUNTERLAGE = 'Sitzungsunterlage';
     public const FILE_TYPE_SONSTIGE_UNTERLAGE = 'sonstige Unterlage';
@@ -163,6 +165,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(name="_e_icon_title", type="string", options={"comment":"Content of title-tag for icon"})
      */
     protected $iconTitle = '';
@@ -204,6 +207,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
      */
@@ -211,6 +215,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
      */
@@ -218,6 +223,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
      */
@@ -292,8 +298,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set parent ElementId.
-     *
-     * @return Elements
      */
     public function setElementParentId(?string $parentId): self
     {
@@ -330,8 +334,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set pId.
-     *
-     * @return Elements
      */
     public function setPId(string $pId): self
     {
@@ -375,8 +377,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCategory.
-     *
-     * @return Elements
      */
     public function setCategory(string $category): self
     {
@@ -395,8 +395,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eTitle.
-     *
-     * @return Elements
      */
     public function setTitle(string $title): self
     {
@@ -415,8 +413,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eIcon.
-     *
-     * @return Elements
      */
     public function setIcon(string $icon): self
     {
@@ -435,8 +431,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eText.
-     *
-     * @return Elements
      */
     public function setText(string $text): self
     {
@@ -465,8 +459,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eOrder.
-     *
-     * @return Elements
      */
     public function setOrder(int $order): self
     {
@@ -485,8 +477,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eEnabled.
-     *
-     * @return Elements
      */
     public function setEnabled(bool $enabled): self
     {
@@ -505,8 +495,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleted.
-     *
-     * @return Elements
      */
     public function setDeleted(bool $deleted): self
     {
@@ -525,8 +513,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCreateDate.
-     *
-     * @return Elements
      */
     public function setCreateDate(DateTime $createDate): self
     {
@@ -545,8 +531,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eModifyDate.
-     *
-     * @return Elements
      */
     public function setModifyDate(DateTime $modifyDate): self
     {
@@ -565,8 +549,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleteDate.
-     *
-     * @return Elements
      */
     public function setDeleteDate(DateTime $deleteDate): self
     {

@@ -92,21 +92,21 @@ class UserListCommand extends CoreCommand
     public function outputDataAsHTMLTable(OutputInterface $output, array $headers, Collection $data)
     {
         $headerHTML = "<tr>\n".collect($headers)->map(
-                function ($header) {
-                    return "<th>{$header}</th>";
-                }
-            )->implode("\n").'</tr>';
+            function ($header) {
+                return "<th>{$header}</th>";
+            }
+        )->implode("\n").'</tr>';
 
         $contentHTML = '';
         $data->each(
             function ($user) use (&$contentHTML) {
                 $contentHTML .= "<tr>\n".collect($user)->map(
-                        function ($field) {
-                            $field = nl2br($field);
+                    function ($field) {
+                        $field = nl2br($field);
 
-                            return "<td>{$field}</td>";
-                        }
-                    )->implode("\n").'</tr>';
+                        return "<td>{$field}</td>";
+                    }
+                )->implode("\n").'</tr>';
             }
         );
 

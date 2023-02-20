@@ -1,0 +1,96 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% set threadEntry = templateVars.threadEntry %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'Beitrag bearbeiten',
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            <form name="updateStoryEntry" action="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{ "storyId": templateVars.storyId, "threadEntryId": templateVars.threadEntry.ident}) }}" method="post" enctype="multipart/form-data">
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'thread.your'|trans },
+                            control: { value: threadEntry.text|default },
+                            type: 'editor',
+                            id: 'r_text',
+                            hiddenInput: 'r_text'
+                        }
+                    ]
+                })}}
+
+                {% if threadEntry.images is defined and threadEntry.images != false %}
+                    <p class="lbl u-mb-0_25">
+                        {{ "images.saved"|trans }}
+                    </p>
+                    <div class="layout u-mb"><!--
+                    {% for image in threadEntry.images %}
+                 --><div class="layout__item u-1-of-3">
+                        <img src="{{ path("core_logo", { 'hash': image|getFile('hash') }) }}">
+                        <label class="lbl--text u-mb-0_25">
+                            <input name="delete_file[]" type="checkbox" value="{{ image|getFile('hash')  }}">
+                            {{ "delete"|trans }}
+                        </label>
+                    </div><!--
+                    {% endfor %}
+                --></div>
+                {% endif %}
+
+                {% if threadEntry.documents is defined and threadEntry.documents != false %}
+                    <p class="lbl u-mb-0_25">
+                        {{ "documents.saved"|trans }}
+                    </p>
+                    <div class="u-mb">
+                        {% for document in threadEntry.documents %}
+                            <a
+                                target="_blank"
+                                rel="noopener"
+                                href="{{ path("core_file", { 'hash': document|getFile('hash') }) }}">
+                                <i class="fa fa-file-o"></i>
+                                {{ document|getFile('name') }}
+                                ({{ document|getFile('mimeType') }}
+                                {{ document|getFile('size','MB') }})
+                            </a>
+                            <label class="lbl--text u-mb-0_25">
+                                <input name="delete_file[]" type="checkbox" value="{{ document|getFile('hash')  }}">
+                                {{ "delete"|trans }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {{  fileupload(
+                        "r_files",
+                        "document.attach"|trans,
+                        "pdf-img",
+                        "form.button.upload.files",
+                        10
+                    )
+                }}
+
+                <div class="text--right space-inline-s">
+                    <input class="btn btn--primary" type="submit" name="updateThreadEntryForUserStory" value="{{ "publish.edit"|trans }}">
+                    <a class="btn btn--warning" data-form-actions-confirm="{{ "check.entry.delete"|trans }}" href="{{ path('DemosPlan_forum_development_userstory_threadentry_delete', { "storyId": templateVars.storyId, "threadEntryId": templateVars.threadEntry.ident, "token": templateVars.token}) }}">
+                        Beitrag löschen
+                    </a>
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_forum_development_userstory_detail', { "storyId": templateVars.storyId}) }}">
+                        {{ "abort"|trans }}
+                    </a>
+                </div>
+            </form>
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['forum-forumDevelopmentReleaseStoryThreadentryEdit.js']) }}
+{% endblock javascripts %}

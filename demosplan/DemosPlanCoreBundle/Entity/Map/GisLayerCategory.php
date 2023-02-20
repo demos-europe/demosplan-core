@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -55,14 +56,16 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     protected $name;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -71,6 +74,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     /**
      * @var Collection<int, GisLayer>
      *                                One GisLayerCategory has many GisLayers
+     *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer", mappedBy="category", fetch="EAGER")
      */
     protected $gisLayers;
@@ -98,6 +102,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var int
+     *
      * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
     protected $treeOrder = 0;
@@ -171,7 +176,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {
@@ -179,7 +184,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifyDate()
     {
@@ -260,15 +265,15 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
             throw new InvalidArgumentException('Set null as Parent is invalid, use rootCategory instead.');
         }
 
-        //detach from current parent if set:
+        // detach from current parent if set:
         if (false === is_null($this->getParent())) {
             $this->getParent()->getChildren()->removeElement($this);
         }
 
-        //attach to new parent:
+        // attach to new parent:
         $newParent->getChildren()->add($this);
 
-        //set new parent:
+        // set new parent:
         $this->parent = $newParent;
     }
 
@@ -325,7 +330,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      */
     public function setCreateDate($createDate)
     {
@@ -333,7 +338,7 @@ class GisLayerCategory extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime $modifyDate
+     * @param DateTime $modifyDate
      */
     public function setModifyDate($modifyDate)
     {

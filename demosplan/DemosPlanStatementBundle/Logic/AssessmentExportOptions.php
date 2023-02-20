@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
@@ -48,7 +48,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @const array
      */
-    const SECTIONS = [
+    public const SECTIONS = [
         'original_statements',
         'assessment_table',
         'fragment_list',
@@ -59,7 +59,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
      *
      * @const array
      */
-    const FORMATS = [
+    public const FORMATS = [
         'docx',
         'pdf',
         'xlsx',

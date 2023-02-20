@@ -10,9 +10,10 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\JsonDecodeExtension;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use Tests\Base\FunctionalTestCase;
+use Twig_SimpleFilter;
 
 class JsonDecodeExtensionTest extends FunctionalTestCase
 {
@@ -39,7 +40,7 @@ class JsonDecodeExtensionTest extends FunctionalTestCase
     {
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
 
         $callable = $result[0]->getCallable();
         static::assertTrue(is_callable($callable));

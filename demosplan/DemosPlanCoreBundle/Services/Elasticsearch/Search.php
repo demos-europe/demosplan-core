@@ -148,5 +148,4 @@ class Search
 
         return $fieldArray;
     }
-
 }

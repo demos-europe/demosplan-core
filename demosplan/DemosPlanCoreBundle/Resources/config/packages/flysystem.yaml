@@ -1,6 +1,0 @@
-flysystem:
-    storages:
-        local.storage:
-            adapter: 'local'
-            options:
-                directory: '%fileservice_filepath%/local'

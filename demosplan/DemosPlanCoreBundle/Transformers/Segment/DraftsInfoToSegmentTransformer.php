@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
@@ -28,6 +28,7 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\ORM\NoResultException;
+use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -107,7 +108,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      *
      * @throws FileNotFoundException
      * @throws InvalidSchemaException
-     * @throws \Exception
+     * @throws Exception
      * @throws StatementNotFoundException
      */
     public function transform($draftsInfo): array
@@ -128,7 +129,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      *
      * @return array<int, Segment>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function getSegments(array $draftsInfoArray, Statement $statement): array
     {
@@ -204,7 +205,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      *
      * @return array<int, Tag>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function getTags(array $draftInfoTags, Procedure $procedure): array
     {

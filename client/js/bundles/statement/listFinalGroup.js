@@ -13,8 +13,9 @@
 
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
+import Tabs from '@DpJs/lib/statement/Tabs'
 
 const components = {
   DpMapModal,
@@ -25,4 +26,6 @@ const stores = {
   publicStatement
 }
 
-initialize(components, stores)
+initialize(components, stores).then(() => {
+  Tabs()
+})

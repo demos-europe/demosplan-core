@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -11,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\CoreApplication\Application;
 
-
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use Exception;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -19,7 +19,6 @@ use Symfony\Component\ErrorHandler\Debug;
 
 class FrontController
 {
-
     /**
      * Build a special console for tests that can be used e.g. to delete caches.
      *

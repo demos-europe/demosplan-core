@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
+use DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class CreateSimplifiedStatementEvent  extends DPlanEvent
+class CreateSimplifiedStatementEvent extends DPlanEvent implements CreateSimplifiedStatementEventInterface
 {
-    private ?StatementFromEmailCreator $emailStatementCreator = null;
+    private ?StatementCreatorInterface $emailStatementCreator = null;
 
     private Request $request;
 
@@ -31,13 +32,13 @@ class CreateSimplifiedStatementEvent  extends DPlanEvent
         return $this->request;
     }
 
-    public function getStatementFromEmailCreator (): ?StatementFromEmailCreator
+    public function getStatementFromEmailCreator(): ?StatementCreatorInterface
     {
         return $this->emailStatementCreator;
     }
 
-    public function setStatementFromEmailCreator (?StatementFromEmailCreator $emailStatementCreator): void
+    public function setStatementFromEmailCreator(?StatementCreatorInterface $emailStatementCreator): void
     {
-       $this->emailStatementCreator = $emailStatementCreator;
+        $this->emailStatementCreator = $emailStatementCreator;
     }
 }

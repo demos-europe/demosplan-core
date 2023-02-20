@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-implements UpdatableDqlResourceTypeInterface<ProcedureBehaviorDefinition>
+ *
  * @template-extends DplanResourceType<ProcedureBehaviorDefinition>
  *
  * @property-read End $allowedToEnableMap
@@ -40,14 +41,14 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType im
             // access the list of ProcedureTypes and should be restricted to ProcedureBehaviorDefinitions
             // that are connected to a ProcedureType (and thus not connected to a Procedure)
             return $this->conditionFactory->allConditionsApply(
-                $this->conditionFactory->propertyIsNull(...$this->procedure),
-                $this->conditionFactory->propertyIsNotNull(...$this->procedureType)
+                $this->conditionFactory->propertyIsNull($this->procedure),
+                $this->conditionFactory->propertyIsNotNull($this->procedureType)
             );
         }
 
         return $this->conditionFactory->propertyHasValue(
             $currentProcedure->getId(),
-            ...$this->procedure->id
+            $this->procedure->id
         );
     }
 

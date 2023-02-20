@@ -11,8 +11,8 @@
  * This is the entry point for development_release_story_threadentry_new.html.twig
  */
 
-import { DpEditor, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { DpEditor, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpEditor,

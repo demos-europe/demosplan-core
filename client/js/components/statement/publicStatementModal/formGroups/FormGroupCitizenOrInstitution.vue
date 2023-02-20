@@ -32,7 +32,9 @@
             <div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio
                 id="citizen"
-                :label="Translator.trans('citizen')"
+                :label="{
+                  text: Translator.trans('citizen')
+                }"
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'citizen'"
                 @change="() => { setStatementData({r_submitter_role: 'citizen'}) }"
@@ -41,7 +43,9 @@
          --><div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio
                 id="publicagency"
-                :label="Translator.trans('invitable_institution')"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'publicagency'"
                 @change="() => { setStatementData({r_submitter_role: 'publicagency'}) }"
@@ -65,7 +69,7 @@
   </div>
 </template>
 <script>
-import { DpRadio } from '@demos-europe/demosplan-ui/components/core'
+import { DpRadio } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

@@ -121,18 +121,16 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, deepMerge, dpApi } from '@demos-europe/demosplan-utils'
+import { checkResponse, deepMerge, dpApi, prefixClassMixin } from '@demos-europe/demosplan-utils'
+import { DpAutocomplete, DpLoading } from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
-import { DpAutocomplete } from '@demos-europe/demosplan-ui/components/core'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
 import DpOlMapLayer from './DpOlMapLayer'
 import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
 import { Map } from 'ol'
 import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
 import { register } from 'ol/proj/proj4'
@@ -247,10 +245,6 @@ export default {
   },
 
   methods: {
-    setAutoCompleteOptions (response) {
-      this.autoCompleteOptions = response.data.data.suggestions
-    },
-
     createMap () {
       const namedProjections = [
         [
@@ -265,6 +259,7 @@ export default {
       const config = {
         epsg: this.projection.getCode(),
         extent: this.maxExtent,
+        layerConf: [], // We need to pass an empty config here, so the api doesn't use its default
         namedProjections,
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
@@ -272,7 +267,24 @@ export default {
         units: 'm'
       }
 
-      return MasterportalApi.createMap(config)
+      const controls = this.options.controls ? this.options.controls : this._options.controls
+
+      return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
+    },
+
+    /**
+     * Define extent for map
+     * @param mapOptions
+     * @return void
+     */
+    defineExtent (mapOptions) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
+        this.maxExtent = mapOptions.procedureMaxExtent
+      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
+        this.maxExtent = mapOptions.procedureDefaultMaxExtent
+      } else {
+        this.maxExtent = mapOptions.defaultMapExtent
+      }
     },
 
     /**
@@ -310,6 +322,15 @@ export default {
         .catch(error => checkResponse(error.response))
     },
 
+    panToCoordinate (coordinate) {
+      this.map.getView().animate({
+        center: coordinate,
+        duration: 800,
+        easing: easeOut,
+        resolution: this.panToResolution
+      })
+    },
+
     registerFullscreenChangeHandler () {
       const html = document.getElementsByTagName('html')[0]
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
@@ -320,6 +341,10 @@ export default {
           this.updateMapInstance()
         }, false)
       })
+    },
+
+    setAutoCompleteOptions (response) {
+      this.autoCompleteOptions = response.data.data.suggestions
     },
 
     setProjection () {
@@ -360,15 +385,6 @@ export default {
       view.setCenter(center)
     },
 
-    panToCoordinate (coordinate) {
-      this.map.getView().animate({
-        center: coordinate,
-        duration: 800,
-        easing: easeOut,
-        resolution: this.panToResolution
-      })
-    },
-
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
@@ -404,23 +420,7 @@ export default {
     this.publicSearchAutozoom = mapOptions.publicSearchAutoZoom || 8
 
     //  Define extent & center
-    if (!mapOptions.procedureMaxExtent && !mapOptions.procedureDefaultMaxExtent) {
-      this.maxExtent = mapOptions.defaultMapExtent
-    } else {
-      if (mapOptions.procedureMaxExtent.length === 0 && mapOptions.procedureDefaultMaxExtent.length === 0) {
-        this.maxExtent = mapOptions.defaultMapExtent // Fallback if no other extent is set
-      } else {
-        if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length !== 0) {
-          this.maxExtent = mapOptions.procedureMaxExtent
-        } else {
-          if (mapOptions.procedureDefaultMaxExtent.length !== 0) {
-            this.maxExtent = mapOptions.procedureDefaultMaxExtent
-          } else {
-            this.maxExtent = mapOptions.defaultMapExtent
-          }
-        }
-      }
-    }
+    this.defineExtent(mapOptions)
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2
@@ -445,13 +445,13 @@ export default {
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
     this.olMapState.map = this.createMap()
-
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));
      */
 
     //  After child components have added their stuff to the map instance, it needs to update accordingly
+
     this.$nextTick(() => {
       this.updateMapInstance()
 

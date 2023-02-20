@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -33,22 +33,10 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  */
 final class StatementAttachmentResourceType extends DplanResourceType implements CreatableDqlResourceTypeInterface
 {
-    /**
-     * @var StatementResourceType
-     */
-    private $statementResourceType;
-
-    /**
-     * @var FileService
-     */
-    private $fileService;
-
     public function __construct(
-        FileService $fileService,
-        StatementResourceType $statementResourceType
+        private readonly FileService $fileService,
+        private readonly StatementResourceType $statementResourceType
     ) {
-        $this->statementResourceType = $statementResourceType;
-        $this->fileService = $fileService;
     }
 
     public static function getName(): string
@@ -82,7 +70,7 @@ final class StatementAttachmentResourceType extends DplanResourceType implements
     {
         // The access to an attachment is allowed only if access to the corresponding
         // statement is granted.
-        return $this->statementResourceType->buildAccessCondition($this->statement);
+        return $this->statementResourceType->buildAccessCondition($this->statement, true);
     }
 
     protected function getProperties(): array

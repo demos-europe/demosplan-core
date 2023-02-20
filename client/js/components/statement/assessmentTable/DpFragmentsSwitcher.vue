@@ -54,7 +54,7 @@ statements and fragments is now in DpAssessmentTableCard.vue
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { DpSwitcher } from '@demos-europe/demosplan-ui/components/core'
+import { DpSwitcher } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentsSwitcher',
@@ -105,8 +105,11 @@ export default {
 
     ...mapGetters('filter', ['selectedFilterOptions']),
 
-    ...mapState('fragment', ['fragments']),
+    ...mapState('assessmentTable', ['assessmentBase']),
+
     ...mapState('filter', ['currentSearch']),
+
+    ...mapState('fragment', ['fragments']),
 
     filteredFragmentsLength () {
       if (!this.fragments[this.statementId]) {
@@ -137,12 +140,13 @@ export default {
       return text
     },
 
+    /**
+     * Determine whether to show the "Die Suche ergab X Treffer in Y Datensätzen" UI.
+     * This should happen if results are filtered, or a search term is applied.
+     * @type {boolean}
+     */
     showFragmentResults () {
-      // Evaluates to true if there are any selected filters that apply to fragments
-      const hasFragmentFilters = this.selectedFilterOptions.length ? typeof (this.selectedFilterOptions.find(filter => filter.type !== 'statement')) !== 'undefined' : false
-
-      // The search may influence fragment results. Therefore display fragmentResults when a search term is used
-      return hasFragmentFilters || this.currentSearch.length > 0
+      return this.hasFragmentFilters(this.assessmentBase.appliedFilters) || this.currentSearch.length > 0
     },
 
     totalFragmentsLength () {
@@ -157,6 +161,10 @@ export default {
   },
 
   methods: {
+    hasFragmentFilters (filters) {
+      return filters.length ? filters.some(filter => filter.type === 'fragment') : false
+    },
+
     showAllFragments () {
       this.allFragmentsShown = !this.allFragmentsShown
       this.$emit('fragments:showall', this.allFragmentsShown)

@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
-use demosplan\DemosPlanCoreBundle\Entity\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -58,6 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use UnexpectedValueException;
 
 class ExcelImporter extends CoreService
 {
@@ -583,7 +585,7 @@ class ExcelImporter extends CoreService
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
         $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
-        $segment->setCreated(new \DateTime());
+        $segment->setCreated(new DateTime());
         $segment->setOrderInProcedure($counter);
 
         // Handle Tags
@@ -728,7 +730,7 @@ class ExcelImporter extends CoreService
             return self::SUBMIT_TYPE_MAPPING[$incomingSubmitType];
         }
 
-        throw new \UnexpectedValueException("Invalid submit type: $incomingSubmitType");
+        throw new UnexpectedValueException("Invalid submit type: $incomingSubmitType");
     }
 
     /**
@@ -857,8 +859,8 @@ class ExcelImporter extends CoreService
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), ...$this->tagResourceType->title),
-            $this->conditionFactory->propertyHasValue($procedureId, ...$this->tagResourceType->topic->procedure->id),
+            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
+            $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
         );
 
         $matchingTags = $this->entityFetcher->listPrefilteredEntities($this->tagResourceType, $this->generatedTags, [$titleCondition]);

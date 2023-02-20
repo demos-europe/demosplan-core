@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository;
+use Exception;
 
 class FieldConfigurator
 {
@@ -55,7 +56,7 @@ class FieldConfigurator
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function copy(string $blueprintId, Procedure $procedure)
     {

@@ -27,11 +27,6 @@ transpiledModules = transpiledModules.concat(
   [
     '@efrane/vuex-json-api',
     '@mapbox', // Ol sub-dependency
-    '@demos-europe/demosplan-ui',
-    '@demos-europe/demosplan-utils',
-    'tiptap',
-    'tiptap-commands',
-    'tiptap-extensions',
     'vue-resize'
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )
@@ -125,9 +120,9 @@ const moduleRules =
       test: /\.js$/,
       use: ['source-map-loader'],
       enforce: 'pre',
-      exclude: [
-        resolveDir('node_modules')
-      ]
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.s?css$/,

@@ -17,7 +17,9 @@
           :id="entity.key"
           :checked="entity.key === active"
           @change="active = entity.key"
-          :label="radioLabel(entity)"
+          :label="{
+            text: radioLabel(entity)
+          }"
           :value="entity.key" />
       </template>
       <p
@@ -51,7 +53,7 @@
 </template>
 
 <script>
-import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
+import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExcelImport',

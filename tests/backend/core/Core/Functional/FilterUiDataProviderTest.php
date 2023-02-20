@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
+use ReflectionProperty;
 use Tests\Base\FunctionalTestCase;
 
 class FilterUiDataProviderTest extends FunctionalTestCase
@@ -27,7 +28,7 @@ class FilterUiDataProviderTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = self::$container->get(FilterUiDataProvider::class);
-        $reflectionProperty = new \ReflectionProperty($this->sut, 'relativeFilterNamesPath');
+        $reflectionProperty = new ReflectionProperty($this->sut, 'relativeFilterNamesPath');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($this->sut, 'tests/backend/core/Core/Functional/res/tagFilterNames.yaml');
     }
@@ -38,7 +39,7 @@ class FilterUiDataProviderTest extends FunctionalTestCase
 
         $filterNames = $this->sut->getFilterNames();
         $expected = [
-            'tags' => [
+            'tags'  => [
                 'comparisonOperator'  => 'ARRAY_CONTAINS_VALUE',
                 'labelTranslationKey' => 'tags',
                 'rootPath'            => 'tags',

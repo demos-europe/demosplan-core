@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 /**
@@ -13,61 +12,77 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Symfony\Component\Yaml\Yaml;
-use Tightenco\Collect\Support\Collection;
+use ArrayAccess;
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 
 /**
  * This is the central information repository about all addons installed on this system and their configuration.
+ *
+ * @template-implements ArrayAccess<string, AddonInfo>
  */
-class AddonRegistry
+class AddonRegistry implements ArrayAccess
 {
-    private Collection $addons;
+    /** @var array<string, AddonInfo> */
+    private array $addonInfos;
 
     public function __construct()
     {
-        $this->loadAddonInformation();
+        $this->addonInfos = [];
     }
 
-    /**
-     * Reads addon information from the configuration file for all installed addons.
-     */
-    private function loadAddonInformation(): void
+    public function boot(array $addonInfos = [])
     {
-        $this->addons = \collect([]);
-        if (file_exists(DemosPlanPath::getRootPath('addons/addons.yaml'))) {
-            $configFile = Yaml::parseFile(DemosPlanPath::getRootPath('addons/addons.yaml'));
-            if (is_array($configFile) && array_key_exists('addons', $configFile) && is_array($configFile['addons'])) {
-                $this->addons = \collect($configFile['addons']);
-            }
+        if ([] !== $this->addonInfos) {
+            AddonException::immutableRegistry();
+        }
+
+        foreach ($addonInfos as $addonInfo) {
+            $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
     }
 
-    /**
-     * Returns all available addons.
-     */
-    public function getAllAddons(): Collection
+    public function getAddonInfos(): array
     {
-        return $this->addons;
+        return $this->addonInfos;
+    }
+
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return array_key_exists($offset, $this->addonInfos);
     }
 
     /**
-     * returns only enabled addons.
+     * @param string $offset
      */
-    public function getEnabledAddons(): Collection
+    public function offsetGet(mixed $offset): AddonInfo
     {
-        return $this->addons->filter(function ($addon) {
-            return $addon['enabled'];
-        });
+        return $this->addonInfos[$offset];
     }
 
     /**
-     * returns only disabled addons.
+     * @param string    $offset
+     * @param AddonInfo $value
      */
-    public function getDisabledAddons(): Collection
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        return $this->addons->filter(function ($addon) {
-            return !$addon['enabled'];
-        });
+        throw AddonException::immutableRegistry();
+    }
+
+    /**
+     * @param string $offset
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        throw AddonException::immutableRegistry();
+    }
+
+    /**
+     * @return PermissionInitializerInterface[]
+     */
+    public function getPermissionInitializers(): array
+    {
+        return array_map(fn (AddonInfo $addonInfo) => $addonInfo->getPermissionInitializer(), $this->addonInfos);
     }
 }

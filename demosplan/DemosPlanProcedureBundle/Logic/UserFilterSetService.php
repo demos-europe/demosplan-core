@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
@@ -75,7 +74,7 @@ class UserFilterSetService extends CoreService
      */
     public function deleteUserFilterSet($userFilterSetId): bool
     {
-        //check if userfilter set is owned by current user?!
+        // check if userfilter set is owned by current user?!
         $userFilterSet = $this->userFilterSetRepository->get($userFilterSetId);
 
         return $this->userFilterSetRepository->deleteObject($userFilterSet);

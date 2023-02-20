@@ -10,8 +10,11 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use GdImage;
+use Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
 
@@ -38,12 +41,11 @@ class PolygonIntoMapLayerMerger
      * loop through the features, render each one onto the canvas.
      *
      * @param Collection<int, Feature> $geo
-     *
-     * @return resource
      */
-    public function merge(Collection $geo, MapLayer $mapLayer)
+    public function merge(Collection $geo, MapLayer $mapLayer): GdImage
     {
         $image = $mapLayer->getImage()->getCore();
+        $image = $this->assertGdImage($image);
         $this->viewport->bottom = $mapLayer->getBottom();
         $this->viewport->left = $mapLayer->getLeft();
         $this->viewport->right = $mapLayer->getRight();
@@ -128,7 +130,7 @@ class PolygonIntoMapLayerMerger
 
                     $polyPts = [];
 
-                    /** @var \Point $point */
+                    /** @var Point $point */
                     foreach ($geometry->getPoints() as $point) {
                         $dst_x = $point->getX();
                         $dst_y = $point->getY();
@@ -205,5 +207,17 @@ class PolygonIntoMapLayerMerger
         $b = hexdec($b);
 
         return [$r, $g, $b];
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function assertGdImage(mixed $image): GdImage
+    {
+        if (false === $image instanceof GdImage) {
+            throw new InvalidArgumentException(sprintf('Argument must be a valid GdImage type. %s given.', gettype($image)));
+        }
+
+        return $image;
     }
 }

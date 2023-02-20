@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathsBasedInterface;
-use function is_array;
 
 /**
  * @template-extends DplanResourceType<Procedure>
@@ -62,7 +62,7 @@ use function is_array;
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
  */
-final class ProcedureResourceType extends DplanResourceType
+final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
     /**
      * @var ProcedureAccessEvaluator
@@ -128,13 +128,13 @@ final class ProcedureResourceType extends DplanResourceType
         $dataInputCondition = $this->conditionFactory->false();
         if ($isAllowedAsDataInputOrga) {
             // as `$isAllowedAsDataInputOrga` is `true`, `$procedure` can't be `null` at this point
-            $dataInputCondition = $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->id);
+            $dataInputCondition = $this->conditionFactory->propertyHasValue($procedure->getId(), $this->id);
         }
 
         // check for owning organisation
-        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->owningOrganisation->id);
+        $owningOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->owningOrganisation->id);
         // check for invited organisation
-        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, ...$this->invitedOrganisations->id);
+        $invitedOrgaCondition = $this->conditionFactory->propertyHasValue($userOrganisationId, $this->invitedOrganisations->id);
 
         return $this->conditionFactory->allConditionsApply(
             $this->getResourceTypeCondition(),
@@ -158,17 +158,17 @@ final class ProcedureResourceType extends DplanResourceType
     {
         // procedure resources can never be blueprints
         $noBlueprintCondition = $this->conditionFactory->anyConditionApplies(
-        /*
-         * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
-         * until the property is migrated the following condition ensures to handle the int correcly.
-         */
-            $this->conditionFactory->propertyHasValue(0, ...$this->master),
-            $this->conditionFactory->propertyHasValue(false, ...$this->master)
+            /*
+             * For some reason the property is explicitly set to be integer ({@link Procedure::master}),
+             * until the property is migrated the following condition ensures to handle the int correcly.
+             */
+            $this->conditionFactory->propertyHasValue(0, $this->master),
+            $this->conditionFactory->propertyHasValue(false, $this->master)
         );
         // procedure resources can never have the deleted state
-        $undeletedCondition = $this->conditionFactory->propertyHasValue(false, ...$this->deleted);
+        $undeletedCondition = $this->conditionFactory->propertyHasValue(false, $this->deleted);
         // only procedure templates are tied to a customer
-        $customerCondition = $this->conditionFactory->propertyIsNull(...$this->customer);
+        $customerCondition = $this->conditionFactory->propertyIsNull($this->customer);
 
         return $this->conditionFactory->allConditionsApply(
             $noBlueprintCondition,
@@ -210,11 +210,6 @@ final class ProcedureResourceType extends DplanResourceType
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
         }
 
-        if ($this->currentUser->hasPermission('feature_ai_create_annotated_statement_pdf_pages')) {
-            $owningOrganisation->readable()->sortable()->filterable();
-            $invitedOrganisations->readable()->sortable()->filterable();
-        }
-
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
             $properties[] = $this->createToOneRelationship($this->type)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
@@ -236,7 +231,7 @@ final class ProcedureResourceType extends DplanResourceType
                     $this->currentUser->getUser()
                 );
 
-                if (!is_array($statementResult->getResult())) {
+                if (!\is_array($statementResult->getResult())) {
                     return 0;
                 }
 
@@ -280,9 +275,9 @@ final class ProcedureResourceType extends DplanResourceType
             });
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
-            //T18749
+            // T18749
             $properties[] = $this->createAttribute($this->daysLeft)->readable(false, function (Procedure $procedure): string {
-                return $this->procedureExtension->getDaysLeftFromProcedureObject($procedure, 'auto'); //type?
+                return $this->procedureExtension->getDaysLeftFromProcedureObject($procedure, 'auto'); // type?
             });
 
             $properties[] = $this->createAttribute($this->internalPhasePermissionset)

@@ -10,18 +10,18 @@
 
 namespace demosplan\DemosPlanStatementBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanUserBundle\Repository\DepartmentRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
-use Elastica\Type;
-use Monolog\Logger;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -47,7 +47,7 @@ class FragmentElasticsearchRepository extends CoreRepository
     protected $translator;
 
     public function __construct(
-        Type $fragmentSearchType,
+        Index $fragmentSearchType,
         ManagerRegistry $registry,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
@@ -56,7 +56,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         ParagraphService $paragraphService,
         string $entityClass
     ) {
-        $this->search = $fragmentSearchType;
+        $this->index = $fragmentSearchType;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->translator = $translator;
@@ -103,7 +103,7 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $boolMustNotFilter[] = $this->getTermsQuery($filter);
             }
             if (0 < count($boolMustNotFilter)) {
-                $boolQuery->addMustNot($boolMustNotFilter);
+                array_map([$boolQuery, 'addMustNot'], $boolMustNotFilter);
             }
 
             $query = new Query();
@@ -114,13 +114,13 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $query->setSource(['exclude' => 'versions']);
             }
 
-            //generate Aggregation
+            // generate Aggregation
             $query = $this->buildAggregation($esQuery, $query);
 
             $query->setSize(3000);
 
             // Sorting
-            //default
+            // default
             $esSortFields = [];
 
             $esQuery->setSort($esQuery->getAvailableSorts());
@@ -133,7 +133,7 @@ class FragmentElasticsearchRepository extends CoreRepository
 
             $this->logger->debug('Elasticsearch Fragment Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
-            $search = $this->getSearch();
+            $search = $this->getIndex();
             $fragments = $search->search($query);
             $result = $fragments->getResponse()->getData();
             $aggregations = $fragments->getAggregations();
@@ -143,7 +143,7 @@ class FragmentElasticsearchRepository extends CoreRepository
                 $this->generateLabelMaps($aggregations);
                 $this->prepareEsQueryDisplayFilters($esQuery, $aggregations, $this->labelMaps);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Elasticsearch getFragments failed: ', [$e]);
         }
 
@@ -206,7 +206,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         foreach ($buckets as $bucket) {
             try {
                 $labelMap[$bucket['key']] = $this->elementsService->getElementObject($bucket['key'])->getTitle();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->error('Could not get ElementsName to generate labelMap: ', [$e]);
             }
         }

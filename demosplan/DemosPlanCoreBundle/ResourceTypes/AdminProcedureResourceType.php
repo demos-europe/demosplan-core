@@ -39,6 +39,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End                   $endDate
  * @property-read End                   $internalEndDate
  * @property-read End                   $originalStatementsCount
+ * @property-read End                   $statementsCount
  * @property-read End                   $phase
  * @property-read End                   $phaseName
  * @property-read End                   $internalPhaseIdentifier
@@ -121,6 +122,14 @@ final class AdminProcedureResourceType extends DplanResourceType
                     // otherwise use an RPC route that calculates the count for all procedures at once
                     $procedureId = $procedure->getId();
                     $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
+
+                    return $counts[$procedureId] ?? 0;
+                }),
+                $this->createAttribute($this->statementsCount)->readable(false, function (Procedure $procedure): int {
+                    // optimize performance? it may be possible to use an actual relationship or
+                    // otherwise use an RPC route that calculates the count for all procedures at once
+                    $procedureId = $procedure->getId();
+                    $counts = $this->procedureService->getStatementsCounts([$procedureId]);
 
                     return $counts[$procedureId] ?? 0;
                 }),

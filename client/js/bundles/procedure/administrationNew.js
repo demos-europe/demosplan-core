@@ -12,10 +12,10 @@
  */
 
 import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
-import { DpDateRangePicker } from '@demos-europe/demosplan-ui/components/core'
+import { DpDateRangePicker } from '@demos-europe/demosplan-ui'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpNewProcedure, DpDateRangePicker }
 

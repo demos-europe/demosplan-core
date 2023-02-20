@@ -10,7 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
+use function array_merge;
+
+use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
+use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
@@ -20,6 +23,9 @@ use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPa
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+
+use function file_exists;
+
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
@@ -29,8 +35,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
-use function array_merge;
-use function file_exists;
 
 /**
  * This class loads all classes used by DPlan core and may be
@@ -70,10 +74,7 @@ class DemosPlanKernel extends Kernel
      */
     public const ENVIRONMENT_PROD = 'prod';
 
-    /**
-     * @var string
-     */
-    private $activeProject;
+    private string $activeProject;
 
     public function __construct(
         string $activeProject,
@@ -102,11 +103,8 @@ class DemosPlanKernel extends Kernel
             }
         }
 
-        // Register all addons
-        $addonRegistry = new AddonRegistry();
-        foreach ($addonRegistry->getAllAddons() as $addonName => $addonData) {
-            yield new $addonName($addonData['enabled']);
-        }
+        $addonBundleGenerator = new AddonBundleGenerator();
+        yield from $addonBundleGenerator->registerBundles($this->environment);
     }
 
     protected function configureRoutes(RouteCollectionBuilder $routes): void
@@ -288,6 +286,7 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new RpcMethodSolverPass());
         $container->addCompilerPass(new MenusLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new LoadAddonInfoCompilerPass());
     }
 
     public function getActiveProject(): string

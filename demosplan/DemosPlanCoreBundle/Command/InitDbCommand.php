@@ -17,6 +17,7 @@ use SessionHandlerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -50,6 +51,12 @@ class InitDbCommand extends CoreCommand
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Populate the db with the given fixture group.'
+            )
+            ->addOption(
+                'create-database',
+                null,
+                InputOption::VALUE_NONE,
+                'Create configured database'
             );
     }
 
@@ -57,8 +64,15 @@ class InitDbCommand extends CoreCommand
     {
         $output = new SymfonyStyle($input, $output);
 
+        if ($input->getOption('create-database')) {
+            Batch::create($this->getApplication(), $output)
+                ->add('doctrine:database:drop -n --force')
+                ->add('doctrine:database:create -n')
+                ->run();
+        }
+
         $schemaSuccess = Batch::create($this->getApplication(), $output)
-            ->add('doctrine:schema:create')
+            ->add('doctrine:schema:create -n')
             ->run();
 
         $sessionsTableSuccess = true;
@@ -75,9 +89,9 @@ class InitDbCommand extends CoreCommand
         $fixtureGroup = $input->getOption('with-fixtures');
         $fixtureSuccess = true;
         if (null !== $fixtureGroup) {
-            $fixtureSuccess = Batch::create($this->getApplication(), $output)
-                ->add('doctrine:fixtures:load --append --group %s', $fixtureGroup)
-                ->run();
+            $application = $this->getApplication();
+            $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
+            $fixtureSuccess = $application->run($input, $output);
         }
 
         return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess) ? Command::SUCCESS : Command::FAILURE;

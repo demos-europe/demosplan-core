@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -60,6 +60,7 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Procedure
+     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="NO ACTION")
      */

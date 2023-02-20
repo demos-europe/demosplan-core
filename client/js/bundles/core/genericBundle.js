@@ -15,6 +15,6 @@
  * need additional javascript, the entrypoint should have it's own bundle.
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize()

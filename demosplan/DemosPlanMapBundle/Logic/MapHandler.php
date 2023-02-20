@@ -10,15 +10,17 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanMapBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use InvalidArgumentException;
 
 class MapHandler extends CoreHandler
 {
@@ -31,7 +33,7 @@ class MapHandler extends CoreHandler
      */
     private $entityManager;
 
-    public function __construct(MapService $mapService, MessageBag $messageBag, EntityManagerInterface $entityManager)
+    public function __construct(MapService $mapService, MessageBagInterface $messageBag, EntityManagerInterface $entityManager)
     {
         $this->mapService = $mapService;
         parent::__construct($messageBag);
@@ -43,7 +45,7 @@ class MapHandler extends CoreHandler
      *
      * @return GisLayerCategory|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getRootLayerCategoryForProcedure($procedureId)
     {
@@ -53,14 +55,14 @@ class MapHandler extends CoreHandler
     /**
      * @return GisLayerCategory
      *
-     * @throws \InvalidArgumentException
-     * @throws \Exception
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function addGisLayerCategory(array $gisLayerCategoryData)
     {
         if (false === array_key_exists('name', $gisLayerCategoryData)
             || '' === trim($gisLayerCategoryData['name'])) {
-            throw new \InvalidArgumentException('No Name given');
+            throw new InvalidArgumentException('No Name given');
         }
 
         return $this->mapService->addGisLayerCategory($gisLayerCategoryData);
@@ -72,7 +74,7 @@ class MapHandler extends CoreHandler
      * @return GisLayerCategory
      *
      * @throws GisLayerCategoryTreeTooDeepException
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateGisLayerCategory($gisLayerCategoryId, array $gisLayerCategoryData)
     {
@@ -98,7 +100,7 @@ class MapHandler extends CoreHandler
      * This method will update all related GisLayer and GisLayerCategories.
      *
      * @throws GisLayerCategoryTreeTooDeepException
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateElementsOfRootCategory(array $rootCategory)
     {
@@ -106,7 +108,7 @@ class MapHandler extends CoreHandler
         $gisLayerClassName = $this->getRelativeClassName(GisLayer::class);
         $gisLayerCategoryClassName = $this->getRelativeClassName(GisLayerCategory::class);
 
-        //rootCategory itself cant be modified, therefore update related Categories and GisLayers
+        // rootCategory itself cant be modified, therefore update related Categories and GisLayers
         $flatList = $rootCategory['included'];
 
         foreach ($flatList as $entityToUpdate) {
@@ -140,24 +142,24 @@ class MapHandler extends CoreHandler
      *
      * @return array|GisLayer
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateGisLayer($gisLayerId, array $gisLayerData, $convertToLegacy = true)
     {
         $gisLayerData['id'] = $gisLayerId;
 
-        //legacy entityNaming:
+        // legacy entityNaming:
         if (array_key_exists('default', $gisLayerData)) {
             $gisLayerData['defaultVisibility'] = $gisLayerData['default'];
             $this->logger->warning('Incoming legacy naming on updateGisLayer().');
         }
 
-        //workaround to map incoming key to key used in BE:
+        // workaround to map incoming key to key used in BE:
         if (array_key_exists('hasDefaultVisibility', $gisLayerData)) {
             $gisLayerData['defaultVisibility'] = $gisLayerData['hasDefaultVisibility'];
         }
 
-        //workaround to map incoming key to key used in BE:
+        // workaround to map incoming key to key used in BE:
         if (array_key_exists('canUserToggleVisibility', $gisLayerData)) {
             $gisLayerData['userToggleVisibility'] = $gisLayerData['canUserToggleVisibility'];
         }
@@ -184,13 +186,13 @@ class MapHandler extends CoreHandler
             $visibilityGroupId = $gisLayerData['visibilityGroupId'];
         }
 
-        //T8364:
-        //in case of canUserToggleVisibility == false, do not allow to set visibilityGroup
-        //to avoid set visibility via visibilityGroupId
+        // T8364:
+        // in case of canUserToggleVisibility == false, do not allow to set visibilityGroup
+        // to avoid set visibility via visibilityGroupId
         if (array_key_exists('visibilityGroupId', $gisLayerData)
             && $isMemberOfVisibilityGroup
             && false === $canUserToggleVisibility) {
-            //sowohl gestezte visibilityGroup als auch zu setztende visibilityGroup ist unzulässig wenn $canUserToggleVisibility == false
+            // sowohl gestezte visibilityGroup als auch zu setztende visibilityGroup ist unzulässig wenn $canUserToggleVisibility == false
             $gisLayerData['visibilityGroupId'] = '';
             $isMemberOfVisibilityGroup = false;
             $this->getMessageBag()->add(
@@ -199,14 +201,14 @@ class MapHandler extends CoreHandler
                 ['gisLayerName' => $gisLayerData['name']]);
         }
 
-        //in case of GisLayer is member of visibilityGroup, set incoming defaultVisibility
+        // in case of GisLayer is member of visibilityGroup, set incoming defaultVisibility
         // to all member of visibilityGroup
         if (array_key_exists('defaultVisibility', $gisLayerData) && $isMemberOfVisibilityGroup) {
             $this->setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData['defaultVisibility']);
         }
 
-        //in case of GisLayer is member of visibilityGroup, do not allow to unset userToggleVisibility
-        //to avoid set visibility via visibilityGroupId
+        // in case of GisLayer is member of visibilityGroup, do not allow to unset userToggleVisibility
+        // to avoid set visibility via visibilityGroupId
         if (array_key_exists('userToggleVisibility', $gisLayerData)
             && (false === $gisLayerData['userToggleVisibility'])
             && $isMemberOfVisibilityGroup) {
@@ -214,18 +216,18 @@ class MapHandler extends CoreHandler
                  while GisLayer is member of a visibilityGroup.');
         }
 
-        //deny set visibilityGroupId on BaseLayer
+        // deny set visibilityGroupId on BaseLayer
         if ($isMemberOfVisibilityGroup && $isBaseLayer) {
             throw new FunctionalLogicException('Set visibilityGroup of GisLayer is not allowed if GisLayer is a BaseLayer.');
         }
 
-        //logic from service:
+        // logic from service:
         try {
             $updatedGis = $this->entityManager->getRepository(GisLayer::class)
                 ->updateByArray($gisLayerData);
 
             return $convertToLegacy ? $this->mapService->convertToLegacy($updatedGis) : $updatedGis;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Gis Update failed : '.DemosPlanTools::varExport($gisLayerData, true).' ', [$e]);
             throw $e;
         }
@@ -241,7 +243,7 @@ class MapHandler extends CoreHandler
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setVisibilityOfVisibilityGroup($visibilityGroupId, $visibility)
     {
@@ -251,7 +253,7 @@ class MapHandler extends CoreHandler
             $doctrineConnection->beginTransaction();
 
             foreach ($visibilityGroup as $visibilityGroupMember) {
-                //is current default visibility of gisLayer different to incoming Visibility? -> update
+                // is current default visibility of gisLayer different to incoming Visibility? -> update
                 if (!$visibility === $visibilityGroupMember->hasDefaultVisibility()) {
                     $visibilityGroupMember->setDefaultVisibility($visibility);
                     $updatedGisLayer = $this->entityManager
@@ -269,7 +271,7 @@ class MapHandler extends CoreHandler
             $doctrineConnection->commit();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('SetVisibilityOfVisibilityGroup failed :', [$e]);
             throw $e;
         }
@@ -280,7 +282,7 @@ class MapHandler extends CoreHandler
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteGisLayerCategory($gisLayerCategoryId)
     {
@@ -303,7 +305,7 @@ class MapHandler extends CoreHandler
     /**
      * @param string $gisLayerId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteGisLayer($gisLayerId): bool
     {
@@ -315,7 +317,7 @@ class MapHandler extends CoreHandler
      *
      * @return GisLayerCategory
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getGisLayerCategory($gisLayerCategoryId)
     {
@@ -329,7 +331,7 @@ class MapHandler extends CoreHandler
      *
      * @return GisLayer
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getGisLayer($gisLayerId)
     {
@@ -343,7 +345,7 @@ class MapHandler extends CoreHandler
      *
      * @return GisLayer[]|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getVisibilityGroup($visibilityGroupId)
     {
@@ -357,7 +359,7 @@ class MapHandler extends CoreHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addGis($data)
     {
@@ -371,7 +373,7 @@ class MapHandler extends CoreHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateGis($data)
     {
@@ -385,7 +387,7 @@ class MapHandler extends CoreHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getSingleGis($ident)
     {

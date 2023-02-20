@@ -40,8 +40,7 @@
 </template>
 
 <script>
-import { DpEditableList } from '@demos-europe/demosplan-ui/components/core'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
+import { DpEditableList, DpInput } from '@demos-europe/demosplan-ui'
 import { validateEmail } from '@demos-europe/demosplan-utils/lib/validation'
 
 export default {
@@ -53,6 +52,12 @@ export default {
   },
 
   props: {
+    allowUpdatesFromOutside: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     initEmails: {
       required: true,
       type: Array
@@ -85,7 +90,9 @@ export default {
 
   watch: {
     initEmails (newVal) {
-      this.emails = newVal
+      if (this.allowUpdatesFromOutside) {
+        this.emails = newVal
+      }
     }
   },
 

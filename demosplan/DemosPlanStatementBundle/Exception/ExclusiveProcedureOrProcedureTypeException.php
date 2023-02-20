@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class ExclusiveProcedureOrProcedureTypeException extends \Exception
+use Exception;
+
+class ExclusiveProcedureOrProcedureTypeException extends Exception
 {
 }

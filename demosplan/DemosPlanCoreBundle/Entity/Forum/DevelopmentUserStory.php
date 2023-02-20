@@ -10,14 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_progression_userstories")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository")
  */
 class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
 {
@@ -25,8 +27,11 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_pu_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -35,6 +40,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
      * @var DevelopmentRelease
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease")
+     *
      * @ORM\JoinColumn(name="_pu_release_id", referencedColumnName="_pr_id", nullable=false, onDelete="CASCADE")
      */
     protected $release;
@@ -50,6 +56,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
      * //todo: different states on dev/prod(nullable = false) vs suse(nullable = ture)!
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_pu_thread_id", referencedColumnName="_ft_id", nullable=false, onDelete="CASCADE")
      */
     protected $thread;
@@ -88,15 +95,19 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
     protected $title;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @ORM\Column(name="_pu_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_pu_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -295,7 +306,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifiedDate.
      *
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return DevelopmentUserStory
      */
@@ -309,7 +320,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -319,7 +330,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return DevelopmentUserStory
      */
@@ -333,7 +344,7 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {

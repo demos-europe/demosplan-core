@@ -10,13 +10,11 @@
 /**
  * This is the entrypoint for administration_member_email.html.twig
  */
-import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
-import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
+import { DpAccordion, DpEditor, DpInlineNotification, DpLabel } from '@demos-europe/demosplan-ui'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import { DpInlineNotification } from '@demos-europe/demosplan-ui/components/core'
-import { DpLabel } from '@demos-europe/demosplan-ui/components'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,
@@ -26,6 +24,10 @@ const components = {
   DpLabel
 }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })

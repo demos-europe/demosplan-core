@@ -12,7 +12,7 @@
  */
 
 import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { AdministrationImport }
 const stores = {}

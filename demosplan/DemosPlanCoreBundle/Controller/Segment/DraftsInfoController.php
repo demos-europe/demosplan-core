@@ -13,12 +13,14 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
+use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -77,7 +79,7 @@ class DraftsInfoController extends BaseController
      *     options={"expose": true}
      * )
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @DplanPermissions("area_statement_segmentation")
      */
@@ -107,7 +109,10 @@ class DraftsInfoController extends BaseController
             $this->getMessageBag()->add('error', 'error.statement.not.found');
             throw $e;
         } catch (StatementAlreadySegmentedException $e) {
-            $this->getMessageBag()->add('error', 'error.statement.already.segmented');
+            $this->messageBag->add('error', 'error.statement.already.segmented');
+            throw $e;
+        } catch (LockedByAssignmentException $e) {
+            $this->messageBag->add('error', 'error.statement.not.assigned');
             throw $e;
         }
     }

@@ -9,7 +9,7 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
-    demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
+    demosplan\DemosPlanCoreBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
 
     demosplan\DemosPlanCoreBundle\Repository\RoleRepository:
@@ -77,25 +77,25 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
-    demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
     demosplan\DemosPlanMapBundle\Repository\MapRepository:
@@ -103,10 +103,6 @@ services:
 
     demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
-
-    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-        $fragmentSearchType: '@fos_elastica.index.statementFragments.statementFragment'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
@@ -206,9 +202,6 @@ services:
 
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
-
-    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
     demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'

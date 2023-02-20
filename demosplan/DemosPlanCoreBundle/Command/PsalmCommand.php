@@ -22,7 +22,7 @@ use Symfony\Component\Process\Process;
  */
 class PsalmCommand extends CoreCommand
 {
-    private const PSALM_CONFIG_PATH = 'infrastructure/linters/psalm.template.xml';
+    private const PSALM_CONFIG_PATH = 'config/linters/psalm.template.xml';
 
     protected static $defaultName = 'dplan:psalm';
     protected static $defaultDescription = 'Run psalm code analysis';

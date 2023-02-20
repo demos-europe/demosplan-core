@@ -10,13 +10,13 @@
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -116,12 +116,12 @@ class FileServiceTest extends FunctionalTestCase
         $fileSize = filesize($cacheDir.'/'.$fileName);
         $mimeType = mime_content_type($cacheDir.'/'.$fileName);
         $file = new UploadedFile(
-          $cacheDir.'/'.$fileName,
-          $fileName,
-          'text/plain',
-          filesize($cacheDir.'/'.$fileName),
-          UPLOAD_ERR_OK,
-          true
+            $cacheDir.'/'.$fileName,
+            $fileName,
+            'text/plain',
+            filesize($cacheDir.'/'.$fileName),
+            UPLOAD_ERR_OK,
+            true
         );
 
         // Test function
@@ -199,12 +199,12 @@ class FileServiceTest extends FunctionalTestCase
         $fileSize = filesize($cacheDir.'/'.$fileName);
         $mimeType = mime_content_type($cacheDir.'/'.$fileName);
         $file = new UploadedFile(
-          $cacheDir.'/'.$fileName,
-          $fileName,
-          'text/plain',
-          filesize($cacheDir.'/'.$fileName),
-          UPLOAD_ERR_OK,
-          true
+            $cacheDir.'/'.$fileName,
+            $fileName,
+            'text/plain',
+            filesize($cacheDir.'/'.$fileName),
+            UPLOAD_ERR_OK,
+            true
         );
 
         // Test function
@@ -255,12 +255,12 @@ class FileServiceTest extends FunctionalTestCase
         static::assertFileExists($cacheDir.'/'.$fileName);
 
         $file = new UploadedFile(
-          $cacheDir.'/'.$fileName,
-          $fileName,
-          'application/x-msdownload',
-          filesize($cacheDir.'/'.$fileName),
-          UPLOAD_ERR_OK,
-          true
+            $cacheDir.'/'.$fileName,
+            $fileName,
+            'application/x-msdownload',
+            filesize($cacheDir.'/'.$fileName),
+            UPLOAD_ERR_OK,
+            true
         );
 
         // Test function
@@ -312,7 +312,7 @@ class FileServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAddFile()
     {

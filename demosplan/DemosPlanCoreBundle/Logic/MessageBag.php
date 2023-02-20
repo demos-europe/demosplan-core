@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use function collect;
+
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -29,13 +31,6 @@ class MessageBag implements MessageBagInterface
         'error',
         'dev',
     ];
-
-    /**
-     * Keeps an Instance of $this to be used in statically called context.
-     *
-     * @var MessageBag
-     */
-    protected static $self;
 
     /**
      * @var Collection
@@ -57,26 +52,7 @@ class MessageBag implements MessageBagInterface
             ->map(static function () {
                 return collect();
             });
-
-        self::$self = $this;
         $this->translator = $translator;
-    }
-
-    /**
-     * Call MessageBag:add() from a static context.
-     *
-     * @param string $message #TranslationKey
-     * @param string $domain  #TranslationDomain
-     *
-     * @throws MessageBagException
-     */
-    public static function addMessage(
-        string $severity,
-        string $message,
-        array $params = [],
-        string $domain = 'messages'
-    ) {
-        self::$self->add($severity, $message, $params, $domain);
     }
 
     /**
@@ -171,10 +147,10 @@ class MessageBag implements MessageBagInterface
         string $linkText = ''
     ): void {
         if ('' === $routeName) {
-            $this->addObject(Message::createMessage($severity, $message, $params));
+            $this->addObject(MessageSerializable::createMessage($severity, $message, $params));
         } else {
             $this->addObject(
-                LinkMessage::createLinkMessage(
+                LinkMessageSerializable::createLinkMessage(
                     $severity,
                     $message,
                     $params,
@@ -191,11 +167,11 @@ class MessageBag implements MessageBagInterface
      *
      * @throws MessageBagException will not add a message if it already exists
      */
-    public function addObject(Message $message, bool $toStart = false): void
+    public function addObject(MessageSerializableInterface $message, bool $toStart = false): void
     {
         $this->validateMessageInputData($message->getSeverity(), $message->getText());
 
-        //translate text of message:
+        // translate text of message:
         $translatedText = $this->getTranslator()->trans(
             $message->getText(),
             $message->getTextParameters()
@@ -256,10 +232,10 @@ class MessageBag implements MessageBagInterface
         $severity = strtolower(trim($severity));
 
         return null !== $severity && is_string($severity) && in_array(
-                $severity,
-                self::$definedSeverities,
-                true
-            );
+            $severity,
+            self::$definedSeverities,
+            true
+        );
     }
 
     /**
@@ -291,7 +267,7 @@ class MessageBag implements MessageBagInterface
     {
         $this->initializeMessageBagForSeverity($severity);
 
-        $this->messages[$severity]->push(new Message($severity, $message));
+        $this->messages[$severity]->push(new MessageSerializable($severity, $message));
     }
 
     protected function initializeMessageBagForSeverity(string $severity)

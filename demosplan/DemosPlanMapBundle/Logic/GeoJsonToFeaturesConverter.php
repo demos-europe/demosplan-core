@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
@@ -122,15 +122,16 @@ class GeoJsonToFeaturesConverter
             $imagesDirectoryPath = DemosPlanPath::getTemporaryPath(
                 md5($printLayer->layerTitle).'-'.Uuid::uuid().'/'
             );
+            $test = new PrintLayer(
+                $printLayer->isBaseLayer ?? false,
+                $this->convertTiles($printLayer, $imagesDirectoryPath),
+                $printLayer->layerMapOrder ?? 0,
+                $printLayer->layerName ?? '',
+                $printLayer->layerTitle ?? '',
+                $imagesDirectoryPath
+            );
             $result->add(
-                new PrintLayer(
-                    $printLayer->isBaseLayer ?? false,
-                    $this->convertTiles($printLayer, $imagesDirectoryPath),
-                    $printLayer->layerMapOrder ?? 0,
-                    $printLayer->layerName ?? '',
-                    $printLayer->layerTitle ?? '',
-                    $imagesDirectoryPath
-                )
+                $test
             );
         }
 

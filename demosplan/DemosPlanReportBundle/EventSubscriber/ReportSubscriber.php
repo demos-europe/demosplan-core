@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
+use Exception;
 
 class ReportSubscriber extends BaseEventSubscriber
 {
@@ -72,7 +73,7 @@ class ReportSubscriber extends BaseEventSubscriber
                 );
                 $this->reportService->persistAndFlushReportEntries($report);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Add Report failed ', [$e]);
         }
     }

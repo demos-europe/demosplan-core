@@ -10,12 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
-use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -116,5 +110,4 @@ class CoreService
     {
         $this->doctrine = $doctrine;
     }
-
 }

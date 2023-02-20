@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -30,6 +31,7 @@ use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
+use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -53,7 +55,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     private $fileService;
 
     /** @var array */
-    private $supportedTypes = ['pdf']; //: TODO: By Config ?
+    private $supportedTypes = ['pdf']; // : TODO: By Config ?
 
     /**
      * @var CurrentUserInterface
@@ -235,12 +237,12 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $changedOutputResult['entries']['total'] = $outputResult->getTotal();
 
             $templateVars['table'] = $changedOutputResult;
-            //T14612 filter house numbers depending of permission
+            // T14612 filter house numbers depending of permission
             if (!$this->permissions->hasPermission('feature_statement_meta_house_number_export')) {
                 foreach ($templateVars['table']['entries']['statements'] as $singleStatementData) {
                     $singleStatementData['meta']['houseNumber'] = '';
                 }
-            }//TODO: See whether we need this:
+            }// TODO: See whether we need this:
             //        // explicitly set procedure array, as it could not be fetched from session e.g. in export
             //        // if not set, passing only $procedureId is of no harm
             //        $procedure = $procedureId;
@@ -281,7 +283,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $pictures = $this->collectPictures(
                 $changedOutputResult['entries'],
                 $procedureId
-            ); //Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
+            ); // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
             $response = $this->serviceImport->exportPdfWithRabbitMQ(
                 base64_encode($content),
                 $pictures
@@ -315,7 +317,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     public function createExternIds(array $statements): array
     {
-        //use central method to generate part of externId for exports:
+        // use central method to generate part of externId for exports:
         foreach ($statements as $key => $statementArray) {
             $statements[$key]['externIdString'] = $this
                 ->assessmentTableOutput
@@ -364,7 +366,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
         // collect Statements in unified data format
         foreach ($statements as $statement) {
-            //'statementsAndFragments' or 'fragmentsOnly'
+            // 'statementsAndFragments' or 'fragmentsOnly'
             if (true === $statementsOnly) {
                 $item = $this->assessmentTableOutput->formatStatementArray($statement);
                 $items->push($item);
@@ -372,7 +374,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 if (true === $original) {
                     $warning = 'Attempted to export statement fragments while exporting original statements.'.
                         ' This doesn\'t make sense from a business logic perspective.';
-                    throw new \LogicException($warning);
+                    throw new LogicException($warning);
                 }
 
                 // has Fragments
@@ -479,11 +481,11 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
-     * @param array $entityArrayList Array of Statement or Statement Fragment in array form (not object!) which has
-     *                               the format that is needed here and the correct set of statements,
-     *                               but in the wrong order
-     * @param array $orderedList     Array of Statement objects or Statement Fragment objects that may include
-     *                               more than the selected ones, but which has the correct order
+     * @param array                                  $entityArrayList Array of Statement or Statement Fragment in array form (not object!) which has
+     *                                                                the format that is needed here and the correct set of statements,
+     *                                                                but in the wrong order
+     * @param array<int|string, UuidEntityInterface> $orderedList     Array of Statement objects or Statement Fragment objects that may include
+     *                                                                more than the selected ones, but which has the correct order
      */
     protected function reorderStatementsOrStatementFragmentsAccordingToOtherList(array $entityArrayList, array &$orderedList): array
     {
@@ -548,7 +550,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
         $item = $this->assessmentTableOutput->formatStatementArray($statement);
 
-        //override selected item fields with fragment content:
+        // override selected item fields with fragment content:
         $item['type'] = 'fragment';
         $item['created'] = $fragment['created'] ?? null;
 

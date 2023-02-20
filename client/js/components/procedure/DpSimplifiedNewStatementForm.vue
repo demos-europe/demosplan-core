@@ -37,14 +37,18 @@
               name="r_role"
               value="0"
               :id="`${instanceId}r_role_0`"
-              :label="Translator.trans('citizen')"
+              :label="{
+                text: Translator.trans('citizen')
+              }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
               @change="values.submitter.institution = false" />
             <dp-radio
               name="r_role"
               value="1"
               :id="`${instanceId}r_role_1`"
-              :label="Translator.trans('institution')"
+              :label="{
+                text: Translator.trans('institution')
+              }"
               :checked="values.submitter.institution === true"
               @change="values.submitter.institution = true" />
           </div>
@@ -348,9 +352,9 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
-import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { DpInput, DpLabel } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -378,7 +382,7 @@ export default {
     DpSelect,
     DpTextArea,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
     DpUploadFiles,

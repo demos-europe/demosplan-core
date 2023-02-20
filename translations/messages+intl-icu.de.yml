@@ -159,7 +159,7 @@ assessmenttable.view.mode.default: "Keine Gliederung"
 assessmenttable.view.mode.tags: "Nach Schlagworten"
 assessmenttable.view.mode.elements: "Nach Planungsdokumenten"
 assign: "Zuweisen"
-assign.for.editing: "Zur Bearbeitung zuweisen"
+assign.for.editing: "Zur Bearbeitung zuweisen..."
 assign.to.me: 'Mir zuweisen'
 assigned: 'Zugewiesen'
 assigned.to: "Bearbeitet durch"
@@ -459,7 +459,7 @@ confirm.fragment.assignment.unassigned: "Der Datensatz wurde erfolgreich freigeg
 confirm.fragment.deleted: "Der Datensatz wurde gelöscht."
 confirm.fragment.edit: "Die Änderungen am Datensatz {id} wurden gespeichert."
 confirm.fragment.update.complete: "Die Bearbeitung des Datensatzes {id} wurde von Ihnen abgeschlossen."
-confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--default\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
+confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--external\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
 confirm.gdpr.consent.registration: "Hiermit bestätige ich, dass ich die <a class=\"o-link--default\" href=\"{gdpr}\" target=\"_blank\" aria-label=\"Hinweise zum Datenschutz\">Hinweise zum Datenschutz</a> gelesen habe und erkläre mich mit der Speicherung und Verarbeitung meiner personenbezogenen Daten einverstanden."
 confirm.gislayer.delete: "Die Kartenebene wurde gelöscht."
 confirm.gislayerCategory.delete: "Die Kartenebenen-Kategorie wurde gelöscht."
@@ -712,7 +712,7 @@ copy: "Kopieren"
 copy.to.procedure: "In ein anderes Verfahren kopieren"
 copyof: "Kopie von"
 copyright.source: "Copyright-Vermerk"
-copyright.sh: "Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
+copyright.sh: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 counties: "Kreise"
 counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
@@ -890,6 +890,7 @@ element.delete: "Element entfernen"
 element.notassigned: "Es ist kein Bezug zu einem Planungsdokument festgelegt."
 element.selected: "Ausgewähltes Element"
 element.state.autoswitch: "Status der Kategorie automatisch auf \"{state}\" umstellen"
+element.state.publish: "Kategorien sofort veröffentlichen."
 elementimport: "Import der Planungsdokumente"
 elements.assigned: "Bezug zu Planungsdokumenten"
 elements.bulk.edit: "Planungsdokumente bearbeiten"
@@ -1306,6 +1307,7 @@ explanation.gislayer.visibility.group.locked.unexpected: "Die Kartenebene kann n
 explanation.gislayer.xplan.default: "Nutze die vordefinierten Standard XPlan-Layer."
 explanation.gislayer.xplan: "Diesen WMS als XPlanlayer anlegen."
 explanation.invitationmail.deactivated: "Bitte speichern Sie Ihre Änderungen zu der Beteiligungs-E-Mail ab, bevor Sie die Einladungen verschicken, damit die Änderungen übernommen werden."
+explanation.import.topicsAndTags: "Die Schlagworte wurden erfolgreich importiert."
 explanation.layers.separated: "Mehrere Layer werden durch ein Komma getrennt."
 explanation.list.of.submitters: "In dieser Liste finden Sie alle Personen, die in diesem Verfahren mindestens eine Stellungnahme eingereicht haben."
 explanation.login.gateway: "Die Anmeldung erfolgt über den Schleswig-Holstein-Service. Für Institutionen erforderlich, für Bürgerinnen und Bürger optional."
@@ -1358,6 +1360,7 @@ explanation.proxy.use: "Nutze den Proxy für Aufrufe, die über den Server und n
 explanation.public.participation.contact: "Die Ansprechperson wird auf der öffentlichen Verfahrensseite angezeigt."
 explanation.public.participation.detail.palm: "Im Rahmen der Öffentlichkeitsbeteiligung der Bauleitplanung Online können Sie Ihre Stellungnahme zu Verfahren auch über diese Webseite abgeben. Diese Funktionalität steht allerdings nicht auf dem Smartphone zur Verfügung."
 explanation.invitable_institution.authorisations: "Wenn keine Organisation ausgewählt ist, dann ist die Kategorie für alle dem Verfahren zugewiesenen Organisationen sichtbar. Ist mindestens eine Organisation ausgewählt, ist die Kategorie für Bürger*innen nicht mehr sichtbar."
+explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich „Institutionen verwalten“ in allen Verfahren zur Verfügung."
 explanation.invitable_institution.list.show: "Ist das Häkchen gesetzt, wird die Organisation in der Institutionen-Liste angezeigt und kann somit zu Verfahren eingeladen werden. Diese Option ist ausschließlich für den Support verfügbar."
 explanation.invitable_institutions.noneselected: "Es wurden keine Institutionen ausgewählt."
 explanation.reason.configuration: "Die Konfiguration der Begründungskapitel erfolgt unter nachfolgendem Link im Menü „Begründung“."
@@ -1751,6 +1754,7 @@ import.process.finished: "Import abgeschlossen"
 import.statements.fromPdf: "Stellungnahmen aus PDF-Dokumenten importieren"
 import.statements.fromPdf.label: "Stellungnahmen aus PDF-Dokumenten importieren (maximal {maxFiles} Dateien gleichzeitig)"
 import.verb: "Importieren"
+imported.verb: "Importiert"
 imprint: "Impressum"
 in: "in"
 inaccessible: 'ohne Zugriff'
@@ -1804,6 +1808,7 @@ invitable_institution.add.explanation: "Fügen Sie hier Institutionen hinzu, um 
 invitable_institution.administer: "Institutionen verwalten"
 invitable_institution.authorisations: "Institutions-Berechtigungen"
 invitable_institution.for: "für Institutionen"
+invitable_institution.group: "Institutionen gruppieren"
 invitable_institution.list.back: "Zurück zur Institutionen-Liste"
 invitable_institution.list.change: "Änderungen Institutionen-Liste"
 invitable_institution.list.show: "Anzeige in Institutionen-Liste"
@@ -2567,6 +2572,19 @@ procedures.none: "Es sind noch keine Verfahren vorhanden."
 procedures.orga: "Verfahren Ihrer Organisation"
 procedures.participation.none: "Derzeit befinden sich keine Verfahren in Beteiligung."
 procedures.phase.overview: "Phasenübersicht aller Verfahren"
+procedures.statements.count: "Anzahl aller Stellungnahmen im Verfahren"
+procedures.statements.count.description: |
+    {statements, plural,
+        =0 {Keine Stellungnahme}
+        =1 {Eine Stellungnahme}
+        other {# Stellungnahmen}
+    }
+procedures.statements.count.original.description: |
+    {statements, plural,
+        =0 {keine Originalstellungnahme}
+        =1 {eine Originalstellungnahme}
+        other {# Originalstellungnahmen}
+    }
 procedures.statements.total: |
     {statementCount, plural,
         =1 {Eine Stellungnahme in {procedureCount} Verfahren}
@@ -2802,6 +2820,10 @@ segments.assigned.now: |
         other {Aktuell sind Ihnen <strong>#</strong> Abschnitte zur Bearbeitung zugewiesen.}
     }
 segments.bulk.edit: "Abschnitte bearbeiten"
+segments.bulk.edit.place.add: "Bearbeitungsschritt ändern..."
+segments.bulk.edit.place.assigned.description: "Die ausgewählten Abschnitte werden auf folgenden Bearbeitungsschritt geändert:"
+segments.bulk.edit.place.assigned.error: "Folgender Bearbeitungsschritt konnte bei {count} Abschnitten <em>nicht geändert werden</em>:"
+segments.bulk.edit.place.assigned.success: "Folgender Bearbeitungsschritt wurde bei {count} Abschnitten <em>geändert</em>:"
 segments.bulk.edit.segments.assigned.error: "Bei der Zuweisung der Abschnitte ist ein Fehler aufgetreten."
 segments.bulk.edit.segments.assigned.success: "Die Zuweisung der Abschnitte wurde erfolgreich geändert."
 segments.bulk.edit.tags.add: "Schlagworte hinzufügen..."
@@ -3240,7 +3262,7 @@ statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
-statements.final: "Einreichungen der Organisation"
+statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
 statements.final_versions: "Endfassungen"
 statements.group: "Stellungnahmen der Gruppe"
@@ -3257,7 +3279,7 @@ statements.grouped.priority: |
         =1 {Eine Stellungnahme nach Priorität}
         other {# Stellungnahmen nach Priorität}
     }
-statements.grouprelease: "Freigaben der Organisation"
+statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
@@ -3761,6 +3783,7 @@ warning.draftStatement.already.submitted: "Stellungnahme {draftStatementId} wurd
 warning.document.import.toplevel: "Dateien auf oberster Ebene des Archivs können nicht importiert werden. Bitte speichern Sie sie unterhalb eines Ordners"
 warning.addressBookEntry.not.created: "E-Mail-Adressbucheintrag konnte nicht erstellt werden."
 warning.entries.deleted: "Die Einträge konnten nicht alle korrekt gelöscht werden"
+warning.email.and.password.editable.via.serviceprovider: "Sie können Ihre E-Mail-Adresse / Ihr Passwort bei dem Serviceprovider ändern, über den Sie sich eingeloggt haben."
 warning.entries.no.selected: "Es wurden keine Einträge ausgewählt."
 warning.entry.missing: "Der Beitrag existiert nicht mehr."
 warning.entry.not.editable: "Der Beitrag kann nicht mehr bearbeitet werden!"

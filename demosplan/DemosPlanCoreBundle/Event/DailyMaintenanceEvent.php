@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class DailyMaintenanceEvent extends DPlanEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
+
+class DailyMaintenanceEvent extends DPlanEvent implements DailyMaintenanceEventInterface
 {
 }

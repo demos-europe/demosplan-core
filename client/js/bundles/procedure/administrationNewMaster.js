@@ -13,8 +13,8 @@
 
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 import NewBlueprintForm from '@DpJs/components/procedure/admin/NewBlueprintForm'
 
 const components = { DpEmailList, NewBlueprintForm }

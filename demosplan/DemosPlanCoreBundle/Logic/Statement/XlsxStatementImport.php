@@ -125,7 +125,7 @@ class XlsxStatementImport
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
         $this->createdStatements = [];
 
-        //allow to rollback all in case of error
+        // allow to rollback all in case of error
         $doctrineConnection = $this->entityManager->getConnection();
         try {
             $doctrineConnection->beginTransaction();

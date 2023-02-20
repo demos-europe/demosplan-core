@@ -14,15 +14,15 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
@@ -33,6 +33,7 @@ use InvalidArgumentException;
 
 /**
  * @template-extends AbstractNewsResourceType<News>
+ *
  * @template-implements DeletableDqlResourceTypeInterface<News>
  * @template-implements CreatableDqlResourceTypeInterface<News>
  *
@@ -95,7 +96,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
 
     public function isDirectlyAccessible(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_news');
     }
 
     public function getAccessCondition(): PathsBasedInterface
@@ -106,8 +107,8 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType implement
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->pId),
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->pId),
+            $this->conditionFactory->propertyHasValue(false, $this->deleted)
         );
     }
 

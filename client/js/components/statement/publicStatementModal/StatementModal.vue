@@ -104,15 +104,19 @@
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
               @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-              :label="Translator.trans('public.participation.participate')"
+              :label="{
+                text: Translator.trans('public.participation.participate')
+              }"
               value="0" />
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_true"
-              :hint="Translator.trans('link.title.indicationerror')"
               :checked="formData.r_isNegativeReport === '1'"
               @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
-              :label="Translator.trans('indicationerror')"
+              :label="{
+                hint: Translator.trans('link.title.indicationerror'),
+                text: Translator.trans('indicationerror')
+              }"
               value="1" />
           </div>
         </template>
@@ -383,6 +387,7 @@
           </button>
           <button
             type="submit"
+            data-cy="statementFormSubmit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
             form-name="statementForm"
@@ -446,10 +451,13 @@
             <dp-radio
               id="r_useName_1"
               name="r_useName"
+              data-cy="submitPublicly"
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
-              :label="Translator.trans('statement.detail.form.personal.post_publicly')" />
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_publicly')
+              }" />
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout')">
@@ -474,7 +482,9 @@
               value="0"
               @change="val => setStatementData({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
-              :label="Translator.trans('statement.detail.form.personal.post_anonymously')"
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_anonymously')
+              }"
               aria-labelledby="statement-detail-post-anonymously"
               data-cy="submitAnonymously" />
           </div>
@@ -489,6 +499,7 @@
         <div :class="prefixClass('text--right u-mt-0_5')">
           <button
             type="button"
+            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
@@ -556,6 +567,7 @@
             hide-label />
           <button
             type="button"
+            data-cy="sendStatementNow"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
@@ -621,14 +633,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@demos-europe/demosplan-utils'
-import { DpInput, DpLabel, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpApi, dpValidateMixin, hasOwnProp, isActiveFullScreen, makeFormPost, prefixClassMixin, toggleFullscreen } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpCheckbox, DpInput, DpLabel, DpLoading, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
-import { DpCheckbox, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -664,7 +671,7 @@ export default {
     DpModal,
     DpRadio,
     DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
     DpUploadFiles,

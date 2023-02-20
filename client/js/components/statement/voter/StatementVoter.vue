@@ -119,13 +119,17 @@
             <div>
               <dp-radio
                 id="role_0"
-                :label="Translator.trans('role.citizen')"
+                :label="{
+                  text: Translator.trans('role.citizen')
+                }"
                 value="0"
                 :checked="formFields.role === 0"
                 @change="formFields.role = 0" />
               <dp-radio
                 id="role_1"
-                :label="Translator.trans('invitable_institution')"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
                 value="1"
                 :checked="formFields.role === 1"
                 @change="formFields.role = 1" />
@@ -217,10 +221,9 @@
 </template>
 
 <script>
+import { DpEditableList, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
-import { DpEditableList, DpRadio } from '@demos-europe/demosplan-ui/components/core'
-import { DpInput } from '@demos-europe/demosplan-ui/components'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils/mixins'
+import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'StatementVoter',

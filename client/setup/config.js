@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+const glob = require('glob')
 const path = require('path')
 
 class Config {
@@ -35,7 +36,7 @@ class Config {
     this.absoluteRoot = path.resolve(__dirname, this.relativeRoot) + '/'
     this.oldBundlesPath = path.resolve(__dirname, this.relativeRoot + 'demosplan/') + '/'
 
-    // Yes, technically this is not needed but it's here to document the possible use in `resolveAliases`
+    // Yes, technically this is not needed, but it's here to document the possible use in `resolveAliases`.
     const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
     this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
@@ -54,7 +55,9 @@ class Config {
         'demosplan/**/*.js',
         'demosplan/**/*.js.twig',
         'client/**/*.js',
-        'client/**/*.vue'
+        'client/**/*.vue',
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true }),
+        ...glob.sync('node_modules/@demos-europe/demosplan-utils/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [

@@ -57,9 +57,8 @@
 </template>
 
 <script>
-import { DpButton, DpLabel } from '@demos-europe/demosplan-ui/components'
+import { DpButton, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { dpApi } from '@demos-europe/demosplan-utils'
-import { DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {

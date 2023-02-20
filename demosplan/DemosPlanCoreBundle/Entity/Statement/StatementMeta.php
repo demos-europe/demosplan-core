@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -55,8 +56,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
-     * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
      *
+     * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidAuthorNull")
      */
     protected $authorName = '';
@@ -65,12 +66,14 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * User generally wants feedback for this statement. Statement.feedback holds the kind of desired feedback.
      *
      * @var bool
+     *
      * @ORM\Column(type="boolean", nullable=false)
      */
     protected $authorFeedback = false;
 
     /**
      * @var string|null
+     *
      * @ORM\Column(name="_stm_submit_u_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
     protected $submitUId;
@@ -79,7 +82,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_submit_name", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidSubmitNull")
      */
     protected $submitName = '';
@@ -88,7 +90,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_orga_name", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaNameNull")
      */
     protected $orgaName = '';
@@ -97,7 +98,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * @var string
      *
      * @ORM\Column(name="_stm_orga_department_name", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaDepartmentNull")
      */
     protected $orgaDepartmentName = '';
@@ -119,6 +119,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     protected $houseNumber = '';
@@ -128,7 +129,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaPostalNull")
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
@@ -139,7 +139,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the city of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_city", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaCityNull")
      */
     protected $orgaCity = '';
@@ -149,14 +148,13 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      *             !This is also the email address of the unregistered user, if he give this data on new statement
      *
      * @ORM\Column(name="_stm_orga_email", type="string", length=255, nullable=false)
-     *
      * @Assert\NotNull(groups={Statement::IMPORT_VALIDATION}, message="statementMeta.import.invalidOrgaMailNull")
      * @Assert\Email(groups={Statement::IMPORT_VALIDATION}, message = "email.address.invalid")
      */
     protected $orgaEmail = '';
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="_stm_authored_date", type="datetime", nullable=true, options={"comment":"T441: Store the date on which manual statements have been (allegedly) submitted"})
      */
@@ -164,6 +162,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string|null
+     *
      * @ORM\Column(name="_stm_submit_o_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
     protected $submitOrgaId;
@@ -178,6 +177,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * {@link StatementMeta::USER_PHONE}.
      *
      * @var array|null
+     *
      * @ORM\Column(name="_stm_misc_data", type="array", nullable=true)
      */
     protected $miscData;
@@ -238,8 +238,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * Set author.
      *
      * @param string $authorName
-     *
-     * @return StatementMeta
      */
     public function setAuthorName($authorName): self
     {
@@ -269,8 +267,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * Set SubmitUser.
      *
      * @param string|null $submitUId
-     *
-     * @return StatementMeta
      */
     public function setSubmitUId($submitUId): self
     {
@@ -322,8 +318,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * Set OrgaName.
      *
      * @param string $orgaName
-     *
-     * @return StatementMeta
      */
     public function setOrgaName($orgaName): self
     {
@@ -344,8 +338,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
      * Set orgaDepartmentName.
      *
      * @param string $orgaDepartmentName
-     *
-     * @return StatementMeta
      */
     public function setOrgaDepartmentName($orgaDepartmentName): self
     {
@@ -500,17 +492,17 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     public function getAuthoredDate()
     {
         $timestamp = false;
-        if ($this->authoredDate instanceof \DateTime && 0 < $this->authoredDate->format('U')) {
+        if ($this->authoredDate instanceof DateTime && 0 < $this->authoredDate->format('U')) {
             $timestamp = $this->authoredDate->getTimestamp();
         } elseif (is_string($this->authoredDate)) {
             $timestamp = strtotime($this->authoredDate);
         }
 
-        return (bool)$timestamp ? $timestamp : 0;
+        return (bool) $timestamp ? $timestamp : 0;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getAuthoredDateObject()
     {
@@ -518,7 +510,7 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface
     }
 
     /**
-     * @param \DateTime|null $authoredDate
+     * @param DateTime|null $authoredDate
      */
     public function setAuthoredDate($authoredDate)
     {

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -30,7 +29,6 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
-use function hash;
 
 class GdprConsentRevokeTokenService extends CoreService
 {

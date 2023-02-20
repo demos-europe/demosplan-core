@@ -10,6 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use function array_filter;
+use function array_key_exists;
+use function array_map;
+
+use BadMethodCallException;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
@@ -35,12 +42,10 @@ use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -66,6 +71,23 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
+
+use const ENT_QUOTES;
+
+use Exception;
+
+use function explode;
+use function html_entity_decode;
+use function implode;
+use function in_array;
+use function is_array;
+
+use RuntimeException;
+
+use function sprintf;
+use function strip_tags;
+use function strlen;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -811,7 +833,7 @@ class DemosPlanStatementController extends BaseController
                 'title'        => $title,
                 'fscope'       => $fscope,
                 // überschreibt ein übergebenes 'permissions' die Werte aus der Session
-                'permissions' => $this->permissions->getPermissions(),
+                'permissions'  => $this->permissions->getPermissions(),
             ]
         );
     }
@@ -1087,7 +1109,7 @@ class DemosPlanStatementController extends BaseController
                             $draftStatementNumber, $currentProcedureService->getProcedureWithCertainty()
                         ),
                     ],
-                    'procedure' => $procedure,
+                    'procedure'    => $procedure,
                 ]
             )->getContent();
 
@@ -1254,7 +1276,7 @@ class DemosPlanStatementController extends BaseController
                             [],
                             'page-title'
                         ),
-                        'url' => $this->generateUrl(
+                        'url'   => $this->generateUrl(
                             'DemosPlan_statement_list_released_group',
                             ['procedure' => $procedure]
                         ),
@@ -1682,7 +1704,7 @@ class DemosPlanStatementController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'statementnew' => [
+            'statementnew'                 => [
                 'action',
                 'r_text',
                 'r_elementID',
@@ -1690,12 +1712,12 @@ class DemosPlanStatementController extends BaseController
                 'r_documentID',
                 'r_polygon',
             ],
-            'list' => [
+            'list'                         => [
                 'action',
                 'flip_status',
                 'submit',
             ],
-            'statementedit' => [
+            'statementedit'                => [
                 'action',
                 'delete_file',
                 'r_ident',
@@ -1719,7 +1741,7 @@ class DemosPlanStatementController extends BaseController
                 'r_makePublic',
                 'location_is_set',
             ],
-            'publicstatementnew' => [
+            'publicstatementnew'           => [
                 'action',
                 'url',
                 'r_loadtime',

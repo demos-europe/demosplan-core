@@ -15,8 +15,8 @@
  * need additional javascript, the entrypoint should have it's own bundle.
  */
 
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 
 initialize().then(() => {
   dpValidate()

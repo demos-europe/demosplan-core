@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use function array_key_exists;
+
+use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
@@ -43,7 +45,7 @@ use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 
-class ProcedureHandler extends CoreHandler
+class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 {
     /**
      * @var ServiceStorage
@@ -409,7 +411,7 @@ class ProcedureHandler extends CoreHandler
             throw new MissingDataException('Emailtext is missing');
         }
 
-        //generiere einen Verteiler und hole Daten zu den die Empfängern
+        // generiere einen Verteiler und hole Daten zu den die Empfängern
         $recipientsWithNoEmail = [];
         $recipientsWithEmail = [];
         [$recipientsWithEmail, $recipientsWithNoEmail] = $this->getEmailRecipients(
@@ -418,7 +420,7 @@ class ProcedureHandler extends CoreHandler
             $recipientsWithEmail,
             $recipientsWithNoEmail
         );
-        //generiere Protokolleintrag, bereits hier, da bei Nicht-Mailversand auch ein Eintrag gemacht wird.
+        // generiere Protokolleintrag, bereits hier, da bei Nicht-Mailversand auch ein Eintrag gemacht wird.
         $procedureAsArray = $this->serviceOutput->getProcedureWithPhaseNames($procedure['id']);
         $procedurePhase = $procedureAsArray['phase'];
 
@@ -429,7 +431,7 @@ class ProcedureHandler extends CoreHandler
         $agencyMainEmailAddress = $procedure['agencyMainEmailAddress'] ?? '';
 
         foreach ($recipientsWithEmail as $recipientData) {
-            //Send invitation mail for each selected public agency organisation:
+            // Send invitation mail for each selected public agency organisation:
             $this->sendPublicAgencyInvitationMail(
                 $recipientData['email2'],
                 $agencyMainEmailAddress,
@@ -438,7 +440,7 @@ class ProcedureHandler extends CoreHandler
                 $emailTextAdded
             );
 
-            //Send invitation mail for each cc-email-addresses
+            // Send invitation mail for each cc-email-addresses
             if (isset($recipientData['ccEmails']) && is_array($recipientData['ccEmails'])) {
                 foreach ($recipientData['ccEmails'] as $ccEmailAddress) {
                     $this->sendPublicAgencyInvitationMail(
@@ -469,9 +471,9 @@ class ProcedureHandler extends CoreHandler
         try {
             foreach ($ccEmailAddresses as $ccEmailAddress) {
                 $recipientsWithEmail[] = [
-                    'ident' => '',
+                    'ident'     => '',
                     'nameLegal' => $ccEmailAddress,
-                    'email2' => $ccEmailAddress,
+                    'email2'    => $ccEmailAddress,
                 ];
             }
 
@@ -488,7 +490,7 @@ class ProcedureHandler extends CoreHandler
         return InvitationEmailResult::create(
             // Namen der eingeladenen Institutionen für Erfolsgmeldung
             array_column($recipientsWithEmail, 'nameLegal'),
-            //Wenn zum Teil Empfänger ausgewählt wurden, die keine Beteiligungsemail hinterlegt haben, speicher diese für die Fehlermeldung
+            // Wenn zum Teil Empfänger ausgewählt wurden, die keine Beteiligungsemail hinterlegt haben, speicher diese für die Fehlermeldung
             array_column($recipientsWithNoEmail, 'nameLegal')
         );
     }
@@ -506,7 +508,7 @@ class ProcedureHandler extends CoreHandler
         $userEmail = $this->currentUser->getUser()->getEmail();
 
         $data['r_emailCc'] = array_key_exists('r_emailCc', $data) ? explode(', ', $data['r_emailCc']) : [];
-        //fill cc field:
+        // fill cc field:
         $cc = $data['r_emailCc'];
         $cc[] = $from;
         if (0 < strlen($userEmail)) {
@@ -545,9 +547,9 @@ class ProcedureHandler extends CoreHandler
                 // Wenn die Beschreibung länger ist als 285 zeichen, dann kürze sie
                 if (strlen($procedure['externalDesc']) > 285) {
                     $teaserExternalDesc = substr($procedure['externalDesc'], 0, 285).'...';
-                    //Schneide sie hinter einem Wort ab
+                    // Schneide sie hinter einem Wort ab
                     $teaserExternalDesc_end = strrchr($teaserExternalDesc, ' ');
-                    //Ersetze die ungekürzte TemplateVariable mit der gekürzten
+                    // Ersetze die ungekürzte TemplateVariable mit der gekürzten
                     $templateVars['list']['procedurelist'][$key]['externalDesc'] = str_replace($teaserExternalDesc_end, ' ...', $teaserExternalDesc);
                 }
             }
@@ -564,9 +566,9 @@ class ProcedureHandler extends CoreHandler
      */
     public function sendNotificationEmailOfDeadlineForPublicAgencies()
     {
-        //Feature for soon ending phases enabled?
+        // Feature for soon ending phases enabled?
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
-            //How many days in advance should notification been sent?
+            // How many days in advance should notification been sent?
             $daysToGo = $this->limitForNotification;
             // Look only fpr participation phases for publicAgencies
             $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
@@ -576,24 +578,24 @@ class ProcedureHandler extends CoreHandler
                     $phases[] = $phase['key'];
                 }
             }
-            //Get all procedures with given phases and time limit
+            // Get all procedures with given phases and time limit
             $resultProcedures = $this->getAllProceduresWithSoonEndingPhases($phases, $daysToGo);
 
-            //Get all involved public Agencies of these procedures
+            // Get all involved public Agencies of these procedures
             foreach ($resultProcedures as $procedure) {
                 $this->getLogger()->info('Soon ending procedures found for procedure', [$procedure->getName()]);
                 $involvedPublicAgencies = $procedure->getOrganisation();
-                //Do they want to have a notification email? ->Info saved in Settings
+                // Do they want to have a notification email? ->Info saved in Settings
                 $recipients = $this->serviceOutput->checkNotificationFlagAndReturnEmailsOfAgencies($involvedPublicAgencies);
 
-                //if there are recipients go further
+                // if there are recipients go further
                 if (0 < count($recipients)) {
-                    //save same for the mailtemplate
+                    // save same for the mailtemplate
                     $procedure->setPhaseName($this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($procedure->getPhase()));
                     $mailTemplateVars['procedure'] = $procedure;
                     $mailTemplateVars['daysToGo'] = $daysToGo;
 
-                    //fetch the EmailTemplate
+                    // fetch the EmailTemplate
                     $emailText = $this->twig->load(
                         '@DemosPlanProcedure/DemosPlanProcedure/administration_send_notification_email_ending_phase.html.twig'
                     )->renderBlock(
@@ -627,10 +629,10 @@ class ProcedureHandler extends CoreHandler
                             $vars
                         );
                     } catch (Exception $e) {
-                        //error notice, something went wrong:-)
+                        // error notice, something went wrong:-)
                         $this->logger->error('Notification Mail For Ending Phase could not be sent', [$procedure]);
                     }
-                    //Success notice
+                    // Success notice
                     $this->logger->info('Sent Notification Mail For Ending Phase');
                 } else {
                     // Notice of no recipients available
@@ -652,13 +654,13 @@ class ProcedureHandler extends CoreHandler
     {
         $procedures = [];
         try {
-            //Fetch all procedure with soon ending phases
+            // Fetch all procedure with soon ending phases
             $procedures = $this->procedureService->getListOfProceduresEndingSoon($exactlyDaysToGo, $internal);
         } catch (Exception $e) {
             $this->getLogger()->error('Could not get procedureList with soon ending phases');
         }
 
-        //Choose all procedures with given phases
+        // Choose all procedures with given phases
         $proceduresWithSoonEndingPhase = [];
         foreach ($procedures as $procedure) {
             $phase = $internal ? $procedure->getPhase() : $procedure->getPublicParticipationPhase();
@@ -892,14 +894,14 @@ class ProcedureHandler extends CoreHandler
         $changedInternalProcedures = collect([]);
         $changedExternalProcedures = collect([]);
 
-        //internal:
+        // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
         $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys, true, true);
 
         $internalPhaseKey = 'evaluating';
         $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
-        //T17248: necessary because of different phasekeys per project:
-        if ($internalPhaseKey === $internalPhaseName) { //not found?
+        // T17248: necessary because of different phasekeys per project:
+        if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
             $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
@@ -915,14 +917,14 @@ class ProcedureHandler extends CoreHandler
             }
         }
 
-        //external:
+        // external:
         $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
         $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false, true);
 
         $externalPhaseKey = 'evaluating';
         $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
-        //T17248: necessary because of different phasekeys per project:
-        if ($externalPhaseKey === $externalPhaseName) { //not found?
+        // T17248: necessary because of different phasekeys per project:
+        if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
             $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
@@ -938,7 +940,7 @@ class ProcedureHandler extends CoreHandler
             }
         }
 
-        //Success notice
+        // Success notice
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
@@ -964,7 +966,7 @@ class ProcedureHandler extends CoreHandler
         foreach ($procedure['agencyExtraEmailAddresses'] ?? '' as $additionalAddress) {
             $ccEmailAddresses->add(trim($additionalAddress));
         }
-        //alle E-Mail-Adressen aus dem CC-Feld
+        // alle E-Mail-Adressen aus dem CC-Feld
         if (0 < count($formEmailCC)) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim($mailAddress));
@@ -989,7 +991,7 @@ class ProcedureHandler extends CoreHandler
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
-                    //Füge eventuelle CC-Email für Beteiligung hinzu
+                    // Füge eventuelle CC-Email für Beteiligung hinzu
                     if (0 < strlen(trim($orgaData->getCcEmail2()))) {
                         $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;

@@ -487,7 +487,7 @@ class ProcedureTypeService extends CoreService
             throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
         }
 
-        $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
+        $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
 
         return array_map(function (object $entity): TwigableWrapperObject {

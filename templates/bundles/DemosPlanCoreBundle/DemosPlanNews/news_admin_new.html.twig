@@ -1,0 +1,273 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{# @improve T15271 #}
+
+{% block component_part %}
+    {# set paths for form submit and cancel buttons #}
+    {% if (procedure is not null ) %}
+        {% set actionPath = path('DemosPlan_news_administration_news_new_post', {'procedure': procedure}) %}
+        {% set cancelPath = path('DemosPlan_news_administration_news', {'procedure': procedure}) %}
+    {% else %}
+        {% set actionPath = path('DemosPlan_globalnews_administration_news_new_post') %}
+        {% set cancelPath = path('DemosPlan_globalnews_administration_news') %}
+    {% endif %}
+
+    <h1>{{ "news.create"|trans }}</h1>
+
+    <form
+        action="{{ actionPath }}"
+        method="post"
+        enctype="multipart/form-data"
+        novalidate
+        data-dp-validate>
+        <input name="action" type="hidden" value="newsnew">
+
+        {% set statusOptions = [{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked'}] %}
+        {% for option in statusOptions %}
+            {% if templateVars.prefill is defined and templateVars.prefill.r_enable == option.value %}
+                {% set option = option|merge({'selected': true}) %}
+            {% endif %}
+        {% endfor %}
+
+        {% if hasPermission('feature_auto_switch_procedure_news') and proceduresettings is defined and proceduresettings.master|default(false) is same as(false) %}
+            <dp-change-state-at-date
+                class="u-mb-0_75"
+                regular-dropdown-id="r_enable"
+                delayed-switch-dropdown-id="r_designatedState"
+                check-switch-id="r_determinedToSwitch"
+                label="status"
+                :active-delay="JSON.parse('{{ templateVars.news.determinedToSwitch|default(false)|json_encode }}')"
+                date-id="r_designatedSwitchDate"
+                :status-options="[{ 'value': '1', 'label': 'released'}, {'value': '0', 'label': 'blocked'}]"
+                default-new-state="1"
+                default-current-state="0"
+                init-status="0"></dp-change-state-at-date>
+        {% else %}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'status'|trans },
+                        control: { name: 'r_enable', options: statusOptions },
+                        id: 'r_enable',
+                        type: 'select',
+                        required: true,
+                        elementSize: 'smaller'
+                    }
+                ]
+            }) }}
+        {% endif %}
+
+
+        {% block visibility %}
+            {%  if templateVars.isGlobal is defined and templateVars.isGlobal == true  %}
+
+                {# set 'checked' status for checkboxes #}
+                {# fachplaner #}
+                {% if templateVars.prefill is defined and templateVars.prefill.r_group_code is defined and 'GLAUTH' in templateVars.prefill.r_group_code %}
+                    {% set fachplanerChecked = true %}
+                {% endif %}
+
+                {# invitable institution #}
+                {% if templateVars.prefill is defined and templateVars.prefill.r_group_code is defined and 'GPSORG' in templateVars.prefill.r_group_code %}
+                    {% set publicAgencyChecked = true %}
+                {% endif %}
+
+                {# citizen #}
+                {% if templateVars.prefill is defined and templateVars.prefill.r_group_code is defined and 'GGUEST' in templateVars.prefill.r_group_code %}
+                    {% set guestChecked = true %}
+                {% endif %}
+
+                {% set visibilityOptions = [
+                    {
+                        label: { text: 'role.fp.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GLAUTH', checked: fachplanerChecked|default(false) },
+                        id: 'fachplanerVisibility',
+                        type: 'checkbox'
+                    },
+                    {
+                        label: { text: 'citizen.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
+                        id: 'citizenVisibility',
+                        type: 'checkbox'
+                    }
+                ] %}
+
+                {% if hasPermission('feature_institution_participation') %}
+                    {% set visibilityOptions = visibilityOptions|merge([{
+                        label: { text: 'invitable_institution.for'|trans, labelRequired: false },
+                        control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
+                        id: 'publicAgencyVisibility',
+                        type: 'checkbox'
+                    }]) %}
+                {% endif %}
+
+                {{ uiComponent('form.row', {
+                    elements: visibilityOptions,
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+
+            {% else %}
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'citizen.for'|trans, labelRequired: false },
+                            control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
+                            id: 'citizenVisibility',
+                            type: 'checkbox'
+                        },
+                        {
+                            label: { text: 'invitable_institution.for'|trans, labelRequired: false },
+                            control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
+                            id: 'publicAgencyVisibility',
+                            type: 'checkbox'
+                        }
+                    ],
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+            {% endif %}
+
+        {% endblock %}
+
+        {%  if templateVars.isGlobal is defined and templateVars.isGlobal == true  %}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'news'|trans, style: 'inline' },
+                        control: { name: 'r_category_name', value: 'news', style: 'inline', checked: true },
+                        id: 'r_category_name',
+                        type: 'radio',
+                        elementStyle: 'inline',
+                        elementSize: 'medium'
+                    },
+                    {
+                        label: { text: 'press.announcement'|trans, style: 'inline' },
+                        control: { name: 'r_category_name', style: 'inline', value: 'press' },
+                        id: 'r_category_name',
+                        type: 'radio',
+                        elementStyle: 'inline',
+                        elementSize: 'medium'
+                    }
+                ],
+                heading: 'area',
+                required: true
+            }) }}
+        {% endif %}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'heading'|trans },
+                    control: {
+                        name: 'r_title',
+                        value: templateVars.prefill.r_title|default,
+                        dataCy: 'newNewsTitle'
+                    },
+                    id: 'r_title',
+                    type: 'text',
+                    maxCharCount: 255,
+                    required: true
+                }
+            ]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'teaser'|trans },
+                    control: {
+                        value: templateVars.prefill.r_description|default,
+                        procedureId: procedure,
+                        hiddenInput: 'r_description',
+                        linkButton: true,
+                        ref: 'r_description',
+                        dataCy: 'newNewsTeaser'
+                    },
+                    id: 'r_description',
+                    type: 'editor',
+                    required: true
+                },
+            ]
+        }) }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'news.text'|trans },
+                    control: {
+                        value: templateVars.prefill.r_text|default,
+                        procedureId: procedure,
+                        hiddenInput: 'r_text',
+                        linkButton: true,
+                        editorId: 'newsText',
+                        ref: 'r_text',
+                        boilerPlate: 'news.notes'
+                    },
+                    id: 'r_text',
+                    type: 'editor'
+                }
+            ]
+        }) }}
+
+        {{
+            fileupload(
+                "r_picture",
+                "picture"|trans
+                    ~ '<p class="lbl__hint">'
+                    ~ "explanation.pic.dimensions"|trans
+                    ~ '</p>',
+                "img",
+                "form.button.upload.file",
+                null,
+                true
+            )
+        }}
+
+        {{ uiComponent('form.row', {
+            elements: [
+                {
+                    label: { text: 'caption'|trans },
+                    control: { name: 'r_pictitle', value: templateVars.prefill.r_pictitle|default, attributes: ['data-cy=createPictureTitle'] },
+                    id: 'r_pictitle',
+                    maxCharCount: 250,
+                    type: 'text',
+                    required: true
+                }
+            ]
+        }) }}
+
+        {% if hasPermission('field_news_pdf') %}
+
+            {{ fileupload( "r_pdf", null, null, null, null,  true ) }}
+
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'document.title'|trans, hint: 'explanation.pdf.title' },
+                        control: { name: 'r_pdftitle', value: templateVars.prefill.r_pdftitle|default, attributes: ['data-cy=createPDFTitle'] },
+                        type: 'text',
+                        id: 'r_pdftitle',
+                        required: true,
+                        maxCharCount: 250
+                    }
+                ]
+            }) }}
+
+        {% endif %}
+
+        {{ uiComponent('button-row', {
+            primary: uiComponent('button', {type: 'submit', attributes: ['data-cy=saveNews']}),
+            secondary: uiComponent('button', {color: 'secondary', href: cancelPath})
+        }) }}
+
+    </form>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['news-newsAdminNew.js']) }}
+{% endblock javascripts %}

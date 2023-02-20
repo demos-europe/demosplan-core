@@ -22,9 +22,9 @@ use Tightenco\Collect\Support\Collection;
 
 class HTMLFragmentSlicer
 {
-    const SLICE_AT_END_OF_STRING = -1;
+    public const SLICE_AT_END_OF_STRING = -1;
 
-    const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
+    public const SLICE_DEFAULT = 500; // slice at about 500 characters into a string by default
 
     /**
      * @var string
@@ -68,27 +68,51 @@ class HTMLFragmentSlicer
         $this->remainingList = new Collection();
     }
 
+    /**
+     * Returns the HTMLFragmentSlicer object. Please be aware
+     * of the performance implications, as the result is not
+     * cached here. Please use {@link HTMLFragmentSlicer::getShortened()}
+     * if you only need the shortened text instead.
+     *
+     * @param string $htmlFragment
+     * @param int    $sliceIndex
+     *
+     * @return HTMLFragmentSlicer
+     */
     public static function slice(
         $htmlFragment,
         $sliceIndex = self::SLICE_DEFAULT
     ) {
+        $slicer = new self();
+
+        return $slicer
+            ->setOriginalFragment($htmlFragment)
+            ->setSliceIndex($sliceIndex)
+            ->execute();
+    }
+
+    /**
+     * Cached shorthand method for shortened text.
+     *
+     * @param string $htmlFragment
+     * @param int    $sliceIndex
+     */
+    public static function getShortened($htmlFragment, $sliceIndex = self::SLICE_DEFAULT): string
+    {
         $textHash = md5($htmlFragment);
         $cacheKey = 'htmlslicer_'.$textHash;
         if (DemosPlanTools::cacheExists($cacheKey)) {
             return DemosPlanTools::cacheGet($cacheKey);
         }
 
-        $slicer = new self();
+        $slicer = self::slice($htmlFragment, $sliceIndex);
 
-        $sliced = $slicer
-            ->setOriginalFragment($htmlFragment)
-            ->setSliceIndex($sliceIndex)
-            ->execute();
+        $shortened = $slicer->getShortenedFragment();
 
         // cache entry for 180 Days
-        DemosPlanTools::cacheAdd($cacheKey, $sliced, 15552000);
+        DemosPlanTools::cacheAdd($cacheKey, $shortened, 15552000);
 
-        return $sliced;
+        return $shortened;
     }
 
     public function execute()

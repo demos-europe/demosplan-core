@@ -12,10 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -25,9 +29,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\TagService;
@@ -38,8 +41,11 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
+use Exception;
+use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 /**
  * You find general RPC API usage information
@@ -62,71 +68,26 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    /**
-     * @var CurrentProcedureService
-     */
-    protected $currentProcedure;
-
-    /**
-     * @var CurrentUserInterface
-     */
-    protected $currentUser;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var JsonSchemaValidator
-     */
-    protected $jsonValidator;
-
-    /**
-     * @var RpcErrorGenerator
-     */
-    protected $errorGenerator;
-
-    /**
-     * @var ProcedureService
-     */
-    protected $procedureService;
-
-    /**
-     * @var SegmentHandler
-     */
-    protected $segmentHandler;
-
-    /**
-     * @var SegmentValidator
-     */
-    protected $segmentValidator;
-
-    /**
-     * @var TagService
-     */
-    protected $tagService;
-
-    /**
-     * @var TagValidator
-     */
-    protected $tagValidator;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
+    protected CurrentProcedureService $currentProcedure;
+    protected CurrentUserInterface $currentUser;
+    protected JsonSchemaValidator $jsonValidator;
+    protected LoggerInterface $logger;
+    protected PlaceService $placeService;
+    protected ProcedureService $procedureService;
+    protected RpcErrorGenerator $errorGenerator;
+    protected SegmentHandler $segmentHandler;
+    protected SegmentValidator $segmentValidator;
+    protected TagService $tagService;
+    protected TagValidator $tagValidator;
+    protected UserHandler $userHandler;
+    private TransactionService $transactionService;
 
     public function __construct(
         CurrentProcedureService $currentProcedure,
         CurrentUserInterface $currentUser,
         LoggerInterface $logger,
         JsonSchemaValidator $jsonValidator,
+        PlaceService $placeService,
         ProcedureService $procedureService,
         RpcErrorGenerator $errorGenerator,
         SegmentHandler $segmentHandler,
@@ -141,6 +102,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         $this->logger = $logger;
         $this->jsonValidator = $jsonValidator;
         $this->errorGenerator = $errorGenerator;
+        $this->placeService = $placeService;
         $this->procedureService = $procedureService;
         $this->segmentHandler = $segmentHandler;
         $this->segmentValidator = $segmentValidator;
@@ -175,7 +137,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             $entityType = $entityManager->getClassMetadata(Segment::class)->getName();
 
-            $methodCallTime = new \DateTime();
+            $methodCallTime = new DateTime();
 
             foreach ($rpcRequests as $rpcRequest) {
                 try {
@@ -187,13 +149,14 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
                     $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
-                    // update entities with new tags and assignee
+                    // update entities with new tags, workflowPlace and assignee
                     $addTagIds = $this->getValidTags($rpcRequest->params->addTagIds, $procedureId);
                     $removeTagIds = $this->getValidTags(
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
                     $assignee = $this->extractAssignee($rpcRequest);
+                    $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
                     foreach ($segments as $segment) {
                         /* @var Segment $segment */
@@ -202,6 +165,9 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         if (null !== $assignee) {
                             $segment->setAssignee($assignee);
                         }
+                        if (null !== $workflowPlace) {
+                            $segment->setPlace($workflowPlace);
+                        }
                     }
                     $resultSegments = array_merge($resultSegments, $segments);
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
@@ -209,7 +175,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }
@@ -225,7 +191,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws TransactionRequiredException
      * @throws UserNotAssignableException
      * @throws UserNotFoundException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function validateRpcRequest(object $rpcRequest): void
     {
@@ -236,7 +202,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     public function generateMethodResult(object $rpcRequest): object
     {
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->jsonrpc = '2.0';
         $result->result = 'ok';
         $result->id = $rpcRequest->id;
@@ -302,7 +268,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function validateRpcRequestJson(object $rpcRequest): void
     {
@@ -330,7 +296,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws OptimisticLockException
      * @throws UserNotAssignableException
      * @throws TransactionRequiredException
-     * @throws \Exception
+     * @throws Exception
      */
     private function validateAssignee(object $rpcRequest): void
     {
@@ -342,7 +308,23 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
+     */
+    private function extractWorkflowPlace(object $rpcRequest): ?Place
+    {
+        $workflowPlaceId = $this->extractWorkflowPlaceId($rpcRequest);
+        $workflowPlaceId = trim($workflowPlaceId);
+
+        return '' !== $workflowPlaceId ? $this->placeService->findWithCertainty($workflowPlaceId) : null;
+    }
+
+    private function extractWorkflowPlaceId(object $rpcRequest): string
+    {
+        return data_get($rpcRequest, 'params.placeId', '');
+    }
+
+    /**
+     * @throws Exception
      */
     private function extractAssignee(object $rpcRequest): ?User
     {
@@ -362,7 +344,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $assigneeId = trim($assigneeId);
 
-        return isset($assigneeId) && '' !== $assigneeId;
+        return '' !== $assigneeId;
     }
 
     /**
@@ -373,7 +355,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * @throws ORMException
      * @throws UserNotFoundException
      */
-    private function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, \DateTime $updateTime): void
+    private function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
     {
         if (null === $recommendationTextEdit) {
             return;

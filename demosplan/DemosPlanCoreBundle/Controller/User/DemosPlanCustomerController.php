@@ -40,7 +40,6 @@ class DemosPlanCustomerController extends BaseController
      *        name="dplan_user_customer_showSettingsPage",
      *        options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -91,7 +90,6 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"POST"},
      *        name="DemosPlan_user_setting_page_post",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -135,7 +133,6 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"GET", "POST"},
      *        name="dplan_customer_mail_send_all_users"
      * )
-     *
      * @DplanPermissions("area_customer_send_mail_to_users")
      *
      * @throws MessageBagException
@@ -162,7 +159,7 @@ class DemosPlanCustomerController extends BaseController
                 );
             }
 
-            //POST request:
+            // POST request:
             $vars['mailsubject'] = $request->request->get('r_email_subject');
             $vars['mailbody'] = $HTMLSanitizer->purify($request->request->get('r_email_body'));
             $mailService->sendMails(

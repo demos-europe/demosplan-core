@@ -12,15 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation;
 
+use const ARRAY_FILTER_USE_KEY;
+
 use function array_key_exists;
 use function array_pop;
+use function array_reduce;
+
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\SpecObjectInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EDT\JsonApi\Schema\ContentField;
-use function array_reduce;
-use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Generate a JS File with resource definitions for demosplans' {json:api}.

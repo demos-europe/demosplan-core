@@ -10,9 +10,10 @@
 
 namespace Tests\Core\StatementFragment;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Normalizer;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -211,7 +212,7 @@ class StatementFragmentUpdateTest extends FunctionalTestCase
 
     public function testNoAttributes()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $normalizer = new Normalizer();
         $topLevel = $normalizer->normalize(

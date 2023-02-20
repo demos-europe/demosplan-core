@@ -54,7 +54,7 @@ class StatementImportTest extends FunctionalTestCase
         static::assertFalse($this->sut->hasErrors());
         static::assertCount(4, $this->sut->getCreatedStatements());
         $generatedStatementsAfter = $this->getEntries(Statement::class);
-        //expect 8 new statement entries, because of the created original statements
+        // expect 8 new statement entries, because of the created original statements
         static::assertCount($countBefore + (4 * 2), $generatedStatementsAfter);
     }
 

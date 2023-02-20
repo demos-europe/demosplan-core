@@ -17,18 +17,16 @@
         highlighted: 'assessment_table_original'
     } %}
 
-
-
-
         {# original statements #}
         <original-statements-table
             :export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
             init-filter-hash="{{ templateVars.filterHash }}"
-            :pagination="{
-                current_page: {{ templateVars.pager.currentPage }},
-                per_page: {{ templateVars.pager.maxPerPage }},
-                count: {{ templateVars.totalResults }},
-                limits: [{{ templateVars.pager.limits|join(',') }}]
+            :init-pagination="{
+                count: parseInt('{{ templateVars.pager.maxPerPage|default(25) }}'),
+                current_page: parseInt('{{ templateVars.pager.currentPage|default(1) }}'),
+                total_pages: parseInt('{{ templateVars.pager.NbPages|default(1) }}'),
+                limits: JSON.parse('{{ templateVars.pager.limits|default([])|json_encode }}'),
+                total: parseInt('{{ templateVars.totalResults|default(0) }}')
             }"
             procedure-id="{{ templateVars.table.procedure.ident }}"
         >

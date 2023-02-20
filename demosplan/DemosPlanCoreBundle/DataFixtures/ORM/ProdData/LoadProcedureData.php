@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -18,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -36,11 +38,13 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
     protected $procedureHandler;
 
     public function __construct(
+        EntityManagerInterface $entityManager,
         GlobalConfigInterface $globalConfig,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
         TranslatorInterface $translator
     ) {
+        parent::__construct($entityManager);
         $this->translator = $translator;
         $this->globalConfig = $globalConfig;
         $this->permissions = $permissions;
@@ -49,6 +53,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager)
     {
+        $masterProcedurePhase = 'configuration';
         $anonymousUser = new AnonymousUser();
         $this->permissions->initPermissions($anonymousUser);
 
@@ -56,11 +61,12 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $procedureMaster->setName('Master');
         $procedureMaster->setOrga($this->getReference('orga_demos'));
         $procedureMaster->setOrgaName('DEMOS E-Partizipation GmbH');
-        $procedureMaster->setPhase($this->getContainer()->getParameter('master_procedure_phase'));
-        $procedureMaster->setPublicParticipationPhase($this->getContainer()->getParameter('master_procedure_phase'));
+        $procedureMaster->setPhase($masterProcedurePhase);
+        $procedureMaster->setPublicParticipationPhase($masterProcedurePhase);
         $procedureMaster->setMaster(true);
         $procedureMaster->setMasterTemplate(true);
         $procedureMaster->setAgencyMainEmailAddress('ihre@emailadresse.de');
+        $procedureMaster->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureMaster));
         $slug = new Slug('master');
         $procedureMaster->addSlug($slug);
         $procedureMaster->setCurrentSlug($slug);
@@ -73,7 +79,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($procedureMaster);
         $manager->flush();
 
-        //create GisLayerCategory for MasterBlueprint
+        // create GisLayerCategory for MasterBlueprint
         $gisLayerCategoryMaster = new GisLayerCategory();
         $gisLayerCategoryMaster->setName('rootGisLayer');
         $gisLayerCategoryMaster->setProcedure($procedureMaster);

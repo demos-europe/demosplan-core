@@ -12,9 +12,9 @@
  */
 
 import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
-import { DpAccordion } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { DpAccordion } from '@demos-europe/demosplan-ui'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 
 const components = {

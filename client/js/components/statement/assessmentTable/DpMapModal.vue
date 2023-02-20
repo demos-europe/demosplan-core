@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import { DpModal } from '@demos-europe/demosplan-ui/components/core'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui/mixins'
+import { DpModal } from '@demos-europe/demosplan-ui'
+import { prefixClassMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpMapModal',
@@ -88,6 +88,12 @@ export default {
       this.drawingData = drawingData
       this.$refs.mapModal.toggle()
     }
+  },
+
+  mounted() {
+    this.$root.$on('toggleMapModal', (drawingData) => {
+      this.toggleModal(drawingData)
+    })
   }
 }
 </script>

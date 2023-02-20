@@ -15,7 +15,7 @@
       :tree-data="transformedCategories"
       :branch-identifier="branchFunc()"
       :options="options"
-      @tree-data-change="updateCategorySort">
+      @tree:change="updateCategorySort">
       <template v-slot:header="">
         <div class="layout--flush">
           <div class="layout__item u-4-of-12">
@@ -47,11 +47,10 @@
 </template>
 
 <script>
+import { DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpFaqCategoryItem from './DpFaqCategoryItem'
 import DpFaqItem from './DpFaqItem'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpTreeList } from '@demos-europe/demosplan-ui/components/core'
 
 export default {
   name: 'DpFaqList',

@@ -29,8 +29,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class SubmitterValueObject extends ValueObject
 {
-    const LIST_CITIZEN = 'citizen';
-    const LIST_INSTITUTION = 'institution';
+    public const LIST_CITIZEN = 'citizen';
+    public const LIST_INSTITUTION = 'institution';
 
     /** @var string */
     protected $entityId;

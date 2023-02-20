@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
@@ -19,21 +21,18 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\PathException;
 use Exception;
-use function is_object;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
@@ -150,7 +149,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
             throw new AccessDeniedException('Procedure authorization required');
         }
 
-        $rpcRequests = is_object($rpcRequests)
+        $rpcRequests = \is_object($rpcRequests)
             ? [$rpcRequests]
             : $rpcRequests;
 
@@ -214,7 +213,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         }
 
         if (!isset($rpcRequest->params->filter)
-            || !is_object($rpcRequest->params->filter)
+            || !\is_object($rpcRequest->params->filter)
         ) {
             throw new InvalidArgumentException('filter required');
         }
@@ -300,7 +299,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         $conditions = $this->filterParser->parseFilter($filter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $sourceProcedure->getId(),
-            ...$this->statementResourceType->procedure->id
+            $this->statementResourceType->procedure->id
         );
 
         if (null === $searchParams) {

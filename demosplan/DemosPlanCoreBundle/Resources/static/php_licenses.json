@@ -5,6 +5,11 @@
         "website": "https://github.com/BabDev/PagerfantaBundle"
     },
     {
+        "license": "MIT",
+        "package": "bamarni/composer-bin-plugin",
+        "website": "https://github.com/bamarni/composer-bin-plugin"
+    },
+    {
         "license": "BSD-3-Clause",
         "package": "beberlei/doctrineextensions",
         "website": "https://github.com/beberlei/DoctrineExtensions"
@@ -26,6 +31,11 @@
     },
     {
         "license": "MIT",
+        "package": "demos-europe/demosplan-addon",
+        "website": "https://github.com/demos-europe/demosplan-addon"
+    },
+    {
+        "license": "MIT",
         "package": "demos-europe/edt-dql",
         "website": "https://github.com/demos-europe/edt-dql"
     },
@@ -33,11 +43,6 @@
         "license": "MIT",
         "package": "demos-europe/edt-extra",
         "website": "https://github.com/demos-europe/edt-extra"
-    },
-    {
-        "license": "MIT",
-        "package": "demos-europe/edt-jsonapi",
-        "website": "https://github.com/demos-europe/edt-jsonapi"
     },
     {
         "license": "MIT",
@@ -205,14 +210,9 @@
         "website": "https://github.com/KnpLabs/KnpMenuBundle"
     },
     {
-        "license": "BSD-3-Clause",
-        "package": "lcobucci/jwt",
-        "website": "https://github.com/lcobucci/jwt"
-    },
-    {
         "license": "MIT",
-        "package": "league/flysystem-bundle",
-        "website": "https://github.com/thephpleague/flysystem-bundle"
+        "package": "knpuniversity/oauth2-client-bundle",
+        "website": "https://github.com/knpuniversity/oauth2-client-bundle"
     },
     {
         "license": "MIT",
@@ -358,6 +358,11 @@
         "license": "BSD-3-Clause",
         "package": "squizlabs/php_codesniffer",
         "website": "https://github.com/squizlabs/PHP_CodeSniffer"
+    },
+    {
+        "license": "MIT",
+        "package": "stevenmaguire/oauth2-keycloak",
+        "website": "https://github.com/stevenmaguire/oauth2-keycloak"
     },
     {
         "license": "MIT",

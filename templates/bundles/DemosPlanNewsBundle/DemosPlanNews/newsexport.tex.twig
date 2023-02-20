@@ -1,8 +1,0 @@
-{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
-{% block demosplanbundlecontent %}
-% Überschrift
-\section*{{ '{' }}{{ "news.notes"|trans|latex|raw }}{{ '}' }}
-{% for news in templateVars.list.newslist %}
-        {% include '@DemosPlanNews/DemosPlanNews/newsexport_entry.tex.twig' %}
-{% endfor %}
-{% endblock %}

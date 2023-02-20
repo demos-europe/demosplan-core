@@ -232,17 +232,14 @@
 </template>
 
 <script>
+import { CleanHtml, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
+import { handleResponseMessages, Stickier } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
-import { changeUrlforPager } from '@demos-europe/demosplan-utils'
-import { CleanHtml } from '@demos-europe/demosplan-ui/directives'
+import changeUrlforPager from './utils/changeUrlforPager'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
-import { DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpPager } from '@demos-europe/demosplan-ui/components/core'
-import { handleResponseMessages } from '@demos-europe/demosplan-utils'
 import { scrollTo } from 'vue-scrollto'
-import { Stickier } from '@demos-europe/demosplan-utils'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )
@@ -264,7 +261,7 @@ export default {
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
     DpSlidebar: async () => {
-      const { DpSlidebar } = await import('@demos-europe/demosplan-ui/components/core')
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
     },
     DpAssessmentTableCard,
@@ -713,24 +710,6 @@ export default {
       }
     },
 
-    updateSelectedElementEditableStatus (data) {
-      const checkboxId = data.id + ':item_check[]'
-      if (document.getElementById(checkboxId)) {
-        if (document.getElementById(checkboxId).checked) {
-          data.checked = true
-          this.updateSelectedElementsList(data)
-        }
-      }
-    },
-
-    updateSelectedElementsList (data) {
-      if (data.checked) {
-        this.addToSelectionAction(data)
-      } else {
-        this.removeFromSelectionAction(data.id)
-      }
-    },
-
     waitForElement (selector) {
       return new Promise(resolve => {
         const element = document.querySelector(selector)
@@ -786,6 +765,7 @@ export default {
             if (hasPermission('area_statements_fragment')) {
               this.setProcedureIdForFragment(this.procedureId)
             }
+
             this.triggerApiCallForStatements()
           })
           .then(() => {

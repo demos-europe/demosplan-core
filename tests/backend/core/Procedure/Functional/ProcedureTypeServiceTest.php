@@ -75,7 +75,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
 
         $expectedValuesOfIsParticipationGuestOnly = [
             // true only for Project (= ProcedureType) BRK or Procedures with ProcedureType BRK
-            LoadProcedureBehaviorDefinitionData::PROCEDURETYPE_BRK => true,
+            LoadProcedureBehaviorDefinitionData::PROCEDURETYPE_BRK       => true,
 
             // false for all other cases
             LoadProcedureBehaviorDefinitionData::PROCEDURE_TESTPROCEDURE => false,
@@ -275,8 +275,8 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
             $amountOfStatementFieldDefinitionAfter
         );
 
-        //StatementFormDefinition as well as ProcedureUiDefinition and ProcedureBehaviorDefinition
-        //should be unable to set directly to the Procedure, because of special copy logic and uniqueness
+        // StatementFormDefinition as well as ProcedureUiDefinition and ProcedureBehaviorDefinition
+        // should be unable to set directly to the Procedure, because of special copy logic and uniqueness
     }
 
     public function testGetProcedureTypes(): void
@@ -313,7 +313,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
         $statementFieldDefinitions = collect($statementFieldDefinitions)->sort()->toArray();
         $count = count($statementFieldDefinitions);
 
-        //compare fieldDefinitions by comparing ids sequentially
+        // compare fieldDefinitions by comparing ids sequentially
         for ($i = 0; $i < $count; ++$i) {
             static::assertEquals(
                 $referenceStatementFieldDefinitions[$i]->getId(),
@@ -510,7 +510,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
         static::assertEquals($amountOfStatementFieldDefinitionBefore + $amountOfFieldsPerForm, $amountOfStatementFieldDefinitionAfter);
         static::assertEquals($amountOfProceduresBefore, $amountOfProceduresAfter);
 
-        //test both sites of bidirectional relationship:
+        // test both sites of bidirectional relationship:
         static::assertEquals(
             $testProcedure2->getId(),
             $testProcedure2->getProcedureUiDefinition()->getProcedure()->getId()

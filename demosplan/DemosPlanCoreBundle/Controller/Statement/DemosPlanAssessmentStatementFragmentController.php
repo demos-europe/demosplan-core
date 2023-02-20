@@ -10,9 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
-use function collect;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -27,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
@@ -39,11 +36,6 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
-use function http_build_query;
-use function is_array;
-use function str_replace;
-use function strlen;
-use function strpos;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,6 +43,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_merge;
+use function collect;
+use function http_build_query;
+use function is_array;
+use function str_replace;
+use function strlen;
+use function strpos;
 
 /**
  * Class DemosPlanAssessmentStatementFragmentController
@@ -133,12 +134,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             if (isset($resElements['documents'])) {
                 $templateVars['documents'] = $resElements['documents'];
+            } else {
+                // assure that at least one planningCategory Group is present if no documents are available
+                $templateVars['documents'][$statement->getElementId()] = [];
             }
             if (isset($resElements['elements'])) {
                 $templateVars['elements'] = $resElements['elements'];
             }
             if (isset($resElements['paragraph'])) {
                 $templateVars['paragraph'] = $resElements['paragraph'];
+            } else {
+                // assure that at least one planningCategory Group is present if no paragraph are available
+                $templateVars['paragraph'][$statement->getElementId()] = [];
             }
 
             $templateVars['availableTags'] = $statementHandler->getTopicsAndTagsOfProcedureAsArray($procedureId);
@@ -195,7 +202,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
         $departmentId = $currentUser->getUser()->getDepartmentId();
 
-        //liefert fuer jedes fragment des departments die letzte version:
+        // liefert fuer jedes fragment des departments die letzte version:
         $result = $statementHandler->getStatementFragmentsDepartmentArchive($departmentId);
 
         $templateVars['list'] = $result;
@@ -366,7 +373,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/_ajax/procedure/{procedure}/fragment/{fragmentId}/edit",
      *     options={"expose": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_statement_fragment_edit_reviewer_ajax",
      *     path="/_ajax/fragment/{fragmentId}/reviewer/edit",
@@ -657,7 +663,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *     path="/datensatz/update/reviewer",
      *     defaults={"isReviewer": true}
      * )
-     *
      * @Route(
      *     name="DemosPlan_statement_fragment_update_redirect",
      *     path="/datensatz/update",
@@ -682,7 +687,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $anchor = '';
         $user = $currentUser->getUser();
 
-        //only if a vote_Advice is given: save departmentName and OrgaName of current user
+        // only if a vote_Advice is given: save departmentName and OrgaName of current user
         foreach ($data as $ident => $voteData) {
             $voteData['r_departmentName'] = $user->getDepartmentNameLegal();
             $voteData['r_orgaName'] = $user->getOrganisationNameLegal();

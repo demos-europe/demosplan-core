@@ -14,6 +14,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
+use InvalidArgumentException;
 use RuntimeException;
 
 class ProcedureProposalRepository extends CoreRepository
@@ -41,7 +43,7 @@ class ProcedureProposalRepository extends CoreRepository
     {
         try {
             if (null === $procedureProposal->getName()) {
-                throw new \InvalidArgumentException('Trying to add a ProcedureProposal without name');
+                throw new InvalidArgumentException('Trying to add a ProcedureProposal without name');
             }
 
             $em = $this->getEntityManager();
@@ -50,7 +52,7 @@ class ProcedureProposalRepository extends CoreRepository
             ));
             $em->persist($procedureProposal);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Add ProcedureProposal failed: ', [$e]);
             throw new RuntimeException('Could not add ProcedureProposal.');
         }
@@ -68,7 +70,7 @@ class ProcedureProposalRepository extends CoreRepository
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete ProcedureProposal failed: ', [$e]);
         }
 
@@ -126,7 +128,7 @@ class ProcedureProposalRepository extends CoreRepository
             ));
             $em->persist($procedureProposal);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Update ProcedureProposal failed: ', [$e]);
 
             return false;

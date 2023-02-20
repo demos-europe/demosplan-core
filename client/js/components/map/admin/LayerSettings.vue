@@ -122,11 +122,9 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from '@demos-europe/demosplan-ui/components'
+import { debounce, dpRpc } from '@demos-europe/demosplan-utils'
+import { DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
-import { debounce } from '@demos-europe/demosplan-utils'
-import { DpCheckbox, DpMultiselect, DpSelect } from '@demos-europe/demosplan-ui/components/core'
-import { dpRpc } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'LayerSettings',

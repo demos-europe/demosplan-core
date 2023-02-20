@@ -35,7 +35,6 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  *     }
  * )
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\OrgaRepository")
- *
  * @ORM\AssociationOverrides({
  *      @ORM\AssociationOverride(name="slugs",
  *          joinTable=@ORM\JoinTable(
@@ -92,7 +91,6 @@ class Orga extends SluggedEntity
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_o_created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
@@ -101,7 +99,6 @@ class Orga extends SluggedEntity
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_o_modified_date", type="datetime", nullable=false)
      */
     protected $modifiedDate;
@@ -110,7 +107,6 @@ class Orga extends SluggedEntity
      * @var string|null
      *
      * @ORM\Column(name="_o_cc_email2", type="string", length=4096, nullable=true)
-     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $ccEmail2;
@@ -121,7 +117,6 @@ class Orga extends SluggedEntity
      * @var string|null
      *
      * @ORM\Column(name="_o_email_reviewer_admin", type="string", length=4096, nullable=true)
-     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $emailReviewerAdmin;
@@ -143,6 +138,7 @@ class Orga extends SluggedEntity
     /**
      * @var bool
      *           Is this orga listed in public toeb list
+     *
      * @ORM\Column(name="_o_showlist", type="boolean", nullable=false, options={"default":false})
      */
     protected $showlist = true;
@@ -169,7 +165,6 @@ class Orga extends SluggedEntity
      * @var string|null
      *
      * @ORM\Column(name="_o_email2", type="string", length=364, nullable=true)
-     *
      * @Assert\Email(message="email.address.invalid")
      */
     protected $email2;
@@ -186,6 +181,7 @@ class Orga extends SluggedEntity
     /**
      * @var int|null This is currently nullable, but we're phasing that out. Eventually, it should
      *               not be nullable. This is why the setter requires an non-nullable int.
+     *
      * @ORM\Column(name="_o_paper_copy", type="integer", length=2, nullable=true, options={"unsigned":true})
      */
     protected $paperCopy;
@@ -206,7 +202,6 @@ class Orga extends SluggedEntity
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
      * )
-     *
      * @Assert\All({
      *     @Assert\Type(type="demosplan\DemosPlanCoreBundle\Entity\User\Address")
      * })
@@ -283,7 +278,6 @@ class Orga extends SluggedEntity
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="orga",
      *                 cascade={"persist"})
-     *
      * @ORM\JoinTable(
      *     name="_orga_users_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
@@ -300,7 +294,6 @@ class Orga extends SluggedEntity
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", inversedBy="orgas",
      *                 cascade={"persist", "all"})
-     *
      * @ORM\JoinTable(
      *     name="_orga_departments_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
@@ -333,6 +326,7 @@ class Orga extends SluggedEntity
     /**
      * @var Collection<int, AddressBookEntry>
      *                                        One organisation has many address book entries. This is the inverse side.
+     *
      * @ORM\OneToMany(targetEntity="AddressBookEntry", mappedBy="organisation")
      */
     protected $addressBookEntries;
@@ -346,6 +340,7 @@ class Orga extends SluggedEntity
 
     /**
      * @var MasterToeb|null
+     *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb", mappedBy="orga")
      */
     protected $masterToeb;
@@ -1150,7 +1145,7 @@ class Orga extends SluggedEntity
             $users = $users->merge($department->getUsers());
         }
 
-        //in case of some users are not attached to a department of this organisation
+        // in case of some users are not attached to a department of this organisation
         $users = $users->merge($this->getUsers());
 
         return $users->unique();
@@ -1471,6 +1466,7 @@ class Orga extends SluggedEntity
     {
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
+            $tag->getTaggedInstitutions()->removeElement($this);
         }
     }
 

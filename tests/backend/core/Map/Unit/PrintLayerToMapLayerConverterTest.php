@@ -18,10 +18,12 @@ use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
+
+use function imagecolorallocate;
+
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
-use function imagecolorallocate;
 
 class PrintLayerToMapLayerConverterTest extends UnitTestCase
 {
@@ -47,7 +49,7 @@ class PrintLayerToMapLayerConverterTest extends UnitTestCase
             1,
             'printLayerName',
             'printLayerTitle',
-            DemosPlanPath::getTemporaryPath() . '/test-maps/',
+            DemosPlanPath::getTemporaryPath().'/test-maps/',
         );
 
         $mapLayer = $this->sut->convert($printLayer);
@@ -59,7 +61,6 @@ class PrintLayerToMapLayerConverterTest extends UnitTestCase
         $this->assertEquals($printLayer->getTop(), $mapLayer->getTop());
     }
 
-
     /**
      * @return Collection<int, PrintLayerTile>
      */
@@ -69,28 +70,27 @@ class PrintLayerToMapLayerConverterTest extends UnitTestCase
         imagecolorallocate($gdImage, 0, 0, 0);
 
         $printLayerTiles1 = new PrintLayerTile(
-            "layerTile1",
-            DemosPlanPath::getTemporaryPath() . '/test-maps/',
+            'layerTile1',
+            DemosPlanPath::getTemporaryPath().'/test-maps/',
             new PrintLayerTilePosition(1, 1, 1),
             new CoordinatesViewport(123.456, 789.012, 345.678, 901.234),
             256,
-            "url-1-1",
+            'url-1-1',
             $this->imageManager->make($gdImage)
         );
 
         $printLayerTiles2 = new PrintLayerTile(
-            "layerTile2",
-            DemosPlanPath::getTemporaryPath() . '/test-maps/',
+            'layerTile2',
+            DemosPlanPath::getTemporaryPath().'/test-maps/',
             new PrintLayerTilePosition(1, 2, 1),
             new CoordinatesViewport(901.234, 567.890, 123.456, 789.012),
             256,
-            "url-1-2",
+            'url-1-2',
             $this->imageManager->make($gdImage)
         );
 
         return new Collection([
-            $printLayerTiles1, $printLayerTiles2
+            $printLayerTiles1, $printLayerTiles2,
         ]);
     }
-
 }

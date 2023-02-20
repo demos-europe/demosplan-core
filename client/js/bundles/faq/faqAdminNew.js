@@ -11,9 +11,9 @@
  * This is the entrypoint for faq_admin_new.html.twig
  */
 
-import { DpEditor } from '@demos-europe/demosplan-ui/components/core'
-import { dpValidate } from '@demos-europe/demosplan-utils/lib/validation'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { DpEditor } from '@demos-europe/demosplan-ui'
+import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpEditor

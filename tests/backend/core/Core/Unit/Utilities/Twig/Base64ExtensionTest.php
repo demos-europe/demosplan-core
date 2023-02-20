@@ -11,7 +11,10 @@
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Twig\Extension\Base64Extension;
+use Exception;
+use stdClass;
 use Tests\Base\UnitTestCase;
+use Twig_SimpleFilter;
 
 /**
  * Teste Base64Extension
@@ -35,11 +38,11 @@ class Base64ExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
             $callable = $result[0]->getCallable();
             static::assertTrue('base64Filter' === $callable[1]);
             static::assertTrue('base64' === $result[0]->getName());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(false);
 
             return;
@@ -73,7 +76,7 @@ class Base64ExtensionTest extends UnitTestCase
             $result = $this->twigExtension->base64Filter($textToTest);
             static::assertTrue('' === $result);
 
-            $textToTest = new \stdClass();
+            $textToTest = new stdClass();
             $result = $this->twigExtension->base64Filter($textToTest);
             static::assertTrue('' === $result);
 
@@ -93,7 +96,7 @@ newline";
             $expectedResult = base64_encode($textToTest);
             $result = $this->twigExtension->base64Filter($textToTest);
             static::assertTrue($result === $expectedResult);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             static::assertTrue(false);
 
             return;

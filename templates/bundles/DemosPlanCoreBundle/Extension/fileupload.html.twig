@@ -43,5 +43,5 @@
         :max-number-of-files="{{ maxfiles|default(1) }}"
         needs-hidden-input
         :required="{{ field_required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }"
-    ></dp-upload-files>
+        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }">
+    </dp-upload-files>

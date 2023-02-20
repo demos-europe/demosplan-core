@@ -11,12 +11,12 @@
  * This is the entrypoint for list_draft.html.twig
  */
 
+import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import { DpModal, DpUploadFiles } from '@demos-europe/demosplan-ui/components/core'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { prefixClass } from '@demos-europe/demosplan-ui/lib'
+import { initialize } from '@DpJs/InitVue'
+import { prefixClass } from '@demos-europe/demosplan-utils'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 

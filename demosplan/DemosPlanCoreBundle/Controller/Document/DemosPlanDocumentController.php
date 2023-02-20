@@ -13,6 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 use function array_key_exists;
 use function array_merge;
 use function compact;
+
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -24,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -36,7 +38,6 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
@@ -55,13 +56,17 @@ use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use DirectoryIterator;
 use Exception;
+
 use function explode;
 use function is_array;
+
 use Pagerfanta\Adapter\ArrayAdapter;
 use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
+
 use function set_time_limit;
+
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -120,7 +125,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_element",
      *     path="/verfahren/{procedure}/verwalten/element/{elementId}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -289,7 +293,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_edit",
      *     path="/verfahren/{procedure}/verwalten/paragraph/{documentID}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -364,7 +367,7 @@ class DemosPlanDocumentController extends BaseController
         // Falls das Bild alt Text hat, ersetze den HTML-Tag mit einem Editor-Tag
         $templateVars['document']['text'] = $editorService->replaceHtmlAltTextTagByAlternativeTextPlaceholder($templateVars['document']['text']);
 
-        //reichere die breadcrumb mit extraItem an (kategorie)
+        // reichere die breadcrumb mit extraItem an (kategorie)
 
         $breadcrumb->addItem(
             [
@@ -395,7 +398,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_plandocument_administration_paragraph_new",
      *     path="/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}",
      * )
-     *
      * @DplanPermissions("area_admin_paragraphed_document")
      *
      * @param string $procedure
@@ -414,7 +416,7 @@ class DemosPlanDocumentController extends BaseController
         $procedure,
         $elementId
     ) {
-        //get Element -> get Title
+        // get Element -> get Title
         $elementService = $this->elementsService;
         $element = $elementService->getElement($elementId);
 
@@ -457,7 +459,7 @@ class DemosPlanDocumentController extends BaseController
 
         $templateVars['relatedDocuments'] = $documentHandler->getParaDocumentAdminList($procedure, $elementId);
 
-        //reichere die breadcrumb mit extraItem an (kategorie)
+        // reichere die breadcrumb mit extraItem an (kategorie)
         // da hier keine breadcrumb-Items, auch noch die element.list.admin transation hinzufügen:
         $breadcrumb->addItem(
             ['title'  => $translator->trans('element.list.admin', [], 'page-title'),
@@ -484,7 +486,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_singledocument_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}"
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -530,7 +531,7 @@ class DemosPlanDocumentController extends BaseController
                 }
             }
         }
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -563,7 +564,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit",
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -621,7 +621,7 @@ class DemosPlanDocumentController extends BaseController
             }
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -679,7 +679,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @param string $procedure
@@ -763,7 +762,7 @@ class DemosPlanDocumentController extends BaseController
 
         $title = 'elements.dashboard';
 
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
         // @improve T14122
         $mapOptions = $mapService->getMapOptions($procedure);
@@ -791,7 +790,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_element_import",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/import"
      * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
      *
      * @param string $procedure
@@ -915,11 +913,13 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['statusHash'] = $statusHash;
         $templateVars['basePath'] = $request->getBasePath();
 
-        return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/elements_admin_import.html.twig',
+        return $this->renderTemplate(
+            '@DemosPlanDocument/DemosPlanDocument/elements_admin_import.html.twig',
             [
                 'entries'      => $fileDir,
                 'templateVars' => $templateVars,
-            ]);
+            ]
+        );
     }
 
     /**
@@ -1073,7 +1073,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("area_admin_single_document")
      *
      * @return Response
@@ -1153,7 +1152,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars = ['element' => $element];
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
-        //speicher die Ids der berechtigten Organisationen für Kategorien in einem array
+        // speicher die Ids der berechtigten Organisationen für Kategorien in einem array
         $authorisedOrgas = [];
         if (isset($templateVars['element']['organisation'])) {
             foreach ($templateVars['element']['organisation'] as $orga) {
@@ -1164,7 +1163,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['documents'] = [];
         $templateVars['documentEnable'] = false;
 
-        //wenn elementtyp == file:
+        // wenn elementtyp == file:
         if ('file' === $templateVars['element']['category']) {
             $templateVars['documentEnable'] = true;
             $templateVars['deleteEnable'] = true;
@@ -1173,7 +1172,7 @@ class DemosPlanDocumentController extends BaseController
             }
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -1181,7 +1180,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp('element.admin.category');
 
         $view = '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig';
@@ -1233,7 +1232,6 @@ class DemosPlanDocumentController extends BaseController
      *     name="DemosPlan_elements_administration_new",
      *     path="/verfahren/{procedure}/verwalten/planunterlagen/new"
      * )
-     *
      * @DplanPermissions({"area_admin_single_document","feature_admin_element_edit"})
      *
      * @param string $procedure
@@ -1256,7 +1254,8 @@ class DemosPlanDocumentController extends BaseController
             if (array_key_exists('r_title', $inData) && '' === trim($inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
-                return $this->renderTemplate('@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+                return $this->renderTemplate(
+                    '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
                     [
                         'procedure' => $procedure,
                         'title'     => $title,
@@ -1267,10 +1266,8 @@ class DemosPlanDocumentController extends BaseController
             $storageResult = $elementHandler->administrationElementNewHandler($procedure, $inData);
 
             // Wenn Storage erfolgreich: zurueck zur Liste
-            if (array_key_exists('ident', $storageResult) && !array_key_exists(
-                'mandatoryfieldwarning',
-                $storageResult
-              )
+            if (array_key_exists('ident', $storageResult) &&
+                !array_key_exists('mandatoryfieldwarning', $storageResult)
             ) {
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
 
@@ -1287,7 +1284,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['parent'] = $requestGet['parentElement'];
         }
 
-        //Reichere die breadcrumb mit extraItem an (Planungsdokumente)
+        // Reichere die breadcrumb mit extraItem an (Planungsdokumente)
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('element.list.admin', [], 'page-title'),
@@ -1297,12 +1294,12 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
         return $this->renderTemplate(
-          '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
-          [
+            '@DemosPlanDocument/DemosPlanDocument/elements_admin_edit.html.twig',
+            [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => $title,
-          ]
+            ]
         );
     }
 
@@ -1333,7 +1330,7 @@ class DemosPlanDocumentController extends BaseController
         );
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'elementlist' => $elements,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1377,6 +1374,7 @@ class DemosPlanDocumentController extends BaseController
         CurrentProcedureService $currentProcedureService,
         DocumentHandler $documentHandler,
         EditorService $editorService,
+        ElementsService $elementsService,
         Request $request,
         $procedure,
         $elementId,
@@ -1411,7 +1409,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $templateVars = [
-            'list' => [
+            'list'      => [
                 'documentlist' => $documentList,
             ],
             'procedure' => $currentProcedureService->getProcedureArray(),
@@ -1425,7 +1423,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['list']['documentlist']
         );
 
-        //get Element -> get Title
+        // get Element -> get Title
         $element = $elementService->getElement($elementId);
 
         $templateVars['element'] = $element;
@@ -1458,6 +1456,10 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['orgaBranding'] = $orgaBranding;
         }
 
+        // is the negative statement plannindocument category enabled?
+        $templateVars['planningDocumentsHasNegativeStatement'] =
+            $elementsService->hasNegativeReportElement($procedureId);
+
         $templateVars['procedure'] = $currentProcedureService->getProcedure();
 
         return $this->renderTemplate(
@@ -1481,7 +1483,7 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         $incomingFields = [
-            'documentnew' => [
+            'documentnew'                               => [
                 'r_action',
                 'r_title',
                 'r_text',
@@ -1489,11 +1491,11 @@ class DemosPlanDocumentController extends BaseController
                 'r_elementId',
                 'r_parentId',
             ],
-            'documentdelete' => [
+            'documentdelete'                            => [
                 'r_action',
                 'document_delete',
             ],
-            'documentedit' => [
+            'documentedit'                              => [
                 'action',
                 'r_ident',
                 'r_title',
@@ -1502,7 +1504,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_lockReason',
                 'r_parentId',
             ],
-            'elementedit' => [
+            'elementedit'                               => [
                 'r_action',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1512,7 +1514,7 @@ class DemosPlanDocumentController extends BaseController
                 'r_orga',
                 'r_permission',
             ],
-            'elementnew' => [
+            'elementnew'                                => [
                 'r_text',
                 'r_autoSwitchState',
                 'r_designatedSwitchDate',
@@ -1528,23 +1530,23 @@ class DemosPlanDocumentController extends BaseController
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentedit' => [
+            'singledocumentedit'                        => [
                 'r_action',
                 'r_title',
                 'r_text',
                 'r_statement_enabled',
                 'r_visible',
             ],
-            'singledocumentdelete' => [
+            'singledocumentdelete'                      => [
                 'r_action',
                 'document_delete',
                 'r_sorting',
             ],
-            'onoffswitch' => [
+            'onoffswitch'                               => [
                 'r_action',
                 'r_onoffswitch',
             ],
-            'updateParagraphPDF' => [
+            'updateParagraphPDF'                        => [
                 'r_action',
                 'r_planDelete',
             ],
@@ -1605,7 +1607,7 @@ class DemosPlanDocumentController extends BaseController
      */
     protected function replaceDocumentImagePlaceholdersImg(EditorService $editorService, $documentList)
     {
-        //Stelle importierte Bilder in den Kapiteln dar
+        // Stelle importierte Bilder in den Kapiteln dar
         $this->profilerStart('ImageReplacement');
         if (0 < count($documentList)) {
             // Ersetze das im Texte gespeicherte Pattern <!-- #Image-[filehash] -->
@@ -1653,8 +1655,8 @@ class DemosPlanDocumentController extends BaseController
                         $documentList[$docKey]['text']
                     );
 
-                    //second try to find by str_replace
-                    //should only find & replace in case of preg_replace() does not already found & replace
+                    // second try to find by str_replace
+                    // should only find & replace in case of preg_replace() does not already found & replace
                     $documentList[$docKey]['text'] = str_replace($matches[0][$matchKey], $currentImageHtml, $documentList[$docKey]['text']);
 
                     // setze die Größe
@@ -1665,7 +1667,7 @@ class DemosPlanDocumentController extends BaseController
                     );
 
                     if (isset($parts[3])) {
-                        //check if this part is really the alttext!?
+                        // check if this part is really the alttext!?
                         // setze den alternative Text
                         $documentList[$docKey]['text'] = preg_replace(
                             '|ALTTEXT|',
@@ -1743,7 +1745,9 @@ class DemosPlanDocumentController extends BaseController
                     'id'   => $singleDocument->getId(),
                     'path' => $elementsPath,
                 ];
-            }, $procedureSingleDocs);
+            },
+            $procedureSingleDocs
+        );
     }
 
     /**
@@ -1805,9 +1809,8 @@ class DemosPlanDocumentController extends BaseController
         // Validate that all files to be zipped belong to the procedure
         $singleDocumentService = $this->singleDocumentService;
         $filesToZipIds = array_map(
-            static function ($fileInfo) {
-                return $fileInfo['id'];
-            }, $filesInfo
+            static fn ($fileInfo) => $fileInfo['id'],
+            $filesInfo
         );
         $otherProcedureFileIds = $singleDocumentService->getSingleDocumentsNotInProcedure($filesToZipIds, $procedureId);
         if (!empty($otherProcedureFileIds)) {
@@ -1853,7 +1856,6 @@ class DemosPlanDocumentController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/zipfiles",
      *     options={"expose": true},
      * )
-     *
      * @DplanPermissions("feature_element_export")
      *
      * @return RedirectResponse|StreamedResponse

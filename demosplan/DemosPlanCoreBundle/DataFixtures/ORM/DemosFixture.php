@@ -14,25 +14,16 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\ORM\EntityManagerInterface;
 
-abstract class DemosFixture extends AbstractFixture implements ContainerAwareInterface
+abstract class DemosFixture extends AbstractFixture
 {
-    /**
-     * @var ContainerInterface|null
-     */
-    private $container;
+    private EntityManagerInterface $entityManager;
 
-    public function setContainer(ContainerInterface $container = null)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->container = $container;
-    }
-
-    public function getContainer()
-    {
-        return $this->container;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -48,13 +39,20 @@ abstract class DemosFixture extends AbstractFixture implements ContainerAwareInt
         string $whereField,
         string $whereValue
     ): void {
-        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $connection = $em->getConnection();
+        $connection = $this->entityManager->getConnection();
+
+        if (!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            $connection->executeStatement('SET foreign_key_checks = 0');
+        }
 
         $connection->executeStatement(
             "UPDATE {$entity} SET {$idField} = \"{$id}\" WHERE {$whereField} = \"{$whereValue}\" LIMIT 1"
         );
 
-        $em->flush();
+        if (!$connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            $connection->executeStatement('SET foreign_key_checks = 1');
+        }
+
+        $this->entityManager->flush();
     }
 }

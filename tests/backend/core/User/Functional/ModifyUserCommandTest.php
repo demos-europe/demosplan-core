@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Command\Data\ModifyUserCommand;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StringInput;
@@ -99,14 +99,14 @@ class ModifyUserCommandTest extends FunctionalTestCase
         $count = 0;
         $usersOfRoles = collect([]);
 
-        //get Users per Role
+        // get Users per Role
         foreach ($this->globalConfig->getRolesAllowed() as $roleString) {
             $usersOfRoles[$roleString] = $allUsers->filter(function (User $user) use ($roleString) {
                 return $user->hasRole($roleString);
             });
         }
 
-        //guest user have to be ignored:
+        // guest user have to be ignored:
         $usersOfRoles = $usersOfRoles->forget(Role::GUEST);
 
         $countOfUsersPerRole = $usersOfRoles->map(static function (Collection $users) {

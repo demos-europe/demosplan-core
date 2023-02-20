@@ -107,7 +107,7 @@ EOT
             throw new RuntimeException(sprintf('Directory "%s" was not created', $targetDir));
         }
 
-        foreach (glob($source.'/css/'.'*.css') as $filename) {
+        foreach (glob($source.'/css/*.css') as $filename) {
             $targetFile = basename($filename);
             echo 'Copy '.$filename.' to '.$targetDir.$targetFile."\n";
             copy($filename, $targetDir.$targetFile);

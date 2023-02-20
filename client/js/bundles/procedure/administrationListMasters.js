@@ -11,7 +11,7 @@
  * This is the entry point for administration_list_masters.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 initialize().then(() => {
   if (document.querySelector('[data-delete-master-procedure]')) {

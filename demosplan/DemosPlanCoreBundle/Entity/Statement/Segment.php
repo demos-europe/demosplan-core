@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SegmentRepository")
  */
-class Segment extends Statement
+class Segment extends Statement implements SegmentInterface
 {
     public const VALIDATION_GROUP_SEGMENT_MANDATORY = 'segment_mandatory';
     public const VALIDATION_GROUP_DEFAULT = 'segment_default';

@@ -13,6 +13,8 @@ import { dpApi } from '@demos-europe/demosplan-utils'
 const BoilerplatesStore = {
   namespaced: true,
 
+  name: 'boilerplates',
+
   state: {
     boilerplates: {},
     groups: [],

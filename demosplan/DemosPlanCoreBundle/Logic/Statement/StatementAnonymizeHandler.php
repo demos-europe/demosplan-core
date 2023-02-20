@@ -40,7 +40,7 @@ class StatementAnonymizeHandler extends CoreHandler
             self::ANONYMIZE_STATEMENT_META      => 'bool',
             self::DELETE_STATEMENT_TEXT_HISTORY => 'bool',
         ],
-        'data' => [
+        'data'    => [
             self::STATEMENT_ID => 'UUID',
         ],
     ];

@@ -11,12 +11,13 @@
  * This is the entrypoint for institution_tag_management.html.twig
  */
 import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { InstitutionTagManagement }
 
 const apiStores = [
-  'institutionTag'
+  'institutionTag',
+  'invitableInstitution'
 ]
 
 initialize(components, {}, apiStores)

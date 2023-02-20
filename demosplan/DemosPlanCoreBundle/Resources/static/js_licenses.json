@@ -70,13 +70,18 @@
         "website": "https://purgecss.com/"
     },
     {
+        "package": "@masterportal/masterportalapi",
+        "license": "MIT",
+        "website": "https://bitbucket.org/geowerkstatt-hamburg/masterportalapi#readme"
+    },
+    {
         "package": "@sentry/browser",
-        "license": "BSD-3-Clause",
+        "license": "MIT",
         "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/browser"
     },
     {
         "package": "@sentry/integrations",
-        "license": "BSD-3-Clause",
+        "license": "MIT",
         "website": "https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations"
     },
     {
@@ -96,11 +101,6 @@
     },
     {
         "package": "@uppy/progress-bar",
-        "license": "MIT",
-        "website": "https://uppy.io/"
-    },
-    {
-        "package": "@uppy/tus",
         "license": "MIT",
         "website": "https://uppy.io/"
     },
@@ -197,7 +197,7 @@
     {
         "package": "core-js",
         "license": "MIT",
-        "website": "Unknown"
+        "website": "http://zloirock.ru"
     },
     {
         "package": "cross-env",
@@ -445,12 +445,42 @@
         "website": "Unknown"
     },
     {
+        "package": "prosemirror-history",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-model",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
         "package": "prosemirror-schema-basic",
         "license": "MIT",
         "website": "Unknown"
     },
     {
         "package": "prosemirror-schema-list",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-state",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-tables",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "prosemirror-utils",
+        "license": "Apache-2.0",
+        "website": "https://github.com/eshvedai"
+    },
+    {
+        "package": "prosemirror-view",
         "license": "MIT",
         "website": "Unknown"
     },
@@ -495,6 +525,16 @@
         "website": "https://adobe-fonts.github.io/source-sans-pro"
     },
     {
+        "package": "stream",
+        "license": "MIT",
+        "website": "Unknown"
+    },
+    {
+        "package": "string_decoder",
+        "license": "MIT",
+        "website": "https://github.com/nodejs/string_decoder"
+    },
+    {
         "package": "striptags",
         "license": "MIT",
         "website": "https://github.com/ericnorris/striptags"
@@ -515,24 +555,19 @@
         "website": "Unknown"
     },
     {
+        "package": "terser-webpack-plugin",
+        "license": "MIT",
+        "website": "https://github.com/webpack-contrib/terser-webpack-plugin"
+    },
+    {
+        "package": "timers-browserify",
+        "license": "MIT",
+        "website": "https://github.com/jryans/timers-browserify"
+    },
+    {
         "package": "tippy.js",
         "license": "MIT",
         "website": "https://atomiks.github.io/tippyjs/"
-    },
-    {
-        "package": "tiptap",
-        "license": "MIT",
-        "website": "https://tiptap.dev/"
-    },
-    {
-        "package": "tiptap-commands",
-        "license": "MIT",
-        "website": "https://tiptap.dev/"
-    },
-    {
-        "package": "tiptap-extensions",
-        "license": "MIT",
-        "website": "https://tiptap.dev/"
     },
     {
         "package": "tooltip.js",
@@ -542,7 +577,7 @@
     {
         "package": "util",
         "license": "MIT",
-        "website": "https://github.com/browserify/node-util"
+        "website": "https://github.com/defunctzombie/node-util"
     },
     {
         "package": "uuid",
@@ -555,11 +590,6 @@
         "website": "https://github.com/vuejs/vue#readme"
     },
     {
-        "package": "vue-click-outside",
-        "license": "MIT",
-        "website": "Unknown"
-    },
-    {
         "package": "vue-loader",
         "license": "MIT",
         "website": "https://github.com/vuejs/vue-loader"
@@ -568,11 +598,6 @@
         "package": "vue-multiselect",
         "license": "MIT",
         "website": "https://shentao.github.io/vue-multiselect/"
-    },
-    {
-        "package": "vue-omnibox",
-        "license": "MIT",
-        "website": "Unknown"
     },
     {
         "package": "vue-scrollto",

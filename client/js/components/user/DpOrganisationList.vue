@@ -107,7 +107,10 @@
         </div>
       </div>
     </div>
-
+    <div
+      v-if="noResults"
+      class="u-mt-0_75"
+      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
     <!-- list -->
     <template v-if="isLoading && isInitialLoad">
       <dp-loading class="u-ml u-mt" />
@@ -151,12 +154,18 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui/components'
-import { DpCheckboxGroup, DpSearchField, DpSkeletonBox, DpSlidingPagination } from '@demos-europe/demosplan-ui/components/core'
+import {
+  CleanHtml,
+  DpButton,
+  DpCheckboxGroup,
+  DpLoading,
+  DpSearchField,
+  DpSkeletonBox,
+  DpSlidingPagination
+} from '@demos-europe/demosplan-ui'
+import { dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
-import { dpSelectAllMixin } from '@demos-europe/demosplan-utils/mixins'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpOrganisationList',
@@ -169,6 +178,10 @@ export default {
     DpSearchField,
     DpSkeletonBox,
     DpSlidingPagination
+  },
+
+  directives: {
+    cleanhtml: CleanHtml
   },
 
   mixins: [dpSelectAllMixin],
@@ -250,6 +263,7 @@ export default {
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
       isLoading: true,
+      noResults: false,
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
@@ -374,6 +388,7 @@ export default {
         .then(() => {
           this.pendingOrganisationsLoading = false
           this.isLoading = false
+          this.noResults = Object.keys(this.items).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
@@ -392,6 +407,7 @@ export default {
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
+          this.noResults = Object.keys(this.items).length === 0
         })
     },
 
@@ -425,6 +441,7 @@ export default {
 
     resetSearch () {
       this.searchTerm = ''
+      this.noResults = false
       this.getItemsByPage()
     }
   },

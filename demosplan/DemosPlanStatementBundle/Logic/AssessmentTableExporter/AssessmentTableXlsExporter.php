@@ -101,10 +101,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $procedureId = $parameters['procedureId'];
         $original = $parameters['original'];
         $outputResult = $this->assessmentHandler->prepareOutputResult(
-                $procedureId,
-                $original,
-                $parameters
-            );
+            $procedureId,
+            $original,
+            $parameters
+        );
 
         $statements = $outputResult->getStatements();
         $columnsDefinition = $this->selectFormat($parameters['exportType']);
@@ -121,7 +121,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 $this->translator->trans('considerationtable').'-%s.xlsx',
                 Carbon::now()->format('d-m-Y-H:i')
             ),
-            'writer' => $objWriter,
+            'writer'   => $objWriter,
         ];
     }
 
@@ -162,20 +162,20 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $title = $this->translator->trans('considerationtable');
         $excelDocument = $this->simpleSpreadsheetService->createExcelDocument($title);
 
-        //extract titles and keys
+        // extract titles and keys
         foreach ($columnDefinitions as $columnDefinition) {
             $columnTitles[] = $columnDefinition['title'];
             $attributesToExport[] = $columnDefinition['key'];
         }
 
-        //prepare Data for export:
+        // prepare Data for export:
         $formattedData = $this->prepareDataForExcelExport($statements, $anonymous, $attributesToExport);
 
-        //add Worksheet with prepared data
+        // add Worksheet with prepared data
         $filledExcelDocument =
             $this->simpleSpreadsheetService->addWorksheet($excelDocument, $formattedData, $columnTitles, $title);
 
-        //set specific column width:
+        // set specific column width:
         $worksheet = $filledExcelDocument->getWorksheetIterator()->current();
         $dimensions = $worksheet->getColumnDimensions();
 
@@ -223,7 +223,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with default column definitions.
      */
-    protected function createColumnsDefinitionDefault(): array {
+    protected function createColumnsDefinitionDefault(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'statement.id'),
             $this->createColumnDefinition('name', 'statement.name'),
@@ -234,7 +235,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with column definitions for topics and tags.
      */
-    private function createColumnsDefinitionForTopicsAndTags(): array {
+    private function createColumnsDefinitionForTopicsAndTags(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('name', 'name'),
@@ -247,7 +249,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates an array with column definitions for potential areas.
      */
-    private function createColumnsDefinitionForPotentialAreas(): array {
+    private function createColumnsDefinitionForPotentialAreas(): array
+    {
         return [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('name', 'name'),
@@ -258,47 +261,96 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
     /**
      * Creates an array with column definitions for statements.
+     * Order of calls affects the order in the resulting xlsx document.
      */
     protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
     {
         $columnsDefinition = [];
-        $columnsDefinition[] = $this->createColumnDefinition('externId', 'id');
+
+        $this->addColumnDefinition($columnsDefinition, 'externId', 'field_statement_extern_id', 'id');
+
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('text', 'text');
-        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation');
-        if ($isStatement) {
-            $columnsDefinition[] = $this->createColumnDefinition('countyNames', 'county');
-        }
+
+        $this->addColumnDefinition($columnsDefinition, 'text', 'field_statement_text', 'text');
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'recommendation',
+            'field_statement_recommendation',
+            'recommendation'
+        );
+        $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
+
         $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'tag');
         $columnsDefinition[] = $this->createColumnDefinition('topicNames', 'tag.category');
+
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
             $columnsDefinition[] = $this->createColumnDefinition('documentTitle', 'document');
             $columnsDefinition[] = $this->createColumnDefinition('paragraphTitle', 'paragraph.title');
         }
-        $columnsDefinition[] = $this->createColumnDefinition('status', 'status');
+
+        $this->addColumnDefinition($columnsDefinition, 'status', 'field_statement_status', 'status');
         if ($isStatement) {
-            $columnsDefinition[] = $this->createColumnDefinition('priority', 'priority');
-            $columnsDefinition[] = $this->createColumnDefinition('votePla', 'fragment.vote.short');
+            $this->addColumnDefinition($columnsDefinition, 'priority', 'field_statement_priority', 'priority');
+            $this->addColumnDefinition(
+                $columnsDefinition,
+                'votePla',
+                'field_statement_vote_pla',
+                'fragment.vote.short'
+            );
         }
-        $columnsDefinition[] = $this->createColumnDefinition('oName', 'organisation');
-        $columnsDefinition[] = $this->createColumnDefinition('dName', 'department');
+
+        $this->addColumnDefinition($columnsDefinition, 'oName', 'field_statement_meta_orga_name', 'organisation');
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'dName',
+            'field_statement_meta_orga_department_name',
+            'department'
+        );
+
         $columnsDefinition[] = $this->createColumnDefinition('meta.authorName', 'author');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.submitName', 'submitter');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaEmail', 'email');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaStreet', 'street');
-        if ($this->permissions->hasPermission('feature_statement_meta_house_number_export')){
-            $columnsDefinition[] = $this->createColumnDefinition('meta.houseNumber', 'street.number');
-        }
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaPostalCode', 'postalcode');
-        $columnsDefinition[] = $this->createColumnDefinition('meta.orgaCity', 'city');
-        $columnsDefinition[] = $this->createColumnDefinition('fileNames', 'file.names');
+
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'meta.submitName',
+            'field_statement_meta_submit_name',
+            'submitter'
+        );
+        $this->addColumnDefinition($columnsDefinition, 'meta.orgaEmail', 'field_statement_meta_email', 'email');
+        $this->addColumnDefinition($columnsDefinition, 'meta.orgaStreet', 'field_statement_meta_street', 'street');
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'meta.houseNumber',
+            'feature_statement_meta_house_number_export',
+            'street.number'
+        );
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'meta.orgaPostalCode',
+            'field_statement_meta_postal_code',
+            'postalcode'
+        );
+        $this->addColumnDefinition($columnsDefinition, 'meta.orgaCity', 'field_statement_meta_city', 'city');
+        $this->addColumnDefinition($columnsDefinition, 'fileNames', 'field_statement_file', 'file.names');
+
         $columnsDefinition[] = $this->createColumnDefinition('submitDateString', 'statement.date.submitted');
         $columnsDefinition[] = $this->createColumnDefinition('meta.authoredDate', 'statement.date.authored');
-        $columnsDefinition[] = $this->createColumnDefinition('internId', 'internId');
-        $columnsDefinition[] = $this->createColumnDefinition('memo', 'memo');
+
+        $this->addColumnDefinition($columnsDefinition, 'internId', 'field_statement_intern_id', 'internId');
+        $this->addColumnDefinition($columnsDefinition, 'memo', 'field_statement_memo', 'memo');
+        $this->addColumnDefinition($columnsDefinition, 'feedback', 'field_statement_feedback', 'feedback');
+        $this->addColumnDefinition($columnsDefinition, 'votesNum', 'feature_statements_vote', 'voters');
+        $this->addColumnDefinition($columnsDefinition, 'phase', 'field_statement_phase', 'procedure.public.phase');
+        $this->addColumnDefinition($columnsDefinition, 'submitType', 'field_statement_submit_type', 'submit.type');
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'sentAssessment',
+            'field_send_final_email',
+            'statement.final.sent',
+            30
+        );
 
         return $columnsDefinition;
     }
@@ -316,6 +368,27 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
+     * Adds a definition for a column depending on the given permission.
+     *
+     * @param array       $columnsDefinition array of resulting column-definitions
+     * @param string      $key               key to get value from statement array (elasticsearch result) later on
+     * @param string|null $permission        permission to determine if column will be added
+     * @param string|null $columnTitle       translation-key used as title for column in resulting document
+     * @param int         $width             width of column in resulting document
+     */
+    private function addColumnDefinition(
+        array &$columnsDefinition,
+        string $key,
+        string $permission,
+        string $columnTitle,
+        int $width = 20
+    ): void {
+        if ($this->permissions->hasPermission($permission)) {
+            $columnsDefinition[] = $this->createColumnDefinition($key, $columnTitle, $width);
+        }
+    }
+
+    /**
      * Bring given statements into valid format to create phpExcel.
      *
      * @internal param $exportType
@@ -323,12 +396,12 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport): array
-    {
-        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames',]);
+        array $keysOfAttributesToExport
+    ): array {
+        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
 
-        //has permission to READ obscure text? else obscure text
+        // has permission to READ obscure text? else obscure text
         $anonymous = $this->permissions->hasPermission('feature_obscure_text') ? $anonymous : true;
 
         // collect Statements in unified data format
@@ -336,7 +409,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $pushed = false;
             $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
 
-            //loop again through the attributes
+            // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
                 $isUsingDotNotation = str_contains($attributeKey, '.');
                 $isSortable = false;
@@ -345,26 +418,26 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     $isCausingNewLine = $attributeKeysWhichCauseNewLine->contains($attributeKey);
                     $isSortable = $isNotEmptyArray && $isCausingNewLine;
                 }
-                //make it sortable in exported excel table:
-                //is current attribute value an array and should it be sortable and therefore be split in many single rows
+                // make it sortable in exported excel table:
+                // is current attribute value an array and should it be sortable and therefore be split in many single rows
                 if ($isSortable) {
-                    //new table row foreach attributevalue:
+                    // new table row foreach attributevalue:
                     foreach ($statement[$attributeKey] as $singleAttributeValue) {
                         $formattedStatement[$attributeKey] = $singleAttributeValue;
 
-                        //get Related TopicName of current single Tag to show only related topic to current tag in current row
+                        // get Related TopicName of current single Tag to show only related topic to current tag in current row
                         if ('tagNames' === $attributeKey) {
-                            //set value as key
+                            // set value as key
                             foreach ($statement['tags'] as $tag) {
                                 $statement['tags'][$tag['title']] = $tag;
                                 if ($singleAttributeValue === $tag['title']) {
-                                    //set only the topic name related to the current tag:
+                                    // set only the topic name related to the current tag:
                                     $formattedStatement['topicNames'] = $tag['topicTitle'] ?? '';
                                 }
                             }
                         }
 
-                        //new formattedStatement to force new line in table
+                        // new formattedStatement to force new line in table
                         $formattedStatements->push($formattedStatement);
                         $pushed = true;
                     }
@@ -388,14 +461,13 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $htmlConverter = new HtmlConverter(['strip_tags' => true]);
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] =
-                $statementArray[$attributeKey] ?? null;
+            $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
 
             // allow dot notation in export definition
             $explodedParts = explode('.', $attributeKey);
             switch (count($explodedParts)) {
                 case 2:
-                    if ($explodedParts[1] === 'authoredDate') {
+                    if ('authoredDate' === $explodedParts[1]) {
                         $timestamp = $statementArray[$explodedParts[0]][$explodedParts[1]];
                         $statementArray[$explodedParts[0]][$explodedParts[1]] = date('d-m-Y', $timestamp);
                     }
@@ -408,7 +480,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     break;
             }
 
-            //simplify every attribute which is an array (to stirng)
+            // simplify every attribute which is an array (to stirng)
             if (is_array($formattedStatement[$attributeKey])) {
                 $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
             }
@@ -418,11 +490,21 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             }
 
             if ('status' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(FormOptionsResolver::STATEMENT_STATUS, $formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
+                    FormOptionsResolver::STATEMENT_STATUS,
+                    $formattedStatement[$attributeKey]
+                );
             }
 
             if ('votePla' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES, $formattedStatement[$attributeKey] ?? '');
+                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
+                    FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES,
+                    $formattedStatement[$attributeKey] ?? ''
+                );
+            }
+
+            if (true === $formattedStatement[$attributeKey]) {
+                $formattedStatement[$attributeKey] = 'x';
             }
         }
 
@@ -431,9 +513,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // in xlsx export, the information about moved Statement, have to be in the field of the externID
         if (isset($statementArray['movedToProcedureName'])) {
             $formattedStatement['externId'] .= ' '.$this->translator->trans(
-                    'statement.moved',
-                    ['name' => $statementArray['movedToProcedureName']]
-                );
+                'statement.moved',
+                ['name' => $statementArray['movedToProcedureName']]
+            );
         }
 
         return $formattedStatement;

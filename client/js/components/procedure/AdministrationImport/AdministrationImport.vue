@@ -29,12 +29,11 @@
 </template>
 
 <script>
+import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
-import { DpTab, DpTabs } from '@demos-europe/demosplan-ui/components/core'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
-import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 
 export default {
   name: 'AdministrationImport',
@@ -44,8 +43,7 @@ export default {
     DpTab,
     DpTabs,
     ExcelImport,
-    StatementFormImport,
-    StatementPdfImport
+    StatementFormImport
   },
 
   provide () {
@@ -97,7 +95,6 @@ export default {
 
   data () {
     return {
-      addons: [],
       activeTabId: '',
       asyncComponents: []
     }
@@ -132,7 +129,43 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
-    }
+    },
+
+    loadComponents (hookName) {
+      const params = {
+        hookName: hookName
+      }
+
+      dpRpc('addons.assets.load', params)
+        .then(response => checkResponse(response))
+        .then(response => {
+          const result = response[0].result
+
+          for (const key of Object.keys(result)) {
+            const addon = result[key]
+            const contentKey = addon.entry + '.umd.js'
+            const content = addon.content[contentKey]
+
+            /**
+             * The evaluation of the response content automatically binds the vue component
+             * to the window object. This way we can implement it in vue's internals to render
+             * the component.
+             */
+            eval(content)
+            this.$options.components[addon.entry] = window[addon.entry].default
+
+            this.asyncComponents.push({
+              name: addon.entry,
+              permissions: ['feature_statements_import_excel'],
+              title: addon.options.title
+            })
+          }
+      })
+    },
+  },
+
+  mounted () {
+    this.loadComponents('import.tabs')
   }
 }
 </script>

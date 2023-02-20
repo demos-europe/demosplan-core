@@ -12,15 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor;
 use EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\PropertyAccessorInterface;
 use EDT\Querying\Utilities\ConditionEvaluator;
-use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Utilities\CachingPropertyReader;
 use EDT\Wrapping\Utilities\PropertyReader;
-use EDT\Wrapping\Utilities\TypeAccessor;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
 
@@ -30,8 +28,6 @@ use EDT\Wrapping\WrapperFactories\WrapperObjectFactory;
  */
 class EntityWrapperFactory extends WrapperObjectFactory
 {
-    protected TypeAccessor $typeAccessor;
-
     protected PropertyAccessorInterface $propertyAccessor;
 
     protected PropertyReader $propertyReader;
@@ -39,30 +35,26 @@ class EntityWrapperFactory extends WrapperObjectFactory
     protected ConditionEvaluator $conditionEvaluator;
 
     public function __construct(
-        CacheableTypeAccessor $typeAccessor,
         CachingPropertyReader $propertyReader,
         ConditionEvaluator $conditionEvaluator,
         ProxyPropertyAccessor $propertyAccessor
     ) {
-        $this->typeAccessor = $typeAccessor;
         $this->propertyReader = $propertyReader;
         $this->conditionEvaluator = $conditionEvaluator;
         $this->propertyAccessor = $propertyAccessor;
         parent::__construct(
-            $this->typeAccessor,
             $this->propertyReader,
             $this->propertyAccessor,
             $this->conditionEvaluator
         );
     }
 
-    public function createWrapper(object $object, ReadableTypeInterface $type): WrapperObject
+    public function createWrapper(object $object, TransferableTypeInterface $type): WrapperObject
     {
         return new TwigableWrapperObject(
             $object,
             $this->propertyReader,
             $type,
-            $this->typeAccessor,
             $this->propertyAccessor,
             $this->conditionEvaluator,
             $this

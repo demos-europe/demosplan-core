@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
@@ -27,9 +28,6 @@ class ParagraphServiceTest extends FunctionalTestCase
      */
     protected $testParaDocument;
 
-    /**
-     * @var
-     */
     protected $testProcedureId;
 
     protected function setUp(): void
@@ -195,7 +193,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         static::assertTrue($this->isCurrentTimestamp($paraDocumentResult['modifydate']));
         static::assertEquals($referenceParaDocument->getPId(), $paraDocumentResult['pId']);
 
-        //with category = null we assert no result:
+        // with category = null we assert no result:
         $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure')->getId(), null, null, true);
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
@@ -323,7 +321,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $paragraphBefore = $this->sut->getParaDocument($this->testParaDocument->getId());
-        //create ParadocVersio$n entry:
+        // create ParadocVersio$n entry:
         $this->sut->getDoctrine()->getManager()
             ->getRepository(ParagraphVersion::class)
             ->createVersion($this->getEntityManager()->getReference(Paragraph::class, $paragraphBefore['ident']));
@@ -377,8 +375,8 @@ class ParagraphServiceTest extends FunctionalTestCase
         // testParagraph2 hat Versionen, deshalb wird dieser nicht gelöscht, sondern nur als gelöscht geflaggt
         static::assertEquals($numberOfEntriesAfter + 2, $numberOfEntriesBefore);
 
-        //versions gelöscht?
-        //$this->getVersions == null
+        // versions gelöscht?
+        // $this->getVersions == null
     }
 
     public function testGetMaxOrderFromElement()
@@ -547,7 +545,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         $paragraph = $this->fixtures->getReference('testParagraph1');
         $this->assertInstanceOf(Paragraph::class, $paragraph);
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTime();
 
         /** @var ParagraphVersion $version */
         $version = $this->sut->createVersion($paragraph);

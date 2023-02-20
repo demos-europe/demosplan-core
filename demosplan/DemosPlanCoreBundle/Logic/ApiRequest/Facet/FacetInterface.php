@@ -27,8 +27,6 @@ interface FacetInterface
 {
     /**
      * The translation key that is used to show a name for the facet as a whole.
-     *
-     * @return string
      */
     public function getFacetNameTranslationKey(): string;
 

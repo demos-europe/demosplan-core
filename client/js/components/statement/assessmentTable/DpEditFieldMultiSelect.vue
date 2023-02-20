@@ -44,7 +44,7 @@
         :group-label="groupLabel"
         :group-select="groupSelect">
         <template v-slot:option="{ option }">
-          <span v-if="option.$isLabel"><strong>{{ option.$groupLabel }}</strong></span>
+          <strong v-if="option.$isLabel">{{ option.$groupLabel }}</strong>
           <span v-else>{{ option.name }}</span>
         </template>
         <template v-slot:tag="props">
@@ -64,7 +64,7 @@
 
 <script>
 import DpEditField from './DpEditField'
-import { DpMultiselect } from '@demos-europe/demosplan-ui/components/core'
+import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
 

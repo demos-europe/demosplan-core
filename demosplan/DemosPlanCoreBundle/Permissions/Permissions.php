@@ -11,12 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
 use function array_key_exists;
-use function array_map;
 use function collect;
-use function debug_backtrace;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
+use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -25,30 +28,26 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
-use function in_array;
 use InvalidArgumentException;
-use function iterator_to_array;
+
+use function is_array;
+
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
-use function stripos;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-class Permissions implements PermissionsInterface
+class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
     public const PERMISSIONS_YML = 'demosplan/DemosPlanCoreBundle/Resources/config/permissions.yml';
 
@@ -66,7 +65,7 @@ class Permissions implements PermissionsInterface
     protected $procedure;
 
     /**
-     * @var array<string,Permission>|Permission[]|IlluminateCollection
+     * @var array<string, Permission>
      */
     protected $permissions = [];
 
@@ -84,10 +83,6 @@ class Permissions implements PermissionsInterface
      * @var GlobalConfigInterface|GlobalConfig
      */
     protected $globalConfig;
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
     /**
      * @deprecated This variable is used to minimize changes in permission handling to keep it easier
@@ -109,18 +104,51 @@ class Permissions implements PermissionsInterface
      */
     private $procedureRepository;
 
+    private PermissionCollectionInterface $corePermissions;
+
+    private CustomerService $currentCustomerProvider;
+
+    private ValidatorInterface $validator;
+
+    private PermissionResolver $permissionResolver;
+
+    /**
+     * @var array<non-empty-string, PermissionInitializerInterface>
+     */
+    private array $addonPermissionInitializers;
+
+    /**
+     * Permissions loaded from addons.
+     *
+     * This property is initialized when {@link self::setInitialPermissions()} is called.
+     *
+     * @var array<non-empty-string, ResolvablePermissionCollection> mapping from addon name to permissions
+     */
+    private array $addonPermissionCollections = [];
+
+    /**
+     * @param array<non-empty-string, PermissionInitializerInterface> $addonPermissionInitializers
+     */
     public function __construct(
-        CacheInterface $cache,
+        AddonRegistry $addonRegistry,
+        CustomerService $currentCustomerProvider,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
+        PermissionCollectionInterface $corePermissions,
+        PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
-        ProcedureRepository $procedureRepository
+        ProcedureRepository $procedureRepository,
+        ValidatorInterface $validator
     ) {
-        $this->cache = $cache;
+        $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
+        $this->corePermissions = $corePermissions;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->procedureAccessEvaluator = $procedureAccessEvaluator;
         $this->procedureRepository = $procedureRepository;
+        $this->permissionResolver = $permissionResolver;
+        $this->validator = $validator;
+        $this->currentCustomerProvider = $currentCustomerProvider;
     }
 
     /**
@@ -134,7 +162,7 @@ class Permissions implements PermissionsInterface
 
         $this->initMenuhightlighting($context);
 
-        //set Permissions which are user independent
+        // set Permissions which are user independent
         $this->setPlatformPermissions();
 
         // set Permissions which are dependent on role but independent of procedure
@@ -150,7 +178,7 @@ class Permissions implements PermissionsInterface
     {
         if ($this->hasPermission('feature_public_consultation')) {
             $invitedProcedures = $session->get('invitedProcedures', []);
-            if (in_array($procedure->getId(), $invitedProcedures, true)) {
+            if (\in_array($procedure->getId(), $invitedProcedures, true)) {
                 $this->userInvitedInProcedure = true;
             }
         }
@@ -168,7 +196,6 @@ class Permissions implements PermissionsInterface
             'area_documents',
             'area_globalnews',
             'area_imprint_text',
-            'area_login_dialog',
             'area_main_file',
             'area_main_procedures',
             'area_map_participation_area',
@@ -318,6 +345,7 @@ class Permissions implements PermissionsInterface
             if ($this->isMemberOfPlanningOrganisation()) {
                 $this->enablePermissions([
                     'area_institution_tag_manage',
+                    'feature_institution_tag_assign',
                     'feature_institution_tag_create',
                     'feature_institution_tag_delete',
                     'feature_institution_tag_read',
@@ -376,7 +404,7 @@ class Permissions implements PermissionsInterface
             ]);
 
             $this->disablePermissions([
-                //Planungsbüro kann kein Vote abgeben!
+                // Planungsbüro kann kein Vote abgeben!
                 //  @TODO AM 'feature_statements_fragment_vote' is disabled via permissions.yml; why is it set to false here again?
                 'feature_statements_fragment_update_complete',  // Bearbeitung abschliessen
                 'feature_statements_fragment_vote',  // Vote zu Datensatz abgeben
@@ -387,13 +415,13 @@ class Permissions implements PermissionsInterface
         if ($this->user->hasRole(Role::PLANNING_SUPPORTING_DEPARTMENT)) {         // Fachplaner-Fachbehörde GLAUTH Kommune
             $this->enablePermissions([
                 'area_manage_orgadata',  // Daten der Organisation
-                'area_statement_fragments_department',  //Edit StatementFragments
-                'area_statement_fragments_department_archive',  //Edit StatementFragments
-                'area_statements_fragment',  //Area StatementFragments
+                'area_statement_fragments_department',  // Edit StatementFragments
+                'area_statement_fragments_department_archive',  // Edit StatementFragments
+                'area_statements_fragment',  // Area StatementFragments
                 'feature_statements_fragment_advice',  // Empfehlung zu Datensatz abgeben
                 'feature_statements_fragment_consideration_advice',  // Empfehlungstext zu Datensatz abgeben
-                'feature_statements_fragment_edit',  //Edit StatementFragments
-                'feature_statements_fragment_list',  //List StatementFragments
+                'feature_statements_fragment_edit',  // Edit StatementFragments
+                'feature_statements_fragment_list',  // List StatementFragments
                 'feature_statements_fragment_update_complete',  // Bearbeitung eines Datensatzes abschliessen
                 'field_statement_recommendation',
                 'field_organisation_email_reviewer_admin',  // Email for notifications for reviwer admin
@@ -509,7 +537,7 @@ class Permissions implements PermissionsInterface
             $this->enablePermissions([
                 'area_admin_contextual_help_edit',  // Globale Kontexthilfe bearbeiten
                 'area_admin_gislayer_global_edit',  // Globale Gis Layer bearbeiten
-                'area_manage_orgadata',  //Abteilungenverwalten
+                'area_manage_orgadata',  // Abteilungenverwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations',
                 'area_organisations_view',
@@ -565,8 +593,8 @@ class Permissions implements PermissionsInterface
 
         if ($this->user->hasRole(Role::BOARD_MODERATOR)) { // Moderator
             $this->enablePermissions([
-                'feature_forum_dev_release_edit',  //Release für Weiterentwicklung bearbeiten
-                'feature_forum_dev_story_edit', //UserStory für Weiterentwicklung bearbeiten
+                'feature_forum_dev_release_edit',  // Release für Weiterentwicklung bearbeiten
+                'feature_forum_dev_story_edit', // UserStory für Weiterentwicklung bearbeiten
                 'feature_forum_thread_edit',  // einen Thread im Forum bearbeiten
                 'field_statement_recommendation',
             ]);
@@ -588,7 +616,7 @@ class Permissions implements PermissionsInterface
         if ($this->user->hasRole(Role::PROCEDURE_DATA_INPUT)) { // Datenerfassung
             $this->enablePermissions([
                 'area_statement_data_input_orga',  // Create new submitted statements
-                'feature_procedure_get_base_data',  //receive basic procedure data
+                'feature_procedure_get_base_data',  // receive basic procedure data
                 'field_statement_public_allowed',  // Publish statements
             ]);
 
@@ -605,7 +633,7 @@ class Permissions implements PermissionsInterface
 
             // Alle Bürger und Gäste dürfen Stellungnahmen abgeben, wenn Öffentlichkeitsbeteiligung aktiviert
             if ($this->user->isPublicUser()) {
-                //feature_new_statement depends on procedurephase
+                // feature_new_statement depends on procedurephase
                 $this->permissions['feature_new_statement']->setLoginRequired(false);
                 $this->permissions['area_statements_public_published']->enable(); // Stellungnahmen anderer Bürger*innen Institutions-Ebene
             }
@@ -613,7 +641,7 @@ class Permissions implements PermissionsInterface
 
         if ($this->user->hasRole(Role::API_AI_COMMUNICATOR)) {
             // disable all permissions
-            $this->permissions = array_map(
+            $this->permissions = \array_map(
                 static function (Permission $permission) {
                     $permission->disable();
 
@@ -622,8 +650,6 @@ class Permissions implements PermissionsInterface
 
             // enable ai specific permissions
             $this->enablePermissions([
-                'feature_ai_create_annotated_statement_pdf_pages',
-                'feature_ai_generated_draft_segments',
                 'feature_read_source_statement_via_api',
                 'field_statement_recommendation',
             ]);
@@ -650,7 +676,7 @@ class Permissions implements PermissionsInterface
                 'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
                 'area_admin_protocol',  // Verwalten Protokoll
                 'area_admin_single_document',  // Verwalten Planungsdokumente
-                'feature_admin_assessmenttable_export_docx',  //Abwägungstabelle Word-Export
+                'feature_admin_assessmenttable_export_docx',  // Abwägungstabelle Word-Export
                 'feature_export_protocol',
                 'feature_json_api_create',
                 'feature_json_api_delete',
@@ -710,7 +736,7 @@ class Permissions implements PermissionsInterface
                 $this->permissions['area_statements_released_group']->enable(); // Stellungnahmen der Gruppe (Freigaben)
                 if (self::PROCEDURE_PERMISSIONSET_HIDDEN !== $permissionset) {
                     $this->enablePermissions([
-                        'feature_statements_public',  //Stellungnahme für andere Institutionen sichtbar schalten
+                        'feature_statements_public',  // Stellungnahme für andere Institutionen sichtbar schalten
                         'feature_statements_released_group_delete',  // Stellungnahmen der Gruppe (Freigaben) Loeschen
                         'feature_statements_released_group_edit',  // Stellungnahmen der Gruppe (Freigaben) Bearbeiten
                         'feature_statements_released_group_reject',  // Stellungnahmen der Gruppe (Freigaben) Zurueckweisen
@@ -756,7 +782,7 @@ class Permissions implements PermissionsInterface
     {
         $subdomain = $this->globalConfig->getSubdomain();
 
-        return in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
+        return \in_array($orgaType, $this->user->getOrga()->getTypes($subdomain, true), true);
     }
 
     /**
@@ -835,7 +861,7 @@ class Permissions implements PermissionsInterface
             return false;
         }
 
-        $isInvitedInstitution = in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
 
         if ($isInvitedInstitution) {
             $this->logger->debug('Orga is member');
@@ -880,7 +906,7 @@ class Permissions implements PermissionsInterface
         foreach ($arrIt as $sub) {
             $subArray = $arrIt->getSubIterator();
             if ($subArray['key'] === $phase) {
-                $outputArray = iterator_to_array($subArray);
+                $outputArray = \iterator_to_array($subArray);
                 $permissionset = $outputArray['permissionset'];
                 $this->logger->debug('Initial Permissionset: ', [$permissionset]);
                 // during Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN user may participate
@@ -901,22 +927,6 @@ class Permissions implements PermissionsInterface
     }
 
     /**
-     * Rechte, die rollenunabhängig gesetzt werden, wenn ein schreibender Zugriff auf das Verfahren besteht.
-     */
-    protected function setProcedurePermissionsetWrite(): void
-    {
-        $this->logger->debug('Set Permissionset write');
-        $this->permissions['feature_documents_new_statement']['enabled'] = true; // Planungsdokumente Neue Stellungnahme
-        $this->permissions['feature_map_new_statement']['enabled'] = true; // Planzeichnung Neue Stellungnahme
-        $this->permissions['feature_new_statement']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_new_statement_form']['enabled'] = true; // Stellungnahmen verfassen
-        $this->permissions['feature_statements_draft_delete']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Loeschen
-        $this->permissions['feature_statements_draft_edit']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Bearbeiten
-        $this->permissions['feature_statements_draft_release']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Freigeben
-        $this->permissions['feature_statements_draft_relocate']['enabled'] = true; // Eigene Stellungnahmen (Entwuerfe) Neu verorten
-    }
-
-    /**
      * Rechte, die rollenunabhängig gesetzt werden, wenn ein lesender Zugriff auf das Verfahren besteht.
      */
     protected function setProcedurePermissionsetRead(): void
@@ -930,6 +940,11 @@ class Permissions implements PermissionsInterface
         $this->permissions['feature_new_statement']['enabled'] = false; // Neue Stellungnahmen abgeben
         $this->permissions['feature_statements_final_email']['enabled'] = true; // Stellungnahmen (Endfassungen) E-Mail
         $this->permissions['feature_statements_released_email']['enabled'] = true; // Eigene Stellungnahmen (Freigaben) E-Mail
+    }
+
+    protected function setProcedurePermissionsetWrite(): void
+    {
+        // hook that may be overridden
     }
 
     /**
@@ -1011,7 +1026,7 @@ class Permissions implements PermissionsInterface
     public function setMenuhighlighting($permission): void
     {
         // Nur "area_*"-Permissions bestimmen das Highlighting
-        if (false === stripos($permission, 'area_')) {
+        if (false === \stripos($permission, 'area_')) {
             return;
         }
 
@@ -1023,26 +1038,22 @@ class Permissions implements PermissionsInterface
      */
     protected function setInitialPermissions(): void
     {
-        // cache parsing of permissions.yml, saves ~200ms
-        $permissions = $this->cache->get('permissionsYml', function (ItemInterface $item) {
-            $this->logger->info('Read Permissions from yml');
-            $permissions = collect(Yaml::parseFile(DemosPlanPath::getRootPath(self::PERMISSIONS_YML)))
-                ->map(
-                    static function ($permissionsArray, $permissionName) {
-                        return Permission::instanceFromArray($permissionName, $permissionsArray);
-                    }
-                )->toArray();
+        // initialize addon permissions
+        $this->addonPermissionCollections = collect($this->addonPermissionInitializers)
+            ->map(function (PermissionInitializerInterface $initializer): ResolvablePermissionCollection {
+                $resolvablePermissions = new ResolvablePermissionCollection($this->validator);
+                $initializer->configurePermissions($resolvablePermissions);
 
-            // set long ttl only in prod mode to improve DX in dev mode when working with permissions
-            $ttl = $this->globalConfig->isProdMode() ? 3600 : 10;
+                return $resolvablePermissions;
+            })
+            ->all();
 
-            $this->logger->info('Save Permissions into cache with ttl '.$ttl);
-            $item->expiresAfter($ttl);
-
-            return $permissions;
-        });
-
-        $this->permissions = $permissions;
+        // Add addon permissions to list of core permissions. Not mixing them would be preferred,
+        // but this is currently needed to expose addon permissions to the frontend.
+        $this->permissions = collect($this->addonPermissionCollections)
+            ->flatMap(fn (ResolvablePermissionCollection $collection): array => $collection->getPermissions())
+            ->merge($this->corePermissions->toArray())
+            ->all();
     }
 
     /**
@@ -1095,7 +1106,7 @@ class Permissions implements PermissionsInterface
         } else {
             // Gib Devs einen Hinweis aus, dass hier die Rechte nachgearbeitet werden müssen
             $this->logger->info('Dieser Bereich hat kein explizites Permission angegeben! '
-                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', debug_backtrace(0, 4));
+                        .'Bitte @DplanPermissions mit einem zu prüfenden Recht annotieren.', \debug_backtrace(0, 4));
         }
     }
 
@@ -1136,6 +1147,58 @@ class Permissions implements PermissionsInterface
         }
 
         return true;
+    }
+
+    public function requirePermission($permissionIdentifier): void
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, evaluating via core
+        if (null === $addonIdentifier) {
+            $this->evaluatePermission($permissionName);
+
+            return;
+        }
+
+        // addon permission, evaluating via resolver
+        $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
+        if (null === $resolvablePermission
+            || !$this->isResolvablePermissionEnabled($resolvablePermission)) {
+            throw AccessDeniedException::missingPermission($permissionName, $this->user);
+        }
+    }
+
+    public function isPermissionEnabled($permissionIdentifier): bool
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, evaluating via core
+        if (null === $addonIdentifier) {
+            // shortcut to avoid performance heavy exception creation inside `hasPermission`
+            if (!array_key_exists($permissionName, $this->permissions)) {
+                return false;
+            }
+
+            return $this->hasPermission($permissionName);
+        }
+
+        // addon permission, evaluating via resolver
+        $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
+
+        return null !== $resolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
+    }
+
+    public function isPermissionKnown($permissionIdentifier): bool
+    {
+        [$permissionName, $addonIdentifier] = $this->permissionIdentifierToPair($permissionIdentifier);
+
+        // not an addon permission, check if it exists in core
+        if (null === $addonIdentifier) {
+            return array_key_exists($permissionName, $this->permissions);
+        }
+
+        // addon permission, check if it exists in the correct collection
+        return null !== $this->getAddonPermission($permissionName, $addonIdentifier);
     }
 
     /**
@@ -1187,7 +1250,7 @@ class Permissions implements PermissionsInterface
         if (!isset($this->permissions[$permission]) || !$this->permissions[$permission] instanceof Permission) {
             $this->logger->warning(
                 'Permission ist nicht definiert: '.$permission.' Stacktrace: '.DemosPlanTools::varExport(
-                    debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
+                    \debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10),
                     true
                 )
             );
@@ -1239,7 +1302,7 @@ class Permissions implements PermissionsInterface
      */
     public function enablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
                 if (!array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
@@ -1267,7 +1330,7 @@ class Permissions implements PermissionsInterface
      */
     public function disablePermissions(array $permissions): void
     {
-        collect($permissions)->map(
+        \collect($permissions)->map(
             function ($permissionName) {
                 if (!array_key_exists($permissionName, $this->permissions)) {
                     $this->logger->error('Could not find Permission '.$permissionName);
@@ -1283,6 +1346,42 @@ class Permissions implements PermissionsInterface
                     $permission->disable();
                 }
             }
+        );
+    }
+
+    /**
+     * @param non-empty-string|PermissionIdentifierInterface $permissionIdentifier
+     *
+     * @return array{0: non-empty-string, 1: non-empty-string|null}
+     */
+    protected function permissionIdentifierToPair($permissionIdentifier): array
+    {
+        if (!$permissionIdentifier instanceof PermissionIdentifierInterface) {
+            return [$permissionIdentifier, null];
+        }
+
+        return [
+            $permissionIdentifier->getPermissionName(),
+            $permissionIdentifier->getAddonIdentifier(),
+        ];
+    }
+
+    protected function getAddonPermission(string $permissionName, string $addonIdentifier): ?ResolvablePermission
+    {
+        if (!array_key_exists($addonIdentifier, $this->addonPermissionCollections)) {
+            return null;
+        }
+
+        return $this->addonPermissionCollections[$addonIdentifier]->getResolvablePermission($permissionName);
+    }
+
+    protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission)
+    {
+        return $this->permissionResolver->isPermissionEnabled(
+            $resolvablePermission,
+            $this->user,
+            $this->procedure,
+            $this->currentCustomerProvider->getCurrentCustomer()
         );
     }
 }
