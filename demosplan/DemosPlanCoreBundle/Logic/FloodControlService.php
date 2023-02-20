@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CookieException;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\Cookie;
