@@ -3796,6 +3796,7 @@ warning.faq.title.tooLong: "Der eingegebene Titel ist länger als 255 Zeichen un
 warning.featureinfo.empty: "Es sind keine Sachdaten hinterlegt."
 warning.file.missing: "Das Dokument existiert nicht mehr."
 warning.filetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt."
+warning.floodcontrol.timeout: 'Das Formular wurde zu schnell abgeschickt. Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
 warning.fragment.assignment.information: "Die Informations-E-Mail an die Fachbehörden-Koordination zur Zuweisung dieser Stellungnahme konnte nicht versandt werden."
 warning.fragment.locked.By: "Dieser Datensatz ist zur Zeit {name} der Organisation {organisation} zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
 warning.fragment.needLock.generic: "Dieser Datensatz ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie diesen zunächst für sich beanspruchen."
