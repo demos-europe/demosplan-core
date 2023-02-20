@@ -818,8 +818,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @deprecated do not spread usage of this; see T21768
      */
-    public function getProcedureAdminList($filters, $search, User $user, $sort = null, bool $template = false, $toLegacy = true, $excludeArchived = true)
-    {
+    public function getProcedureAdminList(
+        $filters,
+        $search,
+        User $user,
+        $sort = null,
+        bool $template = false,
+        $toLegacy = true,
+        $excludeArchived = true
+    ) {
         try {
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
