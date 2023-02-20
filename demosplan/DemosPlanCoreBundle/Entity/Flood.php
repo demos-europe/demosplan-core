@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
