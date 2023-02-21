@@ -16,9 +16,7 @@
     <dp-upload-files
       ref="uploader"
       id="statementUpload"
-      :get-file-by-hash="(hash) => {
-        return Routing.generate('core_file', { hash: hash })
-      }"
+      :get-file-by-hash="(hash) => Routing.generate('core_file', { hash: hash })"
       allowed-file-types="pdf"
       :max-file-size="100000000"
       :max-number-of-files="maxNumberOfFiles"
