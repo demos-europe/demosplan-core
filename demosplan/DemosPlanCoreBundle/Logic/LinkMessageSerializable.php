@@ -28,8 +28,14 @@ class LinkMessageSerializable extends MessageSerializable
      * @param array  $routeParameters
      * @param string $linkText
      */
-    public function __construct($severity, $text, $textParameters = [], $routeName, $routeParameters = [], $linkText)
-    {
+    public function __construct(
+        $severity,
+        $text,
+        $textParameters = [],
+        $routeName = '',
+        $routeParameters = [],
+        $linkText = ''
+    ) {
         parent::__construct($severity, $text, $textParameters);
         $this->routeName = $routeName;
         $this->routeParameters = $routeParameters;
@@ -46,7 +52,14 @@ class LinkMessageSerializable extends MessageSerializable
      *
      * @return LinkMessageSerializable
      */
-    public static function createLinkMessage($severity, $text, $textParameters = [], $routeName, $routeParameters = [], $linkText)
+    public static function createLinkMessage(
+        $severity,
+        $text,
+        $textParameters = [],
+        $routeName = '',
+        $routeParameters = [],
+        $linkText = ''
+    ): LinkMessageSerializable
     {
         return new self($severity, $text, $textParameters, $routeName, $routeParameters, $linkText);
     }
