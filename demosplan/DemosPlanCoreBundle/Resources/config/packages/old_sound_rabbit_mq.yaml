@@ -2,11 +2,7 @@
 old_sound_rabbit_mq:
     connections:
         default:
-            host:     "%rabbitmq_host%"
-            port:     "%rabbitmq_port%"
-            user:     "%rabbitmq_user%"
-            password: "%rabbitmq_password%"
-            vhost:    "%rabbitmq_vhost%"
+            url: '%env(string:default:rabbitmq_dsn:RABBITMQ_URL)%'
             lazy:     true
             connection_timeout: 3
             read_write_timeout: 3
