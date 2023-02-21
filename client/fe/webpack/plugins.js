@@ -14,7 +14,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const VueLoader = require('vue-loader')
 const webpack = require('webpack') // Is webpack is webpack
 
-const { config } = require('../config')
+const { config } = require('../config/config')
 
 const { resolveDir } = require('../webpack/resolveDir')
 
