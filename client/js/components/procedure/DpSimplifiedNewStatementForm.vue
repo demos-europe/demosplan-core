@@ -353,7 +353,18 @@
 </template>
 
 <script>
-import { DpAccordion, DpButtonRow, DpDatepicker, DpInput, DpLabel, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import {
+  DpAccordion,
+  DpButtonRow,
+  DpDatepicker,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpRadio,
+  DpSelect,
+  DpTextArea,
+  DpUploadFiles
+} from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
