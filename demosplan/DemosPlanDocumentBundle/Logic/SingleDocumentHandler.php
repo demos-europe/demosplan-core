@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SingleDocumentHandler
+class SingleDocumentHandler implements SingleDocumentHandlerInterface
 {
     /**
      * @var SingleDocumentService

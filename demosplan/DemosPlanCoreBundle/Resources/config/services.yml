@@ -101,6 +101,13 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
         class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
+        class: demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
+        class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
+
+
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler
 
@@ -639,6 +646,9 @@ services:
 
     demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler:
         lazy: true
 
     demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
@@ -1322,3 +1332,7 @@ services:
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
+
+
+
+
