@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
@@ -82,13 +82,13 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            StatementCreatedEvent::class                  => 'handleActivelyCreatedStatement',
+            StatementCreatedEventInterface::class         => 'handleActivelyCreatedStatement',
             ManualStatementCreatedEvent::class            => 'handleActivelyCreatedStatement',
             ConsultationTokenStatementCreatedEvent::class => 'handleTokenStatement',
         ];
     }
 
-    public function handleActivelyCreatedStatement(StatementCreatedEvent $event): void
+    public function handleActivelyCreatedStatement(StatementCreatedEventInterface $event): void
     {
         if (!$this->checkRequiredPermissions()) {
             return;
@@ -131,7 +131,7 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
         return false;
     }
 
-    private function createTokenFromEvent(StatementCreatedEvent $event, bool $isManual): void
+    private function createTokenFromEvent(StatementCreatedEventInterface $event, bool $isManual): void
     {
         $statement = $event->getStatement();
 
