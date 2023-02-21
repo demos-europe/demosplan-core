@@ -312,9 +312,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
-          :get-file-by-hash="(hash) => {
-            return Routing.generate('core_file', { hash: hash })
-          }"
+          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
