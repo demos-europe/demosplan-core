@@ -806,8 +806,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param array  $filters
      * @param string $search
-     * @param array  $sort
      * @param User   $user            will be used to get the organisation ID, the user ID and the role name
+     * @param array  $sort
+     * @param bool   $template        should procedure templates be included in results
      * @param bool   $toLegacy        determines if return value will be array[] or Procedure[]
      * @param bool   $excludeArchived exclude internal and external phase closed
      *
@@ -817,8 +818,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @deprecated do not spread usage of this; see T21768
      */
-    public function getProcedureAdminList($filters, $search, $sort = null, User $user, bool $template, $toLegacy = true, $excludeArchived = true)
-    {
+    public function getProcedureAdminList(
+        $filters,
+        $search,
+        User $user,
+        $sort = null,
+        bool $template = false,
+        $toLegacy = true,
+        $excludeArchived = true
+    ) {
         try {
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
@@ -2598,7 +2606,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
         $filters = null === $procedureIdToExclude ? [] : ['procedureIdToExclude' => $procedureIdToExclude];
-        $accessibleProcedures = $this->getProcedureAdminList($filters, null, ['name' => 'ASC'], $user, false, false);
+        $accessibleProcedures = $this->getProcedureAdminList(
+            $filters,
+            null,
+            $user,
+            ['name' => 'ASC'],
+            false,
+            false
+        );
 
         $accessibleProcedures =
             \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
