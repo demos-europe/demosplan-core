@@ -12,11 +12,17 @@ namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
@@ -574,8 +580,16 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private $advancedSupport;
 
-    public function __construct(ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    /**
+     * @var array<non-empty-string, non-empty-string>
+     */
+    private array $externalLinks;
+
+    public function __construct(
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
+    ) {
         $this->setParams($params, $translator);
     }
 
@@ -831,6 +845,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->procedureUserRestrictedAccess = $parameterBag->get('procedure_user_restricted_access');
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
+
+        $this->externalLinks = $this->getValidatedExternalLinks($parameterBag);
     }
 
     /**
@@ -1818,5 +1834,42 @@ class GlobalConfig implements GlobalConfigInterface
     public function isAdvancedSupport(): bool
     {
         return $this->advancedSupport;
+    }
+
+    public function getExternalLinks(): array
+    {
+        return $this->externalLinks;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function getValidatedExternalLinks(ParameterBagInterface $parameterBag): array
+    {
+        $externalLinks = $parameterBag->get('external_links');
+        $violations = $this->validator->validate($externalLinks, [
+            new Type('array'),
+            new NotNull(),
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+                new Url(),
+            ]),
+        ]);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        $violations->addAll($this->validator->validate(array_keys($externalLinks), [
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+            ]),
+        ]));
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        return $externalLinks;
     }
 }
