@@ -52,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -1440,7 +1441,10 @@ class StatementService extends CoreService implements StatementServiceInterface
                 if ($updatedStatement instanceof Statement) {
                     $result = $this->updateStatementObject($updatedStatement);
                 }
-                $this->eventDispatcher->dispatch(new StatementUpdatedEvent($preUpdatedStatement, $currentStatementObject));
+                $this->eventDispatcher->dispatch(
+                    new StatementUpdatedEvent($preUpdatedStatement, $currentStatementObject),
+                    StatementUpdatedEventInterface::class
+                );
 
                 if (false !== $result && $this->permissions->hasPermission('feature_statement_content_changes_save')) {
                     // actually store contentChange in case of statement was updated successfully
