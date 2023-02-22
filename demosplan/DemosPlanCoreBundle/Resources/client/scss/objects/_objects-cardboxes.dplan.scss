@@ -38,12 +38,12 @@
 }
 
 .js .card__item:hover {
-    background-color: color.adjust($dp-color-main, $lightness: 35%);
+    background-color: color.adjust($dp-color-brand-main-base, $lightness: 35%);
 
     animation: background-default-brand 1s;
 }
 
 @keyframes background-default-brand {
     0% { background-color: $dp-color-white; }
-    100% { background-color: color.adjust($dp-color-main, $lightness: 35%); }
+    100% { background-color: color.adjust($dp-color-brand-main-base, $lightness: 35%); }
 }
