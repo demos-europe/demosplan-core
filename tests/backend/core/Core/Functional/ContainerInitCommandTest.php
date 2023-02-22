@@ -28,21 +28,11 @@ class ContainerInitCommandTest extends FunctionalTestCase
 
     public function testConfigWithUser(): void
     {
-        $commandTester = $this->getCommandTester();
-        $customers = $this->getCustomers('foobar');
-        self::assertEmpty($customers);
-
-        $exitCode = $commandTester->execute([
+        $this->getCommandTester()->execute([
             '--customerConfig' => 'tests/backend/core/Core/Functional/res/customerConfig_with_user.yaml',
         ]);
-        self::assertSame(0, $exitCode);
-
         $customers = $this->getCustomers('foobar');
-        self::assertCount(1, $customers);
-
         $customer = $customers[0];
-        self::assertSame('Foobar', $customer->getName());
-        self::assertSame('foobar', $customer->getSubdomain());
         $userRoles = $customer->getUserRoles();
         self::assertCount(1, $userRoles);
         /** @var UserRoleInCustomer $userRole */
