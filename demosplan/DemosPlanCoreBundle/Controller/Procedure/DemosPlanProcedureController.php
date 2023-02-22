@@ -12,10 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Cocur\Slugify\Slugify;
 
-use function collect;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -26,10 +25,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -42,15 +41,15 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -71,9 +70,10 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureCategoryService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureServiceOutput;
+use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage;
+use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
@@ -2420,6 +2420,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     public function boilerplateListAction(
+        BoilerplateRepository $boilerplateRepository,
         ProcedureHandler $procedureHandler,
         Request $request,
         $procedure
@@ -2437,7 +2438,10 @@ class DemosPlanProcedureController extends BaseController
 
             // Lösche markierte Textbausteingruppen
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
+                $this->handleDeleteBoilerplateGroups(
+                    $requestPost->get('boilerplateGroupIdsTo_delete'),
+                    $boilerplateRepository
+                );
             }
         }
 
@@ -2448,7 +2452,10 @@ class DemosPlanProcedureController extends BaseController
 
         // delete single boilerplateGroup
         if ($requestPost->has('boilerplateGroupDeleteAllContent')) {
-            $this->handleDeleteBoilerplateGroup($requestPost->get('boilerplateGroupDeleteAllContent'));
+            $this->handleDeleteBoilerplateGroup(
+                $requestPost->get('boilerplateGroupDeleteAllContent'),
+                $boilerplateRepository
+            );
         }
 
         if ($requestPost->has('r_createGroup') && $requestPost->has('r_newGroup')) {
@@ -2781,11 +2788,25 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
      */
-    protected function handleDeleteBoilerplateGroup(string $boilerplateGroupId)
-    {
+    protected function handleDeleteBoilerplateGroup(
+        string $boilerplateGroupId,
+        BoilerplateRepository $boilerplateRepository
+    ) {
+        $boilerplatesOfGroupToDelete = new ArrayCollection();
         $boilerplateGroupToDelete = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
+        if (null !== $boilerplateGroupToDelete) {
+            foreach ($boilerplateGroupToDelete->getBoilerplates() as $boilerplate) {
+                $boilerplatesOfGroupToDelete->add($boilerplate);
+            }
+        }
+
         $title = null === $boilerplateGroupToDelete ? '' : $boilerplateGroupToDelete->getTitle();
+
         $successfully = $this->procedureService->deleteBoilerplateGroup($boilerplateGroupToDelete);
+        /** @var Boilerplate $boilerplate */
+        foreach ($boilerplatesOfGroupToDelete as $boilerplate) {
+            $successfully = $successfully && $boilerplateRepository->delete($boilerplate->getId());
+        }
         if ($successfully) {
             $this->getMessageBag()->add(
                 'confirm',
@@ -2819,9 +2840,27 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
      */
-    protected function handleDeleteBoilerplateGroups(array $boilerplateGroupIds)
-    {
+    protected function handleDeleteBoilerplateGroups(
+        array $boilerplateGroupIds,
+        BoilerplateRepository $boilerplateRepository
+    ) {
+        $boilerplatesOfGroupsToDelete = new ArrayCollection();
+        foreach ($boilerplateGroupIds as $boilerplateGroupId) {
+            $boilerplateGroup = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
+            /** @var Boilerplate $boilerplate */
+            if (null === $boilerplateGroup) {
+
+                continue;
+            }
+            foreach ($boilerplateGroup->getBoilerplates() as $boilerplate) {
+                $boilerplatesOfGroupsToDelete->add($boilerplate);
+            }
+        }
         $allDeleted = $this->procedureService->deleteBoilerplateGroupsByIds($boilerplateGroupIds);
+        /** @var Boilerplate $boilerplate */
+        foreach ($boilerplatesOfGroupsToDelete as $boilerplate) {
+            $allDeleted = $allDeleted && $boilerplateRepository->delete($boilerplate->getId());
+        }
         if ($allDeleted) {
             $this->getMessageBag()->add('confirm', 'confirm.selected.boilerplateGroups.deleted');
         } else {
