@@ -19,6 +19,7 @@ use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -295,6 +296,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @var bool
      */
     protected $honeypotDisabled;
+    protected int $honeypotTimeout;
     /**
      * @var array
      */
@@ -581,7 +583,7 @@ class GlobalConfig implements GlobalConfigInterface
     /**
      * @var array<non-empty-string, non-empty-string>
      */
-    private $mainPageExternalLinks;
+    private array $externalLinks;
 
     public function __construct(
         ParameterBagInterface $params,
@@ -721,6 +723,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
+        $this->honeypotTimeout = $parameterBag->get('honeypot_timeout');
 
         // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
@@ -843,7 +846,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $this->mainPageExternalLinks = $this->getValidatedMainPageExternalLinks($parameterBag);
+        $this->externalLinks = $this->getValidatedExternalLinks($parameterBag);
     }
 
     /**
@@ -1165,6 +1168,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function isHoneypotDisabled(): bool
     {
         return filter_var($this->honeypotDisabled, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function getHoneypotTimeout(): int
+    {
+        return $this->honeypotTimeout;
     }
 
     public function getMaintenanceKey(): string
@@ -1828,19 +1836,20 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->advancedSupport;
     }
 
-    public function getMainPageExternalLinks(): array
+    public function getExternalLinks(): array
     {
-        return $this->mainPageExternalLinks;
+        return $this->externalLinks;
     }
 
     /**
      * @return array<non-empty-string, non-empty-string>
      */
-    private function getValidatedMainPageExternalLinks(ParameterBagInterface $parameterBag): array
+    private function getValidatedExternalLinks(ParameterBagInterface $parameterBag): array
     {
-        $mainPageExternalLinks = $parameterBag->get('main_page_external_links');
-        $violations = $this->validator->validate($this->mainPageExternalLinks, [
+        $externalLinks = $parameterBag->get('external_links');
+        $violations = $this->validator->validate($externalLinks, [
             new Type('array'),
+            new NotNull(),
             new All([
                 new Type('string'),
                 new NotBlank(null, null, false),
@@ -1851,8 +1860,7 @@ class GlobalConfig implements GlobalConfigInterface
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
-        $mainPageExternalUrls = array_keys($mainPageExternalLinks);
-        $violations->addAll($this->validator->validate($mainPageExternalUrls, [
+        $violations->addAll($this->validator->validate(array_keys($externalLinks), [
             new All([
                 new Type('string'),
                 new NotBlank(null, null, false),
@@ -1862,6 +1870,6 @@ class GlobalConfig implements GlobalConfigInterface
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
-        return $mainPageExternalLinks;
+        return $externalLinks;
     }
 }

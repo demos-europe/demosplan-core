@@ -142,12 +142,7 @@ parameters:
     database_port: "3306"
 
     #RabbitMQ setting with default values
-    rabbitmq_host:     "localhost"
-    rabbitmq_port:     "5672"
-    rabbitmq_user:     ""
-    rabbitmq_password: ""
-    rabbitmq_vhost:    "/"
-
+    rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
     rabbitmq_routing_disabled: false
 
     # dsn used for sending emails https://symfony.com/doc/current/mailer.html#transport-setup
@@ -340,6 +335,8 @@ parameters:
 
     # disable honeypot check
     honeypot_disabled: false
+    # minimum time needed to fill out form fields to slow down brute force
+    honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
 
@@ -480,7 +477,7 @@ parameters:
     # Note that the data will be used in the frontend directly, i.e. no measures against potentially harmful
     # scripts is taken if such thing is used here.
     # It can be used as follows:
-    # main_page_external_links:
+    # external_links:
     #     Name of some website: https://link-to-the-website.net
     #     Some other website: https://link-to-some-other-website.net
-    main_page_external_links: []
+    external_links: []
