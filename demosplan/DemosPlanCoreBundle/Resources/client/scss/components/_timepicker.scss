@@ -21,11 +21,11 @@
             list-style-type: none;
             border: $item-border-thickness solid transparent;
             text-align: center;
-            color: $dp-color-main--dark;
+            color: $dp-color-brand-main-dark-1;
 
             &:hover {
                 color: $dp-color-highlight;
-                border: $item-border-thickness solid $dp-color-main;
+                border: $item-border-thickness solid $dp-color-brand-main-base;
                 cursor: pointer;
             }
 
