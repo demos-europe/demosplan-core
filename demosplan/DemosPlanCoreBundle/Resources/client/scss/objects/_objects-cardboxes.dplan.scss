@@ -38,7 +38,7 @@
 }
 
 .js .card__item:hover {
-    background-color: color.adjust($dp-color-brand-main-base, $lightness: 35%);
+    background-color: $dp-color-brand-main-light-2;
 
     animation: background-default-brand 1s;
 }
