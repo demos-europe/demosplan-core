@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
 use function array_filter;
 
 use const ARRAY_FILTER_USE_KEY;
@@ -223,8 +224,16 @@ class EntrypointController extends BaseController
         $templateVars['list']['newslist'] = [];
 
         try {
-            $globalNews = $contentService->getContentList($this->currentUserService->getUser(), 3);
+            $globalNews = $contentService->getContentList($this->currentUserService->getUser(), 50);
 
+            $recentNewsList = [];
+            foreach ($globalNews as $news) {
+                $categoryTypes = array_column($news['categories'], 'name');
+                if (in_array('news', $categoryTypes, true)) {
+                    $recentNewsList[] = $news;
+                }
+            }
+            $templateVars['recentNewsList'] = $recentNewsList;
             $templateVars['list']['newslist'] = $globalNews;
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not add News to public index: ', [$e]);
