@@ -122,16 +122,9 @@
         </template>
 
         <div :class="prefixClass('c-statement__text')">
-          <label
-            for="statementText"
-            :class="prefixClass('u-mb-0_5 weight--bold')">
-            {{ Translator.trans('statement.detail.form.statement_text') }}
-            <span
-              v-if="formData.r_isNegativeReport !== '1'"
-              aria-hidden="true">
-              *
-            </span>
-          </label>
+          <dp-label
+            :text="Translator.trans('statement.detail.form.statement_text')"
+            for="statementText" />
           <dp-editor
             class="u-mb"
             hidden-input="r_text"
