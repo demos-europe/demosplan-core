@@ -96,7 +96,7 @@ class GenerateCustomerCommand extends CoreCommand
 
         try {
             // create customer
-            $customer = $this->customerService->createCustomer($name, $subdomain);
+            $this->customerService->createCustomer($name, $subdomain);
             $this->entityManager->flush();
 
             $output->writeln(

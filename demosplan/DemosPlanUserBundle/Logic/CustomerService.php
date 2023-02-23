@@ -26,9 +26,7 @@ class CustomerService
     public function __construct(
         private readonly CustomerRepository $customerRepository,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly ValidatorInterface $validator,
-        private readonly TransactionService $transactionService,
-        private readonly UserRepository $userRepository
+        private readonly ValidatorInterface $validator
     ) {
     }
 
