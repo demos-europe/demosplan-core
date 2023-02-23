@@ -124,7 +124,8 @@
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
-            for="statementText" />
+            for="statementText"
+            :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
             class="u-mb"
             hidden-input="r_text"
