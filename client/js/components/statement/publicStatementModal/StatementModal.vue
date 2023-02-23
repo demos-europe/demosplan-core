@@ -127,7 +127,7 @@
             for="statementText"
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
-            class="u-mb"
+            :class="prefixClass('u-mb')"
             hidden-input="r_text"
             id="statementText"
             :toolbar-items="{
