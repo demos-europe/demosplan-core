@@ -133,7 +133,7 @@
             </span>
           </label>
           <dp-editor
-            class="u-mb-0_5"
+            class="u-mb"
             hidden-input="r_text"
             id="statementText"
             :toolbar-items="{
