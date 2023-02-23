@@ -99,17 +99,34 @@
       <div v-else>
         <dp-editor
           editor-id="recommendationText"
+          editorInsertAtCursorPos
           :toolbar-items="{
-            boilerPlate: 'consideration',
             fullscreenButton: false,
             linkButton: true,
             recommendationButton: segment.hasRelationship('tags')
           }"
-          :procedure-id="procedureId"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)"
           :segment-id="segment.id"
-          class="u-mb-0_5" />
+          class="u-mb-0_5">
+          <template v-slot:modal="modalProps">
+            <dp-boiler-plate-modal
+              ref="boilerPlateModal"
+              editor-id="recommendationText"
+              :procedure-id="procedureId"
+              boiler-plate-type="consideration"
+              @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+          </template>
+          <template v-slot:button>
+            <button
+              @click.stop="openBoilerPlate"
+              :class="prefixClass('menubar__button')"
+              type="button"
+              v-tooltip="Translator.trans('boilerplate.insert')">
+              <i :class="prefixClass('fa fa-puzzle-piece')" />
+            </button>
+          </template>
+        </dp-editor>
       </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
@@ -240,8 +257,9 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, VPopover } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, prefixClassMixin, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 
 export default {
@@ -250,6 +268,7 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
     DpClaim,
@@ -266,6 +285,8 @@ export default {
   directives: {
     cleanhtml: CleanHtml
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     currentUserFirstName: {
@@ -481,6 +502,10 @@ export default {
           this.restoreSegmentAction(this.segment.id)
           this.claimLoading = false
         })
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     /**

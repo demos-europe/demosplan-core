@@ -31,16 +31,35 @@
         ref="editor"
         :entity-id="entityId"
         :editor-id="editorId"
+        editorInsertAtCursorPos
         v-model="fullText"
         :toolbar-items="{
-          boilerPlate: boilerPlate ? 'consideration' : '',
           insertAndDelete: insertAndDelete,
           linkButton: linkButton,
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
-        }"
-        :procedure-id="procedureId" />
+        }">
+        <template v-slot:modal="modalProps">
+          <dp-boiler-plate-modal
+            v-if="boilerPlate"
+            ref="boilerPlateModal"
+            :editor-id="editorId"
+            :procedure-id="procedureId"
+            boiler-plate-type="consideration"
+            @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+        </template>
+        <template v-slot:button>
+          <button
+            v-if="boilerPlate"
+            @click.stop="openBoilerPlate"
+            :class="prefixClass('menubar__button')"
+            type="button"
+            v-tooltip="Translator.trans('boilerplate.insert')">
+            <i :class="prefixClass('fa fa-puzzle-piece')" />
+          </button>
+        </template>
+      </dp-editor>
       <div class="text--right space-inline-s">
         <dp-button
           :busy="loading"
@@ -100,13 +119,15 @@
 
 <script>
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpHeightLimit, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpButton, DpHeightLimit, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
 
 export default {
   name: 'TiptapEditText',
 
   components: {
+    DpBoilerPlateModal,
     DpButton,
     DpHeightLimit,
     DpLoading,
@@ -115,6 +136,8 @@ export default {
       return DpEditor
     }
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     procedureId: {
@@ -231,6 +254,10 @@ export default {
   },
 
   methods: {
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
     reset () {
       this.fullText = this.uneditedFullText
       this.isEditing = false

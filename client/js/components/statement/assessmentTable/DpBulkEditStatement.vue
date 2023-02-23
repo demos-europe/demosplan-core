@@ -92,11 +92,27 @@
             {{ Translator.trans('consideration.text.add.explanation') }}
           </p>
           <dp-editor
+            editorInsertAtCursorPos
             :value="options.recommendation.value"
             @input="updateRecommendationText"
-            :toolbar-items="{ boilerPlate: 'consideration' }"
-            ref="recommendation"
-            :procedure-id="procedureId" />
+            ref="recommendation">
+            <template v-slot:modal="modalProps">
+              <dp-boiler-plate-modal
+                ref="boilerPlateModal"
+                :procedure-id="procedureId"
+                boiler-plate-type="consideration"
+                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            </template>
+            <template v-slot:button>
+              <button
+                @click.stop="openBoilerPlate"
+                :class="prefixClass('menubar__button')"
+                type="button"
+                v-tooltip="Translator.trans('boilerplate.insert')">
+                <i :class="prefixClass('fa fa-puzzle-piece')" />
+              </button>
+            </template>
+          </dp-editor>
         </div>
       </div>
 
@@ -196,15 +212,16 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import { DpButton, DpMultiselect, DpTextWrapper, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
+import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'DpBulkEditStatement',
 
   components: {
+    DpBoilerPlateModal,
     DpMultiselect,
     DpButton,
     DpTextWrapper,
@@ -213,6 +230,8 @@ export default {
       return DpEditor
     }
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     procedureId: {
@@ -318,6 +337,10 @@ export default {
         .then(() => {
           this.redirectToAssessmentTable()
         })
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     redirectToAssessmentTable () {

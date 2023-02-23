@@ -115,16 +115,33 @@
               @change="actions.addRecommendations.isTextAttached = false" />
           </div>
           <dp-editor
-            id="addRecommendationTipTap"
             editor-id="recommendationText"
+            editorInsertAtCursorPos
+            id="addRecommendationTipTap"
             v-model="actions.addRecommendations.text"
             :toolbar-items="{
-              boilerPlate: 'consideration',
               fullscreenButton: true,
               linkButton: true
-            }"
-            :procedure-id="procedureId"
-            :disabled="!hasSegments" />
+            }">
+            <template v-slot:modal="modalProps">
+              <dp-boiler-plate-modal
+                ref="boilerPlateModal"
+                editor-id="recommendationText"
+                :procedure-id="procedureId"
+                boiler-plate-type="consideration"
+                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            </template>
+            <template v-slot:button>
+              <button
+                @click.stop="openBoilerPlate"
+                :class="prefixClass('menubar__button')"
+                :disabled="!hasSegments"
+                type="button"
+                v-tooltip="Translator.trans('boilerplate.insert')">
+                <i :class="prefixClass('fa fa-puzzle-piece')" />
+              </button>
+            </template>
+          </dp-editor>
         </action-stepper-action>
       </div>
     </template>
@@ -233,11 +250,12 @@
 
 <script>
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpMultiselect, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
@@ -248,6 +266,7 @@ export default {
     ActionStepper,
     ActionStepperAction,
     ActionStepperResponse,
+    DpBoilerPlateModal,
     DpInlineNotification: async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
@@ -264,6 +283,8 @@ export default {
   directives: {
     cleanhtml: CleanHtml
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     procedureId: {
@@ -513,6 +534,10 @@ export default {
      */
     getRpcResult (response) {
       return hasOwnProp(response, 0) && response[0]?.result === 'ok'
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     /**
