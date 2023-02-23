@@ -154,7 +154,7 @@ abstract class AbstractProcedureFormType extends AbstractType
         $allowableSegmentAccessProcedures = $this->procedureService->getProcedureAdminList(
             [
                 'procedureIdToExclude' => $procedureIdToExclude,
-                'orgaCustomerId' => $orgaCustomerId,
+                'orgaCustomerId'       => $orgaCustomerId,
             ],
             null,
             $currentUser,
