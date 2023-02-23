@@ -377,6 +377,34 @@ class FaqHandler extends CoreHandler
     }
 
     /**
+     * Get all faqs and sort by category into array.
+     *
+     * @param Collection $categories a collection of {@link Category categories}
+     *
+     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     */
+    public function convertIntoTwigFormat(Collection $categories, User $user): array
+    {
+        // get all faqs and sort by category into array:
+        $convertedResult = [];
+        foreach ($categories as $category) {
+            $faqList = $this->getEnabledFaqList($category, $user);
+
+            $faqList = $this->orderFaqsByManualSortList($faqList, $category);
+            foreach ($faqList as $faq) {
+                $categoryId = $faq->getCategory()->getId();
+                $categoryTitle = $faq->getCategory()->getTitle();
+
+                $convertedResult[$categoryId]['id'] = $categoryId;
+                $convertedResult[$categoryId]['label'] = $categoryTitle;
+                $convertedResult[$categoryId]['faqlist'][] = $faq;
+            }
+        }
+
+        return $convertedResult;
+    }
+
+    /**
      * Delete the related category of the given Id if there are no related content.
      *
      * @param FaqCategory $faqCategory Identify the category to delete
