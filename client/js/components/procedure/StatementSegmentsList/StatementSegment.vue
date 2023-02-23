@@ -102,12 +102,10 @@
           editorInsertAtCursorPos
           :toolbar-items="{
             fullscreenButton: false,
-            linkButton: true,
-            recommendationButton: segment.hasRelationship('tags')
+            linkButton: true
           }"
           :value="segment.attributes.recommendation"
           @input="value => updateSegment('recommendation', value)"
-          :segment-id="segment.id"
           class="u-mb-0_5">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
@@ -116,6 +114,12 @@
               :procedure-id="procedureId"
               boiler-plate-type="consideration"
               @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            <dp-recommendation-modal
+              v-if="segment.hasRelationship('tags')"
+              ref="recommendationModal"
+              @insert-recommendation="text => modalProps.appendText(text)"
+              :procedure-id="procedureId"
+              :segment-id="segment.id" />
           </template>
           <template v-slot:button>
             <button
@@ -124,6 +128,14 @@
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
+            </button>
+            <button
+              v-if="segment.hasRelationship('tags')"
+              @click.stop="openRecommendationModal"
+              :class="prefixClass('menubar__button')"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
+              type="button">
+              <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
         </dp-editor>
@@ -261,6 +273,7 @@ import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, pre
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
 
 export default {
   name: 'StatementSegment',
@@ -279,6 +292,7 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
+    DpRecommendationModal,
     VPopover
   },
 
@@ -506,6 +520,10 @@ export default {
 
     openBoilerPlate () {
       this.$refs.boilerPlateModal.toggleModal()
+    },
+
+    openRecommendationModal () {
+      this.$refs.recommendationModal.toggleModal('open')
     },
 
     /**
