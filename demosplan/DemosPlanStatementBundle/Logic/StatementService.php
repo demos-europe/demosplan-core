@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function array_map;
-
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -145,6 +143,8 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
+
+use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface
 {
@@ -3131,11 +3131,13 @@ class StatementService extends CoreService implements StatementServiceInterface
                 }
                 $statementMustIds = \array_unique($statementMustIds);
                 $shouldQuery = new BoolQuery();
-                $shouldQuery->addShould(
-                    $this->searchService->getElasticaTermsInstance(
-                        'id',
-                        $statementMustIds
-                    ));
+                foreach ($statementMustIds as $statementMustId) {
+                    $shouldQuery->addShould(
+                        $this->searchService->getElasticaTermsInstance(
+                            'id',
+                            $statementMustId
+                        ));
+                }
                 // add search query as a should request as we already found statements
                 // that have the searchstring at their fragment
                 if ($searchQuery instanceof AbstractQuery) {

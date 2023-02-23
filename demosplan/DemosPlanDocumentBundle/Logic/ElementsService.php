@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -45,7 +46,7 @@ use Exception;
 use ReflectionException;
 use Throwable;
 
-class ElementsService extends CoreService
+class ElementsService extends CoreService implements ElementsServiceInterface
 {
     /**
      * @var SingleDocumentService

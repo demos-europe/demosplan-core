@@ -188,7 +188,8 @@
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "demos-europe/demosplan-addon-installer": true,
-            "bamarni/composer-bin-plugin": true
+            "bamarni/composer-bin-plugin": true,
+            "php-http/discovery": false
         }
     },
     "conflict": {

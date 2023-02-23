@@ -1551,6 +1551,7 @@ feature_procedure_sort_orga_name:
     parent: area_main_procedures
 feature_procedure_templates:
     description: 'if enanbeld the user has an select field in the new procedure page to select boilerplates (Blaupausen)'
+    expose: true
     label: 'enables boilerplates selector'
     loginRequired: true
     parent: area_main_procedures
@@ -2253,6 +2254,7 @@ feature_use_data_input_orga:
     loginRequired: false
 feature_use_plis:
     description: 'Fetch procedure bounding box from external service plis'
+    expose: true
     label: 'Fetch procedure bounding box from external service plis'
     loginRequired: true
 feature_use_xplanbox:
