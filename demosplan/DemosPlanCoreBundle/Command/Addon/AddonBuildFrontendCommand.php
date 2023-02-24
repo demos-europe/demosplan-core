@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,9 +43,10 @@ class AddonBuildFrontendCommand extends CoreCommand
 
         $addonInfo = $this->registry[$input->getArgument('addon-name')];
 
+        $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
         $consoleReturn = Batch::create($this->getApplication(), $output)
-            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonInfo->getInstallPath())
-            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonInfo->getInstallPath())
+            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonPath)
+            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonPath)
             ->run();
 
         return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;

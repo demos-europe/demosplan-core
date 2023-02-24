@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -22,9 +23,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_elements")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository")
  */
-class Elements extends CoreEntity implements UuidEntityInterface
+class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {
     public const ELEMENTS_CATEGORY_MAP = 'map'; // like "Planzeichnung"
     public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; // like "Gesamtstellungnahme" or "Fehlanzeige"
@@ -103,8 +105,11 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_e_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -120,6 +125,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Elements|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_e_p_id", referencedColumnName="_e_id", onDelete="SET NULL")
      */
     protected $parent;
@@ -138,6 +144,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")
      */
     protected $procedure;
@@ -209,6 +216,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -217,6 +225,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -225,6 +234,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -233,6 +243,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,SingleDocument>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", mappedBy="element")
+     *
      * @ORM\OrderBy({"order" = "ASC", "createDate" = "ASC"})
      */
     protected $documents;
@@ -241,6 +252,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,Elements>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="parent")
+     *
      * @ORM\OrderBy({"order" = "ASC"})
      */
     protected $children;
@@ -249,6 +261,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,Orga>|Orga[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinTable(
      *     name="_elements_orga_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", onDelete="CASCADE")},
