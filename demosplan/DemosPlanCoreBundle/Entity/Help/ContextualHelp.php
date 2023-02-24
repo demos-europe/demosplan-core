@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Help;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_platform_context_sensitive_help")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository")
  */
-class ContextualHelp implements UuidEntityInterface
+class ContextualHelp implements ContextualHelpInterface
 {
     /**
      * @var string|null

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -26,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository")
  */
-class GisLayerCategory extends CoreEntity implements UuidEntityInterface
+class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 {
     /**
      * Unique identification of the GisLayerCategory entry.

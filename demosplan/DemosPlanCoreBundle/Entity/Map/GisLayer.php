@@ -23,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_gis", indexes={@ORM\Index(name="_g_global_id", columns={"_g_global_id"})})
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanMapBundle\Repository\MapRepository")
  */
-class GisLayer extends CoreEntity implements UuidEntityInterface
+class GisLayer extends CoreEntity implements GisLayerInterface
 {
     public const TYPE_BASE = 'base';
     public const TYPE_OVERLAY = 'overlay';
