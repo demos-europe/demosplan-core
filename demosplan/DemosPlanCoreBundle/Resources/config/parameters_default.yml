@@ -480,6 +480,4 @@ parameters:
     # external_links:
     #     Name of some website: https://link-to-the-website.net
     #     Some other website: https://link-to-some-other-website.net
-    external_links:
-        DiPlan Portal: 'https://diplanportal-dev.demos-europe.eu/'
-        DiPlanCockpit: 'http://hh.cockpit.diplanung.de'
+    external_links: []
