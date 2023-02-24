@@ -77,7 +77,7 @@
           :label="{ text: Translator.trans('name') }"
           :maxlength="200"
           name="r_name"
-          :required="requireField"
+          required
           type="text" />
       </dp-form-row>
       <dp-form-row v-if="hasPermission('feature_procedure_templates')">
@@ -215,7 +215,6 @@ import {
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
-import { mapState } from 'vuex'
 
 export default {
   name: 'DpNewProcedure',
@@ -292,10 +291,6 @@ export default {
   },
 
   computed: {
-    ...mapState('newProcedure', [
-      'requireField'
-    ]),
-
     currentProcedureTypeId () {
       return this.currentProcedureType.id || ''
     }
