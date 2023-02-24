@@ -18,9 +18,9 @@ const NewProcedure = {
 
   mutations: {
     /**
-     *
+     * Sets required attribute of a form field dynamically to true/false if the attribute is bound to requireField.
      * @param state {Object}
-     * @param value {Boolean} Sets required form field dynamically to true/false.
+     * @param value {Boolean}
      */
     setRequiredField (state, value) {
       state.requireField = value
