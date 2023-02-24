@@ -73,7 +73,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage;
-use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
@@ -2420,7 +2419,6 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     public function boilerplateListAction(
-        BoilerplateRepository $boilerplateRepository,
         ProcedureHandler $procedureHandler,
         Request $request,
         $procedure
@@ -2438,10 +2436,7 @@ class DemosPlanProcedureController extends BaseController
 
             // Lösche markierte Textbausteingruppen
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups(
-                    $requestPost->get('boilerplateGroupIdsTo_delete'),
-                    $boilerplateRepository
-                );
+                $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
             }
         }
 
@@ -2452,10 +2447,7 @@ class DemosPlanProcedureController extends BaseController
 
         // delete single boilerplateGroup
         if ($requestPost->has('boilerplateGroupDeleteAllContent')) {
-            $this->handleDeleteBoilerplateGroup(
-                $requestPost->get('boilerplateGroupDeleteAllContent'),
-                $boilerplateRepository
-            );
+            $this->handleDeleteBoilerplateGroup($requestPost->get('boilerplateGroupDeleteAllContent'));
         }
 
         if ($requestPost->has('r_createGroup') && $requestPost->has('r_newGroup')) {
@@ -2789,23 +2781,22 @@ class DemosPlanProcedureController extends BaseController
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
      */
     protected function handleDeleteBoilerplateGroup(
-        string $boilerplateGroupId,
-        BoilerplateRepository $boilerplateRepository
+        string $boilerplateGroupId
     ) {
         $boilerplatesOfGroupToDelete = new ArrayCollection();
         $boilerplateGroupToDelete = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
+        $title = '';
         if (null !== $boilerplateGroupToDelete) {
             foreach ($boilerplateGroupToDelete->getBoilerplates() as $boilerplate) {
                 $boilerplatesOfGroupToDelete->add($boilerplate);
             }
+            $title = $boilerplateGroupToDelete->getTitle();
         }
-
-        $title = null === $boilerplateGroupToDelete ? '' : $boilerplateGroupToDelete->getTitle();
 
         $successfully = $this->procedureService->deleteBoilerplateGroup($boilerplateGroupToDelete);
         /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupToDelete as $boilerplate) {
-            $successfully = $successfully && $boilerplateRepository->delete($boilerplate->getId());
+            $successfully = $successfully && $this->procedureService->deleteBoilerplate($boilerplate->getId());
         }
         if ($successfully) {
             $this->getMessageBag()->add(
@@ -2841,8 +2832,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
      */
     protected function handleDeleteBoilerplateGroups(
-        array $boilerplateGroupIds,
-        BoilerplateRepository $boilerplateRepository
+        array $boilerplateGroupIds
     ) {
         $boilerplatesOfGroupsToDelete = new ArrayCollection();
         foreach ($boilerplateGroupIds as $boilerplateGroupId) {
@@ -2859,7 +2849,7 @@ class DemosPlanProcedureController extends BaseController
         $allDeleted = $this->procedureService->deleteBoilerplateGroupsByIds($boilerplateGroupIds);
         /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupsToDelete as $boilerplate) {
-            $allDeleted = $allDeleted && $boilerplateRepository->delete($boilerplate->getId());
+            $allDeleted = $allDeleted && $this->procedureService->deleteBoilerplate($boilerplate->getId());
         }
         if ($allDeleted) {
             $this->getMessageBag()->add('confirm', 'confirm.selected.boilerplateGroups.deleted');
