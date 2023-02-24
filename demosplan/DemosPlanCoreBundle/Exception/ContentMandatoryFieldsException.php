@@ -14,5 +14,4 @@ use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonContentMandatoryFieldsE
 
 class ContentMandatoryFieldsException extends AddonContentMandatoryFieldsException
 {
-
 }

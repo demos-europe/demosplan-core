@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -52,8 +53,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -142,6 +141,7 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;

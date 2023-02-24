@@ -10,9 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -25,6 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Class GisLayerCategory.
  *
  * @ORM\Table
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository")
  */
 class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
@@ -35,8 +35,11 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -45,6 +48,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
+     *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -60,6 +64,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $createDate;
@@ -68,6 +73,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $modifyDate;
@@ -88,6 +94,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * If this is null, we have arrived at the root category of a procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory", inversedBy="children", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
      */
     protected $parent;
