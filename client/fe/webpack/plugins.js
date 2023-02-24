@@ -16,7 +16,7 @@ const webpack = require('webpack') // Is webpack is webpack
 
 const { config } = require('../config/config')
 
-const { resolveDir } = require('../webpack/resolveDir')
+const { resolveDir } = require('../webpack/util')
 
 const webpackDevOnlyPlugins = []
 const webpackProdOnlyPlugins = []

@@ -15,7 +15,7 @@ const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const { config } = require('./client/fe/config/config') // All our configuration
 
 const resolveAliases = require('./client/fe/webpack/resolveAliases').resolveAliases // To manage the @bundlePath Syntax
-const resolveDir = require('./client/fe/webpack/resolveDir').resolveDir
+const resolveDir = require('./client/fe/webpack/util').resolveDir
 const moduleRules = require('./client/fe/webpack/moduleRules').moduleRules
 const bundleEntryPoints = require('./client/fe/webpack/bundleEntryPoints').bundleEntryPoints
 const optimization = require('./client/fe/webpack/optimization').optimization

@@ -9,7 +9,7 @@
 
 const chalk = require('chalk')
 const spawnSync = require('child_process').spawnSync // To run php processes
-const log = require('../webpack/log').log
+const log = require('../webpack/util').log
 
 /* eslint-disable dot-notation */
 
