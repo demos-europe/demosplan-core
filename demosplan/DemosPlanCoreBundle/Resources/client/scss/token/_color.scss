@@ -28,7 +28,7 @@ $dp-token-color-brand-main-contrast:            $dp-color-white !default;
 //
 // The [alt] tokens are the second most prominent brand representation in the color scheme.
 // Use with caution, too. Background color must contrast with [c-main].
-$dp-token-color-brand-alt:                      $dp-color-alt !default;
+$dp-token-color-brand-alt:                      $dp-color-brand-alt-base !default;
 $dp-token-color-brand-alt-contrast:             $dp-color-white !default;
 
 // Link color is applied to all links that should be branded... that is, basically, all links.
@@ -55,7 +55,7 @@ $dp-token-color-brand-cta-contrast:             $dp-color-white !default;
 $dp-token-color-brand-header:                   $dp-color-brand-main-base !default;
 $dp-token-color-brand-header-contrast:          $dp-color-white !default;
 // - Highlighted state for main nav items, matches pageheader colors
-$dp-token-color-brand-header-alt:               $dp-color-alt !default;
+$dp-token-color-brand-header-alt:               $dp-color-brand-alt-base !default;
 $dp-token-color-brand-header-alt-contrast:      $dp-color-white !default;
 // - Hover state for main nav items, matches :active state for mobile item
 $dp-token-color-brand-header-active:            $dp-color-neutral-light-3 !default;

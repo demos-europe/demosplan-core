@@ -46,13 +46,13 @@
         }
     }
 
-    // Assuming links on $dp-color-alt
+    // Assuming links on $dp-color-brand-alt-base
     &--on-alt {
         color: $dp-color-white;
         text-decoration: underline;
 
         &:hover {
-            color: $dp-color-alt--light-1;
+            color: $dp-color-brand-alt-light-4;
         }
     }
 
