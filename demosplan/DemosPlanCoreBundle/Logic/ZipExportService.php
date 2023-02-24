@@ -16,9 +16,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
-
-use function get_class;
-
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -28,6 +25,8 @@ use ZipStream\Option\Archive;
 use ZipStream\Option\File;
 use ZipStream\Option\Method;
 use ZipStream\ZipStream;
+
+use function get_class;
 
 class ZipExportService
 {

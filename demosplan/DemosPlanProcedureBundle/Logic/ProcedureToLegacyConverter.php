@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function collect;
-
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
@@ -24,6 +22,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\LegacyResult;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+
+use function collect;
 
 /**
  * @deprecated Use Procedure Object instead
@@ -210,9 +210,9 @@ class ProcedureToLegacyConverter extends CoreService
     /**
      * Convert Result to Legacy.
      *
-     * @param array  $list
+     * @param array       $list
      * @param string|null $search
-     * @param array  $aggregation Elasticsearch aggregation converted to legacy
+     * @param array       $aggregation Elasticsearch aggregation converted to legacy
      *
      * @internal param array $filter
      */
