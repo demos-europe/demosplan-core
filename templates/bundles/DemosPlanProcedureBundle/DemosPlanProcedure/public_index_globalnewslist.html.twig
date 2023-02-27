@@ -14,7 +14,7 @@
 
     <div class="{{ 'layout'|prefixClass }}">
         {% set cols = templateVars.list.newslist|length %}
-        {% set classes = 'u-1-of-' ~ cols ~ ' layout__item u-1-of-1-palm u-mb-0_5-palm o-page__news--item' %}
+        {% set classes = 'u-1-of-' ~ cols ~ ' layout__item u-1-of-1-palm u-mb-0_5-palm o-page__news-item' %}
         {% for newsItem in templateVars.list.newslist %}
 
             <div class="{{ classes|prefixClass }}">
