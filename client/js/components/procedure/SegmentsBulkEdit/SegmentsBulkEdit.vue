@@ -115,10 +115,10 @@
               @change="actions.addRecommendations.isTextAttached = false" />
           </div>
           <dp-editor
-            editor-id="recommendationText"
-            editorInsertAtCursorPos
             id="addRecommendationTipTap"
             v-model="actions.addRecommendations.text"
+            editor-id="recommendationText"
+            editorInsertAtCursorPos
             :toolbar-items="{
               fullscreenButton: true,
               linkButton: true
@@ -126,18 +126,18 @@
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 ref="boilerPlateModal"
+                boiler-plate-type="consideration"
                 editor-id="recommendationText"
                 :procedure-id="procedureId"
-                boiler-plate-type="consideration"
                 @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
             </template>
             <template v-slot:button>
               <button
-                @click.stop="openBoilerPlate"
                 :class="prefixClass('menubar__button')"
                 :disabled="!hasSegments"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')">
+                v-tooltip="Translator.trans('boilerplate.insert')"
+                @click.stop="openBoilerPlate">
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
             </template>

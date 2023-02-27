@@ -27,35 +27,35 @@
 
     <div v-if="isEditing">
       <dp-editor
-        class="u-mb-0_5"
         ref="editor"
-        :entity-id="entityId"
+        class="u-mb-0_5"
         :editor-id="editorId"
         editorInsertAtCursorPos
-        v-model="fullText"
+        :entity-id="entityId"
         :toolbar-items="{
           insertAndDelete: insertAndDelete,
           linkButton: linkButton,
           mark: mark,
           obscure: obscure,
           strikethrough: strikethrough
-        }">
+        }"
+        v-model="fullText">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
             ref="boilerPlateModal"
+            boiler-plate-type="consideration"
             :editor-id="editorId"
             :procedure-id="procedureId"
-            boiler-plate-type="consideration"
             @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
         </template>
         <template v-slot:button>
           <button
             v-if="boilerPlate"
-            @click.stop="openBoilerPlate"
             :class="prefixClass('menubar__button')"
             type="button"
-            v-tooltip="Translator.trans('boilerplate.insert')">
+            v-tooltip="Translator.trans('boilerplate.insert')"
+            @click.stop="openBoilerPlate">
             <i :class="prefixClass('fa fa-puzzle-piece')" />
           </button>
         </template>
@@ -140,10 +140,13 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
-    procedureId: {
-      required: true,
-      type: String
+    // Set to true if you want to enable the 'add boilerplate' button
+    boilerPlate: {
+      type: Boolean,
+      required: false,
+      default: false
     },
+
     editable: {
       required: false,
       type: Boolean,
@@ -177,22 +180,17 @@ export default {
       required: true
     },
 
+    heightLimitElementLabel: {
+      type: String,
+      required: true
+    },
+
     initialIsShortened: {
       type: Boolean,
       required: true
     },
 
     initialText: {
-      type: String,
-      required: true
-    },
-
-    heightLimitElementLabel: {
-      type: String,
-      required: true
-    },
-
-    title: {
       type: String,
       required: true
     },
@@ -225,11 +223,9 @@ export default {
       default: false
     },
 
-    // Set to true if you want to enable the 'add boilerplate' button
-    boilerPlate: {
-      type: Boolean,
-      required: false,
-      default: false
+    procedureId: {
+      required: true,
+      type: String
     },
 
     // Set to true if you want to enable a line through (strike through) option
@@ -237,19 +233,24 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    title: {
+      type: String,
+      required: true
     }
   },
 
   data () {
     return {
-      isEditing: false,
-      shortText: '',
       fullText: '',
       fullTextLoaded: false,
-      uneditedFullText: '',
-      loading: false,
+      isEditing: false,
+      isInitialUpdate: true,
       isShortened: false,
-      isInitialUpdate: true
+      loading: false,
+      shortText: '',
+      uneditedFullText: ''
     }
   },
 

@@ -98,6 +98,7 @@
       </div>
       <div v-else>
         <dp-editor
+          class="u-mb-0_5"
           editor-id="recommendationText"
           editorInsertAtCursorPos
           :toolbar-items="{
@@ -105,36 +106,35 @@
             linkButton: true
           }"
           :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
-          class="u-mb-0_5">
+          @input="value => updateSegment('recommendation', value)">
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
               ref="boilerPlateModal"
+              boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
-              boiler-plate-type="consideration"
               @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
             <dp-recommendation-modal
               v-if="segment.hasRelationship('tags')"
               ref="recommendationModal"
-              @insert-recommendation="text => modalProps.appendText(text)"
               :procedure-id="procedureId"
-              :segment-id="segment.id" />
+              :segment-id="segment.id"
+              @insert-recommendation="text => modalProps.appendText(text)"/>
           </template>
           <template v-slot:button>
             <button
-              @click.stop="openBoilerPlate"
               :class="prefixClass('menubar__button')"
               type="button"
-              v-tooltip="Translator.trans('boilerplate.insert')">
+              v-tooltip="Translator.trans('boilerplate.insert')"
+              @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
               v-if="segment.hasRelationship('tags')"
-              @click.stop="openRecommendationModal"
               :class="prefixClass('menubar__button')"
+              type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
-              type="button">
+              @click.stop="openRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>

@@ -16,16 +16,16 @@
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         ref="boilerPlateModal"
-        :procedure-id="procedureId"
         boiler-plate-type="email"
+        :procedure-id="procedureId"
         @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
     </template>
     <template v-slot:button>
       <button
-        @click.stop="openBoilerPlate"
         :class="prefixClass('menubar__button')"
         type="button"
-        v-tooltip="Translator.trans('boilerplate.insert')">
+        v-tooltip="Translator.trans('boilerplate.insert')"
+        @click.stop="openBoilerPlate">
         <i :class="prefixClass('fa fa-puzzle-piece')" />
       </button>
     </template>
