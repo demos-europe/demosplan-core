@@ -14,5 +14,4 @@ use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonPreNewProcedureCreatedE
 
 class PreNewProcedureCreatedEventConcernException extends AddonPreNewProcedureCreatedEventConcernException
 {
-
 }
