@@ -24,14 +24,14 @@
             color: $dp-color-brand-main-dark-1;
 
             &:hover {
-                color: $dp-color-highlight;
+                color: $dp-color-brand-highlight-base;
                 border: $item-border-thickness solid $dp-color-brand-main-base;
                 cursor: pointer;
             }
 
             &.is-selected {
                 color: $dp-color-white;
-                background: $dp-color-highlight;
+                background: $dp-color-brand-highlight-base;
                 border-radius: $dp-token-rounded-small;
                 font-weight: $bold-font-weight;
                 font-family: $bold-font-family;

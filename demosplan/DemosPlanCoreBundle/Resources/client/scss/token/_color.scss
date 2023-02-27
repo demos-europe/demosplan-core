@@ -34,19 +34,19 @@ $dp-token-color-brand-alt-contrast:             $dp-color-white !default;
 // Link color is applied to all links that should be branded... that is, basically, all links.
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
 $dp-token-color-brand-link:                     $dp-color-brand-main-base !default;
-$dp-token-color-brand-link-hover:               $dp-color-highlight !default;
-$dp-token-color-brand-link-active:              $dp-color-highlight--dark !default;
+$dp-token-color-brand-link-hover:               $dp-color-brand-highlight-base !default;
+$dp-token-color-brand-link-active:              $dp-color-brand-highlight-dark-1 !default;
 $dp-token-color-brand-link-alt:                 $dp-color-neutral-base !default;
 
 // The [highlight] token is used for communicating active or focused state of interactive elements.
 // The value of [highlight] should pass AAA contrast check with #ffffff.
-$dp-token-color-brand-highlight:                $dp-color-highlight !default;
+$dp-token-color-brand-highlight:                $dp-color-brand-highlight-base !default;
 
 // The [cta] tokens are used for coloring interactive elements of high importance (eg. actionbox).
 // The value of [cta] should pass AAA contrast check with the value of [cta-contrast].
-$dp-token-color-brand-cta-dark:                 $dp-color-highlight--dark !default;
-$dp-token-color-brand-cta:                      $dp-color-highlight !default;
-$dp-token-color-brand-cta-light:                $dp-color-highlight--light !default;
+$dp-token-color-brand-cta-dark:                 $dp-color-brand-highlight-dark-1 !default;
+$dp-token-color-brand-cta:                      $dp-color-brand-highlight-base !default;
+$dp-token-color-brand-cta-light:                $dp-color-brand-highlight-light-2 !default;
 $dp-token-color-brand-cta-contrast:             $dp-color-white !default;
 
 // The [header] tokens style both the pageheader & main navigation.
@@ -63,7 +63,7 @@ $dp-token-color-brand-header-active-contrast:   $dp-color-brand-main-base !defau
 
 // The [nav-alt] tokens control the appearance of branded secondary navigation (project switcher, footer).
 $dp-token-color-brand-nav-alt-link:             $dp-color-brand-main-base !default;
-$dp-token-color-brand-nav-alt-link-hover:       $dp-color-highlight !default;
+$dp-token-color-brand-nav-alt-link-hover:       $dp-color-brand-highlight-base !default;
 $dp-token-color-brand-nav-alt-alt:              $dp-color-neutral-dark-1 !default;
 $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !default;
 
@@ -118,7 +118,7 @@ $dp-token-color-ui-interactive-dimmed:          $dp-color-neutral-light-1;
 
 // The [highlight] token is used for communicating active or focused state of interactive elements.
 // The value of [highlight] should pass AAA contrast check with #ffffff.
-$dp-token-color-ui-highlight:                   $dp-color-highlight;
+$dp-token-color-ui-highlight:                   $dp-color-brand-highlight-base;
 
 // Fill + Stroke colors to be used for vectors in maps - chosen for maximum visibility on all kinds of maps.
 $dp-token-color-ui-map-draw-fill:               rgb(212 0 75 / 20%);
