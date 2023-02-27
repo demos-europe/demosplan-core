@@ -61,7 +61,7 @@ class Config {
       ],
       safelist: {
         standard: [
-          /-(leave|enter|appear)(|-(to|from|active))$/,
+          /-(leave|enter|appear)(-(to|from|active)|)$/,
           /^(?!(|.*?:)cursor-move).+-move$/,
           /^router-link(|-exact)-active$/,
           /data-v-.+/,
