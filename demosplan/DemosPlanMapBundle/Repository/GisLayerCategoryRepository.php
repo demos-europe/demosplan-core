@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanMapBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
@@ -286,13 +287,9 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
     }
 
     /**
-     * @param string $procedureId
-     *
-     * @return GisLayerCategory|null
-     *
      * @throws Exception
      */
-    public function getRootLayerCategory($procedureId)
+    public function getRootLayerCategory(string $procedureId): ?GisLayerCategoryInterface
     {
         try {
             return $this->findOneBy(['procedure' => $procedureId, 'parent' => null]);
