@@ -14,10 +14,14 @@
 import CreateProcedure from '@DpJs/lib/procedure/CreateProcedure'
 import DpNewProcedure from '@DpJs/components/procedure/admin/DpNewProcedure/DpNewProcedure'
 import { initialize } from '@DpJs/InitVue'
+import NewProcedure from '@DpJs/store/procedure/NewProcedure'
 
 const components = { DpNewProcedure }
+const stores = {
+  NewProcedure: NewProcedure
+}
 
-initialize(components)
+initialize(components, stores)
   .then(() => {
     // Prevent multiple form submits
     document.addEventListener('customValidationPassed', (e) => {
