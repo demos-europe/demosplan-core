@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -601,9 +602,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureFormData = $form->getData();
         // will be an empty string and an empty array in case of a non-blueprint submit for agencyExtraEmailAddresses
         // agencyMainEmailAddress will be an empty string in case of blueprint submits
-        $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-        $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-        $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+        $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
         // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
         if (\array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
