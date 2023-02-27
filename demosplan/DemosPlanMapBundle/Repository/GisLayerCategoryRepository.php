@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanMapBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -26,7 +27,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**
      * Get Entity by Id.

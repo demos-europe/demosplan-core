@@ -2013,7 +2013,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
-        $masterTemplateId = $this->masterTemplateService->getMasterTemplateId();
+        $masterTemplateId = $this->getMasterTemplateId();
         $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
 
         // T15664: in case of globalMasterBlueprint is set,
@@ -2371,7 +2371,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         // ensure that we have at least our base Categories & Groups from Master blueprint
         $this->boilerplateCategoryRepository
-            ->ensureBaseCategories($this->masterTemplateService->getMasterTemplateId(), $newProcedure);
+            ->ensureBaseCategories($this->getMasterTemplateId(), $newProcedure);
     }
 
     /**
@@ -2957,5 +2957,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }, $sourcePlaces);
 
         $this->placeRepository->persistEntities($newPlaces);
+    }
+
+    public function getMasterTemplateId()
+    {
+        return $this->masterTemplateService->getMasterTemplateId();
     }
 }

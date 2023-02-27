@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="_single_doc")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository")
  */
-class SingleDocument extends CoreEntity implements UuidEntityInterface
+class SingleDocument extends CoreEntity implements SingleDocumentInterface
 {
     public const IMPORT_CREATION = 'importCreation';
 

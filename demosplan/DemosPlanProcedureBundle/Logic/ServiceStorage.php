@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
@@ -47,7 +48,7 @@ use function is_string;
 /**
  * Speicherung von Planverfahren.
  */
-class ServiceStorage
+class ServiceStorage implements ServiceStorageInterface
 {
     /**
      * @var ContentService

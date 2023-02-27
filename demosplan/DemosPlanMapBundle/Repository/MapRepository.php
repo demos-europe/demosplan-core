@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanMapBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -21,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
     /**
      * Get single GisLayer form DB by id.
@@ -640,11 +642,11 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
     }
 
     /**
-     * @param GisLayer $gisLayer
+     * @param GisLayerInterface $gisLayer
      *
      * @throws Exception
      */
-    public function updateObject($gisLayer): GisLayer
+    public function updateObject($gisLayer): GisLayerInterface
     {
         try {
             $this->_em->persist($gisLayer);

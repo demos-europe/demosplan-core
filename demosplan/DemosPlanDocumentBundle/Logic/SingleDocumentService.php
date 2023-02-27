@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
@@ -23,7 +25,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
 
-class SingleDocumentService extends CoreService
+class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {
     /**
      * @var FileService
@@ -225,11 +227,11 @@ class SingleDocumentService extends CoreService
      *
      * @param string $ident
      *
-     * @return SingleDocument|array|null
+     * @return SingleDocumentInterface|array|null
      *
      * @throws ReflectionException
      *
-     * @psalm-return SingleDocument|array{statement_enabled: mixed}|null
+     * @psalm-return SingleDocumentInterface|array{statement_enabled: mixed}|null
      */
     public function getSingleDocument($ident, bool $legacy = true)
     {
@@ -476,7 +478,7 @@ class SingleDocumentService extends CoreService
      *
      * @throws Exception
      */
-    public function createSingleDocumentVersion(SingleDocument $singleDocument): SingleDocumentVersion
+    public function createSingleDocumentVersion(SingleDocument $singleDocument)
     {
         return $this->singleDocumentVersionRepository->createVersion($singleDocument);
     }
