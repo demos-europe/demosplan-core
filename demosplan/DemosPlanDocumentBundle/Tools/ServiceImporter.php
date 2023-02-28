@@ -376,7 +376,7 @@ class ServiceImporter implements ServiceImporterInterface
     }
 
     /**
-     * Uploads a single FileZ
+     * Uploads a single FileZ.
      *
      * @throws Exception
      */
