@@ -95,6 +95,9 @@
             :value="options.recommendation.value"
             @input="updateRecommendationText"
             :toolbar-items="{ boilerPlate: 'consideration' }"
+            :routes="{
+              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+            }"
             ref="recommendation"
             :procedure-id="procedureId" />
         </div>
@@ -197,8 +200,7 @@
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
+import { DpButton, DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 export default {

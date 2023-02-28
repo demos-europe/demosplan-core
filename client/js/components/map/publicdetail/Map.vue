@@ -14,8 +14,13 @@
       v-if="hasPermission('feature_map_search_location')"
       :options="autocompleteOptions"
       :value="selectedValue"
-      route="DemosPlan_procedure_public_suggest_procedure_location_json"
-      :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent), maxResults: 9999 }"
+      :route-generator="(searchString) => {
+        return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
+          filterByExtent: JSON.stringify(maxExtent),
+          maxResults: 9999,
+          query: searchString
+        })
+      }"
       label="value"
       track-by="value"
       @search-changed="(response) => sortResults(response.data.data || [])"
@@ -386,7 +391,6 @@ export default {
           }
         })
       })
-
     },
 
     addTerritoryLayer () {
@@ -938,7 +942,8 @@ export default {
             return
           }
           this.handleButtonInteraction('criteria', '#criteriaButton', () => {
-            this.mapSingleClickListener = this.map.on('singleclick', queryCriteria) })
+            this.mapSingleClickListener = this.map.on('singleclick', queryCriteria)
+          })
         })
       }
 
@@ -1385,7 +1390,6 @@ export default {
        * #########################################################
        * Kartenwerkzeuge: DragZoom control
        */
-
 
       //  Add DragZoom control
       $('#dragZoomButton').on('click', el => {
