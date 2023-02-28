@@ -37,5 +37,8 @@ RUN mkdir -p /etc/ssh/sshd_config.d
 ADD ./start.sh /
 RUN chmod +x /start.sh
 
+# use www-data as default. On login current user is taken
+USER www-data
+
 WORKDIR /srv/www
 ENTRYPOINT [ "/start.sh" ]
