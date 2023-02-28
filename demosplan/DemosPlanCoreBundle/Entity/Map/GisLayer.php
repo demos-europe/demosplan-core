@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use Doctrine\ORM\Mapping as ORM;
