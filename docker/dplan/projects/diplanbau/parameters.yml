@@ -1,0 +1,10 @@
+parameters:
+    database_name:     '%env(string:DATABASE_NAME)%'
+    database_host:     '%env(string:DATABASE_HOST)%'
+    database_user:     '%env(string:DATABASE_USER)%'
+    database_password: '%env(string:DATABASE_PASS)%'
+    elasticsearch_urls:
+        -   url: "http://search7:9200"
+    fileservice_filepath: "/opt/uploads"
+    rabbitmq_host: "mq"
+    subdomain: demos
