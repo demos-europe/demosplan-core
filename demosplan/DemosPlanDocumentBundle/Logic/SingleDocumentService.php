@@ -478,7 +478,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      *
      * @throws Exception
      */
-    public function createSingleDocumentVersion(SingleDocument $singleDocument)
+    public function createSingleDocumentVersion(SingleDocumentInterface $singleDocument)
     {
         return $this->singleDocumentVersionRepository->createVersion($singleDocument);
     }

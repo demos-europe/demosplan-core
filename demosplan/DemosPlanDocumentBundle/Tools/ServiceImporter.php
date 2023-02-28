@@ -376,14 +376,11 @@ class ServiceImporter implements ServiceImporterInterface
     }
 
     /**
-     * Uploads a single File.
-     *
-     * @param string $elementId
-     * @param string $procedureId
+     * Uploads a single FileZ
      *
      * @throws Exception
      */
-    public function uploadImportFile($elementId, $procedureId, $uploadedFile): void
+    public function uploadImportFile(string $elementId, string $procedureId, $uploadedFile): void
     {
         if ('' === $uploadedFile) {
             $this->messageBag->add('warning', 'warning.import.selected');
