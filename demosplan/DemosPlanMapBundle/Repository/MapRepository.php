@@ -644,9 +644,11 @@ class MapRepository extends CoreRepository implements ArrayInterface, ObjectInte
     /**
      * @param GisLayerInterface $gisLayer
      *
+     * @return GisLayerInterface
+     *
      * @throws Exception
      */
-    public function updateObject($gisLayer): GisLayerInterface
+    public function updateObject($gisLayer)
     {
         try {
             $this->_em->persist($gisLayer);
