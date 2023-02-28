@@ -218,14 +218,6 @@ class ServiceImporter
                     'Incoming message size:'.strlen($replies['import']));
             }
 
-            // delete uploaded docx
-            try {
-                $fs = new Filesystem();
-                $fs->remove($file->getRealPath());
-            } catch (Exception $e) {
-                $this->getLogger()->warning('Could not delete uploaded docx file ', [$e]);
-            }
-
             return Json::decodeToArray($replies['import']);
         } catch (AMQPTimeoutException $e) {
             $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
@@ -233,6 +225,17 @@ class ServiceImporter
         } catch (Exception $e) {
             $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
             throw $e;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteDocxAfterImportWithRabbitMQ(string $fileHash) {
+        try {
+            $this->fileService->deleteFile($fileHash);
+        } catch (Exception $e) {
+            $this->getLogger()->warning('Could not delete uploaded docx file ', [$e]);
         }
     }
 
@@ -419,6 +422,8 @@ class ServiceImporter
                     'paragraph'
                 );
                 $this->createParagraphsFromImportResult($importResult, $procedureId);
+                // delete uploaded docx
+                $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
             }
 
             $this->messageBag->add('confirm', 'confirm.import');

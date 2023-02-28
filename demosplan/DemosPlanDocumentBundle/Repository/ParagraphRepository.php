@@ -490,18 +490,20 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
             $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph->getId();
         }
         $this->getEntityManager()->persist($copiedElement);
+        $this->getEntityManager()->flush();
 
         $copiedParagraphs = $this->getParagraphOfElement($copiedElement);
         foreach ($copiedParagraphs as $copiedParagraph) {
             if ($copiedParagraph->getParent() instanceof Paragraph) {
                 $oldParentId = $copiedParagraph->getParent()->getId();
                 $relatedCopiedParagraph = $this->getEntityManager()->getReference(
-                    Procedure::class, $paragraphIdMapping[$oldParentId]
+                    Paragraph::class, $paragraphIdMapping[$oldParentId]
                 );
                 $copiedParagraph->setParent($relatedCopiedParagraph);
             }
             $this->getEntityManager()->persist($copiedParagraph);
         }
+        $this->getEntityManager()->flush();
     }
 
     /**
