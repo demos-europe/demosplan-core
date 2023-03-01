@@ -231,7 +231,8 @@ class ServiceImporter
     /**
      * @throws Exception
      */
-    private function deleteDocxAfterImportWithRabbitMQ(string $fileHash) {
+    private function deleteDocxAfterImportWithRabbitMQ(string $fileHash)
+    {
         try {
             $this->fileService->deleteFile($fileHash);
         } catch (Exception $e) {
