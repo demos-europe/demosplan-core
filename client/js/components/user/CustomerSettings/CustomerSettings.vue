@@ -169,6 +169,9 @@
             headings: [2,3,4],
             imageButton: true,
             linkButton: true
+          }"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }" />
       </customer-settings-section>
 
