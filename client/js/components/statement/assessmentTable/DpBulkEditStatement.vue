@@ -83,13 +83,13 @@
         <label
           for="r_recommendation"
           class="display--inline-block">
-          {{ Translator.trans('consideration.text.add') }}
+          {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div
           v-if="options.recommendation.checked"
           class="u-ml">
           <p class="lbl__hint u-mb-0_5">
-            {{ Translator.trans('consideration.text.add.explanation') }}
+            {{ Translator.trans('considerationadvice.text.add.explanation') }}
           </p>
           <dp-editor
             :value="options.recommendation.value"
