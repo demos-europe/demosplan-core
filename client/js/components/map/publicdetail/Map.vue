@@ -574,7 +574,7 @@ export default {
     createLayer ({ layer, opacity = 1, visibility = true, preload = 0 }) {
       const name = layer.id.replaceAll('-', '')
       const visible = layer.attributes.hasDefaultVisibility && visibility
-      const source = this.createLayerSource(layer)
+      const source = visibility ? this.createLayerSource(layer) : null
 
       return new TileLayer({
         name: name,
@@ -1166,6 +1166,9 @@ export default {
           }
 
           allPrintLayers.forEach(printLayer => {
+            if (!printLayer.getSource()) {
+              this.setLayerSource(printLayer)
+            }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
             const tileUrlFunction = source.getTileUrlFunction()
