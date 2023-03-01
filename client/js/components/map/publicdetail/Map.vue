@@ -574,8 +574,7 @@ export default {
     createLayer ({ layer, opacity = 1, visibility = true, preload = 0 }) {
       const name = layer.id.replaceAll('-', '')
       const visible = layer.attributes.hasDefaultVisibility && visibility
-      const source = visibility ? this.createLayerSource(layer) : null
-      // Const source = this.createLayerSource(layer, serviceType)
+      const source = this.createLayerSource(layer)
 
       return new TileLayer({
         name: name,
