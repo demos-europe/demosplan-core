@@ -5,14 +5,16 @@
             {{ "news.announcements"|trans }}
         </h2>
         <a class="{{ 'layout__item u-1-of-2 text--right u-mb-0_5 u-pl-0'|prefixClass }}" href="{{ path('DemosPlan_globalnews_news') }}">
-            {{ "news.see.all"|trans }}
+            <span>
+                {{ "news.see.all"|trans }}
+            </span>
             <i class="{{ 'fa fa-angle-right'|prefixClass }}" aria-hidden="true"></i>
         </a>
     </header>
 
     <div class="{{ 'layout'|prefixClass }}">
         {% set cols = templateVars.list.newslist|length %}
-        {% set classes = 'u-1-of-' ~ cols ~ ' layout__item u-1-of-1-palm u-mb-0_5-palm' %}
+        {% set classes = 'u-1-of-' ~ cols ~ ' layout__item u-1-of-1-palm u-mb-0_5-palm o-page__news-item' %}
         {% for newsItem in templateVars.list.newslist %}
 
             <div class="{{ classes|prefixClass }}">

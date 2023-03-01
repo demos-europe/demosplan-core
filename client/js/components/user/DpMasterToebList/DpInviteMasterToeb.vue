@@ -12,7 +12,7 @@
     <button
       class="btn btn--primary"
       @click.prevent="inviteToeb">
-      TöB Hinzufügen
+      {{ Translator.trans('invitable_institution.add') }}
     </button>
   </div>
 </template>

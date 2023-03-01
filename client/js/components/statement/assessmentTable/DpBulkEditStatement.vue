@@ -83,18 +83,21 @@
         <label
           for="r_recommendation"
           class="display--inline-block">
-          {{ Translator.trans('consideration.text.add') }}
+          {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div
           v-if="options.recommendation.checked"
           class="u-ml">
           <p class="lbl__hint u-mb-0_5">
-            {{ Translator.trans('consideration.text.add.explanation') }}
+            {{ Translator.trans('considerationadvice.text.add.explanation') }}
           </p>
           <dp-editor
             :value="options.recommendation.value"
             @input="updateRecommendationText"
             :toolbar-items="{ boilerPlate: 'consideration' }"
+            :routes="{
+              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+            }"
             ref="recommendation"
             :procedure-id="procedureId" />
         </div>
@@ -197,8 +200,7 @@
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
-import { DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
+import { DpButton, DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 export default {

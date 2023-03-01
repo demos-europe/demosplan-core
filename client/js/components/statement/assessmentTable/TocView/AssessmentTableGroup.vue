@@ -27,8 +27,8 @@
         :is-selected="getSelectionStateById(statement.id)"
         :statement-id="statement.id"
         :statement-procedure-id="statement.procedureId"
-        @add-to-selection="addToSelectionAction"
-        @remove-from-selection="removeFromSelectionAction" />
+        @statement:addToSelection="addToSelectionAction"
+        @statement:removeFromSelection="removeFromSelectionAction" />
     </ul>
 
     <ul

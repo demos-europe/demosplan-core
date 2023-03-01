@@ -123,6 +123,9 @@
               fullscreenButton: true,
               linkButton: true
             }"
+            :routes="{
+              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+            }"
             :procedure-id="procedureId"
             :disabled="!hasSegments" />
         </action-stepper-action>
