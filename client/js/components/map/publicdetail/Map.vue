@@ -575,7 +575,6 @@ export default {
       const name = layer.id.replaceAll('-', '')
       const visible = layer.attributes.hasDefaultVisibility && visibility
       const source = visibility ? this.createLayerSource(layer) : null
-      // Const source = this.createLayerSource(layer, serviceType)
 
       return new TileLayer({
         name: name,
@@ -1167,6 +1166,9 @@ export default {
           }
 
           allPrintLayers.forEach(printLayer => {
+            if (!printLayer.getSource()) {
+              this.setLayerSource(printLayer)
+            }
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
             const tileUrlFunction = source.getTileUrlFunction()
