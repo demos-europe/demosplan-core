@@ -16,7 +16,7 @@
     aria-required="true"
     id="locationFieldset">
     <p
-      :class="prefixClass('weight--bold u-mt u-mb-0')"
+      :class="prefixClass('c-statement__formblock-title weight--bold u-mt u-mb-0')"
       id="statementMapReference">
       {{ Translator.trans('statement.map.reference') }}
       <span

@@ -121,28 +121,24 @@
           </div>
         </template>
 
-        <label
-          for="statementText"
-          :class="prefixClass('u-mb-0_5 weight--bold')">
-          {{ Translator.trans('statement.detail.form.statement_text') }}
-          <span
-            v-if="formData.r_isNegativeReport !== '1'"
-            aria-hidden="true">
-            *
-          </span>
-        </label>
-        <dp-editor
-          class="u-mb-0_5"
-          hidden-input="r_text"
-          id="statementText"
-          :toolbar-items="{
-            mark: true,
-            strikethrough: true
-          }"
-          ref="statementEditor"
-          :required="formData.r_isNegativeReport !== '1'"
-          :value="formData.r_text || ''"
-          @input="val => setStatementData({r_text: val})" />
+        <div :class="prefixClass('c-statement__text')">
+          <dp-label
+            :text="Translator.trans('statement.detail.form.statement_text')"
+            for="statementText"
+            :required="formData.r_isNegativeReport !== '1'" />
+          <dp-editor
+            :class="prefixClass('u-mb')"
+            hidden-input="r_text"
+            id="statementText"
+            :toolbar-items="{
+              mark: true,
+              strikethrough: true
+            }"
+            ref="statementEditor"
+            :required="formData.r_isNegativeReport !== '1'"
+            :value="formData.r_text || ''"
+            @input="val => setStatementData({r_text: val})" />
+        </div>
         <div
           v-if="loggedIn === false"
           :class="prefixClass('u-mb')">
@@ -173,12 +169,12 @@
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
             aria-hidden="true"
-            :class="prefixClass('u-mb-0_25 weight--bold display--inline-block')">
+            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold display--inline-block')">
             {{ Translator.trans('element.assigned') }}
           </p>
           <p
             aria-hidden="true"
-            :class="prefixClass('u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
+            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
                 @click="gotoTab('procedureDetailsDocumentlist')"
@@ -282,6 +278,7 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
+                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"

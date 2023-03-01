@@ -143,7 +143,7 @@ class ReportMessageConverter
             $message = '';
         }
 
-        return $message ?? '';
+        return $message;
     }
 
     /**

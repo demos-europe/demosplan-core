@@ -865,8 +865,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         return $this->procedureService->getProcedureAdminList(
             [],
             null,
-            null,
             $user,
+            null,
             false,
             false,
             false

@@ -47,7 +47,10 @@
                         toolbarItems: { headings: [1,2,3] },
                         hiddenInput: 'r_email_body',
                         linkButton: true,
-                        procedureId: templateVars.procedureId
+                        procedureId: templateVars.procedureId,
+                        routes: {
+                            boilerplateEditViewRoute: path('DemosPlan_procedure_boilerplate_list', { 'procedure': templateVars.procedureId })
+                        }
                     },
                     id: 'r_email_body',
                     type: 'editor',

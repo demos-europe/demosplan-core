@@ -211,7 +211,7 @@ class ProcedureToLegacyConverter extends CoreService
      * Convert Result to Legacy.
      *
      * @param array  $list
-     * @param string $search
+     * @param string|null $search
      * @param array  $aggregation Elasticsearch aggregation converted to legacy
      *
      * @internal param array $filter
