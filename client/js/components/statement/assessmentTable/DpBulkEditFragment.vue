@@ -82,7 +82,7 @@
         <label
           for="r_consideration"
           class="display--inline-block">
-          {{ Translator.trans('considerationadvice.add') }}
+          {{ Translator.trans('consideration.text.add') }}
         </label>
         <div
           v-if="options.consideration.checked"
@@ -91,7 +91,7 @@
             for="r_consideration_value"
             class="u-mb-0_25  u-n-mt-0_5" /><!--
           --><p class="lbl__hint u-mb-0_5">
-          {{ Translator.trans('considerationadvice.add.explanation') }}
+          {{ Translator.trans('consideration.text.add.explanation') }}
         </p>
 
           <dp-editor

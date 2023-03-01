@@ -649,8 +649,8 @@ consideration.versions: "Ältere Versionen der Abwägung / Empfehlung"
 considerationadvice.fpf: "Empfehlung der Fachbehörde oder des Planungsbüros"
 # this should only be used when referring to the field on fragments. statements use 'recommendation'
 considerationadvice: "Abwägung / Empfehlung"
-considerationadvice.add: "Abwägung / Empfehlung ergänzen"
-considerationadvice.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
+considerationadvice.text.add: "Abwägung / Empfehlung ergänzen"
+considerationadvice.text.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
