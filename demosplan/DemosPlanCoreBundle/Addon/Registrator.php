@@ -87,7 +87,8 @@ final class Registrator
         $this->addons[$addonName] = [
             'enabled'      => false,
             'installed_at' => Carbon::now()->toIso8601String(),
-            'install_path' => realpath($this->packageInformation->getInstallPath($addonName)),
+            // use relative path to be compatible with different environments
+            'install_path' => 'addons/vendor/'.$addonName,
             'manifest'     => $this->loadManifest($addonName),
         ];
     }
