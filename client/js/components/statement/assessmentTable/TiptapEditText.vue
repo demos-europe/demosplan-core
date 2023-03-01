@@ -40,6 +40,9 @@
           obscure: obscure,
           strikethrough: strikethrough
         }"
+        :routes="{
+          boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
+        }"
         :procedure-id="procedureId" />
       <div class="text--right space-inline-s">
         <dp-button
