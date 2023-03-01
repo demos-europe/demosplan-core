@@ -16,6 +16,7 @@
     <dp-upload-files
       ref="uploader"
       id="statementUpload"
+      :get-file-by-hash="(hash) => Routing.generate('core_file', { hash: hash })"
       allowed-file-types="pdf"
       :max-file-size="100000000"
       :max-number-of-files="maxNumberOfFiles"
@@ -66,7 +67,7 @@ export default {
   methods: {
     async createAnnotatedStatementPdf () {
       if (this.fileHashes.length) {
-        const ids = await getFileIdsByHash(this.fileHashes)
+        const ids = await getFileIdsByHash(this.fileHashes, Routing.generate('api_resource_list', { resourceType: 'File' }))
 
         this.isProcessing = true
         const uploadPromises = ids.map(id => {
