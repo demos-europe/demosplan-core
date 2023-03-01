@@ -93,7 +93,6 @@
           </p>
           <dp-editor
             ref="recommendation"
-            editorInsertAtCursorPos
             :value="options.recommendation.value"
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">

@@ -9,7 +9,6 @@
 
 <template>
   <dp-editor
-    editorInsertAtCursorPos
     hidden-input="r_send_body"
     :toolbar-items="toolbarItems"
     v-model="text">

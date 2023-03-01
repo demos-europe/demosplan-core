@@ -100,7 +100,6 @@
         <dp-editor
           class="u-mb-0_5"
           editor-id="recommendationText"
-          editorInsertAtCursorPos
           :toolbar-items="{
             fullscreenButton: false,
             linkButton: true

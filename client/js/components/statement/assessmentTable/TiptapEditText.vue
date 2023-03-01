@@ -30,7 +30,6 @@
         ref="editor"
         class="u-mb-0_5"
         :editor-id="editorId"
-        editorInsertAtCursorPos
         :entity-id="entityId"
         :toolbar-items="{
           insertAndDelete: insertAndDelete,

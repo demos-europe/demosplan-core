@@ -96,7 +96,6 @@
 
           <dp-editor
             ref="consideration"
-            editorInsertAtCursorPos
             :value="options.consideration.value"
             @input="updateConsiderationText">
             <template v-slot:modal="modalProps">

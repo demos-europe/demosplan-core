@@ -118,7 +118,6 @@
             id="addRecommendationTipTap"
             v-model="actions.addRecommendations.text"
             editor-id="recommendationText"
-            editorInsertAtCursorPos
             :toolbar-items="{
               fullscreenButton: true,
               linkButton: true
