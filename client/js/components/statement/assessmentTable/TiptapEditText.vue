@@ -102,8 +102,7 @@
 </template>
 
 <script>
-import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpHeightLimit, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
 
 export default {

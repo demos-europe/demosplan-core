@@ -40,8 +40,7 @@
 </template>
 
 <script>
-import { DpEditableList, DpInput } from '@demos-europe/demosplan-ui'
-import { validateEmail } from '@demos-europe/demosplan-utils/lib/validation'
+import { DpEditableList, DpInput, validateEmail } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpEmailList',

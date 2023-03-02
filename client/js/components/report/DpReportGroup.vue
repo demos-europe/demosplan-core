@@ -55,8 +55,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDataTable, DpLoading, DpSlidingPagination } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
+import { CleanHtml, DpDataTable, DpLoading, DpSlidingPagination, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpReportGroup',

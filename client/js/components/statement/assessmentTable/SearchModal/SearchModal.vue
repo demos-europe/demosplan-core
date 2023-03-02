@@ -199,9 +199,8 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpInput, DpModal, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
-import { hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import { mapMutations } from 'vuex'
 
 export default {

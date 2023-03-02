@@ -198,9 +198,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpMultiselect,
+  DpTextWrapper
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import { DpButton, DpMultiselect, DpTextWrapper } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 export default {

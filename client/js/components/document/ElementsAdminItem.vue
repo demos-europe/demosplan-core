@@ -35,9 +35,8 @@
 </template>
 
 <script>
+import { DpToggle, DpTooltipIcon, formatDate } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpToggle, DpTooltipIcon } from '@demos-europe/demosplan-ui'
-import { formatDate } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'ElementsAdminItem',

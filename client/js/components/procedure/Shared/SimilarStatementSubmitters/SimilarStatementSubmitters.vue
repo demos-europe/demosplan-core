@@ -155,8 +155,14 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpContextualHelp, DpEditableList, DpInput } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  dpApi,
+  DpContextualHelp,
+  DpEditableList,
+  DpInput,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SimilarStatementSubmitters',

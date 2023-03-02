@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-utils'
+import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AddonWrapper',
@@ -49,7 +49,7 @@ export default {
   },
 
   methods: {
-    loadComponents() {
+    loadComponents () {
       dpRpc('addons.assets.load', { hookName: this.hookName })
         .then(response => checkResponse(response))
         .then(response => {
@@ -58,24 +58,28 @@ export default {
           for (const key of Object.keys(result)) {
             const addon = result[key]
             if (addon === undefined) {
-              // if for some reason we don't receive a valid info object from the backend
-              // we'll just skip it.
-              console.debug('Skipping addon hook response evaluation for '+key)
-              continue;
+              /*
+               * If for some reason we don't receive a valid info object from the backend
+               * we'll just skip it.
+               */
+              console.debug('Skipping addon hook response evaluation for ' + key)
+              continue
             }
 
             const contentKey = addon.entry + '.umd.js'
             const content = addon.content[contentKey]
 
-            // While eval generally is a BADIDEA, we really need to evaluate the code we're
-            // adding dynamically to use the provided addon's script henceforth.
+            /*
+             * While eval generally is a BADIDEA, we really need to evaluate the code we're
+             * adding dynamically to use the provided addon's script henceforth.
+             */
             eval(content)
             this.$options.components[addon.entry] = window[addon.entry].default
 
             this.component = window[addon.entry].default
           }
         })
-    },
+    }
   },
 
   mounted () {

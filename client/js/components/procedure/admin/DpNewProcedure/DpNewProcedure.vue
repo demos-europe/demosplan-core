@@ -161,8 +161,7 @@
           end-name="r_enddate"
           :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
           :calendars-after="2"
-          enforce-plausible-dates>
-        </dp-date-range-picker>
+          enforce-plausible-dates />
 
         <p
           v-if="hasPermission('feature_use_plis')"
@@ -201,8 +200,8 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
 import {
+  dpApi,
   DpButton,
   DpDateRangePicker,
   DpFormRow,
@@ -211,7 +210,8 @@ import {
   DpLabel,
   DpMultiselect,
   DpSelect,
-  DpTextArea
+  DpTextArea,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'

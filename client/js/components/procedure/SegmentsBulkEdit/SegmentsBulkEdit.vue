@@ -235,8 +235,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpMultiselect,
+  DpRadio,
+  dpRpc,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
