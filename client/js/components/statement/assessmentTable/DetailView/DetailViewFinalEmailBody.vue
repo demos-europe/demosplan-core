@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {

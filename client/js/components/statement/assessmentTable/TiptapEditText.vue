@@ -120,7 +120,7 @@
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { DpButton, DpHeightLimit, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
-import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 
 export default {
   name: 'TiptapEditText',

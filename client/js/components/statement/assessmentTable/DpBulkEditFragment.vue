@@ -226,7 +226,7 @@
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-utils'
 import { DpButton, DpMultiselect, DpTextWrapper, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpBoilerPlateModal from '@DpJs/components/statement/segments/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
 
 export default {
