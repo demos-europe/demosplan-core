@@ -38,7 +38,7 @@ class Version20230301094921 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        //color
+        // color
         $this->addSql(
             'UPDATE _gis AS g
             INNER JOIN _procedure AS p ON g._p_id = p._p_id
@@ -50,15 +50,15 @@ class Version20230301094921 extends AbstractMigration
             AND g._g_url NOT LIKE :oldGisUrlGray
             AND p._p_master = 1 AND p._p_deleted = 0',
             [
-                'gisName'     => self::NEW_GIS_NAME,
-                'gisLayer'    => self::NEW_GIS_LAYER_COLOR,
-                'newGisUrl'   => self::NEW_GIS_URL,
-                'oldGisUrl'   => self::OLD_GIS_URL,
+                'gisName'         => self::NEW_GIS_NAME,
+                'gisLayer'        => self::NEW_GIS_LAYER_COLOR,
+                'newGisUrl'       => self::NEW_GIS_URL,
+                'oldGisUrl'       => self::OLD_GIS_URL,
                 'oldGisUrlGray'   => self::OLD_GIS_URL_GRAY,
             ]
         );
 
-        //grey
+        // grey
         $this->addSql(
             'UPDATE _gis AS g
             INNER JOIN _procedure AS p ON g._p_id = p._p_id
@@ -69,9 +69,9 @@ class Version20230301094921 extends AbstractMigration
             WHERE g._g_url LIKE :oldGisUrlGray
             AND p._p_master = 1 AND p._p_deleted = 0',
             [
-                'gisName'     => self::NEW_GIS_NAME,
-                'gisLayer'    => self::NEW_GIS_LAYER_GRAY,
-                'newGisUrl'   => self::NEW_GIS_URL,
+                'gisName'         => self::NEW_GIS_NAME,
+                'gisLayer'        => self::NEW_GIS_LAYER_GRAY,
+                'newGisUrl'       => self::NEW_GIS_URL,
                 'oldGisUrlGray'   => self::OLD_GIS_URL_GRAY,
             ]
         );
