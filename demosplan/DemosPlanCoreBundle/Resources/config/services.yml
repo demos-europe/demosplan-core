@@ -31,7 +31,6 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
-
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
 
@@ -77,8 +76,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-#    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
-#       class:
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
+        class: demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface
 
 #    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
 #        class:
@@ -188,6 +187,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
         class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
+        arguments:
+            $esProcedurePersister : '@fos_elastica.object_persister.procedures'
+            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $environment: '%kernel.environment%'
 
     DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\File
@@ -1333,6 +1336,26 @@ services:
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
 
+    demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage: ~
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+        class : demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
+        class : demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService
+
+    demosplan\DemosPlanCoreBundle\Logic\TransactionService : ~
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
+        class : demosplan\DemosPlanCoreBundle\Logic\TransactionServic
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
+        class : demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter
+
+    demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory: ~
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
 
