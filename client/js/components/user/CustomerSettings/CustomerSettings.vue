@@ -47,10 +47,10 @@
         <dp-editor
           id="r_imprint"
           v-model="customer.imprint"
-          :headings="[2,3,4]"
           hidden-input="r_imprint"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -65,10 +65,10 @@
         <dp-editor
           id="r_dataProtection"
           v-model="customer.dataProtection"
-          :headings="[2,3,4]"
           hidden-input="r_dataProtection"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -83,10 +83,10 @@
         <dp-editor
           id="r_termsOfUse"
           v-model="customer.termsOfUse"
-          :headings="[2,3,4]"
           hidden-input="r_termsOfUse"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -101,10 +101,10 @@
         <dp-editor
           id="r_xplanning"
           v-model="customer.xplanning"
-          :headings="[2,3,4]"
           hidden-input="r_xplanning"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -146,10 +146,10 @@
         <dp-editor
           id="r_accessibilityExplanation"
           v-model="customer.accessibilityExplanation"
-          :headings="[2,3,4]"
           hidden-input="r_accessibilityExplanation"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -163,10 +163,10 @@
         <dp-editor
           id="r_simpleLanguage"
           v-model="customer.overviewDescriptionInSimpleLanguage"
-          :headings="[2,3,4]"
           hidden-input="r_simpleLanguage"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             imageButton: true,
             linkButton: true
           }"

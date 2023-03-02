@@ -329,6 +329,7 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
