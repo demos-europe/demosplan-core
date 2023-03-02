@@ -24,11 +24,10 @@ use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
-
-use function str_replace;
-
 use Symfony\Component\HttpFoundation\Request;
 use Tightenco\Collect\Support\Collection;
+
+use function str_replace;
 
 class DefaultTwigVariablesService
 {
@@ -215,6 +214,7 @@ class DefaultTwigVariablesService
             'urlPathPrefix'                    => $this->globalConfig->getUrlPathPrefix(),
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
+            'externalLinks'                    => $this->globalConfig->getExternalLinks(),
         ];
     }
 

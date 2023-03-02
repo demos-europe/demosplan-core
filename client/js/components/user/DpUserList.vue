@@ -202,7 +202,7 @@ export default {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete'))) {
+        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
           ids.forEach(id => {
             this.deleteUser(id)
               .then(() => {

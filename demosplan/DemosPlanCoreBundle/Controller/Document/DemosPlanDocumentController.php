@@ -1793,8 +1793,8 @@ class DemosPlanDocumentController extends BaseController
                 $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
                 continue;
             }
-            // $fileName is nullable. If for some reasons it is null, better use a random string than fail
-            $fileName = $fileName ?? random_bytes(10);
+            // $fileName might be an empty string. If for some reasons it is empty, better use a random string than fail
+            $fileName = '' === $fileName ? random_bytes(10) : $fileName;
             $fileNamedPath = $elementHandler->getFileNamedPath($fileRequestInfo['path'], $fileName);
             $fileInfo[$singleDocId] = [
                 'fullPath'  => $fileFullPath,

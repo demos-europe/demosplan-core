@@ -737,7 +737,7 @@ class DemosPlanAssessmentTableController extends BaseController
         if (0 === count($statementAsArray)) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
 
-            $redirectReturn = $redirectReturn ?? $this->redirectToRoute(
+            $redirectReturn = $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
                 [
                     'procedureId' => $procedureId,
