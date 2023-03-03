@@ -417,7 +417,7 @@ export default {
           }
         },
         fields: this.requestFields,
-        includes: this.requestIncludes.join(',')
+        include: this.requestIncludes.join(',')
       }
     },
 
