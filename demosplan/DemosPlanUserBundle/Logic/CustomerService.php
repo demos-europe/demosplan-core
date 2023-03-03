@@ -12,27 +12,20 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomerService
 {
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var GlobalConfigInterface
-     */
-    private $globalConfig;
-
-    public function __construct(CustomerRepository $customerRepository, GlobalConfigInterface $globalConfig)
-    {
-        $this->customerRepository = $customerRepository;
-        $this->globalConfig = $globalConfig;
+    public function __construct(
+        private readonly CustomerRepository $customerRepository,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     public function findCustomerById(string $id): Customer
@@ -72,5 +65,35 @@ class CustomerService
     public function updateCustomer(Customer $customer): Customer
     {
         return $this->customerRepository->updateObject($customer);
+    }
+
+    /**
+     * @throws ORMException
+     * @throws ViolationsException
+     */
+    public function createCustomer(string $name, string $subdomain): Customer
+    {
+        $customer = new Customer($name, $subdomain);
+        $violations = $this->validator->validate($customer);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        $this->customerRepository->persistEntities([$customer]);
+
+        return $customer;
+    }
+
+    /**
+     * @return list<array{0: string, 1: string}> list of tuples with the first entry being the name and the second one being the subdomain
+     */
+    public function getReservedCustomerNamesAndSubdomains(): array
+    {
+        $existingCustomers = $this->customerRepository->findAll();
+
+        return array_map(
+            static fn (Customer $customer): array => [$customer->getName(), $customer->getSubdomain()],
+            $existingCustomers
+        );
     }
 }
