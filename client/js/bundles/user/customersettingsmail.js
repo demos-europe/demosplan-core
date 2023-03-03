@@ -11,7 +11,7 @@
  * This is the entrypoint for customer_settings_update_mail.html.twig
  */
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
