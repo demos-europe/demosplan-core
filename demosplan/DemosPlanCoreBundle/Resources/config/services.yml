@@ -21,15 +21,21 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
-    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
-        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
 
-    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
-    EDT\Wrapping\Contracts\TypeProviderInterface:
-        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+        class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
-    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+    DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
+        class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionServic'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
+        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -1244,6 +1250,16 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
 
+    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+
+    EDT\Wrapping\Contracts\TypeProviderInterface:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
@@ -1336,26 +1352,5 @@ services:
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
-
-    demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage: ~
-
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
-        class : demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage
-
-    DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
-        class : demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService
-
-    demosplan\DemosPlanCoreBundle\Logic\TransactionService : ~
-
-    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
-        class : demosplan\DemosPlanCoreBundle\Logic\TransactionServic
-
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class : demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter
-
-    demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory: ~
-
-    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
 
