@@ -72,34 +72,25 @@ EOT
 
     /**
      * Update demosplan.
-     *
-     * @throws Exception
      */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $exitCode = $this->initializeDatabase($input, $output);
-        if (Command::SUCCESS !== $exitCode) {
-            return $exitCode;
-        }
+        try {
+            $this->initializeDatabase($input, $output);
+            $this->initializeCustomer($input, $output);
+            $this->migrateDatabase($output);
+            $this->elasticsearchPopulate($output);
+        } catch (Exception) {
 
-        $exitCode = $this->initializeCustomer($input, $output);
-        if (Command::SUCCESS !== $exitCode) {
-            return $exitCode;
-        }
-
-        $exitCode = $this->migrateDatabase($output);
-        if (Command::SUCCESS !== $exitCode) {
-            return $exitCode;
-        }
-
-        $exitCode = $this->elasticsearchPopulate($output);
-        if (Command::SUCCESS !== $exitCode) {
-            return $exitCode;
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function initializeDatabase(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('override-database')) {
@@ -112,7 +103,7 @@ EOT
                     OutputInterface::VERBOSITY_NORMAL
                 );
 
-                return Command::FAILURE;
+                throw $exception;
             }
         }
 
@@ -129,13 +120,16 @@ EOT
                     OutputInterface::VERBOSITY_NORMAL
                 );
 
-                return Command::FAILURE;
+                throw $exception;
             }
         }
 
         return Command::SUCCESS;
     }
 
+    /**
+     * @throws Exception
+     */
     private function initializeCustomer(InputInterface $input, OutputInterface $output): int
     {
         try {
@@ -187,9 +181,13 @@ EOT
                 OutputInterface::VERBOSITY_NORMAL
             );
 
-            return Command::FAILURE;
+            throw $exception;
         }
     }
+
+    /**
+     * @throws Exception
+     */
     protected function elasticsearchPopulate(OutputInterface $output): int
     {
         $output->writeln('populate ES');
@@ -204,13 +202,16 @@ EOT
                 OutputInterface::VERBOSITY_NORMAL
             );
 
-            return Command::FAILURE;
+            throw $exception;
 
         }
 
         return Command::SUCCESS;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function migrateDatabase(OutputInterface $output): int
     {
         try {
@@ -223,7 +224,7 @@ EOT
                 OutputInterface::VERBOSITY_NORMAL
             );
 
-            return Command::FAILURE;
+            throw $exception;
 
         }
 
@@ -242,7 +243,8 @@ EOT
     /**
      * Loads, parses and validates the config if it is given as option in the input.
      *
-     * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the loaded config as associative array or `null` if no config path was given
+     * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the
+     * loaded config as associative array or `null` if no config path was given
      *
      * @throws Exception if the config path or config content is invalid
      */
