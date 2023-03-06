@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c673828cabef780b48c3da239d9eb653",
+    "content-hash": "24fa93c2e7b2b8f3f18d6acf054919ae",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1290,16 +1290,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-F_T31336_adjust_and_add_contracts",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "871a9da13b5d368a4fe57a1a18c8d2bd31e762a3"
+                "reference": "0677985b650548a1fe59cb512699ba971cb66908"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/871a9da13b5d368a4fe57a1a18c8d2bd31e762a3",
-                "reference": "871a9da13b5d368a4fe57a1a18c8d2bd31e762a3",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/0677985b650548a1fe59cb512699ba971cb66908",
+                "reference": "0677985b650548a1fe59cb512699ba971cb66908",
                 "shasum": ""
             },
             "require": {
@@ -1323,6 +1323,7 @@
                 "composer/composer": "^2.1",
                 "phpstan/phpstan": "^1.9"
             },
+            "default-branch": true,
             "type": "package",
             "autoload": {
                 "psr-4": {
@@ -1335,9 +1336,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/F_T31336_adjust_and_add_contracts"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/main"
             },
-            "time": "2023-02-24T13:06:30+00:00"
+            "time": "2023-03-06T13:47:12+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
