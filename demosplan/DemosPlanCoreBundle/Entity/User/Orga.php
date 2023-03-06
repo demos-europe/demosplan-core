@@ -114,11 +114,11 @@ class Orga extends SluggedEntity implements OrgaInterface
     protected $modifiedDate;
 
     /**
+     * Comma separated list of cc-Email addresses.
+     *
      * @var string|null
      *
      * @ORM\Column(name="_o_cc_email2", type="string", length=4096, nullable=true)
-     *
-     * @Assert\Email(message="email.address.invalid")
      */
     protected $ccEmail2;
 
