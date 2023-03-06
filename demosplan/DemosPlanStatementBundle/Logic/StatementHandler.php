@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use function array_key_exists;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -3059,7 +3060,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
 
                 /** @var ManualStatementCreatedEvent $assessableStatementEvent */
-                $assessableStatementEvent = $this->eventDispatcher->dispatch(new ManualStatementCreatedEvent($assessableStatement));
+                $assessableStatementEvent = $this->eventDispatcher->dispatch(
+                    new ManualStatementCreatedEvent($assessableStatement),
+                    ManualStatementCreatedEventInterface::class
+                );
                 $assessableStatement = $assessableStatementEvent->getStatement();
 
                 $routeName = 'dm_plan_assessment_single_view';
