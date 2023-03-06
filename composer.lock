@@ -5689,16 +5689,16 @@
         },
         {
             "name": "jfcherng/php-diff",
-            "version": "6.13.0",
+            "version": "6.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jfcherng/php-diff.git",
-                "reference": "f6ac9425e391cc1a834d473545fe1a55b98e53f3"
+                "reference": "2ee6d8efb77ab53711a459a8725e6704d00f3668"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jfcherng/php-diff/zipball/f6ac9425e391cc1a834d473545fe1a55b98e53f3",
-                "reference": "f6ac9425e391cc1a834d473545fe1a55b98e53f3",
+                "url": "https://api.github.com/repos/jfcherng/php-diff/zipball/2ee6d8efb77ab53711a459a8725e6704d00f3668",
+                "reference": "2ee6d8efb77ab53711a459a8725e6704d00f3668",
                 "shasum": ""
             },
             "require": {
@@ -5743,7 +5743,7 @@
             ],
             "support": {
                 "issues": "https://github.com/jfcherng/php-diff/issues",
-                "source": "https://github.com/jfcherng/php-diff/tree/6.13.0"
+                "source": "https://github.com/jfcherng/php-diff/tree/6.13.1"
             },
             "funding": [
                 {
@@ -5751,20 +5751,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-01-18T16:32:08+00:00"
+            "time": "2023-02-27T11:28:39+00:00"
         },
         {
             "name": "jfcherng/php-mb-string",
-            "version": "1.4.6",
+            "version": "1.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jfcherng/php-mb-string.git",
-                "reference": "f5b438d348e030961e0b86a04ef2319c31ae8146"
+                "reference": "08194ae9de7d22e4555d311e0e88c2492009035d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jfcherng/php-mb-string/zipball/f5b438d348e030961e0b86a04ef2319c31ae8146",
-                "reference": "f5b438d348e030961e0b86a04ef2319c31ae8146",
+                "url": "https://api.github.com/repos/jfcherng/php-mb-string/zipball/08194ae9de7d22e4555d311e0e88c2492009035d",
+                "reference": "08194ae9de7d22e4555d311e0e88c2492009035d",
                 "shasum": ""
             },
             "require": {
@@ -5795,7 +5795,7 @@
             "description": "A high performance multibytes sting implementation for frequently reading/writing operations.",
             "support": {
                 "issues": "https://github.com/jfcherng/php-mb-string/issues",
-                "source": "https://github.com/jfcherng/php-mb-string/tree/1.4.6"
+                "source": "https://github.com/jfcherng/php-mb-string/tree/1.4.7"
             },
             "funding": [
                 {
@@ -5803,7 +5803,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2022-04-02T16:32:41+00:00"
+            "time": "2023-02-26T16:51:55+00:00"
         },
         {
             "name": "jfcherng/php-sequence-matcher",
