@@ -23,6 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(name="customer")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanUserBundle\Repository\CustomerRepository")
  */
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface
@@ -31,8 +32,11 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string|null
      *
      * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private $id;
@@ -123,6 +127,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var Procedure
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="customer")
+     *
      * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
      */
     protected $defaultProcedureBlueprint;
@@ -165,6 +170,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var Branding|null
      *
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
+     *
      * @Assert\Valid
      */
     protected $branding;
@@ -173,6 +179,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      *
      * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
+     *
      * @Assert\Length(max=65000)
      */
     protected $accessibilityExplanation = '';
@@ -183,6 +190,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var Collection<int, Video>
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Video")
+     *
      * @ORM\JoinTable(name="sign_language_overview_video",
      *      joinColumns={@ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="video_id", referencedColumnName="id", unique=true)}
@@ -206,6 +214,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * @var string
      *
      * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false, options={"default":""})
+     *
      * @Assert\Length(max=65536)
      */
     protected $overviewDescriptionInSimpleLanguage = '';
@@ -327,9 +336,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     }
 
     /**
-     * @return Collection<int, UserRoleInCustomer>|UserRoleInCustomer[]
+     * @return Collection<int, UserRoleInCustomer>
      */
-    public function getUserRoles()
+    public function getUserRoles(): Collection
     {
         return $this->userRoles;
     }

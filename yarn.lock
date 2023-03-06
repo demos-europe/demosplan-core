@@ -1189,9 +1189,9 @@
   integrity sha512-jwx+WCqszn53YHOfvFMJJRd/B2GqkCBt+1MJSG6o5/s8+ytHMvDZXsJgUEWLk12UnLd7HYKac4BYU5i/Ron1Cw==
 
 "@demos-europe/demosplan-ui@^0":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.14.tgz#33db4bc9182cec432388e0c2a9dc25a6e9124918"
-  integrity sha512-VEYvosRqu/zhm+Ja/1pSw0JBDWaIXiH4kOwdJ4RTzxhtI2y82IxtedTFfEmEBLtW6YwxRHywIWWu1SVAadYAdA==
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.15.tgz#0242cff96f863eba2d029e4c505666341e62f532"
+  integrity sha512-wroGqN31bS/kIdVajsOP3qGowAaTbv+Z7cuvgQgv4yZ3JCuLMbAbLtRJIFBwwS6uQT/sla5VR7ycMwLNySRgQg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
     "@uppy/core" "^3.0.1"
@@ -7252,9 +7252,9 @@ prosemirror-collab@^1.2.2:
     prosemirror-state "^1.0.0"
 
 prosemirror-commands@^1.1.4:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/prosemirror-commands/-/prosemirror-commands-1.5.0.tgz#d10efece1647c1d984fef6f65d52fdc77785560b"
-  integrity sha512-zL0Fxbj3fh71GPNHn5YdYgYGX2aU2XLecZYk2ekEF0oOD259HcXtM+96VjPVi5o3h4sGUdDfEEhGiREXW6U+4A==
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/prosemirror-commands/-/prosemirror-commands-1.5.1.tgz#89ddfa14e144dcc7fb0938aa0e2568c7fdde306f"
+  integrity sha512-ga1ga/RkbzxfAvb6iEXYmrEpekn5NCwTb8w1dr/gmhSoaGcQ0VPuCzOn5qDEpC45ql2oDkKoKQbRxLJwKLpMTQ==
   dependencies:
     prosemirror-model "^1.0.0"
     prosemirror-state "^1.0.0"

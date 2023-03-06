@@ -92,14 +92,26 @@
             {{ Translator.trans('considerationadvice.text.add.explanation') }}
           </p>
           <dp-editor
-            :value="options.recommendation.value"
-            @input="updateRecommendationText"
-            :toolbar-items="{ boilerPlate: 'consideration' }"
-            :routes="{
-              boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })
-            }"
             ref="recommendation"
-            :procedure-id="procedureId" />
+            :value="options.recommendation.value"
+            @input="updateRecommendationText">
+            <template v-slot:modal="modalProps">
+              <dp-boiler-plate-modal
+                ref="boilerPlateModal"
+                boiler-plate-type="consideration"
+                :procedure-id="procedureId"
+                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            </template>
+            <template v-slot:button>
+              <button
+                :class="prefixClass('menubar__button')"
+                type="button"
+                v-tooltip="Translator.trans('boilerplate.insert')"
+                @click.stop="openBoilerPlate">
+                <i :class="prefixClass('fa fa-puzzle-piece')" />
+              </button>
+            </template>
+          </dp-editor>
         </div>
       </div>
 
@@ -203,15 +215,18 @@ import {
   dpApi,
   DpButton,
   DpMultiselect,
-  DpTextWrapper
+  DpTextWrapper,
+  prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'DpBulkEditStatement',
 
   components: {
+    DpBoilerPlateModal,
     DpMultiselect,
     DpButton,
     DpTextWrapper,
@@ -221,8 +236,16 @@ export default {
     }
   },
 
+  mixins: [prefixClassMixin],
+
   props: {
-    procedureId: {
+    authorisedUsers: {
+      required: false,
+      type: Array,
+      default: () => []
+    },
+
+    currentUserId: {
       required: true,
       type: String
     },
@@ -233,13 +256,7 @@ export default {
       default: () => { return '' }
     },
 
-    authorisedUsers: {
-      required: false,
-      type: Array,
-      default: () => []
-    },
-
-    currentUserId: {
+    procedureId: {
       required: true,
       type: String
     }
@@ -247,6 +264,8 @@ export default {
 
   data () {
     return {
+      isLoading: false,
+      isError: false, // Shows if the save action failed or not (to display the link back to assessment table on error)
       mode: 'edit',
       options: {
         newAssignee: {
@@ -268,20 +287,13 @@ export default {
           successMessage: 'consideration.text.added'
         }
       },
-      users: this.authorisedUsers,
-      isLoading: false,
-      isError: false // Shows if the save action failed or not (to display the link back to assessment table on error)
+      users: this.authorisedUsers
     }
   },
 
   computed: {
-    selectedElementsCount () {
-      return (this.selectedElementsLength)
-    },
-
-    selectedElementsIds () {
-      return Object.keys(this.selectedElements)
-    },
+    ...mapState('statement', ['selectedElements']),
+    ...mapGetters('statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -294,7 +306,6 @@ export default {
       return checkedOptions
     },
 
-    // Used in save action
     payloadAttributes () {
       return {
         markedStatementsCount: this.selectedElementsCount,
@@ -302,6 +313,7 @@ export default {
       }
     },
 
+    // Used in save action
     payloadRelationships () {
       return {
         statements: {
@@ -311,14 +323,20 @@ export default {
       }
     },
 
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength'])
+    selectedElementsIds () {
+      return Object.keys(this.selectedElements)
+    },
+
+    selectedElementsCount () {
+      return (this.selectedElementsLength)
+    }
   },
 
   methods: {
     ...mapActions('statement', {
       resetSelectionAction: 'resetSelection'
     }),
+    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()
@@ -327,8 +345,42 @@ export default {
         })
     },
 
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
     redirectToAssessmentTable () {
       window.location.href = Routing.generate('dplan_assessmenttable_view_table', { procedureId: this.procedureId, filterHash: this.filterHash })
+    },
+
+    submitData () {
+      this.isLoading = true
+      const payload = {
+        data: {
+          id: uuid(),
+          type: 'statementBulkEdit',
+          attributes: this.payloadAttributes,
+          relationships: this.payloadRelationships
+        }
+      }
+      return dpApi({
+        method: 'POST',
+        url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
+          procedureId: this.procedureId
+        }),
+        data: JSON.stringify(payload)
+      })
+        .then(checkResponse)
+        .then(() => {
+          this.mode = 'success'
+          this.isLoading = false
+        })
+        .catch(() => {
+          this.isLoading = false
+          this.mode = 'confirm'
+          this.isError = true
+          dplan.notify.error(Translator.trans('statement.change.failed'))
+        })
     },
 
     toggleMode (mode) {
@@ -370,39 +422,7 @@ export default {
       if (this.options.recommendation.value !== '' && this.$refs.recommendation.$el.querySelector('.editor__content').classList.contains('border--error')) {
         this.$refs.recommendation.$el.querySelector('.editor__content').classList.remove('border--error')
       }
-    },
-
-    submitData () {
-      this.isLoading = true
-      const payload = {
-        data: {
-          id: uuid(),
-          type: 'statementBulkEdit',
-          attributes: this.payloadAttributes,
-          relationships: this.payloadRelationships
-        }
-      }
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
-          procedureId: this.procedureId
-        }),
-        data: JSON.stringify(payload)
-      })
-        .then(checkResponse)
-        .then(() => {
-          this.mode = 'success'
-          this.isLoading = false
-        })
-        .catch(() => {
-          this.isLoading = false
-          this.mode = 'confirm'
-          this.isError = true
-          dplan.notify.error(Translator.trans('statement.change.failed'))
-        })
-    },
-
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction'])
+    }
   },
 
   created () {

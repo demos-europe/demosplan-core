@@ -98,22 +98,46 @@
       </div>
       <div v-else>
         <dp-editor
+          class="u-mb-0_5"
           editor-id="recommendationText"
           :toolbar-items="{
-            boilerPlate: 'consideration',
             fullscreenButton: false,
-            linkButton: true,
-            recommendationButton: segment.hasRelationship('tags')
+            linkButton: true
           }"
-          :routes="{
-            boilerplateEditViewRoute: Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId }),
-            similarRecommendationsRoute: Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
-          }"
-          :procedure-id="procedureId"
           :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
-          :segment-id="segment.id"
-          class="u-mb-0_5" />
+          @input="value => updateSegment('recommendation', value)">
+          <template v-slot:modal="modalProps">
+            <dp-boiler-plate-modal
+              ref="boilerPlateModal"
+              boiler-plate-type="consideration"
+              editor-id="recommendationText"
+              :procedure-id="procedureId"
+              @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            <dp-recommendation-modal
+              v-if="segment.hasRelationship('tags')"
+              ref="recommendationModal"
+              :procedure-id="procedureId"
+              :segment-id="segment.id"
+              @insert-recommendation="text => modalProps.appendText(text)"/>
+          </template>
+          <template v-slot:button>
+            <button
+              :class="prefixClass('menubar__button')"
+              type="button"
+              v-tooltip="Translator.trans('boilerplate.insert')"
+              @click.stop="openBoilerPlate">
+              <i :class="prefixClass('fa fa-puzzle-piece')" />
+            </button>
+            <button
+              v-if="segment.hasRelationship('tags')"
+              :class="prefixClass('menubar__button')"
+              type="button"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
+              @click.stop="openRecommendationModal">
+              <i :class="prefixClass('fa fa-lightbulb-o')" />
+            </button>
+          </template>
+        </dp-editor>
       </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
@@ -252,10 +276,13 @@ import {
   DpIcon,
   DpLabel,
   DpMultiselect,
+  prefixClassMixin,
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
 
 export default {
   name: 'StatementSegment',
@@ -263,6 +290,7 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
     DpClaim,
@@ -273,12 +301,15 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     },
+    DpRecommendationModal,
     VPopover
   },
 
   directives: {
     cleanhtml: CleanHtml
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     currentUserFirstName: {
@@ -494,6 +525,14 @@ export default {
           this.restoreSegmentAction(this.segment.id)
           this.claimLoading = false
         })
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
+    openRecommendationModal () {
+      this.$refs.recommendationModal.toggleModal('open')
     },
 
     /**
