@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use function array_key_exists;
 use function collect;
 
@@ -154,7 +156,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(User $user, array $context = null): self
+    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -1274,7 +1276,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
     }
 
-    public function setProcedure(?Procedure $procedure): void
+    public function setProcedure(?ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }
