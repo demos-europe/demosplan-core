@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -48,7 +49,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  *      )
  * })
  */
-class Orga extends SluggedEntity
+class Orga extends SluggedEntity implements OrgaInterface
 {
     /**
      * Key for default statement submission type with coordinator.
