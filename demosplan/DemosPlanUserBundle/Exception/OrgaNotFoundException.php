@@ -10,12 +10,8 @@
 
 namespace demosplan\DemosPlanUserBundle\Exception;
 
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonOrgaNotFoundException;
 
-class OrgaNotFoundException extends ResourceNotFoundException
+class OrgaNotFoundException extends AddonOrgaNotFoundException
 {
-    public static function createFromId(string $id): OrgaNotFoundException
-    {
-        return new self("Orga with ID {$id} was not found.");
-    }
 }

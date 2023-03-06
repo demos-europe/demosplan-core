@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -399,8 +400,8 @@ class DocumentHandler extends CoreHandler
 
         foreach ($outputResultElementList as $element) {
             if ($element->getEnabled()
-                && (Elements::ELEMENTS_CATEGORY_FILE === $element->getCategory()
-                    || Elements::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
+                && (ElementsInterface::ELEMENTS_CATEGORY_FILE === $element->getCategory()
+                    || ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element->getCategory())
             ) {
                 $hasProcedureElements = true;
                 break;

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanDocumentBundle\Tools;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -37,7 +38,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * Import von Planunterlagen-Absaetzen.
  */
-class ServiceImporter
+class ServiceImporter implements ServiceImporterInterface
 {
     /**
      * @var Logger

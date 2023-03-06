@@ -253,3 +253,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\MapRepository'
