@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
@@ -908,7 +909,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
         return $this->category;
     }
 
-    public function setCategory(GisLayerCategory $category)
+    public function setCategory(GisLayerCategoryInterface $category)
     {
         $category->getGisLayers()->add($this);
         $this->category = $category;
