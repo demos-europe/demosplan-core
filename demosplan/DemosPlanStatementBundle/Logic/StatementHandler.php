@@ -10,9 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -107,9 +106,6 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
-
-use function is_string;
-
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -121,6 +117,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+
+use function array_key_exists;
+use function is_string;
 
 class StatementHandler extends CoreHandler implements StatementHandlerInterface
 {
@@ -3059,7 +3058,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
 
                 /** @var ManualStatementCreatedEvent $assessableStatementEvent */
-                $assessableStatementEvent = $this->eventDispatcher->dispatch(new ManualStatementCreatedEvent($assessableStatement));
+                $assessableStatementEvent = $this->eventDispatcher->dispatch(
+                    new ManualStatementCreatedEvent($assessableStatement),
+                    ManualStatementCreatedEventInterface::class
+                );
                 $assessableStatement = $assessableStatementEvent->getStatement();
 
                 $routeName = 'dm_plan_assessment_single_view';

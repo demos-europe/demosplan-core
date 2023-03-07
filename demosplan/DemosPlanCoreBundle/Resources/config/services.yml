@@ -32,7 +32,7 @@ services:
         class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionServic'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
         class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
@@ -56,7 +56,7 @@ services:
         class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
 
     DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface:
-        class:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserHandler'
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
@@ -82,8 +82,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
 
-    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface:
-        class: demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface
+    demosplan\DemosPlanCoreBundle\Permissions\permissions: ~
+
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
 
 #    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
 #        class:

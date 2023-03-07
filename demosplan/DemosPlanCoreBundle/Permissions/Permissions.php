@@ -10,10 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use function array_key_exists;
-use function collect;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
@@ -33,16 +31,18 @@ use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 use InvalidArgumentException;
-
-use function is_array;
-
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
+use function collect;
+use function is_array;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
@@ -154,7 +154,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * Initialisiere die Permissions.
      */
-    public function initPermissions(User $user, array $context = null): self
+    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface
     {
         $this->user = $user;
 
@@ -1274,7 +1274,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
     }
 
-    public function setProcedure(?Procedure $procedure): void
+    public function setProcedure(?ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
     }
