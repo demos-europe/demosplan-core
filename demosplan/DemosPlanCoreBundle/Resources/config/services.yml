@@ -1352,5 +1352,8 @@ services:
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
 
+    Symfony\Component\Config\FileLocatorInterface:
+        alias: 'file_locator'
 
-
+    Symfony\Component\Routing\Loader\AnnotationClassLoader:
+        alias: 'routing.loader.annotation'
