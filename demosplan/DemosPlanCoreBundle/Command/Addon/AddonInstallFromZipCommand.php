@@ -17,6 +17,7 @@ use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
 use demosplan\DemosPlanCoreBundle\Addon\Composer\PackageInformation;
 use demosplan\DemosPlanCoreBundle\Addon\Registrator;
@@ -129,7 +130,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // If composer update went well, add the addon to the registry
         $name = $this->installer->register($packageDefinition);
-
+        AddonAutoloading::register();
         try {
             $activeProject = $this->getApplication()->getKernel()->getActiveProject();
 
