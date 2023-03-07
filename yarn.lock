@@ -8222,10 +8222,10 @@ svgo@^2.7.0:
     picocolors "^1.0.0"
     stable "^0.1.8"
 
-swagger-ui-dist@^4.16.1:
-  version "4.16.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.16.1.tgz#cc41c23d44d10a80d04a5ce545dbd660e318751d"
-  integrity sha512-4J4XekQG0ol4/TyUzMfksrWsMTbw/7JYlT+SFaX7H0xamd1OeuVlUSb/Cbq4qdDx1lc+uLZQW7u2mlImcE8c+w==
+swagger-ui-dist@^4.17.1:
+  version "4.17.1"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-4.17.1.tgz#ce47872e1eb7bd49528f50d5bdf9012e2f0b1fa7"
+  integrity sha512-Q3iFZgpraiHWphd6eX7IfI+aAITLWoP1TSIRo+0vuixRxQNqwdknab/Ktu9rs8oY3XY08FtrXkK0qt54eSuUXg==
 
 symbol-tree@^3.2.4:
   version "3.2.4"
