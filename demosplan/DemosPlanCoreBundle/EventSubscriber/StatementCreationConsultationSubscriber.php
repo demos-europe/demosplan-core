@@ -82,9 +82,9 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            StatementCreatedEventInterface::class         => 'handleActivelyCreatedStatement',
+            StatementCreatedEventInterface::class                  => 'handleActivelyCreatedStatement',
             ManualStatementCreatedEventInterface::class            => 'handleActivelyCreatedStatement',
-            ConsultationTokenStatementCreatedEvent::class => 'handleTokenStatement',
+            ConsultationTokenStatementCreatedEvent::class          => 'handleTokenStatement',
         ];
     }
 
