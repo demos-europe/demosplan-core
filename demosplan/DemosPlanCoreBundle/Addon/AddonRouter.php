@@ -3,18 +3,14 @@
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use DemosEurope\DemosplanAddon\DemosPipes\Controller\AnnotatedStatementPdfPercentageDistributionApiController;
-use DemosEurope\DemosplanAddon\Utilities\AddonPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
-use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use function GuzzleHttp\Psr7\_parse_request_uri;
 
 class AddonRouter extends AnnotationClassLoader implements RouteLoaderInterface
 {
-    private $addonFolder = 'addons/cache/demosplam-addon-dedmospipes-main/src/Controller/';
     public function loadRoutes(): RouteCollection
     {
         $collection = new RouteCollection();
