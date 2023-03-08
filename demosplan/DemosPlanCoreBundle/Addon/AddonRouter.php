@@ -56,7 +56,6 @@ class AddonRouter extends AnnotationDirectoryLoader implements RouteLoaderInterf
     /**
      * delete this if possible - just a (hopefully) temporary solution as long as SlicingTagging lives inside an Addon
      * but data is laid out like a separate addon.
-     * @param array $errors<int, string>
      */
     private function loadSlicingTaggingInsideDemosPipesAnnotationsIfExist(RouteCollection $routeCollection): RouteCollection
     {
