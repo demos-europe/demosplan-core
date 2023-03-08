@@ -2,67 +2,46 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use DemosEurope\DemosplanAddon\DemosPipes\Controller\AnnotatedStatementPdfPercentageDistributionApiController;
+use DemosEurope\DemosplanAddon\Utilities\AddonPath;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
+use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
+use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
-use function GuzzleHttp\Psr7\_parse_request_uri;
 
-class AddonRouter extends AnnotationClassLoader implements RouteLoaderInterface
+class AddonRouter extends AnnotationDirectoryLoader implements RouteLoaderInterface
 {
+    private const PATH_TO_CONTROLLERS_FROM_ADDONROOT = '/src/Controller';
+
+    public function __construct(
+        private AddonRegistry $addonRegistry,
+        private LoggerInterface $logger,
+        FileLocatorInterface $locator,
+        AnnotationClassLoader $loader
+    ) {
+        parent::__construct($locator, $loader);
+    }
+
     public function loadRoutes(): RouteCollection
     {
-        $collection = new RouteCollection();
-        //dd(glob('addons/cache/demosplan-addon-demospipes-main/src/Controller/*.php'));
-        foreach (glob('addons/cache/demosplan-addon-demospipes-main/src/Controller/*.php') as $file)
-        {
-            //dd(AnnotatedStatementPdfPercentageDistributionApiController::class);
-            //require_once $file;
-            $array = explode("/", $file);
-            $className = array_pop($array);
-            $className = basename($className, '.php');
-            //dd($className);
-            // get the file name of the current file without the extension
-            // which is essentially the class name
-            //$class = basename($file, '.php');
-            $adjustedClassName = 'DemosEurope\DemosplanAddon\DemosPipes\Controller\\'.$className;
-
-            //dd($adjustedClassName);
-            //dd($adjustedClassName);
-            //dd(class_exists($adjustedClassName));
-
-            if (class_exists($adjustedClassName))
-            {
-                $collection->addCollection($this->load($adjustedClassName));
+        $routeCollection = new RouteCollection();
+        $errors = [];
+        foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
+            if ($addonInfo->isEnabled()) {
+                $controllerPath = AddonPath::getRootPath(
+                    $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT
+                );
+                $routeCollection->addCollection($this->load($controllerPath));
             }
         }
-        //$path = AddonPath::getRootPath('addons/cache/demosplam-addon-dedmospipes-main/src/Controller/');
-        //$path = "/srv/www/demosplan/addons/cache/demosplan-addon-demospipes-main/src/Controller/AnnotatedStatementPdfPercentageDistributionApiController";
-        //return $this->load($path);
-        // get Controllers from addons
-        // pass controller class strings to $this->load()
-        // merge results into one RouteCollection
 
-        //$path = DemosPlanPath::getRootPath($this->addonFolder);
-        //$collection = $this->load($path);
-        //dd($path);
-        /*if(class_exists(AnnotatedStatementPdfPercentageDistributionApiController::class)) {
-           //dd('addonRouter class exists');
-           $collection = $this->load(AnnotatedStatementPdfPercentageDistributionApiController::class);
-           //dd($collection);
-        }*/
+        $routeCollection = $this->loadSlicingTaggingInsideDemosPipesAnnotationsIfExist($routeCollection);
 
-
-        //dd('gibts nicht');
-        //$route = new RouteCollection();
-        //$route->add($x);
-        //var_dump('addonRouter class does not exists');
-        //return new RouteCollection();
-        //return $route;
-        //$collection = new RouteCollection();
-        dd($collection);
-        return $collection;
+        return $routeCollection;
     }
 
     protected function configureRoute(Route $route, \ReflectionClass $class, \ReflectionMethod $method, object $annot)
@@ -72,5 +51,26 @@ class AddonRouter extends AnnotationClassLoader implements RouteLoaderInterface
         } else {
             $route->setDefault('_controller', $class->getName().'::'.$method->getName());
         }
+    }
+
+    /**
+     * delete this if possible - just a (hopefully) temporary solution as long as SlicingTagging lives inside an Addon
+     * but data is laid out like a separate addon.
+     * @param array $errors<int, string>
+     */
+    private function loadSlicingTaggingInsideDemosPipesAnnotationsIfExist(RouteCollection $routeCollection): RouteCollection
+    {
+        $controllerPath = AddonPath::getRootPath(
+            'addons/vendor/demos-europe/demosplan-addon-demospipes/src/SlicingTaggingAddon/Controller'
+        );
+        try {
+            $routeCollection->addCollection($this->load($controllerPath));
+        } catch (Exception $e) {
+            // Slicing Tagging is only available if demosPipes is enabled at the moment
+            // - so no Exception should be thrown here - since demosPipe is not mandatory.
+            $this->logger->log(LogLevel::INFO, 'failed loading annotations for controllers with path: '.$controllerPath);
+        }
+
+        return $routeCollection;
     }
 }
