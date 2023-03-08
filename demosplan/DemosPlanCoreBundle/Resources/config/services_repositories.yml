@@ -57,6 +57,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'
 
+    demosplan\DemosPlanCoreBundle\Repository\FloodRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Flood'
+
     demosplan\DemosPlanCoreBundle\Repository\SettingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Setting'
 
@@ -250,3 +253,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\MapRepository'

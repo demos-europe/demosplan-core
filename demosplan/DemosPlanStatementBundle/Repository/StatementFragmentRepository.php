@@ -180,7 +180,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $em->flush();
         } catch (Exception $e) {
             $this->getLogger()->error('Add StatementFragment failed: ', [$e]);
-            throw new RuntimeException('Could not add StatementFragment');
+            throw new RuntimeException('Could not add StatementFragment', 0, $e);
         }
 
         return $statementFragment;

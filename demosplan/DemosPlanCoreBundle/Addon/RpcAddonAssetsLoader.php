@@ -17,23 +17,19 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    private PermissionsInterface $permissions;
     private RpcErrorGenerator $errorGenerator;
     private FrontendAssetProvider $assetProvider;
 
     public function __construct(
         FrontendAssetProvider $assetProvider,
-        PermissionsInterface $permissions,
         RpcErrorGenerator $errorGenerator)
     {
-        $this->permissions = $permissions;
         $this->errorGenerator = $errorGenerator;
         $this->assetProvider = $assetProvider;
     }

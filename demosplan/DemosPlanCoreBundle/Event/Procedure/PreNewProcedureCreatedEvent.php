@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\EventConcernTrait;
 
-class PreNewProcedureCreatedEvent extends DPlanEvent
+class PreNewProcedureCreatedEvent extends DPlanEvent implements PreNewProcedureCreatedEventInterface
 {
     use EventConcernTrait;
 

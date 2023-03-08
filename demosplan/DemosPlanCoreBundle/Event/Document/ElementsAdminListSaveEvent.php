@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class ElementsAdminListSaveEvent extends DPlanEvent
+class ElementsAdminListSaveEvent extends DPlanEvent implements ElementsAdminListSaveEventInterface
 {
     /** @var Request */
     protected $request;

@@ -257,7 +257,7 @@ class DraftStatementService extends CoreService
      *
      * @param string      $procedureId
      * @param string      $scope
-     * @param string      $search
+     * @param string|null $search
      * @param array|null  $sort
      * @param User        $user
      * @param string|null $manualSortScope
@@ -1385,7 +1385,6 @@ class DraftStatementService extends CoreService
      *
      * @param array       $list
      * @param string      $procedureId
-     * @param string      $search
      * @param array|null  $filters
      * @param array|null  $sort
      * @param string|null $manualSortScope
@@ -1393,7 +1392,7 @@ class DraftStatementService extends CoreService
      *
      * @internal param array $filter
      */
-    protected function toLegacyResult($list, $procedureId, $search = '', $filters = [], $sort = [], $manualSortScope = null, $aggregation = []): DraftStatementResult
+    protected function toLegacyResult($list, $procedureId, ?string $search = '', $filters = [], $sort = [], $manualSortScope = null, $aggregation = []): DraftStatementResult
     {
         // Is the list manually sorted?
         $sorted['sorted'] = false;

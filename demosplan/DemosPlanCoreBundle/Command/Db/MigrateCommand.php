@@ -63,7 +63,7 @@ class MigrateCommand extends CoreCommand
         if (file_exists(DemosPlanPath::getProjectPath($lastRollupMigration))) {
             $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
             $commands[] = $migrationsCommand.$migrationsConfigurationPath.
-                    'Application\Migrations\Version20220914133419'." {$db} --env={$env}";
+                    ' Application\Migrations\Version20220914133419'." {$db} --env={$env}";
         }
 
         $commands[] = "doctrine:migrations:migrate {$db} --env={$env}";

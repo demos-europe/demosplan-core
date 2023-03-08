@@ -239,7 +239,15 @@ class ServiceOutput
         }
 
         $user = $this->currentUser->getUser();
-        $sResult = $this->service->getProcedureAdminList($filter, $search, null, $user, true, true, false);
+        $sResult = $this->service->getProcedureAdminList(
+            $filter,
+            $search,
+            $user,
+            null,
+            true,
+            true,
+            false
+        );
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];

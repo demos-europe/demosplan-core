@@ -479,9 +479,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
      */
     public function getMessageDecoded(bool $fixOrigMessage): array
     {
-        $return = $this->getDecoded($this->message, $fixOrigMessage);
-
-        return $return ?? [];
+        return $this->getDecoded($this->message, $fixOrigMessage);
     }
 
     /**

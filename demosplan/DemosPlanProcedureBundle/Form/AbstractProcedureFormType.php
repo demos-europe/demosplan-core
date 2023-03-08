@@ -39,12 +39,6 @@ use Symfony\Component\Validator\Constraints\Valid;
  */
 abstract class AbstractProcedureFormType extends AbstractType
 {
-    public const AGENCY_MAIN_EMAIL_ADDRESS = 'agencyMainEmailAddress';
-
-    public const AGENCY_EXTRA_EMAIL_ADDRESSES = 'agencyExtraEmailAddresses';
-
-    public const ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS = 'allowedSegmentAccessProcedureIds';
-
     /**
      * @var PermissionsInterface
      */
@@ -154,11 +148,11 @@ abstract class AbstractProcedureFormType extends AbstractType
         $allowableSegmentAccessProcedures = $this->procedureService->getProcedureAdminList(
             [
                 'procedureIdToExclude' => $procedureIdToExclude,
-                'orgaCustomerId'       => $orgaCustomerId,
+                'orgaCustomerId' => $orgaCustomerId,
             ],
             null,
-            null,
             $currentUser,
+            null,
             false,
             false
         );

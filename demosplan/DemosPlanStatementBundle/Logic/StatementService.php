@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 use Carbon\Carbon;
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
@@ -51,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -140,6 +141,7 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
@@ -220,7 +222,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     protected $statementValidator;
 
     /**
-     * @var EventDispatcherPostInterface
+     * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
@@ -376,7 +378,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         EntityContentChangeService $entityContentChangeService,
         EntityFetcher $entityFetcher,
         EntityHelper $entityHelper,
-        EventDispatcherPostInterface $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         FileContainerRepository $fileContainerRepository,
         FileService $fileService,
         GlobalConfigInterface $globalConfig,
@@ -589,7 +591,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
-        $statementCreatedEvent = $this->eventDispatcher->post(new ManualOriginalStatementCreatedEvent($statement));
+        $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
 
         // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
@@ -771,7 +773,10 @@ class StatementService extends CoreService implements StatementServiceInterface
             }
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
-            $statementCreatedEvent = $this->eventDispatcher->post(new StatementCreatedEvent($assessableStatement));
+            $statementCreatedEvent = $this->eventDispatcher->dispatch(
+                new StatementCreatedEvent($assessableStatement),
+                StatementCreatedEventInterface::class
+            );
 
             return $statementCreatedEvent->getStatement();
         } catch (Exception $e) {
@@ -1436,7 +1441,10 @@ class StatementService extends CoreService implements StatementServiceInterface
                 if ($updatedStatement instanceof Statement) {
                     $result = $this->updateStatementObject($updatedStatement);
                 }
-                $this->eventDispatcher->post(new StatementUpdatedEvent($preUpdatedStatement, $currentStatementObject));
+                $this->eventDispatcher->dispatch(
+                    new StatementUpdatedEvent($preUpdatedStatement, $currentStatementObject),
+                    StatementUpdatedEventInterface::class
+                );
 
                 if (false !== $result && $this->permissions->hasPermission('feature_statement_content_changes_save')) {
                     // actually store contentChange in case of statement was updated successfully

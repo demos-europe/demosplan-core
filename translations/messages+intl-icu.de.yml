@@ -361,7 +361,11 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, daß Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
 check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
-check.user.delete: "Sind Sie sicher, dass Sie diese Nutzenden löschen möchten?"
+check.user.delete: |
+    {count, plural,
+        =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
+        other { Sind Sie sicher, dass Sie diese Nutzenden löschen möchten? }
+    }
 check.user.department.changed: "Bitte bestätigen Sie, dass Sie in eine neue Abteilung gewechselt sind."
 check.user.department.renamed: "Bitte bestätigen Sie, dass Ihre Abteilung umbenannt wurde."
 check.user.organisation.changed: "Bitte bestätigen Sie, dass Sie in eine neue Organisation gewechselt sind."
@@ -649,6 +653,8 @@ consideration.versions: "Ältere Versionen der Abwägung / Empfehlung"
 considerationadvice.fpf: "Empfehlung der Fachbehörde oder des Planungsbüros"
 # this should only be used when referring to the field on fragments. statements use 'recommendation'
 considerationadvice: "Abwägung / Empfehlung"
+considerationadvice.text.add: "Abwägung / Empfehlung ergänzen"
+considerationadvice.text.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
@@ -1254,7 +1260,7 @@ explanation.data.protection.before.vote: "Die Stellungnahme muss für den öffen
 explanation.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.data.user.change.portal: "Sollte sich Ihr Name oder Ihre E-Mail-Adresse geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.data.user: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind."
-explanation.date.procedure: "Die Datumsangaben werden in der Beteiligungsphase in der Verfahrensübersicht angezeigt. Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
+explanation.date.procedure: ""
 explanation.date.empty: "Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
 explanation.drawing.configuration: "Die Konfiguration der Karten, Pläne und Legende erfolgt unter nachfolgendem Link im Menü „Planzeichnung“."
 explanation.email.cc: "Bitte trennen Sie mehrere E-Mail-Adressen mit einem Komma und einem Leerzeichen."
@@ -3796,6 +3802,7 @@ warning.faq.title.tooLong: "Der eingegebene Titel ist länger als 255 Zeichen un
 warning.featureinfo.empty: "Es sind keine Sachdaten hinterlegt."
 warning.file.missing: "Das Dokument existiert nicht mehr."
 warning.filetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt."
+warning.floodcontrol.timeout: 'Das Formular wurde zu schnell abgeschickt. Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
 warning.fragment.assignment.information: "Die Informations-E-Mail an die Fachbehörden-Koordination zur Zuweisung dieser Stellungnahme konnte nicht versandt werden."
 warning.fragment.locked.By: "Dieser Datensatz ist zur Zeit {name} der Organisation {organisation} zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
 warning.fragment.needLock.generic: "Dieser Datensatz ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie diesen zunächst für sich beanspruchen."
