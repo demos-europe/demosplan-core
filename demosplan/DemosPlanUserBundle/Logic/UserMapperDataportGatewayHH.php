@@ -629,15 +629,11 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
     /**
      * Create department.
      *
-     * @param string $orgaGwId
-     * @param string $orgaId
-     * @param bool   $isToeb
-     *
      * @return Department
      *
      * @throws Exception
      */
-    protected function createDepartmentMode2($orgaGwId, $orgaId, $isToeb = false)
+    protected function createDepartmentMode2(?string $orgaGwId, string $orgaId, bool $isToeb = false)
     {
         // Beim anlegen des Department gilt folgendes
         // department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT' <- Stand DSL, dann wird falsches Department zugewiesen
