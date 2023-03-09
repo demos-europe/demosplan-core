@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class NoAiServiceSaltConfiguredException extends \Exception
+use Exception;
+
+class NoAiServiceSaltConfiguredException extends Exception
 {
     /**
      * @return static

@@ -17,25 +17,21 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcMethodSolverInterface;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
 
 class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 {
-    private PermissionsInterface $permissions;
     private RpcErrorGenerator $errorGenerator;
-    private AddonRegistry $addonRegistry;
+    private FrontendAssetProvider $assetProvider;
 
     public function __construct(
-        AddonRegistry $addonRegistry,
-        PermissionsInterface $permissions,
+        FrontendAssetProvider $assetProvider,
         RpcErrorGenerator $errorGenerator)
     {
-        $this->permissions = $permissions;
         $this->errorGenerator = $errorGenerator;
-        $this->addonRegistry = $addonRegistry;
+        $this->assetProvider = $assetProvider;
     }
 
     public function supports(string $method): bool
@@ -56,7 +52,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
 
                 $hookName = $rpcRequest->params->hookName;
-                $addonsAssetsData = $this->addonRegistry->getFrontendClassesForHook($hookName);
+                $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
             } catch (InvalidArgumentException|InvalidSchemaException $e) {
@@ -78,8 +74,8 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
 
     public function validateRpcRequest(object $rpcRequest): void
     {
-        if (!$this->permissions->hasPermission('area_admin_consultations')) {
-            throw AccessDeniedException::missingPermission('area_admin_consultations');
+        if (!property_exists($rpcRequest->params, 'hookName')) {
+            throw new InvalidArgumentException('Missing parameter `hookName`.');
         }
     }
 

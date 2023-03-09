@@ -1,0 +1,26 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+    'content_heading': "contact"|trans
+    }%}
+
+        {% block content %}
+
+            {% set displayContactForm = false %}
+            {% include '@DemosPlanCore/DemosPlanStatic/contact_entry.html.twig' %}
+
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock %}
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['misccontent-contact.js']) }}
+{% endblock javascripts %}
+
+

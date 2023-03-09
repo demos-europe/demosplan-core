@@ -39,8 +39,6 @@ class FaqController extends BaseController
     /**
      * Gib die Faqliste eines Verfahrens? aus.
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      *
      * @Route(
@@ -59,32 +57,13 @@ class FaqController extends BaseController
         CurrentUserInterface $currentUser,
         FaqHandler $faqHandler,
         TranslatorInterface $translator
-    ) {
-        // fetch user from session
-        $user = $currentUser->getUser();
-        $categoryTypeNames = FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY;
+    ): Response {
+        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $templateVars = [
+            'list' => $faqHandler->convertIntoTwigFormat($categories, $currentUser->getUser()),
+        ];
 
-        $categories = collect(
-            $faqHandler->getCustomFaqCategoriesByNamesOrCustom($categoryTypeNames)
-        );
-
-        // get all faqs and sort by category into array:
-        $convertedResult = [];
-        foreach ($categories as $category) {
-            $faqList = $faqHandler->getEnabledFaqList($category, $user);
-
-            $faqList = $faqHandler->orderFaqsByManualSortList($faqList, $category);
-            foreach ($faqList as $faq) {
-                $categoryId = $faq->getCategory()->getId();
-                $categoryTitle = $faq->getCategory()->getTitle();
-
-                $convertedResult[$categoryId]['id'] = $categoryId;
-                $convertedResult[$categoryId]['label'] = $categoryTitle;
-                $convertedResult[$categoryId]['faqlist'][] = $faq;
-            }
-        }
-        $templateVars['list'] = $convertedResult;
-        // Generiere breadcrumb items
+        // generate breadcrumb items
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('misc.information', [], 'page-title'),

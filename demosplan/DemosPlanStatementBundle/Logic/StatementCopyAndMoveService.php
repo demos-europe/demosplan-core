@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
@@ -57,7 +56,7 @@ class StatementCopyAndMoveService extends CoreService
      */
     public function handlePublicationOfStatement(Statement $statementToMove, Procedure $targetProcedure, Statement $sourceStatement): Statement
     {
-        //improve: because of T15936 this logic can be significantly simplified
+        // improve: because of T15936 this logic can be significantly simplified
         // previously a bug was caused here: T12744
         if (false === $targetProcedure->getPublicParticipationPublicationEnabled()) {
             $statementToMove = $this->statementService->setPublicVerified(
@@ -65,7 +64,7 @@ class StatementCopyAndMoveService extends CoreService
                 Statement::PUBLICATION_PENDING
             );
 
-            //Votes ("Mitzeichner"):
+            // Votes ("Mitzeichner"):
             foreach ($statementToMove->getVotes() as $vote) {
                 $this->statementVoteRepository->delete($vote);
             }
@@ -77,7 +76,7 @@ class StatementCopyAndMoveService extends CoreService
                 Statement::PUBLICATION_PENDING
             );
         } else {
-            //detach only!?:
+            // detach only!?:
             $statementToMove->setNumberOfAnonymVotes(0);
             foreach ($statementToMove->getVotes() as $vote) {
                 $this->statementVoteRepository->delete($vote);
@@ -87,5 +86,4 @@ class StatementCopyAndMoveService extends CoreService
 
         return $statementToMove;
     }
-
 }

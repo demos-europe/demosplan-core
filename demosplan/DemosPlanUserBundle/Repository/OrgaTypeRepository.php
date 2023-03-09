@@ -10,10 +10,8 @@
 
 namespace demosplan\DemosPlanUserBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Repository\FluentRepository;
 
 class OrgaTypeRepository extends FluentRepository
 {
-
 }

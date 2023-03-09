@@ -10,7 +10,10 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
@@ -18,9 +21,6 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
 
 class ExportReportService extends CoreService
 {
@@ -289,7 +289,10 @@ class ExportReportService extends CoreService
                 ReportEntry::CATEGORY_COPY,
                 ReportEntry::CATEGORY_DELETE_ATTACHMENTS,
                 ReportEntry::CATEGORY_DELETE_TEXT_FIELD_HISTORY,
+                ReportEntry::CATEGORY_DELETE,
                 ReportEntry::CATEGORY_MOVE,
+                ReportEntry::CATEGORY_STATEMENT_SYNC_INSOURCE,
+                ReportEntry::CATEGORY_STATEMENT_SYNC_INTARGET,
             ]
         );
 

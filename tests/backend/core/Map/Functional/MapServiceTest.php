@@ -162,7 +162,7 @@ class MapServiceTest extends FunctionalTestCase
         $this->sut->addGis($data);
         $numberOfEntriesAfter = $this->countEntries(GisLayer::class);
 
-        //es werden Anzahl aller Einträge von vorher + den neuen global Eintrag + Anzahl der Verfahren erwartet.
+        // es werden Anzahl aller Einträge von vorher + den neuen global Eintrag + Anzahl der Verfahren erwartet.
         $numberOfProcedures = $this->countEntries(Procedure::class);
         static::assertEquals(
             $numberOfEntriesBefore + $numberOfProcedures + 1,
@@ -176,7 +176,7 @@ class MapServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
         // WMTS Layer add needs external getCapabilities to be called
 
-        //Data for new layer
+        // Data for new layer
         $data = [
             'type'          => 'base',
             'name'          => 'testkarte',
@@ -188,14 +188,14 @@ class MapServiceTest extends FunctionalTestCase
             'tileMatrixSet' => 'tileMatrixSet',
         ];
 
-        //check entries of DB
+        // check entries of DB
         $numberOfEntriesBefore = $this->countEntries(GisLayer::class);
         $singleLayer = $this->sut->addGis($data);
         $numberOfEntriesAfter = $this->countEntries(GisLayer::class);
         static::assertEquals($numberOfEntriesBefore + 1, $numberOfEntriesAfter);
         static::assertNotNull($singleLayer['category']);
 
-        //check return value
+        // check return value
         $singleLayer = $this->sut->addGis($data);
         static::assertTrue(is_array($singleLayer));
         static::assertTrue(19 <= sizeof($singleLayer));

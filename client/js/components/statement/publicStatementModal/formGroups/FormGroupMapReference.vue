@@ -9,13 +9,14 @@
 
 <template>
   <fieldset
+    v-if="hasPermission('field_statement_location')"
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
     aria-required="true"
     id="locationFieldset">
     <p
-      :class="prefixClass('weight--bold u-mt u-mb-0')"
+      :class="prefixClass('c-statement__formblock-title weight--bold u-mt u-mb-0')"
       id="statementMapReference">
       {{ Translator.trans('statement.map.reference') }}
       <span
@@ -62,7 +63,7 @@
     </div>
 
     <div
-      v-if="hasPermission('field_statement_location')"
+      v-if="hasPermission('field_statement_county')"
       :class="[
         statement.r_location === 'county' ? 'bg-color--grey-light-2' : '',
         'c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'

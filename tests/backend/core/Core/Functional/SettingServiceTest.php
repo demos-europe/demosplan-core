@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 
 class SettingServiceTest extends FunctionalTestCase
@@ -44,7 +45,7 @@ class SettingServiceTest extends FunctionalTestCase
     /**
      * Testing 'getting all settings'.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetAllSettings()
     {
@@ -77,7 +78,7 @@ class SettingServiceTest extends FunctionalTestCase
     /**
      * Testing the method of getting an array of settings by key.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetSettings()
     {
@@ -104,7 +105,7 @@ class SettingServiceTest extends FunctionalTestCase
     /**
      * Testing the method of gettingContent of settings by key.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetSettingContent()
     {
@@ -148,32 +149,32 @@ class SettingServiceTest extends FunctionalTestCase
     /**
      * Testing saving a new setting.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSetNewSetting()
     {
-        //create new entry:
+        // create new entry:
         $testData = [];
         $testKey = 'emailNotificationNewStatement';
         $testData['orgaId'] = $this->fixtures->getReference('testOrgaFP')->getId();
 
         $testData['content'] = 'true';
 
-        //save in DB with method:
+        // save in DB with method:
         $amountBefore = $this->countEntries(Setting::class);
         $returnValue = $this->sut->setSetting($testKey, $testData);
         self::assertInstanceOf(Setting::class, $returnValue);
 
-        //check, if DB has +1 entry
+        // check, if DB has +1 entry
 
         $amountAfter = $this->countEntries(Setting::class);
         static::assertEquals($amountBefore + 1, $amountAfter);
 
-        //get the new entry:
+        // get the new entry:
         $testResultAfter = $this->sut->getSettings($testKey);
         static::assertTrue(isset($testResultAfter[0]));
         static::assertEquals(1, count($testResultAfter));
-        //compare to expected data:
+        // compare to expected data:
         static::assertEquals($testData['content'], $testResultAfter[0]['content']);
         static::assertEquals($testData['orgaId'], $testResultAfter[0]['orga']->getId());
         static::assertEquals($testData['orgaId'], $testResultAfter[0]['orgaId']);
@@ -181,28 +182,28 @@ class SettingServiceTest extends FunctionalTestCase
 
     public function testSetBoolSetting()
     {
-        //create new entry:
+        // create new entry:
         $testData = [];
         $testKey = 'emailNotificationReleasedStatement';
         $testData['userId'] = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId();
 
         $testData['content'] = true;
 
-        //save in DB with method:
+        // save in DB with method:
         $amountBefore = $this->countEntries(Setting::class);
         $returnValue = $this->sut->setSetting($testKey, $testData);
         self::assertInstanceOf(Setting::class, $returnValue);
 
-        //check, if DB has +1 entry
+        // check, if DB has +1 entry
 
         $amountAfter = $this->countEntries(Setting::class);
         static::assertEquals($amountBefore + 1, $amountAfter);
 
-        //get the new entry:
+        // get the new entry:
         $testResultAfter = $this->sut->getSettings($testKey);
         static::assertTrue(isset($testResultAfter[0]));
         static::assertEquals(1, count($testResultAfter));
-        //compare to expected data:
+        // compare to expected data:
         // bool should be saved as string
         static::assertEquals('true', $testResultAfter[0]['content']);
         static::assertEquals($testData['userId'], $testResultAfter[0]['userId']);
@@ -219,28 +220,28 @@ class SettingServiceTest extends FunctionalTestCase
 
     public function testSetBoolSettingObject()
     {
-        //create new entry:
+        // create new entry:
         $testData = [];
         $testKey = 'emailNotificationReleasedStatement';
         $testData['userId'] = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId();
 
         $testData['content'] = true;
 
-        //save in DB with method:
+        // save in DB with method:
         $amountBefore = $this->countEntries(Setting::class);
         $returnValue = $this->sut->setSetting($testKey, $testData);
         self::assertInstanceOf(Setting::class, $returnValue);
 
-        //check, if DB has +1 entry
+        // check, if DB has +1 entry
 
         $amountAfter = $this->countEntries(Setting::class);
         static::assertEquals($amountBefore + 1, $amountAfter);
 
-        //get the new entry:
+        // get the new entry:
         $testResultAfter = $this->sut->getSettings($testKey, null, false);
         static::assertTrue(isset($testResultAfter[0]));
         static::assertEquals(1, count($testResultAfter));
-        //compare to expected data:
+        // compare to expected data:
         // bool should be saved as string
         static::assertEquals('true', $testResultAfter[0]->getContent());
         static::assertEquals(true, $testResultAfter[0]->getContentBool());
@@ -263,37 +264,37 @@ class SettingServiceTest extends FunctionalTestCase
      */
     public function testSetSettingWithMissingVariables()
     {
-        //create new entry with no required content:
+        // create new entry with no required content:
         $testData = [];
         $testKey = 'emailNotificationNewStatement';
         $testData['orgaId'] = '9c2a287a-5t67-4910-865a-4e758248e4f1';
         $amountBefore = $this->countEntries(Setting::class);
 
-        //save in DB with method:
+        // save in DB with method:
         try {
             $returnValue = @$this->sut->setSetting($testKey, $testData);
             $this->fail('Case: Content is empty');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $type = get_class($e);
             static::assertEquals('Doctrine\DBAL\Exception\NotNullConstraintViolationException', $type);
         }
 
-        //create new entry with empty/not defined key:
+        // create new entry with empty/not defined key:
         $testData = [];
         $testKey = '';
         $testData['orgaId'] = '9c2a287a-5t67-4910-865a-4e758248e4f1';
         $testData['content'] = true;
 
-        //save in DB with method:
+        // save in DB with method:
         try {
             $this->sut->setSetting($testKey, $testData);
             $this->fail('Case: Key is not defined');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $type = get_class($e);
             static::assertEquals('Exception', $type);
         }
 
-        //check, if DB has still the same amount of entries
+        // check, if DB has still the same amount of entries
         $amountAfter = $this->countEntries(Setting::class);
         static::assertEquals($amountBefore, $amountAfter);
     }
@@ -314,7 +315,7 @@ class SettingServiceTest extends FunctionalTestCase
      */
     public function testDeleteSingleSettingsException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->sut->deleteSetting('');
     }
@@ -342,7 +343,7 @@ class SettingServiceTest extends FunctionalTestCase
 
     public function testCorruptKeyUpdateSetting()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $corruptKey = 'notExsisting';
         $this->sut->setSetting($corruptKey, []);

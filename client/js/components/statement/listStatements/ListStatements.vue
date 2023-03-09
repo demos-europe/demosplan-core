@@ -167,8 +167,8 @@
               {{ Translator.trans('original.pdf') }}
             </a>
             <button
-              :class="`${ assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
-              :disabled="synchronized"
+              :class="`${ !synchronized || assignee.id === currentUserId ? 'text-decoration-underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
               {{ Translator.trans('delete') }}
@@ -785,7 +785,7 @@ export default {
     setNumSelectableItems (data) {
       if (this.isSourceAndCoupledProcedure) {
         // Call without actually changing anything in the backend.
-        dpRpc('statement.procedure.sync', this.getParamsForBulkShare(true))
+        dpRpc('statement.procedure.sync', this.getParamsForBulkShare(true), 'rpc_generic_post')
           .then((response) => {
             // ActuallySynchronizedStatementCount is the num of items that are not synchronized yet, but can be
             this.allItemsCount = response.data[0].result.actuallySynchronizedStatementCount

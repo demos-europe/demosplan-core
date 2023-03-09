@@ -11,17 +11,6 @@
 namespace demosplan\DemosPlanUserBundle\Repository;
 
 use Closure;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\Persistence\ManagerRegistry;
-use Exception;
-use LogicException;
-use RuntimeException;
-use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Tightenco\Collect\Support\Collection;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -38,6 +27,17 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanUserBundle\Types\UserFlagKey;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use LogicException;
+use RuntimeException;
+use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Tightenco\Collect\Support\Collection;
 
 class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
 {
@@ -133,7 +133,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             // set current customer as this could not be done automatically
             $user->setCurrentCustomer($data['customer']);
 
-            //Füge der Orga den User dazu
+            // Füge der Orga den User dazu
             if (isset($data['organisation'])) {
                 /** @var OrgaRepository $orgaRepos */
                 $orgaRepos = $this->getEntityManager()->getRepository(Orga::class);
@@ -143,7 +143,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 );
             }
 
-            //Füge department den user dazu
+            // Füge department den user dazu
             if (isset($data['department'])) {
                 /** @var DepartmentRepository $departmentRepos */
                 $departmentRepos = $this->getEntityManager()->getRepository(Department::class);
@@ -281,7 +281,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
     protected function generateObjectValuesForAddressFields(User $user, array $data)
     {
-        //## Addressdata (if address already exists) ###
+        // ## Addressdata (if address already exists) ###
         $userAddressFields = collect(['address_postalcode', 'address_city', 'address_street', 'address_state', 'address_houseNumber']);
         $userAddressFields->each(
             function ($fieldName) use ($user, $data) {

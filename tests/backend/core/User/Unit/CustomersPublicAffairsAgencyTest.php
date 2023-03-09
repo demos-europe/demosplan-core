@@ -10,9 +10,9 @@
 
 namespace Tests\Core\User\Unit;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use Doctrine\ORM\OptimisticLockException;

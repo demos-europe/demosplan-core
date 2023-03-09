@@ -71,8 +71,12 @@
               :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="_options.autoSuggest.serviceUrlPath"
-              :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent) }"
+              :route-generator="(searchString) => {
+                return Routing.generate(_options.autoSuggest.serviceUrlPath, {
+                  filterByExtent: JSON.stringify(maxExtent),
+                  query: searchString
+                })
+              }"
               label="value"
               :placeholder="Translator.trans('autocomplete.label')"
               track-by="value"
@@ -278,9 +282,9 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length !== 0) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
         this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent.length !== 0) {
+      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
         this.maxExtent = mapOptions.procedureDefaultMaxExtent
       } else {
         this.maxExtent = mapOptions.defaultMapExtent

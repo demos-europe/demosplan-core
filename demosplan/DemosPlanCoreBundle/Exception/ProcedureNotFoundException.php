@@ -14,6 +14,6 @@ class ProcedureNotFoundException extends ResourceNotFoundException
 {
     public static function createFromId(string $id): ProcedureNotFoundException
     {
-        return new self("Procedure with the ID ${id} was not found.");
+        return new self("Procedure with the ID {$id} was not found.");
     }
 }

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
@@ -41,7 +42,7 @@ use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProcedureTypeService extends CoreService
+class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
     /**
      * @var EntityFetcher
@@ -495,7 +496,10 @@ class ProcedureTypeService extends CoreService
         }, $entities);
     }
 
-    public function getProcedureTypeByName(string $name): ?ProcedureType
+    /**
+     * @return ProcedureType|null
+     */
+    public function getProcedureTypeByName(string $name)
     {
         return $this->procedureTypeRepository->findOneBy(['name' => $name]);
     }

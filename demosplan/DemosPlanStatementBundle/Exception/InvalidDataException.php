@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Exception;
 
-class InvalidDataException extends \Exception
+use Exception;
+
+class InvalidDataException extends Exception
 {
 }

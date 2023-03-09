@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
+use Exception;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -28,7 +29,7 @@ class DateStringConstraintValidator extends ConstraintValidator
     {
         try {
             Carbon::parse($value)->toDate();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ string }}', $value)
                 ->addViolation();

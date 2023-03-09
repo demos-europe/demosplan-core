@@ -602,9 +602,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureFormData = $form->getData();
         // will be an empty string and an empty array in case of a non-blueprint submit for agencyExtraEmailAddresses
         // agencyMainEmailAddress will be an empty string in case of blueprint submits
-        $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-        $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-        $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+        $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
         // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
         if (\array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
@@ -808,8 +808,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @param array  $filters
      * @param string $search
-     * @param array  $sort
      * @param User   $user            will be used to get the organisation ID, the user ID and the role name
+     * @param array  $sort
+     * @param bool   $template        should procedure templates be included in results
      * @param bool   $toLegacy        determines if return value will be array[] or Procedure[]
      * @param bool   $excludeArchived exclude internal and external phase closed
      *
@@ -819,8 +820,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @deprecated do not spread usage of this; see T21768
      */
-    public function getProcedureAdminList($filters, $search, $sort = null, User $user, bool $template, $toLegacy = true, $excludeArchived = true)
-    {
+    public function getProcedureAdminList(
+        $filters,
+        $search,
+        User $user,
+        $sort = null,
+        bool $template = false,
+        $toLegacy = true,
+        $excludeArchived = true
+    ) {
         try {
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
@@ -2012,7 +2020,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
-        $masterTemplateId = $this->masterTemplateService->getMasterTemplateId();
+        $masterTemplateId = $this->getMasterTemplateId();
         $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
 
         // T15664: in case of globalMasterBlueprint is set,
@@ -2370,7 +2378,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         // ensure that we have at least our base Categories & Groups from Master blueprint
         $this->boilerplateCategoryRepository
-            ->ensureBaseCategories($this->masterTemplateService->getMasterTemplateId(), $newProcedure);
+            ->ensureBaseCategories($this->getMasterTemplateId(), $newProcedure);
     }
 
     /**
@@ -2600,7 +2608,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
         $filters = null === $procedureIdToExclude ? [] : ['procedureIdToExclude' => $procedureIdToExclude];
-        $accessibleProcedures = $this->getProcedureAdminList($filters, null, ['name' => 'ASC'], $user, false, false);
+        $accessibleProcedures = $this->getProcedureAdminList(
+            $filters,
+            null,
+            $user,
+            ['name' => 'ASC'],
+            false,
+            false
+        );
 
         $accessibleProcedures =
             \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
@@ -2661,6 +2676,16 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getOriginalStatementsCounts(array $procedureIds): array
     {
         return $this->statementRepository->getOriginalStatementsCounts($procedureIds);
+    }
+
+    /**
+     * @param array<int, string> $procedureIds
+     *
+     * @return array<string, int>
+     */
+    public function getStatementsCounts(array $procedureIds): array
+    {
+        return $this->statementRepository->getStatementsCounts($procedureIds);
     }
 
     /**
@@ -2946,5 +2971,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }, $sourcePlaces);
 
         $this->placeRepository->persistEntities($newPlaces);
+    }
+
+    public function getMasterTemplateId()
+    {
+        return $this->masterTemplateService->getMasterTemplateId();
     }
 }

@@ -12,7 +12,17 @@ namespace demosplan\DemosPlanDocumentBundle\Tools;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
+use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
+use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
+use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Monolog\Logger;
@@ -24,20 +34,11 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
-use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanDocumentBundle\Exception\ServiceImporterException;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
-use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 
 /**
  * Import von Planunterlagen-Absaetzen.
  */
-class ServiceImporter
+class ServiceImporter implements ServiceImporterInterface
 {
     /**
      * @var Logger
@@ -193,7 +194,7 @@ class ServiceImporter
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
         try {
-            //Generiere Message
+            // Generiere Message
             $msg = Json::encode([
                 'procedure' => $procedure,
                 'category'  => $category,
@@ -206,24 +207,16 @@ class ServiceImporter
                 $routingKey = '';
             }
 
-            //Füge Message zum Request hinzu
+            // Füge Message zum Request hinzu
             $this->getLogger()->debug(
                 'Import docx with RabbitMQ, with routingKey: '.$routingKey);
             $this->client->addRequest($msg, 'importDemosPlan', 'import', $routingKey, 300);
-            //Anfrage absenden
+            // Anfrage absenden
             $replies = $this->client->getReplies();
 
             if ('' != $replies['import']) {
                 $this->getLogger()->info(
                     'Incoming message size:'.strlen($replies['import']));
-            }
-
-            // delete uploaded docx
-            try {
-                $fs = new Filesystem();
-                $fs->remove($file->getRealPath());
-            } catch (Exception $e) {
-                $this->getLogger()->warning('Could not delete uploaded docx file ', [$e]);
             }
 
             return Json::decodeToArray($replies['import']);
@@ -233,6 +226,18 @@ class ServiceImporter
         } catch (Exception $e) {
             $this->getLogger()->error('Fehler in ImportConsumer:', [$e]);
             throw $e;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteDocxAfterImportWithRabbitMQ(string $fileHash)
+    {
+        try {
+            $this->fileService->deleteFile($fileHash);
+        } catch (Exception $e) {
+            $this->getLogger()->warning('Could not delete uploaded docx file ', [$e]);
         }
     }
 
@@ -272,7 +277,7 @@ class ServiceImporter
                 continue;
             }
 
-            //Prüfe ob eine oder mehrere Dateianhänge vorhanden sind
+            // Prüfe ob eine oder mehrere Dateianhänge vorhanden sind
             if (null != $paragraph['files']) {
                 foreach ($paragraph['files'] as $files) {
                     foreach ($files as $f => $c) {
@@ -283,7 +288,7 @@ class ServiceImporter
                         $ca = explode('::', $c);
                         if (2 === count($ca)) {
                             $fs = new Filesystem();
-                            //Speichere dekodierte Datei als temporäre Datei
+                            // Speichere dekodierte Datei als temporäre Datei
                             $fs->dumpFile(
                                 sys_get_temp_dir(
                                 ).DIRECTORY_SEPARATOR.$ca[0],
@@ -299,7 +304,7 @@ class ServiceImporter
                             );
 
                             $hash = '';
-                            //Übergebe temporäre Datei FileService
+                            // Übergebe temporäre Datei FileService
                             try {
                                 $hash = $this->fileService->saveTemporaryFile(
                                     $lf->getPathname(),
@@ -318,12 +323,12 @@ class ServiceImporter
                                 "Datei '".sys_get_temp_dir(
                                 ).DIRECTORY_SEPARATOR.$ca[0]."' hochgeladen. FileService Hash: ".$hash
                             );
-                            //Lösche temporäre Datei
+                            // Lösche temporäre Datei
                             $fs->remove(
                                 sys_get_temp_dir(
                                 ).DIRECTORY_SEPARATOR.$ca[0]
                             );
-                            //Ersetze Platzhalter im Text mit FileService Hash
+                            // Ersetze Platzhalter im Text mit FileService Hash
                             $stringToReplace = '/file/'.substr($f, 2);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
@@ -346,7 +351,7 @@ class ServiceImporter
                 }
             }
 
-            //Erzeuge Paragraph Zeile
+            // Erzeuge Paragraph Zeile
             $p = [
                 'text'      => $paragraph['text'],
                 'title'     => $paragraph['title'],
@@ -356,7 +361,7 @@ class ServiceImporter
                 'parentId'  => $parentId,
                 'order'     => $order++,
             ];
-            //Persistiere Paragraph Zeile
+            // Persistiere Paragraph Zeile
             try {
                 $response = $this->paragraphRepository
                     ->add($p);
@@ -419,6 +424,8 @@ class ServiceImporter
                     'paragraph'
                 );
                 $this->createParagraphsFromImportResult($importResult, $procedureId);
+                // delete uploaded docx
+                $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
             }
 
             $this->messageBag->add('confirm', 'confirm.import');

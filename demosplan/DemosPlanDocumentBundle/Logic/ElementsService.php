@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanDocumentBundle\Logic;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -45,7 +47,7 @@ use Exception;
 use ReflectionException;
 use Throwable;
 
-class ElementsService extends CoreService
+class ElementsService extends CoreService implements ElementsServiceInterface
 {
     /**
      * @var SingleDocumentService
@@ -344,14 +346,14 @@ class ElementsService extends CoreService
         $elements = array_filter($elements, static function (Elements $element) {
             return in_array(
                 $element->getCategory(),
-                [Elements::ELEMENTS_CATEGORY_PARAGRAPH, Elements::ELEMENTS_CATEGORY_FILE],
+                [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
                 true
             );
         });
         $elements = array_map([$this, 'convertElementToArray'], $elements);
         foreach ($elements as $key => $element) {
             $elements[$key]['paragraphDocs'] = false;
-            if (Elements::ELEMENTS_CATEGORY_PARAGRAPH === $element['category']) {
+            if (ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element['category']) {
                 $elements[$key]['paragraphDocs'] = true;
             }
             $documentList = $this->paragraphService->getParaDocumentObjectList($procedureId, $element['id']);
@@ -615,7 +617,7 @@ class ElementsService extends CoreService
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
         $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static function ($title) {
-            return Elements::FILE_TYPE_PLANZEICHNUNG !== $title;
+            return ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title;
         });
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
@@ -882,7 +884,7 @@ class ElementsService extends CoreService
                 $copiedElement = clone $elementToCopy;
                 $copiedElement->setDocuments(new ArrayCollection([]));
 
-                if (Elements::ELEMENTS_CATEGORY_MAP === $copiedElement->getCategory()) {
+                if (ElementsInterface::ELEMENTS_CATEGORY_MAP === $copiedElement->getCategory()) {
                     $behaviorDefinition = $destinationProcedure->getProcedureBehaviorDefinition();
                     if ($behaviorDefinition instanceof ProcedureBehaviorDefinition
                         && !$behaviorDefinition->isAllowedToEnableMap()) {

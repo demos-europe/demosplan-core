@@ -49,7 +49,7 @@ class HashedQueryResourceType extends DplanResourceType
 
     public function isReferencable(): bool
     {
-        return false;
+        return true;
     }
 
     public function isDirectlyAccessible(): bool
@@ -59,6 +59,6 @@ class HashedQueryResourceType extends DplanResourceType
 
     public function getAccessCondition(): PathsBasedInterface
     {
-        return $this->conditionFactory->false();
+        return $this->conditionFactory->true();
     }
 }

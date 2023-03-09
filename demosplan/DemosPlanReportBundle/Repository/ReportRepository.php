@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\Query;
+use InvalidArgumentException;
 
 class ReportRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -75,7 +76,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
     public function generateObjectValues($reportEntry, array $data)
     {
         if (!$this->hasNecessaryKeys($data)) {
-            throw new \InvalidArgumentException('Not all necessary data in the given array.');
+            throw new InvalidArgumentException('Not all necessary data in the given array.');
         }
 
         $reportEntry->setIdentifierType($data['identifierType'] ?? '');

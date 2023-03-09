@@ -64,7 +64,7 @@
                 <p class="{{ 'flash flash-info'|prefixClass }}">
                     <i class="{{ 'fa fa-exclamation-circle u-mr-0_125'|prefixClass }}" aria-hidden="true"></i><strong>{{ "hint"|trans }}</strong>:
                     {{ "explanation.process.voting"|trans }}<br>
-                    {{ "explanation.claim.possibility"|trans }} {{ "explanation.feedback.vote.email"|trans }}
+                    {{ "explanation.claim.possibility"|trans|wysiwyg }} {{ "explanation.feedback.vote.email"|trans }}
                 </p>
 
                 {% if (templateVars.procedure.procedureUiDefinition.statementFormHintRecheck != '') %}

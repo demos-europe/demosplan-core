@@ -16,7 +16,6 @@ use Tests\Base\RpcApiTest;
 
 class RpcElasticsearchDefinitionFetcherTest extends RpcApiTest
 {
-
     public function testExecute(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
@@ -27,9 +26,9 @@ class RpcElasticsearchDefinitionFetcherTest extends RpcApiTest
             'someId',
             $user,
             [
-                'entity'  => 'statementSegment',
-                'function'  => 'search',
-                'accessGroup' => 'planner'
+                'entity'      => 'statementSegment',
+                'function'    => 'search',
+                'accessGroup' => 'planner',
             ],
             $procedure
         );

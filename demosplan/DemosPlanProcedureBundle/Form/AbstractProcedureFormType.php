@@ -12,8 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanProcedureBundle\Form;
 
-use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
+use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
+use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
+use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -22,11 +27,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 
 /**
  * Intended to be used to create and edit settings for a procedure.
@@ -39,12 +39,6 @@ use demosplan\DemosPlanUserBundle\Logic\CustomerService;
  */
 abstract class AbstractProcedureFormType extends AbstractType
 {
-    public const AGENCY_MAIN_EMAIL_ADDRESS = 'agencyMainEmailAddress';
-
-    public const AGENCY_EXTRA_EMAIL_ADDRESSES = 'agencyExtraEmailAddresses';
-
-    public const ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS = 'allowedSegmentAccessProcedureIds';
-
     /**
      * @var PermissionsInterface
      */
@@ -154,11 +148,11 @@ abstract class AbstractProcedureFormType extends AbstractType
         $allowableSegmentAccessProcedures = $this->procedureService->getProcedureAdminList(
             [
                 'procedureIdToExclude' => $procedureIdToExclude,
-                'orgaCustomerId'       => $orgaCustomerId,
+                'orgaCustomerId' => $orgaCustomerId,
             ],
             null,
-            null,
             $currentUser,
+            null,
             false,
             false
         );

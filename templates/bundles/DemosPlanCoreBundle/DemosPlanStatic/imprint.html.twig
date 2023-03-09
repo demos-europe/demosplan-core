@@ -1,0 +1,47 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'imprint'|trans,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+
+            {% if templateVars.customerImprint is not null %}
+                <div class="{{ 'c-styled-html u-mt-0_25'|prefixClass }}">
+                    {{ templateVars.customerImprint|wysiwyg(['h2', 'h3', 'h4']) }}
+                </div>
+            {% endif %}
+
+            {# custom imprints by orgas #}
+            {% if templateVars.orgaImprints|length > 0 %}
+                <h2 id="verfahrenstraeger" class="{{ 'u-mt'|prefixClass }}">{{ 'procedure.agency'|trans }}</h2>
+
+                {% for orga in templateVars.orgaImprints %}
+                    <details id="{{ orga.id }}">
+                        <summary class="o-link--default cursor--pointer">
+                            <h4 class="display--inline">
+                                {{ orga.name }}
+                            </h4>
+                        </summary>
+                        <div class="c-styled-html u-mt-0_25">
+                            {{ orga.imprint|wysiwyg }}
+                        </div>
+                    </details>
+                {% endfor %}
+            {% endif %}
+
+            {% include '@DemosPlanCore/DemosPlanStatic/imprint_entry.html.twig' %}
+
+        {% endblock content %}
+    {% endembed %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['misccontent-genericBundle.js']) }}
+{% endblock javascripts %}

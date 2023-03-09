@@ -45,7 +45,7 @@
         "dompdf/dompdf": "^2.0.1",
         "efrane/console-additions": "^0.6.1",
         "efrane/tus-bundle": "^0.5",
-        "egulias/email-validator": "^3.1",
+        "egulias/email-validator": "^4.0",
         "enqueue/elastica-bundle": "^0.13",
         "enqueue/enqueue-bundle": "^0.10",
         "enqueue/fs": "^0.10",
@@ -96,7 +96,7 @@
         "symfony/filesystem": "5.*.*",
         "symfony/finder": "5.*.*",
         "symfony/flex": "^1.13",
-        "symfony/form": "5.4.17",
+        "symfony/form": "5.4.19",
         "symfony/http-client": "5.*.*",
         "symfony/http-foundation": "5.*.*",
         "symfony/inflector": "5.*.*",
@@ -126,7 +126,7 @@
         "willdurand/geocoder-bundle": "^5.16",
         "willdurand/js-translation-bundle": "~5.0",
         "wrep/daemonizable-command": "^3.0",
-        "wsdltophp/packagegenerator": "^3.0",
+        "wsdltophp/packagegenerator": "^4.1",
         "yectep/phpspreadsheet-bundle": "^1.0.0"
     },
     "require-dev": {
@@ -188,7 +188,8 @@
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "demos-europe/demosplan-addon-installer": true,
-            "bamarni/composer-bin-plugin": true
+            "bamarni/composer-bin-plugin": true,
+            "php-http/discovery": false
         }
     },
     "conflict": {

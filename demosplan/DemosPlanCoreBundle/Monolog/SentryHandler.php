@@ -15,8 +15,10 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\HandlerInterface;
 use Sentry\State\Scope;
-use Throwable;
+
 use function Sentry\withScope;
+
+use Throwable;
 
 /**
  * This Monolog handler logs every message to a Sentry's server using the given

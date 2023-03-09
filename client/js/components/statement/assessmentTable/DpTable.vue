@@ -232,10 +232,11 @@
 </template>
 
 <script>
-import { changeUrlforPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-utils'
 import { CleanHtml, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
+import { handleResponseMessages, Stickier } from '@demos-europe/demosplan-utils'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
+import changeUrlforPager from './utils/changeUrlforPager'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
 import { scrollTo } from 'vue-scrollto'
@@ -764,6 +765,7 @@ export default {
             if (hasPermission('area_statements_fragment')) {
               this.setProcedureIdForFragment(this.procedureId)
             }
+
             this.triggerApiCallForStatements()
           })
           .then(() => {

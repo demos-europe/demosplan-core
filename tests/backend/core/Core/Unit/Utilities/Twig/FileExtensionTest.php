@@ -13,8 +13,10 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\FileExtension;
 use Exception;
+use stdClass;
 use Tests\Base\UnitTestCase;
 use Twig\Environment;
+use Twig_SimpleFilter;
 
 /**
  * Teste GetFileExtension
@@ -53,7 +55,7 @@ class FileExtensionTest extends UnitTestCase
         try {
             $result = $this->twigExtension->getFilters();
             static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+            static::assertTrue($result[0] instanceof Twig_SimpleFilter);
             $callable = $result[0]->getCallable();
             static::assertTrue('getFileFilter' === $callable[1]);
             static::assertTrue('getFile' === $result[0]->getName());
@@ -94,7 +96,7 @@ class FileExtensionTest extends UnitTestCase
             $result = $this->twigExtension->getFileFilter($textToTest, 'name');
             static::assertTrue('' === $result);
 
-            $textToTest = new \stdClass();
+            $textToTest = new stdClass();
             $result = $this->twigExtension->getFileFilter($textToTest, 'name');
             static::assertTrue('' === $result);
 
@@ -138,7 +140,7 @@ class FileExtensionTest extends UnitTestCase
             $result = $this->twigExtension->getFileFilter($textToTest, 'hash');
             static::assertTrue('' === $result);
 
-            $textToTest = new \stdClass();
+            $textToTest = new stdClass();
             $result = $this->twigExtension->getFileFilter($textToTest, 'hash');
             static::assertTrue('' === $result);
 
@@ -175,7 +177,7 @@ class FileExtensionTest extends UnitTestCase
             $result = $this->twigExtension->getFileFilter($textToTest, 'size');
             static::assertTrue('' === $result);
 
-            $textToTest = new \stdClass();
+            $textToTest = new stdClass();
             $result = $this->twigExtension->getFileFilter($textToTest, 'size');
             static::assertTrue('' === $result);
 
@@ -267,7 +269,7 @@ class FileExtensionTest extends UnitTestCase
             );
             static::assertTrue('' === $result);
 
-            $textToTest = new \stdClass();
+            $textToTest = new stdClass();
             $result = $this->twigExtension->getFileFilter(
                 $textToTest,
                 'mimeType'

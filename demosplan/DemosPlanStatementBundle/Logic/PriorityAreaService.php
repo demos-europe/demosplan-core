@@ -72,7 +72,7 @@ class PriorityAreaService extends CoreService
 
         return \collect($priorityAreas)->map(
             function (PriorityArea $priorityArea) {
-                //use 'name' instead of 'key' to make it working in twig
+                // use 'name' instead of 'key' to make it working in twig
                 return ['id' => $priorityArea->getId(), 'name' => $priorityArea->getKey()];
             }
         )

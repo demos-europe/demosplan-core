@@ -38,6 +38,21 @@
             track-by="id" />
         </action-stepper-action>
 
+        <!-- Assign place/status -->
+        <action-stepper-action
+          v-model="actions.assignPlace.checked"
+          id="selectAssignPlaceAction"
+          :label="Translator.trans('segments.bulk.edit.place.add')">
+          <dp-multiselect
+            class="width-300"
+            id="assignPlace"
+            :disabled="!hasPlaces"
+            :options="places"
+            v-model="actions.assignPlace.selected"
+            label="name"
+            track-by="id" />
+        </action-stepper-action>
+
         <!-- Add tags -->
         <action-stepper-action
           v-model="actions.addTags.checked"
@@ -101,15 +116,31 @@
           </div>
           <dp-editor
             id="addRecommendationTipTap"
-            editor-id="recommendationText"
             v-model="actions.addRecommendations.text"
+            editor-id="recommendationText"
             :toolbar-items="{
-              boilerPlate: 'consideration',
               fullscreenButton: true,
               linkButton: true
-            }"
-            :procedure-id="procedureId"
-            :disabled="!hasSegments" />
+            }">
+            <template v-slot:modal="modalProps">
+              <dp-boiler-plate-modal
+                ref="boilerPlateModal"
+                boiler-plate-type="consideration"
+                editor-id="recommendationText"
+                :procedure-id="procedureId"
+                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+            </template>
+            <template v-slot:button>
+              <button
+                :class="prefixClass('menubar__button')"
+                :disabled="!hasSegments"
+                type="button"
+                v-tooltip="Translator.trans('boilerplate.insert')"
+                @click.stop="openBoilerPlate">
+                <i :class="prefixClass('fa fa-puzzle-piece')" />
+              </button>
+            </template>
+          </dp-editor>
         </action-stepper-action>
       </div>
     </template>
@@ -140,6 +171,13 @@
         </div>
 
         <div
+          v-if="assignPlaceCheckedAndSelected"
+          class="u-pv">
+          <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
+          <p v-cleanhtml="actions.assignPlace.selected.name" />
+        </div>
+
+        <div
           v-if="addTagsCheckedAndSelected"
           class="u-pv">
           <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
@@ -157,7 +195,7 @@
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
           class="u-pv">
           <p v-html="addOrReplaceRecommendationMessage" />
-          <p v-cleanhtml="actions.addRecommendations.text" />
+          <p v-html="actions.addRecommendations.text" />
         </div>
       </div>
     </template>
@@ -169,6 +207,17 @@
         :success="actions.assignSegment.success"
         :description-error="Translator.trans('segments.bulk.edit.segments.assigned.error')"
         :description-success="Translator.trans('segments.bulk.edit.segments.assigned.success')" />
+
+      <action-stepper-response
+        v-if="assignPlaceCheckedAndSelected"
+        :success="actions.assignPlace.success"
+        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', {count: segments.length})"
+        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', {count: segments.length})">
+        <p
+          v-cleanhtml="actions.assignPlace.selected.name"
+          class="u-mt-0_5" />
+      </action-stepper-response>
+
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
@@ -191,7 +240,7 @@
         :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', {count: segments.length})"
         :description-success="addRecommendationsSuccess">
         <p
-          v-cleanhtml="actions.addRecommendations.text"
+          v-html="actions.addRecommendations.text"
           class="u-mt-0_5" />
       </action-stepper-response>
     </template>
@@ -200,11 +249,12 @@
 
 <script>
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpMultiselect, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
@@ -215,6 +265,7 @@ export default {
     ActionStepper,
     ActionStepperAction,
     ActionStepperResponse,
+    DpBoilerPlateModal,
     DpInlineNotification: async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
@@ -231,6 +282,8 @@ export default {
   directives: {
     cleanhtml: CleanHtml
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     procedureId: {
@@ -255,6 +308,11 @@ export default {
           checked: false,
           success: false
         },
+        assignPlace: {
+          selected: [],
+          checked: false,
+          success: false
+        },
         assignSegment: {
           selected: [],
           checked: false,
@@ -271,6 +329,7 @@ export default {
       isLoading: true,
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       step: 1,
+      places: [],
       segments: []
     }
   },
@@ -283,10 +342,6 @@ export default {
     ...mapState('tagTopic', {
       tagTopicsItems: 'items'
     }),
-
-    addTagsCheckedAndSelected () {
-      return this.actions.addTags.checked && this.actions.addTags.selected.length > 0
-    },
 
     addOrReplaceRecommendationMessage () {
       if (this.actions.addRecommendations.isTextAttached) {
@@ -316,8 +371,16 @@ export default {
       return ''
     },
 
+    addTagsCheckedAndSelected () {
+      return this.actions.addTags.checked && this.actions.addTags.selected.length > 0
+    },
+
     assignSegmentCheckedAndSelected () {
       return this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
+    },
+
+    assignPlaceCheckedAndSelected () {
+      return this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
     },
 
     deleteTagsCheckedAndSelected () {
@@ -355,7 +418,17 @@ export default {
     },
 
     hasActions () {
-      return this.actions.addRecommendations.checked || this.actions.addTags.selected.length > 0 || this.actions.deleteTags.selected.length > 0 || Object.values(this.actions.assignSegment.selected).length > 0
+      const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
+      const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
+      const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
+      const assignSegmentAction = this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
+      const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
+
+      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction
+    },
+
+    hasPlaces () {
+      return this.places.length > 0
     },
 
     hasSegments () {
@@ -400,21 +473,23 @@ export default {
         params.assigneeId = this.actions.assignSegment.selected.id
       }
 
+      if (this.assignPlaceCheckedAndSelected) {
+        params.placeId = this.actions.assignPlace.selected.id
+      }
+
       dpRpc('segment.bulk.edit', params)
         .then(checkResponse)
         .then((response) => {
           const rpcResult = this.getRpcResult(response)
 
-          this.actions.assignSegment.success = rpcResult
-          this.actions.deleteTags.success = rpcResult
-          this.actions.addTags.success = rpcResult
-          this.actions.addRecommendations.success = rpcResult
+          for (const property in this.actions) {
+            this.actions[property].success = rpcResult
+          }
         })
         .catch(() => {
-          this.actions.assignSegment.success = false
-          this.actions.deleteTags.success = false
-          this.actions.addTags.success = false
-          this.actions.addRecommendations.success = false
+          for (const property in this.actions) {
+            this.actions[property].success = false
+          }
         })
         .finally(() => {
           // Always delete saved selection to ensure that no action is processed more than one time
@@ -438,12 +513,30 @@ export default {
         })
     },
 
+    fetchPlaces () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
+      return dpApi.get(url)
+        .then(response => {
+          this.places = response.data.data.map(place => {
+            return {
+              id: place.id,
+              name: place.attributes.name
+            }
+          })
+        })
+        .catch(err => console.error(err))
+    },
+
     /**
      * Return result of specific action.
      * @param response {Object} The response that shall be parsed
      */
     getRpcResult (response) {
       return hasOwnProp(response, 0) && response[0]?.result === 'ok'
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
     },
 
     /**
@@ -486,11 +579,14 @@ export default {
   },
 
   mounted () {
-    const promises = [this.listTagTopics({ include: 'tag' }), this.listTags({ include: 'topic' })]
+    const promises = [
+      this.listTagTopics({ include: 'tag' }),
+      this.listTags({ include: 'topic' }),
+      this.fetchPlaces()
+    ]
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
-
     Promise.all(promises)
       .then(() => {
         this.isLoading = false

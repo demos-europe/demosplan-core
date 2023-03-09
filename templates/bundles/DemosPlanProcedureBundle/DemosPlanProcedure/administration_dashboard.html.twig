@@ -63,8 +63,8 @@
                 {% if hasPermission('area_statement_segmentation') %}
                     {# show segments assigned to current user #}
                     <dp-dashboard-task-card
-                        procedure-id="{{ procedure }}"
-                        current-user-id="{{ currentUser.id }}">
+                        current-user-id="{{ currentUser.id }}"
+                        procedure-id="{{ procedure }}">
                     </dp-dashboard-task-card>
 
                     {# show currently segmentable statements #}
@@ -324,6 +324,13 @@
                     <procedure-analytics-chart procedure-id="{{ procedure }}">
                     </procedure-analytics-chart>
                 {% endif %}
+
+                <addon-wrapper
+                    hook-name="dashboard.views"
+                    :addon-props="{
+                        'procedureId': '{{ procedure }}'
+                    }">
+                </addon-wrapper>
             </div>
         </div>
     {% endapply %}

@@ -17,13 +17,16 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Command\VendorlistUpdateCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Exception\ContentEmailMismatchException;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MiscContent\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaHandler;
 use Exception;
@@ -42,6 +45,7 @@ class DemosPlanMiscContentController extends BaseController
      * @Route(path="/barrierefreiheit",
      *     name="DemosPlan_misccontent_static_accessibility_explanation"
      * )
+     *
      * @DplanPermissions("area_accessibility_explanation")
      *
      * @throws MessageBagException
@@ -54,7 +58,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['accessibilityExplanation'] = $accessibilityExplanation;
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/accessibility_explanation.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/accessibility_explanation.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'accessibility',
@@ -67,6 +71,7 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_sign_language",
      *     path="/gebaerdensprache",
      * )
+     *
      * @DplanPermissions("area_sign_language_overview_video")
      *
      * @throws Exception
@@ -76,7 +81,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/sign_language.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/sign_language.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'signLanguage',
@@ -90,6 +95,7 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/impressum",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -115,7 +121,7 @@ class DemosPlanMiscContentController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/imprint.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/imprint.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.imprint',
@@ -131,6 +137,7 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/datenschutz",
      *     options={"expose": "true"},
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
@@ -154,7 +161,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['orgaDataProtectionTexts'] = $orgaHandler->getDataProtectionMunicipalities($customer);
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/data_protection.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/data_protection.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.dataProtection',
@@ -169,6 +176,7 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_how_to_login",
      *     path="/anmeldung",
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -176,7 +184,7 @@ class DemosPlanMiscContentController extends BaseController
     public function howToLoginAction()
     {
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/how_to_login.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/how_to_login.html.twig',
             [
                 'title' => 'misc.howToLogin',
             ]
@@ -190,11 +198,12 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_contact",
      *     path="/kontakt"
      * )
+     *
      * @DplanPermissions("area_main_contact")
      *
      * @return RedirectResponse|Response
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     public function contactAction(
         MessageBagInterface $messageBag,
@@ -228,7 +237,7 @@ class DemosPlanMiscContentController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/contact.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/contact.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.contact',
@@ -284,6 +293,7 @@ class DemosPlanMiscContentController extends BaseController
      * )
      *
      * which generates licenses files for our php and js vendors
+     *
      * @DplanPermissions("area_software_licenses")
      *
      * @return RedirectResponse|Response
@@ -325,7 +335,7 @@ class DemosPlanMiscContentController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/components.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/components.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.softwarecomponents',
@@ -339,6 +349,7 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/nutzungsbedingungen",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_terms_of_use")
      *
      * @return RedirectResponse|Response
@@ -351,7 +362,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['customer'] = $customer;
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/terms_of_use.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/terms_of_use.html.twig',
             [
                 'title'        => $translator->trans('terms.of.use'),
                 'templateVars' => $templateVars,
@@ -364,6 +375,7 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_xplanung",
      *     path="/xplanung"
      * )
+     *
      * @DplanPermissions("area_main_xplanning")
      *
      * @return RedirectResponse|Response
@@ -380,7 +392,7 @@ class DemosPlanMiscContentController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/xplan.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/xplan.html.twig',
             compact('templateVars', 'title')
         );
     }
@@ -391,6 +403,7 @@ class DemosPlanMiscContentController extends BaseController
      *     path="/informationen/nutzungsbedingungen",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -403,7 +416,7 @@ class DemosPlanMiscContentController extends BaseController
 
         // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/term-of-use.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/term-of-use.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.termsOfUse',
@@ -416,16 +429,16 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_documents",
      *     path="/unterlagen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
-     * @return RedirectResponse|Response
-     *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
-    public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator)
+    public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator): Response
     {
         $templateVars = [];
-        // Generiere breadcrumb items
+
+        // generate breadcrumb items
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('misc.information', [], 'page-title'),
@@ -433,9 +446,8 @@ class DemosPlanMiscContentController extends BaseController
             ]
         );
 
-        // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/documents.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/documents.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.information.documents',
@@ -448,19 +460,22 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_information",
      *     path="/informationen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    public function informationAction()
+    public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
-        $templateVars = [];
+        $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
+        $templateVars = [
+            'list' => $faqHandler->convertIntoTwigFormat($categories, $userProvider->getUser()),
+        ];
 
-        // Ausgabe
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/information.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/information.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'misc.information',
@@ -473,6 +488,7 @@ class DemosPlanMiscContentController extends BaseController
      *     name="DemosPlan_misccontent_static_simple_language",
      *     path="/leichte-sprache",
      * )
+     *
      * @DplanPermissions("area_simple_language_overview_description_page")
      *
      * @throws Exception
@@ -482,7 +498,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
         return $this->renderTemplate(
-            '@DemosPlanMiscContent/DemosPlanStatic/simple_language.html.twig',
+            '@DemosPlanCore/DemosPlanStatic/simple_language.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'language.simple',

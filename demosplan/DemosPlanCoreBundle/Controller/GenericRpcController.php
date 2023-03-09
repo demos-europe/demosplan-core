@@ -49,7 +49,7 @@ class GenericRpcController extends BaseController
                 $request->getContent()
             );
 
-            return JsonResponse::create($result);
+            return new JsonResponse($result);
         } catch (Exception $e) {
             return $this->handleException($errorGenerator, $e);
         }
@@ -62,12 +62,12 @@ class GenericRpcController extends BaseController
         if ($e instanceof InvalidSchemaException
             || $e instanceof InvalidArgumentException
             || $e instanceof JsonException) {
-            return JsonResponse::create($errorGenerator->parseError(), 400);
+            return new JsonResponse($errorGenerator->parseError(), 400);
         }
         if ($e instanceof AccessDeniedException) {
-            return JsonResponse::create($errorGenerator->accessDenied(), 403);
+            return new JsonResponse($errorGenerator->accessDenied(), 403);
         }
 
-        return JsonResponse::create($errorGenerator->serverError(), 500);
+        return new JsonResponse($errorGenerator->serverError(), 500);
     }
 }

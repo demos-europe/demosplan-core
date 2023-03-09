@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Exception;
+
 use function in_array;
 
 class RoleRepository extends FluentRepository implements ImmutableObjectInterface
