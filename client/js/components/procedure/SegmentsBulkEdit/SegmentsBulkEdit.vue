@@ -118,7 +118,7 @@
             id="addRecommendationTipTap"
             v-model="actions.addRecommendations.text"
             editor-id="recommendationText"
-            :toolbar-items="{
+            :toolbar-items="{https://github.com/demos-europe/demosplan-core/pull/969
               fullscreenButton: true,
               linkButton: true
             }">
@@ -128,7 +128,7 @@
                 boiler-plate-type="consideration"
                 editor-id="recommendationText"
                 :procedure-id="procedureId"
-                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)" />
             </template>
             <template v-slot:button>
               <button
