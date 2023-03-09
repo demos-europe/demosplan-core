@@ -128,7 +128,7 @@
                 boiler-plate-type="consideration"
                 editor-id="recommendationText"
                 :procedure-id="procedureId"
-                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)" />
             </template>
             <template v-slot:button>
               <button

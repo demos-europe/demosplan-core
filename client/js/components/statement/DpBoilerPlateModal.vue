@@ -123,7 +123,7 @@ export default {
     },
 
     insertBoilerPlate () {
-      this.$emit('insertBoilerPlate', this.textToBeAdded)
+      this.$emit('insert', this.textToBeAdded)
       this.resetAndClose()
     },
 
