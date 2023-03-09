@@ -876,7 +876,7 @@ class StatementFragmentService extends CoreService
      */
     public function areAllFragmentsClaimedByCurrentUser($statementId): bool
     {
-        $fragments = $this->getStatementFragmentsStatementES($statementId, [])->getResult();
+        $fragments = $this->getStatementFragmentsStatement($statementId);
         foreach ($fragments as $fragment) {
             if (!$this->isFragmentAssignedToCurrentUser($fragment)) {
                 return false;
@@ -895,9 +895,9 @@ class StatementFragmentService extends CoreService
      */
     public function isNoFragmentAssignedToReviewer($statementId): bool
     {
-        $fragments = $this->getStatementFragmentsStatementES($statementId, [])->getResult();
+        $fragments = $this->getStatementFragmentsStatement($statementId);
         foreach ($fragments as $fragment) {
-            if (null !== $fragment['departmentId']) {
+            if (null !== $fragment->getDepartmentId()) {
                 return false;
             }
         }
