@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -59,7 +60,6 @@ use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
 use demosplan\DemosPlanProcedureBundle\Exception\NoRecipientsWithEmailException;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Form\BoilerplateGroupType;
 use demosplan\DemosPlanProcedureBundle\Form\BoilerplateType;
 use demosplan\DemosPlanProcedureBundle\Form\ProcedureFormType;
@@ -121,6 +121,8 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
+use function collect;
 
 /**
  * Seitenausgabe Planverfahren.
@@ -1337,9 +1339,9 @@ class DemosPlanProcedureController extends BaseController
                 if ($form->isValid()) {
                     /** @var ProcedureFormData $procedureFormData */
                     $procedureFormData = $form->getData();
-                    $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-                    $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-                    $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+                    $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+                    $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+                    $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
                 }
 
                 $this->validateAdministrationEditInput($inData);
