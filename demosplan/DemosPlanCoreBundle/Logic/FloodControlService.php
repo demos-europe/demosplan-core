@@ -100,6 +100,8 @@ class FloodControlService extends CoreService
 
         if ($request->request->has('r_loadtime')) {
             $loadtime = $request->request->get('r_loadtime');
+            // avoid type error fatal errors
+            $loadtime = is_int($loadtime) ? $loadtime : 0;
             $totaltime = time() - $loadtime;
             if ($totaltime < $this->globalConfig->getHoneypotTimeout()) {
                 $this->getLogger()->info('FloodControl: Honeypot form has been submitted too fast');

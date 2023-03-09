@@ -72,48 +72,64 @@ EOT
 
     /**
      * Update demosplan.
-     *
-     * @throws Exception
      */
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $exitCode = $this->initializeDatabase($output);
-        if (self::SUCCESS !== $exitCode) {
-            return $exitCode;
+        try {
+            $this->initializeDatabase($input, $output);
+            $this->initializeCustomer($input, $output);
+            $this->migrateDatabase($output);
+            $this->elasticsearchPopulate($output);
+        } catch (Exception) {
+
+            return Command::FAILURE;
         }
 
-        $exitCode = $this->initializeCustomer($input, $output);
-        if (self::SUCCESS !== $exitCode) {
-            return $exitCode;
-        }
-
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
-    protected function initializeDatabase(OutputInterface $output): int
+    /**
+     * @throws Exception
+     */
+    protected function initializeDatabase(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->getOption('override-database')) {
+            $output->writeln('Delete existing database');
+            try {
+                $this->createDatabase($output);
+            }  catch (Exception $exception) {
+                $output->writeln(
+                    "Something went wrong during database override: {$exception->getMessage()}",
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+
+                throw $exception;
+            }
+        }
+
         $connection = $this->entityManager->getConnection();
         try {
             $connection->getDatabase();
         } catch (ConnectionException $throwable) {
             try {
                 // create database, if it does not exist yet
-                Batch::create($this->getApplication(), $output)
-                    ->add('dplan:db:init --with-fixtures=ProdData --create-database')
-                    ->run();
+                $this->createDatabase($output);
             } catch (Exception $exception) {
                 $output->writeln(
                     "Something went wrong during database initialization: {$exception->getMessage()}",
                     OutputInterface::VERBOSITY_NORMAL
                 );
 
-                return self::FAILURE;
+                throw $exception;
             }
         }
 
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
+    /**
+     * @throws Exception
+     */
     private function initializeCustomer(InputInterface $input, OutputInterface $output): int
     {
         try {
@@ -165,14 +181,70 @@ EOT
                 OutputInterface::VERBOSITY_NORMAL
             );
 
-            return Command::FAILURE;
+            throw $exception;
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function elasticsearchPopulate(OutputInterface $output): int
+    {
+        $output->writeln('populate ES');
+        try {
+            Batch::create($this->getApplication(), $output)
+                ->add('fos:elastica:reset -e prod --no-debug')
+                ->add('fos:elastica:populate -e prod --no-debug')
+                ->run();
+        }  catch (Exception $exception) {
+            $output->writeln(
+                "Something went wrong during elasticsearch populate: {$exception->getMessage()}",
+                OutputInterface::VERBOSITY_NORMAL
+            );
+
+            throw $exception;
+
+        }
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function migrateDatabase(OutputInterface $output): int
+    {
+        try {
+            Batch::create($this->getApplication(), $output)
+                ->add('dplan:migrate -e prod')
+                ->run();
+        }  catch (Exception $exception) {
+            $output->writeln(
+                "Something went wrong during database migration: {$exception->getMessage()}",
+                OutputInterface::VERBOSITY_NORMAL
+            );
+
+            throw $exception;
+
+        }
+
+        return Command::SUCCESS;
+    }
+
+    protected function createDatabase(OutputInterface $output): void
+    {
+        // let exception bubble
+        Batch::create($this->getApplication(), $output)
+            ->add('dplan:db:init --with-fixtures=ProdData --create-database -e prod')
+            ->run();
+        $output->writeln('DB created');
     }
 
     /**
      * Loads, parses and validates the config if it is given as option in the input.
      *
-     * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the loaded config as associative array or `null` if no config path was given
+     * @return array{customerName: string, customerSubdomain: string, userLogin: string}|null the
+     * loaded config as associative array or `null` if no config path was given
      *
      * @throws Exception if the config path or config content is invalid
      */
