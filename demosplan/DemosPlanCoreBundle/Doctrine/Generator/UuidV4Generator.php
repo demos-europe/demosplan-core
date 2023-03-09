@@ -22,7 +22,7 @@ use Ramsey\Uuid\Uuid;
  */
 class UuidV4Generator extends AbstractIdGenerator
 {
-    public function generateId(EntityManagerInterface $em, $entity)
+    public function generateId(EntityManagerInterface $em, $entity): string
     {
         return Uuid::uuid4()->toString();
     }

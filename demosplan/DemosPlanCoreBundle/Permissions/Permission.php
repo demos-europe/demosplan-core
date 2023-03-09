@@ -234,7 +234,7 @@ class Permission implements ArrayAccess
         return in_array($offset, self::FIELDS, true);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->$offset;
     }
