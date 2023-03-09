@@ -139,7 +139,11 @@ parameters:
 
     # MySQL Default Settings
     database_driver: "pdo_mysql"
+    database_host: "localhost"
+    database_name: "dplan"
+    database_password: ""
     database_port: "3306"
+    database_user: "user"
 
     #RabbitMQ setting with default values
     rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
