@@ -118,7 +118,7 @@
             id="addRecommendationTipTap"
             v-model="actions.addRecommendations.text"
             editor-id="recommendationText"
-            :toolbar-items="{https://github.com/demos-europe/demosplan-core/pull/969
+            :toolbar-items="{
               fullscreenButton: true,
               linkButton: true
             }">
