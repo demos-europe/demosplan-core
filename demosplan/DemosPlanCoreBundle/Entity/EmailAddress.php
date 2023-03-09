@@ -38,8 +38,11 @@ class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddre
      * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -51,7 +54,9 @@ class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddre
      * @var string
      *
      * @ORM\Column(type="string", length=254, nullable=false, unique=true)
+     *
      * @Assert\NotBlank(allowNull=false)
+     *
      * @Assert\Email(mode="strict")
      */
     protected $fullAddress;
