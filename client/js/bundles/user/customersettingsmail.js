@@ -11,10 +11,14 @@
  * This is the entrypoint for customer_settings_update_mail.html.twig
  */
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import { DpLabel } from '@demos-europe/demosplan-ui'
 import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
+  DpBoilerPlateModal,
+  DpLabel,
   DpEditor: async () => {
     const { DpEditor } = await import('@demos-europe/demosplan-ui')
     return DpEditor
