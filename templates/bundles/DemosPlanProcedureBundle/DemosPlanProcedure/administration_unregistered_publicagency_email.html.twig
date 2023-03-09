@@ -90,25 +90,40 @@
                 ]
             }) }}
 
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'email.body'|trans },
-                        control: {
-                            value: templateVars.emailText|default,
-                            boilerPlate: 'email',
-                            toolbarItems: { headings: [1,2,3] },
-                            hiddenInput: 'r_emailText',
-                            linkButton: true,
-                            procedureId: procedureId,
-                            ref: 'r_emailText'
-                        },
-                        type: 'editor',
-                        id: 'r_emailText',
-                        required: true
-                    }
-                ]
-            }) }}
+            <div class="{{ 'u-mb-0_75'|prefixClass }}">
+                <dp-label
+                    for="r_emailText"
+                    text="{{ 'email.body'|trans }}">
+                </dp-label>
+                <dp-editor
+                    id="r_emailText"
+                    ref="r_emailText"
+                    hidden-input="r_emailText"
+                    required
+                    :toolbar-items="{
+                        headings: [1,2,3],
+                        linkButton: true
+                    }"
+                    value="{{ templateVars.emailText|default }}">
+                    <template v-slot:modal="modalProps">
+                        <dp-boiler-plate-modal
+                            ref="boilerPlateModal"
+                            boiler-plate-type="email"
+                            procedure-id="{{ procedureId }}"
+                            @insert="text => modalProps.handleInsertText(text)">
+                        </dp-boiler-plate-modal>
+                    </template>
+                    <template v-slot:button>
+                        <button
+                            class="{{ 'menubar__button'|prefixClass }}"
+                            type="button"
+                            v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                            @click.stop="$refs.boilerPlateModal.toggleModal()">
+                            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                        </button>
+                    </template>
+                </dp-editor>
+            </div>
 
             <a
                 class="btn btn--secondary text--left u-mt-0_5"
