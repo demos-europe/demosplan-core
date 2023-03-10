@@ -39,12 +39,12 @@ class FloodControlEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            RequestValidationStrictEvent::class         => 'handleRequestValidation',
-            RequestValidationFloodEvent::class          => 'handleRequestValidation',
-            RequestValidationWeakEvent::class           => 'handleRequestValidation',
-            PublicDetailStatementListLoadedEvent::class => 'onPublicDetailStatementListLoaded',
+            RequestValidationStrictEvent::class                  => 'handleRequestValidation',
+            RequestValidationFloodEvent::class                   => 'handleRequestValidation',
+            RequestValidationWeakEvent::class                    => 'handleRequestValidation',
+            PublicDetailStatementListLoadedEvent::class          => 'onPublicDetailStatementListLoaded',
             AddonMaintenanceEventInterface::class                => 'onMaintenance',
-            TwigExtensionFormExtraFieldsEvent::class    => 'onFormExtraFields',
+            TwigExtensionFormExtraFieldsEvent::class             => 'onFormExtraFields',
         ];
     }
 
