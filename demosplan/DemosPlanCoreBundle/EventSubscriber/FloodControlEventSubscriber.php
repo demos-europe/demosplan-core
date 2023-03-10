@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\Plugin\TwigExtensionFormExtraFieldsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoadedEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationEvent;
@@ -43,7 +43,7 @@ class FloodControlEventSubscriber implements EventSubscriberInterface
             RequestValidationFloodEvent::class          => 'handleRequestValidation',
             RequestValidationWeakEvent::class           => 'handleRequestValidation',
             PublicDetailStatementListLoadedEvent::class => 'onPublicDetailStatementListLoaded',
-            AddonMaintenanceEvent::class                => 'onMaintenance',
+            AddonMaintenanceEventInterface::class       => 'onMaintenance',
             TwigExtensionFormExtraFieldsEvent::class    => 'onFormExtraFields',
         ];
     }
@@ -87,7 +87,7 @@ class FloodControlEventSubscriber implements EventSubscriberInterface
      *
      * @throws Exception $exception
      */
-    public function onMaintenance(AddonMaintenanceEvent $event): void
+    public function onMaintenance(AddonMaintenanceEventInterface $event): void
     {
         $this->floodControl->cleanRecords();
     }

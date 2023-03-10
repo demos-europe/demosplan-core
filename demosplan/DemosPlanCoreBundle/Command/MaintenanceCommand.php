@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
@@ -377,7 +378,10 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function addonMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new AddonMaintenanceEvent());
+            $this->eventDispatcher->dispatch(
+                new AddonMaintenanceEvent(),
+                AddonMaintenanceEventInterface::class
+            );
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }
