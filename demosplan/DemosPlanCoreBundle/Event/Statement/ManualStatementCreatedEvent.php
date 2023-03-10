@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-class ManualStatementCreatedEvent extends StatementCreatedEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
+
+class ManualStatementCreatedEvent extends StatementCreatedEvent implements ManualStatementCreatedEventInterface
 {
 }

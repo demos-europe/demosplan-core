@@ -28,7 +28,7 @@ class NonAuthorizedAssignRemoveSubscriber implements EventSubscriberInterface
         $this->assignRemover = $assignRemover;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProcedureEditedEvent::class => 'removeNonAuthorizedAssignees',

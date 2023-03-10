@@ -249,6 +249,14 @@ class LoadUserData extends TestFixture
 
         $manager->persist($role13);
 
+        $role14 = new Role();
+        $role14->setName(Role::CUSTOMER_MASTER_USER)
+            ->setCode(Role::CUSTOMER_MASTER_USER)
+            ->setGroupCode(Role::CUSTOMERMASTERUSERGROUP)
+            ->setGroupName(Role::CUSTOMERMASTERUSERGROUP);
+
+        $manager->persist($role14);
+
         $this->setReference('testRolePublicAgencyCoordination', $role1);
         $this->setReference('testRoleCitiz', $role2);
         $this->setReference('testRoleFP', $role3);

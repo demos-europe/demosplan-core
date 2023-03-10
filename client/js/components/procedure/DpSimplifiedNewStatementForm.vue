@@ -312,6 +312,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
+          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -328,6 +329,7 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
@@ -352,8 +354,18 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from '@demos-europe/demosplan-ui'
-import { DpAccordion, DpButtonRow, DpDatepicker, DpMultiselect, DpRadio, DpSelect, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import {
+  DpAccordion,
+  DpButtonRow,
+  DpDatepicker,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpRadio,
+  DpSelect,
+  DpTextArea,
+  DpUploadFiles
+} from '@demos-europe/demosplan-ui'
 import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'

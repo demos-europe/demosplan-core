@@ -234,7 +234,7 @@ class ProcedureExtension extends ExtensionBase
         try {
             $procedureObject = $this->getProcedureObject($procedure);
         } catch (Exception $exception) {
-            throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true));
+            throw new RuntimeException('Got unretrievable procedure: '.var_export($procedure, true), 0, $exception);
         }
 
         return $this->getEndDateFromProcedureObject($procedureObject, $type);
