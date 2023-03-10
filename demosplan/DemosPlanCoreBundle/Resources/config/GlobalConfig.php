@@ -593,7 +593,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->setParams($params, $translator);
     }
 
-    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator)
+    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator): void
     {
         /*
          * Project configurations
