@@ -29,7 +29,7 @@ class Config {
   }
 
   defaults (mode, project) {
-    this.relativeRoot = '../../'
+    this.relativeRoot = '../../../'
     this.isProduction = (mode === 'production')
     this.mode = (mode === 'production') ? 'production' : mode
 
