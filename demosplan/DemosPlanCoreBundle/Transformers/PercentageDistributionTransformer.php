@@ -19,13 +19,13 @@ class PercentageDistributionTransformer extends BaseTransformer implements Perce
 {
     protected $type = 'PercentageDistribution';
 
-    public function transform(PercentageDistribution $percentageDistribution): array
+    public function transform(array $percentageDistribution): array
     {
         return [
             'id'          => UUID::generate(),
-            'total'       => $percentageDistribution->getTotal(),
-            'percentages' => $percentageDistribution->getPercentages(),
-            'absolutes'   => $percentageDistribution->getAbsolutes(),
+            'total'       => $percentageDistribution['totalCount'],
+            'percentages' => $percentageDistribution['percentages'],
+            'absolutes'   => $percentageDistribution['data'],
         ];
     }
 }
