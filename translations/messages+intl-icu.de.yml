@@ -361,7 +361,11 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, daß Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
 check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
-check.user.delete: "Sind Sie sicher, dass Sie diese Nutzenden löschen möchten?"
+check.user.delete: |
+    {count, plural,
+        =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
+        other { Sind Sie sicher, dass Sie diese Nutzenden löschen möchten? }
+    }
 check.user.department.changed: "Bitte bestätigen Sie, dass Sie in eine neue Abteilung gewechselt sind."
 check.user.department.renamed: "Bitte bestätigen Sie, dass Ihre Abteilung umbenannt wurde."
 check.user.organisation.changed: "Bitte bestätigen Sie, dass Sie in eine neue Organisation gewechselt sind."
@@ -649,6 +653,8 @@ consideration.versions: "Ältere Versionen der Abwägung / Empfehlung"
 considerationadvice.fpf: "Empfehlung der Fachbehörde oder des Planungsbüros"
 # this should only be used when referring to the field on fragments. statements use 'recommendation'
 considerationadvice: "Abwägung / Empfehlung"
+considerationadvice.text.add: "Abwägung / Empfehlung ergänzen"
+considerationadvice.text.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"

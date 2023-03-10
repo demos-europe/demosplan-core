@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -120,7 +121,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType imple
         $adminConditions = [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
-            $this->conditionFactory->propertyHasNotValue(Elements::ELEMENTS_CATEGORY_MAP, $this->category),
+            $this->conditionFactory->propertyHasNotValue(ElementsInterface::ELEMENTS_CATEGORY_MAP, $this->category),
         ];
 
         // These "elements" are needed for technical reasons but are no actual categories.

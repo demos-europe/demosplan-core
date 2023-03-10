@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanMapBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
@@ -26,7 +28,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
-class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**
      * Get Entity by Id.
@@ -285,13 +287,9 @@ class GisLayerCategoryRepository extends CoreRepository implements ArrayInterfac
     }
 
     /**
-     * @param string $procedureId
-     *
-     * @return GisLayerCategory|null
-     *
      * @throws Exception
      */
-    public function getRootLayerCategory($procedureId)
+    public function getRootLayerCategory(string $procedureId): ?GisLayerCategoryInterface
     {
         try {
             return $this->findOneBy(['procedure' => $procedureId, 'parent' => null]);

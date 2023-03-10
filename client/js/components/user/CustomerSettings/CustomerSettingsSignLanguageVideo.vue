@@ -48,6 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
@@ -80,7 +81,7 @@
 
 <script>
 import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
-import { DpButton, DpInput , DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInput, DpTextArea, DpUploadFiles, getFileIdsByHash } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -153,7 +154,7 @@ export default {
     },
 
     async saveVideo () {
-      const fileIds = await getFileIdsByHash([this.video.file])
+      const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {
         type: 'SignLanguageOverviewVideo',

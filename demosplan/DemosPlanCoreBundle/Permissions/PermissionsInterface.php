@@ -10,20 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
-interface PermissionsInterface
+interface PermissionsInterface extends \DemosEurope\DemosplanAddon\Contracts\PermissionsInterface
 {
     /**
      * Initialize all permissions that do not depend on a procedure.
      */
-    public function initPermissions(User $user, array $context = null): Permissions;
+    public function initPermissions(UserInterface $user, array $context = null): PermissionsInterface;
 
     /**
      * Ist die Organisation des angemeldeten Nutzers Inhaberin des Verfahrens?
@@ -121,7 +121,7 @@ interface PermissionsInterface
      */
     public function hasPermissions(array $permissions, string $operator = 'AND'): bool;
 
-    public function setProcedure(?Procedure $procedure);
+    public function setProcedure(?ProcedureInterface $procedure): void;
 
     /**
      * Enable a set of permissions.

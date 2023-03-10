@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
 final class FrontendAssetProvider
@@ -39,7 +40,7 @@ final class FrontendAssetProvider
             }
 
             $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = $addonInfo->getInstallPath().'/'.$uiData['manifest'];
+            $manifestPath =  DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
             try {
                 $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
@@ -53,7 +54,7 @@ final class FrontendAssetProvider
 
                 foreach ($entries['js'] as $entry) {
                     // Try to get the content of the actual asset
-                    $entryFilePath = $addonInfo->getInstallPath().'/dist/'.$entry;
+                    $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
                     $assetContents[$entry] = file_get_contents($entryFilePath);
                 }
 
