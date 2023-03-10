@@ -141,7 +141,7 @@ parameters:
     database_driver: "pdo_mysql"
     database_host: "localhost"
     database_name: "dplan"
-    database_password: ""
+    database_password: "changeMe"
     database_port: "3306"
     database_user: "user"
 
