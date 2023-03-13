@@ -339,7 +339,7 @@ class DraftStatementService extends CoreService
             // get Elasticsearch aggregations aka Userfilters
             $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search);
 
-            return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
+            return $this->toLegacyResult($list, $procedureId, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation);
         } catch (Exception $e) {
             $this->logger->warning('get DraftStatement List failed. Reason: ', [$e]);
             throw $e;
@@ -393,7 +393,7 @@ class DraftStatementService extends CoreService
             $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search);
             $filters->setOrganisationNameFilter(true);
 
-            return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
+            return $this->toLegacyResult($list, $procedureId, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation);
         } catch (Exception $e) {
             $this->logger->warning('get DraftStatement List other companies failed. ', [$e]);
             throw $e;
@@ -1384,15 +1384,15 @@ class DraftStatementService extends CoreService
      * Convert Result to Legacy.
      *
      * @param array       $list
+     * @param string      $procedureId
      * @param array|null  $filters
      * @param array|null  $sort
      * @param string|null $manualSortScope
      * @param array       $aggregation     Elasticsearch aggregation converted to legacy
-     * @param string      $procedureId
      *
      * @internal param array $filter
      */
-    protected function toLegacyResult($list, ?string $search = '', $filters = [], $sort = [], $manualSortScope = null, $aggregation = [], $procedureId): DraftStatementResult
+    protected function toLegacyResult($list, $procedureId, ?string $search = '', $filters = [], $sort = [], $manualSortScope = null, $aggregation = []): DraftStatementResult
     {
         // Is the list manually sorted?
         $sorted['sorted'] = false;
@@ -1480,7 +1480,7 @@ class DraftStatementService extends CoreService
             $filters->setSomeOnesUserId($user->getIdent());
             $aggregation = $this->getElasticsearchDraftStatementAggregationByIds($draftStatementIds, $procedureId, $user);
 
-            return $this->toLegacyResult($list, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation, $procedureId);
+            return $this->toLegacyResult($list, $procedureId, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation);
         } catch (Exception $e) {
             $this->logger->warning('get DraftStatament List failed. ', [$e]);
             throw $e;
