@@ -1050,10 +1050,13 @@ class DemosPlanStatementController extends BaseController
                 );
 
                 try {
+                    $this->logger->info('Pre RequestValidationWeakEvent');
                     $eventDispatcherPost->post($event);
                 } catch (Exception $e) {
+                    $this->logger->error('Could not validate request', [$e]);
                     return $this->renderJson([], 100, false);
                 }
+                $this->logger->info('Post RequestValidationWeakEvent');
 
                 $statementHandler->setRequestValues($requestPost);
                 $statementHandler->setDisplayNotices(false);
@@ -1080,6 +1083,8 @@ class DemosPlanStatementController extends BaseController
                         'success' => false,
                         'errors'  => $violation->getViolationsAsStrings(),
                     ];
+
+                    $this->logger->error('Statement data violated constraints', [$errorResponse]);
 
                     return $this->renderJson($errorResponse);
                 }
