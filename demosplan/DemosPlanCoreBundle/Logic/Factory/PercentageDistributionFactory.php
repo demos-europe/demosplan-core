@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 
 
+use DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\PercentageDistributionInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 
