@@ -2,5 +2,5 @@ DemosPlanCore_annotations:
     resource: "../../../../DemosPlanCoreBundle/Controller/"
     type: "annotation"
 addon_routes:
-    resource: 'demosplan\DemosPlanCoreBundle\Addon\AddonRouter::loadRoutes'
+    resource: 'demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader::loadRoutes'
     type: service

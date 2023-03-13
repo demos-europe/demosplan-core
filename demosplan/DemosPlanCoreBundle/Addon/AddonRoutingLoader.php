@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
-class AddonRouter extends AnnotationDirectoryLoader implements RouteLoaderInterface
+class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoaderInterface
 {
     private const PATH_TO_CONTROLLERS_FROM_ADDONROOT = '/src/Controller';
 
@@ -34,7 +34,7 @@ class AddonRouter extends AnnotationDirectoryLoader implements RouteLoaderInterf
     {
         $routeCollection = new RouteCollection();
         foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
-            if ($addonInfo->isEnabled()) {
+            if ('' !== $addonInfo->getInstallPath()) {
                 $controllerPath = AddonPath::getRootPath(
                     $addonInfo->getInstallPath().self::PATH_TO_CONTROLLERS_FROM_ADDONROOT
                 );
