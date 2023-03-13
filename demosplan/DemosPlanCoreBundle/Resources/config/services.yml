@@ -112,8 +112,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
 
-    DemosEurope\DemosplanAddon\Contracts\Services\initializeServiceInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Logic\initializeService'
+    DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
 
 
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
