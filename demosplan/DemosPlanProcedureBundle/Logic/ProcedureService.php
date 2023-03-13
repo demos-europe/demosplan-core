@@ -2862,10 +2862,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     private function copyProcedureRelatedFilesFromBlueprint(string $blueprintId, Procedure $newProcedure): void
     {
+        /** @var Procedure $blueprint */
         $blueprint = $this->procedureRepository->findOneBy(['id' => $blueprintId]);
         $newFiles = [];
 
         foreach ($blueprint->getFiles() as $procedureFile) {
+            if ($procedureFile->getDeleted()) {
+                // skip deleted files; only relevant if the maintenance service did not (yet) automatically removed them fully
+                continue;
+            }
             $newFile = $this->fileService->createCopyOfFile($procedureFile->getFileString(), $newProcedure->getId());
             if (null !== $newFile) {
                 $newFiles[] = $newFile;
