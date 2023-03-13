@@ -237,6 +237,12 @@ services:
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
 
+    DemosEurope\DemosplanAddon\Contracts\ValueObject\PercentageDistributionInterface:
+        class: 'demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution'
+        arguments:
+            $total: int
+            $absolutes: array
+
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
             -   name: data_collector
