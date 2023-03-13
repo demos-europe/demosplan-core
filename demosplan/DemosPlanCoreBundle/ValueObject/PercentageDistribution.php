@@ -40,9 +40,4 @@ class PercentageDistribution extends ValueObject implements PercentageDistributi
         $this->total = $total;
         $this->lock();
     }
-
-    public function createInstance(int $total, array $absolutes): PercentageDistributionInterface
-    {
-        return new self($total, $absolutes);
-    }
 }

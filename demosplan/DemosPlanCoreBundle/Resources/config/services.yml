@@ -25,6 +25,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryIntferace:
+        class: '@demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
@@ -236,12 +239,6 @@ services:
 
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
-
-    DemosEurope\DemosplanAddon\Contracts\ValueObject\PercentageDistributionInterface:
-        class: 'demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution'
-        arguments:
-            $total: int
-            $absolutes: array
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
