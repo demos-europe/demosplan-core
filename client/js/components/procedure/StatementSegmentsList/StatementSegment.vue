@@ -112,7 +112,7 @@
               boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
-              @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+              @insert="text => modalProps.handleInsertText(text)" />
             <dp-recommendation-modal
               v-if="segment.hasRelationship('tags')"
               ref="recommendationModal"

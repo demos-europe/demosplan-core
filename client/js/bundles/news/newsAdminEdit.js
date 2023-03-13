@@ -11,14 +11,17 @@
  * This is the entrypoint for news_admin_edit.html.twig
  */
 
-import { DpChangeStateAtDate, DpEditor, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpChangeStateAtDate, DpEditor, DpLabel, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { initialize } from '@DpJs/InitVue'
 import newsAdminInit from '@DpJs/lib/news/newsAdmin'
 
 const components = {
+  DpBoilerPlateModal,
   DpChangeStateAtDate,
   DpEditor,
+  DpLabel,
   DpUploadFiles
 }
 

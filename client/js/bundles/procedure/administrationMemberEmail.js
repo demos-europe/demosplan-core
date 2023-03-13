@@ -12,11 +12,13 @@
  */
 import { DpAccordion, DpEditor, DpInlineNotification, DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,
+  DpBoilerPlateModal,
   DpEditor,
   DpEmailList,
   DpInlineNotification,
