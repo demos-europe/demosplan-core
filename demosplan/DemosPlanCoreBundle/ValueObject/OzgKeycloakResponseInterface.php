@@ -8,7 +8,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method array  getRolleDiPlanBeteiligung()
+ * @method array  getRoles()
  * @method string getEmailAddress()
  * @method string getUserName()
  * @method string getUserId()

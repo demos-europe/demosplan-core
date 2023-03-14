@@ -14,7 +14,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method array  getRolleDiPlanBeteiligung()
+ * @method array  getRoles()
  * @method string getEmailAddress()
  * @method string getUserName()
  * @method string getUserId()
@@ -27,7 +27,7 @@ class OzgKeycloakResponse extends ValueObject implements OzgKeycloakResponseInte
     /**
      * @var array<int,string>
      */
-    protected array $rolleDiPlanBeteiligung;
+    protected array $roles = [];
 
     /**
      * E-mail-address of the provided user.
@@ -62,12 +62,11 @@ class OzgKeycloakResponse extends ValueObject implements OzgKeycloakResponseInte
     public function __construct(ResourceOwnerInterface $resourceOwner)
     {
         $keycloakResponseValues = $resourceOwner->toArray();
-        $this->rolleDiPlanBeteiligung = [];
 
         if (array_key_exists('rolleDiPlanBeteiligung', $keycloakResponseValues)
             && is_array($keycloakResponseValues['rolleDiPlanBeteiligung'])
         ) {
-            $this->rolleDiPlanBeteiligung = $keycloakResponseValues['rolleDiPlanBeteiligung'];
+            $this->roles = $keycloakResponseValues['rolleDiPlanBeteiligung'];
         }
 
         $this->emailAddress = $keycloakResponseValues['emailAdresse'] ?? '';

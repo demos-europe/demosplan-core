@@ -418,7 +418,7 @@ class OzgKeycloakUserLogin
      */
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
-        $desiredRoleNames = $this->ozgKeycloakResponse->getRolleDiPlanBeteiligung();
+        $desiredRoleNames = $this->ozgKeycloakResponse->getRoles();
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
