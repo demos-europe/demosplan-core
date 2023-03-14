@@ -37,7 +37,7 @@ class AddonBuildFrontendCommand extends CoreCommand
         $this->addArgument('addon-name', InputArgument::REQUIRED, 'Addon name, du\'h.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln("Building frontend assets for {$input->getArgument('addon-name')}");
 

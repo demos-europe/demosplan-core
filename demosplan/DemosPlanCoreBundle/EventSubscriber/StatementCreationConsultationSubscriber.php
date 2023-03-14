@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
@@ -82,9 +82,9 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            StatementCreatedEventInterface::class         => 'handleActivelyCreatedStatement',
-            ManualStatementCreatedEvent::class            => 'handleActivelyCreatedStatement',
-            ConsultationTokenStatementCreatedEvent::class => 'handleTokenStatement',
+            StatementCreatedEventInterface::class                  => 'handleActivelyCreatedStatement',
+            ManualStatementCreatedEventInterface::class            => 'handleActivelyCreatedStatement',
+            ConsultationTokenStatementCreatedEvent::class          => 'handleTokenStatement',
         ];
     }
 

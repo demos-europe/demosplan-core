@@ -100,7 +100,7 @@
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
-                @insertBoilerPlate="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)" />
             </template>
             <template v-slot:button>
               <button
