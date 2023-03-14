@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserLogin;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -67,8 +67,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
                 try {
                     $this->entityManager->getConnection()->beginTransaction();
-                    $ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
-                        $client->fetchUserFromToken($accessToken)->toArray()
+                    $ozgKeycloakResponseValueObject = new OzgKeycloakResponse(
+                        $client->fetchUserFromToken($accessToken)
                     );
                     $user = $this->ozgKeycloakUserLogin->handleKeycloakData($ozgKeycloakResponseValueObject);
                     $this->entityManager->getConnection()->commit();

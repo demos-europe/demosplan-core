@@ -22,7 +22,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponse;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -42,7 +43,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @see OzgKeycloakResponseValueObject.
+ * keycloak will be passed by @see OzgKeycloakResponse.
  */
 class OzgKeycloakUserLogin
 {
@@ -54,7 +55,7 @@ class OzgKeycloakUserLogin
     private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
     private OrgaTypeRepository $orgaTypeRepository;
-    private OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject;
+    private OzgKeycloakResponseInterface $ozgKeycloakResponse;
     private RoleRepository $roleRepository;
     private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
@@ -112,9 +113,9 @@ class OzgKeycloakUserLogin
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    public function handleKeycloakData(OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject): User
+    public function handleKeycloakData(OzgKeycloakResponseInterface $ozgKeycloakRespons): User
     {
-        $this->ozgKeycloakResponseValueObject = $ozgKeycloakResponseValueObject;
+        $this->ozgKeycloakResponse = $ozgKeycloakRespons;
         // 1 get Desired Roles
         $requestedRoles = $this->mapKeycloakRoleNamesToDplanRoles();
         // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
@@ -222,13 +223,13 @@ class OzgKeycloakUserLogin
         // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
         $existingOrga->addCustomer($customer);
-        $existingOrga->setGwId($this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId());
+        $existingOrga->setGwId($this->ozgKeycloakResponse->getOrganisationId());
         /*
          * This check prevents the case that someone tries to change the orga name to
          * @link User::ANONYMOUS_USER_ORGA_NAME. This name has to stay unique for the Citizen Orga.
          */
-        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
-            $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
+        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakResponse->getOrganisationName()) {
+            $existingOrga->setName($this->ozgKeycloakResponse->getOrganisationName());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
@@ -260,8 +261,8 @@ class OzgKeycloakUserLogin
         $this->logger->info(
             'Organisation updated',
             [
-                'OrgaName'           => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
-                'gwId'               => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
+                'OrgaName'           => $this->ozgKeycloakResponse->getOrganisationName(),
+                'gwId'               => $this->ozgKeycloakResponse->getOrganisationId(),
                 'customer'           => $customer->getName(),
                 'requestedOrgaTypes' => $orgaTypesNeededToBeAccepted,
                 'newOrgaId'          => $existingOrga->getId(),
@@ -303,18 +304,18 @@ class OzgKeycloakUserLogin
         $department = new Department();
         $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
         $this->entityManager->persist($department);
-        if (User::ANONYMOUS_USER_ORGA_NAME === $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
+        if (User::ANONYMOUS_USER_ORGA_NAME === $this->ozgKeycloakResponse->getOrganisationName()) {
             throw new AuthenticationException('The Organisation name is reserved for citizen!');
         }
 
         $orgaData = [
             'customer'                  => $this->customerService->getCurrentCustomer(),
-            'name'                      => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
+            'name'                      => $this->ozgKeycloakResponse->getOrganisationName(),
             'registrationStatuses'      => $registrationStatuses,
         ];
-        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
+        if ('' !== $this->ozgKeycloakResponse->getOrganisationId()) {
             // if we get this value set it
-            $orgaData['gwId'] = $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId();
+            $orgaData['gwId'] = $this->ozgKeycloakResponse->getOrganisationId();
         }
 
         $orga = $this->orgaService->addOrga($orgaData);
@@ -346,10 +347,10 @@ class OzgKeycloakUserLogin
         }
 
         $userData = [
-            'lastname'      => $this->ozgKeycloakResponseValueObject->getVollerName(),
-            'email'         => $this->ozgKeycloakResponseValueObject->getEmailAdresse(),
-            'login'         => $this->ozgKeycloakResponseValueObject->getNutzerId(),
-            'gwId'          => $this->ozgKeycloakResponseValueObject->getProviderId(),
+            'lastname'      => $this->ozgKeycloakResponse->getFullName(),
+            'email'         => $this->ozgKeycloakResponse->getEmailAddress(),
+            'login'         => $this->ozgKeycloakResponse->getUserName(),
+            'gwId'          => $this->ozgKeycloakResponse->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
             'department'    => $this->getDepartmentToSetForUser($userOrga),
@@ -417,7 +418,7 @@ class OzgKeycloakUserLogin
      */
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
-        $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
+        $desiredRoleNames = $this->ozgKeycloakResponse->getRolleDiPlanBeteiligung();
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
@@ -471,9 +472,9 @@ class OzgKeycloakUserLogin
     private function tryLookupOrgaByGwId(): ?Orga
     {
         $orga = null;
-        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
+        if ('' !== $this->ozgKeycloakResponse->getOrganisationId()) {
             $orga = $this->orgaRepository
-                ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()]);
+                ->findOneBy(['gwId' => $this->ozgKeycloakResponse->getOrganisationId()]);
         }
 
         return $orga;
@@ -505,31 +506,31 @@ class OzgKeycloakUserLogin
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getGwId(),
-            $this->ozgKeycloakResponseValueObject->getProviderId()
+            $this->ozgKeycloakResponse->getUserId()
         )) {
-            $dplanUser->setGwId($this->ozgKeycloakResponseValueObject->getProviderId());
+            $dplanUser->setGwId($this->ozgKeycloakResponse->getUserId());
         }
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getLogin(),
-            $this->ozgKeycloakResponseValueObject->getNutzerId()
+            $this->ozgKeycloakResponse->getUserName()
         )) {
-            $dplanUser->setLogin($this->ozgKeycloakResponseValueObject->getNutzerId());
+            $dplanUser->setLogin($this->ozgKeycloakResponse->getUserName());
         }
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getEmail(),
-            $this->ozgKeycloakResponseValueObject->getEmailAdresse()
+            $this->ozgKeycloakResponse->getEmailAddress()
         )) {
-            $dplanUser->setEmail($this->ozgKeycloakResponseValueObject->getEmailAdresse());
+            $dplanUser->setEmail($this->ozgKeycloakResponse->getEmailAddress());
         }
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getFullname(),
-            $this->ozgKeycloakResponseValueObject->getVollerName()
+            $this->ozgKeycloakResponse->getFullName()
         )) {
             $dplanUser->setFirstname('');
-            $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
+            $dplanUser->setLastname($this->ozgKeycloakResponse->getFullName());
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
@@ -609,16 +610,16 @@ class OzgKeycloakUserLogin
 
     private function fetchExistingUserViaGatewayId(): ?User
     {
-        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
+        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakResponse->getUserId()]);
     }
 
     private function fetchExistingUserViaLoginAttribute(): ?User
     {
-        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
+        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakResponse->getUserName()]);
     }
 
     private function fetchExistingUserViaEmail(): ?User
     {
-        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
+        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakResponse->getEmailAddress()]);
     }
 }
