@@ -63,6 +63,7 @@ class OzgKeycloakResponse extends ValueObject implements OzgKeycloakResponseInte
     {
         $keycloakResponseValues = $resourceOwner->toArray();
         $this->rolleDiPlanBeteiligung = [];
+
         if (array_key_exists('rolleDiPlanBeteiligung', $keycloakResponseValues)
             && is_array($keycloakResponseValues['rolleDiPlanBeteiligung'])
         ) {
