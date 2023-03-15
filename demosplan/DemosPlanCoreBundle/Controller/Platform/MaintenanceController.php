@@ -258,7 +258,7 @@ class MaintenanceController extends BaseController
                         $logger->info('Maintenance: check for deleted Files');
                         $this->fileService->checkDeletedFiles();
                     } catch (Exception $exception) {
-                        $this->logger->error('Daily maintenance task failed for: delete (soft) removed files.', [$exception]);
+                        $this->logger->error('Daily maintenance task failed for: delete obsolete files.', [$exception]);
                     }
                 }
                 break;
