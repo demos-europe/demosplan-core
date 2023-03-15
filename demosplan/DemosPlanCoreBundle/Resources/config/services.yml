@@ -241,6 +241,11 @@ services:
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
 
+    demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
+        arguments:
+            $locator: '@file_locator'
+            $loader: '@routing.loader.annotation'
+
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
             -   name: data_collector
@@ -1358,9 +1363,3 @@ services:
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
-
-    Symfony\Component\Config\FileLocatorInterface:
-        alias: 'file_locator'
-
-    Symfony\Component\Routing\Loader\AnnotationClassLoader:
-        alias: 'routing.loader.annotation'
