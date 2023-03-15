@@ -195,6 +195,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanStatementBundle\Logic\StatementService
 
+    DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
         class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
 
