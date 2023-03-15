@@ -314,7 +314,7 @@ class PrepareReportFromProcedureService extends CoreService
         } catch (UserNotFoundException $e) {
             $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
         }
-        if (null !== $user && '' === $user->getFullname()) {
+        if (null !== $user && '' !== $user->getFullname()) {
             return $user;
         }
 
