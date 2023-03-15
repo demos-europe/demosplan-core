@@ -193,24 +193,40 @@
             ]
         }) }}
 
-        {{ uiComponent('form.row', {
-            elements: [
-                {
-                    label: { text: 'news.text'|trans },
-                    control: {
-                        value: templateVars.prefill.r_text|default,
-                        procedureId: procedure,
-                        hiddenInput: 'r_text',
-                        linkButton: true,
-                        editorId: 'newsText',
-                        ref: 'r_text',
-                        boilerPlate: 'news.notes'
-                    },
-                    id: 'r_text',
-                    type: 'editor'
-                }
-            ]
-        }) }}
+        <div class="{{ 'u-mb-0_75'|prefixClass }}">
+            <dp-label
+                for="r_text"
+                text="{{ 'news.text'|trans }}">
+            </dp-label>
+            <dp-editor
+                id="r_text"
+                ref="r_text"
+                editor-id="newsText"
+                hidden-input="r_text"
+                :toolbar-items="{
+                    linkButton: true
+                }"
+                value="{{ templateVars.prefill.r_text|default }}">
+                <template v-slot:modal="modalProps">
+                    <dp-boiler-plate-modal
+                        ref="boilerPlateModal"
+                        boiler-plate-type="news.notes"
+                        editor-id="newsText"
+                        procedure-id="{{ procedure }}"
+                        @insert="text => modalProps.handleInsertText(text)">
+                    </dp-boiler-plate-modal>
+                </template>
+                <template v-slot:button>
+                    <button
+                        class="{{ 'menubar__button'|prefixClass }}"
+                        type="button"
+                        v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                        @click.stop="$refs.boilerPlateModal.toggleModal()">
+                        <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                    </button>
+                </template>
+            </dp-editor>
+        </div>
 
         {{
             fileupload(

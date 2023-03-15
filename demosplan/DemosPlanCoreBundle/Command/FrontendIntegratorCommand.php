@@ -14,6 +14,7 @@ use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
@@ -136,7 +137,9 @@ class FrontendIntegratorCommand extends CoreCommand
             ->add('dplan:translations:dump')
             ->run();
 
-        $this->updateApiCodingSupport();
+        if (DemosPlanKernel::ENVIRONMENT_PROD !== $this->getApplication()->getKernel()->getEnvironment()) {
+            $this->updateApiCodingSupport();
+        }
     }
 
     /**

@@ -166,7 +166,7 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
         throw new NotYetImplementedException('Not implemented yet.');
     }
 
-    public function unescapeValue($value)
+    public function unescapeValue($value): mixed
     {
         throw new NotYetImplementedException('Not implemented yet.');
     }
