@@ -53,7 +53,10 @@
                                 target="_blank"
                                 rel="noopener"
                                 href="{{ path("core_file", { 'hash': newsItem.pdf|getFile('hash') }) }}"
-                                title="Download {{ newsItem.pdftitle|default(newsItem.pdf|getFile('name')) }} {% if (newsItem.pdf|getFile('size')|length > 0 or newsItem.pdf|getFile('mimeType')|length > 0 ) %} ({{- newsItem.pdf|getFile('size') }} {{ newsItem.pdf|getFile('mimeType') -}}){% endif %}">
+                                title="Download {{ newsItem.pdftitle|default(newsItem.pdf|getFile('name')) }}
+                                {% if (newsItem.pdf|getFile('size')|length > 0 or newsItem.pdf|getFile('mimeType')|length > 0 ) %}
+                                ({{- newsItem.pdf|getFile('size') }} {{ newsItem.pdf|getFile('mimeType') -}})
+                                {% endif %}">
                                 <i class="{{ 'fa fa-file'|prefixClass }}" aria-hidden="true"></i>
                                 {{ newsItem.pdftitle|default(newsItem.pdf|getFile('name')) }}
                             </a>
