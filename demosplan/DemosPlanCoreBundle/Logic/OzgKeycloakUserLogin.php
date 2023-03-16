@@ -22,8 +22,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseInterface;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponse;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakResponseInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakResponse;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @see OzgKeycloakResponse.
+ * keycloak will be passed by @see BasicKeycloakResponse.
  */
 class OzgKeycloakUserLogin
 {
@@ -55,7 +55,7 @@ class OzgKeycloakUserLogin
     private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
     private OrgaTypeRepository $orgaTypeRepository;
-    private OzgKeycloakResponseInterface $ozgKeycloakResponse;
+    private KeycloakResponseInterface $ozgKeycloakResponse;
     private RoleRepository $roleRepository;
     private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
@@ -113,7 +113,7 @@ class OzgKeycloakUserLogin
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    public function handleKeycloakData(OzgKeycloakResponseInterface $ozgKeycloakResponse): User
+    public function handleKeycloakData(KeycloakResponseInterface $ozgKeycloakResponse): User
     {
         $this->ozgKeycloakResponse = $ozgKeycloakResponse;
         // 1 get Desired Roles
@@ -419,6 +419,8 @@ class OzgKeycloakUserLogin
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
         $desiredRoleNames = $this->ozgKeycloakResponse->getRoles();
+
+        //todo:
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...

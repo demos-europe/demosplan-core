@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserLogin;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponse;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakResponseInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -37,9 +37,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
     private RouterInterface $router;
+    private KeycloakResponseInterface $keycloakResponse;
 
     public function __construct(
         OzgKeycloakUserLogin $ozgKeycloakUserLogin,
+        KeycloakResponseInterface $keycloakResponse,
         ClientRegistry $clientRegistry,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
@@ -50,6 +52,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $this->entityManager = $entityManager;
         $this->logger = $logger;
         $this->router = $router;
+        $this->keycloakResponse = $keycloakResponse;
     }
 
     public function supports(Request $request): ?bool
@@ -68,9 +71,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
                 try {
                     $this->entityManager->getConnection()->beginTransaction();
-                    $ozgKeycloakResponseValueObject = new OzgKeycloakResponse(
-                        $client->fetchUserFromToken($accessToken)
-                    );
+                    $this->keycloakResponse->create($client->fetchUserFromToken($accessToken));
+                    $ozgKeycloakResponseValueObject = $this->keycloakResponse;
+
                     $user = $this->ozgKeycloakUserLogin->handleKeycloakData($ozgKeycloakResponseValueObject);
                     $this->entityManager->getConnection()->commit();
                     $request->getSession()->set('userId', $user->getId());

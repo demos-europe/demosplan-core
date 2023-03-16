@@ -16,12 +16,12 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationId()
  * @method string getFullName()
  */
-interface OzgKeycloakResponseInterface
+interface KeycloakResponseInterface
 {
     /**
      * @throws AuthenticationCredentialsNotFoundException in case of mandatory data is missing.
      */
-    public function __construct(ResourceOwnerInterface $resourceOwner);
+    public function create(ResourceOwnerInterface $resourceOwner): void;
 
     /**
      * Checks for existing mandatory data.

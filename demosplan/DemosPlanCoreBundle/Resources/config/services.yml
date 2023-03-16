@@ -507,6 +507,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
 
@@ -552,6 +554,8 @@ services:
             $cacheDirectory: '%kernel.cache_dir%/htmlpurifier'
 
     demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface: '@demosplan\DemosPlanCoreBundle\Services\SubdomainHandler'
+#    demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface: '@demosplan\DemosPlanCoreBundle\ValueObject\SubdomainHandler'
+#stattdessen factory bauen
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer: ~
 
