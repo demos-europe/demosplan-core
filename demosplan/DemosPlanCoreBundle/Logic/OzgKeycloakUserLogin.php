@@ -168,14 +168,17 @@ class OzgKeycloakUserLogin
         // in case an organisation could be found using the given organisation attributes
         // and an existing user could be found using the given user attributes:
         // If the organisations are different - the assumption is that the user wants to change the orga.
-        $moveUserToAnotherOrganisation = $existingUser && $existingOrga && $existingUser->getOrga()
-            && $existingUser->getOrga() !== $existingOrga;
+        $moveUserToAnotherOrganisation =
+            null !== $existingUser &&
+            null !== $existingOrga &&
+            null !== $existingUser->getOrga() &&
+            $existingUser->getOrga()->getId() !== $existingOrga->getId();
 
         if ($moveUserToAnotherOrganisation) {
             $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
-        if ($existingOrga) {
+        if (null !== $existingOrga) {
             return $this->updateOrganisation($existingOrga, $requestedRoles);
         }
 
