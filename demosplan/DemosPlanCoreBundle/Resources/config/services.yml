@@ -25,6 +25,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
