@@ -72,8 +72,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 try {
                     $this->entityManager->getConnection()->beginTransaction();
                     $this->keycloakResponse->create($client->fetchUserFromToken($accessToken));
-
-                    $user = $this->ozgKeycloakUserLogin->handleKeycloakData($this->keycloakResponse);
+                    $user = $this->ozgKeycloakUserLogin->mapKeycloakDataToUser();
                     $this->entityManager->getConnection()->commit();
                     $request->getSession()->set('userId', $user->getId());
 

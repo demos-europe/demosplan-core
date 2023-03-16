@@ -113,9 +113,8 @@ class OzgKeycloakUserLogin
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    public function handleKeycloakData(KeycloakResponseInterface $ozgKeycloakResponse): User
+    public function mapKeycloakDataToUser(): User
     {
-        $this->ozgKeycloakResponse = $ozgKeycloakResponse;
         // 1 get Desired Roles
         $requestedRoles = $this->mapKeycloakRoleNamesToDplanRoles();
         // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
