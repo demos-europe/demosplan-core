@@ -2868,7 +2868,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         foreach ($blueprint->getFiles() as $procedureFile) {
             if ($procedureFile->getDeleted()) {
-                // skip deleted files; only relevant if the maintenance service did not (yet) automatically removed them fully
+                // skip deleted files; only relevant if the maintenance service did not (yet)
+                // automatically removed them fully
                 continue;
             }
             $newFile = $this->fileService->createCopyOfFile($procedureFile->getFileString(), $newProcedure->getId());
