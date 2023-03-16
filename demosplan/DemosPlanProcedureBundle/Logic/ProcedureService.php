@@ -496,7 +496,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $changeUserExternal = $procedure->getSettings()->getDesignatedPublicPhaseChangeUser();
             $changeUserInternalId = $this->getUserIdOrNull($changeUserInternal);
             $changeUserExternalId = $this->getUserIdOrNull($changeUserExternal);
-            $equalUser = null !== $changeUserExternalId
+            $equalNonNullUser = null !== $changeUserExternalId
                 && null !== $changeUserInternalId
                 && $changeUserInternalId === $changeUserExternalId;
 
@@ -506,10 +506,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedureAfterExternalChange = $this->cloneProcedure($procedure);
             $internalPhaseSwitched = $this->switchToDesignatedPhase($procedure);
             $procedureAfterExternalAndInternalChange = $this->cloneProcedure($procedure);
+            $fallbackReportUserName = $this->translator->trans('user.deleted');
 
             // create either a single report entry if the same user did both changes or two separate
             // changes for separate users
-            if ($equalUser) {
+            if ($equalNonNullUser) {
                 if ($internalPhaseSwitched || $externalPhaseSwitched) {
                     // at this point $changeUserExternal is equal to $changeUserInternal and never null
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
@@ -527,7 +528,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $originalProcedure,
                         $procedureAfterExternalChange,
-                        $changeUserExternal,
+                        $changeUserExternal ?? $fallbackReportUserName,
                         true
                     );
                 }
@@ -539,7 +540,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $procedureAfterExternalChange,
                         $procedureAfterExternalAndInternalChange,
-                        $changeUserInternal,
+                        $changeUserInternal ?? $fallbackReportUserName,
                         true
                     );
                 }
