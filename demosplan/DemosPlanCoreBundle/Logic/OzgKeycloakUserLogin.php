@@ -62,18 +62,18 @@ class OzgKeycloakUserLogin
     private UserService $userService;
     private ValidatorInterface $validator;
     private const ROLETITLE_TO_ROLECODE = [
-        // 'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
+        // 'Mandanten Administration'          => Role::ORGANISATION_ADMINISTRATION,
         'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
-        'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
+        'Fachplanung Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
         // 'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
-        'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
+        'Fachplanung Administration'        => Role::PLANNING_AGENCY_ADMIN,
         // 'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
-        'Fachplanung-Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
-        // 'Verfahrens-Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
-        'Institutions-Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
-        'Institutions-Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
+        'Fachplanung Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
+        // 'Verfahrens Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
+        'Institutions Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
+        'Institutions Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
         'Support'                           => Role::PLATFORM_SUPPORT,
-        'Plattform-Administration'          => Role::CUSTOMER_MASTER_USER,
+        'Plattform Administration'          => Role::CUSTOMER_MASTER_USER,
         'Redaktion'                         => Role::CONTENT_EDITOR,
         'Privatperson/Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
@@ -420,7 +420,6 @@ class OzgKeycloakUserLogin
     {
         $desiredRoleNames = $this->ozgKeycloakResponse->getRoles();
 
-        //todo:
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
