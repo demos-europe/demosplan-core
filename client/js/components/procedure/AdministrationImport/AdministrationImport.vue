@@ -166,6 +166,7 @@ export default {
 
   mounted () {
     this.loadComponents('import.tabs')
+    this.loadComponents('email.import')
   }
 }
 </script>
