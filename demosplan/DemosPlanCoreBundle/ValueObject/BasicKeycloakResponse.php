@@ -125,7 +125,7 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
     }
 
     /**
-     * @param araay $groups
+     * @param array<int, string> $groups
      *
      * @return void
      */
@@ -143,7 +143,7 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
     /**
      * Todo: OrganistaionId is needed to ensure clear assignment even in case of rename an Organisation!
      *
-     * @param array $groups
+     * @param array<int, string> $groups
      *
      * @return void
      */
