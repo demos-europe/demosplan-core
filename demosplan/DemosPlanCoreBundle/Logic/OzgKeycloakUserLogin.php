@@ -152,11 +152,11 @@ class OzgKeycloakUserLogin
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
         if ($this->isUserCitizen($requestedRoles)
-            || ($existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
+            || (null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
         ) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
-            if ($existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
+            if (null !== $existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
