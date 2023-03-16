@@ -14,7 +14,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method array  getRoles()
+ * @method array  getCustomerRoleRelations()
  * @method string getEmailAddress()
  * @method string getUserName()
  * @method string getUserId()
@@ -25,44 +25,39 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInterface
 {
     /**
-     * @var array<int,string>
+     * @var array<int, array<int,string>>
      */
-    protected array $roles = [];
+    protected array $customerRoleRelations = [];
 
     /**
      * E-mail-address of the provided user.
      */
-    protected string $emailAddress;
+    protected string $emailAddress = '';
 
     /**
      * Unique abbreviation of chosen login name of the provided user.
      */
-    protected string $userName;
+    protected string $userName = '';
 
     /**
      * Unique ID of the provided user.
      */
-    protected string $userId;
+    protected string $userId = '';
 
     /**
      * Name of the provided organisation.
      */
-    protected string $organisationName;
+    protected string $organisationName = '';
 
     /**
      * Unique identifier of the provided organisation.
      */
-    protected string $organisationId;
+    protected string $organisationId = '';
 
     /**
      * Full (first- and last-) name of the provided user.
      */
-    protected string $fullName;
-
-    /**
-     * @var string
-     */
-    protected mixed $customerName;
+    protected string $fullName = '';
 
     public function create(ResourceOwnerInterface $resourceOwner): void
     {
@@ -71,11 +66,12 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
         if (array_key_exists('groups', $keycloakResponseValues)
             && is_array($keycloakResponseValues['groups'])
         ) {
-            $this->mapOrganisations($keycloakResponseValues['groups']);
-            $this->mapRoles($keycloakResponseValues['groups']);
+            $this->mapCustomerRoles($keycloakResponseValues['groups']);
         }
 
         $this->userId = $keycloakResponseValues['sub'] ?? '';
+        $this->organisationName = $keycloakResponseValues['organisationName'] ?? '';
+        $this->organisationId = $keycloakResponseValues['organisationId'] ?? '';
         $this->fullName = $keycloakResponseValues['name'] ?? '';
         $this->userName = $keycloakResponseValues['preferred_username'] ?? ''; //kind of "login" //has to be unique?
         $this->emailAddress = $keycloakResponseValues['email'] ?? '';
@@ -102,18 +98,15 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
             $missingMandatoryValues[] = 'emailAddress';
         }
 
-//        if ('' === $this->organisationId) {
-//            $missingMandatoryValues[] = 'organisationId';
-//        }
-        if ('' === $this->organisationName) {
-            $missingMandatoryValues[] = 'organisationName';
+        if ('' === $this->organisationId) {
+            $missingMandatoryValues[] = 'organisationId';
         }
 
         if ('' === $this->fullName) {
             $missingMandatoryValues[] = 'fullName';
         }
 
-        if ('' === $this->roles) {
+        if ([] === $this->customerRoleRelations) {
             $missingMandatoryValues[] = 'roles';
         }
 
@@ -126,33 +119,13 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
 
     /**
      * @param array<int, string> $groups
-     *
-     * @return void
      */
-    private function mapRoles(mixed $groups): void
+    private function mapCustomerRoles(mixed $groups): void
     {
         foreach($groups as $group) {
             $subGroups = explode('/', $group);
             if (str_contains($subGroups[1], 'Beteiligung-Berechtigung')) {
-                $this->customerName = $subGroups[2]; //Mandant/Customer
-                $this->roles[] = $subGroups[3]; //Role
-            }
-        }
-    }
-
-    /**
-     * Todo: OrganistaionId is needed to ensure clear assignment even in case of rename an Organisation!
-     *
-     * @param array<int, string> $groups
-     *
-     * @return void
-     */
-    private function mapOrganisations(array $groups): void
-    {
-        foreach($groups as $group) {
-            $subGroups = explode('/', $group);
-            if (str_contains($subGroups[1], 'Beteiligung-Organisation')) {
-                $this->organisationName = $subGroups[2]; //Organisation
+                $this->customerRoleRelations[$subGroups[2]][] = $subGroups[3]; //Mandant/Customer
             }
         }
     }

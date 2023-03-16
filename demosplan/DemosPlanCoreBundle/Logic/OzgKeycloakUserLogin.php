@@ -221,6 +221,7 @@ class OzgKeycloakUserLogin
      */
     private function updateOrganisation(Orga $existingOrga, array $requstedRoles): Orga
     {
+        //todo: shouldn't we throw an error instead!?
         $existingOrga->setDeleted(false);
         // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
@@ -420,17 +421,17 @@ class OzgKeycloakUserLogin
      */
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
-        $desiredRoleNames = $this->ozgKeycloakResponse->getRoles();
+        $rolesOfCustomer = $this->ozgKeycloakResponse->getCustomerRoleRelations();
 
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        foreach ($desiredRoleNames as $desiredRoleName) {
-            if (array_key_exists($desiredRoleName, self::ROLETITLE_TO_ROLECODE)) {
-                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$desiredRoleName];
+        foreach ($rolesOfCustomer as $roles) {
+            if (array_key_exists($roles, self::ROLETITLE_TO_ROLECODE)) {
+                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roles];
             } else {
-                $unIdentifiedRoles[] = $desiredRoleName;
+                $unIdentifiedRoles[] = $roles;
             }
         }
         if (0 !== count($unIdentifiedRoles)) {
@@ -474,13 +475,13 @@ class OzgKeycloakUserLogin
 
     private function tryLookupOrgaByGwId(): ?Orga
     {
-        $orga = null;
+        $organisation = null;
         if ('' !== $this->ozgKeycloakResponse->getOrganisationId()) {
-            $orga = $this->orgaRepository
+            $organisation = $this->orgaRepository
                 ->findOneBy(['gwId' => $this->ozgKeycloakResponse->getOrganisationId()]);
         }
 
-        return $orga;
+        return $organisation;
     }
 
     /**
