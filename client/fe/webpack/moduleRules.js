@@ -8,8 +8,8 @@
  */
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const config = require('../config').config
-const resolveDir = require('./resolveDir').resolveDir
+const config = require('../config/config').config
+const resolveDir = require('./util').resolveDir
 
 /**
  * List of modules which need to be transpiled with Babel
