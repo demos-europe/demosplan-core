@@ -209,11 +209,11 @@
 
                     &.active,
                     &.active i {
-                        color: $dp-token-color-brand-main;
+                        color: $dp-color-brand-main-base;
                     }
 
                     &.active i {
-                        background-color: $dp-token-color-brand-main;
+                        background-color: $dp-color-brand-main-base;
                     }
 
                     &.finished i {

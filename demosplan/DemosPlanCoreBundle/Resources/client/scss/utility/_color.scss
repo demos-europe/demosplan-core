@@ -16,11 +16,11 @@
     // Brand tokens
     &-brand {
         &-main {
-            color: $dp-token-color-brand-main;
+            color: $dp-color-brand-main-base;
         }
 
         &-main-contrast {
-            color: $dp-token-color-brand-main-contrast;
+            color: $dp-color-brand-main-contrast;
         }
 
         &-alt {
@@ -146,11 +146,11 @@
     // Brand tokens
     &-brand {
         &-main {
-            background-color: $dp-token-color-brand-main;
+            background-color: $dp-color-brand-main-base;
         }
 
         &-main-contrast {
-            background-color: $dp-token-color-brand-main-contrast;
+            background-color: $dp-color-brand-main-contrast;
         }
 
         &-alt {

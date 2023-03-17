@@ -16,14 +16,6 @@
 // Brand colors
 // Subject to theming. Use with caution!
 
-// Primary color/background-color pairing.
-//
-// The [main] tokens are the "loudest" brand representation in the color scheme.
-// Use with caution. Currently reserved for header and tabs on public detail page.
-// The value of [main] should pass AAA contrast check with the value of [main-contrast].
-$dp-token-color-brand-main:                     $dp-color-brand-main-base !default;
-$dp-token-color-brand-main-contrast:            $dp-color-white !default;
-
 // Secondary color/background-color pairing.
 //
 // The [alt] tokens are the second most prominent brand representation in the color scheme.
