@@ -240,7 +240,6 @@ branding.styling.details.description: |
     link: "#123456"<br />
     link-hover: "#123456"<br />
     link-active: "#123456"<br />
-    link-alt: "#123456"<br />
     Aktive und sichtbar fokussierte Elemente:<br />
     highlight: "#123456"<br />
     "Reden Sie mit!"-Box, Suchfeld auf Startseite:<br />

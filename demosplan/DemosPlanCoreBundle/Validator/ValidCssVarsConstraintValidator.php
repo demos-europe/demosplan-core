@@ -70,7 +70,7 @@ class ValidCssVarsConstraintValidator extends ConstraintValidator
             'link',
             'link-hover',
             'link-active',
-            'link-alt',
+            'link-alt', // Deprecated (has no effect anymore)
             'highlight',
             'cta',
             'cta-dark',
