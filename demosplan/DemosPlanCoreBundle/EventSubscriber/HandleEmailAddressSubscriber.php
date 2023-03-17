@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\HandleEmailAddressesEventInterface;
+use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Throwable;
 
 class HandleEmailAddressSubscriber implements EventSubscriberInterface
@@ -21,7 +21,7 @@ class HandleEmailAddressSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            HandleEmailAddressesEventInterface::class => 'handleEmailAddresses'
+            HandleEmailAddressesEventInterface::class => 'handleEmailAddresses',
             ];
     }
 
@@ -32,8 +32,7 @@ class HandleEmailAddressSubscriber implements EventSubscriberInterface
     {
         $inputEmailAddressStrings = $event->getInputEmailAddressStrings();
 
-        foreach ($inputEmailAddressStrings as $addressString)
-        {
+        foreach ($inputEmailAddressStrings as $addressString) {
             try {
                 $savedAllowedMailAddresses[] = $emailAddressRepository->getOrCreateEmailAddress($addressString);
             } catch (Throwable $e) {
