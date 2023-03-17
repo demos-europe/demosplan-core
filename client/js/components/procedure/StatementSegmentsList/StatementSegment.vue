@@ -268,11 +268,10 @@
 
 <script>
 import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, prefixClassMixin, VPopover } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpButtonRow, DpCheckbox, DpIcon, DpLabel, DpMultiselect, DpRecommendationModal, prefixClassMixin, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
 
 export default {
   name: 'StatementSegment',
