@@ -40,8 +40,9 @@
 </template>
 
 <script>
-import { DpBoilerPlate, DpButtonRow, DpModal } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpModal } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
 
 export default {
   name: 'DpBoilerPlateModal',
