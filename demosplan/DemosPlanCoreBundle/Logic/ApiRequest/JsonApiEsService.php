@@ -161,7 +161,7 @@ class JsonApiEsService
 
         // get additional information
         // If the array fields are missing for some reason we assume zero hits.
-        $totalHits = $elasticsearchResult['hits']['total'] ?? 0;
+        $totalHits = $elasticsearchResult['hits']['total']['value'] ?? 0;
         $paginator = null;
         if (null !== $pagination) {
             // get the paginator of the Elasticsearch query
