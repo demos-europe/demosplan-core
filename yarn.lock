@@ -1087,27 +1087,30 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.0.2.tgz#1bfafe4b7ed0f3e4105837e056e0a89b108ebe36"
   integrity sha512-IkpVW/ehM1hWKln4fCA3NzJU8KwD+kIOvPZA4cqxoJHtE21CCzjyp+Kxbu0i5I4tBNOlXPL9mjwnWlL0VEG4Fg==
 
-"@demos-europe/demosplan-ui@^0":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.9.tgz#7f004ca51419cbc53995d0e963bc264e45980e22"
-  integrity sha512-I7sPP8ijyoTz6JsQvALnyjWc9G9leCjbLiOLQzZJjLYcQgmDeOmi1hr9WyQHHRss96+Bs2zLD84I6cRvth9L/g==
+"@demos-europe/demosplan-ui@0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@demos-europe/demosplan-ui/-/demosplan-ui-0.0.15.tgz#0242cff96f863eba2d029e4c505666341e62f532"
+  integrity sha512-wroGqN31bS/kIdVajsOP3qGowAaTbv+Z7cuvgQgv4yZ3JCuLMbAbLtRJIFBwwS6uQT/sla5VR7ycMwLNySRgQg==
   dependencies:
     "@braintree/sanitize-url" "^6.0.1"
-    "@demos-europe/demosplan-utils" "^0"
     "@uppy/core" "^3.0.1"
     "@uppy/drag-drop" "^3.0.0"
     "@uppy/progress-bar" "^3.0.0"
     "@uppy/tus" "^3.0.1"
     a11y-datepicker " ^0.9.0"
+    axios "^0.27.2"
     dayjs "^1.11.5"
-    dompurify "^2.4.0"
+    dompurify "^3.0.0"
+    fscreen "^1.2.0"
     ismobilejs "^1.1.1"
     lscache "^1.3.2"
     plyr "^3.7.2"
+    qs "^6.11.0"
     tippy.js "^6.3.7"
     tiptap "^1.32.2"
     tiptap-commands "^1.17.0"
     tiptap-extensions "^1.35.2"
+    tooltip.js "^1.3.3"
     uuid "^9.0.0"
     v-tooltip "2.1.3"
     vue-click-outside "^1.1.0"
@@ -3602,10 +3605,15 @@ domhandler@^4.2.0, domhandler@^4.3.1:
   dependencies:
     domelementtype "^2.2.0"
 
-dompurify@^2.4.0, dompurify@^2.4.3:
+dompurify@^2.4.3:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.4.3.tgz#f4133af0e6a50297fc8874e2eaedc13a3c308c03"
   integrity sha512-q6QaLcakcRjebxjg8/+NP+h0rPfatOgOzc46Fst9VAA3jF2ApfKBNKMzdP4DYTqtUMXSCd5pRS/8Po/OmoCHZQ==
+
+dompurify@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.1.tgz#a0933f38931b3238934dd632043b727e53004289"
+  integrity sha512-60tsgvPKwItxZZdfLmamp0MTcecCta3avOhsLgPZ0qcWt96OasFfhkeIRbJ6br5i0fQawT1/RBGB5L58/Jpwuw==
 
 domutils@^2.8.0:
   version "2.8.0"
