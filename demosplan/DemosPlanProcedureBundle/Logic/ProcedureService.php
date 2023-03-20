@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
