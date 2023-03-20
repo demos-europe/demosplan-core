@@ -11,6 +11,7 @@
   <div>
     <dp-email-list
       v-on:saved="saveAllowedSenderAddresses"
+      v-on:updated="updateAllowedSenderAddresses"
       :init-emails="allowedEmailAddresses"
       form-field-name="allowedSenderEmailAddresses[][fullAddress]" />
   </div>
@@ -90,7 +91,19 @@ export default {
       }
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MaillaneConnection' }), {}, { data: payload })
-    }
+    },
+
+    updateAllowedSenderAddresses(index, extraEmailAddress='') {
+      const payload = {
+        type: 'MaillaneConnection',
+        attributes: {
+          allowedSenderEmailAddresses: extraEmailAddress
+        },
+        procedureId: this.procedureId
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MaillaneConnection', resourceId: index }), {}, payload)
+    },
   },
 
   mounted () {
