@@ -71,8 +71,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
                 try {
                     $this->entityManager->getConnection()->beginTransaction();
-                    $this->keycloakResponse->create($client->fetchUserFromToken($accessToken));
-                    $user = $this->ozgKeycloakUserLogin->mapKeycloakDataToUser();
+                    $this->keycloakResponse->fill($client->fetchUserFromToken($accessToken));
+                    $user = $this->ozgKeycloakUserLogin->mapKeycloakDataToUser($this->keycloakResponse);
                     $this->entityManager->getConnection()->commit();
                     $request->getSession()->set('userId', $user->getId());
 

@@ -21,7 +21,7 @@ interface KeycloakResponseInterface
     /**
      * @throws AuthenticationCredentialsNotFoundException in case of mandatory data is missing.
      */
-    public function create(ResourceOwnerInterface $resourceOwner): void;
+    public function fill(ResourceOwnerInterface $resourceOwner): void;
 
     /**
      * Checks for existing mandatory data.

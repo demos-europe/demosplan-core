@@ -59,7 +59,7 @@ class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInter
      */
     protected string $fullName = '';
 
-    public function create(ResourceOwnerInterface $resourceOwner): void
+    public function fill(ResourceOwnerInterface $resourceOwner): void
     {
         $keycloakResponseValues = $resourceOwner->toArray();
 
