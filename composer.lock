@@ -3603,16 +3603,16 @@
         },
         {
             "name": "enqueue/enqueue",
-            "version": "0.10.16",
+            "version": "0.10.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue.git",
-                "reference": "8f97d308d218bd52aba244a2aff3a665b225a133"
+                "reference": "fdd4ab8d70038711f076c2165df27afe5eb25191"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue/zipball/8f97d308d218bd52aba244a2aff3a665b225a133",
-                "reference": "8f97d308d218bd52aba244a2aff3a665b225a133",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue/zipball/fdd4ab8d70038711f076c2165df27afe5eb25191",
+                "reference": "fdd4ab8d70038711f076c2165df27afe5eb25191",
                 "shasum": ""
             },
             "require": {
@@ -3695,20 +3695,20 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2022-02-16T11:14:49+00:00"
+            "time": "2023-02-26T03:18:02+00:00"
         },
         {
             "name": "enqueue/enqueue-bundle",
-            "version": "0.10.16",
+            "version": "0.10.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue-bundle.git",
-                "reference": "5cd3d98931ff9f9f2f40b73dc40bd7917cfb7417"
+                "reference": "32d1884ff33e6c0e34d106fb84e2181384b8191e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue-bundle/zipball/5cd3d98931ff9f9f2f40b73dc40bd7917cfb7417",
-                "reference": "5cd3d98931ff9f9f2f40b73dc40bd7917cfb7417",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue-bundle/zipball/32d1884ff33e6c0e34d106fb84e2181384b8191e",
+                "reference": "32d1884ff33e6c0e34d106fb84e2181384b8191e",
                 "shasum": ""
             },
             "require": {
@@ -3779,7 +3779,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2022-02-16T11:14:49+00:00"
+            "time": "2023-02-26T03:18:02+00:00"
         },
         {
             "name": "enqueue/fs",
@@ -3847,16 +3847,16 @@
         },
         {
             "name": "enqueue/null",
-            "version": "0.10.15",
+            "version": "0.10.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/null.git",
-                "reference": "1f7b17d43b7dfdce9047a484625db3cb888e0dc7"
+                "reference": "7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/null/zipball/1f7b17d43b7dfdce9047a484625db3cb888e0dc7",
-                "reference": "1f7b17d43b7dfdce9047a484625db3cb888e0dc7",
+                "url": "https://api.github.com/repos/php-enqueue/null/zipball/7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea",
+                "reference": "7f2c3d2695e7ac4dcefa67c3cb69031fb2a932ea",
                 "shasum": ""
             },
             "require": {
@@ -3900,7 +3900,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2021-10-29T20:37:39+00:00"
+            "time": "2023-02-26T03:18:02+00:00"
         },
         {
             "name": "erusev/parsedown",
