@@ -423,16 +423,18 @@ class OzgKeycloakUserLogin
     private function mapKeycloakRoleNamesToDplanRoles(): array
     {
         $rolesOfCustomer = $this->ozgKeycloakResponse->getCustomerRoleRelations();
-
+        $customer = $this->customerService->getCurrentCustomer();
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        foreach ($rolesOfCustomer as $roles) {
-            if (array_key_exists($roles, self::ROLETITLE_TO_ROLECODE)) {
-                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roles];
-            } else {
-                $unIdentifiedRoles[] = $roles;
+        if (array_key_exists($customer->getName(), $rolesOfCustomer)) {
+            foreach ($rolesOfCustomer[$customer->getName()] as $roleNames) {
+                if (array_key_exists($roleNames, self::ROLETITLE_TO_ROLECODE)) {
+                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleNames];
+                } else {
+                    $unIdentifiedRoles[] = $roleNames;
+                }
             }
         }
         if (0 !== count($unIdentifiedRoles)) {
