@@ -450,8 +450,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &.is-active {
-                background-color: $dp-token-color-brand-highlight;
-                border: $dp-token-color-brand-highlight;
+                background-color: $dp-color-brand-highlight-base;
+                border: $dp-color-brand-highlight-base;
             }
         }
 
@@ -471,7 +471,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin-top: 4px;
 
             &:hover {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-brand-highlight-base;
             }
 
             &--position-absolute {
@@ -502,7 +502,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &.is-active {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-brand-highlight-base;
             }
 
             &:active {
@@ -517,7 +517,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         &__tool-simple {
             &.is-active {
-                color: $dp-token-color-brand-highlight;
+                color: $dp-color-brand-highlight-base;
             }
         }
 

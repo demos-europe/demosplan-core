@@ -32,7 +32,7 @@
         }
 
         &-highlight {
-            color: $dp-token-color-brand-highlight;
+            color: $dp-color-brand-highlight-base;
         }
 
         &-cta-dark {
@@ -96,7 +96,7 @@
     // @deprecated use brand/ui color tokens instead
 
     &--highlight {
-        color: $dp-token-color-brand-highlight;
+        color: $dp-color-brand-highlight-base;
     }
 
     &--white {
@@ -162,7 +162,7 @@
         }
 
         &-highlight {
-            background-color: $dp-token-color-brand-highlight;
+            background-color: $dp-color-brand-highlight-base;
         }
     }
 
