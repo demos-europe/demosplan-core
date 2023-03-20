@@ -61,20 +61,20 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
 
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {
-        $keycloakResponseValues = $resourceOwner->toArray();
+        $userInformation = $resourceOwner->toArray();
 
-        if (array_key_exists('groups', $keycloakResponseValues)
-            && is_array($keycloakResponseValues['groups'])
+        if (array_key_exists('groups', $userInformation)
+            && is_array($userInformation['groups'])
         ) {
-            $this->mapCustomerRoles($keycloakResponseValues['groups']);
+            $this->mapCustomerRoles($userInformation['groups']);
         }
 
-        $this->userId = $keycloakResponseValues['sub'] ?? '';
-        $this->organisationName = $keycloakResponseValues['organisationName'] ?? '';
-        $this->organisationId = $keycloakResponseValues['organisationId'] ?? '';
-        $this->fullName = $keycloakResponseValues['name'] ?? '';
-        $this->userName = $keycloakResponseValues['preferred_username'] ?? ''; //kind of "login" //has to be unique?
-        $this->emailAddress = $keycloakResponseValues['email'] ?? '';
+        $this->userId = $userInformation['sub'] ?? '';
+        $this->organisationName = $userInformation['organisationName'] ?? '';
+        $this->organisationId = $userInformation['organisationId'] ?? '';
+        $this->fullName = $userInformation['name'] ?? '';
+        $this->userName = $userInformation['preferred_username'] ?? ''; //kind of "login" //has to be unique?
+        $this->emailAddress = $userInformation['email'] ?? '';
 
         $this->lock();
         $this->checkMandatoryValuesExist();
