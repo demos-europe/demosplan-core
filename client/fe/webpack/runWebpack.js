@@ -13,8 +13,7 @@ const CliProgress = require('cli-progress')
 const fs = require('fs')
 const ProgressPlugin = require('webpack/lib/ProgressPlugin')
 const webpack = require('webpack')
-const log = require('./log').log
-const resolveDir = require('./resolveDir').resolveDir
+const { log, resolveDir } = require('./util')
 
 /**
  * Callback function used by webpack to provide user feedback during the run

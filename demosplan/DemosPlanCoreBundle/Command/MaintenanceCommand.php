@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
@@ -377,7 +378,10 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function addonMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new AddonMaintenanceEvent());
+            $this->eventDispatcher->dispatch(
+                new AddonMaintenanceEvent(),
+                AddonMaintenanceEventInterface::class
+            );
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }

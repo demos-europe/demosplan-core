@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Exception;
@@ -22,7 +23,7 @@ use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
  * This service uses Dependency Injection to use private services
  * Class InitializeService.
  */
-class InitializeService
+class InitializeService implements InitializeServiceInterface
 {
     use IsProfilableTrait;
 
