@@ -111,6 +111,7 @@ export default {
       if (validateEmail(this.formFields.mail)) {
         if (index === 'new') {
           this.addElement()
+          this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
         }
@@ -124,6 +125,10 @@ export default {
     resetForm () {
       this.formFields.mail = ''
       this.itemIndex = null
+    },
+
+    saveExtraEmailAddress (extraEmailAddress) {
+      this.$emit('saved', extraEmailAddress)
     },
 
     updateEmailAddress (index) {
