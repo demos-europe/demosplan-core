@@ -26,7 +26,10 @@
 
 // At the moment, only "neutral" and "data" colors are used from demosplan-ui.
 // For main, alt, highlight, and the system colors, the used scale and naming has to be decided.
-@import '~@demos-europe/demosplan-ui/tokens/scss/color';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.palette';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.data';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.brand';
+@import '@demos-europe/demosplan-ui/tokens/scss/color.ui';
 
 // Do not edit directly
 // Generated on Thu, 24 Nov 2022 08:44:15 GMT

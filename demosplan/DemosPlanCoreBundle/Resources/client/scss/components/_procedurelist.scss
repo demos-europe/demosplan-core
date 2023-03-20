@@ -25,12 +25,12 @@
 
             &:hover,
             &:hover .c-procedurelist__trans {
-                color: $dp-token-color-brand-alt-contrast;
+                color: $dp-color-brand-alt-contrast;
                 transition: color #{$transition-speed-style-delay};
             }
 
             &:hover {
-                background-color: $dp-token-color-brand-alt;
+                background-color: $dp-color-brand-alt-base;
                 transition: background-color #{$transition-speed-style-delay};
             }
 
