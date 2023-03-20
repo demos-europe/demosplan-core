@@ -29,7 +29,7 @@ $map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
 $map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
 
 $map-layer-color: $default-font-color;
-$map-layer-color-hover: $dp-token-color-brand-link;
+$map-layer-color-hover: $dp-color-interactive-base;
 $map-layer-color-active: $dp-token-color-brand-cta;
 $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
@@ -113,7 +113,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             width: 0;
 
             // Like primary button background, this element shares the color with links.
-            background-color: $dp-token-color-brand-link;
+            background-color: $dp-color-interactive-base;
             transition: width 250ms;
         }
 
@@ -443,10 +443,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  Huge layer toggle items in map area
         &__layer-button {
-            background-color: $dp-token-color-brand-link;
+            background-color: $dp-color-interactive-base;
 
             &:hover {
-                background-color: $dp-token-color-brand-link-hover;
+                background-color: $dp-color-interactive-hover;
             }
 
             &.is-active {
@@ -487,7 +487,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             padding: 0;
 
             background-color: transparent;
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-base;
             cursor: pointer !important;
 
             font-size: $dp-token-font-size-medium;
@@ -498,7 +498,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &:hover {
-                color: $dp-token-color-brand-link-hover;
+                color: $dp-color-interactive-hover;
             }
 
             &.is-active {
@@ -506,7 +506,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &:active {
-                color: $dp-token-color-brand-link-hover;
+                color: $dp-color-interactive-hover;
             }
 
             i {
@@ -913,7 +913,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         line-height: 28px;
 
         &:hover {
-            border-color: $dp-token-color-brand-link-hover !important;
+            border-color: $dp-color-interactive-hover !important;
         }
     }
 

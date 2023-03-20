@@ -18,9 +18,9 @@
 
 // Link color is applied to all links that should be branded... that is, basically, all links.
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
-$dp-token-color-brand-link:                     $dp-color-brand-main-base !default;
-$dp-token-color-brand-link-hover:               $dp-color-brand-highlight-contrast !default;
-$dp-token-color-brand-link-active:              $dp-color-brand-highlight-dark-1 !default;
+$dp-color-interactive-base:                     $dp-color-brand-main-base !default;
+$dp-color-interactive-hover:                    $dp-color-brand-highlight-contrast !default;
+$dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1 !default;
 
 // The [highlight] token is used for communicating active or focused state of interactive elements.
 // The value of [highlight] should pass AAA contrast check with #ffffff.
@@ -95,9 +95,9 @@ $dp-token-color-ui-error-text:                  $dp-color-system-error--dark-1;
 
 // System color to be used to for interactive elements.
 // Right now these map to the "brand-link" token but should get set directly from palette variables.
-$dp-token-color-ui-interactive:                 $dp-token-color-brand-link;
-$dp-token-color-ui-interactive-hover:           $dp-token-color-brand-link-hover;
-$dp-token-color-ui-interactive-active:          $dp-token-color-brand-link-active;
+$dp-token-color-ui-interactive:                 $dp-color-interactive-base;
+$dp-token-color-ui-interactive-hover:           $dp-color-interactive-hover;
+$dp-token-color-ui-interactive-active:          $dp-color-interactive-active;
 $dp-token-color-ui-interactive-dimmed:          $dp-color-neutral-light-1;
 
 // The [highlight] token is used for communicating active or focused state of interactive elements.

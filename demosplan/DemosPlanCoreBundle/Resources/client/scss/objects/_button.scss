@@ -33,9 +33,9 @@
 // Primary button
 $dp-button-color:                       $dp-color-white !default;
 $dp-button-color-hover:                 $dp-color-white !default;
-$dp-button-bg-color:                    $dp-token-color-brand-link !default;
-$dp-button-bg-color-hover:              $dp-token-color-brand-link-hover !default;
-$dp-button-bg-color-active:             $dp-token-color-brand-link-active !default;
+$dp-button-bg-color:                    $dp-color-interactive-base !default;
+$dp-button-bg-color-hover:              $dp-color-interactive-hover !default;
+$dp-button-bg-color-active:             $dp-color-interactive-active !default;
 // Secondary button
 $dp-button-color-alt:                   $dp-color-white !default;
 $dp-button-color-alt-hover:             $dp-color-white !default;
@@ -212,7 +212,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-token-color-brand-link;
+        box-shadow: 0 0 0 2px $dp-color-interactive-base;
         border-color: transparent !important;
     }
 
@@ -418,7 +418,7 @@ a.is-disabled {
 
     background: transparent;
     border: none;
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-base;
     cursor: pointer;
 
     font-weight: $bold-font-weight; // does not work for fonts that need a "bold" font style
@@ -428,7 +428,7 @@ a.is-disabled {
     &:focus,
     &.is-current {
         background: transparent;
-        color: $dp-token-color-brand-link-hover;
+        color: $dp-color-interactive-hover;
     }
 
     &:disabled,
@@ -452,7 +452,7 @@ a.is-disabled {
 //  @TODO move icons inside buttons (which means, change <input type="button"> to <button>)
 //  @deprecated See above.
 .btn-icns-icon {
-    color: $dp-token-color-brand-link;
+    color: $dp-color-interactive-base;
 
     font-size: .9em;
 

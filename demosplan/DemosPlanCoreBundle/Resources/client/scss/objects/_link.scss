@@ -28,12 +28,12 @@
 
         &,
         &:visited {
-            color: $dp-token-color-brand-link;
+            color: $dp-color-interactive-base;
         }
 
         &:hover,
         &:active {
-            color: $dp-token-color-brand-link-hover;
+            color: $dp-color-interactive-hover;
         }
 
         //  @TODO unify disabled styles, see _at.scss
@@ -41,7 +41,7 @@
             @extend %disabled-opacity;
 
             &:hover {
-                color: $dp-token-color-brand-link;
+                color: $dp-color-interactive-base;
             }
         }
     }
