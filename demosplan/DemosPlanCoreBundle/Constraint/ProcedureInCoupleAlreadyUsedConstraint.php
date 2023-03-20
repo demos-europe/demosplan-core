@@ -42,7 +42,7 @@ class ProcedureInCoupleAlreadyUsedConstraint extends Constraint
         return ProcedureInCoupleAlreadyUsedConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

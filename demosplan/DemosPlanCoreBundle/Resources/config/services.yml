@@ -25,6 +25,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
@@ -112,6 +115,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
 
 
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
@@ -234,6 +240,11 @@ services:
 
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
+
+    demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
+        arguments:
+            $locator: '@file_locator'
+            $loader: '@routing.loader.annotation'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -1352,6 +1363,3 @@ services:
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'
-
-
-

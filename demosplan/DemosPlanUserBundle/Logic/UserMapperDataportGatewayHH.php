@@ -310,7 +310,6 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 
                         $userDepartment = $this->createDepartmentMode2(
                             $userOrga->getGwId(),
-                            false,
                             $userOrga->getId()
                         );
                     }
@@ -409,8 +408,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                             $this->logger->info('Es konnte kein Department zur gwId '.$departmentGwId.' gefunden werden');
                             $userDepartment = $this->createDepartmentMode2(
                                 $userOrga->getGwId(),
-                                true,
-                                $userOrga->getId()
+                                $userOrga->getId(),
+                                true
                             );
                             $userDepartment = $this->userService->departmentAddUser(
                                 $userDepartment->getId(),
@@ -630,15 +629,11 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
     /**
      * Create department.
      *
-     * @param string $orgaGwId
-     * @param bool   $isToeb
-     * @param string $orgaId
-     *
      * @return Department
      *
      * @throws Exception
      */
-    protected function createDepartmentMode2($orgaGwId, $isToeb = false, $orgaId)
+    protected function createDepartmentMode2(?string $orgaGwId, string $orgaId, bool $isToeb = false)
     {
         // Beim anlegen des Department gilt folgendes
         // department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT' <- Stand DSL, dann wird falsches Department zugewiesen

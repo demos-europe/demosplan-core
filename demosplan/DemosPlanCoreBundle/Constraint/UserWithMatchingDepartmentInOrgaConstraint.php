@@ -26,7 +26,7 @@ class UserWithMatchingDepartmentInOrgaConstraint extends Constraint
         return UserWithMatchingDepartmentInOrgaConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }
