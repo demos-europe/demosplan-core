@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationId()
  * @method string getFullName()
  */
-class BasicKeycloakResponse extends ValueObject implements KeycloakResponseInterface
+class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInterface
 {
     /**
      * @var array<int, array<int,string>>

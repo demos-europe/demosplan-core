@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationId()
  * @method string getFullName()
  */
-interface KeycloakResponseInterface
+interface KeycloakUserDataInterface
 {
     /**
      * @throws AuthenticationCredentialsNotFoundException in case of mandatory data is missing.

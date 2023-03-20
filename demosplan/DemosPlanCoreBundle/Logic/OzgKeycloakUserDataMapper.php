@@ -22,8 +22,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakResponseInterface;
-use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakResponse;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakUserData;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -43,9 +43,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @see BasicKeycloakResponse.
+ * keycloak will be passed by @see BasicKeycloakUserData.
  */
-class OzgKeycloakUserLogin
+class OzgKeycloakUserDataMapper
 {
     private CustomerService $customerService;
     private DepartmentRepository $departmentRepository;
@@ -55,7 +55,7 @@ class OzgKeycloakUserLogin
     private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
     private OrgaTypeRepository $orgaTypeRepository;
-    private KeycloakResponseInterface $ozgKeycloakResponse;
+    private KeycloakUserDataInterface $ozgKeycloakResponse;
     private RoleRepository $roleRepository;
     private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
@@ -113,7 +113,7 @@ class OzgKeycloakUserLogin
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    public function mapKeycloakDataToUser(KeycloakResponseInterface $ozgKeycloakResponse): User
+    public function mapKeycloakDataToUser(KeycloakUserDataInterface $ozgKeycloakResponse): User
     {
         $this->ozgKeycloakResponse = $ozgKeycloakResponse;
         // 1 get Desired Roles

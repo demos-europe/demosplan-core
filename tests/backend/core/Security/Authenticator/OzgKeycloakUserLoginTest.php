@@ -4,22 +4,22 @@
 namespace Tests\Core\Security\Authenticator;
 
 
-use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserLogin;
-use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakResponse;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakUserData;
 use Tests\Base\FunctionalTestCase;
 
 class OzgKeycloakUserLoginTest extends FunctionalTestCase
 {
-    /** @var OzgKeycloakUserLogin */
+    /** @var OzgKeycloakUserDataMapper */
     protected $sut;
 
-    private BasicKeycloakResponse $testBasicKeyCloakResponse;
+    private BasicKeycloakUserData $testBasicKeyCloakResponse;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = $this->getContainer()->get(OzgKeycloakUserLogin::class);
-        $this->testBasicKeyCloakResponse = new BasicKeycloakResponse();
+        $this->sut = $this->getContainer()->get(OzgKeycloakUserDataMapper::class);
+        $this->testBasicKeyCloakResponse = new BasicKeycloakUserData();
     }
 
     public function testMapKeycloakDataToUser(): void

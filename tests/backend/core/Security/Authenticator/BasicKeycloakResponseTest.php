@@ -4,15 +4,15 @@
 namespace Tests\Core\Security\Authenticator;
 
 
-use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakResponse;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakResponseInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakUserData;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Token\AccessToken;
 use Tests\Base\FunctionalTestCase;
 
 class BasicKeycloakResponseTest extends FunctionalTestCase
 {
-    /** @var BasicKeycloakResponse */
+    /** @var BasicKeycloakUserData */
     protected $sut;
 
     /** @var ClientRegistry */
@@ -21,9 +21,9 @@ class BasicKeycloakResponseTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = $this->getContainer()->get(BasicKeycloakResponse::class);
+        $this->sut = $this->getContainer()->get(BasicKeycloakUserData::class);
 //        $this->sut = self::$container->get(BasicKeycloakResponse::class);
-        $this->clientRegistry = $this->getContainer()->get(KeycloakResponseInterface::class);
+        $this->clientRegistry = $this->getContainer()->get(KeycloakUserDataInterface::class);
         $this->client = $this->clientRegistry->getClient('keycloak_ozg');
     }
 
