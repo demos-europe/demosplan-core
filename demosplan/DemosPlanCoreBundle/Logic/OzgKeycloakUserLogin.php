@@ -115,6 +115,7 @@ class OzgKeycloakUserLogin
      */
     public function mapKeycloakDataToUser(KeycloakResponseInterface $ozgKeycloakResponse): User
     {
+        $this->ozgKeycloakResponse = $ozgKeycloakResponse;
         // 1 get Desired Roles
         $requestedRoles = $this->mapKeycloakRoleNamesToDplanRoles();
         // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
