@@ -29,7 +29,7 @@ class Config {
   }
 
   defaults (mode, project) {
-    this.relativeRoot = '../../'
+    this.relativeRoot = '../../../'
     this.isProduction = (mode === 'production')
     this.mode = (mode === 'production') ? 'production' : mode
 
@@ -60,9 +60,9 @@ class Config {
       ],
       safelist: {
         standard: [
-          /-(leave|enter|appear)(|-(to|from|active))$/,
-          /^(?!(|.*?:)cursor-move).+-move$/,
-          /^router-link(|-exact)-active$/,
+          /-(leave|enter|appear)(-(to|from|active)|)$/,
+          /^(?!(.*?:|)cursor-move).+-move$/,
+          /^router-link(-exact|)-active$/,
           /data-v-.+/,
           /c-notify.+/,
           /menu_level_/,

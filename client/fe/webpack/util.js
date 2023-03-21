@@ -10,6 +10,17 @@
 const path = require('path')
 
 /**
+ * Helper function wrapping console printing with silent mode
+ *
+ * @param msg
+ */
+function log (msg) {
+  if (process.env.silent === 'false') {
+    console.log(msg)
+  }
+}
+
+/**
  * Resolve a dir relative to the repository root
  *
  * @param dir
@@ -19,4 +30,4 @@ function resolveDir (dir) {
   return path.join(__dirname, '../../../', dir)
 }
 
-module.exports = { resolveDir }
+module.exports = { log, resolveDir }
