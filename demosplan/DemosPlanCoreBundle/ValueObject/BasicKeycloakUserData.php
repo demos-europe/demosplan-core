@@ -125,8 +125,27 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
         foreach($groups as $group) {
             $subGroups = explode('/', $group);
             if (str_contains($subGroups[1], 'Beteiligung-Berechtigung')) {
-                $this->customerRoleRelations[$subGroups[2]][] = $subGroups[3]; //Mandant/Customer
+                $subdomain = strtolower(explode('-', $subGroups[2])[0]);
+                $this->customerRoleRelations[$subdomain][] = $subGroups[3];
             }
         }
     }
+
+    public function __toString(): string
+    {
+        $customerRoleRelationString = '-';
+        foreach ($this->customerRoleRelations as $subdomain => $roleNames) {
+            $customerRoleRelationString = $subdomain.': ['.implode(', ', $roleNames).']';
+        }
+
+        return
+            'userId: '.$this->userId.
+            ', userName: '.$this->userName.
+            ', fullName: '.$this->fullName.
+            ', organisationId: '.$this->organisationId.
+            ', organisationName: '.$this->organisationName.
+            ', emailAddress: '.$this->emailAddress.
+            ', roles: '.$customerRoleRelationString;
+    }
+
 }

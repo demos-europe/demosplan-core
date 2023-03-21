@@ -434,17 +434,18 @@ class OzgKeycloakUserDataMapper
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        if (array_key_exists($customer->getName(), $rolesOfCustomer)) {
-            foreach ($rolesOfCustomer[$customer->getName()] as $roleNames) {
-                if (array_key_exists($roleNames, self::ROLETITLE_TO_ROLECODE)) {
-                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleNames];
+        if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
+            foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
+                $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
+                if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
                 } else {
-                    $unIdentifiedRoles[] = $roleNames;
+                    $unIdentifiedRoles[] = $roleName;
                 }
             }
         }
         if (0 !== count($unIdentifiedRoles)) {
-            $this->logger->info('at least one non recognizable role was requested!', $unIdentifiedRoles);
+            $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
         if (0 === count($requestedRoles)) {
