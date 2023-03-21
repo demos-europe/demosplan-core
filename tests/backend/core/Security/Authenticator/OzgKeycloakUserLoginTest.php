@@ -13,7 +13,7 @@ class OzgKeycloakUserLoginTest extends FunctionalTestCase
     /** @var OzgKeycloakUserDataMapper */
     protected $sut;
 
-    private BasicKeycloakUserData $testBasicKeyCloakResponse;
+    protected BasicKeycloakUserData $testKeycloakUserData;
 
     protected function setUp(): void
     {

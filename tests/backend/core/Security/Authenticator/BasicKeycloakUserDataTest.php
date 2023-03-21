@@ -10,7 +10,7 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Token\AccessToken;
 use Tests\Base\FunctionalTestCase;
 
-class BasicKeycloakResponseTest extends FunctionalTestCase
+class BasicKeycloakUserDataTest extends FunctionalTestCase
 {
     /** @var BasicKeycloakUserData */
     protected $sut;
@@ -35,10 +35,12 @@ class BasicKeycloakResponseTest extends FunctionalTestCase
 
         static::assertSame('Amt Nordwest', $this->sut->getOrganisationName());
         static::assertSame('140', $this->sut->getOrganisationId());
+
         static::assertSame('Walter Westi', $this->sut->getFullName());
         static::assertSame('29d6901e-b636-4784-a851-a7717a9a7549', $this->sut->getUserId());
         static::assertSame('myuser', $this->sut->getUserName());
         static::assertSame('bob-sh12@demos-deutschland.de', $this->sut->getEmailAddress());
+
         static::assertIsArray($this->sut->getCustomerRoleRelations());
         static::assertArrayHasKey('Schleswig-Holstein', $this->sut->getCustomerRoleRelations());
         static::assertIsArray($this->sut->getCustomerRoleRelations()['Schleswig-Holstein']);
