@@ -483,7 +483,7 @@ class ExcelImporter extends CoreService
 
     private function replaceLineBreak($value)
     {
-        return str_replace(["_x000D_\n", "\n"], '<br>', $value);
+        return str_replace(["_x000D_\n", "\n"], '<br>', strval($value));
     }
 
     /**
