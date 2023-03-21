@@ -133,9 +133,7 @@ class OzgKeycloakUserDataMapper
         }
 
         // 4) Create new User using keycloak data
-        $newUser = $this->tryCreateNewUser($requestedOrganisation, $requestedRoles);
-
-        return $newUser;
+        return $this->tryCreateNewUser($requestedOrganisation, $requestedRoles);
     }
 
     /**
