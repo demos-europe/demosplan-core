@@ -73,9 +73,8 @@
 </template>
 
 <script>
+import { debounce, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { debounce } from '@demos-europe/demosplan-utils'
-import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSearch',

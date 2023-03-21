@@ -89,9 +89,8 @@
 </template>
 
 <script>
-import { DpLoading, DpModal } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { hasOwnProp } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CopyStatementModal',

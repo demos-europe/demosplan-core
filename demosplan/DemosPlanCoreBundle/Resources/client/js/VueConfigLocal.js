@@ -17,10 +17,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 
 // Globally used
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
-import DPVueCorePlugin from '@DemosPlanCoreBundle/plugins/DPVueCore'
+import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
+import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import lscache from 'lscache'
-import Obscure from '@DemosPlanCoreBundle/components/Obscure'
 import PortalVue from 'portal-vue'
 import { VTooltip } from 'v-tooltip'
 import Vuex from 'vuex'
@@ -82,7 +81,7 @@ Vue.use(DPVueCorePlugin)
 Vue.directive('tooltip', VTooltip)
 
 // Register components that are used globally
-Vue.component('DpObscure', Obscure)
+Vue.component('DpObscure', DpObscure)
 Vue.component('DpMultiselect', DpMultiselect)
 
 const shallowMountWithGlobalMocks = (component, options) => {

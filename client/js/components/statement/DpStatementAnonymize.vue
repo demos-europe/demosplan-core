@@ -234,8 +234,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpAnonymizeText, DpButton, DpCheckbox, DpTooltipIcon } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  DpAnonymizeText,
+  dpApi,
+  DpButton,
+  DpCheckbox,
+  DpTooltipIcon
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpStatementAnonymize',

@@ -228,8 +228,21 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, tableSelectAllItems } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpBulkEditHeader, DpButton, DpColumnSelector, DpLoading, DpDataTable, DpFlyout, DpSlidingPagination, DpStickyElement, VPopover } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpBulkEditHeader,
+  DpButton,
+  DpColumnSelector,
+  DpDataTable,
+  DpFlyout,
+  DpLoading,
+  DpSlidingPagination,
+  DpStickyElement,
+  tableSelectAllItems,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'

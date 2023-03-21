@@ -84,8 +84,14 @@
 </template>
 
 <script>
-import { DpBulkEditHeader, DpLoading, DpTreeList } from '@demos-europe/demosplan-ui'
-import { dpRpc, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-utils'
+import {
+  DpBulkEditHeader,
+  DpLoading,
+  dpRpc,
+  DpTreeList,
+  hasAnyPermissions,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'

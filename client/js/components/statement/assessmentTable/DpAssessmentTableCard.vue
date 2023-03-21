@@ -735,7 +735,7 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -744,7 +744,6 @@ import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
 import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpAssessmentTableCard',

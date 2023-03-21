@@ -78,7 +78,7 @@
 // @improve use DpDatepicker
 import Datepicker from 'vuejs-datepicker'
 import { de } from 'vuejs-datepicker/dist/locale'
-import { toDate } from '@demos-europe/demosplan-utils'
+import { toDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSurveyStatus',
