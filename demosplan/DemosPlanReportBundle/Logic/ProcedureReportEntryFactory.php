@@ -133,6 +133,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         if ($user instanceof User) {
             $entry->setUser($user);
         } else {
+            $entry->setUserId('');
             $entry->setUserName($user);
         }
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
