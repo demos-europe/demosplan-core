@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-const config = require('./client/setup/config').config
+const config = require('./client/fe/config/config').config
 const webpackConfig = require('./config.webpack')
 
 const aliases = webpackConfig[0].resolve.alias
