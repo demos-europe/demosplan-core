@@ -58,7 +58,8 @@ use function is_array;
 /**
  * @template T of object
  *
- * @template-extends CachingResourceType<ClauseFunctionInterface, OrderBySortMethodInterface, T>
+ * @template-extends CachingResourceType<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
+ * @template-extends IteratorAggregate<int, non-empty-string>
  *
  * @property-read End $id
  */
