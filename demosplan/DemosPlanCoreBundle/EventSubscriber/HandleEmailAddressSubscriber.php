@@ -15,9 +15,17 @@ use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Throwable;
+use Psr\Log\LoggerInterface;
 
 class HandleEmailAddressSubscriber implements EventSubscriberInterface
 {
+    private LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
