@@ -30,6 +30,8 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\ResourceTypes\CachingResourceType;
@@ -56,7 +58,7 @@ use function is_array;
 /**
  * @template T of object
  *
- * @template-extends CachingResourceType<T>
+ * @template-extends CachingResourceType<ClauseFunctionInterface, OrderBySortMethodInterface, T>
  *
  * @property-read End $id
  */
