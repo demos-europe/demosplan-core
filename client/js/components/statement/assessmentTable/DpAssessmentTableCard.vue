@@ -851,7 +851,7 @@ export default {
       if (this.statement.publicVerified !== 'no_check_since_not_allowed' && this.statement.publicVerified !== 'no_check_permission_disabled') {
         switch (this.statement.publicVerified) {
           case 'publication_pending':
-            icon = 'fa-exclamation-circle color-ui-highlight'
+            icon = 'fa-exclamation-circle color-ui-message-severe-fill'
             break
           case 'publication_approved':
             icon = 'fa-eye'

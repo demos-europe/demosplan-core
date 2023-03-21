@@ -46,6 +46,14 @@
             color: $dp-token-color-ui-dimmed-text;
         }
 
+        &-message {
+            &-severe {
+                &-fill {
+                    color: $dp-color-message-severe-fill;
+                }
+            }
+        }
+
         &-neutral-text {
             color: $dp-token-color-ui-neutral-text;
         }
@@ -84,10 +92,6 @@
 
         &-interactive {
             color: $dp-token-color-ui-interactive;
-        }
-
-        &-highlight {
-            color: $dp-token-color-ui-highlight;
         }
     }
 

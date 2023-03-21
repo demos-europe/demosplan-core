@@ -100,10 +100,6 @@ $dp-token-color-ui-interactive-hover:           $dp-color-interactive-hover;
 $dp-token-color-ui-interactive-active:          $dp-color-interactive-active;
 $dp-token-color-ui-interactive-dimmed:          $dp-color-neutral-light-1;
 
-// The [highlight] token is used for communicating active or focused state of interactive elements.
-// The value of [highlight] should pass AAA contrast check with #ffffff.
-$dp-token-color-ui-highlight:                   $dp-color-brand-highlight-contrast;
-
 // Fill + Stroke colors to be used for vectors in maps - chosen for maximum visibility on all kinds of maps.
 $dp-token-color-ui-map-draw-fill:               rgb(212 0 75 / 20%);
 $dp-token-color-ui-map-draw-stroke:             rgb(212 0 75);
