@@ -1546,6 +1546,7 @@ class User implements UserInterface, SamlUserInterface, UuidEntityInterface, Pas
 
     /**
      * Retrieve all customers that the user is associated with in any way.
+     * @return array<int, Customer>
      */
     public function getCustomers(): array
     {
