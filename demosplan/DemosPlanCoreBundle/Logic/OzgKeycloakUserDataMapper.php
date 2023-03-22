@@ -353,7 +353,8 @@ class OzgKeycloakUserDataMapper
         }
 
         $userData = [
-            'lastname'      => $this->ozgKeycloakUserData->getFullName(),
+            'firstname'      => $this->ozgKeycloakUserData->getFirstName(),
+            'lastname'      => $this->ozgKeycloakUserData->getLastName(),
             'email'         => $this->ozgKeycloakUserData->getEmailAddress(),
             'login'         => $this->ozgKeycloakUserData->getUserName(),
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
@@ -362,6 +363,12 @@ class OzgKeycloakUserDataMapper
             'department'    => $this->getDepartmentToSetForUser($userOrga),
             'roles'         => $requestedRoles,
         ];
+
+        //in case of incoming first and last name, set this to the related fields of dplan-user.
+        if ('' !== $this->ozgKeycloakUserData->getFirstName() && '' !== $this->ozgKeycloakUserData->getLastName()) {
+            $userData['firstName'] = $this->ozgKeycloakUserData->getFirstName();
+            $userData['lastname'] = $this->ozgKeycloakUserData->getLastName();
+        }
 
         $newUser = $this->userService->addUser($userData);
         $this->logger->info(
@@ -538,11 +545,17 @@ class OzgKeycloakUserDataMapper
         }
 
         if ($this->hasUserAttributeToUpdate(
-            $dplanUser->getFullname(),
-            $this->ozgKeycloakUserData->getFullName()
+            $dplanUser->getFirstname(),
+            $this->ozgKeycloakUserData->getFirstName()
         )) {
-            $dplanUser->setFirstname('');
-            $dplanUser->setLastname($this->ozgKeycloakUserData->getFullName());
+            $dplanUser->setFirstname($this->ozgKeycloakUserData->getFirstName());
+        }
+
+        if ($this->hasUserAttributeToUpdate(
+            $dplanUser->getLastname(),
+            $this->ozgKeycloakUserData->getLastName()
+        )) {
+            $dplanUser->setLastname($this->ozgKeycloakUserData->getLastName());
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);

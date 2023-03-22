@@ -20,7 +20,8 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getUserId()
  * @method string getOrganisationName()
  * @method string getOrganisationId()
- * @method string getFullName()
+ * @method string getFirstName()
+ * @method string getLastName()
  */
 class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInterface
 {
@@ -54,10 +55,9 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
      */
     protected string $organisationId = '';
 
-    /**
-     * Full (first- and last-) name of the provided user.
-     */
-    protected string $fullName = '';
+    protected string $firstName = '';
+
+    protected string $lastName = '';
 
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {
@@ -72,7 +72,8 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
         $this->userId = $userInformation['sub'] ?? '';
         $this->organisationName = $userInformation['organisationName'] ?? '';
         $this->organisationId = $userInformation['organisationId'] ?? '';
-        $this->fullName = $userInformation['name'] ?? '';
+        $this->firstName = $userInformation['given_name'] ?? '';
+        $this->lastName = $userInformation['family_name'] ?? '';
         $this->userName = $userInformation['preferred_username'] ?? ''; // kind of "login" //has to be unique?
         $this->emailAddress = $userInformation['email'] ?? '';
 
@@ -102,8 +103,8 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
             $missingMandatoryValues[] = 'organisationId';
         }
 
-        if ('' === $this->fullName) {
-            $missingMandatoryValues[] = 'fullName';
+        if ('' === $this->firstName && '' === $this->lastName) {
+            $missingMandatoryValues[] = 'name';
         }
 
         if ([] === $this->customerRoleRelations) {
@@ -139,7 +140,8 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
         return
             'userId: '.$this->userId.
             ', userName: '.$this->userName.
-            ', fullName: '.$this->fullName.
+            ', firstName: '.$this->firstName.
+            ', lastName: '.$this->lastName.
             ', organisationId: '.$this->organisationId.
             ', organisationName: '.$this->organisationName.
             ', emailAddress: '.$this->emailAddress.

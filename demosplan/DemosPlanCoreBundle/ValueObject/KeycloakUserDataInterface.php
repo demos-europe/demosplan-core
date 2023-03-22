@@ -22,7 +22,8 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getUserId()
  * @method string getOrganisationName()
  * @method string getOrganisationId()
- * @method string getFullName()
+ * @method string getFirstName()
+ * @method string getLastName()
  */
 interface KeycloakUserDataInterface
 {
