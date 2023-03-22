@@ -127,9 +127,7 @@ class OzgKeycloakUserDataMapper
 
         if ($existingUser) {
             // Update user information from keycloak
-            $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
-
-            return $existingUser;
+            return $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
         }
 
         // 4) Create new User using keycloak data
