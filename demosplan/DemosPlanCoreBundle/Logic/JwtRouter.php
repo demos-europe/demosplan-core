@@ -30,7 +30,8 @@ class JwtRouter extends Router
         GlobalConfigInterface $globalConfig,
         JWTTokenManagerInterface $jwtManager,
         ProcedureRepository $procedureRepository,
-        RouterInterface $router
+        RouterInterface $router,
+        protected readonly CurrentContextProvider $contextProvider
     ) {
         $this->jwtManager = $jwtManager;
         parent::__construct($globalConfig, $procedureRepository, $router);
@@ -38,7 +39,9 @@ class JwtRouter extends Router
 
     public function generate($route, $parameters = [], $referenceType = self::ABSOLUTE_URL): string
     {
-        $apiAuthorization = $this->jwtManager->create(new AiApiUser());
+        $customer = $this->contextProvider->getCurrentCustomer();
+
+        $apiAuthorization = $this->jwtManager->create(new AiApiUser($customer));
         if (!array_key_exists('jwt', $parameters)) {
             $parameters['jwt'] = $apiAuthorization;
         }
