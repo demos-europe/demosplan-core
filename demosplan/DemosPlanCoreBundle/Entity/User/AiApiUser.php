@@ -19,6 +19,8 @@ class AiApiUser extends FunctionalUser
 
     public function __construct(Customer $customer)
     {
+        parent::__construct();
+
         $this->id = self::AI_API_USER_ID;
         $this->login = self::AI_API_USER_LOGIN;
 
@@ -41,7 +43,5 @@ class AiApiUser extends FunctionalUser
         $userRoleInCustomer->setRole($role);
         $userRoleInCustomer->setCustomer($customer);
         $this->roleInCustomers = new ArrayCollection([$userRoleInCustomer]);
-
-        parent::__construct();
     }
 }
