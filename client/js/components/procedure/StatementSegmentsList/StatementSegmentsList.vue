@@ -538,10 +538,27 @@ export default {
       this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
     },
 
+    /**
+     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
+     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
+     * with the statements from store. The editor automatically updates the state of statements in the
+     * store when registering an input. This only occurs when a statement has not been segmented already.
+     *
+     * @param {object} statement - The local statement of StatementMeta.vue.
+     */
+    canUpdateStatementAttributeFullText (statement) {
+      if (statement.attributes.fullText !== this.statement.attributes.fullText) {
+        statement.attributes.fullText = this.statement.attributes.fullText
+      }
+    },
+
     saveStatement (statement) {
+      this.$on('save', this.canUpdateStatementAttributeFullText(statement))
+
       // The key isManual is readonly, so we should remove it before saving
       delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
+
       this.saveStatementAction(statement.id)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
