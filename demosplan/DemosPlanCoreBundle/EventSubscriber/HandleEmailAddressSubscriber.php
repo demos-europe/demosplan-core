@@ -13,9 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\Events\HandleEmailAddressesEventInterface;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Doctrine\ORM\ORMException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Throwable;
-use Psr\Log\LoggerInterface;
 
 class HandleEmailAddressSubscriber implements EventSubscriberInterface
 {
