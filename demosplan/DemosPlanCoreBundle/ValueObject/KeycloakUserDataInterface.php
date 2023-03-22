@@ -37,4 +37,6 @@ interface KeycloakUserDataInterface
      * @throws AuthenticationCredentialsNotFoundException
      */
     public function checkMandatoryValuesExist(): void;
+
+    public function __toString(): string;
 }
