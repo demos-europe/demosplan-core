@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class AddonMaintenanceEvent extends DPlanEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
+
+class AddonMaintenanceEvent extends DPlanEvent implements AddonMaintenanceEventInterface
 {
 }

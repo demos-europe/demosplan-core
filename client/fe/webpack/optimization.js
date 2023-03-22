@@ -10,7 +10,7 @@
 const TerserPlugin = require('terser-webpack-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
-const { config } = require('../config')
+const { config } = require('../config/config')
 const path = require('path')
 
 const chunkSplitting = {

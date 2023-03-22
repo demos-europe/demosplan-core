@@ -9,7 +9,7 @@
 
 const glob = require('glob')
 const fs = require('fs')
-const config = require('../config').config
+const config = require('../config/config').config
 
 function resolveAliases () {
   const aliases = {

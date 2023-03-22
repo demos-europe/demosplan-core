@@ -77,8 +77,17 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, dpValidateMixin, formatDate, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpCheckbox, DpDatetimePicker, DpInlineNotification, DpSelect } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  DpCheckbox,
+  DpDatetimePicker,
+  DpInlineNotification,
+  dpRpc,
+  DpSelect,
+  dpValidateMixin,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'

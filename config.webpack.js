@@ -12,16 +12,16 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const DefinePlugin = require('webpack').DefinePlugin
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 
-const { config } = require('./client/setup/config') // All our configuration
+const { config } = require('./client/fe/config/config') // All our configuration
 
-const resolveAliases = require('./client/setup/webpack/resolveAliases').resolveAliases // To manage the @bundlePath Syntax
-const resolveDir = require('./client/setup/webpack/resolveDir').resolveDir
-const moduleRules = require('./client/setup/webpack/moduleRules').moduleRules
-const bundleEntryPoints = require('./client/setup/webpack/bundleEntryPoints').bundleEntryPoints
-const optimization = require('./client/setup/webpack/optimization').optimization
+const resolveAliases = require('./client/fe/webpack/resolveAliases').resolveAliases // To manage the @bundlePath Syntax
+const resolveDir = require('./client/fe/webpack/util').resolveDir
+const moduleRules = require('./client/fe/webpack/moduleRules').moduleRules
+const bundleEntryPoints = require('./client/fe/webpack/bundleEntryPoints').bundleEntryPoints
+const optimization = require('./client/fe/webpack/optimization').optimization
 
 // Do not use destructuring as that may break the tooling on Windows
-const { webpackDefaultPlugins, webpackDevOnlyPlugins, webpackProdOnlyPlugins } = require('./client/setup/webpack/plugins')
+const { webpackDefaultPlugins, webpackDevOnlyPlugins, webpackProdOnlyPlugins } = require('./client/fe/webpack/plugins')
 
 const baseConfig = {
   mode: config.mode,

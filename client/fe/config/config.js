@@ -29,7 +29,7 @@ class Config {
   }
 
   defaults (mode, project) {
-    this.relativeRoot = '../../'
+    this.relativeRoot = '../../../'
     this.isProduction = (mode === 'production')
     this.mode = (mode === 'production') ? 'production' : mode
 
@@ -56,14 +56,13 @@ class Config {
         'demosplan/**/*.js.twig',
         'client/**/*.js',
         'client/**/*.vue',
-        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true }),
-        ...glob.sync('node_modules/@demos-europe/demosplan-utils/**/*.js', { nodir: true })
+        ...glob.sync('node_modules/@demos-europe/demosplan-ui/dist/**/*.js', { nodir: true })
       ],
       safelist: {
         standard: [
-          /-(leave|enter|appear)(|-(to|from|active))$/,
-          /^(?!(|.*?:)cursor-move).+-move$/,
-          /^router-link(|-exact)-active$/,
+          /-(leave|enter|appear)(-(to|from|active)|)$/,
+          /^(?!(.*?:|)cursor-move).+-move$/,
+          /^router-link(-exact|)-active$/,
           /data-v-.+/,
           /c-notify.+/,
           /menu_level_/,

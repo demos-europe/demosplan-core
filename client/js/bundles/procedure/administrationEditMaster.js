@@ -13,7 +13,7 @@
 
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpMasterBasicSettings from '@DpJs/components/procedure/basicSettings/DpMasterBasicSettings'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
+import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpMasterBasicSettings }
