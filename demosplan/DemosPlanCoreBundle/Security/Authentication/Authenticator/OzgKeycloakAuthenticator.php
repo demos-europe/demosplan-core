@@ -65,7 +65,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $client = $this->clientRegistry->getClient('keycloak_ozg');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null,]);
+        $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {

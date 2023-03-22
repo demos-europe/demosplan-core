@@ -73,7 +73,7 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
         $this->organisationName = $userInformation['organisationName'] ?? '';
         $this->organisationId = $userInformation['organisationId'] ?? '';
         $this->fullName = $userInformation['name'] ?? '';
-        $this->userName = $userInformation['preferred_username'] ?? ''; //kind of "login" //has to be unique?
+        $this->userName = $userInformation['preferred_username'] ?? ''; // kind of "login" //has to be unique?
         $this->emailAddress = $userInformation['email'] ?? '';
 
         $this->lock();
@@ -111,9 +111,7 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
         }
 
         if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(
-                implode(', ', $missingMandatoryValues).'are missing in requestValues'
-            );
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
         }
     }
 
@@ -122,7 +120,7 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
      */
     private function mapCustomerRoles(mixed $groups): void
     {
-        foreach($groups as $group) {
+        foreach ($groups as $group) {
             $subGroups = explode('/', $group);
             if (str_contains($subGroups[1], 'Beteiligung-Berechtigung')) {
                 $subdomain = strtolower(explode('-', $subGroups[2])[0]);
@@ -147,5 +145,4 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
             ', emailAddress: '.$this->emailAddress.
             ', roles: '.$customerRoleRelationString;
     }
-
 }

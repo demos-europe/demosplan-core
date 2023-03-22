@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Security\Authenticator;
-
 
 use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakUserData;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
