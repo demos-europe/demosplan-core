@@ -123,7 +123,7 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
      *      "/Beteiligung-Organisation/OrgaName1",
      *      "/Beteiligung-Berechtigung/CustomerName1/RoleName1",
      *      "/Beteiligung-Berechtigung/CustomerName1/RoleName2"
-     * ]
+     * ].
      *
      * @param array<int, string> $groups
      */
