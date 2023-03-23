@@ -420,20 +420,6 @@ export default {
       'toggleSlidebarContent'
     ]),
 
-    /**
-     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
-     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
-     * with the statements from store. The editor automatically updates the state of statements in the
-     * store when registering an input. This only occurs when a statement has not been segmented already.
-     *
-     * @param {object} statement - The local statement of StatementMeta.vue.
-     */
-    canUpdateStatementAttributesFullText (statement) {
-      if (statement.attributes.fullText !== this.statement.attributes.fullText) {
-        statement.attributes.fullText = this.statement.attributes.fullText
-      }
-    },
-
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
         this.statementClaimChecked = true
@@ -553,7 +539,7 @@ export default {
     },
 
     saveStatement (statement) {
-      this.$on('save', this.canUpdateStatementAttributesFullText(statement))
+      this.synchronizeFullText(statement)
       // The key isManual is readonly, so we should remove it before saving
       delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
@@ -594,6 +580,20 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    /**
+     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
+     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
+     * with the statements from store. The editor automatically updates the state of statements in the
+     * store when registering an input. This only occurs when a statement has not been segmented already.
+     *
+     * @param {object} statement - The local statement of StatementMeta.vue.
+     */
+    synchronizeFullText (statement) {
+      if (statement.attributes.fullText !== this.statement.attributes.fullText) {
+        statement.attributes.fullText = this.statement.attributes.fullText
+      }
     },
 
     toggleClaimStatement () {
