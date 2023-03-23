@@ -326,7 +326,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-token-color-ui-interactive;
+        box-shadow: 0 0 0 2px $dp-color-interactive-base;
         border-color: transparent !important;
     }
 
@@ -343,16 +343,16 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
 
     border-radius: $dp-token-rounded-small;
 
-    color: $dp-token-color-ui-interactive;
+    color: $dp-color-interactive-base;
     background-color: $dp-color-white;
 
     &:not(:disabled, :active, .is-disabled):hover {
-        color: $dp-token-color-ui-interactive-hover;
+        color: $dp-color-interactive-hover;
         background-color: $dp-color-neutral-light-4;
     }
 
     &:active {
-        color: $dp-token-color-ui-interactive-active;
+        color: $dp-color-interactive-active;
         background-color: $dp-color-neutral-light-3;
     }
 

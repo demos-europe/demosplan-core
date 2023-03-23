@@ -62,11 +62,11 @@ $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !de
 
 // Lightest background color that is discernible on normal monitors.
 // May disappear on high contrast monitors, projectors and the like.
-// Should pass AA contrast check with $default-font-color and $dp-token-color-ui-interactive
+// Should pass AA contrast check with $default-font-color and $dp-color-interactive-base
 $dp-token-color-ui-bg-neutral-light:            $dp-color-neutral-light-4;
 
 // Medium background color for boxes etc.
-// Should pass AA contrast check with $default-font-color and $dp-token-color-ui-interactive
+// Should pass AA contrast check with $default-font-color and $dp-color-interactive-base
 $dp-token-color-ui-bg-neutral-medium:           $dp-color-neutral-light-3;
 
 // Text that should be readable but appear less dark
@@ -96,13 +96,6 @@ $dp-token-color-ui-warning-text:                $dp-color-system-warning--dark-1
 $dp-token-color-ui-error:                       $dp-color-system-error;
 $dp-token-color-ui-error-bg:                    $dp-color-system-error--light-1;
 $dp-token-color-ui-error-text:                  $dp-color-system-error--dark-1;
-
-// System color to be used to for interactive elements.
-// Right now these map to the "brand-link" token but should get set directly from palette variables.
-$dp-token-color-ui-interactive:                 $dp-color-interactive-base;
-$dp-token-color-ui-interactive-hover:           $dp-color-interactive-hover;
-$dp-token-color-ui-interactive-active:          $dp-color-interactive-active;
-$dp-token-color-ui-interactive-dimmed:          $dp-color-neutral-light-1;
 
 // Fill + Stroke colors to be used for vectors in maps - chosen for maximum visibility on all kinds of maps.
 $dp-token-color-ui-map-draw-fill:               rgb(212 0 75 / 20%);
