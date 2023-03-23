@@ -119,7 +119,6 @@ class OzgKeycloakUserDataMapper
     public function mapUserData(KeycloakUserDataInterface $ozgKeycloakUserData): User
     {
         $this->ozgKeycloakUserData = $ozgKeycloakUserData;
-
         $requestedRoles = $this->mapUserRoleData();
         $requestedOrganisation = $this->mapUserOrganisationData($requestedRoles);
         // 3 handle user / load it / update it / create it / and add User to Orga and Department
@@ -137,8 +136,7 @@ class OzgKeycloakUserDataMapper
     /**
      * Creates a new organisation in case of incoming organisation could not match with existing organisations.
      * In case of incoming organisation can be found, it will be updated with incoming data.
-     *
-     *  // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
+     * Also handles the special case of citizen organisation
      *
      * @param array<int, Role> $requestedRoles
      *
