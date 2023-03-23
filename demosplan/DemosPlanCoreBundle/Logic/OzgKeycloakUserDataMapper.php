@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
-use demosplan\DemosPlanCoreBundle\ValueObject\BasicKeycloakUserData;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @see BasicKeycloakUserData.
+ * keycloak will be passed by @see OzgKeycloakUserData.
  */
 class OzgKeycloakUserDataMapper
 {
