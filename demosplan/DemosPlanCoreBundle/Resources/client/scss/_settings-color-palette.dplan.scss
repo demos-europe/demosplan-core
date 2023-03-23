@@ -24,27 +24,27 @@
 //  - highlight (accent) color (may be a brand color)
 //  - system (normally should not be reassigned, only when a brand color is very similar)
 
-// At the moment, only "neutral" and "data" colors are used from demosplan-ui.
-// For main, alt, highlight, and the system colors, the used scale and naming has to be decided.
+// Color tokens from demosplan-ui
+//
+// Palette colors
+// $dp-color-[neutral|blue|red|green|yellow|teal|magenta|purple]-[dark-2|dark-1|base|light-1|light-2|light-3|light-4]
+// $dp-color-[black|white]
+//
+// Data colors
+// $dp-color-data-[(3-[1-3])|(6-[1-6])|(8-[1-8])|(11-[1-11])]
+//
+// Brand colors
+// $dp-color-brand-[main|alt|highlight]-[base|contrast]
+//
+// UI colors
+// See source for available tokens
 @import '@demos-europe/demosplan-ui/tokens/scss/color.palette';
 @import '@demos-europe/demosplan-ui/tokens/scss/color.data';
 @import '@demos-europe/demosplan-ui/tokens/scss/color.brand';
 @import '@demos-europe/demosplan-ui/tokens/scss/color.ui';
 
-// Do not edit directly
-// Generated on Thu, 24 Nov 2022 08:44:15 GMT
-
-// Neutrals palette (from demosplan-ui tokens):
-// $dp-color-neutral-[dark-2|dark-1|base|light-1|light-2|light-3|light-4]
-// $dp-color-[black|white]
-
-// Data palette (from demosplan-ui tokens):
-// $dp-color-data-[(3-[1-3])|(6-[1-6])|(8-[1-8])|(11-[1-11])]
-
-// Naming scheme for variables defined here:
-// $dp-color-[main|alt|highlight|system][-dark|-dark-1|-light|-light-1|-light-2]
-
 // System feedback colors
+// @TODO use ui tokens instead of these
 //
 // Confirm
 $dp-color-system-confirm--light-1:  #def7de !default;

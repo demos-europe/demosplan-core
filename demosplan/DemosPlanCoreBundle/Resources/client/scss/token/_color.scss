@@ -18,16 +18,20 @@
 
 // Link color is applied to all links that should be branded... that is, basically, all links.
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
+// @FIXME check overrides. these do not have to be defined here.
 $dp-color-interactive-base:                     $dp-color-brand-main-base !default;
 $dp-color-interactive-hover:                    $dp-color-brand-highlight-contrast !default;
 $dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1 !default;
 
-// The [highlight] token is used for communicating active or focused state of interactive elements.
-// The value of [highlight] should pass AAA contrast check with #ffffff.
-$dp-color-brand-highlight-base:                $dp-color-brand-highlight-base !default;
 
 // The [cta] tokens are used for coloring interactive elements of high importance (eg. actionbox).
 // The value of [cta] should pass AAA contrast check with the value of [cta-contrast].
+// They are defined here to complement the rather basic tokens defined within demosplan-ui.
+// @FIXME check overrides
+// old:
+// $dp-color-highlight--dark !default;
+// $dp-color-highlight !default;
+// $dp-color-highlight--light !default;
 $dp-token-color-brand-cta-dark:                 $dp-color-brand-highlight-dark-1 !default;
 $dp-token-color-brand-cta:                      $dp-color-brand-highlight-contrast !default;
 $dp-token-color-brand-cta-light:                $dp-color-brand-highlight-light-2 !default;
@@ -47,7 +51,7 @@ $dp-token-color-brand-header-active-contrast:   $dp-color-brand-main-base !defau
 
 // The [nav-alt] tokens control the appearance of branded secondary navigation (project switcher, footer).
 $dp-token-color-brand-nav-alt-link:             $dp-color-brand-main-base !default;
-$dp-token-color-brand-nav-alt-link-hover:       $dp-color-brand-highlight-contrast !default;
+$dp-token-color-brand-nav-alt-link-hover:       $dp-color-brand-highlight-base !default;
 $dp-token-color-brand-nav-alt-alt:              $dp-color-neutral-dark-1 !default;
 $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !default;
 

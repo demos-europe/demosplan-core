@@ -20,10 +20,6 @@
 // Globals
 // These are ui tokens  and should be migrated there!!!
 
-// Globals > links
-$default-link-color:                    $dp-color-brand-main-base !default;
-$default-link-color-hover:              $dp-color-brand-highlight-contrast !default;
-
 // Globals > background
 $dp-bg-color:                           $dp-color-white !default;
 
@@ -64,9 +60,6 @@ $msg-dev-bg-color:                      $dp-color-purple-light-2 !default;
 // Components > .c-pager
 $pager-color-active:                    $dp-color-white !default;
 $pager-color-active-bg:                 $dp-color-neutral-light-1 !default;
-
-// Components > .c-chart
-$dp-chart-color-active:                 $dp-color-brand-highlight-contrast !default;
 
 
 // @TODO sort into above or move to token

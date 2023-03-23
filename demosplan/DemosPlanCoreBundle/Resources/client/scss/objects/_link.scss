@@ -48,11 +48,11 @@
 
     // Assuming links on $dp-color-brand-alt-base
     &--on-alt {
-        color: $dp-color-white;
+        color: $dp-color-brand-alt-contrast;
         text-decoration: underline;
 
         &:hover {
-            color: $dp-color-brand-alt-light-4;
+            opacity: .8;
         }
     }
 
