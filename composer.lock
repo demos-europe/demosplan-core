@@ -20268,16 +20268,16 @@
         },
         {
             "name": "psalm/plugin-symfony",
-            "version": "v4.0.2",
+            "version": "v4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-symfony.git",
-                "reference": "83ede57320c4dc6d07cfabe8b76cd28164c9ee8d"
+                "reference": "08b1cd732167f31e1b459c93efde603daa63ccd2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/83ede57320c4dc6d07cfabe8b76cd28164c9ee8d",
-                "reference": "83ede57320c4dc6d07cfabe8b76cd28164c9ee8d",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-symfony/zipball/08b1cd732167f31e1b459c93efde603daa63ccd2",
+                "reference": "08b1cd732167f31e1b459c93efde603daa63ccd2",
                 "shasum": ""
             },
             "require": {
@@ -20327,9 +20327,9 @@
             "description": "Psalm Plugin for Symfony",
             "support": {
                 "issues": "https://github.com/psalm/psalm-plugin-symfony/issues",
-                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v4.0.2"
+                "source": "https://github.com/psalm/psalm-plugin-symfony/tree/v4.0.3"
             },
-            "time": "2023-01-08T18:52:07+00:00"
+            "time": "2023-03-22T20:46:28+00:00"
         },
         {
             "name": "rector/rector",
