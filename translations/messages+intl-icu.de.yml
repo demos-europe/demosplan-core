@@ -3213,7 +3213,7 @@ statement.representation.creation: "Die Stellungnahme im Namen folgender Institu
 statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
-statement.save.recommendation: "Möchten Sie die Erwiederung der Stellungnahmen ebenfalls abspeichern?"
+statement.save.recommendation: "Möchten Sie die Erwiederung der Stellungnahme ebenfalls abspeichern?"
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
 statement.send: "Stellungnahme versenden"
