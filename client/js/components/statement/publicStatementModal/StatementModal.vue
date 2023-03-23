@@ -650,6 +650,7 @@ import {
   toggleFullscreen
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
+import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -1189,6 +1190,7 @@ export default {
       this.isLoading = true
 
       this.setStatementData({ immediate_submit: immediateSubmit })
+      this.setStatementData({ r_loadtime: dayjs().unix() })
 
       /*
        * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected

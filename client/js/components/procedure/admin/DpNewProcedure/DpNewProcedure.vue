@@ -169,19 +169,21 @@
           id="js__statusBox" />
       </div>
 
-      <template v-if="hasPermission('feature_procedure_couple_by_token')">
+      <div
+        v-if="hasPermission('feature_procedure_couple_by_token')"
+        class="u-mb-0_75">
         <h3
           class="weight--normal color--grey u-mt-1_5"
           v-text="Translator.trans('procedure.couple_token.vht.title')" />
+
         <div v-text="Translator.trans('procedure.couple_token.vht.info')" />
 
         <dp-inline-notification
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 
-        <couple-token-input
-          :token-length="tokenLength" />
-      </template>
+        <couple-token-input :token-length="tokenLength" />
+      </div>
 
       <div class="space-inline-s text--right">
         <dp-button
