@@ -28,10 +28,9 @@
 </template>
 
 <script>
-import { DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
-import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'CreateCommentForm',

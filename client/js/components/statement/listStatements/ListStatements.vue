@@ -272,18 +272,22 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpRpc, formatDate, tableSelectAllItems } from '@demos-europe/demosplan-utils'
 import {
+  checkResponse,
   CleanHtml,
+  dpApi,
   DpBulkEditHeader,
   DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  dpRpc,
   DpSelect,
   DpSlidingPagination,
-  DpStickyElement
+  DpStickyElement,
+  formatDate,
+  tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'

@@ -1249,7 +1249,7 @@ explanation.agreement.pdf: "Laden Sie zusätzlich das PDF der textlichen Festset
 explanation.before.vote.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.before.vote.data.user.change.portal: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.bplan: "Sie können über dieses Formular eine Stellungnahme zum B-Plan Entwurf abgeben."
-explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mit gelöscht."
+explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mitgelöscht."
 explanation.claim.possibility: "Mit Ihrem echten Namen können Sie später nachweisen, dass Sie Ihre Bedenken mitgeteilt haben. Sie haben so die Möglichkeit, Klage einzureichen."
 explanation.considerationtable.empty.filtered: "Zu Ihrer Suche/Filterung konnten keine Einträge in der Abwägungstabelle gefunden werden."
 explanation.coordinate.desc: "Per Klick in die Karte können Sie Ihrem Verfahren eine Position geben, an der es in der Karte im öffentlichen Bereich angezeigt wird."

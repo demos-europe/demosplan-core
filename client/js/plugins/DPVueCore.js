@@ -12,7 +12,12 @@
  */
 
 import { extendedEmit, extendedOn } from '../lib/core/ExtendedVueEvents'
-import { hasOwnProp, MatchMedia } from '@demos-europe/demosplan-utils'
+import { MatchMedia } from '@demos-europe/demosplan-ui'
+
+const hasOwnProp = async (obj, prop) => {
+  const { hasOwnProp } = await import('@demos-europe/demosplan-ui')
+  return hasOwnProp(obj, prop)
+}
 
 const DPVueCorePlugin = {
   install: function (VueCore) {
