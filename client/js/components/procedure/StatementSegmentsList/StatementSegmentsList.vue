@@ -591,7 +591,7 @@ export default {
      * @param {object} statement - The local statement of StatementMeta.vue.
      */
     synchronizeFullText (statement) {
-      if (statement.attributes.fullText !== this.statement.attributes.fullText && dpConfirm(Translator.trans('statement.save.text'))) {
+      if (statement.attributes.fullText !== this.statement.attributes.fullText && dpconfirm(Translator.trans('statement.save.text'))) {
         statement.attributes.fullText = this.statement.attributes.fullText
       }
     },
