@@ -226,8 +226,9 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
+        $shouldUnzip = !$addonExistsInCache || $reinstall;
 
-        if ($doesFileExist && (!$addonExistsInCache || $reinstall)) {
+        if ($doesFileExist && $shouldUnzip) {
             $zipArchive = new ZipArchive();
             $open = $zipArchive->open($this->zipSourcePath);
             if ($open) {
