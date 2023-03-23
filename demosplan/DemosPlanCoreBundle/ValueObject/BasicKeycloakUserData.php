@@ -140,9 +140,9 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
 
     public function __toString(): string
     {
-        $customerRoleRelationString = '-';
+        $customerRoleRelationString = '';
         foreach ($this->customerRoleRelations as $subdomain => $roleNames) {
-            $customerRoleRelationString = $subdomain.': ['.implode(', ', $roleNames).']';
+            $customerRoleRelationString .= $subdomain.': ['.implode(', ', $roleNames).'] ';
         }
 
         return
