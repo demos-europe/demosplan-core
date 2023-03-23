@@ -11,10 +11,9 @@
  * This is the entrypoint for administration_send_email.html.twig
  */
 
-import { DpCheckbox, DpEditor, DpLabel } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpEditor, DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import dpValidate from '@demos-europe/demosplan-utils/lib/validation/dpValidate'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpBoilerPlateModal, DpCheckbox, DpEditor, DpLabel }

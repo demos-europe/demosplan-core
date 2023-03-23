@@ -221,9 +221,8 @@
 </template>
 
 <script>
-import { DpEditableList, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
+import { DpEditableList, DpInput, DpRadio, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
-import { dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'StatementVoter',

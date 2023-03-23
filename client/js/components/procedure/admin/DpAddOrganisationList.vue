@@ -47,9 +47,8 @@
 </template>
 
 <script>
-import { DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'DpAddOrganisationList',

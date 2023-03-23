@@ -125,8 +125,14 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, deepMerge, dpApi, prefixClassMixin } from '@demos-europe/demosplan-utils'
-import { DpAutocomplete, DpLoading } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  deepMerge,
+  dpApi,
+  DpAutocomplete,
+  DpLoading,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
 import DpOlMapLayer from './DpOlMapLayer'

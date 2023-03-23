@@ -29,10 +29,9 @@
 </template>
 
 <script>
-import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -160,8 +159,8 @@ export default {
               title: addon.options.title
             })
           }
-      })
-    },
+        })
+    }
   },
 
   mounted () {
