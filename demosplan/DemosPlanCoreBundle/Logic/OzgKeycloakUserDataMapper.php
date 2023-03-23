@@ -222,7 +222,6 @@ class OzgKeycloakUserDataMapper
      */
     private function updateOrganisation(Orga $existingOrga, array $requstedRoles): Orga
     {
-        //todo: shouldn't we throw an error instead!?
         $existingOrga->setDeleted(false);
         // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
