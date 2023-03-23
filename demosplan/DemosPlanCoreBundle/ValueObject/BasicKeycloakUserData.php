@@ -117,6 +117,10 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
     }
 
     /**
+     * Mapping of roles of customer based on string-comparison.
+     * Example string:
+     *
+     *
      * @param array<int, string> $groups
      */
     private function mapCustomerRoles(mixed $groups): void

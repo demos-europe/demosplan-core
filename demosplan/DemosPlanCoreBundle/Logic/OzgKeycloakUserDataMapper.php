@@ -121,16 +121,15 @@ class OzgKeycloakUserDataMapper
         $this->ozgKeycloakUserData = $ozgKeycloakUserData;
         $requestedRoles = $this->mapUserRoleData();
         $requestedOrganisation = $this->mapUserOrganisationData($requestedRoles);
-        // 3 handle user / load it / update it / create it / and add User to Orga and Department
-        $existingUser = $this->fetchExistingUser();
+        $existingUser = $this->tryToFindExistingUser();
 
-        if ($existingUser) {
-            // Update user information from keycloak
+        if ($existingUser instanceof User) {
+            // Update existing user with keycloak data
             return $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
         }
 
-        // 4) Create new User using keycloak data
-        return $this->tryCreateNewUser($requestedOrganisation, $requestedRoles);
+        // In case of no user was found, create a new User using keycloak data
+        return $this->createNewUser($requestedOrganisation, $requestedRoles);
     }
 
     /**
@@ -145,7 +144,7 @@ class OzgKeycloakUserDataMapper
      */
     private function mapUserOrganisationData(array $requestedRoles): Orga
     {
-        $existingUser = $this->fetchExistingUser();
+        $existingUser = $this->tryToFindExistingUser();
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupOrgaByGwId();
 
@@ -342,7 +341,7 @@ class OzgKeycloakUserDataMapper
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    private function tryCreateNewUser(Orga $userOrga, array $requestedRoles): ?User
+    private function createNewUser(Orga $userOrga, array $requestedRoles): ?User
     {
         // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
         if (User::ANONYMOUS_USER_ORGA_ID === $userOrga->getId()) {
@@ -608,7 +607,14 @@ class OzgKeycloakUserDataMapper
         return $dplanUserAttribute !== $keycloakUserAttribute;
     }
 
-    private function fetchExistingUser(): ?User
+    /**
+     * Try to find a existing user based on the following data in the named order.´:
+     * - gatewayId
+     * - login
+     * - email
+     * Will return the user in case of user was found, otherwise null.
+     */
+    private function tryToFindExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
         $existingUser = $this->fetchExistingUserViaGatewayId();
