@@ -40,11 +40,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     private KeycloakUserDataInterface $keycloakUserData;
 
     public function __construct(
-        OzgKeycloakUserDataMapper $ozgKeycloakUserLogin,
-        KeycloakUserDataInterface $keycloakResponse,
         ClientRegistry $clientRegistry,
         EntityManagerInterface $entityManager,
+        KeycloakUserDataInterface $keycloakResponse,
         LoggerInterface $logger,
+        OzgKeycloakUserDataMapper $ozgKeycloakUserLogin,
         RouterInterface $router
     ) {
         $this->ozgKeycloakUserDataMapper = $ozgKeycloakUserLogin;
