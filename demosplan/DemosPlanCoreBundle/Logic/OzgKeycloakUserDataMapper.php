@@ -350,7 +350,7 @@ class OzgKeycloakUserDataMapper
         }
 
         $userData = [
-            'firstname'      => $this->ozgKeycloakUserData->getFirstName(),
+            'firstname'     => $this->ozgKeycloakUserData->getFirstName(),
             'lastname'      => $this->ozgKeycloakUserData->getLastName(),
             'email'         => $this->ozgKeycloakUserData->getEmailAddress(),
             'login'         => $this->ozgKeycloakUserData->getUserName(),
@@ -360,12 +360,6 @@ class OzgKeycloakUserDataMapper
             'department'    => $this->getDepartmentToSetForUser($userOrga),
             'roles'         => $requestedRoles,
         ];
-
-        //in case of incoming first and last name, set this to the related fields of dplan-user.
-        if ('' !== $this->ozgKeycloakUserData->getFirstName() && '' !== $this->ozgKeycloakUserData->getLastName()) {
-            $userData['firstName'] = $this->ozgKeycloakUserData->getFirstName();
-            $userData['lastname'] = $this->ozgKeycloakUserData->getLastName();
-        }
 
         $newUser = $this->userService->addUser($userData);
         $this->logger->info(
