@@ -118,11 +118,16 @@ class BasicKeycloakUserData extends ValueObject implements KeycloakUserDataInter
 
     /**
      * Mapping of roles of customer based on string-comparison.
-     * Example string:.
+     * Example of data structure of $groups:
+     * [
+     *      "/Beteiligung-Organisation/OrgaName1",
+     *      "/Beteiligung-Berechtigung/CustomerName1/RoleName1",
+     *      "/Beteiligung-Berechtigung/CustomerName1/RoleName2"
+     * ]
      *
      * @param array<int, string> $groups
      */
-    private function mapCustomerRoles(mixed $groups): void
+    private function mapCustomerRoles(array $groups): void
     {
         foreach ($groups as $group) {
             $subGroups = explode('/', $group);
