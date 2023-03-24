@@ -332,7 +332,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $newOrga = $userHandler->addOrga($orgaDataArray);
 
             // Fehlermeldung, Pflichtfelder
-            if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
+            if (is_array($newOrga) && array_key_exists('mandatoryfieldwarning', $newOrga)) {
                 $this->messageBag->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
