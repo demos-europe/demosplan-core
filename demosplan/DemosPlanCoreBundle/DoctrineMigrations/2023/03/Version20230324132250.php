@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Faker\Provider\Uuid;
 
 class Version20230324132250 extends AbstractMigration
 {
@@ -31,8 +32,9 @@ class Version20230324132250 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql('SET foreign_key_checks = 0;');
+        $aiApiUserId = Uuid::uuid();
         $this->addSql('INSERT INTO _user SET
-              _u_id = UUID(),
+              _u_id = :user_id,
               _u_dm_id = NULL,
               _u_gender = NULL,
               _u_title = NULL,
@@ -53,13 +55,12 @@ class Version20230324132250 extends AbstractMigration
               twin_user_id = NULL,
               provided_by_identity_provider = 0;',
             [
+                'user_id'  => $aiApiUserId,
                 'login'    => AiApiUser::AI_API_USER_LOGIN,
                 'password' => $this->generateNewRandomPassword(),
                 'flags'    => self::FLAGS,
             ]
         );
-
-        $aiApiUserId = $this->getAiApiUserId();
         $allCustomerIds = $this->getAllCustomerIds();
         $roleId = $this->getRoleId();
 
