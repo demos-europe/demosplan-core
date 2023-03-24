@@ -48,7 +48,7 @@ class ReportEntryResourceType extends DplanResourceType
     public function __construct(
         protected readonly UserHandler $userHandler,
         ReportMessageConverter $messageConverter
-    ){
+    ) {
         $this->messageConverter = $messageConverter;
     }
 
@@ -138,7 +138,6 @@ class ReportEntryResourceType extends DplanResourceType
             $this->createAttribute($this->createdByDataInputOrga)->readable(true, function (ReportEntry $entry): bool {
                 $userWhoCratedReport = $this->userHandler->getSingleUser($entry->getUserId());
                 if ($userWhoCratedReport instanceof User) {
-
                     return $userWhoCratedReport->hasRole(Role::PROCEDURE_DATA_INPUT);
                 }
 
