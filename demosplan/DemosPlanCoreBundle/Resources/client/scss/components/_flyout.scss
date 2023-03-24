@@ -115,7 +115,7 @@
         display: none;
 
         background-color: $dp-color-neutral-dark-2;
-        color: $alternate-font-color;
+        color: $dp-color-text-on-dark;
 
         // Show tooltip content on :hover of parent element, set z-index to trump other tooltips.
         // The flyout is activated on :hover and via data-touch-flyout javascript hook.
