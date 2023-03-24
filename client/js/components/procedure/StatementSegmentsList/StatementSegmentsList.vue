@@ -436,9 +436,6 @@ export default {
      */
     claimStatement () {
       this.isLoading = true
-      const dataToUpdate = this.setDataToUpdate(true)
-      this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
-
       const payload = {
         data: {
           id: this.statement.id,
@@ -457,6 +454,8 @@ export default {
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
         .then(response => { checkResponse(response) })
         .then(() => {
+          const dataToUpdate = this.setDataToUpdate(true)
+          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -622,8 +621,6 @@ export default {
 
     unclaimStatement () {
       this.isLoading = true
-      const dataToUpdate = this.setDataToUpdate()
-      this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
       const payload = {
         data: {
           type: 'Statement',
@@ -636,8 +633,11 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then((response) => {
-          checkResponse(response)
+        .then((response) => checkResponse(response))
+        .then(() => {
+          const dataToUpdate = this.setDataToUpdate()
+          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
           this.restoreStatementAction(this.statement.id)
