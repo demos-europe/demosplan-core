@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class AiApiUserProvider implements UserProviderInterface
 {
     public function __construct(
-        protected readonly CurrentContextProviderInterface $contextProvider
+        protected readonly UserService $userService
     ) {}
 
     /**
@@ -33,7 +33,7 @@ class AiApiUserProvider implements UserProviderInterface
             throw new UserNotFoundException('Invalid username');
         }
 
-        return new AiApiUser($this->contextProvider->getCurrentCustomer());
+        return $this->userService->getValidUser($username);
     }
 
     /**
