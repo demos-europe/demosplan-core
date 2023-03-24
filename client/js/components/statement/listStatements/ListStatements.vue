@@ -520,8 +520,6 @@ export default {
             console.error(err)
           })
       }
-
-      // window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
     },
 
     applySearch (term, selectedFields) {
