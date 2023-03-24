@@ -29,6 +29,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $identifierType
  * @property-read End $identifier
  * @property-read End $message
+ * @property-read End $orgaName
  * @property-read End $created
  * @property-read End $createDate
  * @property-read CustomerResourceType $customer
@@ -127,6 +128,9 @@ class ReportEntryResourceType extends DplanResourceType
             }),
             $this->createAttribute($this->created)->readable(true, function (ReportEntry $entry): ?string {
                 return $this->formatDate($entry->getCreated());
+            }),
+            $this->createAttribute($this->orgaName)->readable(true, function (ReportEntry $entry): string {
+                return $this->messageConverter->extractOrgaNameFromReportEntryMessage($entry);
             }),
         ];
     }
