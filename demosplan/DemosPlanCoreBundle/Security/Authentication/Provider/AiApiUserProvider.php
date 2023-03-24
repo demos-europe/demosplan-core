@@ -20,7 +20,8 @@ class AiApiUserProvider implements UserProviderInterface
 {
     public function __construct(
         protected readonly UserService $userService
-    ) {}
+    ) {
+    }
 
     /**
      * {@inheritDoc}
