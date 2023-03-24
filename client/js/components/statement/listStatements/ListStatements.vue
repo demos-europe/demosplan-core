@@ -511,18 +511,7 @@ export default {
         window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
       }
 
-      if (!isStatementClaimed) {
-        // claim silently
-        this.claimStatement(statementId)
-          .then(() => {
-            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
-          })
-          .catch(err => {
-            console.error(err)
-          })
-      }
-
-      if (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
         this.claimStatement(statementId)
           .then(() => {
             window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
