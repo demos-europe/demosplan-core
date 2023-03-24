@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -43,9 +53,9 @@ class Version20230324132250 extends AbstractMigration
               twin_user_id = NULL,
               provided_by_identity_provider = 0;',
             [
-                'login' => AiApiUser::AI_API_USER_LOGIN,
+                'login'    => AiApiUser::AI_API_USER_LOGIN,
                 'password' => $this->generateNewRandomPassword(),
-                'flags' => self::FLAGS,
+                'flags'    => self::FLAGS,
             ]
         );
 
@@ -71,7 +81,7 @@ class Version20230324132250 extends AbstractMigration
                            _u_id = :userId;',
             [
                 'departmentId' => AiApiUser::ANONYMOUS_USER_DEPARTMENT_ID,
-                'userId' => $aiApiUserId,
+                'userId'       => $aiApiUserId,
             ]
         );
         $this->addSql('SET foreign_key_checks = 1;');
@@ -97,8 +107,8 @@ class Version20230324132250 extends AbstractMigration
                         role = :roleId,
                         customer = :customerId;',
             [
-                'userId' => $userId,
-                'roleId' => $roleId,
+                'userId'     => $userId,
+                'roleId'     => $roleId,
                 'customerId' => $customerId,
             ]
         );
