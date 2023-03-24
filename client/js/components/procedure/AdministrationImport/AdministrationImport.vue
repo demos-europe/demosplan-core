@@ -170,9 +170,7 @@ export default {
   },
 
   mounted () {
-    const loadComponents = this.loadComponents('import.tabs')
-
-    Promise.allSettled([loadComponents])
+    Promise.allSettled([this.loadComponents('import.tabs')])
       .then(() => {
         this.allComponentsLoaded = true
       })
