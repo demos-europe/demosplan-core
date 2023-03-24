@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
@@ -17,13 +18,14 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 use LogicException;
 
-class ApiResourceService
+class ApiResourceService implements ApiResourceServiceInterface
 {
     /**
      * This is the limit for entity recursion in fractal, which means
@@ -98,6 +100,19 @@ class ApiResourceService
     }
 
     /**
+     * @param                 $data
+     * @param BaseTransformer $baseTransformer
+     * @param                 $type
+     *
+     * @return Collection
+     */
+    public function makeAddonCollection($data, BaseTransformer $baseTransformer, $type = ''): Collection
+    {
+        $transformerName = get_class($baseTransformer);
+        return $this->makeCollection($data, $transformerName, $type);
+    }
+
+    /**
      * @param iterable|CoreEntity[]|ValueObject[] $data
      * @param string                              $resourceTypeName The value returned by {@link ResourceTypeInterface::getName()}
      */
@@ -105,8 +120,11 @@ class ApiResourceService
     {
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         return new Collection($data, $resourceType->getTransformer(), $resourceType::getName());
     }
@@ -135,8 +153,11 @@ class ApiResourceService
     {
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         return new Item($data, $resourceType->getTransformer(), $resourceType::getName());
     }

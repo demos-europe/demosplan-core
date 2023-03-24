@@ -37,14 +37,18 @@
               name="r_role"
               value="0"
               :id="`${instanceId}r_role_0`"
-              :label="Translator.trans('citizen')"
+              :label="{
+                text: Translator.trans('citizen')
+              }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
               @change="values.submitter.institution = false" />
             <dp-radio
               name="r_role"
               value="1"
               :id="`${instanceId}r_role_1`"
-              :label="Translator.trans('institution')"
+              :label="{
+                text: Translator.trans('institution')
+              }"
               :checked="values.submitter.institution === true"
               @change="values.submitter.institution = true" />
           </div>
@@ -308,6 +312,7 @@
         <dp-upload-files
           class="u-mb"
           id="r_attachment_original"
+          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           name="r_attachment_original"
           allowed-file-types="all"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -324,6 +329,7 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
@@ -348,16 +354,19 @@
 </template>
 
 <script>
-import { DpInput, DpLabel } from 'demosplan-ui/components'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
+import {
+  DpAccordion,
+  DpButtonRow,
+  DpDatepicker,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpRadio,
+  DpSelect,
+  DpTextArea,
+  DpUploadFiles,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -384,7 +393,10 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    },
     DpUploadFiles,
     SimilarStatementSubmitters
   },

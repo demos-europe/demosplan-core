@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Platform;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use Psr\Log\LoggerInterface;
 
@@ -103,8 +103,14 @@ class EntryPointDecider implements EntryPointDeciderInterface
                 break;
 
             case $user->hasRole(Role::ORGANISATION_ADMINISTRATION)
-                && $this->permissions->hasPermission('area_manage_users'):
+            && $this->permissions->hasPermission('area_manage_users'):
                 $entrypointRoute->setRoute('DemosPlan_user_list');
+                $this->logger->info('Entrypoint organisation administration');
+                break;
+
+            case $user->hasRole(Role::ORGANISATION_ADMINISTRATION)
+            && $this->permissions->hasPermission('area_institution_tag_manage'):
+                $entrypointRoute->setRoute('DemosPlan_get_institution_tag_management');
                 $this->logger->info('Entrypoint organisation administration');
                 break;
 
@@ -120,17 +126,17 @@ class EntryPointDecider implements EntryPointDeciderInterface
                 break;
 
             case $user->hasRole(Role::PLATFORM_SUPPORT)
-                && !$this->permissions->hasPermission('area_organisations_view'):
+            && !$this->permissions->hasPermission('area_organisations_view'):
                 $entrypointRoute->setRoute('DemosPlan_statistics');
                 $this->logger->info('Entrypoint support statistics');
                 break;
 
             case $user->hasAnyOfRoles(
-                    [
-                        Role::PLATFORM_SUPPORT,
-                        Role::CUSTOMER_MASTER_USER,
-                    ]
-                ) && $this->permissions->hasPermissions(['area_organisations_view', 'area_organisations_view_of_customer'], 'OR'):
+                [
+                    Role::PLATFORM_SUPPORT,
+                    Role::CUSTOMER_MASTER_USER,
+                ]
+            ) && $this->permissions->hasPermissions(['area_organisations_view', 'area_organisations_view_of_customer'], 'OR'):
                 $entrypointRoute->setRoute('DemosPlan_orga_list');
                 $this->logger->info('Entrypoint support orga list');
                 break;

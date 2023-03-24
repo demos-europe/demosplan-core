@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ApiListResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Utilities\Iterables;
-use Elastica\Type;
+use Elastica\Index;
 
 class JsonApiEsService
 {
@@ -45,12 +45,12 @@ class JsonApiEsService
     private $facetFactory;
 
     /**
-     * @var array<string,Type>
+     * @var array<string,Index>
      */
     private $searchTypes;
 
     /**
-     * @var array<string,Type>
+     * @param array<string,Index> $searchTypes
      */
     public function __construct(
         DqlConditionFactory $conditionFactory,
@@ -74,7 +74,7 @@ class JsonApiEsService
      * executed in the relational database and the scored sorting is lost.
      *
      * This sorting behavior explicitly ignores both {@link AbstractQuery::getSortDefault} and
-     * {@link ReadableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
+     * {@link TransferableTypeInterface::getDefaultSortMethods()}, as it is assumed that when the
      * `search` parameter was provided by the client (which resulted in this method being called)
      * that the scored sorting is wanted as default.
      *
@@ -161,7 +161,7 @@ class JsonApiEsService
 
         // get additional information
         // If the array fields are missing for some reason we assume zero hits.
-        $totalHits = $elasticsearchResult['hits']['total'] ?? 0;
+        $totalHits = $elasticsearchResult['hits']['total']['value'] ?? 0;
         $paginator = null;
         if (null !== $pagination) {
             // get the paginator of the Elasticsearch query
@@ -173,7 +173,7 @@ class JsonApiEsService
         $esIds = array_column($esResultArrays, 'id');
         $condition = $this->conditionFactory->propertyHasAnyOfValues(
             $esIds,
-            ...$resourceType->id
+            $resourceType->id
         );
 
         $entities = [];
@@ -208,9 +208,9 @@ class JsonApiEsService
         return new ApiListResult($entities, [], $facets, $totalHits, $paginator);
     }
 
-    public function getElasticaTypeForTypeName(string $typeName): Type
+    public function getElasticaTypeForTypeName(string $typeName): Index
     {
-        if (!isset($this->searchTypes) || !$this->searchTypes[$typeName] instanceof Type) {
+        if (!isset($this->searchTypes) || !$this->searchTypes[$typeName] instanceof Index) {
             throw new InvalidArgumentException("Invalid type name: {$typeName}");
         }
 

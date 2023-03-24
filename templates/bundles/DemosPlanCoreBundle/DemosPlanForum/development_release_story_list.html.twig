@@ -1,0 +1,167 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': templateVars.release.title|default('Titel des Releases'),
+        'full_width': true
+    }%}
+
+        {% block content %}
+
+            {{ templateVars.release.description|default|wysiwyg }}
+
+            {% if hasPermission('feature_forum_dev_story_edit') %}
+                <div class="position--relative float--right u-z-content-above">
+                    <dp-accordion title="Moderieren">
+                        <p class="border border-radius-medium box-shadow-2 position--absolute width-350 u-right-0_25 bg-color--white space-inset-s">
+                            <a class="btn-icns display--block" href="{{ path('DemosPlan_forum_development_release_list') }}">
+                                Übersicht Releases
+                                <i class="btn-icns-icon fa fa-long-arrow-right"></i>
+                            </a>
+                            <a class="btn-icns display--block"
+                               href="{{ path('DemosPlan_forum_development_release_edit',{'releaseId':templateVars.release.ident }) }}">
+                                <i class="fa fa-pencil btn-icns-icon"></i>
+                                Dieses Release editieren
+                            </a>
+                            <a class="btn btn--primary"
+                               href="{{ path('DemosPlan_forum_development_userstory_new', {'releaseId' : templateVars.release.ident }) }}">
+                                Neue Userstory erstellen
+                            </a>
+                            <a class="btn-icns display--block"
+                               href="{{ path('DemosPlan_forum_development_release_export',{'releaseId':templateVars.release.ident }) }}">
+                                <i class="fa fa-download btn-icns-icon"></i>
+                                Release mit Bepunktung exportieren
+                            </a>
+                        </p>
+                    </dp-accordion>
+                </div>
+            {% endif %}
+            <p>
+                <strong>{{ "phase"|trans }}:</strong> {{ templateVars.release.phaseName|default()|wysiwyg }}
+                {% if templateVars.release.startDate != false %}
+                    <strong class="u-ml">{{ "period"|trans }}:</strong> {{ templateVars.release.startDate|dplanDateAnnotated }}
+                    {% if templateVars.release.endDate != false %}- {{ templateVars.release.endDate|dplanDateAnnotated }}{% endif %}
+                {% endif %}
+            </p>
+
+            {% if templateVars.userStoryList is defined and templateVars.userStoryList != false %}
+                <form action="{{ path('DemosPlan_forum_development_release_voting', {'releaseId': templateVars.release.ident}) }}" method="post" enctype="multipart/form-data">
+                    {% if templateVars.release.phase == 'configuration' %}
+                        <p class="u-mb">
+                            <i class="fa fa-exclamation-circle"></i>
+                            {{ "explanation.order.createdDate"|trans|wysiwyg }}
+                        </p>
+                    {% endif %}
+
+                    {% if templateVars.release.phase == 'voting_online' %}
+                        <p class="u-mb">
+                            <i class="fa fa-exclamation-circle"></i>
+                            {{ "explanation.voting.online"|trans|wysiwyg }}
+                        </p>
+                        <p class="layout__item u-1-of-2 u-pl-0 u-nojs-show--block">
+                            Sie können insgesamt <span class="color--system-confirm">{{ templateVars.limitForVotes|default(3) }} Punkte</span> verteilen.
+                        </p>
+                        <input class="btn btn--primary float--right" type="submit" name="resetVotes" value="Punkte zurücksetzen">
+                        <p class="layout__item u-1-of-2 u-pl-0 u-mb" id="js__statusVotesLeft"></p>
+                    {% endif %}
+
+                    {% if templateVars.release.phase == 'voting_offline' %}
+                        <p class="u-mb">
+                           <i class="fa fa-exclamation-circle"></i>
+                          {{ "explanation.voting.offline"|trans|wysiwyg }}
+                        </p>
+                    {% endif %}
+                    {% if templateVars.release.phase == 'closed' %}
+                        <p class="u-mb">
+                          <i class="fa fa-exclamation-circle"></i>
+                            {{ "explanation.voting.closed"|trans|wysiwyg }}
+                        </p>
+                    {% endif %}
+
+                    {% for userStory in templateVars.userStoryList %}
+                        {% include '@DemosPlanCore/DemosPlanForum/development_release_story_list_card.html.twig' with {
+                            userStory:      userStory,
+                            route:          path('DemosPlan_forum_development_userstory_detail', {'storyId': userStory.ident}),
+                            permissions:    templateVars.phasePermissions,
+                            features:       permissions,
+                            limitForVotes:  templateVars.limitForVotes
+                        } %}
+                    {% endfor %}
+
+                    {% if (templateVars.phasePermissions.vote_online is defined and templateVars.phasePermissions.vote_online == true) or permissions.feature_forum_dev_story_edit.enabled == true and templateVars.phasePermissions.vote_offline is defined and templateVars.phasePermissions.vote_offline == true %}
+                        <br>
+                        <input class="btn btn--primary float--right" type="submit" name="saveVotes" value="Punkte speichern">
+                    {% endif %}
+                </form>
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['rateit/demos.jquery.rateit.min.js'], true) }}
+    {{ webpackBundles(['forum-developmentReleaseStoryList.js']) }}
+
+    <script nonce="{{ csp_nonce('script') }}">
+        $(function() {
+            // aktualisiere die Stautsmeldung auf den korrekten Stand
+            update_votes_left();
+
+            var rateitWidgets = $('.rateit');
+
+            // hide every reset-button, if no vote is set
+            rateitWidgets.each(function () {
+                if (0 == $(this).rateit('value')) {
+                    $(this).children('button').hide();
+                }
+            });
+
+            rateitWidgets.bind('rated', function (event, value) {
+                update_votes_left();
+                //show reset button
+                $(this).children('button').css('display', 'inline');
+            });
+            rateitWidgets.bind('reset', function (event, value) {
+                update_votes_left();
+                //hide reset button
+                $(this).children('button').css('display', 'none');
+            });
+
+            // get number of given votes
+            function update_votes_left() {
+                var votesText = '';
+                var maxVotes = {{ templateVars.limitForVotes|default(3) }};
+                var votesLeft = maxVotes;
+                $('.rateit').each(function () {
+                    votesLeft -= $(this).rateit('value');
+                });
+                if (votesLeft >= 0) {
+                    votesText = "Sie können noch <span class='color--system-confirm'>" + votesLeft + " Punkte</span> vergeben ";
+                } else {
+                    votesText = "Sie haben <span class='color--system-error'>" + (votesLeft * -1) + " Punkte</span> zu viel verteilt ";
+                }
+
+                //display voteicons
+                for (var i = 0; i < maxVotes; i++) {
+                    if (i < votesLeft) {
+                        votesText += '<i class="fa fa-circle color-brand-highlight"></i>\n';
+                    }
+                }
+                $('#js__statusVotesLeft').html(votesText);
+
+                return votesLeft;
+            }
+        });
+    </script>
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ webpackBundle('rateit/rateit.css', true) }}
+{% endblock stylesheets %}

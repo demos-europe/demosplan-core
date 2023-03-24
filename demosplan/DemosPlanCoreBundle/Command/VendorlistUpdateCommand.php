@@ -11,9 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use Exception;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,7 +32,7 @@ class VendorlistUpdateCommand extends CoreCommand
      * @const string[] Elements should be given as `package-name`
      */
     private const JS_PACKAGE_DENYLIST = [
-        'demosplan-ui',
+        '@demos-europe/demosplan-ui',
     ];
 
     /**
@@ -86,13 +87,13 @@ class VendorlistUpdateCommand extends CoreCommand
                     // of demosplan
                     static function ($_, $package) use ($directDependencies): bool {
                         return 1 === count(
-                                array_filter(
-                                    $directDependencies,
-                                    static function ($directDependency) use ($package): bool {
-                                        return $directDependency['name'] === $package;
-                                    }
-                                )
-                            );
+                            array_filter(
+                                $directDependencies,
+                                static function ($directDependency) use ($package): bool {
+                                    return $directDependency['name'] === $package;
+                                }
+                            )
+                        );
                     }
                 );
 
@@ -139,7 +140,7 @@ class VendorlistUpdateCommand extends CoreCommand
             $fs->dumpFile($filename, $phpLicenses->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
             $this->io->success("Updated PHP vendor information to file {$filename}");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->error('An error occured: '.$e->getMessage());
         }
     }
@@ -162,7 +163,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                 return data_get($json, 'package.repository');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->warning('Could not fetch URL for package '.$package);
         }
 
@@ -226,13 +227,12 @@ class VendorlistUpdateCommand extends CoreCommand
 
             $fs = new Filesystem();
             $filename = DemosPlanPath::getRootPath(self::JS_PATH_JSON);
-            $fs->dumpFile($filename, $jsLicenses
-                ->values()
-                ->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            $formattedJsLicenses = $jsLicenses->values()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            $fs->dumpFile($filename, $formattedJsLicenses);
             $this->io->success("Updated the js vendor information to file {$filename}");
 
             $this->dumpJsLicenseFile($fs, $jsLicenses);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->io->error('An error occured during the update: '.$e->getMessage());
         }
     }
@@ -274,5 +274,4 @@ class VendorlistUpdateCommand extends CoreCommand
         $fs->dumpFile($filenameLicenseFile, $licenseString);
         $this->io->success("Updated PHP vendor information to file {$filenameLicenseFile}");
     }
-
 }

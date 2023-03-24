@@ -324,7 +324,7 @@ class StatementFilterHandler extends CoreHandler
                         'feature_institution_participation',
                     ]
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Institution/Name - institution - oName.raw
             [
@@ -335,7 +335,7 @@ class StatementFilterHandler extends CoreHandler
                         'feature_institution_participation',
                     ]
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Abteilung - department - dName.raw
             [
@@ -344,7 +344,7 @@ class StatementFilterHandler extends CoreHandler
                     'area_admin_assessmenttable',
                     'feature_institution_participation',
                 ]),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Verfahrensschritt - phase - phase
             [
@@ -352,7 +352,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             [
@@ -360,7 +360,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermissions(
                     ['area_admin_assessmenttable', 'feature_statement_move_to_procedure']
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Verschobene Stellungnahmen aus diesem Verfahren - movedToProcedureId - movedToProcedureId
             [
@@ -368,7 +368,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermissions(
                     ['area_admin_assessmenttable', 'feature_statement_move_to_procedure']
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Veröffentlichung - publicCheck - publicCheck
             [
@@ -376,7 +376,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_public_allowed'
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
 
             /********************************** STELLUNGNAHME *********************************************/
@@ -387,7 +387,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statement_assignment'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Bearbeitungsstatus - status - status
             [
@@ -395,7 +395,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Votum - votePla - votePla
             [
@@ -403,7 +403,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_vote_pla'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Kreis - countyNames - countyNames.raw
             [
@@ -411,7 +411,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_county'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Gemeinde - municipalityNames - municipalityNames.raw
             [
@@ -419,7 +419,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_municipality'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Schlagwort - tagNames - tagNames.raw
             [
@@ -427,7 +427,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statements_tag'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Potenzialflächen - priorityAreaKeys - priorityAreaKeys
             [
@@ -435,7 +435,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_priority_area'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Dokument - planningDocument - elementId
             [
@@ -443,16 +443,16 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Kapitel - reasonParagraph - paragraphParentId
             [
-                'key' => 'reasonParagraph',
+                'key'           => 'reasonParagraph',
                 // FB or FPA
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Datei - documentParentId - documentParentId
             [
@@ -460,14 +460,14 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Thema - topicNames - topicNames.raw
             [
                 'key'           => 'topicNames',
                 'hasPermission' => $this->permissions->hasPermission('feature_statements_tag')
                     || $this->permissions->hasPermission('feature_statement_fragments_tag'),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // ID - externId - externId
             [
@@ -475,7 +475,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Gruppenname - name - name.raw
             [
@@ -483,7 +483,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statement_cluster'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Art der Stellungnahme - type - type
             [
@@ -491,7 +491,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Priorität - priority - priority
             [
@@ -499,7 +499,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Empfehlung - voteStk - voteStk
             [
@@ -507,7 +507,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_vote_stk'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
 
             /********************************** DATENSATZ *********************************************/
@@ -518,7 +518,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statement_assignment'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Bearbeitungsstatus - fragments_status - fragments.status
             [
@@ -526,7 +526,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_fragment_status'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Votum - fragments_vote - fragments.vote
             [
@@ -534,7 +534,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statements_fragment_vote'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Kreis - fragments_countyNames - fragments.countyNames
             [
@@ -542,7 +542,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_county'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Gemeinde - fragments_municipalityNames - fragments.municipalityNames
             [
@@ -550,7 +550,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_municipality'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Schlagwort - fragments_tagNames - fragments.tags.name
             [
@@ -558,7 +558,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statements_tag'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Potenzialflächen - fragments.priorityAreaKeys - fragments.priorityAreaKeys
             [
@@ -566,7 +566,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'field_statement_priority_area'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Dokument - fragments_element - fragments.elementId
             [
@@ -574,7 +574,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statements_fragment_add'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Kapitel - fragments_paragraphParentId - fragments.paragraphParentId
             [
@@ -582,7 +582,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_statements_fragment_add'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Datei - fragments_documentParentId - fragments.documentParentId
             [
@@ -590,7 +590,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermission(
                     'feature_single_document_fragment'
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             // Fachbehörde - fragments_reviewerName - fragments.departmentId
             [
@@ -598,7 +598,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $this->permissions->hasPermissions(
                     ['feature_statements_fragment_list', 'feature_statements_fragment_add_reviewer']
                 ),
-                'type' => 'fragment',
+                'type'          => 'fragment',
             ],
             /********************************** END *********************************************/
         ];
@@ -627,7 +627,7 @@ class StatementFilterHandler extends CoreHandler
                         'feature_institution_participation',
                     ]
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             [
                 'key'           => 'institution',
@@ -637,7 +637,7 @@ class StatementFilterHandler extends CoreHandler
                         'feature_institution_participation',
                     ]
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             [
                 'key'           => 'department',
@@ -647,14 +647,14 @@ class StatementFilterHandler extends CoreHandler
                         'feature_institution_participation',
                     ]
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             [
                 'key'           => 'phase',
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'submission',
+                'type'          => 'submission',
             ],
             // Dokument - planningDocument - elementId
             [
@@ -662,16 +662,16 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Kapitel - reasonParagraph - paragraphParentId
             [
-                'key' => 'reasonParagraph',
+                'key'           => 'reasonParagraph',
                 // FB or FPA
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Datei - documentParentId - documentParentId
             [
@@ -679,7 +679,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // Art der Stellungnahme - type - type
             [
@@ -687,7 +687,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
             // ID - externId - externId
             [
@@ -695,7 +695,7 @@ class StatementFilterHandler extends CoreHandler
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
-                'type' => 'statement',
+                'type'          => 'statement',
             ],
         ];
 

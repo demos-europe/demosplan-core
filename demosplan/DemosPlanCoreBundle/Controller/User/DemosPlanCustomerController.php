@@ -25,6 +25,7 @@ use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
 use demosplan\DemosPlanUserBundle\ValueObject\CustomerFormInput;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,7 +40,6 @@ class DemosPlanCustomerController extends BaseController
      *        name="dplan_user_customer_showSettingsPage",
      *        options={"expose": true}
      * )
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -56,9 +56,11 @@ class DemosPlanCustomerController extends BaseController
             // approach completely.
             $customerResourceType = $resourceTypeProvider->requestType(CustomerResourceType::getName())
                 ->instanceOf(ResourceTypeInterface::class)
-                ->available(true)
-                ->getTypeInstance();
+                ->getInstanceOrThrow();
             $currentCustomer = $customerHandler->getCurrentCustomer();
+            if (!$customerResourceType->isAvailable()) {
+                throw AccessException::typeNotAvailable($customerResourceType);
+            }
             $customerResource = $wrapperFactory->createWrapper($currentCustomer, $customerResourceType);
 
             $templateVars = [
@@ -88,7 +90,6 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"POST"},
      *        name="DemosPlan_user_setting_page_post",
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_customer_settings")
      *
      * @throws MessageBagException
@@ -132,7 +133,6 @@ class DemosPlanCustomerController extends BaseController
      *        methods={"GET", "POST"},
      *        name="dplan_customer_mail_send_all_users"
      * )
-     *
      * @DplanPermissions("area_customer_send_mail_to_users")
      *
      * @throws MessageBagException
@@ -159,7 +159,7 @@ class DemosPlanCustomerController extends BaseController
                 );
             }
 
-            //POST request:
+            // POST request:
             $vars['mailsubject'] = $request->request->get('r_email_subject');
             $vars['mailbody'] = $HTMLSanitizer->purify($request->request->get('r_email_body'));
             $mailService->sendMails(

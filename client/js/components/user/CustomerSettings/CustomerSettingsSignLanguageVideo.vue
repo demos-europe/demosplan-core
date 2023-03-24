@@ -48,6 +48,7 @@
 
       <dp-upload-files
         :allowed-file-types="['video/*']"
+        :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
@@ -79,12 +80,15 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-import { getFileIdsByHash } from '@DpJs/components/core/DpUpload/utils/GetFileIdsByHash'
+import {
+  dpApi,
+  DpButton,
+  DpInput,
+  DpTextArea,
+  DpUploadFiles,
+  dpValidateMixin,
+  getFileIdsByHash
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -94,7 +98,10 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: () => import('@DpJs/components/core/DpVideoPlayer')
+    DpVideoPlayer: async () => {
+      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+      return DpVideoPlayer
+    }
   },
 
   mixins: [dpValidateMixin],
@@ -154,7 +161,7 @@ export default {
     },
 
     async saveVideo () {
-      const fileIds = await getFileIdsByHash([this.video.file])
+      const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {
         type: 'SignLanguageOverviewVideo',

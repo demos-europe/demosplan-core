@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\Export\FieldDecider;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Export\FieldDecider;
 use Tests\Base\UnitTestCase;
 
 class FieldDeciderTest extends UnitTestCase
@@ -115,7 +115,7 @@ class FieldDeciderTest extends UnitTestCase
         $statement->setNumberOfAnonymVotes(0);
         $this->assertFalse($this->sut->isExportable(FieldDecider::FIELD_VOTES_NUM, $exportConfig, $statement));
 
-        // User State (BTHG)
+        // User State
         $statement->getMeta()->setMiscDataValue('userState', 'aaa');
         // --- Test use of $exportConfig
         $this->assertTrue($this->sut->isExportable(FieldDecider::FIELD_USER_STATE, $exportConfig, $statement));
@@ -127,7 +127,7 @@ class FieldDeciderTest extends UnitTestCase
         $statement->getMeta()->setMiscDataValue('userState', null);
         $this->assertFalse($this->sut->isExportable(FieldDecider::FIELD_USER_STATE, $exportConfig, $statement));
 
-        // User Group (BTHG)
+        // User Group
         $statement->getMeta()->setMiscDataValue('userGroup', 'aaa');
         // --- Test use of $exportConfig
         $this->assertTrue($this->sut->isExportable(FieldDecider::FIELD_USER_GROUP, $exportConfig, $statement));
@@ -139,7 +139,7 @@ class FieldDeciderTest extends UnitTestCase
         $statement->getMeta()->setMiscDataValue('userGroup', null);
         $this->assertFalse($this->sut->isExportable(FieldDecider::FIELD_USER_GROUP, $exportConfig, $statement));
 
-        // User Organisation (BTHG)
+        // User Organisation
         $statement->getMeta()->setMiscDataValue('userOrganisation', 'aaa');
         // --- Test use of $exportConfig
         $this->assertTrue($this->sut->isExportable(FieldDecider::FIELD_USER_ORGANISATION, $exportConfig, $statement));
@@ -151,7 +151,7 @@ class FieldDeciderTest extends UnitTestCase
         $statement->getMeta()->setMiscDataValue('userOrganisation', null);
         $this->assertFalse($this->sut->isExportable(FieldDecider::FIELD_USER_ORGANISATION, $exportConfig, $statement));
 
-        // User Position (BTHG)
+        // User Position
         $statement->getMeta()->setMiscDataValue('userPosition', 'aaa');
         // --- Test use of $exportConfig
         $this->assertTrue($this->sut->isExportable(FieldDecider::FIELD_USER_POSITION, $exportConfig, $statement));

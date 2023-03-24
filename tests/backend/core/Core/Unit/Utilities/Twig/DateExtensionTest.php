@@ -10,8 +10,10 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use Tests\Base\UnitTestCase;
+use Twig_SimpleFilter;
 
 /**
  * Teste DateExtension
@@ -37,7 +39,7 @@ class DateExtensionTest extends UnitTestCase
     {
         $result = $this->twigExtension->getFilters();
         static::assertTrue(is_array($result) && isset($result[0]));
-        static::assertTrue($result[0] instanceof \Twig_SimpleFilter);
+        static::assertTrue($result[0] instanceof Twig_SimpleFilter);
         $callable = $result[0]->getCallable();
         static::assertTrue('dateFilter' === $callable[1]);
         static::assertTrue('dplanDate' === $result[0]->getName());
@@ -68,7 +70,7 @@ class DateExtensionTest extends UnitTestCase
         $result = $this->twigExtension->dateFilter($textToTest, 'd.m.Y H:i:s');
         static::assertEquals($result, '08.05.2014 10:00:07');
 
-        $textToTest = new \DateTime();
+        $textToTest = new DateTime();
         $textToTest->setTimestamp(1399536007);
         $result = $this->twigExtension->dateFilter($textToTest, 'd.m.Y H:i:s');
         static::assertEquals($result, '08.05.2014 10:00:07');
@@ -77,7 +79,7 @@ class DateExtensionTest extends UnitTestCase
         $result = $this->twigExtension->dateFilter($textToTest, 'd.m.Y H:i:s');
         static::assertEquals($result, '12.11.2015 18:13:34');
 
-        $textToTest = new \DateTime();
+        $textToTest = new DateTime();
         $textToTest->setTimestamp(-10000510);
         $result = $this->twigExtension->dateFilter($textToTest, 'd.m.Y H:i:s');
         static::assertEquals($result, '');

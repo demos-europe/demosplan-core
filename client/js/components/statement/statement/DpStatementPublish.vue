@@ -78,7 +78,10 @@ export default {
   name: 'DpStatementPublish',
 
   components: {
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }
   },
 
   props: {

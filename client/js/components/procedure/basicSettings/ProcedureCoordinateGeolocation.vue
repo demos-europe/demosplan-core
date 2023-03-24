@@ -62,8 +62,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpInput, DpLoading } from 'demosplan-ui/components'
+import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 
 const LookupStatus = {
   NONE: 0,
@@ -133,7 +132,8 @@ export default {
       dpRpc('procedure.locate', {
         latitude: this.latitude,
         longitude: this.longitude
-      }).then(checkResponse)
+      })
+        .then(checkResponse)
         .then(response => {
           this.lookupStatus = LookupStatus.DONE
 

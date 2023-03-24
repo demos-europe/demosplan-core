@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanSurveyBundle\Validator;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Validate\JsonSchemaValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 use Exception;
@@ -73,7 +73,7 @@ class SurveyValidator
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         if (Survey::STATUS_PARTICIPATION === $surveyDataArray['status'] &&
             'participation' !== $procedure->getPublicParticipationPhase()) {
-            throw new SurveyInputDataException('error.status.evaluation', 'Survey was send with "participation" status whereas Procedure\'s '.'status is '.$procedure->getPhase(), SurveyInputDataException::SURVEY_EVALUATION_IN_WRONG_PROCEDURE_STATUS);
+            throw new SurveyInputDataException('error.status.evaluation', 'Survey was send with "participation" status whereas Procedure\'s status is '.$procedure->getPhase(), SurveyInputDataException::SURVEY_EVALUATION_IN_WRONG_PROCEDURE_STATUS);
         }
         $this->validateSurveyDates($procedure, $surveyDataArray);
     }
@@ -116,7 +116,7 @@ class SurveyValidator
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $survey = $procedure->getSurvey($surveyId);
         if (null === $survey) {
-            throw new InvalidArgumentException('Procedure with id "'.$procedureId.'" does not have a survey '.'with id "'.$surveyId.'"', SurveyInputDataException::SURVEY_NOT_IN_PROCEDURE);
+            throw new InvalidArgumentException('Procedure with id "'.$procedureId.'" does not have a survey with id "'.$surveyId.'"', SurveyInputDataException::SURVEY_NOT_IN_PROCEDURE);
         }
     }
 }

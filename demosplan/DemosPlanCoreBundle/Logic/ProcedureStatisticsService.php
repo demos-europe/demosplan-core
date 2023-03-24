@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProcedureStatisticsService
@@ -68,13 +68,13 @@ class ProcedureStatisticsService
         $statistic = (new OptionsResolver())
             ->setDefined(['statistic'])
             ->setAllowedValues(
-            'statistic',
-            [
-                'statementsWithSegments',
-                'statementsWithoutSegments',
-                'statementsWithSegmentsAndRecommendations',
-            ]
-        )->resolve(['statistic' => $statistic])['statistic'];
+                'statistic',
+                [
+                    'statementsWithSegments',
+                    'statementsWithoutSegments',
+                    'statementsWithSegmentsAndRecommendations',
+                ]
+            )->resolve(['statistic' => $statistic])['statistic'];
 
         $segmentQuery = $this->segmentRepository->createQueryBuilder('seg')
             ->select('IDENTITY(seg.parentStatementOfSegment)')

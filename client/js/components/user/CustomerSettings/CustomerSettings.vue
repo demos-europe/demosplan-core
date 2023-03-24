@@ -47,10 +47,10 @@
         <dp-editor
           id="r_imprint"
           v-model="customer.imprint"
-          :headings="[2,3,4]"
           hidden-input="r_imprint"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -65,10 +65,10 @@
         <dp-editor
           id="r_dataProtection"
           v-model="customer.dataProtection"
-          :headings="[2,3,4]"
           hidden-input="r_dataProtection"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -83,10 +83,10 @@
         <dp-editor
           id="r_termsOfUse"
           v-model="customer.termsOfUse"
-          :headings="[2,3,4]"
           hidden-input="r_termsOfUse"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -101,10 +101,10 @@
         <dp-editor
           id="r_xplanning"
           v-model="customer.xplanning"
-          :headings="[2,3,4]"
           hidden-input="r_xplanning"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -146,10 +146,10 @@
         <dp-editor
           id="r_accessibilityExplanation"
           v-model="customer.accessibilityExplanation"
-          :headings="[2,3,4]"
           hidden-input="r_accessibilityExplanation"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             linkButton: true
           }" />
       </customer-settings-section>
@@ -163,12 +163,15 @@
         <dp-editor
           id="r_simpleLanguage"
           v-model="customer.overviewDescriptionInSimpleLanguage"
-          :headings="[2,3,4]"
           hidden-input="r_simpleLanguage"
           :toolbar-items="{
             fullscreenButton: true,
+            headings: [2,3,4],
             imageButton: true,
             linkButton: true
+          }"
+          :routes="{
+            getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
           }" />
       </customer-settings-section>
 
@@ -190,12 +193,10 @@
 </template>
 
 <script>
-import { DpLabel, DpLoading } from 'demosplan-ui/components'
+import { dpApi, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsBranding from './CustomerSettingsBranding'
 import CustomerSettingsSection from './CustomerSettingsSection'
 import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 
 export default {
   name: 'CustomerSettings',
@@ -207,7 +208,10 @@ export default {
     CustomerSettingsSignLanguageVideo,
     DpLabel,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }
   },
 
   mixins: [dpValidateMixin],
@@ -267,6 +271,8 @@ export default {
       },
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
+      requestFields: {},
+      requestIncludes: [],
       signLanguageOverviewVideo: {
         description: '',
         file: '',
@@ -285,6 +291,13 @@ export default {
   },
 
   methods: {
+    addAttributesToField (field, attributes) {
+      this.requestFields[field] = [
+        ...(this.requestFields[field] ? this.requestFields[field] : []),
+        ...attributes
+      ]
+    },
+
     fetchCustomerData () {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
@@ -317,10 +330,10 @@ export default {
 
       // Find signLanguageOverviewVideo relationship, set video data
       if (hasPermission('field_sign_language_overview_video_edit')) {
-        if (customer.relationships.signLanguageOverviewVideo.data) {
+        if (customer.relationships?.signLanguageOverviewVideo?.data) {
           const signLanguageOverviewVideoId = customer.relationships.signLanguageOverviewVideo.data.id
           const signLanguageOverviewVideo = response.data.included.find(item => item.id === signLanguageOverviewVideoId) || null
-          const file = response.data.included.find(item => item.id === signLanguageOverviewVideo.relationships.file.data.id) || null
+          const file = response.data.included.find(item => item.id === signLanguageOverviewVideo.relationships?.file.data.id) || null
 
           if (signLanguageOverviewVideoId && file) {
             this.signLanguageOverviewVideo = { ...signLanguageOverviewVideo.attributes }
@@ -341,7 +354,59 @@ export default {
     },
 
     getRequestPayload () {
-      const payload = {
+      this.requestIncludes = []
+      this.requestFields = {}
+
+      if (hasPermission('feature_platform_logo_edit')) {
+        this.requestIncludes.push('branding', 'branding.logo')
+        this.addAttributesToField('Branding', ['logo'])
+        this.addAttributesToField('Customer', ['branding'])
+        this.addAttributesToField('File', ['hash'])
+      }
+
+      if (hasPermission('feature_customer_branding_edit')) {
+        this.requestIncludes.push('branding')
+        this.addAttributesToField('Branding', ['cssvars'])
+        this.addAttributesToField('Customer', ['branding'])
+      }
+
+      if (hasPermission('field_sign_language_overview_video_edit')) {
+        this.requestIncludes.push('signLanguageOverviewVideo', 'signLanguageOverviewVideo.file')
+        this.addAttributesToField('File', ['mimetype'])
+        this.addAttributesToField('Customer', ['signLanguageOverviewDescription', 'signLanguageOverviewVideo'])
+        this.addAttributesToField('SignLanguageOverviewVideo', ['description', 'file', 'title'])
+      }
+
+      if (hasPermission('field_simple_language_overview_description_edit')) {
+        this.addAttributesToField('Customer', ['overviewDescriptionInSimpleLanguage'])
+      }
+
+      if (hasPermission('field_customer_accessibility_explanation_edit')) {
+        this.addAttributesToField('Customer', ['accessibilityExplanation'])
+      }
+
+      if (hasPermission('feature_customer_xplanning_edit')) {
+        this.addAttributesToField('Customer', ['xplanning'])
+      }
+
+      if (hasPermission('feature_customer_terms_of_use_edit')) {
+        this.addAttributesToField('Customer', ['termsOfUse'])
+      }
+
+      if (hasPermission('feature_data_protection_text_customized_view')) {
+        this.addAttributesToField('Customer', ['dataProtection'])
+      }
+
+      if (hasPermission('feature_imprint_text_customized_view')) {
+        this.addAttributesToField('Customer', ['imprint'])
+      }
+
+      // Transform arrays to csv strings ready to be passed into query
+      for (const prop in this.requestFields) {
+        this.requestFields[prop] = this.requestFields[prop].join(',')
+      }
+
+      return {
         filter: {
           isCurrentCustomer: {
             condition: {
@@ -350,67 +415,9 @@ export default {
             }
           }
         },
-        include: [],
-        fields: {
-          Branding: [],
-          File: [],
-          Customer: [],
-          SignLanguageOverviewVideo: []
-        }
+        fields: this.requestFields,
+        include: this.requestIncludes.join(',')
       }
-
-      if (hasPermission('feature_platform_logo_edit')) {
-        payload.include.push('branding', 'branding.logo')
-        payload.fields.Branding.push('logo')
-        payload.fields.File.push('hash')
-        payload.fields.Customer.push('branding')
-      }
-
-      if (hasPermission('feature_customer_branding_edit')) {
-        payload.include.push('branding')
-        payload.fields.Branding.push('cssvars')
-        payload.fields.Customer.push('branding')
-      }
-
-      if (hasPermission('field_sign_language_overview_video_edit')) {
-        payload.include.push('signLanguageOverviewVideo', 'signLanguageOverviewVideo.file')
-        payload.fields.Branding.push('logo')
-        payload.fields.File.push('mimetype')
-        payload.fields.Customer.push('signLanguageOverviewDescription', 'signLanguageOverviewVideo')
-        payload.fields.SignLanguageOverviewVideo.push('description', 'file', 'title')
-      }
-
-      if (hasPermission('field_simple_language_overview_description_edit')) {
-        payload.fields.Customer.push('overviewDescriptionInSimpleLanguage')
-      }
-
-      if (hasPermission('field_customer_accessibility_explanation_edit')) {
-        payload.fields.Customer.push('accessibilityExplanation')
-      }
-
-      if (hasPermission('feature_customer_xplanning_edit')) {
-        payload.fields.Customer.push('xplanning')
-      }
-
-      if (hasPermission('feature_customer_terms_of_use_edit')) {
-        payload.fields.Customer.push('termsOfUse')
-      }
-
-      if (hasPermission('feature_data_protection_text_customized_view')) {
-        payload.fields.Customer.push('dataProtection')
-      }
-
-      if (hasPermission('feature_imprint_text_customized_view')) {
-        payload.fields.Customer.push('imprint')
-      }
-
-      // Transform arrays to csv strings ready to be passed into query
-      payload.include = payload.include.join()
-      for (const prop in payload.fields) {
-        payload.fields[prop] = payload.fields[prop].join()
-      }
-
-      return payload
     },
 
     submit () {

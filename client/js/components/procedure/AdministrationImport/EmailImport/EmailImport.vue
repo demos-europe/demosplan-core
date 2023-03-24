@@ -103,11 +103,7 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
-import { DpLoading } from 'demosplan-ui/components'
+import { CleanHtml, dpApi, DpDataTable, DpInlineNotification, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 import EmailImportDate from './EmailImportDate'
 import EmailImportHint from './EmailImportHint'

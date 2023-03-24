@@ -11,9 +11,8 @@
  * This is the entry point for development_release_new.html.twig
  */
 
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { DpDateRangePicker, DpEditor } from '@demos-europe/demosplan-ui'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpDateRangePicker, DpEditor }
 

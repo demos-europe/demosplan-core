@@ -7,13 +7,27 @@
  * All rights reserved
  */
 
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+/**
+ * This is the entrypoint for customer_settings_update_mail.html.twig
+ */
+import { DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+  DpBoilerPlateModal,
+  DpLabel,
+  DpEditor: async () => {
+    const { DpEditor } = await import('@demos-europe/demosplan-ui')
+    return DpEditor
+  }
 }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })

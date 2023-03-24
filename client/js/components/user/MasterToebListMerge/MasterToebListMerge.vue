@@ -86,8 +86,7 @@
 </template>
 
 <script>
-import { DpLabel } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpLabel, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'MasterToebListMerge',

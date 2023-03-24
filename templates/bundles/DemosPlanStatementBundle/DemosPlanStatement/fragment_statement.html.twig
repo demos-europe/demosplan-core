@@ -59,13 +59,13 @@
                     {# statement text #}
                     <p class="weight--bold">
                         {{ "statement"|trans }}
-                        <copy-paste-button
+                        <dp-copy-paste-button
                             button-label="statement.copy"
                             class="float--right"
                             copy-content="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
                             title="{{ 'statement.copy.to.fragment'|trans }}"
                             @set-text="setFragmentText">
-                        </copy-paste-button>
+                        </dp-copy-paste-button>
                     </p>
                     <div
                         class="c-styled-html u-mb u-p-0_5 bg-color-ui-neutral-light"
@@ -282,5 +282,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'statement-fragmentStatement.js']) }}
+    {{ webpackBundles(['statement-fragmentStatement.js']) }}
 {% endblock javascripts %}

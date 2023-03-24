@@ -10,8 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use function array_key_exists;
-use function array_merge;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -25,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
@@ -35,15 +33,17 @@ use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
-use demosplan\DemosPlanUserBundle\Repository\OrgaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
-use function strcmp;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_merge;
+use function strcmp;
 use function usort;
 
 /**
@@ -98,7 +98,7 @@ class DemosPlanAssessmentController extends BaseController
             $user = $userService->getSingleUser($user->getIdent());
         }
 
-        //without report!:
+        // without report!:
         $statementHandler->setAssigneeOfStatement($statementToUpdate, $user);
 
         $assignee = $statementToUpdate->getAssignee();
@@ -250,56 +250,30 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId): Response
-    {
-        $statement = $statementHandler->getStatement($statementId);
-        $procedure = $procedureService->getProcedure($procedureId);
+        string $statementId
+    ): Response {
+        $statement = $statementHandler->getStatementWithCertainty($statementId);
+        $procedure = $procedureService->getProcedureWithCertainty($procedureId);
+
         $templateVars = [];
         $templateVars['table']['statement'] = $statement;
-
-        $templateVars['table']['procedure'] = null;
-        if (null !== $statement) {
-            $templateVars['table']['procedure'] = $procedure;
-        }
-
-        $templateVars['sendFinalEmail'] = true;
-
-        // wenn es Mitzeichner gibt, dann wird die Option "Schlussmitteilung versenden" plus Extra-Erklärung im template wieder einblendet
-        $templateVars['finalEmailOnlyToVoters'] = false;
-        if (array_key_exists('feedback', $templateVars['table']['statement'])) {
-            switch ($templateVars['table']['statement']['feedback']) {
-                case 'snailmail':
-                    if (empty($templateVars['table']['statement']['votes'])) {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = false;
-                    } else {
-                        $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
-                        $templateVars['sendFinalEmail'] = true;
-                        $templateVars['finalEmailOnlyToVoters'] = true;
-                    }
-                    break;
-                case 'email':
-                    $templateVars['table']['statement']['feedback'] = $translator->trans('via.mail');
-                    $templateVars['sendFinalEmail'] = true;
-                    break;
-            }
-        }
+        $templateVars['table']['procedure'] = $procedure;
 
         $title = 'statement.view';
         $breadcrumb->addItem(
-                [
-                    'title' => $translator->trans('procedure.admin.list', [], 'page-title'),
-                    'url'   => $this->generateUrl('DemosPlan_procedure_list_data_input_orga_procedures'),
-                ]
-            )->addItem(
-                [
-                    'title' => $procedure->getName(),
-                    'url'   => $this->generateUrl(
-                        'DemosPlan_statement_orga_list',
-                        ['procedureId' => $procedureId]
-                    ),
-                ]
-            );
+            [
+                'title' => $translator->trans('procedure.admin.list', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_procedure_list_data_input_orga_procedures'),
+            ]
+        )->addItem(
+            [
+                'title' => $procedure->getName(),
+                'url'   => $this->generateUrl(
+                    'DemosPlan_statement_orga_list',
+                    ['procedureId' => $procedureId]
+                ),
+            ]
+        );
 
         return $this->renderTemplate(
             '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
@@ -447,7 +421,7 @@ class DemosPlanAssessmentController extends BaseController
             $data['fragmentStatus'] = $this->getFormParameter('fragment_status');
         }
 
-        //Verfahrensschritte
+        // Verfahrensschritte
         $data['internalPhases'] = $this->globalConfig->getInternalPhases();
         $data['externalPhases'] = $this->globalConfig->getExternalPhases();
 

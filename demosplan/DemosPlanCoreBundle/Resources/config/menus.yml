@@ -293,6 +293,9 @@ submenu_procedures:
     import:
         label: 'import'
         path: 'DemosPlan_procedure_import'
+        child_paths: [
+            'DemosPlan_statement_import',
+        ]
         path_params: ['procedureId']
         permission: 'area_admin_import'
         link_attributes:
@@ -346,7 +349,7 @@ submenu_procedures:
     considerationtable:
         label: 'considerationtable'
         path: 'dplan_assessmenttable_view_table'
-        child_paths: ['dplan_assessmenttable_view_original_table']
+        child_paths: ['dplan_assessmenttable_view_original_table', 'dm_plan_assessment_single_view']
         path_params: ['procedureId', 'filterHash']
         permission: 'area_admin_assessmenttable'
         link_attributes:
@@ -363,6 +366,9 @@ submenu_procedures:
     segments:
         label: 'segments'
         path: 'dplan_segments_list'
+        child_paths: [
+            'dplan_segments_list_by_query_hash',
+        ]
         path_params: ['procedureId']
         permission: 'area_statement_segmentation'
         link_attributes:

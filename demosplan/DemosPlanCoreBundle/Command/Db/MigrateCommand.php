@@ -49,17 +49,30 @@ class MigrateCommand extends CoreCommand
             $db = '--conn='.$db;
         }
 
+        $commands = [
+            "dplan:migrations:cache --env={$env}",
+            "doctrine:migrations:sync-metadata-storage {$db} --env={$env}",
+        ];
+
+        $migrationsConfigurationPath = DemosPlanPath::getProjectPath('app/config/project_migrations.yml');
+        $migrationsSyncCommand = 'doctrine:migrations:sync-metadata-storage --configuration ';
+        $migrationsCommand = 'doctrine:migrations:migrate --configuration ';
+        $lastRollupMigration = 'app/Resources/DemosPlanCoreBundle/DoctrineMigrations/2022/09/Version20220914133419.php';
+
+        // ensure that rollup migrations are applied before core migrations are performed
+        if (file_exists(DemosPlanPath::getProjectPath($lastRollupMigration))) {
+            $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+            $commands[] = $migrationsCommand.$migrationsConfigurationPath.
+                    ' Application\Migrations\Version20220914133419'." {$db} --env={$env}";
+        }
+
+        $commands[] = "doctrine:migrations:migrate {$db} --env={$env}";
+        $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+        $commands[] = $migrationsCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+
         $batch = Batch::create($this->getApplication(), $output);
 
-        \collect(
-            [
-                "dplan:migrations:cache --env={$env}",
-                "doctrine:migrations:sync-metadata-storage {$db} --env={$env}",
-                "doctrine:migrations:migrate {$db} --env={$env}",
-                'doctrine:migrations:sync-metadata-storage --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml')." {$db} --env={$env}",
-                'doctrine:migrations:migrate --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml')." {$db} --env={$env}",
-            ]
-        )->map(
+        \collect($commands)->map(
             function (string $commandString) {
                 $command = collect(sprintf(
                     'bin/%s',

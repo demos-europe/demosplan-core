@@ -85,11 +85,7 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { CleanHtml, dpApi, DpButton, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSearchProcedures',

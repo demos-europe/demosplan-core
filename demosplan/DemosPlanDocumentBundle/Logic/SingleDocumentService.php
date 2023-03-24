@@ -10,21 +10,22 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
-use function explode;
 use ReflectionException;
 
-class SingleDocumentService extends CoreService
+class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {
     /**
      * @var FileService
@@ -90,9 +91,9 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentList($procedureId, $search = null, $legacy = true)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(true, 'visible'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(true, ['visible']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -105,7 +106,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -154,9 +155,9 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentAdminList($procedureId, $category, $search = null): array
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue($category, 'category'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue($category, ['category']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -165,7 +166,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -197,8 +198,8 @@ class SingleDocumentService extends CoreService
          *
         */
         $conditions = [
-            $this->conditionFactory->propertyHasValue($procedureId, 'procedure'),
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
+            $this->conditionFactory->propertyHasValue($procedureId, ['procedure']),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
         ];
 
         $result = $this->entityFetcher->listEntitiesUnrestricted(SingleDocument::class, $conditions);
@@ -207,7 +208,7 @@ class SingleDocumentService extends CoreService
         foreach ($result as $sd) {
             $res = $this->entityHelper->toArray($sd);
             $res = $this->convertDateTime($res);
-            //Legacy structure
+            // Legacy structure
             $res['statement_enabled'] = $res['statementEnabled'];
             $resArray[] = $res;
         }
@@ -226,10 +227,11 @@ class SingleDocumentService extends CoreService
      *
      * @param string $ident
      *
-     * @return SingleDocument|array|null
+     * @return SingleDocumentInterface|array|null
      *
      * @throws ReflectionException
-     * @psalm-return SingleDocument|array{statement_enabled: mixed}|null
+     *
+     * @psalm-return SingleDocumentInterface|array{statement_enabled: mixed}|null
      */
     public function getSingleDocument($ident, bool $legacy = true)
     {
@@ -239,7 +241,7 @@ class SingleDocumentService extends CoreService
         if (null !== $result && $legacy) {
             $result = $this->entityHelper->toArray($result);
             $result = $this->convertDateTime($result);
-            //Legacy structure
+            // Legacy structure
             $result['statement_enabled'] = $result['statementEnabled'];
         }
 
@@ -257,7 +259,7 @@ class SingleDocumentService extends CoreService
      */
     public function getVersions($singleDocumentId)
     {
-        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, 'singleDocument');
+        $condition = $this->conditionFactory->propertyHasValue($singleDocumentId, ['singleDocument']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(SingleDocumentVersion::class, [$condition]);
     }
@@ -277,7 +279,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        //Legacy structure
+        // Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
@@ -332,7 +334,7 @@ class SingleDocumentService extends CoreService
 
         $result = $this->entityHelper->toArray($result);
         $result = $this->convertDateTime($result);
-        //Legacy structure
+        // Legacy structure
         $result['statement_enabled'] = $result['statementEnabled'];
 
         return $result;
@@ -396,7 +398,7 @@ class SingleDocumentService extends CoreService
      */
     public function convertSingleDocumentTitle($title)
     {
-        $documentParts = explode(':', $title);
+        $documentParts = \explode(':', $title);
         // set somehow misleading title 'title.pdf' to avoid missing docType in Windows
         return $documentParts[0] ?? 'title.pdf';
     }
@@ -409,7 +411,7 @@ class SingleDocumentService extends CoreService
     public function getSingleDocumentInfo(SingleDocument $singleDocument): array
     {
         $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = explode(':', $singleDocument->getDocument());
+        $documentStringParts = \explode(':', $singleDocument->getDocument());
         if (count($documentStringParts) >= 4) {
             $fileInfo['name'] = $documentStringParts[0];
             $fileInfo['hash'] = $documentStringParts[1];
@@ -474,9 +476,11 @@ class SingleDocumentService extends CoreService
     /**
      * Create Version of SingleDocument.
      *
+     * @return SingleDocumentVersion
+     *
      * @throws Exception
      */
-    public function createSingleDocumentVersion(SingleDocument $singleDocument): SingleDocumentVersion
+    public function createSingleDocumentVersion(SingleDocumentInterface $singleDocument)
     {
         return $this->singleDocumentVersionRepository->createVersion($singleDocument);
     }

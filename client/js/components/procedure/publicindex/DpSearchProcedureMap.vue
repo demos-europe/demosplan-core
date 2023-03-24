@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex u-mb')">
+    <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item display--flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
         data-cy="procedureSearch"
@@ -18,9 +18,13 @@
         :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
-        route="DemosPlan_procedure_public_suggest_procedure_location_json"
+        :route-generator="(searchString) => {
+          return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
+            maxResults: 12,
+            query: searchString
+          })
+        }"
         :height="'34px'"
-        :additional-route-params="{ maxResults: 12 }"
         :options="autocompleteOptions"
         :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"
@@ -50,12 +54,17 @@
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
+    </div>
 
+    <div :class="prefixClass('layout__item u-mb-0_75')">
       <button
         type="reset"
         :disabled="form.search === '' && isDefaultFilter"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--secondary weight--bold')"
+        :class="prefixClass('c-proceduresearch__reset-btn')"
         @click.prevent="resetAndSubmit">
+        <i
+          :class="prefixClass('fa fa-close u-mr-0_25')"
+          aria-hidden="true" />
         {{ Translator.trans('reset.to.default') }}
       </button>
     </div>
@@ -75,10 +84,10 @@
       <template v-if="sortOptions.length > 1">
         <label
           for="sort"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')">
           {{ Translator.trans('sortation') }}
         </label><!--
-     --><div :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')">
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             id="sort"
             name="sort"
@@ -99,12 +108,12 @@
       <!-- Filter: Municipal code -->
       <label
         for="municipalCode"
-        :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')"
+        :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
         v-if="hasPermission('feature_procedures_show_municipal_filter')">
-        Kreis:
+        Kreis
       </label><!--
    --><div
-        :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')"
+        :class="prefixClass('layout__item u-1-of-1 u-mb')"
         v-if="hasPermission('feature_procedures_show_municipal_filter')">
         <select
           id="municipalCode"
@@ -139,7 +148,7 @@
         <label
           :key="'label_' + idx"
           :for="filter.name"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-3-of-8-lap-up u-mb-lap-up u-mb-0_25-palm')">
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
           <i
             v-if="filter.contextHelp !== ''"
@@ -150,7 +159,7 @@
         </label><!--
      --><div
           :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-5-of-8-lap-up u-mb')">
+          :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :ref="'filter_' + idx"
             :id="filter.name"
@@ -209,11 +218,7 @@
   </div>
 </template>
 <script>
-import { DpInput, DpLoading } from 'demosplan-ui/components'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
-import { hasOwnProp } from 'demosplan-utils'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { dpApi, DpAutocomplete, DpInput, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 import qs from 'qs'
 

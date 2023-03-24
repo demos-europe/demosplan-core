@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileInUseChecker;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -25,10 +27,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="_files")
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
-class File extends CoreEntity implements UuidEntityInterface
+class File extends CoreEntity implements UuidEntityInterface, FileInterface
 {
     /**
      * @var int
+     *
      * @ORM\Column(name="_f_id", type="integer", nullable=true)
      */
     protected $id;
@@ -114,6 +117,7 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
@@ -121,6 +125,7 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
      * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */
@@ -349,11 +354,9 @@ class File extends CoreEntity implements UuidEntityInterface
     /**
      * Set filename.
      *
-     * @param string $filename
-     *
      * @return File
      */
-    public function setFilename($filename)
+    public function setFilename(?string $filename)
     {
         $this->filename = $this->sanitizeFilename($filename);
 
@@ -362,10 +365,8 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * Get filename.
-     *
-     * @return string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         // do not allow invalid chars in Filenames
         $this->filename = $this->sanitizeFilename($this->filename);
@@ -385,12 +386,10 @@ class File extends CoreEntity implements UuidEntityInterface
 
     /**
      * Strip invalid chars from filename.
-     *
-     * @param string $filename
      */
-    protected function sanitizeFilename($filename): string
+    protected function sanitizeFilename(?string $filename): string
     {
-        return str_ireplace(FileService::INVALID_FILENAME_CHARS, '', $filename);
+        return str_ireplace(FileService::INVALID_FILENAME_CHARS, '', $filename ?? '');
     }
 
     /**

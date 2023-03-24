@@ -11,7 +11,7 @@
  * This is the entrypoint for mastertoeblist_merge.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import MasterToebListMerge from '@DpJs/components/user/MasterToebListMerge/MasterToebListMerge'
 
 const components = {

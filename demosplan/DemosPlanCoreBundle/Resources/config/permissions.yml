@@ -173,7 +173,7 @@ area_demosplan:
     loginRequired: false
 area_development:
     description: 'Enables the area where users can write Featurerequests and Ideas for the dPlan-software and sort of organise the release planning'
-    label: 'shows the userStory / development forum area'
+    label: 'shows the userStory / development forum area (the default setup if used in project is: enabled for all except GUEST, PROSPECT, CITIZEN)'
     loginRequired: true
     parent: area_demosplan
 area_documents:
@@ -618,31 +618,10 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
-feature_ai_create_annotated_statement_pdf_pages:
-    description: 'At some point in the workflow to create a Statement from a PDF, we expect PI to send us info related to the sections in every page from the PDF document. This permissions grants the creation of such info as AnnotatedStatementPdfPage entities.'
-    label: 'Allows creating pages for an annotated statement pdf (after info provided by PI)'
-    loginRequired: false
-feature_ai_generated_draft_segments:
-    description: |-
-        Without AI support users can already split a statement text into segments (if the
-        corresponding permissions are enabled. With this permission the statement text is
-        automatically send to a different server to be processed for an unknown time. When
-        the processing is finished an ID to get the generated draft segments is send
-        to the application. The draft segments are then fetched from that server and
-        stored and provided to the user as initial suggested state when the manual
-        segmentation of the statement begins.
-    expose: true
-    label: 'Allow artificial intelligence generated draft segments'
-    loginRequired: false
-    parent: area_statement_segmentation
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false
     label: 'Usage of an external service to provide newsletters instead of the internal one.'
-    loginRequired: false
-feature_annotated_statement_pdf_rollback_review_status:
-    description: 'Allows running the task to bring all AnnotatedStatements which are in BOX_REVIEW status back to READY_TO_REVIEW and those in TEXT_REVIEW back to READY_TO_CONVERT'
-    label: 'Access to bring AnnotatedStatementPDfs from box- and text-review back to their previous statuses'
     loginRequired: false
 feature_assessmenttable_special_sorting:
     description: 'Introduces a special (nested) sort type of assessment table for HH to be used for presentations/discussions with authorities (politicians).'
@@ -869,29 +848,6 @@ feature_identity_broker_login:
     label: 'Enables/disables account login and registration by identity broker'
     expose: true
     loginRequired: false
-feature_import_statement_pdf:
-    description: |-
-        When enabled users are able to upload PDF files which are then automatically
-        processed to annotate relevant information in the pages. After the processing
-        is done the user can review and adjust the annotations. When the review is done
-        a statement can be created from the data annotated in the PDF file with the PDF
-        file attached to the statement.
-    expose: true
-    label: 'Upload and annotate PDF files to create statements from it.'
-    loginRequired: true
-feature_import_statement_via_email:
-    description: |
-        Planners may receive e-mails containing statements and want to forward them into the application into a
-        specific procedure. This permission will enable the general functionality and adds a section to the
-        procedure settings where allowed email addresses can be configured as well as enabling a tab in the
-        import center to view and further process incoming emails. A list of these forwarded
-        e-mails will be shown in the import area in the target procedure. From there statements can be
-        created from the e-mail. Both the list as well as the creation from e-mail items are only
-        possible if this permission is enabled.
-    expose: true
-    label: 'Allow the statement import via e-mails.'
-    parent: area_admin_import
-    loginRequired: true
 feature_imprint_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
@@ -909,6 +865,12 @@ feature_institution_participation:
     expose: true
     label: Institutionsbeteiligung
     loginRequired: true
+feature_institution_tag_assign:
+    description: |-
+        allows to tag an institution with an existing InstitutionTag.
+        The InstitutionTag used to tag others with, has to have its owningOrganisation be the same
+        as the current users organisation.
+    label: 'allows to tag an Institution with a InstitutionTag'
 feature_institution_tag_create:
     descriptions: |-
         Within a procedure institutions can be tagged in order to
@@ -1279,6 +1241,12 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_original_newsletter:
+    description: |-
+        enables the internal newsletter - gets overruled by feature_alternative_newsletter in case both permissions
+        are active.
+    label: 'shows checkbox to register for newsletter and a description what the newsletter is about'
+    loginRequired: false
 feature_original_statements_export:
     label: 'Gibt an ob aus den Originalstellungnahmen exportiert (Word, PDF, Drucken, ...) werden kann, oder nicht'
     loginRequired: true
@@ -1316,6 +1284,7 @@ feature_platform_public_index_map_settings:
     description: 'User is allowed to modify map settings for public index page'
     label: 'Enables permission to edit public index map settings.'
     loginRequired: true
+    expose: true
     parent: area_customer_settings
 feature_procedure_agency_email_addresses:
     description:  |-
@@ -1582,6 +1551,7 @@ feature_procedure_sort_orga_name:
     parent: area_main_procedures
 feature_procedure_templates:
     description: 'if enanbeld the user has an select field in the new procedure page to select boilerplates (Blaupausen)'
+    expose: true
     label: 'enables boilerplates selector'
     loginRequired: true
     parent: area_main_procedures
@@ -2284,6 +2254,7 @@ feature_use_data_input_orga:
     loginRequired: false
 feature_use_plis:
     description: 'Fetch procedure bounding box from external service plis'
+    expose: true
     label: 'Fetch procedure bounding box from external service plis'
     loginRequired: true
 feature_use_xplanbox:
@@ -2357,6 +2328,17 @@ field_news_pdf:
 field_organisation_agreement_showname:
     expose: true
     label: 'Zustimmung zur Veröffentlichung des Namens'
+    loginRequired: false
+    parent: field_organisation
+field_organisation_agreement_showname_on_welcomePage:
+    description: |-
+        enables option to publicly show this organisation within a list of project-organisations.
+        This option is shown on the welcome-Page (Route /willkommen).
+        this permission seems to be doubled - maybee tripled regarding these permissions:
+        field_organisation_agreement_showname, feature_organisation_set_showlist
+        Since the welcome-page offered this option without any permission - those 2 listed can not be used here without
+        changing the behaviour. Instead this extra permission needs to be used in context of the welcome page.
+    label: 'enables option to publicly show this organisation within a list of project-organisations'
     loginRequired: false
     parent: field_organisation
 field_organisation_competence:
@@ -2492,7 +2474,7 @@ field_sign_language_overview_video_edit:
     loginRequired: true
     parent: area_customer_settings
 field_simple_language_overview_description_edit:
-    description:
+    description: ''
     expose: true
     label: ''
     loginRequired: true
@@ -2665,25 +2647,25 @@ field_statement_text:
 field_statement_user_group:
     description: 'Show usergroup field in statement form and save its value.'
     expose: true
-    label: 'Input field for usergroup (BTHG)'
+    label: 'Input field for usergroup'
     loginRequired: false
     parent: field_statement
 field_statement_user_organisation:
     description: 'Show organisation field in statement form and save its value.'
     expose: true
-    label: "Field for user's organisation (BTHG)"
+    label: "Field for user's organisation"
     loginRequired: false
     parent: field_statement
 field_statement_user_position:
     description: 'Show user position in organisation field in statement form and save its value.'
     expose: true
-    label: 'Field for the position in organisation (BTHG)'
+    label: 'Field for the position in organisation'
     loginRequired: false
     parent: field_statement
 field_statement_user_state:
     description: 'Show Bundesland field in statement form and save its value.'
     expose: true
-    label: "Field input for user's Bundlesland (BTHG)"
+    label: "Field input for user's Bundlesland"
     loginRequired: false
     parent: field_statement
 field_statement_vote_pla:
@@ -2716,5 +2698,14 @@ feature_create_procedure_from_XBauleitplanungMessage:
         Allows creating new procedures without being logged in.
     label: 'Verfahren verwalten'
     loginRequired: false
+feature_read_source_statement_via_api:
+    description: |
+        Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
+        because that permission is addon-specific and cannot be used for additional non addon related checks within the core.
+        Access to the source-statement without this addon is necessary, so this permission substitutes the old one.
+    label: ' used in : Statement list and segment list '
+    expose: true
+    loginRequired: true
+
 
 

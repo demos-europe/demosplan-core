@@ -38,7 +38,7 @@ class SurveyUpdateHandlerTest extends SurveyTestUtils
             $actualSurvey = $this->sut->jsonToEntity($surveyJson);
             $this->checkSurveysEquals($expectedSurvey, $actualSurvey);
         } catch (SurveyInputDataException $e) {
-            $this->logger->err($e->getUserMsg());
+            $this->logger->error($e->getUserMsg());
         }
         $this->assertTrue(true);
     }

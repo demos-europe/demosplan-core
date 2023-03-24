@@ -11,6 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -19,13 +23,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
@@ -44,7 +45,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
-class FileService extends CoreService
+class FileService extends CoreService implements FileServiceInterface
 {
     protected $container;
     protected $baseGetURL;
@@ -172,11 +173,7 @@ class FileService extends CoreService
      */
     public function getFileInfo($hash): FileInfo
     {
-        /**
-         * @var File|null
-         */
-        $file = $this->fileRepository
-            ->getFileInfo($hash);
+        $file = $this->fileRepository->getFileInfo($hash);
 
         if (null !== $file) {
             $path = $file->getPath();
@@ -786,7 +783,7 @@ class FileService extends CoreService
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
             @unlink($temporaryFilePath);
             $this->logger->warning(
-              'MimeType is not allowed. Given MimeType: '.$mimeType
+                'MimeType is not allowed. Given MimeType: '.$mimeType
             );
             throw new FileException('MimeType "'.$mimeType.'" is not allowed', 20);
         }
@@ -853,14 +850,14 @@ class FileService extends CoreService
 
         $msg = Json::encode($payload);
 
-        //Füge Message zum Request hinzu
+        // Füge Message zum Request hinzu
         try {
             $routingKey = $this->globalConfig->getProjectPrefix();
             if ($this->globalConfig->isMessageQueueRoutingDisabled()) {
                 $routingKey = '';
             }
 
-            //Anfrage absenden
+            // Anfrage absenden
             $this->logger->info('Path of file for virusCheck: '.$file->getRealPath().', with routingKey: '.$routingKey);
             $this->client->addRequest($msg, 'virusCheckDemosPlanLocal', 'virusCheck', $routingKey, 300);
 
@@ -897,10 +894,10 @@ class FileService extends CoreService
     {
         $fs = new DemosFilesystem();
         /** @var UploadedFile $file */
-        foreach ($this->requestStack->getCurrentRequest()->files->all() as $file) {
+        foreach ($this->requestStack->getCurrentRequest()->files?->all() as $file) {
             $fs->remove($file->getPathname());
         }
-        $this->requestStack->getCurrentRequest()->files->replace([]);
+        $this->requestStack->getCurrentRequest()->files?->replace([]);
     }
 
     /**
@@ -993,37 +990,37 @@ class FileService extends CoreService
     {
         $mimeTypeReadable = $value;
         $mimeTypes = [
-            'text/plain'                    => 'txt',
-            'text/html'                     => 'html',
-            'text/css'                      => 'css',
-            'application/javascript'        => 'js',
-            'application/json'              => 'json',
-            'application/xml'               => 'xml',
-            'application/x-shockwave-flash' => 'swf',
-            'application/octet-stream'      => 'binary',
-            'video/x-flv'                   => 'flv',
+            'text/plain'                                                              => 'txt',
+            'text/html'                                                               => 'html',
+            'text/css'                                                                => 'css',
+            'application/javascript'                                                  => 'js',
+            'application/json'                                                        => 'json',
+            'application/xml'                                                         => 'xml',
+            'application/x-shockwave-flash'                                           => 'swf',
+            'application/octet-stream'                                                => 'binary',
+            'video/x-flv'                                                             => 'flv',
             // images,
-            'image/png'                => 'png',
-            'image/jpeg'               => 'jpg',
-            'image/gif'                => 'gif',
-            'image/bmp'                => 'bmp',
-            'image/vnd.microsoft.icon' => 'ico',
-            'image/tiff'               => 'tiff',
-            'image/svg+xml'            => 'svg',
+            'image/png'                                                               => 'png',
+            'image/jpeg'                                                              => 'jpg',
+            'image/gif'                                                               => 'gif',
+            'image/bmp'                                                               => 'bmp',
+            'image/vnd.microsoft.icon'                                                => 'ico',
+            'image/tiff'                                                              => 'tiff',
+            'image/svg+xml'                                                           => 'svg',
             // archives,
-            'application/zip'                   => 'zip',
-            'application/x-rar-compressed'      => 'rar',
-            'application/x-msdownload'          => 'exe',
-            'application/vnd.ms-cab-compressed' => 'cab',
+            'application/zip'                                                         => 'zip',
+            'application/x-rar-compressed'                                            => 'rar',
+            'application/x-msdownload'                                                => 'exe',
+            'application/vnd.ms-cab-compressed'                                       => 'cab',
             // audio/video,
-            'audio/mpeg'      => 'mp3',
-            'video/quicktime' => 'mov',
+            'audio/mpeg'                                                              => 'mp3',
+            'video/quicktime'                                                         => 'mov',
             // adobe,
-            'application/pdf'           => 'pdf',
-            'application/x-pdf'         => 'pdf',
-            'application/x-download'    => 'pdf',
-            'image/vnd.adobe.photoshop' => 'psd',
-            'application/postscript'    => 'ps',
+            'application/pdf'                                                         => 'pdf',
+            'application/x-pdf'                                                       => 'pdf',
+            'application/x-download'                                                  => 'pdf',
+            'image/vnd.adobe.photoshop'                                               => 'psd',
+            'application/postscript'                                                  => 'ps',
             // ms office,
             'application/msword'                                                      => 'doc',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
@@ -1031,8 +1028,8 @@ class FileService extends CoreService
             'application/vnd.ms-excel'                                                => 'xls',
             'application/vnd.ms-powerpoint'                                           => 'ppt',
             // open office,
-            'application/vnd.oasis.opendocument.text'        => 'odt',
-            'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+            'application/vnd.oasis.opendocument.text'                                 => 'odt',
+            'application/vnd.oasis.opendocument.spreadsheet'                          => 'ods',
         ];
 
         // Wenn du den MimeType findest, ersetze ihn, ansonsten den technischen MimeType
@@ -1096,10 +1093,10 @@ class FileService extends CoreService
     public function getFilesFromSingleDocuments(array $singleDocuments)
     {
         return array_map(
-                function ($singleDocument) {
-                    return $this->getFileIdFromSingleDocument($singleDocument);
-                },
-                $singleDocuments);
+            function ($singleDocument) {
+                return $this->getFileIdFromSingleDocument($singleDocument);
+            },
+            $singleDocuments);
     }
 
     /**
@@ -1214,6 +1211,7 @@ class FileService extends CoreService
     public function sanitizeFileName(string $filename): string
     {
         $filename = str_ireplace(self::INVALID_FILENAME_CHARS, '', $filename);
+
         return str_ireplace(' ', '_', $filename);
     }
 }

@@ -11,6 +11,7 @@
   <div :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
     <dp-checkbox
       id="r_getFeedback"
+      data-cy="personalInformationMail"
       aria-labelledby="statement-detail-require-information-mail"
       :checked="statement.r_getFeedback === 'on'"
       :label="{
@@ -26,11 +27,14 @@
         v-if="hasPermission('feature_statements_feedback_postal')"
         id="r_getEvaluation"
         name="r_getEvaluation"
+        data-cy="personalAnswerEmail"
         :class="prefixClass('u-mt-0_5')"
         @change="val => setStatementData({r_getEvaluation: 'email'})"
         :checked="statement.r_getEvaluation === 'email' && statement.r_getFeedback === 'on'"
         aria-labelledby="statement-detail-require-response-email"
-        :label="Translator.trans('statement.form.personal.require_answer_email')"
+        :label="{
+          text: Translator.trans('statement.form.personal.require_answer_email')
+        }"
         value="email" />
 
       <!--              {# email address #}-->
@@ -38,6 +42,7 @@
         <dp-input
           id="r_email_feedback"
           ref="emailFeedback"
+          data-cy="statementDetailEmail"
           aria-labelledby="statement-detail-email"
           autocomplete="email"
           :class="prefixClass('layout__item u-1-of-2')"
@@ -56,6 +61,7 @@
           v-if="hasPermission('feature_statements_feedback_check_email')"
           id="r_email2"
           ref="emailFeedback2"
+          data-cy="statementDetailEmailConfirm"
           aria-labelledby="statement-detail-email-confirm"
           autocomplete="email"
           :class="prefixClass('layout__item u-1-of-2')"
@@ -72,12 +78,15 @@
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
           id="r_getEvaluation_snailmail"
+          data-cy="personalAnswerPost"
           :class="prefixClass('u-mt-0_5')"
           name="r_getEvaluation"
           :disabled="statement.r_useName === '0'"
           @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
           :checked="statement.r_getEvaluation === 'snailmail'"
-          :label="Translator.trans('statement.form.personal.require_answer_post')"
+          :label="{
+            text: Translator.trans('statement.form.personal.require_answer_post')
+          }"
           aria-labelledby="statement-detail-require-response-post"
           value="snailmail" />
         <form-group-street-and-number
@@ -96,12 +105,10 @@
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
+import { DpCheckbox, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 import FormGroupPostalAndCity from './FormGroupPostalAndCity'
 import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
 
 export default {
   name: 'FormGroupEvaluationMailViaSnailMailOrEmail',

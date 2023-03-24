@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 
-use function collect;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanUserBundle\Repository\CustomerRepository;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+
+use function collect;
 use function in_array;
 
 class Helpers
@@ -47,8 +48,8 @@ class Helpers
     public function __construct(
         CustomerRepository $customerRepository,
         GlobalConfigInterface $globalConfig,
-        RoleRepository $roleRepository)
-    {
+        RoleRepository $roleRepository
+    ) {
         $this->roleRepository = $roleRepository;
         $this->helper = new QuestionHelper();
         $this->customerRepository = $customerRepository;
@@ -85,25 +86,21 @@ class Helpers
 
     public function askCustomer(InputInterface $input, OutputInterface $output): Customer
     {
-        $availableCustomer = collect($this->customerRepository->findAll());
-        $customerSelection = $availableCustomer
-            ->filter(function (Customer $customer): bool {
-                return in_array($customer->getSubdomain(), $this->globalConfig->getSubdomainsAllowed(), true);
-            })
-            ->mapWithKeys(function (Customer $customer): array {
-                $name = $customer->getName();
-                $subdomain = $customer->getSubdomain();
+        $availableCustomers = collect($this->customerRepository->findAll());
+        $mappedCustomerInformation = $availableCustomers->mapWithKeys(function (Customer $customer): array {
+            $name = $customer->getName();
+            $subdomain = $customer->getSubdomain();
 
-                return [$subdomain => $name];
-            })
+            return [$subdomain => $name];
+        })
             ->toArray();
         $questionCustomer = new ChoiceQuestion(
             'Please select a customer: ',
-            $customerSelection
+            $mappedCustomerInformation
         );
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
-        return $availableCustomer->first(function (Customer $customer) use ($answer) {
+        return $availableCustomers->first(function (Customer $customer) use ($answer) {
             return $answer === $customer->getSubdomain();
         });
     }

@@ -48,6 +48,6 @@ class ValueObjectException extends LogicException
     {
         $argumentCount = count($arguments);
 
-        return new self("Setting properties requires exactly one value, got ${argumentCount}");
+        return new self("Setting properties requires exactly one value, got {$argumentCount}");
     }
 }

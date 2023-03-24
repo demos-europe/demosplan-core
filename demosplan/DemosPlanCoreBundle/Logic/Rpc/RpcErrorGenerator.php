@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Rpc;
 
+use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
-class RpcErrorGenerator
+class RpcErrorGenerator implements RpcErrorGeneratorInterface
 {
     public const ACCESS_DENIED_CODE = -32768;
     public const ACCESS_DENIED_MESSAGE = 'Access denied';
@@ -43,8 +45,9 @@ class RpcErrorGenerator
      * @return array
      */
     private $errorMessages;
+    private LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(LoggerInterface $logger)
     {
         $this->errorMessages = [
             self::ACCESS_DENIED_CODE    => self::ACCESS_DENIED_MESSAGE,
@@ -55,6 +58,7 @@ class RpcErrorGenerator
             self::PARSE_ERROR_CODE      => self::PARSE_ERROR_MESSAGE,
             self::SERVER_ERROR_CODE     => self::SERVER_ERROR_MESSAGE,
         ];
+        $this->logger = $logger;
     }
 
     public function parseError(?object $rpcRequest = null): object
@@ -110,6 +114,8 @@ class RpcErrorGenerator
         $result->jsonrpc = '2.0';
         $result->error = $error;
         $result->id = isset($rpcRequest) && isset($rpcRequest->id) ? $rpcRequest->id : null;
+
+        $this->logger->warning('RPC Error', ['error' => $result->error]);
 
         return $result;
     }

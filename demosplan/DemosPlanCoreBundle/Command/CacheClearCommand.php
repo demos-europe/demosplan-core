@@ -35,11 +35,11 @@ class CacheClearCommand extends CoreCommand
     public function configure(): void
     {
         $this->addOption(
-                'no-app-cache',
-                '',
-                InputOption::VALUE_NONE,
-                'If this is set, only apcu and opcache will be cleared, otherwise cache:clear will be called too'
-            );
+            'no-app-cache',
+            '',
+            InputOption::VALUE_NONE,
+            'If this is set, only apcu and opcache will be cleared, otherwise cache:clear will be called too'
+        );
     }
 
     /**

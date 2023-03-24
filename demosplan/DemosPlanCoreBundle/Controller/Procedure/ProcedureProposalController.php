@@ -11,12 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessage;
+use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanProcedureBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureProposalService;
@@ -74,6 +75,7 @@ class ProcedureProposalController extends BaseController
      * )
      *
      * @throws Exception
+     *
      * @DplanPermissions("area_procedure_proposal_edit")
      */
     public function getProcedureProposalAction(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
@@ -107,6 +109,7 @@ class ProcedureProposalController extends BaseController
      * )
      *
      * @throws Exception
+     *
      * @DplanPermissions("feature_create_procedure_proposal")
      */
     public function addProcedureProposalAction(Request $request, ProcedureProposalHandler $procedureProposalHandler): Response
@@ -165,10 +168,10 @@ class ProcedureProposalController extends BaseController
                 $this->procedureProposalService->generateProcedureFromProcedureProposal($procedureProposal);
 
             if ($generatedProcedure instanceof Procedure) {
-                $this->getMessageBag()->addObject(LinkMessage::createLinkMessage(
+                $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
                     'confirm',
                     'confirm.procedure.created',
-                    ['name' => $generatedProcedure->getName()],
+                    ['name'      => $generatedProcedure->getName()],
                     'DemosPlan_procedure_edit',
                     ['procedure' => $generatedProcedure->getId()],
                     $generatedProcedure->getName())

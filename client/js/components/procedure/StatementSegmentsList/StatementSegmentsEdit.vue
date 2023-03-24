@@ -85,14 +85,17 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpLoading,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
-import { DpLoading } from 'demosplan-ui/components'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
 import { scrollTo } from 'vue-scrollto'
 
 export default {
@@ -103,7 +106,10 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }
   },
 
   directives: {

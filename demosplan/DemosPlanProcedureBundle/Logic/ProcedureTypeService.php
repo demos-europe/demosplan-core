@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
@@ -37,10 +38,11 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProcedureTypeService extends CoreService
+class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
 {
     /**
      * @var EntityFetcher
@@ -482,7 +484,11 @@ class ProcedureTypeService extends CoreService
      */
     public function getAllProcedureTypeResources(): array
     {
-        $nameSorting = $this->sortMethodFactory->propertyAscending(...$this->procedureTypeResourceType->name);
+        if (!$this->procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($this->procedureTypeResourceType);
+        }
+
+        $nameSorting = $this->sortMethodFactory->propertyAscending($this->procedureTypeResourceType->name);
         $entities = $this->entityFetcher->listEntities($this->procedureTypeResourceType, [], [$nameSorting]);
 
         return array_map(function (object $entity): TwigableWrapperObject {
@@ -490,7 +496,10 @@ class ProcedureTypeService extends CoreService
         }, $entities);
     }
 
-    public function getProcedureTypeByName(string $name): ?ProcedureType
+    /**
+     * @return ProcedureType|null
+     */
+    public function getProcedureTypeByName(string $name)
     {
         return $this->procedureTypeRepository->findOneBy(['name' => $name]);
     }

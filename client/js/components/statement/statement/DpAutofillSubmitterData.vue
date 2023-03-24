@@ -145,10 +145,7 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpInput } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import { hasOwnProp } from 'demosplan-utils'
+import { CleanHtml, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',

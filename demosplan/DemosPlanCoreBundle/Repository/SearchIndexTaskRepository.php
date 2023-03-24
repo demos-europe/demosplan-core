@@ -301,5 +301,4 @@ class SearchIndexTaskRepository extends FluentRepository implements ObjectInterf
 
         return new QueueStatus($total, $processing);
     }
-
 }

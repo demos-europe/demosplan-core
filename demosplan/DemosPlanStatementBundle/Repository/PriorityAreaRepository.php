@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
+use InvalidArgumentException;
 
 class PriorityAreaRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -31,7 +33,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get priorityArea failed: ', [$e]);
 
             return null;
@@ -43,14 +45,14 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function add(array $data)
     {
         try {
             $em = $this->getEntityManager();
             if (!array_key_exists('key', $data)) {
-                throw new \InvalidArgumentException('Trying to add a PriorityArea without key');
+                throw new InvalidArgumentException('Trying to add a PriorityArea without key');
             }
 
             $priorityArea = $this->generateObjectValues(new PriorityArea(), $data);
@@ -58,7 +60,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
             $em->flush();
 
             return $priorityArea;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Create PriorityArea failed Message: ', [$e]);
             throw $e;
         }
@@ -71,7 +73,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @return PriorityArea
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($priorityArea)
     {
@@ -79,7 +81,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
             $em = $this->getEntityManager();
             $em->persist($priorityArea);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Add priorityArea failed: ', [$e]);
         }
 
@@ -110,7 +112,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
         try {
             $this->getEntityManager()->persist($priorityArea);
             $this->getEntityManager()->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update priorityArea failed: ', [$e]);
 
             return false;
@@ -124,9 +126,9 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -141,9 +143,9 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
      *
      * @param PriorityArea $toDelete
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function delete($toDelete)
     {
@@ -156,7 +158,7 @@ class PriorityAreaRepository extends CoreRepository implements ArrayInterface, O
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete priorityArea failed: ', [$e]);
         }
 

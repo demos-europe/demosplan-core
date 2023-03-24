@@ -11,15 +11,14 @@
  * This is the entry point for administration_edit.html.twig
  */
 
+import { DpDateRangePicker, dpValidate } from '@demos-europe/demosplan-ui'
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings
-import DpDateRangePicker from '@DpJs/components/core/form/DpDateRangePicker'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import DPWizard from '@DpJs/lib/procedure/DPWizard'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import UrlPreview from '@DpJs/lib/user/UrlPreview'
+import { initialize } from '@DpJs/InitVue'
+import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = { DpBasicSettings, DpEmailList, DpDateRangePicker }
 

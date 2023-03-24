@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
@@ -30,29 +30,30 @@ use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
 use EDT\JsonApi\RequestHandling\EntityFetcherInterface;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
-use EDT\Querying\Contracts\ObjectProviderInterface;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortException;
 use EDT\Querying\Contracts\SortMethodInterface;
+use EDT\Querying\EntityProviders\EntityProviderInterface;
 use EDT\Querying\ObjectProviders\PrefilledObjectProvider;
 use EDT\Querying\Utilities\ConditionEvaluator;
+use EDT\Querying\Utilities\Iterables;
 use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\Types\FilterableTypeInterface;
 use EDT\Wrapping\Contracts\Types\IdentifiableTypeInterface;
-use EDT\Wrapping\Contracts\Types\ReadableTypeInterface;
+use EDT\Wrapping\Contracts\Types\SortableTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\Contracts\Types\TypeInterface;
-use EDT\Wrapping\Contracts\WrapperFactoryInterface;
-use EDT\Wrapping\Utilities\GenericEntityFetcher;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+
 use function is_array;
+
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 
 class EntityFetcher implements EntityFetcherInterface
 {
     private EntityManager $entityManager;
-
-    private WrapperFactoryInterface $wrapperFactory;
 
     private DqlConditionFactory $conditionFactory;
 
@@ -66,18 +67,13 @@ class EntityFetcher implements EntityFetcherInterface
 
     public function __construct(
         ConditionEvaluator $conditionEvaluator,
+        DqlConditionFactory $conditionFactory,
         EntityManager $entityManager,
         SchemaPathProcessor $schemaPathProcessor,
         Sorter $sorter
     ) {
         $this->entityManager = $entityManager;
-        $this->conditionFactory = new DqlConditionFactory();
-        $this->wrapperFactory = new class() implements WrapperFactoryInterface {
-            public function createWrapper(object $object, ReadableTypeInterface $type): object
-            {
-                return $object;
-            }
-        };
+        $this->conditionFactory = $conditionFactory;
         $this->schemaPathProcessor = $schemaPathProcessor;
         $this->conditionEvaluator = $conditionEvaluator;
         $this->sorter = $sorter;
@@ -89,12 +85,16 @@ class EntityFetcher implements EntityFetcherInterface
      *
      * For all properties accessed while filtering/sorting it is checked if:
      *
-     * * the given type and the types in the property paths are {@link TypeInterface::isAvailable() available at all} and {@link ReadableTypeInterface readable}
-     * * the property is available for {@link ReadableTypeInterface::getFilterableProperties() filtering}/{@link ReadableTypeInterface::getSortableProperties() sorting}
+     * * the given type and the types in the property paths are
+     *  {@link TypeInterface::isAvailable() available at all} and
+     *  {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *  {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *  {@link SortableTypeInterface::getSortableProperties() sorting}
      *
      * @template O of \demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface
      *
-     * @param ReadableTypeInterface<O>           $type
+     * @param TransferableTypeInterface<O>       $type
      * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
      * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
      *                                                        higher priority. Ie. a second sort method
@@ -107,16 +107,15 @@ class EntityFetcher implements EntityFetcherInterface
      * @throws AccessException thrown if the resource type denies the currently logged in user
      *                         the access to the resource type needed to fulfill the request
      */
-    public function listEntities(ReadableTypeInterface $type, array $conditions, array $sortMethods = []): array
+    public function listEntities(TransferableTypeInterface $type, array $conditions, array $sortMethods = []): array
     {
         if (!$type->isDirectlyAccessible()) {
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
         $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
 
-        return $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        return $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
     }
 
     /**
@@ -126,15 +125,19 @@ class EntityFetcher implements EntityFetcherInterface
      * It will automatically check access rights and apply aliases before creating a
      * {@link QueryBuilder} and using it to create the returned {@link DemosPlanPaginator}.
      *
-     * @param array<int, FunctionInterface<bool>> $conditions
-     * @param array<int, SortMethodInterface>     $sortMethods
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
+     * @param array<int, OrderBySortMethodInterface>    $sortMethods
      *
      * @throws MappingException
      * @throws PaginationException
      * @throws PathException
      */
-    public function getEntityPaginator(ReadableTypeInterface $type, APIPagination $pagination, array $conditions, array $sortMethods = []): DemosPlanPaginator
-    {
+    public function getEntityPaginator(
+        TransferableTypeInterface $type,
+        APIPagination $pagination,
+        array $conditions,
+        array $sortMethods = []
+    ): DemosPlanPaginator {
         if (!$type->isAvailable()) {
             throw AccessException::typeNotAvailable($type);
         }
@@ -143,8 +146,8 @@ class EntityFetcher implements EntityFetcherInterface
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
-        $conditions = $this->schemaPathProcessor->mapConditions($type, ...$conditions);
-        $sortMethods = $this->schemaPathProcessor->mapSortMethods($type, ...$sortMethods);
+        $conditions = $this->mapConditions($type, $conditions);
+        $sortMethods = $this->mapSortMethods($type, $sortMethods);
 
         $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
         $queryBuilder = $entityProvider->generateQueryBuilder($conditions, $sortMethods);
@@ -163,12 +166,16 @@ class EntityFetcher implements EntityFetcherInterface
      *
      * For all properties accessed while filtering/sorting it is checked if:
      *
-     * * the given type and the types in the property paths are {@link TypeInterface::isAvailable() available at all} and {@link ReadableTypeInterface readable}
-     * * the property is available for {@link ReadableTypeInterface::getFilterableProperties() filtering}/{@link ReadableTypeInterface::getSortableProperties() sorting}
+     * * the given type and the types in the property paths are
+     *   {@link TypeInterface::isAvailable() available at all} and
+     *   {@link TransferableTypeInterface readable}
+     * * the property is available for
+     *   {@link FilterableTypeInterface::getFilterableProperties() filtering}/
+     *   {@link SortableTypeInterface::getSortableProperties() sorting}
      *
      * @template O of object
      *
-     * @param ReadableTypeInterface<O>           $type
+     * @param TransferableTypeInterface<O>       $type
      * @param array<int,O>                       $dataObjects
      * @param array<int,FunctionInterface<bool>> $conditions  Always conjuncted as AND. Order does not matter
      * @param array<int,SortMethodInterface>     $sortMethods Order matters. Lower positions imply
@@ -182,16 +189,19 @@ class EntityFetcher implements EntityFetcherInterface
      * @throws AccessException thrown if the resource type denies the currently logged in user
      *                         the access to the resource type needed to fulfill the request
      */
-    public function listPrefilteredEntities(ReadableTypeInterface $type, array $dataObjects, array $conditions = [], array $sortMethods = []): array
-    {
+    public function listPrefilteredEntities(
+        TransferableTypeInterface $type,
+        array $dataObjects,
+        array $conditions = [],
+        array $sortMethods = []
+    ): array {
         if (!$type->isDirectlyAccessible()) {
             throw AccessException::typeNotDirectlyAccessible($type);
         }
 
         $entityProvider = new PrefilledObjectProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
 
-        return $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        return $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
     }
 
     /**
@@ -278,7 +288,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *
@@ -298,7 +308,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&DeletableDqlResourceTypeInterface<O> $type
      *
      * @return O
      *
@@ -314,7 +324,7 @@ class EntityFetcher implements EntityFetcherInterface
     /**
      * @template O of object
      *
-     * @param IdentifiableTypeInterface<O>&ReadableTypeInterface|<|O> $type
+     * @param IdentifiableTypeInterface<O>&TransferableTypeInterface<O> $type
      *
      * @return O
      *
@@ -328,16 +338,16 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @param array<int, FunctionInterface<bool>> $conditions
+     * @param array<int, ClauseFunctionInterface<bool>> $conditions
      */
-    public function getEntityCount(ReadableTypeInterface $type, array $conditions): int
+    public function getEntityCount(TransferableTypeInterface $type, array $conditions): int
     {
         $pagination = new APIPagination();
         $pagination->setSize(1);
         $pagination->setNumber(1);
         $pagination->lock();
 
-        $paginator = $this->getEntityPaginator($type, $pagination, $conditions);
+        $paginator = $this->getEntityPaginator($type, $pagination, $conditions, []);
 
         return $paginator->getAdapter()->getNbResults();
     }
@@ -345,10 +355,20 @@ class EntityFetcher implements EntityFetcherInterface
     public function getEntityByTypeIdentifier(IdentifiableTypeInterface $type, string $id): object
     {
         $entityProvider = $this->createOrmEntityProvider($type->getEntityClass());
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
 
         try {
-            return $entityFetcher->getEntityByIdentifier($type, $id);
+            $identifierPath = $type->getIdentifierPropertyPath();
+            $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPath);
+            $entities = $this->listTypeEntities($entityProvider, $type, [$identifierCondition], []);
+
+            switch (count($entities)) {
+                case 0:
+                    throw AccessException::noEntityByIdentifier($type);
+                case 1:
+                    return array_pop($entities);
+                default:
+                    throw AccessException::multipleEntitiesByIdentifier($type);
+            }
         } catch (AccessException $e) {
             $typeName = $type::getName();
             throw new InvalidArgumentException("Could not retrieve entity for type '$typeName' with ID '$id'.", 0, $e);
@@ -356,13 +376,13 @@ class EntityFetcher implements EntityFetcherInterface
     }
 
     /**
-     * @param IdentifiableTypeInterface&ReadableTypeInterface $type
-     * @param array<int,FunctionInterface<bool>>              $conditions  Always conjuncted as AND. Order does not matter
-     * @param array<int,SortMethodInterface>                  $sortMethods Order matters. Lower positions imply
-     *                                                                     higher priority. Ie. a second sort method
-     *                                                                     will be applied to each subset individually
-     *                                                                     that resulted from the first sort method.
-     *                                                                     The array keys will be ignored.
+     * @param IdentifiableTypeInterface&TransferableTypeInterface $type
+     * @param array<int,FunctionInterface<bool>>                  $conditions  Always conjuncted as AND. Order does not matter
+     * @param array<int,SortMethodInterface>                      $sortMethods Order matters. Lower positions imply
+     *                                                                         higher priority. Ie. a second sort method
+     *                                                                         will be applied to each subset individually
+     *                                                                         that resulted from the first sort method.
+     *                                                                         The array keys will be ignored.
      *
      * @return array<int, string> the identifiers of the entities, sorted by the given $sortMethods
      *
@@ -370,7 +390,7 @@ class EntityFetcher implements EntityFetcherInterface
      *                         the access to the resource type needed to fulfill the request
      */
     public function listEntityIdentifiers(
-        ReadableTypeInterface $type,
+        TransferableTypeInterface $type,
         array $conditions,
         array $sortMethods
     ) {
@@ -386,8 +406,7 @@ class EntityFetcher implements EntityFetcherInterface
             $entityIdProperty
         );
 
-        $entityFetcher = $this->createGenericEntityFetcher($entityProvider);
-        $partialDtos = $entityFetcher->listEntities($type, $conditions, ...$sortMethods);
+        $partialDtos = $this->listTypeEntities($entityProvider, $type, $conditions, $sortMethods);
 
         return array_map(static function (PartialDTO $dto) use ($entityIdProperty): string {
             return $dto->getProperty($entityIdProperty);
@@ -398,7 +417,7 @@ class EntityFetcher implements EntityFetcherInterface
      * Check if the given object matches any of the given conditions.
      *
      * @param array<int, ClauseFunctionInterface<bool>> $conditions at least one condition must match for `true`
-     *                                                        to be returned; must not be empty
+     *                                                              to be returned; must not be empty
      */
     public function objectMatchesAny(object $object, array $conditions): bool
     {
@@ -466,14 +485,26 @@ class EntityFetcher implements EntityFetcherInterface
         return array_pop($entityIdPath);
     }
 
-    protected function createGenericEntityFetcher(ObjectProviderInterface $objectProvider): GenericEntityFetcher
-    {
-        return new GenericEntityFetcher(
-            $objectProvider,
-            $this->conditionFactory,
-            $this->schemaPathProcessor,
-            $this->wrapperFactory
-        );
+    private function listTypeEntities(
+        EntityProviderInterface $entityProvider,
+        TypeInterface $type,
+        array $conditions,
+        array $sortMethods
+    ): array {
+        if (!$type->isAvailable()) {
+            throw AccessException::typeNotAvailable($type);
+        }
+
+        $conditions = $this->mapConditions($type, $conditions);
+        $sortMethods = $this->mapSortMethods($type, $sortMethods);
+
+        // get the actual entities
+        $entities = $entityProvider->getEntities($conditions, $sortMethods, null);
+
+        // get and map the actual entities
+        $entities = Iterables::asArray($entities);
+
+        return array_values($entities);
     }
 
     /**
@@ -488,7 +519,7 @@ class EntityFetcher implements EntityFetcherInterface
      */
     public function getUniqueEntity(ResourceTypeInterface $type, string $id, array $conditions): UuidEntityInterface
     {
-        $conditions[] = $this->conditionFactory->propertyHasValue($id, ...$type->getIdentifierPropertyPath());
+        $conditions[] = $this->conditionFactory->propertyHasValue($id, $type->getIdentifierPropertyPath());
 
         $entities = $this->listEntities($type, $conditions);
 
@@ -519,5 +550,39 @@ class EntityFetcher implements EntityFetcherInterface
             $this->entityManager->getMetadataFactory(),
             $this->joinFinder
         );
+    }
+
+    /**
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
+     */
+    private function mapConditions(TypeInterface $type, array $conditions): array
+    {
+        if ([] !== $conditions && $type instanceof FilterableTypeInterface) {
+            $this->schemaPathProcessor->mapFilterConditions($type, $conditions);
+        }
+        $conditions[] = $this->schemaPathProcessor->processAccessCondition($type);
+
+        return $conditions;
+    }
+
+    /**
+     * @param list<OrderBySortMethodInterface> $sortMethods
+     *
+     * @return list<OrderBySortMethodInterface>
+     *
+     * @throws PathException
+     */
+    private function mapSortMethods(TypeInterface $type, array $sortMethods): array
+    {
+        if ([] !== $sortMethods && $type instanceof SortableTypeInterface) {
+            $this->schemaPathProcessor->mapSorting($type, $sortMethods);
+        }
+        $defaultSortMethods = $this->schemaPathProcessor->processDefaultSortMethods($type);
+
+        return array_merge($sortMethods, $defaultSortMethods);
     }
 }

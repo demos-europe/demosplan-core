@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Event\PreRenderEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -107,11 +107,11 @@ class ViewRenderer
                 case 'sessionExpired':
                     $this->messageBag->add('warning', 'warning.session.expired');
                     break;
-                // Zugriff nicht gestattet
+                    // Zugriff nicht gestattet
                 case 'accessdenied':
                     $this->messageBag->add('warning', 'warning.access.denied');
                     break;
-                // Zugriff nicht gestattet
+                    // Zugriff nicht gestattet
                 case 'missingOrgadata':
                     $this->messageBag->add('warning', 'warning.orgadata.missing');
                     break;

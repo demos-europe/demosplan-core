@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Repository;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -34,6 +35,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
+use Exception;
+use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Validator\Validation;
 
@@ -50,7 +53,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
     {
         try {
             return $this->find($entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get StatementFragment failed: ', [$e]);
 
             return null;
@@ -81,7 +84,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @return \demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @deprecated use {@link StatementFragmentRepository::addObject()} instead
      */
@@ -91,7 +94,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
         try {
             $em = $this->getEntityManager();
             if (!array_key_exists('text', $data)) {
-                throw new \InvalidArgumentException('Trying to add a StatementFragment without text');
+                throw new InvalidArgumentException('Trying to add a StatementFragment without text');
             }
 
             $maxDisplayId = $this->getMaxDisplayId($data);
@@ -105,7 +108,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $em->flush();
 
             return $statementFragment;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning(
                 'Create StatementFragment failed Message: ', [$e]
             );
@@ -120,7 +123,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getListByTag($tagId)
     {
@@ -133,7 +136,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
                 ->setParameter('tagId', $tagId);
 
             return $query->getQuery()->getResult();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Get List of StatementFragment by Tag failed Message: ', [$e]);
             throw $e;
         }
@@ -144,13 +147,13 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @param StatementFragment $statementFragment
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addObject($statementFragment): StatementFragment
     {
         try {
             if (null === $statementFragment->getText()) {
-                throw new \InvalidArgumentException('Trying to add a StatementFragment without text');
+                throw new InvalidArgumentException('Trying to add a StatementFragment without text');
             }
 
             if (null === $statementFragment->getDisplayIdRaw()) {
@@ -175,9 +178,9 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $em = $this->getEntityManager();
             $em->persist($statementFragment);
             $em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Add StatementFragment failed: ', [$e]);
-            throw new RuntimeException('Could not add StatementFragment');
+            throw new RuntimeException('Could not add StatementFragment', 0, $e);
         }
 
         return $statementFragment;
@@ -190,7 +193,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @return StatementFragment|false
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update($entityId, array $data)
     {
@@ -209,7 +212,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $fragment = $this->generateObjectValues($fragment, $data);
 
             return $this->updateObject($fragment);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Update StatementFragment failed: ', [$e]);
             throw $e;
         }
@@ -229,7 +232,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $fragment->setText($this->sanitize($fragment->getText(), [$this->obscureTag]));
             $manager->persist($fragment);
             $manager->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLogger()->error('Update StatementFragment failed: ', [$e]);
 
             return false;
@@ -243,9 +246,9 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @param string $entityId
      *
-     * @throws EntityNotFoundException
-     *
      * @return bool
+     *
+     * @throws EntityNotFoundException
      */
     public function deleteById($entityId)
     {
@@ -262,7 +265,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteByProcedureId($procedureId)
     {
@@ -275,7 +278,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $query->execute();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Delete StatementFragment of a procedure failed ', [$e]);
             throw $e;
         }
@@ -301,7 +304,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $this->getEntityManager()->flush();
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('Delete StatementFragment failed: ', [$e]);
         }
 
@@ -416,7 +419,7 @@ class StatementFragmentRepository extends CoreRepository implements ArrayInterfa
             $entity->setDepartment(null);
             if (36 === strlen(trim($data['departmentId']))) {
                 $entity->setDepartment($em->getReference(Department::class, $data['departmentId']));
-                $entity->setAssignedToFbDate(new \DateTime());
+                $entity->setAssignedToFbDate(new DateTime());
             }
         }
 

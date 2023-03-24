@@ -10,13 +10,24 @@
 
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
-use function array_key_exists;
-use function array_map;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function array_map;
 use function explode;
-use const FILTER_VALIDATE_BOOLEAN;
 use function filter_var;
 use function in_array;
 use function ini_get;
@@ -24,15 +35,12 @@ use function is_array;
 use function is_dir;
 use function min;
 use function realpath;
-use RuntimeException;
 use function strncasecmp;
 use function strpos;
 use function substr;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Validator\Constraints\Url;
-use Symfony\Component\Validator\Validation;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use function trim;
+
+use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface
 {
@@ -288,6 +296,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @var bool
      */
     protected $honeypotDisabled;
+    protected int $honeypotTimeout;
     /**
      * @var array
      */
@@ -302,7 +311,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $entrypointRouteRtedit;
 
-    //aus ServiceLayer/Resources/config
+    // aus ServiceLayer/Resources/config
     /**
      * @var array
      */
@@ -544,11 +553,6 @@ class GlobalConfig implements GlobalConfigInterface
     protected $entityContentChangeFieldMapping;
 
     /** @var string */
-    protected $aiServiceSalt = '';
-    /** @var string */
-    protected $aiServicePostUrl = '';
-
-    /** @var string */
     protected $publicIndexRoute;
 
     /** @var array */
@@ -576,22 +580,30 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private $advancedSupport;
 
-    public function __construct(ParameterBagInterface $params, TranslatorInterface $translator)
-    {
+    /**
+     * @var array<non-empty-string, non-empty-string>
+     */
+    private array $externalLinks;
+
+    public function __construct(
+        ParameterBagInterface $params,
+        TranslatorInterface $translator,
+        private readonly ValidatorInterface $validator
+    ) {
         $this->setParams($params, $translator);
     }
 
-    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator)
+    public function setParams(ParameterBagInterface $parameterBag, TranslatorInterface $translator): void
     {
         /*
          * Project configurations
          */
         $this->projectType = $parameterBag->get('project_type');
 
-        //set platform service mode (default: true)
+        // set platform service mode (default: true)
         $this->platformServiceMode = $parameterBag->get('service_mode');
 
-        //set project name and prefix
+        // set project name and prefix
         $this->projectName = $parameterBag->get('project_name');
         $this->projectPrefix = $parameterBag->get('project_prefix');
         $this->projectPagetitle = $parameterBag->get('project_pagetitle');
@@ -603,7 +615,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->isMessageQueueRoutingDisabled = $parameterBag->get('rabbitmq_routing_disabled');
 
-        //set Emailsettings
+        // set Emailsettings
         $this->emailSystem = $parameterBag->get('email_system');
         $this->emailIsLiveSystem = $parameterBag->get('email_is_live_system');
         $this->emailTestFrom = $parameterBag->get('email_test_from');
@@ -669,15 +681,15 @@ class GlobalConfig implements GlobalConfigInterface
         $this->elementsNegativeReportCategoryTitle = $parameterBag->get('elements_title_negative_report');
         $this->elementsStatementCategoryTitle = $parameterBag->get('elements_title_statement');
 
-        //piwik enable;
+        // piwik enable;
         $this->piwikEnable = $parameterBag->get('piwik_enable');
 
-        //piwik url;
+        // piwik url;
         $this->piwikUrl = $parameterBag->get('piwik_url');
 
-        //piwik site id;
+        // piwik site id;
         $this->piwikSiteID = $parameterBag->get('piwik_site_id');
-        //external proxy
+        // external proxy
         $this->proxyDsn = $parameterBag->get('proxy_dsn');
         $this->proxyTrusted = $parameterBag->get('proxy_trusted');
 
@@ -685,7 +697,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->urlScheme = trim($parameterBag->get('url_scheme'));
         $this->urlPathPrefix = trim($parameterBag->get('url_path_prefix'));
 
-        //Programmversion
+        // Programmversion
         $this->projectVersion = $parameterBag->get('project_version');
 
         $this->gatewayURL = $parameterBag->get('gateway_url');
@@ -709,16 +721,17 @@ class GlobalConfig implements GlobalConfigInterface
         $this->fileServiceFilePath = $parameterBag->get('fileservice_filepath');
         $this->allowedMimeTypes = $parameterBag->get('allowed_mimetypes');
 
-        //Honeypot-Zeitbegrenzung
+        // Honeypot-Zeitbegrenzung
         $this->honeypotDisabled = $parameterBag->get('honeypot_disabled');
+        $this->honeypotTimeout = $parameterBag->get('honeypot_timeout');
 
-        //alternatives Login ermöglichen
+        // alternatives Login ermöglichen
         $this->alternativeLogin = $parameterBag->get('alternative_login');
 
-        //Art des Stellungnahmeabgabeprozesses
+        // Art des Stellungnahmeabgabeprozesses
         $this->projectSubmissionType = $parameterBag->get('project_submission_type');
 
-        //Verfahrensschritte
+        // Verfahrensschritte
         $this->internalPhases = $parameterBag->get('internalPhases');
         $this->externalPhases = $parameterBag->get('externalPhases');
 
@@ -742,7 +755,7 @@ class GlobalConfig implements GlobalConfigInterface
             $this->externalPhasesAssoc[$externalPhase['key']] = $externalPhase;
         }
 
-        //Key für MaintenanceTasks (CronJob)
+        // Key für MaintenanceTasks (CronJob)
         $this->maintenanceKey = $parameterBag->get('maintenance_key');
 
         // @todo we should get rid of this
@@ -824,22 +837,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->subdomainMap = $parameterBag->get('subdomain_map');
         $this->subdomainsAllowed = $parameterBag->get('subdomains_allowed');
 
-        if ($parameterBag->has('ai_service_salt')) {
-            $aiServiceSalt = $parameterBag->get('ai_service_salt');
-            if (is_string($aiServiceSalt)) {
-                $this->aiServiceSalt = $aiServiceSalt;
-            }
-        }
-
-        if ($parameterBag->has('ai_service_post_url')) {
-            $aiServicePostUrl = $parameterBag->get('ai_service_post_url');
-            $validator = Validation::createValidator();
-            $violations = $validator->validate($aiServicePostUrl, new Url());
-            if (0 === $violations->count()) {
-                $this->aiServicePostUrl = $aiServicePostUrl;
-            }
-        }
-
         // set shared folder
         $this->sharedFolder = $parameterBag->get('is_shared_folder');
 
@@ -848,6 +845,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->procedureUserRestrictedAccess = $parameterBag->get('procedure_user_restricted_access');
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
+
+        $this->externalLinks = $this->getValidatedExternalLinks($parameterBag);
     }
 
     /**
@@ -1169,6 +1168,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function isHoneypotDisabled(): bool
     {
         return filter_var($this->honeypotDisabled, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function getHoneypotTimeout(): int
+    {
+        return $this->honeypotTimeout;
     }
 
     public function getMaintenanceKey(): string
@@ -1787,22 +1791,6 @@ class GlobalConfig implements GlobalConfigInterface
     }
 
     /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServiceSalt(): string
-    {
-        return $this->aiServiceSalt;
-    }
-
-    /**
-     * @return string may be empty if not configured properly
-     */
-    public function getAiServicePostUrl(): string
-    {
-        return $this->aiServicePostUrl;
-    }
-
-    /**
      * @return array<int, string>
      */
     public function getRolesAllowed(): array
@@ -1846,5 +1834,42 @@ class GlobalConfig implements GlobalConfigInterface
     public function isAdvancedSupport(): bool
     {
         return $this->advancedSupport;
+    }
+
+    public function getExternalLinks(): array
+    {
+        return $this->externalLinks;
+    }
+
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private function getValidatedExternalLinks(ParameterBagInterface $parameterBag): array
+    {
+        $externalLinks = $parameterBag->get('external_links');
+        $violations = $this->validator->validate($externalLinks, [
+            new Type('array'),
+            new NotNull(),
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+                new Url(),
+            ]),
+        ]);
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        $violations->addAll($this->validator->validate(array_keys($externalLinks), [
+            new All([
+                new Type('string'),
+                new NotBlank(null, null, false),
+            ]),
+        ]));
+        if (0 !== $violations->count()) {
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
+        return $externalLinks;
     }
 }

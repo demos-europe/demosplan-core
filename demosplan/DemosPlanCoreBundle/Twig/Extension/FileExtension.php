@@ -167,13 +167,13 @@ class FileExtension extends ExtensionBase
         $maxFileSize = $maxFileSize > 0 ? min($maxFileSize, $maxFileSizeFromPhpIni) : $maxFileSizeFromPhpIni;
 
         $data = [
-            'element_id'            => $elementId,
-            'field_name'            => $fieldName,
-            'field_label'           => $fieldLabel,
-            'field_hint'            => $fieldHint,
-            'field_required'        => $required,
-            'human_max_upload_size' => $this->formatHumanFilesize($maxFileSize),
-            'callback'              => $callback,
+            'element_id'              => $elementId,
+            'field_name'              => $fieldName,
+            'field_label'             => $fieldLabel,
+            'field_hint'              => $fieldHint,
+            'field_required'          => $required,
+            'human_max_upload_size'   => $this->formatHumanFilesize($maxFileSize),
+            'callback'                => $callback,
 
             'multi_instance'          => $multiInstance,
             'label'                   => $label,

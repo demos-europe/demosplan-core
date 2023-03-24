@@ -101,10 +101,7 @@
 </template>
 
 <script>
-import { DpButton, DpInput } from 'demosplan-ui/components'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpFormRow from '@DpJs/components/core/form/DpFormRow'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { DpButton, DpCheckbox, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CitizenRegisterForm',

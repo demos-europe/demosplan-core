@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\StoredQuery;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 
 /**
  * Provide the generalized hashing functionality for stored queries.
@@ -63,7 +63,7 @@ abstract class AbstractStoredQuery implements StoredQueryInterface
              * which is exactly our last index :)
              *
              */
-            $result .= self::DIGEST_CHARACTERS[(ord($hash[$ii]) & 0x3F)];
+            $result .= self::DIGEST_CHARACTERS[ord($hash[$ii]) & 0x3F];
         }
 
         return $result;

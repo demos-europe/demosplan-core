@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
@@ -21,9 +22,9 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\PublicPhaseReportEntryResourceTy
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,7 +45,6 @@ class DemosPlanReportAPIController extends APIController
      *        name="dplan_api_report_procedure_list",
      *        defaults={"group": null},
      *        options={"expose": true})
-     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $group
@@ -81,8 +81,11 @@ class DemosPlanReportAPIController extends APIController
 
         $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
             ->instanceOf(ResourceTypeInterface::class)
-            ->available(true)
-            ->getTypeInstance();
+            ->getInstanceOrThrow();
+
+        if (!$resourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($resourceType);
+        }
 
         $pagination = $paginationParser->parseApiPaginationProfile(
             $this->request->query->get('page', []),

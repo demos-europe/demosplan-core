@@ -159,7 +159,7 @@ assessmenttable.view.mode.default: "Keine Gliederung"
 assessmenttable.view.mode.tags: "Nach Schlagworten"
 assessmenttable.view.mode.elements: "Nach Planungsdokumenten"
 assign: "Zuweisen"
-assign.for.editing: "Zur Bearbeitung zuweisen"
+assign.for.editing: "Zur Bearbeitung zuweisen..."
 assign.to.me: 'Mir zuweisen'
 assigned: 'Zugewiesen'
 assigned.to: "Bearbeitet durch"
@@ -361,7 +361,11 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, daß Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
 check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
-check.user.delete: "Sind Sie sicher, dass Sie diese Nutzenden löschen möchten?"
+check.user.delete: |
+    {count, plural,
+        =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
+        other { Sind Sie sicher, dass Sie diese Nutzenden löschen möchten? }
+    }
 check.user.department.changed: "Bitte bestätigen Sie, dass Sie in eine neue Abteilung gewechselt sind."
 check.user.department.renamed: "Bitte bestätigen Sie, dass Ihre Abteilung umbenannt wurde."
 check.user.organisation.changed: "Bitte bestätigen Sie, dass Sie in eine neue Organisation gewechselt sind."
@@ -459,7 +463,7 @@ confirm.fragment.assignment.unassigned: "Der Datensatz wurde erfolgreich freigeg
 confirm.fragment.deleted: "Der Datensatz wurde gelöscht."
 confirm.fragment.edit: "Die Änderungen am Datensatz {id} wurden gespeichert."
 confirm.fragment.update.complete: "Die Bearbeitung des Datensatzes {id} wurde von Ihnen abgeschlossen."
-confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--default\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
+confirm.gdpr.consent: "Ich bin mit der Verarbeitung der mich betreffenden <a class=\"o-link--external\" href=\"{link}#{orgaId}\" target=\"_blank\" aria-label=\"zum Datenschutz\">personenbezogenen Daten</a> einverstanden."
 confirm.gdpr.consent.registration: "Hiermit bestätige ich, dass ich die <a class=\"o-link--default\" href=\"{gdpr}\" target=\"_blank\" aria-label=\"Hinweise zum Datenschutz\">Hinweise zum Datenschutz</a> gelesen habe und erkläre mich mit der Speicherung und Verarbeitung meiner personenbezogenen Daten einverstanden."
 confirm.gislayer.delete: "Die Kartenebene wurde gelöscht."
 confirm.gislayerCategory.delete: "Die Kartenebenen-Kategorie wurde gelöscht."
@@ -649,6 +653,8 @@ consideration.versions: "Ältere Versionen der Abwägung / Empfehlung"
 considerationadvice.fpf: "Empfehlung der Fachbehörde oder des Planungsbüros"
 # this should only be used when referring to the field on fragments. statements use 'recommendation'
 considerationadvice: "Abwägung / Empfehlung"
+considerationadvice.text.add: "Abwägung / Empfehlung ergänzen"
+considerationadvice.text.add.explanation: "Der Text wird bei einer evtl. bestehenden Abwägung / Empfehlung ans Textende angehängt."
 considerationtable.back: "Zurück zur Abwägungstabelle"
 # deliberation table?
 considerationtable: "Abwägungstabelle"
@@ -712,7 +718,7 @@ copy: "Kopieren"
 copy.to.procedure: "In ein anderes Verfahren kopieren"
 copyof: "Kopie von"
 copyright.source: "Copyright-Vermerk"
-copyright.sh: "Kartengrundlage: © GeoBasis-DE/LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
+copyright.sh: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
 counties: "Kreise"
 counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
@@ -890,6 +896,7 @@ element.delete: "Element entfernen"
 element.notassigned: "Es ist kein Bezug zu einem Planungsdokument festgelegt."
 element.selected: "Ausgewähltes Element"
 element.state.autoswitch: "Status der Kategorie automatisch auf \"{state}\" umstellen"
+element.state.publish: "Kategorien sofort veröffentlichen."
 elementimport: "Import der Planungsdokumente"
 elements.assigned: "Bezug zu Planungsdokumenten"
 elements.bulk.edit: "Planungsdokumente bearbeiten"
@@ -1179,9 +1186,6 @@ error.statement.final.send.noemail: "Die Schlussmitteilung konnte nicht erfolgre
 error.statement.final.send.syntax.email.cc: "Die Schlussmitteilung konnte nicht erfolgreich versendet werden, da E-Mail-Adressen in Kopie nicht korrekt eingegeben wurden."
 error.statement.final.send: "Die Schlussmitteilung konnte nicht erfolgreich versendet werden."
 error.statement.fragment.create: "Der Datensatz konnte nicht angelegt werden"
-error.statement.import.mail.maillane.account.creation.failed: "Empfänger-Emailadresse konnte nicht korrekt angelegt werden. An dieses Verfahren können aktuell keine E-Mails weitergeleitet werden."
-error.statement.import.mail.maillane.account.update.failed: "Synchronisation der Absenderadressen ist fehlgeschlagen."
-error.statement.import.mail.maillane.user.creation.failed: "Absenderadresse konnte nicht für Stellungnahmenimport freigeschaltet werden: {senderEmail}"
 error.statement.like.twice: "Ein Unterstützen einer Stellungnahme ist nur einmalig möglich."
 error.statement.like: "Beim Unterstützen der Stellungnahme ist ein Fehler aufgetreten."
 error.statement.marked.voted: "Die Stellungnahme konnte nicht mitgezeichnet werden."
@@ -1246,7 +1250,7 @@ explanation.agreement.pdf: "Laden Sie zusätzlich das PDF der textlichen Festset
 explanation.before.vote.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.before.vote.data.user.change.portal: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Mitzeichnung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.bplan: "Sie können über dieses Formular eine Stellungnahme zum B-Plan Entwurf abgeben."
-explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mit gelöscht."
+explanation.category.delete: "Alle zur Kategorie hochgeladenen Dokumente und Kapitel werden mitgelöscht."
 explanation.claim.possibility: "Mit Ihrem echten Namen können Sie später nachweisen, dass Sie Ihre Bedenken mitgeteilt haben. Sie haben so die Möglichkeit, Klage einzureichen."
 explanation.considerationtable.empty.filtered: "Zu Ihrer Suche/Filterung konnten keine Einträge in der Abwägungstabelle gefunden werden."
 explanation.coordinate.desc: "Per Klick in die Karte können Sie Ihrem Verfahren eine Position geben, an der es in der Karte im öffentlichen Bereich angezeigt wird."
@@ -1256,7 +1260,7 @@ explanation.data.protection.before.vote: "Die Stellungnahme muss für den öffen
 explanation.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.data.user.change.portal: "Sollte sich Ihr Name oder Ihre E-Mail-Adresse geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
 explanation.data.user: "Hier können Sie Ihre persönlichen Daten einsehen, mit denen Sie registriert sind."
-explanation.date.procedure: "Die Datumsangaben werden in der Beteiligungsphase in der Verfahrensübersicht angezeigt. Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
+explanation.date.procedure: ""
 explanation.date.empty: "Wird der Zeitraum leer gelassen, setzt das System automatisch das aktuelle Datum ein."
 explanation.drawing.configuration: "Die Konfiguration der Karten, Pläne und Legende erfolgt unter nachfolgendem Link im Menü „Planzeichnung“."
 explanation.email.cc: "Bitte trennen Sie mehrere E-Mail-Adressen mit einem Komma und einem Leerzeichen."
@@ -1308,8 +1312,8 @@ explanation.gislayer.visibility.group.locked.different.not.togglable: "Die Karte
 explanation.gislayer.visibility.group.locked.unexpected: "Die Kartenebene kann nicht gruppiert werden"
 explanation.gislayer.xplan.default: "Nutze die vordefinierten Standard XPlan-Layer."
 explanation.gislayer.xplan: "Diesen WMS als XPlanlayer anlegen."
-explanation.import.topicsAndTags: "Es werden die Begründungen der Stellungnahmen mit Themen und Schlagworten importiert."
 explanation.invitationmail.deactivated: "Bitte speichern Sie Ihre Änderungen zu der Beteiligungs-E-Mail ab, bevor Sie die Einladungen verschicken, damit die Änderungen übernommen werden."
+explanation.import.topicsAndTags: "Die Schlagworte wurden erfolgreich importiert."
 explanation.layers.separated: "Mehrere Layer werden durch ein Komma getrennt."
 explanation.list.of.submitters: "In dieser Liste finden Sie alle Personen, die in diesem Verfahren mindestens eine Stellungnahme eingereicht haben."
 explanation.login.gateway: "Die Anmeldung erfolgt über den Schleswig-Holstein-Service. Für Institutionen erforderlich, für Bürgerinnen und Bürger optional."
@@ -1362,6 +1366,7 @@ explanation.proxy.use: "Nutze den Proxy für Aufrufe, die über den Server und n
 explanation.public.participation.contact: "Die Ansprechperson wird auf der öffentlichen Verfahrensseite angezeigt."
 explanation.public.participation.detail.palm: "Im Rahmen der Öffentlichkeitsbeteiligung der Bauleitplanung Online können Sie Ihre Stellungnahme zu Verfahren auch über diese Webseite abgeben. Diese Funktionalität steht allerdings nicht auf dem Smartphone zur Verfügung."
 explanation.invitable_institution.authorisations: "Wenn keine Organisation ausgewählt ist, dann ist die Kategorie für alle dem Verfahren zugewiesenen Organisationen sichtbar. Ist mindestens eine Organisation ausgewählt, ist die Kategorie für Bürger*innen nicht mehr sichtbar."
+explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich „Institutionen verwalten“ in allen Verfahren zur Verfügung."
 explanation.invitable_institution.list.show: "Ist das Häkchen gesetzt, wird die Organisation in der Institutionen-Liste angezeigt und kann somit zu Verfahren eingeladen werden. Diese Option ist ausschließlich für den Support verfügbar."
 explanation.invitable_institutions.noneselected: "Es wurden keine Institutionen ausgewählt."
 explanation.reason.configuration: "Die Konfiguration der Begründungskapitel erfolgt unter nachfolgendem Link im Menü „Begründung“."
@@ -1755,6 +1760,7 @@ import.process.finished: "Import abgeschlossen"
 import.statements.fromPdf: "Stellungnahmen aus PDF-Dokumenten importieren"
 import.statements.fromPdf.label: "Stellungnahmen aus PDF-Dokumenten importieren (maximal {maxFiles} Dateien gleichzeitig)"
 import.verb: "Importieren"
+imported.verb: "Importiert"
 imprint: "Impressum"
 in: "in"
 inaccessible: 'ohne Zugriff'
@@ -1808,6 +1814,7 @@ invitable_institution.add.explanation: "Fügen Sie hier Institutionen hinzu, um 
 invitable_institution.administer: "Institutionen verwalten"
 invitable_institution.authorisations: "Institutions-Berechtigungen"
 invitable_institution.for: "für Institutionen"
+invitable_institution.group: "Institutionen gruppieren"
 invitable_institution.list.back: "Zurück zur Institutionen-Liste"
 invitable_institution.list.change: "Änderungen Institutionen-Liste"
 invitable_institution.list.show: "Anzeige in Institutionen-Liste"
@@ -1939,7 +1946,7 @@ logo.of.bundesland: "Logo-Bild des Bundeslandes"
 logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
-map.attribution.default: "Lizenzrechtliche Angaben im <a>Impressum</a>"
+map.attribution.default: "Lizenzrechtliche Angaben im <a href=\"{link}\">Impressum</a>"
 map.attribution: "Copyright-Vermerk"
 map.attribution.hint: "Der Copyright-Vermerk bzw. die Quellengabe wird in einer Leiste unterhalb der Karte angezeigt."
 map.base: "Grundkarte"
@@ -2571,6 +2578,19 @@ procedures.none: "Es sind noch keine Verfahren vorhanden."
 procedures.orga: "Verfahren Ihrer Organisation"
 procedures.participation.none: "Derzeit befinden sich keine Verfahren in Beteiligung."
 procedures.phase.overview: "Phasenübersicht aller Verfahren"
+procedures.statements.count: "Anzahl aller Stellungnahmen im Verfahren"
+procedures.statements.count.description: |
+    {statements, plural,
+        =0 {Keine Stellungnahme}
+        =1 {Eine Stellungnahme}
+        other {# Stellungnahmen}
+    }
+procedures.statements.count.original.description: |
+    {statements, plural,
+        =0 {keine Originalstellungnahme}
+        =1 {eine Originalstellungnahme}
+        other {# Originalstellungnahmen}
+    }
 procedures.statements.total: |
     {statementCount, plural,
         =1 {Eine Stellungnahme in {procedureCount} Verfahren}
@@ -2704,7 +2724,6 @@ reviewed: "Überprüft"
 reviewer: "Fachbehörde"
 revoke: "Aufheben"
 role: "Rolle"
-role.aiapi: "AI API User"
 role.citizen: "Privatperson"
 role.cmu: "Plattform-Administration"
 role.data: "Datenerfassung"
@@ -2807,6 +2826,10 @@ segments.assigned.now: |
         other {Aktuell sind Ihnen <strong>#</strong> Abschnitte zur Bearbeitung zugewiesen.}
     }
 segments.bulk.edit: "Abschnitte bearbeiten"
+segments.bulk.edit.place.add: "Bearbeitungsschritt ändern..."
+segments.bulk.edit.place.assigned.description: "Die ausgewählten Abschnitte werden auf folgenden Bearbeitungsschritt geändert:"
+segments.bulk.edit.place.assigned.error: "Folgender Bearbeitungsschritt konnte bei {count} Abschnitten <em>nicht geändert werden</em>:"
+segments.bulk.edit.place.assigned.success: "Folgender Bearbeitungsschritt wurde bei {count} Abschnitten <em>geändert</em>:"
 segments.bulk.edit.segments.assigned.error: "Bei der Zuweisung der Abschnitte ist ein Fehler aufgetreten."
 segments.bulk.edit.segments.assigned.success: "Die Zuweisung der Abschnitte wurde erfolgreich geändert."
 segments.bulk.edit.tags.add: "Schlagworte hinzufügen..."
@@ -3245,7 +3268,7 @@ statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
-statements.final: "Einreichungen der Organisation"
+statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
 statements.final_versions: "Endfassungen"
 statements.group: "Stellungnahmen der Gruppe"
@@ -3262,7 +3285,7 @@ statements.grouped.priority: |
         =1 {Eine Stellungnahme nach Priorität}
         other {# Stellungnahmen nach Priorität}
     }
-statements.grouprelease: "Freigaben der Organisation"
+statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"
@@ -3766,6 +3789,7 @@ warning.draftStatement.already.submitted: "Stellungnahme {draftStatementId} wurd
 warning.document.import.toplevel: "Dateien auf oberster Ebene des Archivs können nicht importiert werden. Bitte speichern Sie sie unterhalb eines Ordners"
 warning.addressBookEntry.not.created: "E-Mail-Adressbucheintrag konnte nicht erstellt werden."
 warning.entries.deleted: "Die Einträge konnten nicht alle korrekt gelöscht werden"
+warning.email.and.password.editable.via.serviceprovider: "Sie können Ihre E-Mail-Adresse / Ihr Passwort bei dem Serviceprovider ändern, über den Sie sich eingeloggt haben."
 warning.entries.no.selected: "Es wurden keine Einträge ausgewählt."
 warning.entry.missing: "Der Beitrag existiert nicht mehr."
 warning.entry.not.editable: "Der Beitrag kann nicht mehr bearbeitet werden!"
@@ -3778,6 +3802,7 @@ warning.faq.title.tooLong: "Der eingegebene Titel ist länger als 255 Zeichen un
 warning.featureinfo.empty: "Es sind keine Sachdaten hinterlegt."
 warning.file.missing: "Das Dokument existiert nicht mehr."
 warning.filetype: "Der von Ihnen hochgeladene Dateityp ist nicht erlaubt."
+warning.floodcontrol.timeout: 'Das Formular wurde zu schnell abgeschickt. Bitte warten Sie aus Sicherheitsgründen ein paar Sekunden vor dem Abschicken des Formulars.'
 warning.fragment.assignment.information: "Die Informations-E-Mail an die Fachbehörden-Koordination zur Zuweisung dieser Stellungnahme konnte nicht versandt werden."
 warning.fragment.locked.By: "Dieser Datensatz ist zur Zeit {name} der Organisation {organisation} zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
 warning.fragment.needLock.generic: "Dieser Datensatz ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie diesen zunächst für sich beanspruchen."

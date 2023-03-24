@@ -38,10 +38,13 @@
         :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
         :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
         :chunk-size="{{ chunksize|default('Infinity') }}"
+        :get-file-by-hash="(hash) => {
+            return Routing.generate('core_file', { hash: hash })
+        }"
         name="{{ field_name|default }}"
         :max-file-size="{{ maxfilesize }}"
         :max-number-of-files="{{ maxfiles|default(1) }}"
         needs-hidden-input
         :required="{{ field_required ? 'true' : 'false' }}"
-        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }"
-    ></dp-upload-files>
+        :translations="{ dropHereOr: '{{ label|default( "form.button.upload.pdf")|trans( { browse: '{browse}', maxUploadSize: human_max_upload_size } ) }}' }">
+    </dp-upload-files>

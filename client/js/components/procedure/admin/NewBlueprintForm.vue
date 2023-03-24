@@ -90,6 +90,7 @@
           :tooltip="Translator.trans('email.address.more.explanation.help')" />
         <dp-email-list
           id="emailList"
+          allow-updates-from-outside
           :class="`${mainEmail === '' ? 'opacity-7 pointer-events-none' : '' } u-mt-0_25`"
           :init-emails="emailAddresses" />
 
@@ -137,14 +138,18 @@
 </template>
 
 <script>
-import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import {
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpFormRow,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpSelect,
+  DpTextArea
+} from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import DpFormRow from '@DpJs/components/core/form/DpFormRow'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
 
 export default {
   name: 'NewBlueprintForm',

@@ -34,12 +34,10 @@ class DemosPlanUserListController extends DemosPlanUserController
      *     name="DemosPlan_informationen_teilnehmende_public",
      *     path="/informationen/teilnehmende/public"
      * )
-     *
      * @Route(
      *     name="DemosPlan_informationen_teilnehmende",
      *     path="/teilnehmende"
      * )
-     *
      * @DplanPermissions("area_main_view_participants")
      *
      * @return Response
@@ -67,7 +65,6 @@ class DemosPlanUserListController extends DemosPlanUserController
      *     name="DemosPlan_user_list",
      *     path="/user/list"
      * )
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
@@ -92,7 +89,6 @@ class DemosPlanUserListController extends DemosPlanUserController
      *     path="/organisation/adressen/liste/{organisationId}",
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @return RedirectResponse|Response
@@ -124,7 +120,6 @@ class DemosPlanUserListController extends DemosPlanUserController
      *     name="DemosPlan_user_admin",
      *     path="/user/admin"
      * )
-     *
      * @DplanPermissions("area_manage_users")
      *
      * @return RedirectResponse|Response
@@ -134,7 +129,7 @@ class DemosPlanUserListController extends DemosPlanUserController
     public function adminUsersAction(Request $request, UserHandler $userHandler)
     {
         $userIdent = '';
-        //wenn der request gefüllt ist, bearbeite ihn
+        // wenn der request gefüllt ist, bearbeite ihn
         if (0 < $request->request->count()) {
             $requestPost = $request->request;
 

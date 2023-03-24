@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "segment.bulk.edit",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "segment.bulk.edit"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "addTagIds": {
+          "$id": "addTagIds",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "addTagIds.item",
+            "type": "string"
+          }
+        },
+        "removeTagIds": {
+          "$id": "removeTagIds",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "removeTagIds.items",
+            "type": "string"
+          }
+        },
+        "segmentIds": {
+          "$id": "#/items/anyOf/0/properties/params/items/anyOf/1/properties/segmentIds",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "#/items/anyOf/0/properties/params/items/anyOf/1/properties/segmentIds/items",
+            "type": "string"
+          }
+        },
+        "assigneeId": {
+          "$id": "#/properties/userId",
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "placeId": {
+          "$id": "#/properties/PlaceId",
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36
+        },
+        "recommendationTextEdit": {
+          "$id": "#recommendationTextEdit",
+          "type": "object",
+          "properties": {
+            "text": {
+              "$id": "recommendationTextEdit/text",
+              "type": "string"
+            },
+            "attach": {
+              "$id": "recommendationTextEdit/attach",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "required": [
+        "addTagIds",
+        "removeTagIds",
+        "segmentIds",
+        "recommendationTextEdit"
+      ]
+    }
+  }
+}

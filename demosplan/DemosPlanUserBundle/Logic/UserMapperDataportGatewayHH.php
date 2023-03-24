@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -18,8 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
@@ -72,7 +71,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
     protected function loadRoleMapping()
     {
         $yaml = new Parser();
-        //Lädt das Rollenmapping
+        // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanUserBundle/Logic').'/UserMapperDataportGatewayHH.yml')
@@ -122,7 +121,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         // es dürfen nicht automatisch alle Werte aus dem Gateway übernommen werden, weil die Werte aus der MasterTöb gewinnen
         // Firmennutzer aus dem Gateway
         if ('3' == $this->data['modeID']) {
-            //Nutzer prüfen
+            // Nutzer prüfen
             $user = $this->createOrUpdateUser();
 
             // if user changed Orga delete Orga and Department
@@ -149,7 +148,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 
             $orga = $this->createOrgaIfNeededAndAddUser($user);
 
-            //Auf Department prüfen
+            // Auf Department prüfen
             if (!$user->getDepartment() instanceof Department) {
                 $departmentName = $this->getDepartmentNameFromGwData();
                 /** @var Department[] $departments */
@@ -157,11 +156,11 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     ['gwId' => md5($this->data['user']['COMPANYID'].$departmentName)]
                 );
                 if (empty($departments)) {
-                    //Anlegen eines Departments
+                    // Anlegen eines Departments
                     $department = $this->createDepartment($departmentName, $orga->getId());
                     $this->userService->departmentAddUser($department->getId(), $user);
                 } else {
-                    //Nutzer zur vorhandene Department hinzufügen
+                    // Nutzer zur vorhandene Department hinzufügen
                     $this->userService->departmentAddUser($departments[0]->getId(), $user);
                 }
             }
@@ -172,7 +171,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         if ('2' == $this->data['modeID']) {
             $this->logger->info('Check User Mode 2');
             $user = null;
-            //check possible roles except institution roles
+            // check possible roles except institution roles
             $normalRoles = [
                 Role::PLANNING_AGENCY_ADMIN,
                 Role::PLANNING_AGENCY_WORKER,
@@ -187,18 +186,18 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 
             if ([] !== array_intersect($normalRoles, $this->getRoles())) {
                 $this->logger->info('User ist ein Nicht-Töb');
-                //Does user exist?
+                // Does user exist?
                 $user = $this->getMode2UserByLogin($this->data['user']['LOGINNAME']);
                 if (!$user instanceof User) {
                     $this->logger->info('User does not exist create with roles', ['roles' => $normalRoles]);
-                    //Anlegen des Nutzers
+                    // Anlegen des Nutzers
                     $user = $this->createUserMode2($normalRoles);
                 } else {
                     // Update der FachplanerRollen des Users
                     $userFpRoles = array_intersect($this->getRoles(), $normalRoles);
                     $this->logger->info('Update planner user roles', [$userFpRoles]);
                     $this->userService->setUserRoles($user->getId(), $userFpRoles);
-                    //Update user, exclude roles
+                    // Update user, exclude roles
                     $user = $this->updateUser($user, false);
                 }
 
@@ -311,7 +310,6 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 
                         $userDepartment = $this->createDepartmentMode2(
                             $userOrga->getGwId(),
-                            false,
                             $userOrga->getId()
                         );
                     }
@@ -326,7 +324,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                 $user->setIntranet(true);
             }
 
-            //check TöB roles
+            // check TöB roles
             $toebRoles = [Role::PUBLIC_AGENCY_WORKER, Role::PUBLIC_AGENCY_COORDINATION];
             if ([] !== array_intersect($toebRoles, $this->getRoles())) {
                 $publicAgencyUser = $this->getMode2UserByLogin('T'.$this->data['user']['LOGINNAME']);
@@ -352,7 +350,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                             $masterToebEntries = array_merge($masterToebEntries, $masterToeb);
                         }
                     }
-                    //Wenn mehr als ein Eintrag existiert muss geprüft werden welcher der richtige ist.
+                    // Wenn mehr als ein Eintrag existiert muss geprüft werden welcher der richtige ist.
                     /** @var MasterToeb[] $masterToebEntries */
                     if (count($masterToebEntries) > 1) {
                         $countMasterToebOrga = count($masterToebEntries);
@@ -410,8 +408,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                             $this->logger->info('Es konnte kein Department zur gwId '.$departmentGwId.' gefunden werden');
                             $userDepartment = $this->createDepartmentMode2(
                                 $userOrga->getGwId(),
-                                true,
-                                $userOrga->getId()
+                                $userOrga->getId(),
+                                true
                             );
                             $userDepartment = $this->userService->departmentAddUser(
                                 $userDepartment->getId(),
@@ -422,7 +420,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                         $this->logger->info('Added user to department',
                             ['user' => $publicAgencyUser->getLogin(), 'department' => $userDepartment->getName()]);
                     }
-                    //Update user, exclude roles
+                    // Update user, exclude roles
                     $publicAgencyUser = $this->updateToebUserMode2($publicAgencyUser);
                 } else {
                     // User ist vorhanden, check, ob die Daten aktualisiert werden müssen
@@ -456,7 +454,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $this->logger->info('Update public agency user roles', [$userToebRoles]);
                     $this->userService->setUserRoles($publicAgencyUser->getId(), $userToebRoles);
 
-                    //Update user, exclude roles
+                    // Update user, exclude roles
                     $publicAgencyUser = $this->updateToebUserMode2($publicAgencyUser);
                 }
 
@@ -498,14 +496,14 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
      */
     protected function createOrgaMode2($isToeb = false)
     {
-        //Beim Anlegen der Orga gilt folgendes
-        //orga.name = AUTHORITY
-        //orga.street = STREET
-        //orga.houseNumber = STREETNUMBER
-        //orga.city = CITY
-        //orga.postalcode = ZIPCODE
-        //orga.state = COUNTRY
-        //orga.gwId = MD5('AUTHORITY' + 'DEPARTMENT')
+        // Beim Anlegen der Orga gilt folgendes
+        // orga.name = AUTHORITY
+        // orga.street = STREET
+        // orga.houseNumber = STREETNUMBER
+        // orga.city = CITY
+        // orga.postalcode = ZIPCODE
+        // orga.state = COUNTRY
+        // orga.gwId = MD5('AUTHORITY' + 'DEPARTMENT')
 
         $orgaAddress = [
             'city'        => $this->data['user']['CITY'],
@@ -516,7 +514,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         ];
         $address = $this->addressService->addAddress($orgaAddress);
 
-        //Default organisation type: Kommune
+        // Default organisation type: Kommune
         $type = OrgaType::MUNICIPALITY;
 
         // Gehe bei internen Töb bis auf das Leitzeichen herunter, weil die Angaben aus dem Gateway ansonsten identisch sind
@@ -526,7 +524,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
             $gwId = md5($this->data['user']['AUTHORITY'].$this->data['user']['DEPARTMENT']);
         }
 
-        //Anlegen einer Organisation
+        // Anlegen einer Organisation
         $orgaData = [
             'customer'  => $this->customerHandler->getCurrentCustomer(),
             'name'      => $this->data['user']['AUTHORITY'],
@@ -577,10 +575,10 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
      */
     protected function updateOrgaMode2(Orga $orga, $isToeb = false)
     {
-        //orga.city = CITY
-        //orga.postalcode = ZIPCODE
-        //orga.state = COUNTRY
-        //orga.gwId = MD5('AUTHORITY' + 'DEPARTMENT')
+        // orga.city = CITY
+        // orga.postalcode = ZIPCODE
+        // orga.state = COUNTRY
+        // orga.gwId = MD5('AUTHORITY' + 'DEPARTMENT')
         $update = [];
         if ($orga->getStreet() != $this->data['user']['STREET']) {
             $update['address_street'] = $this->data['user']['STREET'].' '.$this->data['user']['STREETNUMBER'];
@@ -631,19 +629,15 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
     /**
      * Create department.
      *
-     * @param string $orgaGwId
-     * @param bool   $isToeb
-     * @param string $orgaId
-     *
      * @return Department
      *
      * @throws Exception
      */
-    protected function createDepartmentMode2($orgaGwId, $isToeb = false, $orgaId)
+    protected function createDepartmentMode2(?string $orgaGwId, string $orgaId, bool $isToeb = false)
     {
-        //Beim anlegen des Department gilt folgendes
-        //department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT' <- Stand DSL, dann wird falsches Department zugewiesen
-        //department.gwId = MD5(orga.gwId + department.name)
+        // Beim anlegen des Department gilt folgendes
+        // department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT' <- Stand DSL, dann wird falsches Department zugewiesen
+        // department.gwId = MD5(orga.gwId + department.name)
         // Gehe bei internen Töb bis auf das Leitzeichen herunter, weil die Angaben aus dem Gateway ansonsten identisch sind
         if ($isToeb) {
             $departmentName = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'].' - '.$this->data['user']['AUTHORITYSIGN'];
@@ -678,8 +672,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
      */
     protected function updateDepartmentMode2(Department $department, $orgaGwId, $isToeb = false)
     {
-        //department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT'
-        //department.gwId = MD5(orga.gwId + department.name)
+        // department.name =  'DEPARTMENT' + ' - ' +  'SUBDEPARTMENT'
+        // department.gwId = MD5(orga.gwId + department.name)
         $update = [];
 
         // Update der GwId mit den Angaben aus dem GW, damit die Orga mit der Orga im GW matcht, auch wenn der Organame und der Departmentname

@@ -23,7 +23,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
     protected function loadRoleMapping()
     {
         $yaml = new Parser();
-        //Lädt das Rollenmapping
+        // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanUserBundle/Logic').'/UserMapperDataportGatewaySH.yml')
@@ -67,7 +67,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
 
         // Firmennutzer aus dem Gateway
         if ('3' == $this->data['modeID']) {
-            //Nutzer prüfen
+            // Nutzer prüfen
             $user = $this->createOrUpdateUser();
 
             // user claimed department changed
@@ -144,17 +144,17 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
                     $this->updateDepartment($userDepartment, $departmentName);
                 }
             } else {
-                //Auf Department prüfen
+                // Auf Department prüfen
                 $departmentName = $this->getDepartmentNameFromGwData();
                 /** @var Department[] $departments */
                 $departments = $this->userService->getDepartmentByFields(['gwId' => md5($this->data['user']['COMPANYID'].$departmentName)]);
                 if (empty($departments)) {
-                    //Anlegen eines Departments
+                    // Anlegen eines Departments
                     $this->logger->info('Create new department');
                     $department = $this->createDepartment($departmentName, $orga->getId());
                     $this->userService->departmentAddUser($department->getId(), $user);
                 } else {
-                    //Nutzer zur vorhandene Department hinzufügen
+                    // Nutzer zur vorhandene Department hinzufügen
                     $this->logger->info('Add user to existing department');
                     $this->userService->departmentAddUser($departments[0]->getId(), $user);
                 }

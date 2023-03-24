@@ -232,17 +232,13 @@
 </template>
 
 <script>
+import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
-import { changeUrlforPager } from 'demosplan-utils'
-import { CleanHtml } from 'demosplan-ui/directives'
+import changeUrlforPager from './utils/changeUrlforPager'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
-import { DpLoading } from 'demosplan-ui/components'
-import DpPager from '@DpJs/components/core/DpPager'
-import { handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
 import { scrollTo } from 'vue-scrollto'
-import Stickier from '@DpJs/lib/Stickier'
 
 /*
  * @refs T12284 check if the statements are in sync with the view (ES is just near Realtime )
@@ -263,7 +259,10 @@ export default {
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
     DpPager,
-    DpSlidebar: () => import(/* webpackChunkName: "dp-slidebar" */ '@DpJs/components/core/DpSlidebar'),
+    DpSlidebar: async () => {
+      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+      return DpSlidebar
+    },
     DpAssessmentTableCard,
     DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
   },
@@ -706,25 +705,7 @@ export default {
         window.history.pushState({
           html: url.join('?'),
           pageTitle: document.title
-          }, document.title, url.join('?'))
-      }
-    },
-
-    updateSelectedElementEditableStatus (data) {
-      const checkboxId = data.id + ':item_check[]'
-      if (document.getElementById(checkboxId)) {
-        if (document.getElementById(checkboxId).checked) {
-          data.checked = true
-          this.updateSelectedElementsList(data)
-        }
-      }
-    },
-
-    updateSelectedElementsList (data) {
-      if (data.checked) {
-        this.addToSelectionAction(data)
-      } else {
-        this.removeFromSelectionAction(data.id)
+        }, document.title, url.join('?'))
       }
     },
 
@@ -783,6 +764,7 @@ export default {
             if (hasPermission('area_statements_fragment')) {
               this.setProcedureIdForFragment(this.procedureId)
             }
+
             this.triggerApiCallForStatements()
           })
           .then(() => {

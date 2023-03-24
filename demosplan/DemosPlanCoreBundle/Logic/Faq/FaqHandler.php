@@ -216,7 +216,7 @@ class FaqHandler extends CoreHandler
      */
     public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
     {
-        //improve:
+        // improve:
         // Sanitize and validate fields
         $mandatoryErrors = false;
         if (!array_key_exists('r_enable', $data) || '' === trim($data['r_enable'])) {
@@ -368,12 +368,40 @@ class FaqHandler extends CoreHandler
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
-        //filter: custom categories only
+        // filter: custom categories only
         return $allFaqCategories->filter(
             static function (FaqCategory $faqCategory) use ($categoryTypeNamesToInclude) {
                 return in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom();
             }
         );
+    }
+
+    /**
+     * Get all faqs and sort by category into array.
+     *
+     * @param Collection $categories a collection of {@link Category categories}
+     *
+     * @return array<string, array{id: string, label: string, faqlist: list<Faq>}>
+     */
+    public function convertIntoTwigFormat(Collection $categories, User $user): array
+    {
+        // get all faqs and sort by category into array:
+        $convertedResult = [];
+        foreach ($categories as $category) {
+            $faqList = $this->getEnabledFaqList($category, $user);
+
+            $faqList = $this->orderFaqsByManualSortList($faqList, $category);
+            foreach ($faqList as $faq) {
+                $categoryId = $faq->getCategory()->getId();
+                $categoryTitle = $faq->getCategory()->getTitle();
+
+                $convertedResult[$categoryId]['id'] = $categoryId;
+                $convertedResult[$categoryId]['label'] = $categoryTitle;
+                $convertedResult[$categoryId]['faqlist'][] = $faq;
+            }
+        }
+
+        return $convertedResult;
     }
 
     /**
@@ -453,7 +481,7 @@ class FaqHandler extends CoreHandler
      */
     public function isCategoryTitleUnique($title)
     {
-        //check for already existing category by
+        // check for already existing category by
         $category = $this->entityManager
             ->getRepository(Category::class)
             ->findOneBy(['title' => $title]);

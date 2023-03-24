@@ -13,20 +13,20 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 
 /**
- * @method array getFilterSet()
- * @method void setFilterSet(array $filterSet)
- * @method array getSortingSet()
- * @method void setSortingSet(array $sortingSet)
- * @method array getResult()
- * @method void setResult(array $result)
+ * @method array                   getFilterSet()
+ * @method void                    setFilterSet(array $filterSet)
+ * @method array                   getSortingSet()
+ * @method void                    setSortingSet(array $sortingSet)
+ * @method array                   getResult()
+ * @method void                    setResult(array $result)
  * @method DemosPlanPaginator|null getPager()
- * @method void setPager(DemosPlanPaginator|null $demosPlanPaginator)
- * @method array getSearchFields()
- * @method void setSearchFields(array $searchFields)
- * @method int getTotal()
- * @method void setTotal(int $total)
- * @method string getSearch()
- * @method void setSearch(int $search)
+ * @method void                    setPager(DemosPlanPaginator|null $demosPlanPaginator)
+ * @method array                   getSearchFields()
+ * @method void                    setSearchFields(array $searchFields)
+ * @method int                     getTotal()
+ * @method void                    setTotal(int $total)
+ * @method string                  getSearch()
+ * @method void                    setSearch(int $search)
  */
 class ElasticsearchResultSet extends ValueObject
 {
@@ -63,5 +63,4 @@ class ElasticsearchResultSet extends ValueObject
      * @var DemosPlanPaginator|null
      */
     protected $pager;
-
 }

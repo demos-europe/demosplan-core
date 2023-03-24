@@ -85,10 +85,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpLoading } from 'demosplan-ui/components'
-import { formatDate } from 'demosplan-utils'
+import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 import FragmentStatus from './Status'
 
 export default {

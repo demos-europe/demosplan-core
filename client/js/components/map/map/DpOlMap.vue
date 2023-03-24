@@ -68,11 +68,15 @@
             name="controls" />
           <div :class="prefixClass('float--right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb display--inline-block width-200 bg-color--white')"
+              :class="prefixClass('u-mb display--inline-block width-250 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
               :options="autoCompleteOptions"
-              :route="_options.autoSuggest.serviceUrlPath"
-              :additional-route-params="{ filterByExtent: JSON.stringify(maxExtent) }"
+              :route-generator="(searchString) => {
+                return Routing.generate(_options.autoSuggest.serviceUrlPath, {
+                  filterByExtent: JSON.stringify(maxExtent),
+                  query: searchString
+                })
+              }"
               label="value"
               :placeholder="Translator.trans('autocomplete.label')"
               track-by="value"
@@ -100,7 +104,8 @@
       <!-- Map container -->
       <div
         ref="mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 position--relative')]"
+        id="map">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -120,18 +125,22 @@
 
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { Map, View } from 'ol'
+import {
+  checkResponse,
+  deepMerge,
+  dpApi,
+  DpAutocomplete,
+  DpLoading,
+  prefixClassMixin
+} from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
-import { deepMerge } from 'demosplan-utils'
-import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
-import { DpLoading } from 'demosplan-ui/components'
 import DpOlMapLayer from './DpOlMapLayer'
 import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { Map } from 'ol'
+import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
 import { register } from 'ol/proj/proj4'
@@ -246,27 +255,46 @@ export default {
   },
 
   methods: {
-    setAutoCompleteOptions (response) {
-      this.autoCompleteOptions = response.data.data.suggestions
+    createMap () {
+      const namedProjections = [
+        [
+          this._options.projection.code,
+          this._options.projection.transform
+        ]
+      ]
+
+      // Put resolutions in correct format for masterportalapi
+      const resolutions = this.resolutions.map(resolution => ({ resolution }))
+
+      const config = {
+        epsg: this.projection.getCode(),
+        extent: this.maxExtent,
+        layerConf: [], // We need to pass an empty config here, so the api doesn't use its default
+        namedProjections,
+        options: resolutions,
+        startCenter: [this.centerX, this.centerY],
+        target: 'map',
+        units: 'm'
+      }
+
+      const controls = this.options.controls ? this.options.controls : this._options.controls
+
+      return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
 
-    createMap () {
-      return new Map({
-        controls: this.options.controls ? this.options.controls : this._options.controls,
-        target: this.$refs.mapContainer,
-        view: new View({
-          center: [this.centerX, this.centerY],
-          projection: this.projection,
-          resolutions: this.resolutions,
-          extent: this.maxExtent,
-          minResolution: this.resolutions[(this.resolutions.length - 1)],
-          maxResolution: this.resolutions[0],
-          constrainOnlyCenter: true,
-          constrainResolution: true
-        }),
-        loadTilesWhileAnimating: true,
-        resolutions: this.resolutions
-      })
+    /**
+     * Define extent for map
+     * @param mapOptions
+     * @return void
+     */
+    defineExtent (mapOptions) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent && mapOptions.procedureMaxExtent.length > 0) {
+        this.maxExtent = mapOptions.procedureMaxExtent
+      } else if (mapOptions.procedureDefaultMaxExtent && mapOptions.procedureDefaultMaxExtent.length > 0) {
+        this.maxExtent = mapOptions.procedureDefaultMaxExtent
+      } else {
+        this.maxExtent = mapOptions.defaultMapExtent
+      }
     },
 
     /**
@@ -304,6 +332,15 @@ export default {
         .catch(error => checkResponse(error.response))
     },
 
+    panToCoordinate (coordinate) {
+      this.map.getView().animate({
+        center: coordinate,
+        duration: 800,
+        easing: easeOut,
+        resolution: this.panToResolution
+      })
+    },
+
     registerFullscreenChangeHandler () {
       const html = document.getElementsByTagName('html')[0]
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
@@ -314,6 +351,10 @@ export default {
           this.updateMapInstance()
         }, false)
       })
+    },
+
+    setAutoCompleteOptions (response) {
+      this.autoCompleteOptions = response.data.data.suggestions
     },
 
     setProjection () {
@@ -354,15 +395,6 @@ export default {
       view.setCenter(center)
     },
 
-    panToCoordinate (coordinate) {
-      this.map.getView().animate({
-        center: coordinate,
-        duration: 800,
-        easing: easeOut,
-        resolution: this.panToResolution
-      })
-    },
-
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
@@ -398,23 +430,7 @@ export default {
     this.publicSearchAutozoom = mapOptions.publicSearchAutoZoom || 8
 
     //  Define extent & center
-    if (!mapOptions.procedureMaxExtent && !mapOptions.procedureDefaultMaxExtent) {
-      this.maxExtent = mapOptions.defaultMapExtent
-    } else {
-      if (mapOptions.procedureMaxExtent.length === 0 && mapOptions.procedureDefaultMaxExtent.length === 0) {
-        this.maxExtent = mapOptions.defaultMapExtent // Fallback if no other extent is set
-      } else {
-        if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length !== 0) {
-          this.maxExtent = mapOptions.procedureMaxExtent
-        } else {
-          if (mapOptions.procedureDefaultMaxExtent.length !== 0) {
-            this.maxExtent = mapOptions.procedureDefaultMaxExtent
-          } else {
-            this.maxExtent = mapOptions.defaultMapExtent
-          }
-        }
-      }
-    }
+    this.defineExtent(mapOptions)
 
     this.centerX = (this.maxExtent[0] + this.maxExtent[2]) / 2
     this.centerY = (this.maxExtent[1] + this.maxExtent[3]) / 2
@@ -434,18 +450,18 @@ export default {
     this.setProjection()
 
     /*
-     *  Create OpenLayers map instance and expose it to child components via `provide`.
+     *  Create OpenLayers map instance with masterportalapi and expose it to child components via `provide`.
      *  This also mounts child components that are wrapped inside v-if="Boolean(map)".
      *  @see https://css-tricks.com/using-scoped-slots-in-vue-js-to-abstract-functionality/#article-header-id-0
      */
     this.olMapState.map = this.createMap()
-
     /*
      *  Layers have their own attributions, so copyright is not rendered into svg here atm.
      *  this.olMapState.map.on('postrender', e => renderCopyright(e.context, 'test'));
      */
 
     //  After child components have added their stuff to the map instance, it needs to update accordingly
+
     this.$nextTick(() => {
       this.updateMapInstance()
 

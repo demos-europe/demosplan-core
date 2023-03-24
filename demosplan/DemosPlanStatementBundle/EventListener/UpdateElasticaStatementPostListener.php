@@ -13,15 +13,16 @@ namespace demosplan\DemosPlanStatementBundle\EventListener;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Logic\Segment\SegmentService;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Exception;
 
 class UpdateElasticaStatementPostListener
 {
@@ -100,7 +101,6 @@ class UpdateElasticaStatementPostListener
 
     /**
      * Updates a single statement and all related segments if necessary.
-     *
      */
     protected function updateStatement(Statement $statement): void
     {
@@ -114,7 +114,7 @@ class UpdateElasticaStatementPostListener
     }
 
     /**
-     * Updates a segment
+     * Updates a segment.
      */
     private function updateSegment(Segment $segment): void
     {
@@ -143,7 +143,7 @@ class UpdateElasticaStatementPostListener
     {
         try {
             $this->searchIndexTaskService->addIndexTask($entityClass, $entityId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // catch exception to prevent bubbling
             // do not use Logging atm to save resources. Might be added later
         }

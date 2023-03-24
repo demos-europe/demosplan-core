@@ -2,7 +2,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'assessmenttable-assessmentTableNewStatement.js']) }}
+    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
 {% endblock javascripts %}
 
 {% block component_part %}
@@ -517,7 +517,7 @@
                             required
                             :toolbar-items="{
                                 insertAndDelete: true,
-                                obscure: true,
+                                obscure: hasPermission('feature_obscure_text'),
                                 mark: true,
                                 strikethrough: true
                             }"

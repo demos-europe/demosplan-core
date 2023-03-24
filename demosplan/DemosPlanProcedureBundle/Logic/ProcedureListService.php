@@ -85,7 +85,7 @@ class ProcedureListService extends CoreService
 
     public function generateProcedureBaseTemplateVars(array $templateVars, string $title): array
     {
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $this->breadcrumb->getContextualHelp($title);
         $templateVars['freeDiskSpaceAsString'] = '';
         $templateVars['freeDiskSpaceInBytes'] = 0;

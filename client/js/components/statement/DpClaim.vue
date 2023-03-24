@@ -60,7 +60,7 @@ the FB is ready with editing of fragments.
 </template>
 
 <script>
-import { DpLoading } from 'demosplan-ui/components'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpClaim',

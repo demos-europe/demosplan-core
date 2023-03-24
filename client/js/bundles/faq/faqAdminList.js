@@ -12,7 +12,7 @@
  */
 
 import DpFaqList from '@DpJs/components/faq/DpFaqList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpFaqList

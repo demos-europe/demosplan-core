@@ -11,10 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,72 +23,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_elements")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository")
  */
-class Elements extends CoreEntity implements UuidEntityInterface
+class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {
-    public const ELEMENTS_CATEGORY_MAP = 'map'; //like "Planzeichnung"
-    public const ELEMENTS_CATEGORY_STATEMENT = 'statement'; //like "Gesamtstellungnahme" or "Fehlanzeige"
-    public const ELEMENTS_CATEGORY_FILE = 'file'; // like "Ergänzende Unterlagen" or "Landschaftsplan-Änderung"
-    public const ELEMENTS_CATEGORY_PARAGRAPH = 'paragraph'; //like "Begründung" or "Textliche Festsetzungen"
-    public const ELEMENTS_CATEGORY_CATEGORY = 'category'; // created element by customer
-
-    public const FILE_TYPE_ANSCHREIBEN = 'Anschreiben';
-    public const FILE_TYPE_ANSCHREIBEN_BETEILIGUNGSVERFAHREN = 'Anschreiben Beteiligungsverfahren';
-    public const FILE_TYPE_ANTRAGS_AUFTRAGSDOKUMENTE = 'Antrags- und Auftragsdokumente (Veranstaltung)';
-    public const FILE_TYPE_ARBEITSKREISPAPIER = 'Arbeitskreispapier I und II';
-    public const FILE_TYPE_AUBS_DRITTER_BLATT = 'AuBS 3er-Blatt';
-    public const FILE_TYPE_AUFHEBUNGSBESCHLUSS = 'Aufhebungsbeschluss';
-    public const FILE_TYPE_AUFSTELLUNGSBESCHLUSS = 'Aufstellungsbeschluss';
-    public const FILE_TYPE_AUSLEGUNGSBESCHLUSS = 'Auslegungsbeschluss';
-    public const FILE_TYPE_AUSWERTUNG = 'Auswertung';
-    public const FILE_TYPE_BEGRUENDUNG = 'Begründung';
-    public const FILE_TYPE_BEIBLATT_NACH_UBERNAHMEN = 'Beiblatt nachr. Übernahmen';
-    public const FILE_TYPE_BESCHLUSS_ZUR_FNP_ANDERUNG = 'Beschluss zur FNP-Änderung';
-    public const FILE_TYPE_BESCHLUSS_ZUR_LAPRO_ANDERUNG = 'Beschluss zur Lapro-Änderung';
-    public const FILE_TYPE_DRUCKSACHE = 'Drucksache';
-    public const FILE_TYPE_DURCHFUHRUNGSVERTRAG = 'Durchführungsvertrag';
-    public const FILE_TYPE_ERGAENZENDE_UNTERLAGE = 'Ergänzende Unterlage';
-    public const FILE_TYPE_ERSCHLIESSUNGSVERTRAG = 'Erschließungsvertrag';
-    public const FILE_TYPE_FESTSTELLUNG_PLANREIFE = 'Feststellung Planreife';
-    public const FILE_TYPE_FESTSTELLUNGSBESCHLUSS = 'Feststellungsbeschluss';
-    public const FILE_TYPE_FNP_AENDERUNG = 'FNP-Änderung';
-    public const FILE_TYPE_FPN_DRITTER_BLATT = 'FNP 3er-Blatt';
-    public const FILE_TYPE_FUNKTIONSPLAN = 'Funktionsplan';
-    public const FILE_TYPE_GREMIENNIEDERSCHRIFT = 'Gremienniederschrift';
-    public const FILE_TYPE_GROBABSTIMMUNGSPAPIER = 'Grobabstimmungspapier';
-    public const FILE_TYPE_GUTACHTEN = 'Gutachten';
-    public const FILE_TYPE_INFOBLATT = 'Infoblatt';
-    public const FILE_TYPE_INTERNER_VERMERK = 'Interner Vermerk';
-    public const FILE_TYPE_INTERNETTEXT = 'Internettext';
-    public const FILE_TYPE_KOSTENUBERNAHMEVERTRAG_VERTRAG = 'Kostenübernahmevertrag, Vorvertrag';
-    public const FILE_TYPE_LANDESPLANERISCHE_STELLUNGNAHME = 'Landesplanerische Stellungnahme';
-    public const FILE_TYPE_LAPRO_AENDERUNG = 'LaPro-Änderung';
-    public const FILE_TYPE_LAPRO_DRITTER_BLATT = 'LaPro 3er-Blatt';
-    public const FILE_TYPE_MITTEILUNG = 'Mitteilung (politische Gremien)';
-    public const FILE_TYPE_NIEDERSCHRIFT_GROBABSTIMMUNG_ARBEITSKREISE = 'Niederschrift (Grobabstimmung, Arbeitskreise)';
-    public const FILE_TYPE_NIEDERSCHRIFT_SONSTIGE = 'Niederschrift (sonstige)';
-    public const FILE_TYPE_NIEDERSCHRIFTEN = 'Niederschriften';
-    public const FILE_TYPE_PLANZEICHNUNG = 'Planzeichnung';
-    public const FILE_TYPE_PRAESENTATION = 'Präsentation';
-    public const FILE_TYPE_SCHLUSSMITTEILUNG = 'Schlussmitteilung';
-    public const FILE_TYPE_SCOPING_PAPIER = 'Scoping-Papier';
-    public const FILE_TYPE_SCOPING_PROTOKOLL = 'Scoping-Protokoll';
-    public const FILE_TYPE_SITZUNGSUNTERLAGE = 'Sitzungsunterlage';
-    public const FILE_TYPE_SONSTIGE_UNTERLAGE = 'sonstige Unterlage';
-    public const FILE_TYPE_STADTEBAULICHER_VERTRAG = 'Städtebaulicher Vertrag';
-    public const FILE_TYPE_STELLUNGNAHME = 'Stellungnahme';
-    public const FILE_TYPE_UBERSICHTSKARTE = 'Übersichtskarte';
-    public const FILE_TYPE_VERMERK_SONSTIGE = 'Vermerk (Sonstige)';
-    public const FILE_TYPE_VEROEFFENTLICHUNG = 'Veröffentlichung';
-    public const FILE_TYPE_VERORDNUNG = 'Verordnung';
-    public const FILE_TYPE_VERTEILER = 'Verteiler';
-    public const FILE_TYPE_VORHABEN_ERSCHLIESSUNGSPLAN = 'Vorhaben Erschliessungsplan';
-    public const FILE_TYPE_XPLANARCHIV = 'XPlanarchiv';
-    public const FILE_TYPE_ZUSAMMENFASSENDE_ERKLAERUNG = 'zusammenfassende Erklärung';
-    public const FILE_TYPE_ZWISCHENMITTEILUNG = 'Zwischenmitteilung';
-    public const STATEMENT_TYPE_FEHLANZEIGE = 'Fehlanzeige';
-
     /**
      * The maximum number of parents (technically) allowed when nesting {@link Elements} entities.
      *
@@ -101,8 +41,11 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_e_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -118,6 +61,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Elements|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="children")
+     *
      * @ORM\JoinColumn(name="_e_p_id", referencedColumnName="_e_id", onDelete="SET NULL")
      */
     protected $parent;
@@ -136,6 +80,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="elements", cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")
      */
     protected $procedure;
@@ -163,6 +108,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var string
+     *
      * @ORM\Column(name="_e_icon_title", type="string", options={"comment":"Content of title-tag for icon"})
      */
     protected $iconTitle = '';
@@ -204,21 +150,27 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -227,6 +179,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,SingleDocument>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", mappedBy="element")
+     *
      * @ORM\OrderBy({"order" = "ASC", "createDate" = "ASC"})
      */
     protected $documents;
@@ -235,6 +188,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,Elements>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="parent")
+     *
      * @ORM\OrderBy({"order" = "ASC"})
      */
     protected $children;
@@ -243,6 +197,7 @@ class Elements extends CoreEntity implements UuidEntityInterface
      * @var Collection<int,Orga>|Orga[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinTable(
      *     name="_elements_orga_doctrine",
      *     joinColumns={@ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", onDelete="CASCADE")},
@@ -292,8 +247,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set parent ElementId.
-     *
-     * @return Elements
      */
     public function setElementParentId(?string $parentId): self
     {
@@ -330,8 +283,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set pId.
-     *
-     * @return Elements
      */
     public function setPId(string $pId): self
     {
@@ -375,8 +326,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCategory.
-     *
-     * @return Elements
      */
     public function setCategory(string $category): self
     {
@@ -395,8 +344,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eTitle.
-     *
-     * @return Elements
      */
     public function setTitle(string $title): self
     {
@@ -415,8 +362,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eIcon.
-     *
-     * @return Elements
      */
     public function setIcon(string $icon): self
     {
@@ -435,8 +380,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eText.
-     *
-     * @return Elements
      */
     public function setText(string $text): self
     {
@@ -465,8 +408,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eOrder.
-     *
-     * @return Elements
      */
     public function setOrder(int $order): self
     {
@@ -485,8 +426,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eEnabled.
-     *
-     * @return Elements
      */
     public function setEnabled(bool $enabled): self
     {
@@ -505,8 +444,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleted.
-     *
-     * @return Elements
      */
     public function setDeleted(bool $deleted): self
     {
@@ -525,8 +462,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCreateDate.
-     *
-     * @return Elements
      */
     public function setCreateDate(DateTime $createDate): self
     {
@@ -545,8 +480,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eModifyDate.
-     *
-     * @return Elements
      */
     public function setModifyDate(DateTime $modifyDate): self
     {
@@ -565,8 +498,6 @@ class Elements extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleteDate.
-     *
-     * @return Elements
      */
     public function setDeleteDate(DateTime $deleteDate): self
     {

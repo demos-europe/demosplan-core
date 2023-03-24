@@ -112,7 +112,7 @@
               aria-hidden="true"
               class="fa fa-paperclip color--grey" />
             <a
-              v-if="statement.sourceAttachment !== ''"
+              v-if="statement.sourceAttachment !== '' && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
               target="_blank"
               rel="noopener"
@@ -185,12 +185,15 @@
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from 'demosplan-utils'
-import { mapGetters, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
+import {
+  CleanHtml,
+  dpApi,
+  DpFlyout,
+  DpHeightLimit,
+  formatDate,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'OriginalStatementsTableItem',
@@ -303,6 +306,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations('statement', [
+      'updateStatement'
+    ]),
+
     formatDate (date) {
       return formatDate(date)
     },

@@ -51,7 +51,7 @@
         :key="user.id"
         :all-organisations="organisations"
         :user="user"
-        @delete="deleteUsers([user.id])"
+        @delete="deleteSingelUser(user.id)"
         :is-open="expandedCardId === id"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
@@ -69,12 +69,15 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { debounce, hasOwnProp } from 'demosplan-utils'
+import {
+  debounce,
+  dpApi, DpButton,
+  DpLoading,
+  dpSelectAllMixin,
+  DpTableCardListHeader,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
-import DpTableCardListHeader from '@DpJs/components/core/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
 export default {
@@ -83,7 +86,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: () => import(/* webpackChunkName: "sliding-pagination" */ '@DpJs/components/core/DpSlidingPagination'),
+    DpSlidingPagination: async () => {
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+      return DpSlidingPagination
+    },
     DpTableCardListHeader,
     DpUserListExtendedItem
   },
@@ -140,6 +146,17 @@ export default {
       deleteUser: 'delete'
     }),
 
+    deleteSingelUser (id) {
+      if (dpconfirm(Translator.trans('check.user.delete', { count: 1 })) === false) {
+        return
+      }
+
+      return this.deleteUser(id)
+        .then(() => {
+          this.deleteUserFromSelection(id)
+        })
+    },
+
     deleteUsers (ids) {
       if (!this.selectedItems.length || dpconfirm(Translator.trans('check.entries.marked.delete')) === false) {
         return
@@ -148,11 +165,17 @@ export default {
       ids.map(id => {
         return this.deleteUser(id)
           .then(() => {
-            // Remove deleted item from itemSelections
-            Vue.delete(this.itemSelections, id)
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+            this.deleteUserFromSelection(id)
           })
       })
+    },
+
+    /**
+     * Remove deleted item from itemSelections
+     */
+    deleteUserFromSelection (id) {
+      Vue.delete(this.itemSelections, id)
+      dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
     },
 
     /**

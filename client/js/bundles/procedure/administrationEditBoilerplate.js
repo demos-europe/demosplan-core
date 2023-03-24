@@ -11,11 +11,9 @@
  * This is the entrypoint for administration_edit_boilerplate.html.twig
  */
 
+import { DpEditor, DpMultiselect, dpValidate } from '@demos-europe/demosplan-ui'
 import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplate'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpEditBoilerplate,

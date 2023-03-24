@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\ConsultationTokenStatementCreatedEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 
 /**
  * Take care of consultation tokens for new statements.
@@ -82,13 +82,13 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            StatementCreatedEvent::class                  => 'handleActivelyCreatedStatement',
-            ManualStatementCreatedEvent::class            => 'handleActivelyCreatedStatement',
-            ConsultationTokenStatementCreatedEvent::class => 'handleTokenStatement',
+            StatementCreatedEventInterface::class                  => 'handleActivelyCreatedStatement',
+            ManualStatementCreatedEventInterface::class            => 'handleActivelyCreatedStatement',
+            ConsultationTokenStatementCreatedEvent::class          => 'handleTokenStatement',
         ];
     }
 
-    public function handleActivelyCreatedStatement(StatementCreatedEvent $event): void
+    public function handleActivelyCreatedStatement(StatementCreatedEventInterface $event): void
     {
         if (!$this->checkRequiredPermissions()) {
             return;
@@ -131,7 +131,7 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
         return false;
     }
 
-    private function createTokenFromEvent(StatementCreatedEvent $event, bool $isManual): void
+    private function createTokenFromEvent(StatementCreatedEventInterface $event, bool $isManual): void
     {
         $statement = $event->getStatement();
 

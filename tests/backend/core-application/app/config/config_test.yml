@@ -19,7 +19,7 @@ parameters:
     email_bouncefile_path: "%kernel.cache_dir%"
 
     kernel.secret: 'testsecret'
-
+    database_name: 'test'
     database_host: ''
     database_user: ''
     database_password: ''
@@ -49,6 +49,7 @@ services:
         autoconfigure: true
 
     Tests\CoreApplication\Permissions\Permissions:
+        autowire: true
 
     demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
         '@Tests\CoreApplication\Permissions\Permissions'

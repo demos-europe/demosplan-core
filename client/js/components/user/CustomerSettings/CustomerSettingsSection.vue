@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import DpAccordion from '@DpJs/components/core/DpAccordion'
+import { DpAccordion } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsSection',

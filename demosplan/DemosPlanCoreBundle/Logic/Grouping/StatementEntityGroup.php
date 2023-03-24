@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
 use function array_map;
+
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use JsonSerializable;
 

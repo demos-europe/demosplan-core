@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
@@ -34,10 +36,10 @@ class Version20220928083055 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_71C04D1D1624BCD2 ON maillane_connection (procedure_id)');
         foreach ($matchingRecords as $matchingRecord) {
             $this->addSql('UPDATE maillane_connection SET procedure_id = :procedureId
-                        WHERE id = :maillaneConnectionId' ,
+                        WHERE id = :maillaneConnectionId',
                 [
-                    'procedureId' => $matchingRecord['_p_id'],
-                    'maillaneConnectionId' => $matchingRecord['maillane_connection_id']
+                    'procedureId'          => $matchingRecord['_p_id'],
+                    'maillaneConnectionId' => $matchingRecord['maillane_connection_id'],
                 ]);
         }
         $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D02AC0C069A');
@@ -63,8 +65,8 @@ class Version20220928083055 extends AbstractMigration
             $this->addSql('UPDATE _procedure SET maillane_connection_id = :maillaneConnectionId
                         WHERE _p_id = :procedureId',
                 [
-                    'procedureId' => $matchingRecord['procedure_id'],
-                    'maillaneConnectionId' => $matchingRecord['id']
+                    'procedureId'          => $matchingRecord['procedure_id'],
+                    'maillaneConnectionId' => $matchingRecord['id'],
                 ]);
         }
         $this->addSql('ALTER TABLE maillane_connection DROP FOREIGN KEY FK_71C04D1D1624BCD2');
@@ -90,6 +92,7 @@ class Version20220928083055 extends AbstractMigration
                                                             INNER JOIN _procedure ON maillane_connection.id = _procedure.maillane_connection_id
                                                             ');
     }
+
     public function getMatchingRecordsToDown()
     {
         return $this->connection->fetchAllAssociative('SELECT id, procedure_id FROM maillane_connection');

@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,9 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * paragraphs. Those can't hold files.
  *
  * @ORM\Table(name="_single_doc")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository")
  */
-class SingleDocument extends CoreEntity implements UuidEntityInterface
+class SingleDocument extends CoreEntity implements SingleDocumentInterface
 {
     public const IMPORT_CREATION = 'importCreation';
 
@@ -39,8 +40,11 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_sd_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -49,6 +53,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -67,6 +72,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var Elements
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
+     *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/
     protected $element;
@@ -144,21 +150,27 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_sd_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="update")
+     *
      * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
     protected $modifyDate;
 
     /**
      * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */
     protected $deleteDate;
@@ -167,6 +179,7 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
      * @var SingleDocumentVersion[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", mappedBy="singleDocument")
+     *
      * @ORM\JoinColumn(name="_sd_id", referencedColumnName="_sd_id")
      */
     protected $versions;
@@ -183,8 +196,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set procedure.
-     *
-     * @return SingleDocument
      */
     public function setProcedure(Procedure $procedure): self
     {
@@ -243,8 +254,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCategory.
-     *
-     * @return SingleDocument
      */
     public function setCategory(string $category): self
     {
@@ -263,8 +272,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eTitle.
-     *
-     * @return SingleDocument
      */
     public function setTitle(string $title): self
     {
@@ -283,8 +290,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eText.
-     *
-     * @return SingleDocument
      */
     public function setText(string $text): self
     {
@@ -331,8 +336,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set Order.
-     *
-     * @return SingleDocument
      */
     public function setOrder(int $order): self
     {
@@ -361,8 +364,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eEnabled.
-     *
-     * @return SingleDocument
      */
     public function setVisible(bool $visible): self
     {
@@ -381,8 +382,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleted.
-     *
-     * @return SingleDocument
      */
     public function setDeleted(bool $deleted): self
     {
@@ -401,8 +400,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eCreateDate.
-     *
-     * @return SingleDocument
      */
     public function setCreateDate(DateTime $createDate): self
     {
@@ -418,8 +415,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eModifyDate.
-     *
-     * @return SingleDocument
      */
     public function setModifyDate(DateTime $modifyDate): self
     {
@@ -438,8 +433,6 @@ class SingleDocument extends CoreEntity implements UuidEntityInterface
 
     /**
      * Set eDeleteDate.
-     *
-     * @return SingleDocument
      */
     public function setDeleteDate(DateTime $deleteDate): self
     {

@@ -10,12 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Monolog;
 
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\HandlerInterface;
 use Sentry\State\Scope;
+
 use function Sentry\withScope;
+
 use Throwable;
 
 /**

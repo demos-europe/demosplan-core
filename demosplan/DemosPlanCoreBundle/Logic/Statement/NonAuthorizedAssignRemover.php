@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -155,17 +155,17 @@ class NonAuthorizedAssignRemover
     private function getClaimablesToUnassign(Procedure $procedure): array
     {
         return $this->entityFetcher->listEntitiesUnrestricted(
-        // Fetches not only statements but child classes too (i.e. segments)
+            // Fetches not only statements but child classes too (i.e. segments)
             Statement::class,
             [
-                $this->conditionFactory->propertyIsNotNull('assignee'),
+                $this->conditionFactory->propertyIsNotNull(['assignee']),
                 $this->conditionFactory->propertyHasNotAnyOfValues(
                     $this->getAssignableUserIds($procedure),
-                    'assignee', 'id'
+                    ['assignee', 'id']
                 ),
                 $this->conditionFactory->propertyHasValue(
                     $procedure->getId(),
-                    'procedure', 'id'
+                    ['procedure', 'id']
                 ),
             ]
         );

@@ -206,13 +206,17 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, handleResponseMessages } from '@DemosPlanCoreBundle/plugins/DpApi'
+import {
+  checkResponse,
+  dpApi,
+  DpButton,
+  DpModal,
+  DpMultiselect,
+  handleResponseMessages,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { DpButton } from 'demosplan-ui/components'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import { hasOwnProp } from 'demosplan-utils'
 
 const emptyAssignee = {
   id: '',

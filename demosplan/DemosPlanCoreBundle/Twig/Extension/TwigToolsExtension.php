@@ -99,7 +99,7 @@ class TwigToolsExtension extends ExtensionBase
         return $collection->map(
             function ($value) {
                 if ($value instanceof Collection || is_array($value)) {
-                    //we need to go deeper:
+                    // we need to go deeper:
                     $collection2 = collect($value);
 
                     return $this->translateValuesOfMultiDimensionalCollection($collection2);
@@ -107,7 +107,7 @@ class TwigToolsExtension extends ExtensionBase
                 if (is_string($value)) {
                     return $this->translator->trans($value);
                 }
-                //default: just return the value
+                // default: just return the value
                 return $value;
             }
         );

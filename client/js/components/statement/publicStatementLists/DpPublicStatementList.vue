@@ -38,14 +38,12 @@
 </template>
 
 <script>
+import { DpInlineNotification, dpSelectAllMixin, getFileInfo } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
-import DpInlineNotification from '@DpJs/components/core/DpInlineNotification'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
 import draggable from 'vuedraggable'
 import { generateMenuItems } from './menuItems'
-import { getFileInfo } from '@DpJs/lib/FileInfo'
 
 const editPermissions = {
   draft: 'feature_statements_draft_edit',

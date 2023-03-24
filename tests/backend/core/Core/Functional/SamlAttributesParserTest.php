@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use Tests\Base\FunctionalTestCase;
 
 class SamlAttributesParserTest extends FunctionalTestCase

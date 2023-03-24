@@ -20,11 +20,13 @@ use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
+
+use function imagecolorallocate;
+
 use Intervention\Image\ImageManager;
 use Point;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
-use function imagecolorallocate;
 
 class FeaturesToMapLayersConverterTest extends UnitTestCase
 {

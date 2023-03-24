@@ -8,22 +8,23 @@
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
 @babel/runtime: MIT
+@demos-europe/demosplan-utils: MIT
+@demos-europe/dp-consent: MIT
 @efrane/vuex-json-api: MIT
 @fullhuman/postcss-purgecss: MIT
-@sentry/browser: BSD-3-Clause
-@sentry/integrations: BSD-3-Clause
+@masterportal/masterportalapi: MIT
+@sentry/browser: MIT
+@sentry/integrations: MIT
 @sentry/tracing: MIT
 @uppy/core: MIT
 @uppy/drag-drop: MIT
 @uppy/progress-bar: MIT
-@uppy/tus: MIT
 @vue/test-utils: MIT
 @vue/vue2-jest: MIT
 a11y-datepicker: MIT
 acorn: MIT
 assets-webpack-plugin: MIT
 autoprefixer: MIT
-axios: MIT
 babel-core: MIT
 babel-helper-vue-jsx-merge-props: MIT
 babel-jest: MIT
@@ -45,7 +46,6 @@ d3-sankey-diagram: MIT
 dayjs: MIT
 deep-object-diff: MIT
 dompurify: (MPL-2.0 OR Apache-2.0)
-dp-consent: ISC
 eslint: MIT
 eslint-config-standard: MIT
 eslint-friendly-formatter: MIT
@@ -57,6 +57,7 @@ eslint-plugin-node: MIT
 eslint-plugin-promise: ISC
 eslint-plugin-standard: MIT
 eslint-plugin-vue: MIT
+eslint-plugin-vuejs-accessibility: MIT
 eslint-webpack-plugin: MIT
 font-awesome: (OFL-1.1 AND MIT)
 fs: ISC
@@ -76,6 +77,7 @@ leaflet.markercluster: MIT
 lscache: Apache-2.0
 mini-css-extract-plugin: MIT
 node-notifier: MIT
+normalize.css: MIT
 ol: BSD-2-Clause
 plyr: MIT
 portal-vue: MIT
@@ -85,33 +87,37 @@ postcss-loader: MIT
 postcss-prefix-selector: MIT
 postcss-preset-env: CC0-1.0
 proj4: MIT
+prosemirror-history: MIT
+prosemirror-model: MIT
 prosemirror-schema-basic: MIT
 prosemirror-schema-list: MIT
+prosemirror-state: MIT
+prosemirror-tables: MIT
+prosemirror-utils: Apache-2.0
+prosemirror-view: MIT
 purgecss-webpack-plugin: MIT
 qs: BSD-3-Clause
 raf: MIT
-rate-it: MIT
 regenerator-runtime: MIT
 sass: MIT
 sass-loader: MIT
 source-map-loader: MIT
 source-sans-pro: OFL-1.1
+stream: MIT
+string_decoder: MIT
 striptags: MIT
 stylelint: MIT
 stylelint-config-standard-scss: MIT
 swagger-ui-dist: Apache-2.0
+terser-webpack-plugin: MIT
+timers-browserify: MIT
 tippy.js: MIT
-tiptap: MIT
-tiptap-commands: MIT
-tiptap-extensions: MIT
 tooltip.js: MIT
 util: MIT
 uuid: MIT
 vue: MIT
-vue-click-outside: MIT
 vue-loader: MIT
 vue-multiselect: MIT
-vue-omnibox: MIT
 vue-scrollto: MIT
 vue-sliding-pagination: MIT
 vue-style-loader: MIT
@@ -127,4 +133,4 @@ webpack-hot-middleware: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 14.09.2022 07:15
+As of 05.01.2023 15:27

@@ -11,10 +11,8 @@
  * This is the entrypoint for edit_tag.html.twig
  */
 
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import { prefixClass } from 'demosplan-ui/lib'
+import { DpEditor, dpValidate, prefixClass } from '@demos-europe/demosplan-ui'
+import { initialize } from '@DpJs/InitVue'
 
 const components = { DpEditor }
 

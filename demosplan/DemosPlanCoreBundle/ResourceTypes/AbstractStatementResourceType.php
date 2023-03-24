@@ -94,7 +94,6 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
- * @property-read End $synchronized
  * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements @deprecated Rename to 'element'
@@ -111,6 +110,8 @@ use EDT\PathBuilding\End;
  * @property-read StatementMetaResourceType $meta
  * @property-read StatementResourceType $placeholderStatement
  * @property-read StatementResourceType $parent
+ *
+ * @deprecated please avoid adding properties to this class as it is way too big and convoluted, add properties to the subclasses in which they are needed instead, even if it results in a bit of code duplication
  */
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
@@ -323,7 +324,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
                 }),
         ];
 
-        //this information is needed in FE to show a hint of this statement was given anonymously
+        // this information is needed in FE to show a hint of this statement was given anonymously
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $properties[] = $this->createAttribute($this->anonymous)->readable();
         }

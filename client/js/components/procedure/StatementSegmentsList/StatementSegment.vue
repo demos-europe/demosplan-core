@@ -98,18 +98,46 @@
       </div>
       <div v-else>
         <dp-editor
+          class="u-mb-0_5"
           editor-id="recommendationText"
           :toolbar-items="{
-            boilerPlate: 'consideration',
             fullscreenButton: false,
-            linkButton: true,
-            recommendationButton: segment.hasRelationship('tags')
+            linkButton: true
           }"
-          :procedure-id="procedureId"
           :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
-          :segment-id="segment.id"
-          class="u-mb-0_5" />
+          @input="value => updateSegment('recommendation', value)">
+          <template v-slot:modal="modalProps">
+            <dp-boiler-plate-modal
+              ref="boilerPlateModal"
+              boiler-plate-type="consideration"
+              editor-id="recommendationText"
+              :procedure-id="procedureId"
+              @insert="text => modalProps.handleInsertText(text)" />
+            <dp-recommendation-modal
+              v-if="segment.hasRelationship('tags')"
+              ref="recommendationModal"
+              :procedure-id="procedureId"
+              :segment-id="segment.id"
+              @insert-recommendation="text => modalProps.appendText(text)"/>
+          </template>
+          <template v-slot:button>
+            <button
+              :class="prefixClass('menubar__button')"
+              type="button"
+              v-tooltip="Translator.trans('boilerplate.insert')"
+              @click.stop="openBoilerPlate">
+              <i :class="prefixClass('fa fa-puzzle-piece')" />
+            </button>
+            <button
+              v-if="segment.hasRelationship('tags')"
+              :class="prefixClass('menubar__button')"
+              type="button"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
+              @click.stop="openRecommendationModal">
+              <i :class="prefixClass('fa fa-lightbulb-o')" />
+            </button>
+          </template>
+        </dp-editor>
       </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
@@ -239,14 +267,22 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { CleanHtml, VPopover } from 'demosplan-ui/directives'
-import { DpIcon, DpLabel } from 'demosplan-ui/components'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpButtonRow,
+  DpCheckbox,
+  DpIcon,
+  DpLabel,
+  DpMultiselect,
+  prefixClassMixin,
+  VPopover
+} from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import DpRecommendationModal from '@DpJs/components/statement/segments/DpRecommendationModal'
 
 export default {
   name: 'StatementSegment',
@@ -254,19 +290,26 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
     DpClaim,
     DpIcon,
     DpLabel,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    },
+    DpRecommendationModal,
     VPopover
   },
 
   directives: {
     cleanhtml: CleanHtml
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     currentUserFirstName: {
@@ -428,6 +471,10 @@ export default {
       this.toggleAssignableUsersSelect()
     },
 
+    checkIfToolIsActive (tool) {
+      return (this.segment.id === this.slidebar.segmentId && this.slidebar.showTab === tool)
+    },
+
     claimSegment () {
       const dataToUpdate = {
         ...this.segment,
@@ -478,6 +525,14 @@ export default {
           this.restoreSegmentAction(this.segment.id)
           this.claimLoading = false
         })
+    },
+
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
+    openRecommendationModal () {
+      this.$refs.recommendationModal.toggleModal('open')
     },
 
     /**
@@ -531,6 +586,10 @@ export default {
     },
 
     showComments () {
+      if (this.checkIfToolIsActive('comments')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
 
       this.toggleSlidebarContent({
@@ -543,20 +602,28 @@ export default {
           show: true
         }
       })
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'comments' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('show-slidebar')
     },
 
     showMap () {
+      if (this.checkIfToolIsActive('map')) {
+        return
+      }
+
       this.$parent.$parent.resetSlidebar()
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'map' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
     },
 
     showSegmentVersionHistory () {
+      if (this.checkIfToolIsActive('history')) {
+        return
+      }
+
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { segmentId: this.segment.id, showTab: 'history' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
     startEditing () {

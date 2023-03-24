@@ -12,9 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator;
-use demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\StatementFromEmailCreator;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,16 +38,20 @@ class DemosPlanSimplifiedStatementController extends BaseController
      *
      * @throws MessageBagException
      * @throws UserNotFoundException
+     *
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
     public function createAction(
+        TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
-        StatementFromEmailCreator $emailStatementCreator,
         Request $request,
         string $procedureId
     ): Response {
-        if ($emailStatementCreator->isImportingStatementViaEmail($request)) {
-            return $emailStatementCreator($request, $procedureId);
+        /** @var CreateSimplifiedStatementEvent $event * */
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
+        $eventStatementCreator = $event->getStatementFromEmailCreator();
+        if (null !== $eventStatementCreator && is_callable($eventStatementCreator)) {
+            return $eventStatementCreator($request, $procedureId);
         }
 
         return $statementCreator($request, $procedureId);

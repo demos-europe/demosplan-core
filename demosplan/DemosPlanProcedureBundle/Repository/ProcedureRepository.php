@@ -13,17 +13,7 @@ namespace demosplan\DemosPlanProcedureBundle\Repository;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\TransactionRequiredException;
-use EDT\Querying\FluentQueries\FluentQuery;
-use Exception;
-use Symfony\Component\Validator\Validation;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -37,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -57,19 +46,30 @@ use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SluggedRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanMapBundle\Repository\MapRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\TransactionRequiredException;
+use EDT\Querying\FluentQueries\FluentQuery;
+use Exception;
+use Symfony\Component\Validator\Validation;
+
 use function array_key_exists;
 use function array_merge;
 use function array_unique;
@@ -232,19 +232,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure = clone $procedureMaster;
             $procedure->setFiles(null);
             $procedure->setMasterTemplate(false);
-            $em->persist($procedure); //persist procedure to get new UUID()
+            $em->persist($procedure); // persist procedure to get new UUID()
             // Copy Blaupausen Proceduresettings
             $procedureSettings = clone $procedureMaster->getSettings();
             $em->persist($procedureSettings); // persist procedureSettings to set relation to new procedure
             $procedureSettings->setProcedure($procedure);
 
-            //refs T17912: If creating Procedure is not a master-procedure and
+            // refs T17912: If creating Procedure is not a master-procedure and
             // incoming planText is empty: Ensure current date as default value on create new procedure:
             if (
                 (array_key_exists('master', $data) && false === $data['master'])
                 && ('' === $procedureSettings->getPlanText() || null === $procedureSettings->getPlanText())
             ) {
-                $planTextDate = new \DateTime();
+                $planTextDate = new DateTime();
                 $procedureSettings->setPlanText($planTextDate->format('d.m.Y'));
             }
 
@@ -258,7 +258,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setDeletedDate($currentDate);
             $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
-            //avoid handling of customer site to, to avoid detaching customer from masterBlueprint
+            // avoid handling of customer site to, to avoid detaching customer from masterBlueprint
             $procedure->setCustomer(null, false);
             // When a procedure is created we may get an empty string as its description
             // ('interne Notiz') from the FE. In this case we want to keep the current description
@@ -659,7 +659,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // avoid overwriting, if input is default "k.A."
         if (array_key_exists('publicParticipationContact', $data)
             && 'k.A.' !== $data['publicParticipationContact']
-            ) {
+        ) {
             $procedure->setPublicParticipationContact($data['publicParticipationContact']);
         }
         if (array_key_exists('publicParticipationStartDate', $data)) {
@@ -695,16 +695,16 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setNotificationReceivers($data['notificationReceivers']);
         }
 
-        if (array_key_exists(AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
-            $procedure->setAgencyMainEmailAddress($data[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS]);
+        if (array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
+            $procedure->setAgencyMainEmailAddress($data[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS]);
         }
 
         if (array_key_exists('procedure_categories', $data)) {
             $procedure->setProcedureCategories($data['procedure_categories']);
         }
 
-        if (array_key_exists(AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, $data)) {
-            $inputEmailAddressStrings = $data[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES];
+        if (array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, $data)) {
+            $inputEmailAddressStrings = $data[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES];
             /** @var EmailAddressRepository $emailAddressRepository */
             $emailAddressRepository = $this->getEntityManager()->getRepository(EmailAddress::class);
             $newEmailAddressEntities = $emailAddressRepository->getOrCreateEmailAddresses($inputEmailAddressStrings);
@@ -963,7 +963,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         return $citizenInstitutionQb
             ->select('TRIM(meta.orgaEmail) as emailAddress')
             ->from(Statement::class, 'statement')
-            //->andWhere($citizenInstitutionQb->expr()->isNotNull('statement.parent'))
+            // ->andWhere($citizenInstitutionQb->expr()->isNotNull('statement.parent'))
             ->andWhere('statement.procedure = :procedureId')
             ->setParameter('procedureId', $procedureId)
             ->andWhere('statement.feedback = :feedbackType')
@@ -1001,7 +1001,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             // TODO: maybe statement.organization can be used instead of statement.user.organization, would avoid a join
             ->select('organisations.email2 as emailAddress')
             ->from(Statement::class, 'statement')
-            //->andWhere($institutionQb->expr()->isNotNull('statement.parent'))
+            // ->andWhere($institutionQb->expr()->isNotNull('statement.parent'))
             ->andWhere('statement.procedure = :procedureId')
             ->setParameter('procedureId', $procedureId)
             ->andWhere($institutionQb->expr()->eq('statement.manual', ':notmanual'))
@@ -1340,24 +1340,23 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     {
         $query = $this->createFluentQuery();
         $orCondition = $query->getConditionDefinition()
-            ->propertyHasValue(false, 'deleted')
-            ->propertyHasValue(false, 'master')
-            ->propertyHasValue(false, 'masterTemplate')
+            ->propertyHasValue(false, ['deleted'])
+            ->propertyHasValue(false, ['master'])
+            ->propertyHasValue(false, ['masterTemplate'])
             ->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull('settings', 'designatedSwitchDate')
-            ->propertyIsNotNull('settings', 'designatedPhase')
-            ->propertyIsNotNull('settings', 'designatedEndDate')
-            ->propertyHasValueBeforeNow('settings', 'designatedSwitchDate');
+            ->propertyIsNotNull(['settings', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['settings', 'designatedPhase'])
+            ->propertyIsNotNull(['settings', 'designatedEndDate'])
+            ->propertyHasValueBeforeNow(['settings', 'designatedSwitchDate']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull('settings', 'designatedPublicSwitchDate')
-            ->propertyIsNotNull('settings', 'designatedPublicPhase')
-            ->propertyIsNotNull('settings', 'designatedPublicEndDate')
-            ->propertyHasValueBeforeNow('settings', 'designatedPublicSwitchDate');
+            ->propertyIsNotNull(['settings', 'designatedPublicSwitchDate'])
+            ->propertyIsNotNull(['settings', 'designatedPublicPhase'])
+            ->propertyIsNotNull(['settings', 'designatedPublicEndDate'])
+            ->propertyHasValueBeforeNow(['settings', 'designatedPublicSwitchDate']);
 
         return $query->getEntities();
     }
-
 
     private function transferDesignatedExternalSwitch(ProcedureSettings $procedureSettings, array $data): void
     {

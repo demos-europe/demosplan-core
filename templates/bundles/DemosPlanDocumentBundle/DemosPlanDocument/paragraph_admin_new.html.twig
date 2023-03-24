@@ -69,6 +69,9 @@
                 linkButton: true,
                 table: true
             }"
+            :routes="{
+              getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
+            }"
             procedure-id="{{ procedure }}"
             :required="true">
         </dp-editor>
@@ -89,5 +92,5 @@
 {% endblock %}
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'document-paragraphAdminNew.js']) }}
+    {{ webpackBundles(['document-paragraphAdminNew.js']) }}
 {% endblock javascripts %}

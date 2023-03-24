@@ -99,12 +99,9 @@
 </template>
 
 <script>
-import { DpIcon, DpLabel } from 'demosplan-ui/components'
+import { DpButtonRow, DpIcon, DpLabel, DpSelect, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpButtonRow from '@DpJs/components/core/DpButtonRow'
 import DpCreateTag from './DpCreateTag'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { hasOwnProp } from 'demosplan-utils'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 

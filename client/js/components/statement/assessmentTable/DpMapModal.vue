@@ -37,8 +37,7 @@
 </template>
 
 <script>
-import DpModal from '@DpJs/components/core/DpModal'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
+import { DpModal, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMapModal',
@@ -88,6 +87,12 @@ export default {
       this.drawingData = drawingData
       this.$refs.mapModal.toggle()
     }
+  },
+
+  mounted () {
+    this.$root.$on('toggleMapModal', (drawingData) => {
+      this.toggleModal(drawingData)
+    })
   }
 }
 </script>

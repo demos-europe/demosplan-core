@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Repository;
 
-use function array_key_exists;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -27,6 +26,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
+
+use function array_key_exists;
 
 class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
@@ -477,7 +478,7 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
             $copiedParagraph->setDeleted($paragraphToCopy->getDeleted());
             $copiedParagraph->setVisible($paragraphToCopy->getVisible());
             $copiedParagraph->setLockReason($paragraphToCopy->getLockReason());
-            $copiedParagraph->setParent($paragraphToCopy->getParent());//Will be used and fixed later
+            $copiedParagraph->setParent($paragraphToCopy->getParent()); // Will be used and fixed later
             $copiedParagraph->setModifyDate(new DateTime());
             $copiedParagraph->setCreateDate(new DateTime());
             $copiedParagraph->setDeleteDate(new DateTime());
@@ -489,18 +490,20 @@ class ParagraphRepository extends CoreRepository implements ArrayInterface, Obje
             $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph->getId();
         }
         $this->getEntityManager()->persist($copiedElement);
+        $this->getEntityManager()->flush();
 
         $copiedParagraphs = $this->getParagraphOfElement($copiedElement);
         foreach ($copiedParagraphs as $copiedParagraph) {
             if ($copiedParagraph->getParent() instanceof Paragraph) {
                 $oldParentId = $copiedParagraph->getParent()->getId();
                 $relatedCopiedParagraph = $this->getEntityManager()->getReference(
-                    Procedure::class, $paragraphIdMapping[$oldParentId]
+                    Paragraph::class, $paragraphIdMapping[$oldParentId]
                 );
                 $copiedParagraph->setParent($relatedCopiedParagraph);
             }
             $this->getEntityManager()->persist($copiedParagraph);
         }
+        $this->getEntityManager()->flush();
     }
 
     /**

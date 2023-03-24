@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -33,7 +34,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
 use Doctrine\Common\DataFixtures\ReferenceRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -44,6 +44,8 @@ use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
+use ReflectionException;
+use ReflectionObject;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -96,7 +98,7 @@ class FunctionalTestCase extends WebTestCase
         parent::tearDown();
 
         // avoid memory leaks
-        $refl = new \ReflectionObject($this);
+        $refl = new ReflectionObject($this);
 
         foreach ($refl->getProperties() as $prop) {
             if (!$prop->isStatic() && 0 !== \strncmp($prop->getDeclaringClass()->getName(), 'PHPUnit_', 8)) {
@@ -199,8 +201,6 @@ class FunctionalTestCase extends WebTestCase
 
     /**
      * Checks a specific string, if this has the format to be an ID.
-     *
-     * @param $ident
      */
     public function checkId($ident): void
     {
@@ -211,8 +211,6 @@ class FunctionalTestCase extends WebTestCase
 
     /**
      * In case of converting one of the entities to array (legacy) the key 'id' has to be existing.
-     *
-     * @param $arrayToCheck
      */
     public function checkArrayIncludesId($arrayToCheck)
     {
@@ -354,7 +352,7 @@ class FunctionalTestCase extends WebTestCase
      */
     public function getMaxValue($bundle, $entityName, $nameOfField = 'id'): int
     {
-        $query = $this->getEntityManager()->createQueryBuilder()->select($entityName)->from(($bundle.':'.$entityName), $entityName);
+        $query = $this->getEntityManager()->createQueryBuilder()->select($entityName)->from($bundle.':'.$entityName, $entityName);
         $query->select('MAX('.$entityName.'.'.$nameOfField.')');
         $nextId = (int) $query->getQuery()->getSingleScalarResult();
 
@@ -405,7 +403,7 @@ class FunctionalTestCase extends WebTestCase
      */
     public function isCurrentDateTime($dateString): bool
     {
-        //todo necessary check (will be lead to failing tests because minimal time offset)? can be deletd?
+        // todo necessary check (will be lead to failing tests because minimal time offset)? can be deletd?
         $date2 = $this->toTimestamp($dateString);
         $date = date('Y-m-d H:i:s');
         $date = strtotime($date);
@@ -464,7 +462,7 @@ class FunctionalTestCase extends WebTestCase
                         && is_int($objectAsArray[$attributeName])
                     ) {
                         static::assertEquals(
-                            $object->$methodName()->getTimestamp() * 1000, //duplicate logic from coreService::convertDatesToLegacy()
+                            $object->$methodName()->getTimestamp() * 1000, // duplicate logic from coreService::convertDatesToLegacy()
                             $objectAsArray[$attributeName],
                             'Returned value of '.$methodName.' does not match value of key '.$attributeName
                         );
@@ -671,11 +669,11 @@ class FunctionalTestCase extends WebTestCase
      * indirectly via public methods.
      *
      * @param array{class-string|object,string} $classAndMethod
-     * @param mixed                             $args
+     * @param mixed $args
      *
      * @return mixed
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function invokeProtectedMethod(array $classAndMethod, ...$args)
     {

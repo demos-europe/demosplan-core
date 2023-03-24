@@ -11,7 +11,7 @@
  * This is the entry point for public_index.html.twig
  * where we don't have any map
  */
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 /*
  *  Values for combined filters

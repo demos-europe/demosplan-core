@@ -105,10 +105,8 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
-import { debounce, hasOwnProp } from 'demosplan-utils'
+import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
 
 export default {
   name: 'DpUserList',
@@ -116,7 +114,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: () => import(/* webpackChunkName: "sliding-pagination" */ '@DpJs/components/core/DpSlidingPagination'),
+    DpSlidingPagination: async () => {
+      const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+      return DpSlidingPagination
+    },
     DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')
   },
 
@@ -200,7 +201,7 @@ export default {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete'))) {
+        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
           ids.forEach(id => {
             this.deleteUser(id)
               .then(() => {

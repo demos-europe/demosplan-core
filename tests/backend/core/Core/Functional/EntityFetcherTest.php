@@ -208,7 +208,7 @@ class EntityFetcherTest extends FunctionalTestCase
 
         $referenceStatements = $referenceStatements->all();
 
-        //check result:
+        // check result:
         /** @var Statement $statement */
         foreach ($referenceStatements as $statement) {
             static::assertNotNull($statement->getOriginal());
@@ -245,7 +245,7 @@ class EntityFetcherTest extends FunctionalTestCase
                     'memberOf' => 'group_or',
                 ],
             ],
-            'group_or' => [
+            'group_or'    => [
                 'group' => [
                     'conjunction' => 'OR',
                 ],
@@ -469,7 +469,7 @@ class EntityFetcherTest extends FunctionalTestCase
                         'memberOf' => 'group_and',
                     ],
                 ],
-                'group_and' => [
+                'group_and'   => [
                     'group' => [
                         'conjunction' => 'AND',
                         'memberOf'    => 'group_or',
@@ -489,7 +489,7 @@ class EntityFetcherTest extends FunctionalTestCase
                         'memberOf' => 'group_or',
                     ],
                 ],
-                'group_or' => [
+                'group_or'    => [
                     'group' => [
                         'conjunction' => 'OR',
                     ],

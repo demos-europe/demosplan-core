@@ -104,41 +104,41 @@
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
               @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-              :label="Translator.trans('public.participation.participate')"
+              :label="{
+                text: Translator.trans('public.participation.participate')
+              }"
               value="0" />
             <dp-radio
               name="r_isNegativeReport"
               id="negative_report_true"
-              :hint="Translator.trans('link.title.indicationerror')"
               :checked="formData.r_isNegativeReport === '1'"
               @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
-              :label="Translator.trans('indicationerror')"
+              :label="{
+                hint: Translator.trans('link.title.indicationerror'),
+                text: Translator.trans('indicationerror')
+              }"
               value="1" />
           </div>
         </template>
 
-        <label
-          for="statementText"
-          :class="prefixClass('u-mb-0_5 weight--bold')">
-          {{ Translator.trans('statement.detail.form.statement_text') }}
-          <span
-            v-if="formData.r_isNegativeReport !== '1'"
-            aria-hidden="true">
-            *
-          </span>
-        </label>
-        <dp-editor
-          class="u-mb-0_5"
-          hidden-input="r_text"
-          id="statementText"
-          :toolbar-items="{
-            mark: true,
-            strikethrough: true
-          }"
-          ref="statementEditor"
-          :required="formData.r_isNegativeReport !== '1'"
-          :value="formData.r_text || ''"
-          @input="val => setStatementData({r_text: val})" />
+        <div :class="prefixClass('c-statement__text')">
+          <dp-label
+            :text="Translator.trans('statement.detail.form.statement_text')"
+            for="statementText"
+            :required="formData.r_isNegativeReport !== '1'" />
+          <dp-editor
+            :class="prefixClass('u-mb')"
+            hidden-input="r_text"
+            id="statementText"
+            :toolbar-items="{
+              mark: true,
+              strikethrough: true
+            }"
+            ref="statementEditor"
+            :required="formData.r_isNegativeReport !== '1'"
+            :value="formData.r_text || ''"
+            @input="val => setStatementData({r_text: val})" />
+        </div>
         <div
           v-if="loggedIn === false"
           :class="prefixClass('u-mb')">
@@ -169,12 +169,12 @@
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
           <p
             aria-hidden="true"
-            :class="prefixClass('u-mb-0_25 weight--bold display--inline-block')">
+            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold display--inline-block')">
             {{ Translator.trans('element.assigned') }}
           </p>
           <p
             aria-hidden="true"
-            :class="prefixClass('u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
+            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 display--inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
                 @click="gotoTab('procedureDetailsDocumentlist')"
@@ -278,6 +278,7 @@
                 <dp-upload-files
                   id="upload_files"
                   allowed-file-types="pdf-img-zip"
+                  :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   ref="uploadFiles"
@@ -383,6 +384,7 @@
           </button>
           <button
             type="submit"
+            data-cy="statementFormSubmit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
             form-name="statementForm"
@@ -446,10 +448,13 @@
             <dp-radio
               id="r_useName_1"
               name="r_useName"
+              data-cy="submitPublicly"
               value="1"
               @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
-              :label="Translator.trans('statement.detail.form.personal.post_publicly')" />
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_publicly')
+              }" />
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout')">
@@ -474,7 +479,9 @@
               value="0"
               @change="val => setStatementData({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
-              :label="Translator.trans('statement.detail.form.personal.post_anonymously')"
+              :label="{
+                text: Translator.trans('statement.detail.form.personal.post_anonymously')
+              }"
               aria-labelledby="statement-detail-post-anonymously"
               data-cy="submitAnonymously" />
           </div>
@@ -489,6 +496,7 @@
         <div :class="prefixClass('text--right u-mt-0_5')">
           <button
             type="button"
+            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
@@ -556,6 +564,7 @@
             hide-label />
           <button
             type="button"
+            data-cy="sendStatementNow"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
@@ -621,18 +630,26 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
-import { DpInput, DpLabel, DpLoading } from 'demosplan-ui/components'
-import { hasOwnProp, isActiveFullScreen, toggleFullscreen } from 'demosplan-utils'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpModal,
+  DpRadio,
+  DpUploadFiles,
+  dpValidateMixin,
+  hasOwnProp,
+  isActiveFullScreen,
+  makeFormPost,
+  MultistepNav,
+  prefixClassMixin,
+  toggleFullscreen
+} from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpModal from '@DpJs/components/core/DpModal'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-import MultistepNav from '@DpJs/components/core/MultistepNav'
-import { prefixClassMixin } from 'demosplan-ui/mixins'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -667,7 +684,10 @@ export default {
     DpLoading,
     DpModal,
     DpRadio,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    },
     DpUploadFiles,
     FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
     FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),

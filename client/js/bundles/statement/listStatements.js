@@ -11,7 +11,7 @@
  * This is the entrypoint for list_statements.html.twig
  */
 
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {

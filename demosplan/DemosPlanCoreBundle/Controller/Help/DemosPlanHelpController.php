@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
+use demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use demosplan\DemosPlanHelpBundle\Logic\HelpHandler;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -58,7 +58,7 @@ class DemosPlanHelpController extends BaseController
 
         $templateVars['contextualHelpList'] = $helpHandler->getHelpNonGisLayer();
 
-        return $this->renderTemplate('@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'help.contextualHelp.list',
         ]);
@@ -88,7 +88,7 @@ class DemosPlanHelpController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
+            '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
             [
                 'formAction'     => 'dplan_contextual_help_create',
                 'formParameters' => [],
@@ -153,14 +153,14 @@ class DemosPlanHelpController extends BaseController
             ]);
 
             return $this->renderTemplate(
-                '@DemosPlanHelp/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
+                '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
                 [
                     'formAction'     => 'dplan_contextual_help_edit',
                     'formParameters' => ['contextualHelpId'=> $contextualHelpId],
                     'templateVars'   => [
                         'contextualHelp' => $helpHandler->getHelp($contextualHelpId),
                     ],
-                    'title' => 'help.contextualHelp.edit',
+                    'title'          => 'help.contextualHelp.edit',
                 ]
             );
         } catch (InvalidArgumentException $e) {

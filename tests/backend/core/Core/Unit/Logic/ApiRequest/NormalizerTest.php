@@ -11,7 +11,8 @@
 namespace Tests\Core\Core\Unit\Logic\ApiRequest;
 
 use function data_get;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Normalizer;
+
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
 use Tests\Base\UnitTestCase;
 
 class NormalizerTest extends UnitTestCase

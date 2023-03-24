@@ -2,6 +2,9 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-zip-video"
+        :get-file-by-hash="(hash) => {
+           return Routing.generate('core_file', { hash: hash })
+        }"
         :label="{
           hint: Translator.trans('file.upload.pdf.zip.mp4'),
           text: Translator.trans('file')
@@ -17,6 +20,9 @@
     <dp-upload-files
         id="r_document"
         allowed-file-types="pdf-video"
+        :get-file-by-hash="(hash) => {
+           return Routing.generate('core_file', { hash: hash })
+        }"
         :label="{
           hint: Translator.trans('file.upload.pdf.mp4'),
           text: Translator.trans('file')

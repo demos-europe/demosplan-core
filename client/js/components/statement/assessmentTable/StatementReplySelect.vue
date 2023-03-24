@@ -21,36 +21,12 @@
       :label="{
         text: Translator.trans('statement.in.compass.was.answered')
       }"
-      name="r_replied" /><!--
- --><div class="u-1-of-2 display--inline-block">
-      <dp-label
-        for="r_bthg_kompass_answer"
-        :text="Translator.trans('paragraph')" />
-      <dp-multiselect
-        id="r_bthg_kompass_answer"
-        :options="options"
-        track-by="id"
-        v-model="selected"
-        :required="checked"
-        :disabled="!checked || readonly"
-        label="title">
-        <template v-slot:option="{ option }">
-          <span class="font-size-small">{{ option.breadcrumbTrail }}</span><br>
-          {{ option.title }}
-        </template>
-      </dp-multiselect>
-      <input
-        type="hidden"
-        :value="selected.id"
-        name="r_bthg_kompass_answer">
-    </div>
+      name="r_replied" />
   </div>
 </template>
 
 <script>
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import { DpLabel } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpCheckbox, DpLabel, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementReplySelect',

@@ -87,8 +87,7 @@
 </template>
 
 <script>
-import { CleanHtml } from 'demosplan-ui/directives'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
+import { CleanHtml, DpCheckbox } from '@demos-europe/demosplan-ui'
 
 const userProperties = [
   'organisationName',

@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
-use FOS\ElasticaBundle\Event\TransformEvent;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
@@ -52,7 +52,7 @@ class ElasticsearchStatementFieldTranslateListener implements EventSubscriberInt
     /**
      * Translate fields in Statement index.
      */
-    public function translateFields(TransformEvent $event): void
+    public function translateFields(PostTransformEvent $event): void
     {
         $document = $event->getDocument();
         $fields = $event->getFields();
@@ -93,7 +93,7 @@ class ElasticsearchStatementFieldTranslateListener implements EventSubscriberInt
     public static function getSubscribedEvents(): array
     {
         return [
-            TransformEvent::POST_TRANSFORM => 'translateFields',
+            PostTransformEvent::class => 'translateFields',
         ];
     }
 }

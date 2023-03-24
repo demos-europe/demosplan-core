@@ -6,13 +6,10 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
 
-    demosplan\plugins\FloodControl\Repository\FloodRepository:
-        $entityClass: 'demosplan\plugins\FloodControl\Entity\Flood'
+    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
 
-    demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository:
-        $entityClass: 'demosplan\plugins\workflow\SegmentsManager\Entity\Segment'
-
-    demosplan\DemosPlanNewsBundle\Repository\NewsRepository:
+    demosplan\DemosPlanCoreBundle\Repository\NewsRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
 
     demosplan\DemosPlanCoreBundle\Repository\RoleRepository:
@@ -60,6 +57,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'
 
+    demosplan\DemosPlanCoreBundle\Repository\FloodRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Flood'
+
     demosplan\DemosPlanCoreBundle\Repository\SettingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Setting'
 
@@ -77,25 +77,25 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentReleaseRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory'
 
-    demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryFileRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumEntryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry'
 
-    demosplan\DemosPlanForumBundle\Repository\ForumThreadRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
 
-    demosplan\DemosPlanHelpBundle\Repository\ContextualHelpRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
     demosplan\DemosPlanMapBundle\Repository\MapRepository:
@@ -103,10 +103,6 @@ services:
 
     demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
-
-    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-        $fragmentSearchType: '@fos_elastica.index.statementFragments.statementFragment'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
@@ -122,12 +118,6 @@ services:
 
     demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
-
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdf'
-
-    demosplan\DemosPlanStatementBundle\Repository\AnnotatedStatementPdf\AnnotatedStatementPdfPageRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\AnnotatedStatementPdf\AnnotatedStatementPdfPage'
 
     demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
@@ -210,14 +200,8 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\StatementImportEmailRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementImportEmail\StatementImportEmail'
-
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureBehaviorDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
-
-    demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
 
     demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'
@@ -261,9 +245,6 @@ services:
     demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\BthgKompassAnswerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer'
-
     demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 
@@ -273,5 +254,6 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
 
-    demosplan\DemosPlanCoreBundle\Repository\StatementImportEmail\MaillaneConnectionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\MaillaneConnection'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\MapRepository'

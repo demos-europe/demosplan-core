@@ -10,16 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_progression_userstory_votes")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanForumBundle\Repository\DevelopmentUserStoryVoteRepository")
+ *
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository")
  */
 class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 {
@@ -27,8 +29,11 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_puv_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
@@ -37,6 +42,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\User\Orga
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
      * @ORM\JoinColumn(name="_puv_orga_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
     protected $orga;
@@ -50,6 +56,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
      * @var \demosplan\DemosPlanCoreBundle\Entity\User\User
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="_puv_user_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")
      */
     protected $user;
@@ -63,6 +70,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
      * @var DevelopmentUserStory
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory")
+     *
      * @ORM\JoinColumn(name="_puv_userstroy_id", referencedColumnName="_pu_id", nullable=false, onDelete="CASCADE")
      */
     protected $userStory;
@@ -82,15 +90,19 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     protected $numberOfVotes;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @ORM\Column(name="_puv_modified_date", type="datetime", nullable=false)
+     *
      * @Gedmo\Timestampable(on="update")
      */
     protected $modifiedDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
+     *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="_puv_create_date", type="datetime", nullable=false)
      */
     protected $createDate;
@@ -258,7 +270,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Set modifiedDate.
      *
-     * @param \DateTime $modifiedDate
+     * @param DateTime $modifiedDate
      *
      * @return DevelopmentUserStoryVote
      */
@@ -272,7 +284,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Get modifiedDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getModifiedDate()
     {
@@ -282,7 +294,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Set createDate.
      *
-     * @param \DateTime $createDate
+     * @param DateTime $createDate
      *
      * @return DevelopmentUserStoryVote
      */
@@ -296,7 +308,7 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * Get createDate.
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreateDate()
     {

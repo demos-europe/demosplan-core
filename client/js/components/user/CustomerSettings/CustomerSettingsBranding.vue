@@ -26,6 +26,7 @@
         <dp-upload-files
           allowed-file-types="img"
           id="r_customerLogo"
+          :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           :max-file-size="200000"
           :max-number-of-files="1"
           needs-hidden-input
@@ -70,10 +71,7 @@
 </template>
 
 <script>
-import { DpDetails, DpLabel } from 'demosplan-ui/components'
-import DpCheckbox from '@DpJs/components/core/form/DpCheckbox'
-import DpTextArea from '@DpJs/components/core/form/DpTextArea'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpCheckbox, DpDetails, DpLabel, DpTextArea, DpUploadFiles } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CustomerSettingsBranding',

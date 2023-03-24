@@ -11,16 +11,17 @@
  * This is the entrypoint for elements_admin_list.html.twig
  */
 
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
 import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
-const components = { ElementsAdminList, DpMapSettingsPreview, DpUploadFiles }
+const components = {
+  AddonWrapper,
+  ElementsAdminList,
+  DpMapSettingsPreview
+}
 
 const apiStores = ['elements']
 
-initialize(components, {}, apiStores).then(() => {
-  dpValidate()
-})
+initialize(components, {}, apiStores)

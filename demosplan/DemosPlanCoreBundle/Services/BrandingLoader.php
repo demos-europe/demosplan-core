@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\BrandingProvider;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\BrandingValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
@@ -44,11 +44,11 @@ class BrandingLoader
     private $brandingProvider;
 
     public function __construct(
-        BrandingProvider      $brandingProvider,
-        CustomerHandler       $customerHandler,
+        BrandingProvider $brandingProvider,
+        CustomerHandler $customerHandler,
         GlobalConfigInterface $globalConfig,
-        OrgaService           $orgaService,
-        ProcedureService      $procedureService)
+        OrgaService $orgaService,
+        ProcedureService $procedureService)
     {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;

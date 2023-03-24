@@ -10,12 +10,13 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
-use function array_key_exists;
-use function array_merge;
-use function array_unique;
 use Carbon\Carbon;
-use function collect;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
@@ -50,16 +51,15 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -68,8 +68,6 @@ use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
-use demosplan\DemosPlanNewsBundle\Repository\NewsRepository;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
@@ -106,13 +104,7 @@ use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use function in_array;
-use function is_array;
-use function is_dir;
-use function is_string;
 use ReflectionException;
-use function stripos;
-use function strlen;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -123,9 +115,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
 use TypeError;
-use function var_export;
 
-class ProcedureService extends CoreService
+use function array_key_exists;
+
+class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
     /**
      * @var ObjectPersisterInterface
@@ -608,18 +601,18 @@ class ProcedureService extends CoreService
         $procedureFormData = $form->getData();
         // will be an empty string and an empty array in case of a non-blueprint submit for agencyExtraEmailAddresses
         // agencyMainEmailAddress will be an empty string in case of blueprint submits
-        $inData[AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
-        $inData[AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
-        $inData[AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS] = $procedureFormData->getAgencyMainEmailAddressFullString();
+        $inData[AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES] = $procedureFormData->getAgencyExtraEmailAddressesFullStrings();
+        $inData[AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS] = $procedureFormData->getAllowedSegmentAccessProcedureIds();
 
-        //T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
-        if (array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
+        // T15664: set current customer as related customer of procedure to flag this new procedure as customer master blueprint
+        if (\array_key_exists('r_customerMasterBlueprint', $inData) && 'on' === $inData['r_customerMasterBlueprint']) {
             $inData['customer'] = $this->customerService->getCurrentCustomer();
         }
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = array_key_exists('r_name', $inData) && 0 < strlen($inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen($inData['r_name']);
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -669,7 +662,7 @@ class ProcedureService extends CoreService
      */
     protected function checkProcedureDataNoJS(array $inData): array
     {
-        if (array_key_exists('r_name', $inData) && '' === $inData['r_name']) {
+        if (\array_key_exists('r_name', $inData) && '' === $inData['r_name']) {
             $planungsanlass = $this->plis->getLgvPlisPlanningcause(
                 $inData['r_plisId']
             );
@@ -814,8 +807,9 @@ class ProcedureService extends CoreService
      *
      * @param array  $filters
      * @param string $search
-     * @param array  $sort
      * @param User   $user            will be used to get the organisation ID, the user ID and the role name
+     * @param array  $sort
+     * @param bool   $template        should procedure templates be included in results
      * @param bool   $toLegacy        determines if return value will be array[] or Procedure[]
      * @param bool   $excludeArchived exclude internal and external phase closed
      *
@@ -825,8 +819,15 @@ class ProcedureService extends CoreService
      *
      * @deprecated do not spread usage of this; see T21768
      */
-    public function getProcedureAdminList($filters, $search, $sort = null, User $user, bool $template, $toLegacy = true, $excludeArchived = true)
-    {
+    public function getProcedureAdminList(
+        $filters,
+        $search,
+        User $user,
+        $sort = null,
+        bool $template = false,
+        $toLegacy = true,
+        $excludeArchived = true
+    ) {
         try {
             $conditions = $this->convertFiltersToConditions($filters, $search, $user, $excludeArchived, $template);
             $sortMethods = $this->convertSortArrayToSortMethods($sort);
@@ -838,7 +839,7 @@ class ProcedureService extends CoreService
             );
 
             if ($toLegacy) {
-                $procedureList = collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
+                $procedureList = \collect($procedureList)->map([$this->procedureToLegacyConverter, 'convertToLegacy'])->all();
             }
 
             return $toLegacy ? $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray() : $procedureList;
@@ -854,7 +855,7 @@ class ProcedureService extends CoreService
     public function getAdminProcedureConditions(bool $template, User $user): array
     {
         $conditions = [];
-        $conditions[] = $this->conditionFactory->propertyHasValue(false, 'deleted');
+        $conditions[] = $this->conditionFactory->propertyHasValue(false, ['deleted']);
 
         $organisationId = $user->getOrganisationId();
 
@@ -862,7 +863,7 @@ class ProcedureService extends CoreService
         // authorized for (enabled via field_procedure_adjustments_planning_agency).
         $planningAgencyCondition = $this->conditionFactory->false();
         if ($user->hasRole(Role::PRIVATE_PLANNING_AGENCY)) {
-            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, 'planningOffices');
+            $planningAgencyCondition = $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
         }
 
         $orgaOwnsProcedureCondition = $this->conditionFactory->false();
@@ -875,11 +876,11 @@ class ProcedureService extends CoreService
             || $user->isPlanningAgency()
         ) {
             // Planning agencies are allowed to see any procedure created by a user of their orga.
-            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, 'orga');
+            $orgaOwnsProcedureCondition = $this->conditionFactory->propertyHasValue($organisationId, ['orga']);
 
             // If enabled via globalConfig, Planning agencies can be authorized user-wise.
             if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), 'authorizedUsers');
+                $authorizedUserCondition = $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
             }
         }
 
@@ -891,7 +892,7 @@ class ProcedureService extends CoreService
             )
         );
 
-        $conditions[] = $this->conditionFactory->propertyHasValue($template, 'master');
+        $conditions[] = $this->conditionFactory->propertyHasValue($template, ['master']);
 
         return $conditions;
     }
@@ -1004,28 +1005,28 @@ class ProcedureService extends CoreService
 
         $procedure = $this->procedureRepository->get($procedureId);
         if (!$procedure instanceof Procedure) {
-            return collect();
+            return \collect();
         }
 
         $userOrga = $user->getOrga();
         if (!$userOrga instanceof Orga) {
-            return collect();
+            return \collect();
         }
 
         $usersOfOrganisation = $userOrga->getUsers();
 
-        //remove current user, to avoid unselecting yourself:
+        // remove current user, to avoid unselecting yourself:
         if ($excludeUser) {
             $usersOfOrganisation->forget($usersOfOrganisation->search($user));
         }
         // planning offices needs to get all Orga members that are planners
-        if (in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
+        if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
             return $usersOfOrganisation->filter(static function (User $user): bool {
                 return $user->isPlanner();
             });
         }
 
-        //T8901: filter users with false roles:
+        // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
             static function (User $user): bool {
                 return $user->isPlanningAgency() || $user->isHearingAuthority();
@@ -1041,7 +1042,7 @@ class ProcedureService extends CoreService
             $authorizedUserIds = $procedure->getAuthorizedUserIds();
             $usersOfOrganisation = $usersOfOrganisation->filter(
                 static function (User $user) use ($authorizedUserIds): bool {
-                    return in_array($user->getId(), $authorizedUserIds);
+                    return \in_array($user->getId(), $authorizedUserIds);
                 }
             );
         }
@@ -1065,7 +1066,7 @@ class ProcedureService extends CoreService
     public function addProcedureEntity(array $data, string $currentUserId): Procedure
     {
         try {
-            //T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
+            // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] = $data['settings']['emailTitle'] ?? '';
             if ('' === $data['settings']['emailTitle']) {
                 $data['settings']['emailTitle'] = $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
@@ -1081,7 +1082,7 @@ class ProcedureService extends CoreService
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
-            if (array_key_exists('explanation', $data)) {
+            if (\array_key_exists('explanation', $data)) {
                 // Create a Paragraph Element from the explanation and add it to the procedure
                 $explanation = $data['explanation'];
                 $newProcedure = $this->createElementFromExplanation($newProcedure, $explanation);
@@ -1109,7 +1110,9 @@ class ProcedureService extends CoreService
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']));
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                PostNewProcedureCreatedEventInterface::class
+            );
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
@@ -1134,7 +1137,7 @@ class ProcedureService extends CoreService
     public function deleteProcedure($procedureIds): void
     {
         try {
-            if (!is_array($procedureIds)) {
+            if (!\is_array($procedureIds)) {
                 $procedureIds = [$procedureIds];
             }
 
@@ -1147,7 +1150,7 @@ class ProcedureService extends CoreService
 
                 try {
                     $this->updateProcedureWithoutReport($data);
-                    $this->getLogger()->info('Procedure marked as deleted: '.var_export($procedureId, true));
+                    $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
@@ -1209,7 +1212,7 @@ class ProcedureService extends CoreService
             // Delete Entities manually as constraints are no option anymore because mysql truncates tables when
             // trying to add constraints afterwards
 
-            //Deletes Statements, DraftStatements, DraftStatementsVersions, EntityContentChanges and Reports
+            // Deletes Statements, DraftStatements, DraftStatementsVersions, EntityContentChanges and Reports
             $procedure = $this->getProcedure($procedureId);
             if (!$procedure instanceof Procedure) {
                 throw ProcedureNotFoundException::createFromId($procedureId);
@@ -1234,7 +1237,7 @@ class ProcedureService extends CoreService
 
             // delete pregenerated zips in filedirectory/procedure
             $filesPath = $fileService->getFilesPathAbsolute();
-            if (is_dir($filesPath.'/procedure/'.$procedureId)) {
+            if (\is_dir($filesPath.'/procedure/'.$procedureId)) {
                 try {
                     $fs = new Filesystem();
                     $fs->remove($filesPath.'/procedure/'.$procedureId);
@@ -1306,7 +1309,7 @@ class ProcedureService extends CoreService
             $sourceProcedure = $this->cloneProcedure($origSourceRepos);
 
             // Update exportSettings
-            if (array_key_exists('exportSettings', $data)) {
+            if (\array_key_exists('exportSettings', $data)) {
                 $this->entityPreparator->prepareEntity($data['exportSettings'], $origSourceRepos->getDefaultExportFieldsConfiguration());
             }
 
@@ -1352,13 +1355,13 @@ class ProcedureService extends CoreService
     {
         try {
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:
-            //therefore there will be no difference between sourceProcedure and updatedProcedure.
+            // therefore there will be no difference between sourceProcedure and updatedProcedure.
 
-            //clone the source-procedure and the procedure-settings before update for report entry
+            // clone the source-procedure and the procedure-settings before update for report entry
             $sourceProcedure = clone $this->procedureRepository->get($procedureToUpdate->getId());
             $sourceProcedureSettings = clone $sourceProcedure->getSettings();
 
-            //set the cloned settings into the source procedure
+            // set the cloned settings into the source procedure
             $sourceProcedure->setSettings($sourceProcedureSettings);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
@@ -1371,7 +1374,7 @@ class ProcedureService extends CoreService
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
 
-            //create report with the sourceProcedure including the related settings
+            // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
                 $sourceProcedure,
                 $destinationProcedure,
@@ -1545,7 +1548,7 @@ class ProcedureService extends CoreService
              - Alle Subscriptions heraussuchen, die mit einem Radius von 5km IN() den gefundenen Postleitzahlen liegen
              - Subscriptions unique merken
              */
-            //Get Postleitzahl vom Verfahren
+            // Get Postleitzahl vom Verfahren
             $locationService = $this->locationService;
             $procedure = $this->getProcedure($procedureId);
             if (null === $procedure) {
@@ -1562,13 +1565,13 @@ class ProcedureService extends CoreService
                 return $this->getSubscriptionList($filter, false);
             }
 
-            //Get loc_id der OpenGeoDb zur PLZ des Verfahrens
+            // Get loc_id der OpenGeoDb zur PLZ des Verfahrens
             $location = $locationService->getSingleLocationFromPostCode($procedure->getLocationPostCode());
             if (!$location instanceof Location) {
                 throw new Exception('Keine Location zu PLZ gefunden. '.$procedure->getLocationPostCode());
             }
 
-            //Postleitzahlen im Radius von 5, 10 & 50 km um die PLZ des Verfahrens einsammeln
+            // Postleitzahlen im Radius von 5, 10 & 50 km um die PLZ des Verfahrens einsammeln
             $radien = [5, 10, 50];
             $subscriptions = new ArrayCollection();
             foreach ($radien as $radius) {
@@ -1698,7 +1701,7 @@ class ProcedureService extends CoreService
     private function getBoilerplateGroupsFilteredByCategory(array $groupsToFilter, string $categoryTitle): array
     {
         $filteredGroups = [];
-        //filter boilerplates from groups, where not have category.name === $categoryName
+        // filter boilerplates from groups, where not have category.name === $categoryName
         foreach ($groupsToFilter as $group) {
             $filteredBoilerplates = $group->filterBoilerplatesByCategory($categoryTitle);
 
@@ -2017,11 +2020,11 @@ class ProcedureService extends CoreService
      */
     public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
     {
-        //use global default blueprint as default anyway:
-        $masterTemplateId = $this->masterTemplateService->getMasterTemplateId();
+        // use global default blueprint as default anyway:
+        $masterTemplateId = $this->getMasterTemplateId();
         $incomingCopyMasterId = $incomingCopyMasterId ?? $masterTemplateId;
 
-        //T15664: in case of globalMasterBlueprint is set,
+        // T15664: in case of globalMasterBlueprint is set,
         // use customer master blueprint if existing, (instead of global masterblueprint)
         if ($masterTemplateId === $incomingCopyMasterId) {
             $customerBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
@@ -2127,7 +2130,7 @@ class ProcedureService extends CoreService
      */
     protected function isValidDesignatedPublicPhase($phaseName)
     {
-        return in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
+        return \in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
     }
 
     /**
@@ -2313,7 +2316,7 @@ class ProcedureService extends CoreService
             SettingsFilter::whereProcedureId($procedureId)->lock(),
             false
         );
-        if (is_array($settings) && $settings[0] instanceof Setting) {
+        if (\is_array($settings) && $settings[0] instanceof Setting) {
             $this->contentService->deleteSetting($settings[0]->getIdent());
         }
     }
@@ -2334,12 +2337,12 @@ class ProcedureService extends CoreService
     protected function setAuthorizedUsersToProcedure(Procedure $newProcedure, $blueprint, $currentUserId)
     {
         $currentUser = $this->userService->getSingleUser($currentUserId);
-        //at least the current user has to be set as User
+        // at least the current user has to be set as User
         $newProcedure->setAuthorizedUsers([$currentUser]);
 
         if (null !== $blueprint) {
             $blueprint =
-                is_string($blueprint) ? $this->getProcedure($blueprint) : $blueprint;
+                \is_string($blueprint) ? $this->getProcedure($blueprint) : $blueprint;
 
             if (false === $blueprint->getAuthorizedUsers()->isEmpty()) {
                 $newProcedure->setAuthorizedUsers($blueprint->getAuthorizedUsers());
@@ -2368,15 +2371,15 @@ class ProcedureService extends CoreService
     {
         $this->boilerplateRepository->copyBoilerplates($blueprintId, $newProcedure);
 
-        //copy boilerplatecategories without boilerplates:
+        // copy boilerplatecategories without boilerplates:
         $this->boilerplateCategoryRepository->copyEmptyCategories($blueprintId, $newProcedure);
 
-        //copy boilerplateGroups without boilerplates:
+        // copy boilerplateGroups without boilerplates:
         $this->boilerplateGroupRepository->copyEmptyGroups($blueprintId, $newProcedure);
 
         // ensure that we have at least our base Categories & Groups from Master blueprint
         $this->boilerplateCategoryRepository
-            ->ensureBaseCategories($this->masterTemplateService->getMasterTemplateId(), $newProcedure);
+            ->ensureBaseCategories($this->getMasterTemplateId(), $newProcedure);
     }
 
     /**
@@ -2394,7 +2397,7 @@ class ProcedureService extends CoreService
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 
-        //resolve & set categories:
+        // resolve & set categories:
         $categories = [];
         /** @var BoilerplateCategoryVO $boilerplateCategoryVO */
         foreach ($boilerplateVO->getCategories() as $boilerplateCategoryVO) {
@@ -2403,8 +2406,8 @@ class ProcedureService extends CoreService
         }
         $boilerplate->setCategories($categories);
 
-        //resolve & set group:
-        //enable unset of group, because in this case incoming group is null
+        // resolve & set group:
+        // enable unset of group, because in this case incoming group is null
         $boilerplate->detachGroup();
         if (null !== $boilerplateVO->getGroupId()) {
             $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
@@ -2468,7 +2471,7 @@ class ProcedureService extends CoreService
             $boilerplate->setTitle($boilerplateVO->getTitle());
             $boilerplate->setText($boilerplateVO->getText());
 
-            //resolve & set categories:
+            // resolve & set categories:
             $categories = [];
             /** @var BoilerplateCategoryVO $boilerplateCategoryVO */
             foreach ($boilerplateVO->getCategories() as $boilerplateCategoryVO) {
@@ -2477,7 +2480,7 @@ class ProcedureService extends CoreService
             }
             $boilerplate->setCategories($categories);
 
-            //resolve & set group:
+            // resolve & set group:
             if (null !== $boilerplateVO->getGroupId()) {
                 $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
                 $boilerplate->setGroup($group);
@@ -2512,22 +2515,22 @@ class ProcedureService extends CoreService
     public function getInaccessibleProcedures(User $user, $procedureIdToExclude = null)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
         ];
 
         if (null !== $procedureIdToExclude) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($procedureIdToExclude, ['id']);
         }
 
         // in case of planungsbüro foreign procedures means: procedures where orga is not assigned
-        if (false !== stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
-            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), 'planningOffices');
+        if (false !== \stripos(Role::PRIVATE_PLANNING_AGENCY, $user->getRole())) {
+            $conditions[] = $this->conditionFactory->propertyHasNotStringAsMember($user->getOrganisationId(), ['planningOffices']);
         } else {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), 'orga');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($user->getOrganisationId(), ['orga']);
         }
 
-        $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+        $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
         $foreignProcedures = $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2537,12 +2540,12 @@ class ProcedureService extends CoreService
 
         $unauthorizedProcedures = [];
         if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-            //this is additional needed because of filter "p.orga != :oId" can not be combined with the logic of getUnauthorizedProcedures()
-            //additional get procedures of orga of current user, but not accessible:
+            // this is additional needed because of filter "p.orga != :oId" can not be combined with the logic of getUnauthorizedProcedures()
+            // additional get procedures of orga of current user, but not accessible:
             $unauthorizedProcedures = $this->getUnauthorizedProcedures($user);
         }
 
-        return array_merge($foreignProcedures, $unauthorizedProcedures);
+        return \array_merge($foreignProcedures, $unauthorizedProcedures);
     }
 
     /**
@@ -2555,13 +2558,13 @@ class ProcedureService extends CoreService
     public function getUnauthorizedProcedures(User $user)
     {
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, 'deleted'),
-            $this->conditionFactory->propertyHasValue(false, 'master'),
-            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), 'orga'),
-            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), 'authorizedUsers'),
+            $this->conditionFactory->propertyHasValue(false, ['deleted']),
+            $this->conditionFactory->propertyHasValue(false, ['master']),
+            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['orga']),
+            $this->conditionFactory->propertyHasNotStringAsMember($user->getId(), ['authorizedUsers']),
         ];
 
-        $sortMethod = $this->sortMethodFactory->propertyDescending('createdDate');
+        $sortMethod = $this->sortMethodFactory->propertyDescending(['createdDate']);
 
         return $this->entityFetcher->listEntitiesUnrestricted(
             Procedure::class,
@@ -2585,7 +2588,7 @@ class ProcedureService extends CoreService
     {
         $inAccessibleProcedures = $this->getInaccessibleProcedures($user, $procedureIdToExclude);
         $inAccessibleProcedures =
-            collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
+            \collect($inAccessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
                 return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
             });
 
@@ -2606,10 +2609,17 @@ class ProcedureService extends CoreService
     public function getAccessibleProcedureIds(User $user, $procedureIdToExclude = null)
     {
         $filters = null === $procedureIdToExclude ? [] : ['procedureIdToExclude' => $procedureIdToExclude];
-        $accessibleProcedures = $this->getProcedureAdminList($filters, null, ['name' => 'ASC'], $user, false, false);
+        $accessibleProcedures = $this->getProcedureAdminList(
+            $filters,
+            null,
+            $user,
+            ['name' => 'ASC'],
+            false,
+            false
+        );
 
         $accessibleProcedures =
-            collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
+            \collect($accessibleProcedures)->mapWithKeys(function (Procedure $procedure) {
                 return [$procedure->getId() => ['id' => $procedure->getId(), 'name' => $procedure->getName()]];
             });
 
@@ -2667,6 +2677,16 @@ class ProcedureService extends CoreService
     public function getOriginalStatementsCounts(array $procedureIds): array
     {
         return $this->statementRepository->getOriginalStatementsCounts($procedureIds);
+    }
+
+    /**
+     * @param array<int, string> $procedureIds
+     *
+     * @return array<string, int>
+     */
+    public function getStatementsCounts(array $procedureIds): array
+    {
+        return $this->statementRepository->getStatementsCounts($procedureIds);
     }
 
     /**
@@ -2761,55 +2781,55 @@ class ProcedureService extends CoreService
     ): array {
         $conditions = $this->getAdminProcedureConditions($template, $user);
 
-        if (is_string($search) && 0 < strlen($search)) {
+        if (\is_string($search) && 0 < \strlen($search)) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
-                'name'
+                ['name']
             );
         }
 
-        if (isset($filters['municipalCode']) && is_array($filters['municipalCode'])) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], 'municipalCode');
+        if (isset($filters['municipalCode']) && \is_array($filters['municipalCode'])) {
+            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
-        //use array_key_exists, because value of key 'customer' is null
-        if (array_key_exists('customer', $filters)) {
+        // use array_key_exists, because value of key 'customer' is null
+        if (\array_key_exists('customer', $filters)) {
             // T15644 customer master procedure has customer set
             if ($template &&
                 $this->permissions->hasPermission('feature_admin_customer_master_procedure_template')
             ) {
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyIsNull('customer'),
-                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), 'customer')
+                    $this->conditionFactory->propertyIsNull(['customer']),
+                    $this->conditionFactory->propertyHasValue($this->customerService->getCurrentCustomer()->getId(), ['customer'])
                 );
             } elseif (null === $filters['customer']) {
-                $conditions[] = $this->conditionFactory->propertyIsNull('customer');
+                $conditions[] = $this->conditionFactory->propertyIsNull(['customer']);
             } else {
-                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], 'customer');
+                $conditions[] = $this->conditionFactory->propertyHasValue($filters['customer'], ['customer']);
             }
         }
 
-        if (array_key_exists('orgaCustomerId', $filters)) {
+        if (\array_key_exists('orgaCustomerId', $filters)) {
             $conditions[] = $this->conditionFactory->propertyHasValue(
                 $filters['orgaCustomerId'],
-                'orga', 'statusInCustomers', 'customer', 'id'
+                ['orga', 'statusInCustomers', 'customer', 'id']
             );
         }
 
         if (isset($filters['procedureIdToExclude'])) {
-            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], 'id');
+            $conditions[] = $this->conditionFactory->propertyHasNotValue($filters['procedureIdToExclude'], ['id']);
         }
 
         if ($excludeArchived) {
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', 'phase'),
-                $this->conditionFactory->propertyHasNotValue('closed', 'publicParticipationPhase')
+                $this->conditionFactory->propertyHasNotValue('closed', ['phase']),
+                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase'])
             );
         }
 
         // may be simplified
-        $hiddenPhases = array_unique(
-            array_merge(
+        $hiddenPhases = \array_unique(
+            \array_merge(
                 $this->globalConfig->getInternalPhaseKeys('hidden'),
                 $this->globalConfig->getExternalPhaseKeys('hidden')
             )
@@ -2818,8 +2838,8 @@ class ProcedureService extends CoreService
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'phase'),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, 'publicParticipationPhase'),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase']),
             );
         }
 
@@ -2840,14 +2860,14 @@ class ProcedureService extends CoreService
     {
         $sortMethods = [];
         if (null === $sort) {
-            $sortMethods[] = $this->sortMethodFactory->propertyDescending('createdDate');
-            $sortMethods[] = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethods[] = $this->sortMethodFactory->propertyDescending(['createdDate']);
+            $sortMethods[] = $this->sortMethodFactory->propertyAscending(['name']);
         } else {
             foreach ($sort as $key => $value) {
                 if ('ASC' === $value) {
-                    $sortMethods[] = $this->sortMethodFactory->propertyAscending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyAscending([$key]);
                 } else {
-                    $sortMethods[] = $this->sortMethodFactory->propertyDescending($key);
+                    $sortMethods[] = $this->sortMethodFactory->propertyDescending([$key]);
                 }
             }
         }
@@ -2921,7 +2941,7 @@ class ProcedureService extends CoreService
         // copy NotificationReceiver (Email to counties T433)
         $this->notificationReceiverRepository->copy($blueprintId, $newProcedure->getId());
 
-        //copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
+        // copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);
@@ -2952,5 +2972,10 @@ class ProcedureService extends CoreService
         }, $sourcePlaces);
 
         $this->placeRepository->persistEntities($newPlaces);
+    }
+
+    public function getMasterTemplateId()
+    {
+        return $this->masterTemplateService->getMasterTemplateId();
     }
 }

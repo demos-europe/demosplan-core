@@ -10,13 +10,17 @@
 /**
  * This is the entrypoint for administration_unregistered_publicagency_email.html.twig
  */
-import DpAccordion from '@DpJs/components/core/DpAccordion'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { DpAccordion, DpEditor, DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
+import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import { initialize } from '@DpJs/InitVue'
 
-const components = { DpAccordion, DpEditor }
+const components = { DpAccordion, DpBoilerPlateModal, DpEditor, DpLabel }
 
-initialize(components).then(() => {
+const stores = {
+  boilerplates: BoilerplatesStore
+}
+
+initialize(components, stores).then(() => {
   dpValidate()
 })

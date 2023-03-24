@@ -16,7 +16,6 @@ use DateTime;
 
 class DateHelper
 {
-
     /**
      * Convert all DateTimes into Java Timestamps with milliseconds.
      *
@@ -55,5 +54,4 @@ class DateHelper
 
         return $date.'+0100';
     }
-
 }

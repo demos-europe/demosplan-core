@@ -18,6 +18,7 @@ use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
+use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PresentableOriginalStatementFactory
@@ -49,7 +50,7 @@ class PresentableOriginalStatementFactory
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function createFromStatement(Statement $statement): PresentableOriginalStatement
     {
@@ -67,9 +68,9 @@ class PresentableOriginalStatementFactory
         $phase = $this->statementService->getInternalOrExternalPhaseNameFromObject($statement);
         $data->setProcedurePublicPhase($this->createValuedLabel('procedure.public.phase', $phase));
 
-        //There are no statements with the organisation-name but without the related organisation.
-        //Probably because of changing related organisation isn't possible.
-        $orgaName = $statement->getOrganisationName(); //theoretically can be null, but will not be null, because related organisation cant be changed
+        // There are no statements with the organisation-name but without the related organisation.
+        // Probably because of changing related organisation isn't possible.
+        $orgaName = $statement->getOrganisationName(); // theoretically can be null, but will not be null, because related organisation cant be changed
 
         $data->setSubmitterPublicAgency($this->createValuedLabel('submitter.invitable_institution', $orgaName));
         $data->setSubmitterName($this->createValuedLabel(

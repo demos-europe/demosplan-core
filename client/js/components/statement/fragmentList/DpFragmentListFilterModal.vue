@@ -8,8 +8,7 @@
 </license>
 
 <script>
-import DpModal from '@DpJs/components/core/DpModal'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
+import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentListFilterModal',

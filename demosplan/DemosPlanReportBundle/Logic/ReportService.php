@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanReportBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
@@ -164,12 +164,12 @@ class ReportService extends CoreService
     {
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $conditions = [
-            $this->conditionFactory->propertyHasValue('orgaShowlistChange', 'category'),
-            $this->conditionFactory->propertyHasValue('orga', 'group'),
-            $this->conditionFactory->propertyHasValue($currentCustomer, 'customer'),
+            $this->conditionFactory->propertyHasValue('orgaShowlistChange', ['category']),
+            $this->conditionFactory->propertyHasValue('orga', ['group']),
+            $this->conditionFactory->propertyHasValue($currentCustomer, ['customer']),
         ];
 
-        $sorting = $this->sortMethodFactory->propertyDescending('createDate');
+        $sorting = $this->sortMethodFactory->propertyDescending(['createDate']);
 
         return $this->entityFetcher->listPaginatedEntitiesUnrestricted(ReportEntry::class, $conditions, 1, 9999999, [$sorting]);
     }
@@ -200,11 +200,11 @@ class ReportService extends CoreService
             $anonymizeSubmitterData = $statement->isSubmitter($userId);
             $anonymizeAuthorData = $statement->isAuthor($userId);
 
-            //anonymize data of user is more or less deprecated
-            //instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
+            // anonymize data of user is more or less deprecated
+            // instead via UI only submitter can revoke -> submitterdata as well as authordata will be anonymized
             if ($statement->isSubmitter($userId)
                 && $statement->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator()) {
-                //Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
+                // Means koordiantor is revoking GDPR-Consent, also anonyimize data of Sachbearbeiter:
                 $anonymizeAuthorData = true;
             }
         }
@@ -252,7 +252,7 @@ class ReportService extends CoreService
             $statementArray = $this->anonymizeAuthorUserData($statementArray);
         }
 
-        //In case of statement is not a manual statement the data of the author are stored directly on the report.
+        // In case of statement is not a manual statement the data of the author are stored directly on the report.
         if (!$isManualStatement
             && ReportEntry::CATEGORY_ADD === $reportEntry->getCategory()
             && ReportEntry::GROUP_STATEMENT === $reportEntry->getGroup()
@@ -356,7 +356,7 @@ class ReportService extends CoreService
                 $this->addAnonymizationReport(ReportEntry::CATEGORY_DELETE_ATTACHMENTS, $event);
             }
             $doctrineConnection->commit();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $event->setException($exception);
             $event->stopPropagation();
             $doctrineConnection->rollBack();

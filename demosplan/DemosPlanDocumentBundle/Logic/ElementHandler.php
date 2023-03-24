@@ -10,10 +10,11 @@
 
 namespace demosplan\DemosPlanDocumentBundle\Logic;
 
-use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use function array_key_exists;
+
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
@@ -210,7 +211,7 @@ class ElementHandler extends CoreHandler
     {
         $elementId = $data['r_ident'];
         $orgasForElement = [];
-        //Hole alle Orgas, die bisher der Kategorie zugewiesen sind.
+        // Hole alle Orgas, die bisher der Kategorie zugewiesen sind.
         $outputResult = $this->elementService->getElement($elementId);
         if (isset($outputResult['organisation'])) {
             foreach ($outputResult['organisation'] as $orga) {
@@ -225,13 +226,13 @@ class ElementHandler extends CoreHandler
         if (array_key_exists('r_orga', $data)) {
             // Überprüfe, ob Orgas zu den Berechtigungen dazugefügt wurden
             $orgasToAdd = array_diff($data['r_orga'], $orgasForElement);
-            //Wenn ja, speicher sie ab
+            // Wenn ja, speicher sie ab
             if (is_array($orgasToAdd) && 0 < count($orgasToAdd)) {
                 $this->elementService->addAuthorisationToOrga($elementId, $orgasToAdd);
             }
-            //Überprüfe, ob einzelne Orgas aus den Berechtigungen gelöscht werden sollen
+            // Überprüfe, ob einzelne Orgas aus den Berechtigungen gelöscht werden sollen
             $orgasToDelete = array_diff($orgasForElement, $data['r_orga']);
-            //wenn ja, lösche sie
+            // wenn ja, lösche sie
             if (is_array($orgasToDelete) && 0 < count($orgasToDelete)) {
                 $this->elementService->deleteAuthorisationOfOrga($elementId, $orgasToDelete);
             }
@@ -275,6 +276,10 @@ class ElementHandler extends CoreHandler
         }
 
         $element['enabled'] = false;
+        if (array_key_exists('r_publish_categories', $data)) {
+            $element['enabled'] = $data['r_publish_categories'];
+        }
+
         $element['pId'] = $procedureId;
 
         if ($this->permissions->hasPermission('feature_auto_switch_element_state')) {

@@ -79,7 +79,9 @@
               {{ Translator.trans('export.verb') }}
             </a>
           </li>
-          <li class="display--inline-block">
+          <li
+            class="display--inline-block"
+            v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
               <template slot="trigger">
                 <span>
@@ -91,17 +93,21 @@
                 </span>
               </template>
               <template v-if="statement">
-                <span class="weight--bold">{{ Translator.trans('original.pdf') }}</span>
-                <statement-meta-attachments-link
-                  v-if="originalAttachment.hash"
-                  :attachment="originalAttachment" />
-                <span
-                  v-if="additionalAttachments.length > 0"
-                  class="weight--bold">{{ Translator.trans('more.attachments') }}</span>
-                <statement-meta-attachments-link
-                  v-for="attachment in additionalAttachments"
-                  :key="attachment.hash"
-                  :attachment="attachment" />
+                <div class="overflow-x-scroll overflow-word-break max-height-500 max-width-600 width-max-content">
+                  <span class="display--block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                  <statement-meta-attachments-link
+                    class="display--block whitespace--normal u-mr-0_75"
+                    v-if="originalAttachment.hash"
+                    :attachment="originalAttachment" />
+                  <span
+                    v-if="additionalAttachments.length > 0"
+                    class="display--block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                  <statement-meta-attachments-link
+                    class="display--block whitespace--normal u-mr-0_75"
+                    v-for="attachment in additionalAttachments"
+                    :key="attachment.hash"
+                    :attachment="attachment" />
+                </div>
               </template>
             </dp-flyout>
           </li>
@@ -159,12 +165,15 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import {
+  checkResponse,
+  dpApi,
+  DpFlyout,
+  DpSlidebar,
+  DpStickyElement
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpFlyout from '@DpJs/components/core/DpFlyout'
-import DpSlidebar from '@DpJs/components/core/DpSlidebar'
-import DpStickyElement from '@DpJs/components/core/shared/DpStickyElement'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
@@ -531,7 +540,7 @@ export default {
         this.$refs.locationMap.resetCurrentMap()
       }
 
-      this.setContent({ prop: 'slidebar', val: { showTab: '', segmentId: '' } })
+      this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
     },
 
     saveStatement (statement) {

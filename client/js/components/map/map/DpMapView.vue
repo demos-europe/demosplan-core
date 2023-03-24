@@ -41,17 +41,17 @@
             class="fa fa-map u-ml-0_25 color--grey-light"
             aria-hidden="true" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({field: 'mapExtend_of_project_epsg25832', extent: data})"
+            @extentSet="data => setExtent({ field: 'mapExtend_of_project_epsg25832', extent: data })"
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds" />
           <dp-ol-map-set-extent
-            @extentSet="data => setExtent({field: 'bbox_of_project_epsg25832', extent: data})"
+            @extentSet="data => setExtent({ field: 'bbox_of_project_epsg25832', extent: data })"
             data-cy="boundsApply"
             translation-key="bounds.apply" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('text.mapsection'), container: '#DpOlMap'}" />
+            v-tooltip="{ content: Translator.trans('text.mapsection'), container: '#DpOlMap' }" />
         </div>
 
         <div
@@ -65,17 +65,31 @@
             render-control
             type="Polygon"
             data-cy="defineMapTerritory"
-            :draw-style="{fillColor: 'rgba(0,0,0,0.1)', strokeColor: '#000', imageColor: '#d4004b', strokeLineDash: [4,4], strokeLineWidth: 3}"
-            :features="territory"
+            :draw-style="{
+              fillColor: 'rgba(0,0,0,0.1)',
+              strokeColor: '#000',
+              imageColor: '#d4004b',
+              strokeLineDash: [4,4],
+              strokeLineWidth: 3
+            }"
+            :features="initTerritory"
             :label="Translator.trans('map.territory.define')"
-            v-tooltip="{content:Translator.trans('explanation.territory.help.draw', {drawTool: Translator.trans('map.territory.define') }), container: '#DpOlMap'}"
+            v-tooltip="{
+              content: Translator.trans('explanation.territory.help.draw', {
+                drawTool: Translator.trans('map.territory.define')
+              }),
+              container: '#DpOlMap'
+            }"
             icon-class="fa fa-pencil-square-o"
-            @layerFeaturesChanged="updateTerritory" />
+            @layerFeatures:changed="updateTerritory" />
           <dp-ol-map-edit-feature target="Territory" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('explanation.territory.desc'), container: '#DpOlMap'}" />
+            v-tooltip="{
+              content: Translator.trans('explanation.territory.desc'),
+              container: '#DpOlMap'
+            }" />
         </div>
 
         <div
@@ -91,11 +105,14 @@
             data-cy="setMapRelation"
             :label="Translator.trans('map.relation.set')"
             :features="procedureCoordinatesFeature"
-            @layerFeaturesChanged="updateCoordinates" />
+            @layerFeatures:changed="updateCoordinates" />
           <i
             class="fa fa-question-circle float--right"
             :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{content:Translator.trans('text.mapsection.hint'), container: '#DpOlMap'}" />
+            v-tooltip="{
+              content: Translator.trans('text.mapsection.hint'),
+              container: '#DpOlMap'
+            }" />
         </div>
         <template v-else>
           <dp-ol-map-draw-feature
@@ -104,7 +121,7 @@
             class="u-mb-0_5"
             :label="Translator.trans('map.relation.set')"
             :features="procedureCoordinatesFeature"
-            @layerFeaturesChanged="updateCoordinates" />
+            @layerFeatures:changed="updateCoordinates" />
         </template>
 
         <dp-ol-map-drag-zoom class="u-mb-0_5" />
@@ -147,14 +164,15 @@ export default {
     procedureTerritory: {
       required: false,
       type: String,
-      default: ''
+      default: '{}'
     }
   },
 
   data () {
     return {
+      initTerritory: JSON.parse(this.procedureTerritory),
       isActive: '',
-      territory: this.procedureTerritory ? JSON.parse(this.procedureTerritory) : {},
+      territory: JSON.parse(this.procedureTerritory),
       coordinate: this.procedureCoordinates.split(',')
     }
   },

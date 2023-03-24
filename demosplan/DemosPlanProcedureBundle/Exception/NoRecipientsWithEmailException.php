@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Exception;
 
-class NoRecipientsWithEmailException extends \Exception
+use Exception;
+
+class NoRecipientsWithEmailException extends Exception
 {
 }

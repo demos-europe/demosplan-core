@@ -55,6 +55,7 @@
     <button
       type="button"
       @click="toggle"
+      data-cy="editButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
       :class="{ 'color--highlight' : currentlyActive }">
@@ -65,12 +66,13 @@
     <button
       type="button"
       @click="removeFeature"
+      data-cy="removeButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.delete.selected', {
         deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
         editTool: Translator.trans('map.territory.tools.edit')
       })"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled) }">
+      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor--default': disabled }">
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -78,6 +80,7 @@
     <button
       type="button"
       @click="clearAll"
+      data-cy="removeAllButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold">
       <slot name="removeAllButtonDesc">
@@ -89,7 +92,7 @@
 
 <script>
 import { Modify, Select } from 'ol/interaction'
-import { hasOwnProp } from 'demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 import VectorLayer from 'ol/layer/Vector'
 
@@ -192,33 +195,44 @@ export default {
 
     removeFeature () {
       const features = this.selectInteraction.getFeatures()
+
       if (features !== null && features.getLength() > 0) {
         features.getArray().forEach(feature => {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
-              if (layer instanceof VectorLayer && this.target.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
+              if (layer instanceof VectorLayer && this.targets.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
                 layer.getSource().removeFeature(feature)
               }
             })
-            this.selectedFeatureId = []
-            this.selectInteraction.getFeatures().clear()
-            this.$nextTick(() => this.map.render())
           }
         })
+
+        this.resetSelection()
       }
     },
 
     clearAll () {
-      if (confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
-        this.map.getLayers().forEach(layer => {
-          if (layer instanceof VectorLayer && this.target.includes(layer.get('name'))) {
-            this.selectInteraction.getFeatures().clear()
-            layer.getSource().clear()
-            this.selectedFeatureId = []
-          }
-        })
+      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
+        return
       }
+
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
+          this.selectInteraction.getFeatures().clear()
+          layer.getSource().clear()
+        }
+      })
+
+      this.resetSelection()
+    },
+
+    resetSelection () {
+      this.selectedFeatureId = []
+      this.selectInteraction.getFeatures().clear()
+      this.$nextTick(() => {
+        this.map.render()
+      })
     }
   },
 

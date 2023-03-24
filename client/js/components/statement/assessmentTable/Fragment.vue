@@ -56,18 +56,18 @@ useful info about the component:
           :current-user-id="currentUserId"
           entity="fragment"
           :entity-id="fragment.id"
-          :editable="hasPermission('feature_statement_assignment') ? (currentUserId === fragment.assignee.id) : true"
+          :editable="isClaimed"
           :extern-id="fragment.displayId"
-          :fragment-assignee-id="fragment.assignee.id"
+          :fragment-assignee-id="fragment.assignee?.id"
           :statement-id="statement.id"
           @fragment-delete="deleteFragment" />
       </div><!--
    --><dp-claim
         class="c-at-item__row-icon display--inline-block"
         entity-type="fragment"
-        :assigned-id="(fragment.assignee.id || '')"
-        :assigned-name="(fragment.assignee.name || '')"
-        :assigned-organisation="(fragment.assignee.orgaName || '')"
+        :assigned-id="(fragment.assignee?.id || '')"
+        :assigned-name="(fragment.assignee?.name || '')"
+        :assigned-organisation="(fragment.assignee?.orgaName || '')"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
@@ -325,7 +325,7 @@ useful info about the component:
      --><div class="display--flex">
           <tiptap-edit-text
             title="fragment.text"
-            class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right "
+            class="c-styled-html u-mt-0_25 u-pr-0_5 u-1-of-2 u-pb-0_5 border--right"
             :initial-text="fragmentText"
             :entity-id="fragment.id"
             :initial-is-shortened="false"
@@ -336,7 +336,7 @@ useful info about the component:
             edit-label="fragment.edit"
             mark
             strikethrough
-            obscure
+            :obscure="hasPermission('feature_obscure_text')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="text" />
@@ -353,6 +353,8 @@ useful info about the component:
             field-key="fragment.considerationAdvice"
             :editable="isClaimed && editableConsiderationAdvice"
             edit-label="fragment.considerationAdvice"
+            link-button
+            :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="considerationAdvice"
@@ -369,6 +371,8 @@ useful info about the component:
             field-key="consideration"
             :editable="isClaimed && editableConsideration"
             edit-label="fragment.consideration"
+            link-button
+            :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             @field:save="saveFragment"
             ref="consideration"
@@ -380,16 +384,14 @@ useful info about the component:
 </template>
 
 <script>
-import { formatDate, hasOwnProp } from 'demosplan-utils'
+import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import TableCardFlyoutMenu from './TableCardFlyoutMenu'
 import TiptapEditText from './TiptapEditText'
-import { VPopover } from 'demosplan-ui/directives'
 
 export default {
   name: 'DpAssessmentFragment',
@@ -404,21 +406,6 @@ export default {
   },
 
   props: {
-    procedureId: {
-      required: true,
-      type: String
-    },
-
-    initialFragment: {
-      required: true,
-      type: Object
-    },
-
-    statement: {
-      type: Object,
-      required: true
-    },
-
     currentUserId: {
       type: String,
       required: true
@@ -432,17 +419,30 @@ export default {
     fragmentId: {
       type: String,
       required: true
+    },
+
+    initialFragment: {
+      required: true,
+      type: Object
+    },
+    procedureId: {
+      required: true,
+      type: String
+    },
+    statement: {
+      type: Object,
+      required: true
     }
   },
 
   data () {
     return {
       editing: false,
+      forwardTags: false,
       notifyOrga: false,
       reviewerEditing: false,
-      updatingClaimState: false,
       tagsEditing: false,
-      forwardTags: false
+      updatingClaimState: false
     }
   },
 
@@ -455,7 +455,19 @@ export default {
     },
 
     isClaimed () {
-      return hasPermission('feature_statement_assignment') ? this.fragment.assignee.id === this.currentUserId : true
+      /*
+       * The fragment is only editable if
+       * a) in case the permission for the claim feature is active:
+       * - the fragment has an assignee
+       * - the assignee is the currently logged-in user
+       * b) in case the permission for the claim feature is not active:
+       * always
+       */
+      if (hasPermission('feature_statement_assignment')) {
+        return this.fragment.assignee && this.fragment.assignee?.id === this.currentUserId
+      } else {
+        return true
+      }
     },
 
     /**
@@ -713,6 +725,8 @@ export default {
           }
         }
 
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
         // Used in DpVersionHistory to update items in version history sidebar
         this.$root.$emit('entity:updated', this.fragmentId, 'fragment')
 
@@ -741,14 +755,14 @@ export default {
       this.updatingClaimState = true
 
       // Last claimed user is only needed if departmentId is set and we want to unassign the fragment. Only then we need the info who was the last assignee to be able to assign the fragment back. Last claimed is also saved when we assign the fragment to department, but this happens in another action (update fragment). therefore, if departmentId === '' and fragment is claimed, ignoreLastClaimed should be false (because when we click on the user icon we want the fragment to be still assigned to department, and not freigegeben). In all other cases should be true.
-      const shouldIgnoreLastClaimed = this.fragment.departmentId === '' && hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId
+      const shouldIgnoreLastClaimed = this.fragment.departmentId === '' && hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId
 
       const assigneeData = {
         fragmentId: this.fragmentId,
         statementId: this.statement.id,
         ignoreLastClaimed: shouldIgnoreLastClaimed,
-        assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id === this.currentUserId ? '' : this.currentUserId),
-        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee.id === this.currentUserId) && { lastClaimed: this.currentUserId })
+        assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId),
+        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee?.id === this.currentUserId) && { lastClaimed: this.currentUserId })
       }
 
       this.setAssigneeAction(assigneeData)
@@ -756,7 +770,7 @@ export default {
           this.updatingClaimState = false
           this.$root.$emit('entity:updated', this.fragment.id, 'fragment')
 
-          if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee.id !== this.currentUserId) {
+          if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== this.currentUserId) {
             this.reviewerEditing = false
           }
         })

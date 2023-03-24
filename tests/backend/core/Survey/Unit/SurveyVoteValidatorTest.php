@@ -11,11 +11,11 @@
 namespace Tests\Core\Survey\Unit;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyVoteValidator;
 use Exception;
@@ -196,8 +196,6 @@ class SurveyVoteValidatorTest extends SurveyVoteTestUtils
 
     /**
      * Check that a given json is validated as expected.
-     *
-     * @param $errorMsg
      */
     private function checkSchemaValidity(
         string $json,

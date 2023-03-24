@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -42,10 +43,10 @@ final class OriginalStatementResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_json_api_original_statement',
-            'feature_import_statement_via_email'
-        );
+        /** @var IsOriginalStatementAvailableEvent $event * */
+        $event = $this->eventDispatcher->dispatch(new IsOriginalStatementAvailableEvent());
+
+        return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
     public function getAccessCondition(): PathsBasedInterface
@@ -56,11 +57,11 @@ final class OriginalStatementResourceType extends DplanResourceType
         }
 
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(false, ...$this->deleted),
-            $this->conditionFactory->propertyIsNull(...$this->original->id),
-            $this->conditionFactory->propertyIsNull(...$this->headStatement->id),
-            $this->conditionFactory->propertyIsNull(...$this->movedStatement),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), ...$this->procedure->id)
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyIsNull($this->original->id),
+            $this->conditionFactory->propertyIsNull($this->headStatement->id),
+            $this->conditionFactory->propertyIsNull($this->movedStatement),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
         );
     }
 
@@ -76,15 +77,8 @@ final class OriginalStatementResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        $properties = [
+        return [
             $this->createAttribute($this->id)->readable(true)->filterable(),
         ];
-
-        if ($this->currentUser->hasPermission('feature_import_statement_via_email')) {
-            $properties[] = $this->createToManyRelationship($this->statements)->readable()
-                ->aliasedPath($this->statementsCreatedFromOriginal);
-        }
-
-        return $properties;
     }
 }

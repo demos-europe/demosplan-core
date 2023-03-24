@@ -32,26 +32,39 @@
                 ]
             }) }}
 
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'email.body'|trans },
-                        control: {
-                            name: 'r_email_body',
-                            boilerPlate: 'email',
-                            headings: [1,2,3],
-                            hiddenInput: 'r_email_body',
-                            linkButton: true,
-                            required: true
-                        },
-                        id: 'r_email_body',
-                        type: 'editor',
-                        required: true,
-                        value: 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') })
-                    }
-                ]
-            }) }}
-            </label>
+            <div class="{{ 'u-mb-0_75'|prefixClass }}">
+                <dp-label
+                    for="r_email_body"
+                    text="{{ 'email.body'|trans }}">
+                </dp-label>
+                <dp-editor
+                    id="r_email_body"
+                    hidden-input="r_email_body"
+                    :toolbar-items="{
+                        headings: [1,2,3],
+                        linkButton: true
+                    }"
+                    required
+                    value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
+                    <template v-slot:modal="modalProps">
+                        <dp-boiler-plate-modal
+                            ref="boilerPlateModal"
+                            boiler-plate-type="email"
+                            procedure-id="{{ procedure }}"
+                            @insert="text => modalProps.handleInsertText(text)">
+                        </dp-boiler-plate-modal>
+                    </template>
+                    <template v-slot:button>
+                        <button
+                            class="{{ 'menubar__button'|prefixClass }}"
+                            type="button"
+                            v-tooltip="'{{ 'boilerplate.insert'|trans }})'"
+                            @click.stop="$refs.boilerPlateModal.toggleModal()">
+                            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
+                        </button>
+                    </template>
+                </dp-editor>
+            </div>
 
             {{ uiComponent('form.element', {
                 label: { text: 'customer.settings.update.mail.info'|trans({ count: templateVars.usersCount|default(0) }) },
@@ -79,5 +92,5 @@
 {#  bundles generated via webpack/gulp build are included here  #}
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'user-customersettingsmail.js']) }}
+    {{ webpackBundles(['user-customersettingsmail.js']) }}
 {% endblock javascripts %}

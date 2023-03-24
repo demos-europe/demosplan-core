@@ -15,7 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use Exception;
+
 use function get_class;
+
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -25,7 +28,6 @@ use ZipStream\Option\Archive;
 use ZipStream\Option\File;
 use ZipStream\Option\Method;
 use ZipStream\ZipStream;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class ZipExportService
 {
@@ -129,11 +131,11 @@ class ZipExportService
                     'absolutePath' => $fileInfo->getAbsolutePath(),
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Could not add file to Zip',
                 [
                     'file'      => $filePath,
-                    'path'      => $zipPath ?? '',
+                    'path'      => $zipPath,
                     'exception' => $e->getMessage(),
                 ]);
         }
@@ -155,7 +157,6 @@ class ZipExportService
         string ...$fileStrings): void
     {
         foreach ($fileStrings as $fileString) {
-            $path = '';
             try {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($fileString);
 
@@ -170,11 +171,11 @@ class ZipExportService
                 }
 
                 $this->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning('Could not add file to Zip',
                     [
                         'fileString' => $fileString ?? '',
-                        'path'       => $path ?? '',
+                        'path'       => '',
                     ]
                 );
             }
@@ -215,10 +216,7 @@ class ZipExportService
     private function checkIfSavable(object $writer): void
     {
         if (!($writer instanceof WriterInterface || $writer instanceof PDF)) {
-            throw InvalidParameterTypeException::fromTypes(
-                get_class($writer),
-                [WriterInterface::class, PDF::class]
-            );
+            throw InvalidParameterTypeException::fromTypes(get_class($writer), [WriterInterface::class, PDF::class]);
         }
     }
 }

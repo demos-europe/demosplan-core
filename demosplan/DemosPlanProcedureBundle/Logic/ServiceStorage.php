@@ -11,6 +11,10 @@
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -25,9 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
-use demosplan\DemosPlanProcedureBundle\Form\AbstractProcedureFormType;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
@@ -36,15 +38,17 @@ use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
 use Exception;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function is_string;
 
 /**
  * Speicherung von Planverfahren.
  */
-class ServiceStorage
+class ServiceStorage implements ServiceStorageInterface
 {
     /**
      * @var ContentService
@@ -166,7 +170,6 @@ class ServiceStorage
         ReportService $reportService,
         TranslatorInterface $translator
     ) {
-
         $this->arrayHelper = $arrayHelper;
         $this->contentService = $contentService;
         $this->currentUser = $currentUser;
@@ -199,7 +202,7 @@ class ServiceStorage
      * @throws PreNewProcedureCreatedEventConcernException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
      * @throws \demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException
      * @throws \demosplan\DemosPlanUserBundle\Exception\UserNotFoundException
@@ -208,7 +211,10 @@ class ServiceStorage
     public function administrationNewHandler(array $data, string $currentUserId): Procedure
     {
         /** @var PreNewProcedureCreatedEvent $procedureFileSubmitEvent */
-        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(new PreNewProcedureCreatedEvent($data));
+        $procedureFileSubmitEvent = $this->eventDispatcher->dispatch(
+            new PreNewProcedureCreatedEvent($data),
+            PreNewProcedureCreatedEventInterface::class
+        );
         $criticalEventConcernMessages = $procedureFileSubmitEvent->getCriticalEventConcernMessages();
         if ([] !== $criticalEventConcernMessages) {
             $preNewProcedureCreatedEventConcernException = new PreNewProcedureCreatedEventConcernException();
@@ -255,7 +261,7 @@ class ServiceStorage
             ];
         }
 
-        if (!array_key_exists(AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
+        if (!array_key_exists(AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, $data)) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -267,7 +273,7 @@ class ServiceStorage
             ];
         }
 
-        //check if an MMPB is already existing for customer in case of customer is set
+        // check if an MMPB is already existing for customer in case of customer is set
         if (array_key_exists('customer', $data)
             && $data['customer'] instanceof Customer
             && $this->procedureService->isCustomerMasterBlueprintExisting($data['customer']->getId())
@@ -337,9 +343,9 @@ class ServiceStorage
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'plisId');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'publicParticipationContact');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'publicParticipationPublicationEnabled');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
+        $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'customer', '');
         $procedureData = $this->arrayHelper->addToArrayIfKeyExists($procedureData, $data, 'xtaPlanId', '');
         $procedureData['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedureData['settings'] ?? [], $data, 'mapExtent');
@@ -433,17 +439,17 @@ class ServiceStorage
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'oldSlug');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'desc');
 
-        //T15644: in case of deselected customer master blue print, the key 'r_customerMasterBlueprint' will be missing:
+        // T15644: in case of deselected customer master blue print, the key 'r_customerMasterBlueprint' will be missing:
         $procedure['customer'] = null;
-        if (array_key_exists('r_customerMasterBlueprint', $data)) { //soll current customer gesetzt werden?
+        if (array_key_exists('r_customerMasterBlueprint', $data)) { // soll current customer gesetzt werden?
             $currentCustomer = $this->customerService->getCurrentCustomer();
             if ($currentCustomer->getId() !== $currentProcedure->getCustomerId()// ist cc noch nicht gesetzt?
                 && $this->procedureService->isCustomerMasterBlueprintExisting($currentCustomer->getId())) {
                 $this->messageBag->add(
-                        'warning',
-                        'customer.master.blueprint.already.exists',
-                        ['customerName' => $currentCustomer->getName()]
-                    );
+                    'warning',
+                    'customer.master.blueprint.already.exists',
+                    ['customerName' => $currentCustomer->getName()]
+                );
             } else {
                 $procedure['customer'] = $currentCustomer;
             }
@@ -453,13 +459,14 @@ class ServiceStorage
         if ($this->globalConfig->hasProcedureUserRestrictedAccess() && $this->permissions->hasPermission('feature_procedure_user_restrict_access_edit')) {
             $procedure['authorizedUsers'] = [];
             $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'authorizedUsers');
-            //get current user + add current user to authorizedUsers:
+            // get current user + add current user to authorizedUsers:
             $procedure['authorizedUsers'][] = $this->currentUser->getUser()->getId();
         }
 
         $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'links');
+        $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'emailTitle');
 
-        //T9581
+        // T9581
         if ($this->permissions->hasPermission('feature_procedure_legal_notice_write')) {
             $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'legalNotice');
         }
@@ -468,10 +475,10 @@ class ServiceStorage
             $procedure['phase'] = $data['r_phase'];
             $procedure['closed'] = 'closed' === $data['r_phase'];
 
-            //T9581 T9838: remove legal notice on change r_phase (toeb phase)
-            //check for change of toeb phase
+            // T9581 T9838: remove legal notice on change r_phase (toeb phase)
+            // check for change of toeb phase
             if ($this->permissions->hasPermission('feature_procedure_legal_notice_write') && $currentProcedure->getPhase() != $procedure['phase']) {
-                $procedure['settings']['legalNotice'] = ''; //'' == default value
+                $procedure['settings']['legalNotice'] = ''; // '' == default value
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
         }
@@ -495,7 +502,7 @@ class ServiceStorage
             $procedure['dataInputOrga'] = [];
         }
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'externalName');
-        //Falls keine Verfahrensname für die Öffentlichkeit angelegt wird, dann speicher den allgem. Name als external Name
+        // Falls keine Verfahrensname für die Öffentlichkeit angelegt wird, dann speicher den allgem. Name als external Name
         if (empty($data['r_externalName']) && array_key_exists('name', $procedure) && '' !== $procedure['name']) {
             $procedure['externalName'] = $procedure['name'];
         }
@@ -506,9 +513,9 @@ class ServiceStorage
             $procedure['externalDesc'] = $singleLineExternalDesc;
         }
 
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
-        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormType::AGENCY_MAIN_EMAIL_ADDRESS, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::AGENCY_EXTRA_EMAIL_ADDRESSES, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::ALLOWED_SEGMENT_ACCESS_PROCEDURE_IDS, '');
+        $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, AbstractProcedureFormTypeInterface::AGENCY_MAIN_EMAIL_ADDRESS, '');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationName');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'locationPostCode');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'publicParticipationContact');
@@ -537,7 +544,7 @@ class ServiceStorage
 
         if (array_key_exists('r_publicParticipationStartDate', $data) && '----' !== $data['r_publicParticipationStartDate']) {
             $procedure['publicParticipationStartDate'] = $data['r_publicParticipationStartDate'];
-            //T16467 in case of institution participation is disabled: copy value to date field of institution
+            // T16467 in case of institution participation is disabled: copy value to date field of institution
             if (!$this->permissions->hasPermission('feature_institution_participation')) {
                 $procedure['startDate'] = $data['r_publicParticipationStartDate'];
             }
@@ -545,7 +552,7 @@ class ServiceStorage
 
         if (array_key_exists('r_publicParticipationEndDate', $data) && '----' !== $data['r_publicParticipationEndDate']) {
             $procedure['publicParticipationEndDate'] = $data['r_publicParticipationEndDate'];
-            //T16467 in case of institution participation is disabled: copy value to date field of institution
+            // T16467 in case of institution participation is disabled: copy value to date field of institution
             if (!$this->permissions->hasPermission('feature_institution_participation')) {
                 $procedure['endDate'] = $data['r_publicParticipationEndDate'];
             }
@@ -701,7 +708,7 @@ class ServiceStorage
             $procedure['exportSettings'] = $data['r_export_settings'];
         }
 
-        //If no fieldCompleteions given, we have to assume, that all checkboxes are unchecked
+        // If no fieldCompleteions given, we have to assume, that all checkboxes are unchecked
         if (false === array_key_exists('fieldCompletions', $data)) {
             $data['fieldCompletions'] = [];
         }
@@ -717,7 +724,7 @@ class ServiceStorage
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationGlobalGisHandler($data, $procedureID)
     {
@@ -767,7 +774,7 @@ class ServiceStorage
         }
 
         if ($this->permissions->hasPermission('feature_layer_groups_alternate_visibility')) {
-            //in case of disabling, key will be not exist
+            // in case of disabling, key will be not exist
             $enabled = array_key_exists('r_enable_layer_groups_alternate_visibility', $data);
 
             $newSetting = [
@@ -820,24 +827,24 @@ class ServiceStorage
 
         $procedure['ident'] = $procedureId;
 
-        //check if E-Mail addresses are submitted via the CC-field
+        // check if E-Mail addresses are submitted via the CC-field
         if (array_key_exists('r_emailCc', $data) && 0 < count($data['r_emailCc'])) {
             $checkedMails = [];
-            //check every given E-Mail address
+            // check every given E-Mail address
             foreach ($data['r_emailCc'] as $mail) {
-                //delete potential blanks at the start/end of each string
+                // delete potential blanks at the start/end of each string
                 $mailForCc = trim($mail);
-                //check if the individual address is valid
+                // check if the individual address is valid
                 if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
-                    //add this valid address to the list which is going to be persisted
+                    // add this valid address to the list which is going to be persisted
                     $checkedMails[] = $mailForCc;
                 }
             }
-            //Concatenate the list of valid E-Mail addresses to a string and persist it
+            // Concatenate the list of valid E-Mail addresses to a string and persist it
             $procedure['settings']['emailCc'] = implode(', ', $checkedMails);
             $this->procedureService->updateProcedure($procedure);
         }
-        //pass on an empty string if the CC-field is empty (deletes the already saved addresses)
+        // pass on an empty string if the CC-field is empty (deletes the already saved addresses)
         if (array_key_exists('r_emailCc', $data) && 0 === count($data['r_emailCc'])) {
             $procedure['settings']['emailCc'] = '';
         }
@@ -905,7 +912,7 @@ class ServiceStorage
      *
      * @return array|bool unknown
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function updatePlanHandler(array $data, string $procedureID)
     {
@@ -981,7 +988,7 @@ class ServiceStorage
      *
      * @return bool - false in case of exception, otherwise true
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addOrgaToProcedureHandler($procedureId, $organisationIds)
     {
@@ -997,7 +1004,7 @@ class ServiceStorage
             $this->procedureService->addOrganisations($procedure, $organisations);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -1010,7 +1017,7 @@ class ServiceStorage
      *
      * @return bool - false in case of exception, otherwise true
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function detachOrganisationsFromProcedure($procedureId, $organisationIds)
     {

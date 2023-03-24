@@ -107,7 +107,10 @@
         </div>
       </div>
     </div>
-
+    <div
+      v-if="noResults"
+      class="u-mt-0_75"
+      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
     <!-- list -->
     <template v-if="isLoading && isInitialLoad">
       <dp-loading class="u-ml u-mt" />
@@ -151,15 +154,19 @@
 </template>
 
 <script>
-import { DpButton, DpLoading } from 'demosplan-ui/components'
+import {
+  CleanHtml,
+  DpButton,
+  DpCheckboxGroup,
+  DpLoading,
+  DpSearchField,
+  dpSelectAllMixin,
+  DpSkeletonBox,
+  DpSlidingPagination,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import DpCheckboxGroup from '@DpJs/components/core/DpCheckboxGroup'
 import DpOrganisationListItem from './DpOrganisationListItem'
-import DpSearchField from '@DpJs/components/core/form/DpSearchField'
-import dpSelectAllMixin from '@DpJs/mixins/dpSelectAllMixin'
-import DpSkeletonBox from '@DpJs/components/core/DpSkeletonBox'
-import DpSlidingPagination from '@DpJs/components/core/DpSlidingPagination'
-import { hasOwnProp } from 'demosplan-utils'
 
 export default {
   name: 'DpOrganisationList',
@@ -172,6 +179,10 @@ export default {
     DpSearchField,
     DpSkeletonBox,
     DpSlidingPagination
+  },
+
+  directives: {
+    cleanhtml: CleanHtml
   },
 
   mixins: [dpSelectAllMixin],
@@ -253,6 +264,7 @@ export default {
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
       isLoading: true,
+      noResults: false,
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
@@ -377,6 +389,7 @@ export default {
         .then(() => {
           this.pendingOrganisationsLoading = false
           this.isLoading = false
+          this.noResults = Object.keys(this.items).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
@@ -395,6 +408,7 @@ export default {
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
+          this.noResults = Object.keys(this.items).length === 0
         })
     },
 
@@ -428,6 +442,7 @@ export default {
 
     resetSearch () {
       this.searchTerm = ''
+      this.noResults = false
       this.getItemsByPage()
     }
   },

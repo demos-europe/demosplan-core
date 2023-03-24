@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 export default function DeleteFragmentButton () {
   const deleteFragmentButton = document.querySelectorAll('[data-post-delete]')

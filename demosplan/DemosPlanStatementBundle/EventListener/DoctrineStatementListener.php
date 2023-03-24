@@ -10,9 +10,10 @@
 
 namespace demosplan\DemosPlanStatementBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DoctrineStatementListener
@@ -51,7 +52,7 @@ class DoctrineStatementListener
             // translate Values
             $transKey = $this->formOptions['statement_submit_types']['values'][$statement->getSubmitType()] ?? '';
             $statement->setSubmitTypeTranslated($this->translator->trans($transKey));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // bad luck :-(
         }
     }

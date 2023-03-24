@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Services;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
+use RuntimeException;
 
 class HTMLSanitizer
 {
@@ -28,7 +29,7 @@ class HTMLSanitizer
     {
         // Make sure the cache directory exists, as the purifier won't create it for you
         if (!file_exists($cacheDirectory) && !mkdir($cacheDirectory, 0777, true) && !is_dir($cacheDirectory)) {
-            throw new \RuntimeException(sprintf('HTML purifier directory "%s" can not be created', $cacheDirectory));
+            throw new RuntimeException(sprintf('HTML purifier directory "%s" can not be created', $cacheDirectory));
         }
 
         $this->htmlPurifier = $htmlPurifier;

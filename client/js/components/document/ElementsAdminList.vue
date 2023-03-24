@@ -55,9 +55,9 @@
       :options="treeListOptions"
       :tree-data="treeData"
       ref="treeList"
-      @draggable-change="saveNewSort"
+      @draggable:change="saveNewSort"
       @node-selection-change="nodeSelectionChange"
-      @tree-data-change="updateTreeData">
+      @tree:change="updateTreeData">
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -84,12 +84,15 @@
 </template>
 
 <script>
-import { hasAnyPermissions, hasOwnProp } from 'demosplan-utils'
+import {
+  DpBulkEditHeader,
+  DpLoading,
+  dpRpc,
+  DpTreeList,
+  hasAnyPermissions,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpBulkEditHeader from '@DpJs/components/core/DpBulkEditHeader'
-import { DpLoading } from 'demosplan-ui/components'
-import { dpRpc } from '@DemosPlanCoreBundle/plugins/DpApi'
-import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
 
@@ -243,12 +246,12 @@ export default {
       const roots = []
 
       // Initialize children in list elements
-      for (let i = 0; i < list.length; i++) {
-        list[i].children = []
+      for (const [index] of list.entries()) {
+        list[index].children = []
       }
 
-      for (let i = 0; i < list.length; i++) {
-        const node = list[i]
+      for (const [index] of list.entries()) {
+        const node = list[index]
 
         // If not already set, copy the `index` value to an additional field `idx`.
         if (!hasOwnProp(node.attributes, 'idx')) {
@@ -261,7 +264,7 @@ export default {
         }
 
         // Push item to correct position in map
-        if (node.attributes.parentId !== null) {
+        if (node.attributes.parentId) {
           list.find(el => el.id === node.attributes.parentId)?.children.push(node)
         } else {
           roots.push(node)
@@ -278,11 +281,11 @@ export default {
      */
     nodeSelectionChange (selected) {
       this.selectedFiles = selected
-        .filter(node => node.type === 'singleDocument')
-        .map(el => el.id)
+        .filter(node => node.nodeType === 'leaf')
+        .map(el => el.nodeId)
       this.selectedElements = selected
-        .filter(node => node.type === 'elements')
-        .map(el => el.id)
+        .filter(node => node.nodeType === 'branch')
+        .map(el => el.nodeId)
     },
 
     /**

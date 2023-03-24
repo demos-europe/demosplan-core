@@ -25,7 +25,7 @@ class FilterUiDataProvider
 
     public function __construct()
     {
-        $this->relativeFilterNamesPath = 'demosplan/plugins/workflow/SegmentsManager/Resources/config/segmentsFilterNames.yaml';
+        $this->relativeFilterNamesPath = 'demosplan/DemosPlanCoreBundle/Resources/config/segmentsFilterNames.yaml';
     }
 
     /**

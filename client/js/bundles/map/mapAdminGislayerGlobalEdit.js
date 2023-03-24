@@ -11,9 +11,9 @@
  * This is the entrypoint for mmap_admin_gislayer_global_edit.html.twig
  */
 
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
+import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpUploadFiles

@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
+use Elastica\Index;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
-use Elastica\Type;
 use Psr\Log\LoggerInterface;
 
 class ProcedureElasticsearchRepository
@@ -34,12 +34,12 @@ class ProcedureElasticsearchRepository
     protected $permissions;
 
     public function __construct(
-        Type $procedureSearchType,
+        Index $procedureSearchType,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         PermissionsInterface $permissions
     ) {
-        $this->search = $procedureSearchType;
+        $this->index = $procedureSearchType;
         $this->globalConfig = $globalConfig;
         $this->logger = $logger;
         $this->permissions = $permissions;

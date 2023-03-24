@@ -1,0 +1,94 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    <h1
+        class="u-mb"
+        id="title">
+        {{ "contextual.help"|trans }}
+    </h1>
+
+    <form method="post" action="{{ path('dplan_contextual_help_list') }}" name="contextualHelpForm">
+        <div class="cf">
+            <button
+                class="btn-icns"
+                name="delete"
+                data-form-actions-confirm="{{ "check.items.marked.delete" |trans }}"
+            >
+                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                {{ 'items.marked.delete'|trans }}
+            </button>
+
+            {{ uiComponent('button', {
+                href: path('dplan_contextual_help_new'),
+                attributes: ['data-cy=contextualHelpNew'],
+                text: 'contextual.help.new'|trans,
+                classes: ['float--right']
+            }) }}
+        </div>
+
+        <table
+            aria-describedby="title"
+            class="c-table">
+            <colgroup>
+                <col>
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th class="width-20">
+                        <label class="display--inline-block u-mb-0 u-mr-0_5">
+                            <input
+                                id="select_all"
+                                type="checkbox"
+                                class="u-mr-0"
+                                data-cy="selectAll"
+                                aria-label="{{ "markall"|trans }}"
+                                data-form-actions-check-all>
+                            <span class="hide-visually">
+                                {{ "markall"|trans }}
+                            </span>
+                        </label>
+                    </th>
+                    <th>
+                        {{ "key"|trans }}
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% if templateVars.contextualHelpList is not defined or 0 == templateVars.contextualHelpList | length %}
+                    <tr>
+                        <td colspan="2" class="u-p-0_5 bg-color--grey-light-2">
+                            {{ 'explanation.noentries'|trans }}
+                        </td>
+                    </tr>
+                {% endif %}
+
+                {% for contextualHelp in templateVars.contextualHelpList %}
+                        <tr>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    name="r_delete[]"
+                                    ata-cy="contextualHelpSelect"
+                                    value="{{ contextualHelp.ident }}"
+                                    data-checkable-item>
+                            </td>
+                            <td>
+                                <a
+                                    href="{{ path('dplan_contextual_help_edit',{'contextualHelpId': contextualHelp.ident|default()}) }}"
+                                    data-cy="contextualHelpItem">
+                                    {{  contextualHelp.key|default }}
+                                </a>
+                            </td>
+                        </tr>
+                 {% endfor %}
+             </tbody>
+        </table>
+    </form>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock %}

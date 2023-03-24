@@ -10,8 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Monolog\Logger;
@@ -59,7 +60,7 @@ class CoreHandler
     protected $logger;
 
     /**
-     * @var MessageBag
+     * @var MessageBagInterface
      */
     protected $messageBag;
 
@@ -68,7 +69,7 @@ class CoreHandler
      */
     protected $requestStack;
 
-    public function __construct(MessageBag $messageBag)
+    public function __construct(MessageBagInterface $messageBag)
     {
         $this->messageBag = $messageBag;
     }
@@ -94,7 +95,6 @@ class CoreHandler
 
         return $result;
     }
-
 
     /**
      * Get form option from globally defined parameter.
@@ -189,7 +189,7 @@ class CoreHandler
         return $this->requestStack->getSession();
     }
 
-    public function getMessageBag(): MessageBag
+    public function getMessageBag(): MessageBagInterface
     {
         return $this->messageBag;
     }

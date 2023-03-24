@@ -10,8 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use function array_key_exists;
-use function date;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -21,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
@@ -37,15 +35,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Elastica\Exception\NotFoundException;
 use Exception;
-use function explode;
-use function is_array;
-use function is_string;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use ReflectionException;
-use function strlen;
-use function substr;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,6 +46,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
+use function array_key_exists;
+use function date;
+use function explode;
+use function is_array;
+use function is_string;
+use function strlen;
+use function substr;
 
 /**
  * Controller that contains methods regarding lists of procedures.
@@ -307,11 +308,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      *     path="/verfahren/verwalten",
      *     methods={"POST"},
      * )
-     *
      * @Route(
      *     name="DemosPlan_procedure_administration_get",
      *     path="/verfahren/verwalten",
      *     methods={"GET"},
+     *     options={"expose": true},
      * )
      *
      * @DplanPermissions("area_admin_procedures")
@@ -481,7 +482,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         'DemosPlan_procedure_public_detail',
                         ['procedure' => $procedure['ident']]
                     ),
-                    'procedureId' => $procedure['ident'],
+                    'procedureId'                  => $procedure['ident'],
                 ];
             }
 
@@ -493,7 +494,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 'procedureCount' => count($serviceOutput['list']['procedurelist']),
             ];
 
-            //return result as JSON
+            // return result as JSON
             return new Response(Json::encode($response));
         } catch (Exception $e) {
             return $this->handleAjaxError($e);
@@ -534,7 +535,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 try {
                     $maxExtent = Json::decodeToMatchingType($request->query->get('filterByExtent'));
                 } catch (Exception $e) {
-                    $this->logger->err('Could not get mapExtent to generate autocomplete.', [$e]);
+                    $this->logger->error('Could not get mapExtent to generate autocomplete.', [$e]);
                     $maxExtent = null;
                 }
             }
@@ -591,7 +592,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 'suggestions' => $filteredSuggestions,
             ];
 
-            //return result as JSON
+            // return result as JSON
             return $this->renderJson($response);
         } catch (Exception $e) {
             return $this->handleAjaxError($e);

@@ -95,11 +95,26 @@
         </p>
 
           <dp-editor
-            :value="options.consideration.value"
-            :toolbar-items="{ boilerPlate: 'consideration' }"
-            @input="updateConsiderationText"
             ref="consideration"
-            :procedure-id="procedureId" />
+            :value="options.consideration.value"
+            @input="updateConsiderationText">
+            <template v-slot:modal="modalProps">
+              <dp-boiler-plate-modal
+                ref="boilerPlateModal"
+                boiler-plate-type="consideration"
+                :procedure-id="procedureId"
+                @insert="text => modalProps.handleInsertText(text)" />
+            </template>
+            <template v-slot:button>
+              <button
+                :class="prefixClass('menubar__button')"
+                type="button"
+                v-tooltip="Translator.trans('boilerplate.insert')"
+                @click.stop="openBoilerPlate">
+                <i :class="prefixClass('fa fa-puzzle-piece')" />
+              </button>
+            </template>
+          </dp-editor>
         </div>
       </div>
 
@@ -208,23 +223,26 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { DpButton } from 'demosplan-ui/components'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpTextWrapper from '@DpJs/components/core/TextWrapper'
-import { hasOwnProp } from 'demosplan-utils'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'DpBulkEditFragment',
 
   components: {
+    DpBoilerPlateModal,
     DpButton,
     DpTextWrapper,
     DpMultiselect,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor')
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     authorisedUsers: {
@@ -320,6 +338,10 @@ export default {
   },
 
   methods: {
+    openBoilerPlate () {
+      this.$refs.boilerPlateModal.toggleModal()
+    },
+
     toggleMode (mode) {
       if (this.checkedOptions.length < 1) {
         dplan.notify.error(Translator.trans('actions.choose'))

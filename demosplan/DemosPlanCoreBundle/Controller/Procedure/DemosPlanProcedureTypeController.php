@@ -32,6 +32,7 @@ use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\QueryException;
+use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -64,7 +65,7 @@ class DemosPlanProcedureTypeController extends BaseController
                 'templateVars' => [
                     'procedureTypes' => $procedureTypeResources,
                 ],
-                'title' => 'procedure.types',
+                'title'        => 'procedure.types',
             ]
         );
     }
@@ -75,7 +76,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     path="verfahrenstypen/auswahl",
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -116,8 +116,8 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes' => $procedureTypeResources,
                     'isCreate'       => true,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.create',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.create',
             ]
         );
     }
@@ -132,7 +132,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws ResourceNotFoundException
@@ -147,8 +146,13 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         // List of ProcedureTypes
         $procedureTypeResources = $procedureTypeService->getAllProcedureTypeResources();
+        /** @var ProcedureType $procedureTypeEntity */
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $entityWrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
@@ -179,8 +183,8 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes'  => $procedureTypeResources,
                     'isCreate'        => true,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.create',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.create',
             ]
         );
     }
@@ -192,7 +196,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
-     *
      * @DplanPermissions({"area_procedure_type_edit"})
      *
      * @throws NonUniqueResultException
@@ -209,6 +212,10 @@ class DemosPlanProcedureTypeController extends BaseController
         string $procedureTypeId,
         TranslatorInterface $translator
     ): Response {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
 
@@ -236,8 +243,8 @@ class DemosPlanProcedureTypeController extends BaseController
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
                 ],
-                'form'  => $form->createView(),
-                'title' => 'procedure.type.edit',
+                'form'         => $form->createView(),
+                'title'        => 'procedure.type.edit',
             ]
         );
     }
@@ -268,6 +275,10 @@ class DemosPlanProcedureTypeController extends BaseController
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
         Request $request
     ) {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = new ProcedureType(
             '',
             '',
@@ -375,7 +386,6 @@ class DemosPlanProcedureTypeController extends BaseController
      *     methods={"POST"},
      *     options={"expose": false}
      * )
-     *
      * @DplanPermissions("area_procedure_type_edit")
      *
      * @return RedirectResponse|Response
@@ -399,6 +409,10 @@ class DemosPlanProcedureTypeController extends BaseController
         ResourcePersister $resourcePersister,
         string $procedureTypeId
     ) {
+        if (!$procedureTypeResourceType->isAvailable()) {
+            throw AccessException::typeNotAvailable($procedureTypeResourceType);
+        }
+
         $procedureTypeEntity = $entityFetcher->getEntityAsReadTarget($procedureTypeResourceType, $procedureTypeId);
         $procedureTypeResource = $wrapperFactory->createWrapper($procedureTypeEntity, $procedureTypeResourceType);
         $formName = 'procedureTypeEdit';

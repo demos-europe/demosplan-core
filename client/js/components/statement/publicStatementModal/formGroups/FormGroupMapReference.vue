@@ -9,13 +9,14 @@
 
 <template>
   <fieldset
+    v-if="hasPermission('field_statement_location')"
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
     aria-required="true"
     id="locationFieldset">
     <p
-      :class="prefixClass('weight--bold u-mt u-mb-0')"
+      :class="prefixClass('c-statement__formblock-title weight--bold u-mt u-mb-0')"
       id="statementMapReference">
       {{ Translator.trans('statement.map.reference') }}
       <span
@@ -36,7 +37,9 @@
         class="u-mb-0_25"
         :checked="isLocationSelected"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
-        :label="Translator.trans('statement.map.reference.add_on_map')"
+        :label="{
+          text: Translator.trans('statement.map.reference.add_on_map')
+        }"
         value="point" />
 
       <a
@@ -60,14 +63,16 @@
     </div>
 
     <div
-      v-if="hasPermission('field_statement_location')"
+      v-if="hasPermission('field_statement_county')"
       :class="[
         statement.r_location === 'county' ? 'bg-color--grey-light-2' : '',
         'c-statement__formblock layout__item height-90 height-auto-lap-down u-3-of-10 u-1-of-1-palm'
       ]">
       <dp-radio
         id="locationcounty"
-        :label="Translator.trans('statement.map.reference.choose_county')"
+        :label="{
+          text: Translator.trans('statement.map.reference.choose_county')
+        }"
         name="r_location"
         class="u-mb-0_25"
         :checked="statement.r_location === 'county'"
@@ -100,7 +105,9 @@
       ]">
       <dp-radio
         id="locationNone"
-        :label="Translator.trans('statement.map.no_reference')"
+        :label="{
+          text: Translator.trans('statement.map.no_reference')
+        }"
         name="r_location"
         class="u-mb-0_25"
         data-cy="notLocated"
@@ -113,7 +120,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import DpRadio from '@DpJs/components/core/form/DpRadio'
+import { DpRadio } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
 
 export default {

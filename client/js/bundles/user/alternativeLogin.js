@@ -11,17 +11,15 @@
  * This is the entrypoint for alternative_login.html.twig
  */
 
+import { DpDataTableExtended, DpRegisterFlyout, dpValidate } from '@demos-europe/demosplan-ui'
 import AlternativeLogin from '@DpJs/components/user/AlternativeLogin'
-import DpDataTableExtended from '@DpJs/components/core/DpDataTable/DpDataTableExtended'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
-import RegisterFlyout from '@DpJs/components/core/RegisterFlyout'
+import { initialize } from '@DpJs/InitVue'
 import SamlLoginForm from '@DpJs/components/user/samlLoginForm/SamlLoginForm'
 
 const components = {
   AlternativeLogin,
   DpDataTableExtended,
-  RegisterFlyout,
+  DpRegisterFlyout,
   SamlLoginForm
 }
 

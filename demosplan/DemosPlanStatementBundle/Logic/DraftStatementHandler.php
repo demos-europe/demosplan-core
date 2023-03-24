@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -166,7 +166,7 @@ class DraftStatementHandler extends CoreHandler
         // get all users of orga
         $orgaUsers = $this->userService->getUsersOfOrganisation($user->getOrganisationId());
 
-        //prepare mail
+        // prepare mail
         $mailTemplateVars['statements'] = $releasedStatements;
         $mailTemplateVars['procedure'] = $procedure;
 
@@ -192,7 +192,7 @@ class DraftStatementHandler extends CoreHandler
             'UTF-8'
         );
 
-        //Notify any coordinator
+        // Notify any coordinator
         foreach ($orgaUsers as $orgaUser) {
             try {
                 // user must be coordinator
@@ -778,10 +778,10 @@ class DraftStatementHandler extends CoreHandler
         $numberOfCreatedMails = 0;
         $procedures = [];
 
-        //group by procedures and user/toeb:
+        // group by procedures and user/toeb:
         foreach ($draftStatements as $draftStatement) {
             $user = $draftStatement->getUser();
-            //only for users, who has enabled notification for unsubmitted draft statements:
+            // only for users, who has enabled notification for unsubmitted draft statements:
             if ($user->getFlag(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED)) {
                 $procedures[$draftStatement->getProcedureId()]['procedure'] = $draftStatement->getProcedure();
                 $procedures[$draftStatement->getProcedureId()]['users'][$draftStatement->getUId()]['user'] = $user;
@@ -795,7 +795,7 @@ class DraftStatementHandler extends CoreHandler
 
             $link = $this->router
                 ->generate('DemosPlan_statement_list_draft', ['procedure' => $procedure->getId()],
-                UrlGeneratorInterface::ABSOLUTE_URL);
+                    UrlGeneratorInterface::ABSOLUTE_URL);
 
             $procedureName = $procedure->getExternalName();
             $endDate = $procedure->getEndDate()->format('d.m.Y');

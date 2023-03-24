@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import AnimateById from '@DpJs/lib/AnimateById'
+import { AnimateById } from '@demos-europe/demosplan-ui'
 import { mapMutations } from 'vuex'
 import StatementFragment from './Fragment'
 

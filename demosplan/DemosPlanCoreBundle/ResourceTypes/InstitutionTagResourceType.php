@@ -12,16 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\CreatableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DeletableDqlResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\UpdatableDqlResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceChange;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
@@ -32,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<InstitutionTag>
+ *
  * @template-implements UpdatableDqlResourceTypeInterface<InstitutionTag>
  *
  * @property-read End                     $label
@@ -56,7 +57,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
             ->readable(true)
             ->filterable();
         $label = $this->createAttribute($this->label);
-        $taggedInstitutions = $this->createAttribute($this->taggedInstitutions);
+        $taggedInstitutions = $this->createToManyRelationship($this->taggedInstitutions);
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $label->readable()->filterable()->sortable();
             $taggedInstitutions->readable()->filterable()->sortable();
@@ -113,7 +114,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
 
         return $this->conditionFactory->propertyHasValue(
             $userOrga->getId(),
-            ...$this->owningOrganisation
+            $this->owningOrganisation->id
         );
     }
 
@@ -174,7 +175,7 @@ class InstitutionTagResourceType extends DplanResourceType implements UpdatableD
         $institutionViolationLists = [];
         $updater->ifPresent(
             $this->taggedInstitutions,
-            static function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
+            function (Collection $institutions) use ($tag, &$institutionViolationLists): void {
                 $tag->setTaggedInstitutions($institutions);
                 $institutions->forAll(function (int $key, Orga $institutionToBeTagged) use ($tag, &$institutionViolationLists): bool {
                     $institutionToBeTagged->addAssignedTag($tag);

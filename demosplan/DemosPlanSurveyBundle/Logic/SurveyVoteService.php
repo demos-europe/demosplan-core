@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use UnexpectedValueException;
 
 class SurveyVoteService extends CoreService
 {
@@ -35,7 +36,7 @@ class SurveyVoteService extends CoreService
         $surveyVote = $this->surveyVoteRepository->find($id);
 
         if (null === $surveyVote) {
-            throw new \UnexpectedValueException(sprintf('SurveyVote with the following Id not found: %s', $id));
+            throw new UnexpectedValueException(sprintf('SurveyVote with the following Id not found: %s', $id));
         }
 
         return $surveyVote;
@@ -78,5 +79,4 @@ class SurveyVoteService extends CoreService
     {
         $this->surveyVoteRepository->updateObjects($surveyVotes);
     }
-
 }

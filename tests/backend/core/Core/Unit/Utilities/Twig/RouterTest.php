@@ -10,10 +10,10 @@
 
 namespace Tests\Core\Core\Unit\Utilities\Twig;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Router;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -142,11 +142,6 @@ class RouterTest extends FunctionalTestCase
                 $urlHttp,
                 'http',
             ],
-            [
-                'https://umsetzungsbegleitung-bthg.de/dialog/app.php/plan',
-                'https://umsetzungsbegleitung-bthg.de/dialog/app.php/plan',
-                'https',
-            ],
         ];
     }
 
@@ -168,7 +163,7 @@ class RouterTest extends FunctionalTestCase
                 'inputParams'  => [
                     'procedure' => $procedureShortUrl,
                 ],
-                'params' => [
+                'params'       => [
                     'procedure' => $procedureId,
                 ],
             ],
@@ -176,7 +171,7 @@ class RouterTest extends FunctionalTestCase
                 'inputParams'  => [
                     'procedureId' => $procedureShortUrl,
                 ],
-                'params' => [
+                'params'       => [
                     'procedureId' => $procedureId,
                 ],
             ],
@@ -184,7 +179,7 @@ class RouterTest extends FunctionalTestCase
                 'inputParams'  => [
                     'procedure' => $procedureShortUrl,
                 ],
-                'params' => [
+                'params'       => [
                     'procedure' => $procedureShortUrl,
                 ],
             ],
@@ -192,7 +187,7 @@ class RouterTest extends FunctionalTestCase
                 'inputParams'  => [
                     'procedureId' => $procedureShortUrl,
                 ],
-                'params' => [
+                'params'       => [
                     'procedureId' => $procedureShortUrl,
                 ],
             ],
@@ -268,12 +263,12 @@ class RouterTest extends FunctionalTestCase
             [
                 'param' => 'procedure',
                 'path'  => $this->urlPrefixProcedure.$testProcedure->getShortUrl(
-                    ).$this->urlSuffixProcedure,
+                ).$this->urlSuffixProcedure,
             ],
             [
                 'param' => 'procedure',
                 'path'  => $this->urlPrefixProcedure.$testProcedure->getId(
-                    ).$this->urlSuffixProcedure,
+                ).$this->urlSuffixProcedure,
             ],
             [
                 'param' => 'procedureId',

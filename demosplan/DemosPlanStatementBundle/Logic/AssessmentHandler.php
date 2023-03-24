@@ -225,10 +225,6 @@ class AssessmentHandler extends CoreHandler
     /**
      * Export AssessmentTable as docx.
      *
-     * @param array  $requestPost
-     * @param array  $exportChoice
-     *
-     * @return DocxExportResult
      * @throws HandlerException
      * @throws MessageBagException
      */
@@ -238,8 +234,7 @@ class AssessmentHandler extends CoreHandler
         array $exportChoice,
         string $viewMode,
         bool $original = false
-    ): DocxExportResult
-    {
+    ): DocxExportResult {
         $outputResult = $this->prepareOutputResult($procedureId, $original, $requestPost);
         try {
             /**
@@ -433,10 +428,10 @@ class AssessmentHandler extends CoreHandler
         }
         if ($original) {
             $hashList[$procedureId]['original']['hash'] = $filterSet->getHash();
-            $hashList[$procedureId]['original']['page'] = (int)($parameters['page']['number'] ?? 1);
+            $hashList[$procedureId]['original']['page'] = (int) ($parameters['page']['number'] ?? 1);
         } else {
             $hashList[$procedureId]['assessment']['hash'] = $filterSet->getHash();
-            $hashList[$procedureId]['assessment']['page'] = (int)($parameters['page']['number'] ?? 1);
+            $hashList[$procedureId]['assessment']['page'] = (int) ($parameters['page']['number'] ?? 1);
         }
         $this->getSession()->set('hashList', $hashList);
     }

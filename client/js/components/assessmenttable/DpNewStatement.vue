@@ -8,19 +8,23 @@
 </license>
 
 <script>
-import { DpButton, DpInput, DpLabel } from 'demosplan-ui/components'
+import {
+  DpAccordion,
+  DpButton,
+  DpDatepicker,
+  DpEditor,
+  DpInput,
+  DpLabel,
+  DpMultiselect,
+  DpSelect,
+  DpUploadFiles,
+  dpValidateMixin,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import DpAccordion from '@DpJs/components/core/DpAccordion'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
-import DpDatepicker from '@DpJs/components/core/form/DpDatepicker'
-import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
 import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidateMixin from '@DpJs/lib/core/validation/dpValidateMixin'
-import { hasOwnProp } from 'demosplan-utils'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {

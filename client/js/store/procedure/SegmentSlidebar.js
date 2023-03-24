@@ -13,6 +13,7 @@ const SegmentSlidebarStore = {
 
   state: {
     slidebar: {
+      isOpen: false,
       segmentId: '',
       showTab: ''
     },
@@ -53,7 +54,7 @@ const SegmentSlidebarStore = {
 
     showForm: (state) => state.commentsList.showForm,
 
-    statementId: (state) => state.commentsList.statementId,
+    statementId: (state) => state.commentsList.statementId
   }
 }
 

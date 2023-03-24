@@ -12,8 +12,8 @@
  */
 
 import DpReportListing from '@DpJs/components/report/DpReportListing'
-import { hasPermission } from 'demosplan-utils'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { hasPermission } from '@demos-europe/demosplan-ui'
+import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
 const components = { DpReportListing }

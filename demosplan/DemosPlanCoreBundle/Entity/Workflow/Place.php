@@ -44,7 +44,6 @@ class Place extends CoreEntity implements SortableInterface
      *
      * @Assert\NotBlank(normalizer="trim", allowNull=false)
      * @Assert\Length(min=1, max=255, normalizer="trim")
-     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $name;
@@ -56,7 +55,6 @@ class Place extends CoreEntity implements SortableInterface
      *
      * @Assert\NotNull()
      * @Assert\Length(min=0, max=255, normalizer="trim")
-     *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
     private $description = '';
@@ -65,7 +63,6 @@ class Place extends CoreEntity implements SortableInterface
      * @var int
      *
      * @Assert\NotNull
-     *
      * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
      */
     private $sortIndex;
@@ -74,7 +71,6 @@ class Place extends CoreEntity implements SortableInterface
      * @var Procedure
      *
      * @Assert\NotNull
-     *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */

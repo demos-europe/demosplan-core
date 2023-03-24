@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -17,13 +19,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
+use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanMapBundle\Exception\StatementOrDraftStatementNotFoundException;
 use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanMapBundle\Repository\MapRepository;
@@ -155,12 +155,12 @@ class MapService extends CoreService
             $criteria['print'] = true;
         }
 
-        //$search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
+        // $search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
 
         $listOfGisLayers = $this->mapRepository->findBy($criteria, ['order' => 'asc']);
 
         $resultLayers = [];
-        //transform object and date times to array/timestamp
+        // transform object and date times to array/timestamp
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
             if (isset($gisLayer['gId']) && 0 < strlen($gisLayer['gId'])) {
@@ -186,7 +186,7 @@ class MapService extends CoreService
      */
     public function getGisAdminList($procedureId): array
     {
-        //$search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
+        // $search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
 
         $listOfGisLayers = $this->mapRepository->findBy(
             [
@@ -200,7 +200,7 @@ class MapService extends CoreService
 
         $resultLayers = [];
 
-        //transform object and date times to array/timestamp
+        // transform object and date times to array/timestamp
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
 
@@ -224,7 +224,7 @@ class MapService extends CoreService
      */
     public function getGisGlobalList(): array
     {
-        //$search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
+        // $search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
 
         $listOfGlobalGisLayers = $this->mapRepository
             ->findBy(
@@ -302,7 +302,7 @@ class MapService extends CoreService
     {
         try {
             $singleGis = $this->mapRepository->add($data);
-            //convert to Legacy Array
+            // convert to Legacy Array
             $singleGis = $this->convertToLegacy($singleGis);
 
             return $singleGis;
@@ -385,7 +385,7 @@ class MapService extends CoreService
      */
     public function convertToLegacy($gisLayer)
     {
-        //returnValue, if gislayer doesn't exist
+        // returnValue, if gislayer doesn't exist
         if (!$gisLayer instanceof GisLayer) {
             // Legacy returnvalues if no gislayer found
             return [
@@ -400,18 +400,18 @@ class MapService extends CoreService
                 'defaultVisibility' => false,
             ];
         }
-        //Transform Gislayer into an array
+        // Transform Gislayer into an array
         $contextualHelpText = is_null($gisLayer->getContextualHelp()) ? '' : $gisLayer->getContextualHelp()->getText();
         $gisLayer = $this->entityHelper->toArray($gisLayer);
         $gisLayer = $this->dateHelper->convertDatesToLegacy($gisLayer);
         $gisLayer['contextualHelpText'] = $contextualHelpText;
 
-        //rename procedureId = pId an dates
+        // rename procedureId = pId an dates
         $gisLayer['pId'] = $gisLayer['procedureId'];
 
-        //legacy naming: ensure keys of array are available and filled with correct data:
+        // legacy naming: ensure keys of array are available and filled with correct data:
         $gisLayer['visible'] = $gisLayer['enabled'];
-        //legacy naming: ensure keys of array are available and filled with correct data:
+        // legacy naming: ensure keys of array are available and filled with correct data:
 
         $gisLayer['default'] = $gisLayer['defaultVisibility'];
         $gisLayer['createdate'] = $gisLayer['createDate'];
@@ -479,7 +479,7 @@ class MapService extends CoreService
                 $this->statementService->updateStatement($update, true, true, true);
             }
 
-            //Lösche die Datei falls vorhanden
+            // Lösche die Datei falls vorhanden
             if (file_exists($file)) {
                 @unlink($file);
             }
@@ -540,10 +540,10 @@ class MapService extends CoreService
                         }
                     }
                     if ('&' == substr($gisLayer->getUrl(true), -1, 1) || '?' == substr(
-                            $gisLayer->getUrl(true),
-                            -1,
-                            1
-                        )
+                        $gisLayer->getUrl(true),
+                        -1,
+                        1
+                    )
                     ) {
                         $gisLayer->setUrl($gisLayer->getUrl(true).'LAYERS='.$gisLayer->getLayers());
                     } else {
@@ -555,7 +555,7 @@ class MapService extends CoreService
                     }
                 }
 
-                //add default Values to url as paramters
+                // add default Values to url as paramters
                 foreach ($defaultValues as $k => $v) {
                     $gisLayer->setUrl($gisLayer->getUrl(true).'&'.$k.'='.$v);
                 }
@@ -631,7 +631,7 @@ class MapService extends CoreService
      *
      * @param string $gisLayerId
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getGisLayer($gisLayerId): GisLayer
     {
@@ -763,7 +763,6 @@ class MapService extends CoreService
         return $this->mapRepository->getByVisibilityGroupId($visibilityGroupId);
     }
 
-
     /**
      * Get MapOptions by procedureId.
      *
@@ -847,7 +846,7 @@ class MapService extends CoreService
     {
         $kindOfStatement = $this->getServiceDraftStatement()->getDraftStatementEntity($draftStatementOrStatementId);
 
-        //T15298: Quickfix creation of map screenshot
+        // T15298: Quickfix creation of map screenshot
         if (null === $kindOfStatement) {
             $kindOfStatement = $this->statementService->getStatement($draftStatementOrStatementId);
         }

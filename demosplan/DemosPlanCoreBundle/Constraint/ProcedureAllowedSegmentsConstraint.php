@@ -27,7 +27,7 @@ class ProcedureAllowedSegmentsConstraint extends Constraint
         return ProcedureAllowedSegmentsConstraintValidator::class;
     }
 
-    public function getTargets()
+    public function getTargets(): array|string
     {
         return self::CLASS_CONSTRAINT;
     }

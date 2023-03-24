@@ -493,17 +493,21 @@
 </template>
 
 <script>
-import { CleanHtml, VPopover } from 'demosplan-ui/directives'
-import { formatDate, hasOwnProp } from 'demosplan-utils'
+import {
+  CleanHtml,
+  DpHeightLimit,
+  DpTextWrapper,
+  formatDate,
+  getFileInfo,
+  hasOwnProp,
+  VPopover
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
 import DpFragmentEdit from '../fragment/Edit'
 import DpFragmentStatus from '../fragment/Status'
 import DpFragmentVersions from '../fragment/Version'
-import DpHeightLimit from '@DpJs/components/core/HeightLimit'
 import DpItemRow from '../assessmentTable/ItemRow'
-import DpTextWrapper from '@DpJs/components/core/TextWrapper'
-import { getFileInfo } from '@DpJs/lib/FileInfo'
 
 export default {
   name: 'DpStatementFragment',

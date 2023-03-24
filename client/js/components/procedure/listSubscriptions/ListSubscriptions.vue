@@ -19,13 +19,17 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        :additional-route-params="{ maxResults: 50 }"
         class="u-nojs-hide display--inline-block width-250 bg-color--white"
         height="32px"
         label="value"
         :options="postalCodeOptions"
         :placeholder="Translator.trans('autocomplete.label')"
-        route="core_suggest_location_json"
+        :route-generator="(searchString) => {
+          return Routing.generate('core_suggest_location_json', {
+            maxResults: 50,
+            query: searchString
+          })
+        }"
         track-by="value"
         @search-changed="handleSearchChanged"
         @selected="handleSelected" />
@@ -95,10 +99,7 @@
 </template>
 
 <script>
-import DpAutocomplete from '@DpJs/components/core/DpAutocomplete'
-import { DpButton } from 'demosplan-ui/components'
-import DpSelect from '@DpJs/components/core/form/DpSelect'
-import { formatDate } from 'demosplan-utils'
+import { DpAutocomplete, DpButton, DpSelect, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ListSubscriptions',
@@ -106,8 +107,14 @@ export default {
   components: {
     DpAutocomplete,
     DpButton,
-    DpDataTable: () => import(/* webpackChunkName: "dp-data-table" */ '@DpJs/components/core/DpDataTable/DpDataTable'),
-    DpInlineNotification: () => import(/* webpackChunkName: "dp-inline-notification" */ '@DpJs/components/core/DpInlineNotification'),
+    DpDataTable: async () => {
+      const { DpDataTable } = await import('@demos-europe/demosplan-ui')
+      return DpDataTable
+    },
+    DpInlineNotification: async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    },
     DpSelect
   },
 

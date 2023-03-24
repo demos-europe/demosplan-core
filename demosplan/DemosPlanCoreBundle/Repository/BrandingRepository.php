@@ -11,15 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
-use demosplan\DemosPlanUserBundle\ValueObject\CustomerInterface;
+use demosplan\DemosPlanUserBundle\ValueObject\CustomerResourceInterface;
 
 class BrandingRepository extends CoreRepository
 {
     public function createFromData(array $data): Branding
     {
         $branding = new Branding();
-        if (array_key_exists(CustomerInterface::STYLING, $data) && '' !== $data[CustomerInterface::STYLING]) {
-            $branding->setCssvars($data[CustomerInterface::STYLING]);
+        if (array_key_exists(CustomerResourceInterface::STYLING, $data) && '' !== $data[CustomerResourceInterface::STYLING]) {
+            $branding->setCssvars($data[CustomerResourceInterface::STYLING]);
         }
 
         return $branding;

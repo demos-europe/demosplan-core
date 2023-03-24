@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use function array_key_exists;
+
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -25,6 +26,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
+use Exception;
 
 class ElasticSearchService extends CoreService
 {
@@ -258,7 +260,7 @@ class ElasticSearchService extends CoreService
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateFilterArrayFromUserAssignEsBucket($bucket, $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
@@ -400,7 +402,7 @@ class ElasticSearchService extends CoreService
      *
      * @return \Elastica\Query\Terms
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElasticaTermsInstance($field, $terms)
     {
@@ -415,7 +417,7 @@ class ElasticSearchService extends CoreService
      *
      * @param string $field
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getElasticaExistsInstance($field): Exists
     {
@@ -434,13 +436,13 @@ class ElasticSearchService extends CoreService
      *
      * @return array Elastica Filter
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addUserFilter($key, $userFilters, $boolMustFilter, $boolMustNotFilter, $nullvalue = null, $rawFields = [], $addAllAggregations = true)
     {
         if (array_key_exists($key, $userFilters) && ($addAllAggregations || $this->hasFilterValue(
-                    $userFilters[$key]
-                ))) {
+            $userFilters[$key]
+        ))) {
             $value = \is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
             $key = \in_array($key, $rawFields, true) ? $key.'.raw' : $key;
             $count = count($value);
@@ -497,7 +499,7 @@ class ElasticSearchService extends CoreService
     /**
      * Convert Result to Legacy.
      *
-     * @param string $search
+     * @param string|null $search
      * @param array  $filters
      * @param array  $sort
      * @param string $resultKey
@@ -547,7 +549,7 @@ class ElasticSearchService extends CoreService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $resultSet->setTotal($elasticsearchResult->getHits()['total']);
+        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits']));
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($elasticsearchResult->getPager());

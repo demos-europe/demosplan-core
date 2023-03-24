@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanStatementBundle\Repository;
 
 use Carbon\Carbon;
 use DateInterval;
-use demosplan\DemosPlanCoreBundle\Entity\Document\BthgKompassAnswer;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
@@ -51,12 +52,31 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
+use ReflectionException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tightenco\Collect\Support\Collection;
 
 class StatementRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {
+    private EventDispatcherInterface $eventDispatcher;
+
+    public function __construct(
+        DqlConditionFactory $dqlConditionFactory,
+        EventDispatcherInterface $eventDispatcher,
+        ManagerRegistry $registry,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass
+    ) {
+        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
     /**
      * @return FluentStatementQuery
      */
@@ -130,7 +150,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
                 }
             }
 
-            //only if there statements left to generate a cluster, create the headStatement
+            // only if there statements left to generate a cluster, create the headStatement
             if (0 < count($statements)) {
                 $headStatement = $this->addObject($headStatement);
                 $headStatement->setCluster($statements);
@@ -227,8 +247,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             if ($draftStatement->isPublicAllowed()) {
                 $statement->setPublicVerified(Statement::PUBLICATION_PENDING);
             }
-            $statement->setSubmit(new \DateTime());
-            $statement->setDeletedDate(new \DateTime());
+            $statement->setSubmit(new DateTime());
+            $statement->setDeletedDate(new DateTime());
             $statementMeta = $statement->getMeta();
             // speichere bei InstitutionStellungnahmen den Einreicher
             if (DraftStatement::INTERNAL === $draftStatement->getPublicDraftStatement()) {
@@ -243,7 +263,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statementMeta->setOrgaPostalCode($draftStatement->getUPostalCode());
             $statementMeta->setOrgaCity($draftStatement->getUCity());
             $statementMeta->setOrgaEmail($draftStatement->getUEmail());
-            $statementMeta->setAuthoredDate(new \DateTime());
+            $statementMeta->setAuthoredDate(new DateTime());
             $statementMeta->setHouseNumber($draftStatement->getHouseNumber());
             $statementMeta->setAuthorFeedback($draftStatement->getUFeedback());
             // Bundesteilhabegesetz
@@ -259,7 +279,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statementMeta->setMiscDataValue(
                 StatementMeta::USER_STATE, $draftStatement->getMiscDataValue(StatementMeta::USER_STATE)
             );
-            //unvalidated data given by unregistered user
+            // unvalidated data given by unregistered user
             $statementMeta->setMiscDataValue(
                 StatementMeta::SUBMITTER_ROLE, $draftStatement->getMiscDataValue(StatementMeta::SUBMITTER_ROLE)
             );
@@ -465,7 +485,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @param string $statementId Id of an statement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($statementId): bool
     {
@@ -768,7 +788,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         if (array_key_exists('submittedDate', $data)) {
             $date = Carbon::createFromTimestamp(strtotime($data['submittedDate']))->toDateTime();
-            if ($date instanceof \DateTime) {
+            if ($date instanceof DateTime) {
                 $statement->setSubmit($date);
             }
         }
@@ -854,9 +874,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->setSentAssessment($data['sentAssessment']);
         }
         if (array_key_exists('authoredDate', $data) && 0 < strlen($data['authoredDate'])) {
-            $dateTime = new \DateTime();
+            $dateTime = new DateTime();
             $date = $dateTime->createFromFormat('d.m.Y', $data['authoredDate']);
-            if ($date instanceof \DateTime) {
+            if ($date instanceof DateTime) {
                 $statement->getMeta()->setAuthoredDate($date);
             }
         }
@@ -869,9 +889,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->setNumberOfAnonymVotes($data['numberOfAnonymVotes']);
         }
 
-        //on create new statement, the statement hasn't filled all necessary fields here
-        //on creating votes on the fly, the related statement isn't existing
-        //on flush this, an error occurs
+        // on create new statement, the statement hasn't filled all necessary fields here
+        // on creating votes on the fly, the related statement isn't existing
+        // on flush this, an error occurs
         if (array_key_exists('votes', $data) && !$statement->isOriginal()) {
             $this->handleVotesOnStatement($statement, $data['votes']);
         }
@@ -907,7 +927,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->setReplied($data['replied']);
         }
 
-        //T14715: never attach an original STN to an headStatement
+        // T14715: never attach an original STN to an headStatement
         if (!$statement->isOriginal() && array_key_exists('headStatementId', $data) && 36 === strlen($data['headStatementId'])) {
             /** @var Statement $relatedHeadStatement */
             $relatedHeadStatement = $em->getReference(Statement::class, $data['headStatementId']);
@@ -918,16 +938,8 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $statement->getMeta()->setHouseNumber($data['houseNumber']);
         }
 
-        //todo: extract into plugin?
-        if (array_key_exists('bthg_kompass_answer', $data)) {
-            if ('' === $data['bthg_kompass_answer']) {
-                $statement->setBthgKompassAnswer(null);
-            } else {
-                /** @var BthgKompassAnswer $answer */
-                $answer = $em->getReference(BthgKompassAnswer::class, $data['bthg_kompass_answer']);
-                $statement->setBthgKompassAnswer($answer);
-            }
-        }
+        // Throw an event to allow addons to handle specific keys in $data
+        $this->eventDispatcher->dispatch(new AdditionalStatementDataEvent($statement, $data));
 
         return $statement;
     }
@@ -998,9 +1010,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $voteToCreate['manual'] = true;
             $voteToCreate['statement'] = $statement;
 
-            //do not flush here because associated STN may not be a valid object here
+            // do not flush here because associated STN may not be a valid object here
             $createdVote = $voteRepository->generateObjectValues(new StatementVote(), $voteToCreate);
-            //vote will be cascading persisted via statement
+            // vote will be cascading persisted via statement
             $newVoteObjects->push($createdVote);
         }
 
@@ -1070,7 +1082,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      *
      * @return Statement
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function generateObjectValuesFromObject($copyToEntity, $copyFromEntity, $excludeProperties = [])
     {
@@ -1082,7 +1094,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        //get all original statements from statements
+        // get all original statements from statements
         return $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
@@ -1091,7 +1103,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->andWhere('original.original IS NULL')
             ->andWhere('statement.deleted = false')
             ->andWhere('original.deleted = false')
-            ->andWhere('statement.movedStatement IS NULL') //isPlaceholder === false
+            ->andWhere('statement.movedStatement IS NULL') // isPlaceholder === false
             ->andWhere('statement.procedure = :procedureId')
             ->andWhere('original.procedure = :procedureId')
             ->setParameter('procedureId', $procedureId)
@@ -1112,14 +1124,14 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
      */
     public function getHeadStatements()
     {
-        //get all member of cluster
+        // get all member of cluster
         $memberStatements = $this->getEntityManager()->createQueryBuilder()
             ->select('statement')
             ->from(Statement::class, 'statement')
             ->andWhere('statement.headStatement IS NOT NULL')
             ->getQuery()->getResult();
 
-        //collect each headstatementId once
+        // collect each headstatementId once
         $headStatementIds = collect([]);
         /** @var Statement $memberStatement */
         foreach ($memberStatements as $memberStatement) {
@@ -1128,7 +1140,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             }
         }
 
-        //get object of collected headStatementIds
+        // get object of collected headStatementIds
         $result = $this->getEntityManager()->createQueryBuilder()
             ->select('statement')
             ->from(Statement::class, 'statement')
@@ -1318,7 +1330,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             ->orderBy('statement.created', 'DESC')
             ->setParameter('procedureId', $procedureId)
             ->setParameter('organisationId', User::ANONYMOUS_USER_ORGA_ID)
-            //->distinct(true)
+            // ->distinct(true)
             ->getQuery();
 
         return $query->getResult();
@@ -1439,10 +1451,10 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
     }
 
     /**
-     * @param array $procedureIds the procedure IDs to get the number of statements for
+     * @param array $procedureIds the procedure IDs to get the number of original statements for
      *
      * @return array<string, int> unordered array with procedure IDs as keys and the count of corresponding
-     *                            statements which are no placeholders and not deleted as values
+     *                            original statements which are no placeholders and not deleted as values
      */
     public function getOriginalStatementsCounts(array $procedureIds): array
     {
@@ -1450,24 +1462,55 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             return [];
         }
 
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
+        $queryBuilder = $this->createStatementsCountsQueryBuilder($procedureIds);
+        $queryBuilder->andWhere($queryBuilder->expr()->isNull('statement.original'));
+        $queryResult = $queryBuilder->getQuery()->getArrayResult();
+
+        return array_map(static function (string $count): int {
+            return (int) $count;
+        }, array_column($queryResult, 'count', 'procedureId'));
+    }
+
+    /**
+     * @param array $procedureIds the procedure IDs to get the number of statements for
+     *
+     * @return array<string, int> unordered array with procedure IDs as keys and the count of corresponding
+     *                            statements which are no placeholders and not deleted as values
+     */
+    public function getStatementsCounts(array $procedureIds): array
+    {
+        if ([] === $procedureIds) {
+            return [];
+        }
+
+        $queryBuilder = $this->createStatementsCountsQueryBuilder($procedureIds);
+        $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('statement.original'));
+        $queryResult = $queryBuilder->getQuery()->getArrayResult();
+
+        return array_map(static function (string $count): int {
+            return (int) $count;
+        }, array_column($queryResult, 'count', 'procedureId'));
+    }
+
+    /**
+     * @param array $procedureIds the procedure IDs to get the number of statements for
+     */
+    private function createStatementsCountsQueryBuilder(array $procedureIds): QueryBuilder
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $queryBuilder
             ->select('IDENTITY(statement.procedure) as procedureId')
             ->addSelect('count(statement.id) as count')
             ->from(Statement::class, 'statement')
             ->groupBy('statement.procedure')
             ->andWhere('statement.deleted = :deleted')
             ->setParameter('deleted', false)
-            ->andWhere($qb->expr()->isNull('statement.original'))
             ->andWhere('statement.clusterStatement = :clusterStatement')
             ->setParameter('clusterStatement', false)
-            ->andWhere($qb->expr()->in('statement.procedure', $procedureIds))
-            ->getQuery()
-            ->getArrayResult();
+            ->andWhere($queryBuilder->expr()->isNull('statement.movedStatement'))
+            ->andWhere($queryBuilder->expr()->in('statement.procedure', $procedureIds));
 
-        return array_map(static function (string $count): int {
-            return (int) $count;
-        }, array_column($queryResult, 'count', 'procedureId'));
+        return $queryBuilder;
     }
 
     /**
@@ -1566,7 +1609,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $this->getEntityManager()->persist($headStatement);
         }
 
-        //detach form movedStatement:
+        // detach form movedStatement:
         $movedStatement = $statementToDelete->getMovedStatement();
         if ($movedStatement instanceof Statement) {
             $movedStatement->setPlaceholderStatement(null);
@@ -1575,7 +1618,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $this->getEntityManager()->persist($statementToDelete);
         }
 
-        //detach form placeholder:
+        // detach form placeholder:
         $placeholderStatement = $statementToDelete->getPlaceholderStatement();
         if ($placeholderStatement instanceof Statement) {
             $placeholderStatement->setMovedStatement(null);
@@ -1584,7 +1627,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $this->getEntityManager()->persist($statementToDelete);
         }
 
-        //detach original and children: (this cant be handelet by docrine cascading or DB cascading because
+        // detach original and children: (this cant be handelet by docrine cascading or DB cascading because
         // of chlidren is used as inversed site by orgiginal AND parent! (copies)
         /** @var Statement $child */
         foreach ($statementToDelete->getChildren() as $child) {
@@ -1706,7 +1749,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         $newOriginalStatement = clone $originalToCopy;
 
-        //create new gdprConsent for copied original statement
+        // create new gdprConsent for copied original statement
         if (null === $gdprConsentToSet && null !== $originalToCopy->getGdprConsent()) {
             $gdprConsentToSet = clone $originalToCopy->getGdprConsent();
             $gdprConsentToSet->setStatement($newOriginalStatement);
@@ -1716,7 +1759,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             throw new InvalidArgumentException('Given internID cant be empty string.');
         }
 
-        //no internID given? try to copy of original statement to copy:
+        // no internID given? try to copy of original statement to copy:
         $internIdIsUnique = $this->isInternIdUniqueForProcedure($internIdToSet, $targetProcedure->getId());
         if (!$internIdIsUnique) {
             throw new InvalidArgumentException('Given internID has to be unique in target procedure.');
@@ -1724,9 +1767,9 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
 
         $newOriginalStatement->setId(null);
         $newOriginalStatement->setInternId($internIdToSet);
-        $newOriginalStatement->setCreated(new \DateTime());
-        $newOriginalStatement->setDeletedDate(new \DateTime());
-        $newOriginalStatement->setModified(new \DateTime());
+        $newOriginalStatement->setCreated(new DateTime());
+        $newOriginalStatement->setDeletedDate(new DateTime());
+        $newOriginalStatement->setModified(new DateTime());
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
@@ -1747,7 +1790,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         }
         $newOriginalStatement->setAttachments($copiedAttachments);
 
-        //persist statement here to create an uuid which is needed for copying files
+        // persist statement here to create an uuid which is needed for copying files
         $this->getEntityManager()->persist($newOriginalStatement);
         $this->copyFileContainers($originalToCopy, $newOriginalStatement);
 
@@ -1772,7 +1815,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
             $newExternId = 'M'.$newExternId;
         }
 
-        //todo. load clusterprefix from config
+        // todo. load clusterprefix from config
 //            $clusterPrefix = $this->getServiceStatement()->getGlobalConfig()->getClusterPrefix();
         if ($originalToCopy->isClusterStatement()) {
             $newExternId = 'G'.$newExternId;
@@ -1823,22 +1866,22 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
         $copied = 0;
         $childrenInOtherProcedures = $this->getChildrenInOtherProcedures($procedureId);
         $originalsWhichHaveChildrenInAnotherProcedures = [];
-        //order in array structure, to simplify access:
+        // order in array structure, to simplify access:
         foreach ($childrenInOtherProcedures as $child) {
             $originalsWhichHaveChildrenInAnotherProcedures[$child->getOriginalId()][$child->getProcedureId()][] = $child;
         }
 
-        //all originals, which have minimum one child in another procedure
+        // all originals, which have minimum one child in another procedure
         foreach ($originalsWhichHaveChildrenInAnotherProcedures as $originalId => $childrenInAnotherProcedures) {
             foreach ($childrenInAnotherProcedures as $foreignProcedureId => $children) {
                 /** @var Statement $originalStatement */
                 $originalStatement = $this->get($originalId);
 
-                //1. Create new original in foreign procedure:
+                // 1. Create new original in foreign procedure:
                 /** @var Procedure $foreignProcedure */
                 $foreignProcedure = $this->getEntityManager()->getReference(Procedure::class, $foreignProcedureId);
 
-                //Special case: reuse gdprConsent from original Statement. Detaching and use for copied statement.
+                // Special case: reuse gdprConsent from original Statement. Detaching and use for copied statement.
                 $originalStatement->setGdprConsent(null);
                 $newOriginalInForeignProcedure = $this->copyOriginalStatement(
                     $originalStatement,
@@ -1849,7 +1892,7 @@ class StatementRepository extends FluentRepository implements ArrayInterface, Ob
                 $this->getEntityManager()->persist($originalStatement);
                 $this->getEntityManager()->persist($newOriginalInForeignProcedure);
 
-                //Set new original for children of foreign procedure
+                // Set new original for children of foreign procedure
                 foreach ($children as $child) {
                     // set each children of current original STN in current foreign procedure to new created original STN
                     $child->setOriginal($newOriginalInForeignProcedure);

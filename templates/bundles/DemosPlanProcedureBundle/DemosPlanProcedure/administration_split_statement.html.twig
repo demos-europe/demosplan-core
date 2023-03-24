@@ -7,15 +7,21 @@
         {% set submitTypeOptions = submitTypeOptions|merge([{ label: label, value: value }]) %}
     {% endfor %}
 
-    <split-statement-view
-        statement-id="{{ statementId }}"
-        statement-extern-id="{{ statementExternId }}"
-        procedure-id="{{ procedure }}"
-        :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
-    </split-statement-view>
+    {% set addonProps = {
+        'procedureId': procedure,
+        'statementId': statementId,
+        'statementExternId': statementExternId,
+        'procedureName': procedureName,
+        'title': title
+        }
+    %}
+    <addon-wrapper
+        hook-name="split.statements"
+        :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
+    </addon-wrapper>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundles(['tiptap.js', 'procedure-administrationSplitStatement.js']) }}
+    {{ webpackBundles(['procedure-administrationSplitStatement.js']) }}
 {% endblock javascripts %}

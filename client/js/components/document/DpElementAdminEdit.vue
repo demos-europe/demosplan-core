@@ -8,11 +8,7 @@
 </license>
 
 <script>
-import DpDataTable from '@DpJs/components/core/DpDataTable/DpDataTable'
-import DpDatetimePicker from '@DpJs/components/core/form/DpDatetimePicker'
-import DpMultiselect from '@DpJs/components/core/form/DpMultiselect'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import { makeFormPost } from '@DemosPlanCoreBundle/plugins/DpApi'
+import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpElementAdminEdit',
@@ -21,7 +17,10 @@ export default {
     DpMultiselect,
     DpDataTable,
     DpDatetimePicker,
-    DpEditor: () => import('@DpJs/components/core/DpEditor/DpEditor'),
+    DpEditor: async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    },
     DpUploadFiles
   },
 

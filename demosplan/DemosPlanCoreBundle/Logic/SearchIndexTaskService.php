@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\SearchIndexTask;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\SearchIndexTaskRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
-use demosplan\plugins\workflow\SegmentsManager\Entity\Segment;
-use demosplan\plugins\workflow\SegmentsManager\Repository\Segment\SegmentRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
@@ -354,7 +354,7 @@ class SearchIndexTaskService extends CoreService
             // delete Search index tasks
             $this->searchIndexTaskRepository->deleteItems($items);
         } catch (Exception $e) {
-            //catch exception here to not interfere with other indexing tasks
+            // catch exception here to not interfere with other indexing tasks
             // save tasks to be added to queue again
             $this->addFailedIndexTasks($items);
             $this->getLogger()->warning('Could not index Search StatementFragment Items', [$e]);

@@ -12,17 +12,18 @@ namespace demosplan\DemosPlanProcedureBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
@@ -427,10 +428,10 @@ class PrepareReportFromProcedureService extends CoreService
 
         foreach ($elementsList as $element) {
             switch ($element->getCategory()) {
-                case Elements::ELEMENTS_CATEGORY_PARAGRAPH:
+                case ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH:
                     $paragraphs = $this->addParagraphReportToMessage($element, $paragraphs);
                     break;
-                case Elements::ELEMENTS_CATEGORY_FILE:
+                case ElementsInterface::ELEMENTS_CATEGORY_FILE:
                     $elements = $this->addFileReportToMessage($element, $elements);
                     break;
                 default:

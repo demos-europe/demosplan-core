@@ -11,11 +11,9 @@
  * This is the entrypoint for map_admin_gislayer_list.html.twig
  */
 
+import { DpSplitButton, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
-import DpSplitButton from '@DpJs/components/core/DpSplitButton'
-import DpUploadFiles from '@DpJs/components/core/DpUpload/DpUploadFiles'
-import dpValidate from '@DpJs/lib/core/validation/dpValidate'
-import { initialize } from '@DemosPlanCoreBundle/InitVue'
+import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
 
 const stores = { layers }

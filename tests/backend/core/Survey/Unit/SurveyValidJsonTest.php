@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Survey\Unit;
 
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use Exception;
@@ -141,8 +141,6 @@ class SurveyValidJsonTest extends SurveyTestUtils
      * Given a date field in the input data and a wrong format date, checks that such
      * error is detected.
      *
-     * @param $wrongDate
-     *
      * @throws Exception
      */
     private function checkWrongDateFormat(string $field, $wrongDate): void
@@ -156,8 +154,6 @@ class SurveyValidJsonTest extends SurveyTestUtils
 
     /**
      * Check that a given json is validated as expected.
-     *
-     * @param $errorMsg
      *
      * @throws Exception
      */

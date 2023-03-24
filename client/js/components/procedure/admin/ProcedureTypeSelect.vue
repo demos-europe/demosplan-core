@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import DpSelect from '@DpJs/components/core/form/DpSelect'
+import { DpSelect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ProcedureTypeSelect',

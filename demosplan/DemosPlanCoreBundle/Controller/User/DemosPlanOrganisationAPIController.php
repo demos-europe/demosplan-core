@@ -10,8 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Controller\Base\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -20,13 +23,11 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\TopLevel;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
-use demosplan\DemosPlanCoreBundle\Utilities\Json;
 use demosplan\DemosPlanUserBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerHandler;
@@ -45,6 +46,8 @@ use UnexpectedValueException;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
+    use CanTransformRequestVariablesTrait;
+
     /**
      * Get organisation by ID.
      *
@@ -54,7 +57,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("feature_orga_get")
      */
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
@@ -78,7 +80,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             throw OrgaNotFoundException::createFromId($id);
         } catch (Exception $e) {
-            $this->getLogger()->warning('', [$e]);
+            $this->logger->warning('', [$e]);
 
             return $this->handleApiError($e);
         }
@@ -93,7 +95,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
-     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
@@ -114,9 +115,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
-                $condition[] = $conditionFactory->propertyHasValue($currentCustomer->getId(), 'statusInCustomers', 'customer');
-                $condition[] = $conditionFactory->propertyHasValue(false, 'deleted');
-                $sortMethod = $sortMethodFactory->propertyAscending('name');
+                $condition[] = $conditionFactory->propertyHasValue($currentCustomer->getId(), ['statusInCustomers', 'customer']);
+                $condition[] = $conditionFactory->propertyHasValue(false, ['deleted']);
+                $sortMethod = $sortMethodFactory->propertyAscending(['name']);
                 $orgaList = $entityFetcher->listEntitiesUnrestricted(Orga::class, $condition, [$sortMethod]);
                 $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
                 $filterRegisterStatus = $filter['registerStatus'] ?? '';
@@ -273,10 +274,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"DELETE"},
      *     name="organisation_delete"
      * )
-     *
      * @DplanPermissions("feature_orga_delete")
-     *
-     * @return APIResponse
      */
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
     {
@@ -284,7 +282,7 @@ class DemosPlanOrganisationAPIController extends APIController
         try {
             $isOrgaDeleted = $userHandler->wipeOrganisationData($orgaId);
             if ($isOrgaDeleted) {
-                $this->getMessageBag()->addChoice(
+                $this->messageBag->addChoice(
                     'confirm',
                     'confirm.orga.deleted',
                     ['count' => 1]
@@ -293,7 +291,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 return $this->renderEmpty();
             }
 
-            $this->getMessageBag()->add('error', 'error.organisation.not.deleted');
+            $this->messageBag->add('error', 'error.organisation.not.deleted');
 
             return $this->renderEmpty(Response::HTTP_UNAUTHORIZED);
         } catch (Exception $e) {
@@ -310,7 +308,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"POST"},
      *     name="organisation_create"
      * )
-     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
@@ -334,9 +331,9 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $newOrga = $userHandler->addOrga($orgaDataArray);
 
-            //Fehlermeldung, Pflichtfelder
+            // Fehlermeldung, Pflichtfelder
             if (array_key_exists('mandatoryfieldwarning', $newOrga)) {
-                $this->getMessageBag()->add('error', 'error.mandatoryfields');
+                $this->messageBag->add('error', 'error.mandatoryfields');
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
@@ -344,7 +341,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             return $this->renderResource($item);
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.organisation.not.created');
+            $this->messageBag->add('error', 'error.organisation.not.created');
             $this->logger->error('Unable to create Orga: ', [$e]);
 
             return $this->handleApiError($e);
@@ -359,7 +356,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"PATCH"},
      *     name="organisation_update"
      * )
-     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse
@@ -399,7 +395,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($updatedOrga instanceof Orga) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'confirm',
                     'confirm.orga.updated',
                     ['orgaName' => $updatedOrga->getName()]

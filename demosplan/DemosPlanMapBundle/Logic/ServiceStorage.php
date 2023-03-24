@@ -10,15 +10,20 @@
 
 namespace demosplan\DemosPlanMapBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanMapBundle\MapValidationException;
 use demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo;
-use Psr\Log\LoggerInterface;
+use Exception;
+
 use function parse_url;
+
+use Psr\Log\LoggerInterface;
+
 use function rawurlencode;
 use function str_replace;
+
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -77,7 +82,7 @@ class ServiceStorage
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function administrationGislayerNewHandler($procedure, $data)
     {
@@ -561,7 +566,6 @@ class ServiceStorage
         return array_key_exists($key, $data) && $data[$key] === $checkedValue;
     }
 
-
     /**
      * @return GetFeatureInfo
      */
@@ -569,7 +573,6 @@ class ServiceStorage
     {
         return $this->serviceGetFeatureInfo;
     }
-
 
     /**
      * Given a projection label (ex. EPSG:3857) returns its value (ex. +proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs)

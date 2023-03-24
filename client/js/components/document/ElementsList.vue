@@ -62,11 +62,8 @@
 </template>
 
 <script>
-import { formatBytes, hasOwnProp } from 'demosplan-utils'
+import { CleanHtml, DpLoading, DpTreeList, formatBytes, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { CleanHtml } from 'demosplan-ui/directives'
-import { DpLoading } from 'demosplan-ui/components'
-import DpTreeList from '@DpJs/components/core/DpTreeList/DpTreeList'
 
 export default {
   name: 'ElementsList',
@@ -145,7 +142,8 @@ export default {
     },
 
     nodeSelectionChange (selected) {
-      this.selectedFiles = selected.filter(node => node.type === 'singleDocument')
+      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
+      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
     },
 
     /*

@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\ILogic\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -47,16 +47,16 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     {
         $templateVars = [];
 
-        //hole das aktive Release
+        // hole das aktive Release
         $storageResult = $this->forumHandler->getReleases();
         foreach ($storageResult as $release) {
             if ('voting_online' === $release['phase'] || 'voting_offline' === $release['phase']) {
                 $templateVars['releaseForVoting'][] = $release;
             }
         }
-        //wenn ja dann leite zu deren Detailansicht weiter
+        // wenn ja dann leite zu deren Detailansicht weiter
         if (!empty($templateVars['releaseForVoting'])) {
-            //zeige das jüngste an
+            // zeige das jüngste an
             $sumActiveReleases = count($templateVars['releaseForVoting']);
             $latestActiveReleaseKey = $sumActiveReleases - 1;
             // nehme das älteste Release (1. aus der Liste) und zeige es an
@@ -66,14 +66,14 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             );
         }
 
-        //Generiere breadcrumb items
+        // Generiere breadcrumb items
         $title = 'forum.development';
 
-        //Füge die kontextuelle Hilfe dazu
+        // Füge die kontextuelle Hilfe dazu
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_index.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_index.html.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
         ]);
@@ -106,9 +106,9 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getMessageBag()->add('confirm', 'confirm.release.created');
 
                 return $this->redirectToRoute(
-                'DemosPlan_forum_development_release_detail',
-                ['releaseId' => $storageResult['body']['ident']]
-            );
+                    'DemosPlan_forum_development_release_detail',
+                    ['releaseId' => $storageResult['body']['ident']]
+                );
             }
         }
         $releasePhases = $this->getReleasePhases();
@@ -117,7 +117,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releasePhases'] = $releasePhases;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.new',
         ]);
@@ -157,14 +157,14 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $result = $this->forumHandler->getSingleRelease($releaseId);
         $tokenForDelete = $this->generateToken();
 
-        //Übergabe an das Template
+        // Übergabe an das Template
         $templateVars = [];
         $templateVars['releasePhases'] = $releasePhases;
         $templateVars['release'] = $result;
         $templateVars['token'] = $tokenForDelete;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.edit',
         ]);
@@ -187,7 +187,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      */
     public function deleteReleaseAction($releaseId, $token)
     {
-        //Token zum Überprüfen erstellen
+        // Token zum Überprüfen erstellen
         $tokenToCheck = $this->generateToken();
         if ($token === $tokenToCheck) {
             try {
@@ -196,14 +196,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getMessageBag()->add('confirm', 'confirm.release.deleted');
 
                 return $this->redirectToRoute('DemosPlan_forum_development_release_list');
-                //Fehlermeldungen
+                // Fehlermeldungen
             } catch (Exception $e) {
                 $this->getLogger()->warning($e);
                 $this->getMessageBag()->add('error', 'error.release.delete');
             }
-        }
-        //Falls Berechtigung fehlt
-        else {
+        // Falls Berechtigung fehlt
+        } else {
             $this->getMessageBag()->add('error', 'error.authorisation');
         }
 
@@ -237,7 +236,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releaseList'] = $storageResult;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.list',
         ]);
@@ -263,7 +262,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     {
         $storageResult = $this->forumHandler->getUserStoriesForRelease($releaseId);
 
-        //Own Votes
+        // Own Votes
         foreach ($storageResult['userStories'] as $key => $userStory) {
             $votesOfUserStory = $this->forumHandler->getVotesForUserStory($userStory['ident']);
             $ownVotes = 0;
@@ -274,9 +273,9 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 }
                 $storageResult['userStories'][$key]['ownVotes'] = $ownVotes;
             }
-            //gesamtzahl der Votes
+            // gesamtzahl der Votes
             $storageResult['userStories'][$key]['numVotes'] = $userStory['onlineVotes'] + $userStory['offlineVotes'];
-            //Hole die Anzahl der Beiträge
+            // Hole die Anzahl der Beiträge
             $entriesOfUserStory = $this->forumHandler->getThreadEntryList($userStory['threadId']);
             $storageResult['userStories'][$key]['numberOfEntries'] = $entriesOfUserStory['thread']['numberOfEntries'];
         }
@@ -297,7 +296,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $title = $templateVars['release']['title'];
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => $title,
         ]);
@@ -331,10 +330,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         if ($request->request->has('saveVotes') || $request->request->has('resetVotes')) {
             $requestPost = $request->request->all();
             if (isset($requestPost['r_offlineVotes'])) {
-                //Phasenrechte überprüfen
+                // Phasenrechte überprüfen
                 if (!isset($permissions['vote_offline']) || false == $permissions['vote_offline']) {
-                    $messageBag->add('warning', $translator
-                            ->trans('warning.phase.voting.not.possible', ['points' => 'Punkte vor Ort']));
+                    $messageBag->add(
+                        'warning',
+                        $translator
+                        ->trans('warning.phase.voting.not.possible', ['points' => 'Punkte vor Ort'])
+                    );
 
                     return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
                 }
@@ -343,15 +345,14 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 if (isset($storageResult['status']) && true === $storageResult['status']) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.userStory.voting.offline');
-                }
-                //Fehlermeldungen
-                else {
+                } else {
+                    // Fehlermeldungen
                     $this->getMessageBag()->add('warning', 'error.userStory.voting.offline');
                 }
             }
-            //Sollen Online-Punkte gespeichert werden?
+            // Sollen Online-Punkte gespeichert werden?
             if (isset($requestPost['r_onlineVotes'])) {
-                //Phasenrechte überprüfen
+                // Phasenrechte überprüfen
                 if (!isset($permissions['vote_online']) || false == $permissions['vote_online']) {
                     $this->getMessageBag()->add(
                         'warning',
@@ -362,9 +363,9 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                     return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
                 }
 
-                //Überprüfe, ob Votes zurückgesetzt werden sollen
+                // Überprüfe, ob Votes zurückgesetzt werden sollen
                 if (array_key_exists('resetVotes', $requestPost)) {
-                    //setze Punkte auf null zurück
+                    // setze Punkte auf null zurück
                     foreach ($requestPost['r_onlineVotes'] as $key => $vote) {
                         $requestPost['r_onlineVotes'][$key] = 0;
                     }
@@ -374,11 +375,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                     $this->getMessageBag()->add('warning', 'warning.exceeded.votes', ['difference' => $storageResult['exceededVotes']]);
                 } elseif (isset($storageResult['status']) && true === $storageResult['status']) {
                     // Erfolgsmeldung
-                    //bei Zurücksetzung der votes
+                    // bei Zurücksetzung der votes
                     if (array_key_exists('resetVotes', $requestPost)) {
                         $this->getMessageBag()->add('confirm', 'confirm.userStory.voting.reset');
                     } else {
-                        //bei Speicherung von neuen Votes
+                        // bei Speicherung von neuen Votes
                         $this->getMessageBag()->add('confirm', 'confirm.userStory.voting');
                     }
                 } else {
@@ -429,7 +430,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['releaseId'] = $releaseId;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story.new',
         ]);
@@ -471,19 +472,19 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             }
         }
 
-        //Hole die Details zur UserStory
+        // Hole die Details zur UserStory
         $userStory = $this->forumHandler->getUserStory($storyId);
         $templateVars['userStory'] = $userStory;
 
-        //Bestimme ein Token für die Löschfunktion
+        // Bestimme ein Token für die Löschfunktion
         $tokenForDelete = $this->generateToken();
         $templateVars['token'] = $tokenForDelete;
 
-        //Hole Details zum Release für breadcrumb
+        // Hole Details zum Release für breadcrumb
         $release = $this->forumHandler->getSingleRelease($releaseId);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story.edit',
         ]);
@@ -507,9 +508,9 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      */
     public function deleteUserStoryAction($releaseId, $storyId, $token)
     {
-        //Token zum Überprüfen erstellen
+        // Token zum Überprüfen erstellen
         $tokenToCheck = $this->generateToken();
-        //sind beide Token gleich, dann gehe weiter zum löschen
+        // sind beide Token gleich, dann gehe weiter zum löschen
         if ($tokenToCheck === $token) {
             $storageResult = $this->forumHandler->deleteUserStory($storyId);
             if (true === $storageResult) {
@@ -547,7 +548,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         // Get all info about user story and its voting
         try {
             $storageResultStory = $this->forumHandler->getVotesForUserStory($storyId);
-            //Get the orgaDetails foreach vote and save its name
+            // Get the orgaDetails foreach vote and save its name
             foreach ($storageResultStory['votes'] as $key => $vote) {
                 $orgaOfVote = $this->forumHandler->getOrgaOfVote($vote['orgaId']);
                 $storageResultStory['votes'][$key]['orgaName'] = $orgaOfVote->getName();
@@ -559,30 +560,30 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             return $this->redirectToRoute('DemosPlan_forum_development_release_list');
         }
 
-        //Get info about Release
+        // Get info about Release
         $storageResultRelease = $this->forumHandler->getSingleRelease($storageResultStory['userStory']['releaseId']);
 
-        //Get all entries of userstory
+        // Get all entries of userstory
         $storageResultEntries = $this->forumHandler->getThreadEntryList($storageResultStory['userStory']['threadId']);
         foreach ($storageResultEntries['entryList'] as $key => $threadEntry) {
-            //Dateien in Bilder und PDFs aufteilen
+            // Dateien in Bilder und PDFs aufteilen
             if (isset($threadEntry['files']) && !empty($threadEntry['files'])) {
                 $imagesAndDocuments = $this->generateImagesAndDocuments($threadEntry['files']);
                 $threadEntry['images'] = $imagesAndDocuments['images'];
                 $threadEntry['documents'] = $imagesAndDocuments['documents'];
             }
-            //Speicher den Rollen-String in einem array ab
+            // Speicher den Rollen-String in einem array ab
             if (isset($threadEntry['userRoles'])) {
                 $threadEntry['userRoles'] = explode(',', $threadEntry['userRoles']);
             }
 
             $threadEntry['editable'] = false;
             if (isset($threadEntry['user'])) {
-                //Bearbeitungslimit errechnen
+                // Bearbeitungslimit errechnen
                 $threadEntry['limitToEdit'] = $threadEntry['createDate'] / 1000 + (60 * 60);
-                //Bearbeitungsmodus weitergeben
+                // Bearbeitungsmodus weitergeben
                 $timeNow = time();
-                //Zeit und User vergleichen
+                // Zeit und User vergleichen
                 if ($threadEntry['limitToEdit'] > $timeNow && ($threadEntry['user']['ident'] == $userId)) {
                     $threadEntry['editable'] = true;
                 }
@@ -591,15 +592,15 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         }
         $templateVars['votes'] = $storageResultStory['votes'];
         $templateVars['userStory'] = $storageResultStory['userStory'];
-        //Sum of online and offline votes
+        // Sum of online and offline votes
         $templateVars['userStory']['sumVotes'] = $templateVars['userStory']['onlineVotes'] + $templateVars['userStory']['offlineVotes'];
         $templateVars['release'] = $storageResultRelease;
-        //phasePermissions
+        // phasePermissions
         $templateVars['phasePermissions'] = $this->getReleasePhasePermissions($templateVars['release']['phase']);
         $templateVars['entries'] = $storageResultEntries;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.release.story',
         ]);
@@ -629,7 +630,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
     ) {
         $storageResultStory = $this->forumHandler->getUserStory($storyId);
 
-        //Phasenrechte überprüfen
+        // Phasenrechte überprüfen
         $storageResultRelease = $this->forumHandler->getSingleRelease($storageResultStory['releaseId']);
         $permission = $this->getReleasePhasePermissions($storageResultRelease['phase']);
 
@@ -643,7 +644,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             $requestPost = $request->request->all();
             $files = $fileUploadService->prepareFilesUpload($request, 'r_files');
             $requestPost['r_files'] = $files;
-            //Übergebe mit die Details zur User Story
+            // Übergebe mit die Details zur User Story
             $requestPost['userStory'] = $storageResultStory;
             $storageResult = $this->forumHandler->threadEntryNew($storageResultStory['threadId'], $requestPost);
             // Erfolgsmeldung
@@ -652,7 +653,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
 
                 return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
             }
-            //Fehlermeldungen
+            // Fehlermeldungen
             if (array_key_exists('mandatoryfieldwarning', $storageResult)) {
                 $this->getMessageBag()->add('error', $storageResult['mandatoryfieldwarning']['message']);
                 $templateVars = $requestPost;
@@ -664,7 +665,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['story'] = $storageResultStory;
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_new.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_new.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.new',
         ]);
@@ -696,11 +697,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $threadEntryId
     ) {
         $storageResultStory = $this->forumHandler->getUserStory($storyId);
-        //Hole die Details zum Beitrag
+        // Hole die Details zum Beitrag
         try {
             $storageResult = $this->forumHandler->getSingleThreadEntry($threadEntryId);
             $threadEntry = $storageResult;
-            //Falls es diesen Beitrags-Id nicht mehr gibt, leite zur Liste zurück
+            // Falls es diesen Beitrags-Id nicht mehr gibt, leite zur Liste zurück
         } catch (Exception $e) {
             $this->getLogger()->warning($e);
             $this->getMessageBag()->add('warning', 'warning.entry.missing');
@@ -710,7 +711,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
 
         // Update des Beitrags
         if ($request->request->has('updateThreadEntryForUserStory')) {
-            //überprüfe die Rechte zum Editieren
+            // überprüfe die Rechte zum Editieren
             $threadEntry = $this->forumHandler->checkPermission($threadEntry, $currentUser->getUser(), $permissions);
             if ($threadEntry['editableByUser'] || $threadEntry['editableByModerator']) {
                 $requestPost = $request->request->all();
@@ -730,10 +731,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $files = $fileUploadService->prepareFilesUpload($request, 'r_files');
                 $requestPost['r_files'] = $files;
                 try {
-                    //Übergebe mit die Details zur User Story
+                    // Übergebe mit die Details zur User Story
                     $requestPost['userStory'] = $storageResultStory;
                     $storageResult = $this->forumHandler->threadEntryEdit($threadEntry, $requestPost);
-                    //Fehlermeldungen
+                    // Fehlermeldungen
                     if (array_key_exists('mandatoryfieldwarning', $storageResult)) {
                         $this->getMessageBag()->add('error', $storageResult['mandatoryfieldwarning']['message']);
                     }
@@ -743,7 +744,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
 
                         return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
                     }
-                    //Falls es diese Beitrags-Id nicht mehr gibt, leite zur Liste zurück
+                    // Falls es diese Beitrags-Id nicht mehr gibt, leite zur Liste zurück
                 } catch (Exception $e) {
                     $this->getLogger()->warning($e);
                     $this->getMessageBag()->add('warning', 'warning.entry.missing');
@@ -758,7 +759,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             $threadEntry['images'] = $imagesAndDocuments['images'];
             $threadEntry['documents'] = $imagesAndDocuments['documents'];
         }
-        //Bestimme ein Token für die Löschfunktion
+        // Bestimme ein Token für die Löschfunktion
         $tokenForDelete = $this->generateToken();
 
         $templateVars = [];
@@ -766,11 +767,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $templateVars['token'] = $tokenForDelete;
         $templateVars['storyId'] = $storyId;
 
-        //Hole details zum release für die breadcrumb
+        // Hole details zum release für die breadcrumb
         $release = $this->forumHandler->getSingleRelease($storageResultStory['releaseId']);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_story_threadentry_edit.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_story_threadentry_edit.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.edit',
         ]);
@@ -810,10 +811,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         $threadEntry = $storageResult;
         $threadEntry = $this->forumHandler->checkPermission($threadEntry, $currentUser->getUser(), $permissions);
 
-        //Token zum Überprüfen erstellen
+        // Token zum Überprüfen erstellen
         $tokenToCheck = $this->generateToken();
 
-        //sind beide Token gleich und die User berechtigt, dann gehe weiter zum löschen
+        // sind beide Token gleich und die User berechtigt, dann gehe weiter zum löschen
         if ($tokenToCheck === $token && (true == $threadEntry['editableByUser'] || true == $threadEntry['editableByModerator'])) {
             $storageResult = $this->forumHandler->threadEntryUpdateWithDeletedPlaceholder($threadEntry);
             if (true === $storageResult['status']) {
@@ -845,8 +846,6 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *
      * @DplanPermissions("feature_forum_dev_release_edit")
      *
-     * @param string $releaseId
-     *
      * @return RedirectResponse|Response
      */
     public function exportReleaseAction(Environment $twig, string $releaseId)
@@ -861,17 +860,17 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         }
 
         foreach ($storageResult['userStories'] as $key => $userStory) {
-            //bereinige die Variablen von html-Tags
+            // bereinige die Variablen von html-Tags
             if (isset($userStory['description'])) {
                 $userStory['description'] = strip_tags($userStory['description']);
                 $storageResult['userStories'][$key]['description'] = $userStory['description'];
             }
-            //Variable für Gesamtsumme der Votes
+            // Variable für Gesamtsumme der Votes
             $storageResult['userStories'][$key]['voteSum'] = $userStory['onlineVotes'] + $userStory['offlineVotes'];
             $votesOfUserStory['votes'] = [];
             if (isset($userStory['onlineVotes']) && (0 < $userStory['onlineVotes'])) {
                 $votesOfUserStory = $this->forumHandler->getVotesForUserStory($userStory['ident']);
-                //Get the orgaDetails foreach vote and save its name
+                // Get the orgaDetails foreach vote and save its name
                 foreach ($votesOfUserStory['votes'] as $keyVote => $vote) {
                     $orgaOfVote = $this->forumHandler->getOrgaOfVote($vote['orgaId']);
                     $votesOfUserStory['votes'][$keyVote]['orgaName'] = $orgaOfVote->getName();
@@ -889,11 +888,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             return str_replace('"', '""', $string);
         });
 
-        $response = $this->renderTemplate('@DemosPlanForum/DemosPlanForum/development_release_export.csv.twig', [
+        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanForum/development_release_export.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => 'forum.development.story.threadentry.delete',
         ]);
-
+        // T25516 UTF-8-MB for MS-excel umlauts support
+        $bom = chr(0xEF).chr(0xBB).chr(0xBF);
+        $response->setContent($bom.$response->getContent());
         $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', $this->generateDownloadFilename($filename));

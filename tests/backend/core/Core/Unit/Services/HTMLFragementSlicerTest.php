@@ -36,7 +36,7 @@ class HTMLFragementSlicerTest extends UnitTestCase
 
         $htmlFragment = '<p>Dütt und datt undso das hier auch!</p>';
         $fragment = HTMLFragmentSlicer::slice($htmlFragment, 10);
-        static::assertEquals('<p>Dütt und</p>', $fragment->getShortenedFragment()); //@todo should be trimmed?
+        static::assertEquals('<p>Dütt und</p>', $fragment->getShortenedFragment()); // @todo should be trimmed?
         static::assertEquals($htmlFragment, $fragment->getOriginalFragment());
         static::assertEquals(34, $fragment->getSliceIndex());
         static::assertEquals(' datt undso das hier auch!', $fragment->getRemainingFragment());

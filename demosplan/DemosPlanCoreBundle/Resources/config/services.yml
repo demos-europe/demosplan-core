@@ -17,12 +17,234 @@ services:
 
     demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
 
-    demosplan\DemosPlanCoreBundle\Context\PluginContext: ~
-
-
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
-            $objectPersister: '@fos_elastica.object_persister.procedures.procedure'
+            $objectPersister: '@fos_elastica.object_persister.procedures'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureTypeService'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+        class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
+        class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
+        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+
+    DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
+        class:
+
+    DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
+
+    DemosEurope\DemosplanAddon\Contracts\ApiClientInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient
+
+    DemosEurope\DemosplanAddon\Contracts\UserHandlerInterface:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserHandler'
+
+    DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
+
+    DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
+
+    DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator
+
+    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\FileService
+
+    DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService
+
+    DemosEurope\DemosplanAddon\Contracts\PlaceServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService
+
+    DemosEurope\DemosplanAddon\Contracts\CreateSimplifiedStatementEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent
+
+    DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
+        class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
+
+    demosplan\DemosPlanCoreBundle\Permissions\permissions: ~
+
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\permissions'
+
+#    DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionIdentifierInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\ResolvablePermissionCollectionInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Permission\PermissionMetaInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
+        class: demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
+        class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
+
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler
+
+    DemosEurope\DemosplanAddon\Contracts\ValueObject\ValueObjectInterface:
+        class: demosplan\DemosPlanCoreBundle\ValueObject\ValueObject
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+
+#    DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableDqlResourceTypeInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService
+
+    DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger
+
+    DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface:
+        class: demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\PropertyUpdateAccessExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\ConcurrentEditionExceptionInterface:
+        class: DemosEurope\DemosplanAddon\Exception\ConcurrentEditionException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\PersistResourceExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Exception\PersistResourceException
+
+    DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface:
+        class: demosplan\DemosPlanCoreBundle\Exception\ViolationsException
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface:
+        class: DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Services\ApiResourceService
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface:
+        class: DemosEurope\DemosplanAddon\DemosPipes\Event\ParameterProviderEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
+        class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
+
+    DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
+        class: demosplan\DemosPlanStatementBundle\Logic\StatementService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
+        class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface:
+        class: demosplan\DemosPlanProcedureBundle\Logic\ProcedureService
+        arguments:
+            $esProcedurePersister : '@fos_elastica.object_persister.procedures'
+            $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
+            $environment: '%kernel.environment%'
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\File
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\CoreEntityInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\CoreEntity
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\Statement\Tag
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityChangeInterface:
+#        class:
+
+#    DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface:
+#        class:
+
+    DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator
+
+    DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
+        class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
+
+    demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
+        arguments:
+            $locator: '@file_locator'
+            $loader: '@routing.loader.annotation'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -99,10 +321,8 @@ services:
         arguments:
             $indexManager: '@fos_elastica.index_manager'
         tags:
-            - { name: kernel.event_listener, event: elastica.index.index_pre_populate, method: preIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.type_pre_populate, method: preIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.index_post_populate, method: postIndexPopulate }
-            - { name: kernel.event_listener, event: elastica.index.type_post_populate, method: postIndexPopulate }
+            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PreIndexPopulateEvent, method: preIndexPopulate }
+            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PostIndexPopulateEvent, method: postIndexPopulate }
 
     demosplan\DemosPlanCoreBundle\EventListener\RoleEntityListener:
         lazy: true
@@ -121,14 +341,6 @@ services:
     demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
-
-    demosplan\DemosPlanCoreBundle\Filesystem\LocalFilesystem:
-        arguments:
-            # It's okay that the symfony extension complains about a missing
-            # service id here. This service is generated during the container
-            # build and not always picked up by the extension, but you may
-            # rest assured that it exists.
-            $filesystemOperator: '@local.storage'
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
@@ -182,7 +394,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
         arguments:
-            $typeAccessor: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor'
             $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
             $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
@@ -200,8 +411,6 @@ services:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-
-    demosplan\DemosPlanCoreBundle\Logic\ILogic\ApiClientInterface: '@demosplan\DemosPlanCoreBundle\Logic\GuzzleApiClient'
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
         arguments:
@@ -224,18 +433,14 @@ services:
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\CacheableTypeAccessor:
-        arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService:
         lazy: true
         arguments:
             $searchTypes:
-                Statement: "@fos_elastica.index.statements.statement"
-                Procedures: "@fos_elastica.index.procedures.procedure"
-                StatementSegment: "@fos_elastica.index.statementSegments.statementSegment"
-                AdministratableUser: "@fos_elastica.index.users.user"
+                Statement: "@fos_elastica.index.statements"
+                Procedures: "@fos_elastica.index.procedures"
+                StatementSegment: "@fos_elastica.index.statementSegments"
+                AdministratableUser: "@fos_elastica.index.users"
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider:
         lazy: true
@@ -244,6 +449,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher:
         arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
@@ -299,17 +505,18 @@ services:
         decorates: Sentry\Monolog\Handler
         arguments: ['@demosplan\DemosPlanCoreBundle\Monolog\SentryHandler.inner']
 
-    demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface:
+    demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
+            $path: !php/const 'demosplan\DemosPlanCoreBundle\Permissions\Permissions::PERMISSIONS_YML'
+            $cacheKey: 'permissionsYml'
+
+
+    demosplan\DemosPlanCoreBundle\Permissions\Permissions:
+        arguments:
+            $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
-
-    demosplan\DemosPlanCoreBundle\Resources\config\AiPipelineConfiguration: ~
-
-    demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig'
-        public: true
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
@@ -371,6 +578,24 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
+    # Drafts Info Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoTransformerPass:
+        arguments: [ !tagged dplan.drafts.info.transformer ]
+
+    # From DraftsInfo
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer:
+        tags:
+            - { name: "dplan.segment.transformer" }
+
+    # Segment Entities Transformer Pass
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass:
+        arguments: [ !tagged dplan.segment.transformer ]
+
+    # From Statement
+    demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer:
+        tags:
+            - { name: "dplan.drafts.info.transformer" }
+
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
@@ -407,6 +632,11 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\ClaimConstraintValidator }
 
+    # Validate Drafts Info
+    demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator:
+        arguments:
+            $schemaFilePath: "%drafts_info_schema_path%"
+
     demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator }
@@ -423,6 +653,9 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\RoleAllowedConstraintValidator }
 
+    # Segmentable Statement Validator
+    demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator: ~
+
     demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
@@ -434,6 +667,9 @@ services:
 
     demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
+    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler:
         lazy: true
 
     demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
@@ -471,19 +707,11 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanForumBundle\Logic\ForumHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-        lazy: true
-
-    demosplan\DemosPlanForumBundle\Logic\ForumService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-        lazy: true
-
-    demosplan\DemosPlanHelpBundle\Logic\HelpHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanHelpBundle\Logic\HelpService:
+    demosplan\DemosPlanCoreBundle\Logic\Help\HelpService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
@@ -535,35 +763,17 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
-    demosplan\DemosPlanNewsBundle\Logic\ProcedureNewsService:
+    demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\GlobalNewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanNewsBundle\Logic\NewsHandler:
+    demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-
-    demosplan\DemosPlanPluginBundle\Logic\Plugin:
-        abstract: true
-        calls:
-            - [ 'setLogger', [ '@monolog.logger.dplan_plugin' ]]
-
-    demosplan\DemosPlanPluginBundle\EventListener\PluginEventListener:
-        lazy: true
-        parent: demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener
-
-    demosplan\DemosPlanPluginBundle\EventSubscriber\PluginEventSubscriber:
-        arguments: [ '@demosplan\DemosPlanCoreBundle\Context\PluginContext' ]
-        tags:
-            - { name: kernel.event_subscriber }
-
-    demosplan\DemosPlanPluginBundle\Logic\PluginList: ~
-
-    demosplan\DemosPlanPluginBundle\Twig\Extension\ExecutePluginExtension: ~
 
     demosplan\DemosPlanProcedureBundle\EventListener\DoctrineProcedureListener:
         autowire: true
@@ -599,7 +809,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         arguments:
-            $esProcedurePersister: '@fos_elastica.object_persister.procedures.procedure'
+            $esProcedurePersister: '@fos_elastica.object_persister.procedures'
             $permissions: '@demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface'
             $environment: '%kernel.environment%'
 
@@ -626,16 +836,16 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureElasticsearchRepository:
-        $procedureSearchType: "@fos_elastica.index.procedures.procedure"
+        $procedureSearchType: "@fos_elastica.index.procedures"
 
     demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         public: true
         lazy: true
         arguments:
-            $statementPersister: '@fos_elastica.object_persister.statements.statement'
-            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments.statementFragment'
-            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments.statementSegment'
+            $statementPersister: '@fos_elastica.object_persister.statements'
+            $statementFragmentPersister: '@fos_elastica.object_persister.statementFragments'
+            $statementSegmentPersister: '@fos_elastica.object_persister.statementSegments'
             $environment: '%kernel.environment%'
 
     demosplan\DemosPlanProcedureBundle\Logic\ExportService:
@@ -699,7 +909,7 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
-            - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements.draftStatement' ]]
+            - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
 
     demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
         lazy: true
@@ -707,11 +917,15 @@ services:
     demosplan\DemosPlanStatementBundle\Logic\AssignService:
         lazy: true
 
+    demosplan\DemosPlanStatementBundle\Repository\FragmentElasticsearchRepository:
+        $fragmentSearchType: '@fos_elastica.index.statementFragments'
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
+
     demosplan\DemosPlanStatementBundle\Logic\StatementService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
-            - [ 'setEsStatementType', [ '@fos_elastica.index.statements.statement' ]]
+            - [ 'setEsStatementType', [ '@fos_elastica.index.statements' ]]
 
     demosplan\DemosPlanStatementBundle\Logic\StatementCopyAndMoveService:
         lazy: true
@@ -728,7 +942,7 @@ services:
     demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService:
         lazy: true
         calls:
-            - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments.statementFragment' ]]
+            - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 
@@ -865,49 +1079,40 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfHandler:
-        arguments:
-            $piMaxWaitingSeconds: '%pipeline.max.waiting.seconds%'
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfPageToEntityConverter: ~
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\AnnotatedStatementPdfService:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiBoxRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiTextRecognitionRequester:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiCommunication:
-        lazy: true
-
-    demosplan\DemosPlanCoreBundle\EventDispatcher\AnnotatedStatementPdfEventSubscriber:
-        tags: [kernel.event_subscriber]
-
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\SimplifiedStatementCreator: ~
 
     demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\ManualSimplifiedStatementCreator:
         lazy: true
 
-    demosplan\DemosPlanStatementBundle\Logic\SimplifiedStatement\PdfToStatementCreator:
+    # Drafts Info Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\DraftsInfoService: ~
+
+    # Segment Service
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
+
+    # Drafts Info Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler: ~
+
+    # Segment Handler
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler: ~
+
+    # Segment Handler Interface
+    demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler'
+
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Logic\ProductIntelligence\PiErrorManagerAbstract:
+    demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
-
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiTextRecognitionErrorManager:
         arguments:
-            $maxPiRetries: '%max_pi_retries%'
-        lazy: true
+            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
 
-    demosplan\DemosPlanStatementBundle\Logic\AnnotatedStatementPdf\PiErrorManagement\PiBoxRecognitionErrorManager:
-        arguments:
-            $maxPiRetries: '%max_pi_retries%'
+    demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
+        parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
         lazy: true
+        autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
         lazy: true
@@ -970,7 +1175,6 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface: '@demosplan\DemosPlanUserBundle\Logic\CurrentUserService'
     demosplan\DemosPlanUserBundle\Logic\CurrentUserService: ~
 
     demosplan\DemosPlanUserBundle\Logic\AddressService:
@@ -1058,6 +1262,16 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
 
+    EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Utilities\TypeAccessors\AbstractProcessorConfig:
+
+    EDT\Wrapping\Contracts\TypeProviderInterface:
+        alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+
+    EDT\Wrapping\Contracts\Types\TypeInterface: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
@@ -1071,7 +1285,7 @@ services:
     EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
         arguments:
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $resourceTypeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
             $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
 
@@ -1088,9 +1302,11 @@ services:
             $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
             $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
 
+    EDT\JsonApi\Validation\FieldsValidator: ~
+
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1101,9 +1317,9 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
 
-    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory:
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
@@ -1142,3 +1358,8 @@ services:
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
+
+    # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
+    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
+
+    EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'

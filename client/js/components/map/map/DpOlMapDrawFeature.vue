@@ -15,7 +15,7 @@
       #
       #
       # Emits:
-      # > 'layerFeaturesChanged'
+      # > 'layerFeatures:changed'
       # >>> fired after feature-data changed
       # >>> Payload: features
       # > 'setDrawingActive'
@@ -69,7 +69,7 @@
 import { Draw, Snap } from 'ol/interaction'
 import drawStyle from './utils/drawStyle'
 import { GeoJSON } from 'ol/format'
-import { hasOwnProp } from 'demosplan-utils'
+import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -134,6 +134,12 @@ export default {
       default: uuid()
     },
 
+    options: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
     renderControl: {
       required: false,
       type: Boolean,
@@ -196,12 +202,15 @@ export default {
           style: drawStyle(style)
         })
 
-        if (this.type === 'Point') {
+        if (this.type === 'Point' && !this.options.multiplePoints) {
           this.drawInteraction.on('drawstart', () => {
             this.layerToDrawInto.getSource().clear()
           })
         }
-        this.snap = new Snap({ source: new VectorSource() })
+
+        this.snap = new Snap({
+          source: new VectorSource()
+        })
         this.map.addInteraction(this.drawInteraction)
         this.map.addInteraction(this.snap)
         this.currentlyActive = true
@@ -225,6 +234,7 @@ export default {
       if (this.map === null) {
         return
       }
+
       //  Define layer source to draw into
       this.vectorSourceOptions = {
         format: new GeoJSON(),
@@ -263,7 +273,7 @@ export default {
 
       //  Whenever drawing changes, emit current features
       layerSource.on('change', () => {
-        this.$emit('layerFeaturesChanged', new GeoJSON().writeFeatures(layerSource.getFeatures()))
+        this.$emit('layerFeatures:changed', new GeoJSON().writeFeatures(layerSource.getFeatures()))
       })
 
       if (this.fitDrawing) {

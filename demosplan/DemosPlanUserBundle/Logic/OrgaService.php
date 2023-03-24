@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanUserBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Token\DemosToken;
@@ -331,9 +331,9 @@ class OrgaService extends CoreService
      *
      * @param string $entityId
      *
-     * @throws Exception
-     *
      * @return bool
+     *
+     * @throws Exception
      */
     public function deleteOrga($entityId)
     {
@@ -360,14 +360,14 @@ class OrgaService extends CoreService
             $organisation = $this->orgaRepository->get($entityId);
 
             foreach ($organisation->getAddresses() as $address) {
-                //remove addresses form organisation, to avoid undefined index
-                //because doctrine will not do this, because there are no address sited relation, to use annotations
+                // remove addresses form organisation, to avoid undefined index
+                // because doctrine will not do this, because there are no address sited relation, to use annotations
                 $organisation->setAddresses([]);
                 $this->addressService->deleteAddress($address->getId());
             }
 
-            //remove addresses form organisation, to avoid undefined index
-            //doctrine will not do this, because there are no address sited relation, to use annotations
+            // remove addresses form organisation, to avoid undefined index
+            // doctrine will not do this, because there are no address sited relation, to use annotations
             $organisation->setAddresses([]);
         } catch (Exception $e) {
             $this->logger->error('Fehler beim Löschen der Adressen: ', [$e]);
@@ -421,8 +421,8 @@ class OrgaService extends CoreService
     public function getParticipants(): array
     {
         return $this->getOrganisations([
-            $this->conditionFactory->propertyHasValue(1, ...$this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, ...$this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
         ]);
     }
 
@@ -466,9 +466,9 @@ class OrgaService extends CoreService
             $conditions = array_merge($additionalConditions, $this->orgaResourceType->getMandatoryConditions());
             $conditions[] = $this->conditionFactory->propertyHasNotValue(
                 User::ANONYMOUS_USER_ORGA_ID,
-                ...$this->orgaResourceType->id
+                $this->orgaResourceType->id
             );
-            $sortMethod = $this->sortMethodFactory->propertyAscending(...$this->orgaResourceType->name);
+            $sortMethod = $this->sortMethodFactory->propertyAscending($this->orgaResourceType->name);
             $orgas = $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
 
             // add Notifications and submission types to entity
@@ -515,17 +515,17 @@ class OrgaService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                ...$this->orgaResourceType->statusInCustomers->status
+                $this->orgaResourceType->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
                 $orgaTypeName,
-                ...$this->orgaResourceType->statusInCustomers->orgaType->name
+                $this->orgaResourceType->statusInCustomers->orgaType->name
             ),
             // The resource type will already contain this restriction,
             // but we add it here too for clarity.
             $this->conditionFactory->propertyHasValue(
                 $customerContext->getId(),
-                ...$this->orgaResourceType->statusInCustomers->customer->id
+                $this->orgaResourceType->statusInCustomers->customer->id
             ),
         ];
 
@@ -541,7 +541,7 @@ class OrgaService extends CoreService
     {
         $notifications = [];
 
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $settingNewStatement = $this->contentService->getSettings(
                 'emailNotificationNewStatement',
@@ -552,7 +552,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $settingEndingPhase = $this->contentService->getSettings(
                 'emailNotificationEndingPhase',
@@ -575,16 +575,14 @@ class OrgaService extends CoreService
     {
         $orga->setSubmissionType($this->globalConfig->getProjectSubmissionType());
 
-        if ($this->permissions->hasPermission('feature_change_submission_type')) {
-            $settingSubmissionType = $this->contentService->getSettings(
-                'submissionType',
-                SettingsFilter::whereOrga($orga)->lock(),
-                false
-            );
-            if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
-                $orga->setSubmissionType($settingSubmissionType[0]->getContent());
-                $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
-            }
+        $settingSubmissionType = $this->contentService->getSettings(
+            'submissionType',
+            SettingsFilter::whereOrga($orga)->lock(),
+            false
+        );
+        if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
+            $orga->setSubmissionType($settingSubmissionType[0]->getContent());
+            $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
         }
     }
 
@@ -679,7 +677,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaNotifications($orga, $data)
     {
-        //Update Benachrichtigung neue Stellungnahme
+        // Update Benachrichtigung neue Stellungnahme
         if ($this->permissions->hasPermission('feature_notification_statement_new')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationNewStatement');
             if (array_key_exists('emailNotificationNewStatement', $data)) {
@@ -691,7 +689,7 @@ class OrgaService extends CoreService
             }
         }
 
-        //Update Benachrichtigung endende Beteiligungsphase
+        // Update Benachrichtigung endende Beteiligungsphase
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             $data = $this->handleFormPostCheckbox($data, 'emailNotificationEndingPhase');
 
@@ -722,7 +720,7 @@ class OrgaService extends CoreService
      */
     public function updateOrgaSubmissionType($orga, $data)
     {
-        //Update Orga Submission Type
+        // Update Orga Submission Type
         if (!$this->permissions->hasPermission('feature_change_submission_type')) {
             return $orga;
         }
@@ -893,10 +891,10 @@ class OrgaService extends CoreService
     {
         try {
             $conditions = [
-                $this->conditionFactory->propertyHasValue(false, 'deleted'),
-                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, 'id'),
+                $this->conditionFactory->propertyHasValue(false, ['deleted']),
+                $this->conditionFactory->propertyHasAnyOfValues($organisationIds, ['id']),
             ];
-            $sortMethod = $this->sortMethodFactory->propertyAscending('name');
+            $sortMethod = $this->sortMethodFactory->propertyAscending(['name']);
 
             return $this->entityFetcher->listEntitiesUnrestricted(Orga::class, $conditions, [$sortMethod]);
         } catch (Exception $e) {
@@ -936,9 +934,9 @@ class OrgaService extends CoreService
     {
         $query = $this->orgaTypeRepository->createFluentQuery();
         $query->getConditionDefinition()
-            ->propertyHasValue($orga->getId(), 'orgaStatusInCustomers', 'orga', 'id')
-            ->propertyHasValue($customer->getId(), 'orgaStatusInCustomers', 'customer', 'id')
-            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, 'orgaStatusInCustomers', 'status');
+            ->propertyHasValue($orga->getId(), ['orgaStatusInCustomers', 'orga', 'id'])
+            ->propertyHasValue($customer->getId(), ['orgaStatusInCustomers', 'customer', 'id'])
+            ->propertyHasValue(OrgaStatusInCustomer::STATUS_ACCEPTED, ['orgaStatusInCustomers', 'status']);
 
         return $query->getEntities();
     }

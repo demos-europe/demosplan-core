@@ -10,11 +10,12 @@
 
 namespace demosplan\DemosPlanProcedureBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class CurrentProcedureService
+class CurrentProcedureService implements CurrentProcedureServiceInterface
 {
     /** @var Procedure|null */
     protected $procedure;

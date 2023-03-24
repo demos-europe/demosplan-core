@@ -29,14 +29,10 @@
 </template>
 
 <script>
+import { checkResponse, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
-import DpTab from '@DpJs/components/core/DpTabs/DpTab'
-import DpTabs from '@DpJs/components/core/DpTabs/DpTabs'
-import EmailImport from './EmailImport/EmailImport'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { hasAnyPermissions } from 'demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
-import StatementPdfImport from './StatementPdfImport/StatementPdfImport'
 
 export default {
   name: 'AdministrationImport',
@@ -45,10 +41,8 @@ export default {
     AdministrationImportNone,
     DpTab,
     DpTabs,
-    EmailImport,
     ExcelImport,
-    StatementFormImport,
-    StatementPdfImport
+    StatementFormImport
   },
 
   provide () {
@@ -100,23 +94,15 @@ export default {
 
   data () {
     return {
-      activeTabId: ''
+      activeTabId: '',
+      asyncComponents: []
     }
   },
 
   computed: {
     availableImportOptions () {
       return [
-        {
-          name: EmailImport.name,
-          permissions: ['feature_import_statement_via_email'],
-          title: 'statement.import_email.title'
-        },
-        {
-          name: StatementPdfImport.name,
-          permissions: ['feature_import_statement_pdf'],
-          title: 'import.options.pdf'
-        },
+        ...this.asyncComponents,
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
@@ -142,11 +128,43 @@ export default {
       if (window.localStorage.getItem('importCenterActiveTabId')) {
         this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
       }
+    },
+
+    loadComponents (hookName) {
+      const params = {
+        hookName: hookName
+      }
+
+      dpRpc('addons.assets.load', params)
+        .then(response => checkResponse(response))
+        .then(response => {
+          const result = response[0].result
+
+          for (const key of Object.keys(result)) {
+            const addon = result[key]
+            const contentKey = addon.entry + '.umd.js'
+            const content = addon.content[contentKey]
+
+            /**
+             * The evaluation of the response content automatically binds the vue component
+             * to the window object. This way we can implement it in vue's internals to render
+             * the component.
+             */
+            eval(content)
+            this.$options.components[addon.entry] = window[addon.entry].default
+
+            this.asyncComponents.push({
+              name: addon.entry,
+              permissions: ['feature_statements_import_excel'],
+              title: addon.options.title
+            })
+          }
+        })
     }
   },
 
-  created () {
-    this.setActiveTabId()
+  mounted () {
+    this.loadComponents('import.tabs')
   }
 }
 </script>

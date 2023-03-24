@@ -11,16 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
-use demosplan\DemosPlanCoreBundle\Event\PluginMaintenanceEvent;
+use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
@@ -237,10 +238,10 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->checkMailBounces($output);
             $this->fetchStatementGeoData($output);
             $this->purgeDeletedProcedures($output);
-            $this->pluginMaintenance($output);
+            $this->addonMaintenance($output);
             // async localization not needed any more, will be deleted
             // after merging into main, to avoid merge problems
-            //$this->getProcedureLocations($output);
+            // $this->getProcedureLocations($output);
             $this->checkSearchIndexStatus($output);
             // Switch planning categories before procedures, because in case both happen
             // at the same time, we want to show the new categories in the report entry of
@@ -370,18 +371,21 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     }
 
     /**
-     * Tells plugins to trigger their respective cleanup actions.
+     * Tells addons to trigger their respective cleanup actions.
      *
      * @param OutputInterface $output
      */
-    protected function pluginMaintenance($output)
+    protected function addonMaintenance($output)
     {
         try {
-            $this->eventDispatcher->dispatch(new PluginMaintenanceEvent());
+            $this->eventDispatcher->dispatch(
+                new AddonMaintenanceEvent(),
+                AddonMaintenanceEventInterface::class
+            );
         } catch (Exception $e) {
-            $this->logger->error('Plugin Maintenance failed', [$e]);
+            $this->logger->error('Addon Maintenance failed', [$e]);
         }
-        $output->writeln('Finished Plugin Maintenance.');
+        $output->writeln('Finished Addon Maintenance.');
     }
 
     /**
@@ -593,7 +597,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->logger->error('switchPhasesOfToday failed', [$e]);
         }
 
-        //Success notice
+        // Success notice
         $output->writeln('Tried switching phases of '.$internalProcedureCounter.' internal/public agency procedures.');
         $output->writeln('Tried switching phases of '.$externalProcedureCounter.' external/citizen procedures.');
     }

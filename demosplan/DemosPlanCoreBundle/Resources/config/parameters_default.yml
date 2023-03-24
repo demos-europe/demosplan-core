@@ -139,15 +139,14 @@ parameters:
 
     # MySQL Default Settings
     database_driver: "pdo_mysql"
+    database_host: "localhost"
+    database_name: "dplan"
+    database_password: "changeMe"
     database_port: "3306"
+    database_user: "user"
 
     #RabbitMQ setting with default values
-    rabbitmq_host:     "localhost"
-    rabbitmq_port:     "5672"
-    rabbitmq_user:     ""
-    rabbitmq_password: ""
-    rabbitmq_vhost:    "/"
-
+    rabbitmq_dsn: "amqp://:@localhost:5672/%2f"
     rabbitmq_routing_disabled: false
 
     # dsn used for sending emails https://symfony.com/doc/current/mailer.html#transport-setup
@@ -156,8 +155,8 @@ parameters:
 
     email_enabled: false
     email_is_live_system: false
-    email_test_from: ""
-    email_test_to: ""
+    email_test_from: "testMailSender@localhost.de"
+    email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
     email_bounce_check: false
     # #refactor: path and file could be used as one
@@ -239,7 +238,7 @@ parameters:
 
     # Globaler Layer, z.B. für die Planzeichnungseinstellungen
     map_admin_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_admin_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_admin_baselayer_layers: "de_basemapde_web_raster_farbe"
 
     # Define available projections. Order will be respected in dropdown for new layers
     map_available_projections:
@@ -266,12 +265,12 @@ parameters:
     map_global_available_scales: "[250,500,1000,2000,4000,5000,15000,35000,70000,150000,250000,500000,1000000]"
 
     map_print_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_print_baselayer_name: "de_basemapde_web_raster_grau"
-    map_print_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_print_baselayer_name: "de_basemapde_web_raster_farbe"
+    map_print_baselayer_layers: "de_basemapde_web_raster_farbe"
 
     # Extent und Scales für die Öffentlichkeitsbeteiligung. Hier SH
     map_public_baselayer: "https://sgx.geodatenzentrum.de/wms_basemapde"
-    map_public_baselayer_layers: "de_basemapde_web_raster_grau"
+    map_public_baselayer_layers: "de_basemapde_web_raster_farbe"
     map_public_extent: "[903770.62,6879897.96,1285358.32,7368034.89]"
     map_public_available_scales: "[920000,500000,250000,150000,70000,35000,15000,5000,4000,2000,1000,500,250]"
 
@@ -340,6 +339,8 @@ parameters:
 
     # disable honeypot check
     honeypot_disabled: false
+    # minimum time needed to fill out form fields to slow down brute force
+    honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
 
@@ -462,26 +463,13 @@ parameters:
     survey.schema_path_update: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/survey-schema-update.json"
     surveyvote.schema_path_create: "%kernel.project_dir%/demosplan/DemosPlanSurveyBundle/Resources/config/surveyvote-schema-create.json"
 
-    # Maximum number of times we will retry a call to PI when an error in their servers happen
-    max_pi_retries: 3
-    pipeline.max.waiting.seconds: 400
-
     # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
 
-    pipeline.ai.url: ""
-    pipeline.ai.annotated.statement.pdf.created.id: ""
-    pipeline.ai.annotated.statement.pdf.reviewed.id: ""
-    pipeline.ai.authorization: ""
-    # deprecated. use htaccess_user and htaccess_password instead
-    pipeline.demos.authorization: ""
-    pi.pipeline.segment.recognition.id: ""
-    pi.pipeline.confirmed.segments.id: ""
-
     # JSON Web Tokens configuration
-    jwt_passphrase: "demosplan_jwt_secret"
+    jwt_passphrase: "%env(JWT_SECRET_KEY)%"
 
 
     # Deployments on our servers are rsynced to this dir
@@ -489,14 +477,11 @@ parameters:
     # will use DemosPlanPath::getRootDir() as base.
     deployment_sync_dir: '../htdocs'
 
-    # Configuration for Maillane connection
-
-    # Expects the API endpoint base URL for the used maillane instance
-    # Example: 172.0.0.1:9999
-    maillane_api_baseurl: ""
-    # Auth token used for verifying the import request originated from
-    # the expected Maillane instance
-    maillane_api_token: ""
-    # Domain for generated recipient email addresses. (The part after the '@')
-    # Example: maillane.com
-    maillane_email_domain: ""
+    # Allows to define links, that will be presented in a special section on the main page.
+    # Note that the data will be used in the frontend directly, i.e. no measures against potentially harmful
+    # scripts is taken if such thing is used here.
+    # It can be used as follows:
+    # external_links:
+    #     Name of some website: https://link-to-the-website.net
+    #     Some other website: https://link-to-some-other-website.net
+    external_links: []
