@@ -575,8 +575,9 @@ export default {
             checkResponse(response)
             return response
           })
-          .then((response) => {
+          .then(response => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
+
             return response
           })
           .catch((err) => {
