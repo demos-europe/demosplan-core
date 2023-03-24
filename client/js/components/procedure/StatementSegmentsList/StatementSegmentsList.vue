@@ -635,7 +635,7 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then((response) => checkResponse(response))
+        .then(response => checkResponse(response))
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
           this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
