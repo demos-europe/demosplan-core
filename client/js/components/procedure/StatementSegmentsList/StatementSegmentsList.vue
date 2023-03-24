@@ -587,6 +587,7 @@ export default {
     synchronizeAssignee (statement) {
       const oldAssignee = JSON.stringify(statement.relationships.assignee.data)
       const newAssignee = JSON.stringify(this.statement.relationships.assignee.data)
+
       if (oldAssignee !== newAssignee) {
         statement.relationships.assignee.data = this.statement.relationships.assignee.data
       }
