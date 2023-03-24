@@ -13,8 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanReportBundle\Logic\ReportMessageConverter;
+use demosplan\DemosPlanUserBundle\Logic\UserHandler;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -30,6 +33,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $identifier
  * @property-read End $message
  * @property-read End $orgaName
+ * @property-read End $createdByDataInputOrga
  * @property-read End $created
  * @property-read End $createDate
  * @property-read CustomerResourceType $customer
@@ -41,8 +45,10 @@ class ReportEntryResourceType extends DplanResourceType
      */
     protected $messageConverter;
 
-    public function __construct(ReportMessageConverter $messageConverter)
-    {
+    public function __construct(
+        protected readonly UserHandler $userHandler,
+        ReportMessageConverter $messageConverter
+    ){
         $this->messageConverter = $messageConverter;
     }
 
@@ -128,6 +134,15 @@ class ReportEntryResourceType extends DplanResourceType
             }),
             $this->createAttribute($this->created)->readable(true, function (ReportEntry $entry): ?string {
                 return $this->formatDate($entry->getCreated());
+            }),
+            $this->createAttribute($this->createdByDataInputOrga)->readable(true, function (ReportEntry $entry): bool {
+                $userWhoCratedReport = $this->userHandler->getSingleUser($entry->getUserId());
+                if ($userWhoCratedReport instanceof User) {
+
+                    return $userWhoCratedReport->hasRole(Role::PROCEDURE_DATA_INPUT);
+                }
+
+                return false;
             }),
             $this->createAttribute($this->orgaName)->readable(true, function (ReportEntry $entry): string {
                 return $this->messageConverter->extractOrgaNameFromReportEntryMessage($entry);
