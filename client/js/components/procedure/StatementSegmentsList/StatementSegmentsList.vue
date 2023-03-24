@@ -638,6 +638,7 @@ export default {
         .then(response => checkResponse(response))
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
+
           this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
