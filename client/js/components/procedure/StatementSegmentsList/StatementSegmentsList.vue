@@ -55,20 +55,16 @@
         </div>
         <ul class="float--right u-m-0 space-inline-s flex">
           <li class="display--inline-block">
-            <button
-              class="o-flyout__trigger btn--blank o-link--default u-ph-0_25 line-height--2 whitespace--nowrap"
-              @click="toggleClaimStatement">
-              <dp-claim
-                entity-type="statement"
-                :assigned-id="currentAssignee.id"
-                :assigned-name="currentAssignee.name"
-                :assigned-organisation="currentAssignee.orgaName"
-                :current-user-id="currentUser.id"
-                :is-loading="isLoading" />
-              <span
-                v-if="!isLoading"
-                v-text="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)" />
-            </button>
+            <dp-claim
+              class="o-flyout__trigger u-ph-0_25 line-height--2"
+              entity-type="statement"
+              :assigned-id="currentAssignee.id"
+              :assigned-name="currentAssignee.name"
+              :assigned-organisation="currentAssignee.orgaName"
+              :current-user-id="currentUser.id"
+              :is-loading="isLoading"
+              :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
+              @click="toggleClaimStatement" />
           </li>
           <li class="display--inline-block">
             <a
