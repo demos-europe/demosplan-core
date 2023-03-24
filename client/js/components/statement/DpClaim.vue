@@ -41,7 +41,8 @@ the FB is ready with editing of fragments.
 
 <template>
   <!--data-assigned is needed for batch edit-->
-  <a
+  <button
+    class="flex flex-items-center space-inline-xs btn--blank o-link--default"
     :class="{'cursor--pointer' : false === isLoading}"
     :data-assigned="isAssignedToMe /* needed for checking checked elements*/"
     @click.prevent.stop="updateAssignment"
@@ -56,7 +57,10 @@ the FB is ready with editing of fragments.
       class="fa"
       :class="status.icon"
       aria-hidden="true" />
-  </a>
+    <span
+      v-if="label"
+      v-text="label" />
+  </button>
 </template>
 
 <script>
@@ -106,6 +110,12 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    label: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     lastClaimedUserId: {
