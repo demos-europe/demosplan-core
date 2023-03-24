@@ -21,20 +21,22 @@
             list-style-type: none;
             border: $item-border-thickness solid transparent;
             text-align: center;
-            color: $dp-color-brand-main-dark-1;
+            color: $dp-color-text-default; // May be adapted to a11y-datepicker theming, or vice versa.
 
             &:hover {
-                color: $dp-color-brand-highlight-base;
                 border: $item-border-thickness solid $dp-color-brand-main-base;
                 cursor: pointer;
             }
 
             &.is-selected {
-                color: $dp-color-white;
-                background: $dp-color-brand-highlight-contrast;
+                background-color: $dp-color-brand-highlight-base;
                 border-radius: $dp-token-rounded-small;
                 font-weight: $bold-font-weight;
                 font-family: $bold-font-family;
+
+                & button {
+                    color: $dp-color-white;
+                }
             }
         }
     }
