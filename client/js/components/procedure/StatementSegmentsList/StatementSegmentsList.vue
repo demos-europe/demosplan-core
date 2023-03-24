@@ -539,6 +539,7 @@ export default {
     },
 
     saveStatement (statement) {
+      this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
       // The key isManual is readonly, so we should remove it before saving
       delete statement.attributes.isManual
@@ -580,6 +581,20 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    /**
+     * If `this.statement` has changed its assignee (which does not propagate to the
+     * localStatement in StatementMeta), it must be synced back before applying the
+     * StatementMeta data to `this.statement`.
+     * @param {object} statement - The local statement of StatementMeta.vue.
+     */
+    synchronizeAssignee (statement) {
+      const oldAssignee = JSON.stringify(statement.relationships.assignee.data)
+      const newAssignee = JSON.stringify(this.statement.relationships.assignee.data)
+      if (oldAssignee !== newAssignee) {
+        statement.relationships.assignee.data = this.statement.relationships.assignee.data
+      }
     },
 
     /**
