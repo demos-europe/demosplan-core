@@ -15,7 +15,7 @@
         position: absolute;
         z-index: $z-content-above;
         background-color: $dp-color-white;
-        border: $dp-border-thickness solid $default-border-color;
+        border: $dp-border-thickness solid $dp-color-border-default;
 
         &-item {
             list-style-type: none;

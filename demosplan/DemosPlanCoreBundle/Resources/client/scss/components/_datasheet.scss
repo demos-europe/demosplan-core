@@ -13,7 +13,7 @@
 
 //  datasheet container
 .c-datasheet {
-    border: $dp-border-thickness $default-border-color solid;
+    border: $dp-border-thickness $dp-color-border-default solid;
 
     &__container {
         min-width: $dp-page-width;

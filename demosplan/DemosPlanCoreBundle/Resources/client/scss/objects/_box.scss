@@ -26,7 +26,7 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
 
     @include media-query('palm') {
         border-radius: 0;
-        border-top: 1px solid $default-border-color;
+        border-top: 1px solid $dp-color-border-default;
     }
 
     background: $dp-color-white;

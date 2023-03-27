@@ -23,9 +23,6 @@
 // Globals > background
 $dp-bg-color:                           $dp-color-white !default;
 
-// Globals > Borders
-$default-border-color:                  $dp-color-neutral-light-2 !default;
-
 // Globals > Font colors
 $default-font-color:                    $dp-color-neutral-dark-1 !default;
 $deactivated-font-color:                $dp-color-neutral-base !default;
@@ -64,6 +61,3 @@ $pager-color-active-bg:                 $dp-color-neutral-light-1 !default;
 $h1-color:                              $default-font-color !default;
 $h2-color:                              $default-font-color !default;
 $h3-color:                              $default-font-color !default;
-
-$table-row-bg-color:                    $dp-color-neutral-light-3 !default;
-$table-row-alternate-bg-color:          $default-border-color !default;

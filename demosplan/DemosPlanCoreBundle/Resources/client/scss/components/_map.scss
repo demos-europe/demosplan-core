@@ -344,7 +344,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         // just the group item's background-color
         &__group-item-color {
-            background-color: color.adjust($default-border-color, $lightness: 10%);
+            background-color: color.adjust($dp-color-border-default, $lightness: 10%);
         }
 
         //  group of toolbar controls > header (eg. "Kartenebenen")
@@ -353,7 +353,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin-top: $inuit-base-spacing-unit--small;
             padding-left: 9px;
 
-            background-color: $default-border-color;
+            background-color: $dp-color-border-default;
             color: $map-layer-color;
             cursor: pointer;
 
@@ -382,7 +382,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &:hover {
-                background-color: color.adjust($default-border-color, $lightness: 10%);
+                background-color: color.adjust($dp-color-border-default, $lightness: 10%);
                 color: $map-layer-color-hover;
             }
 

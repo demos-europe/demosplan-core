@@ -64,7 +64,7 @@
 
     &__legend-content {
         background-color: transparent;
-        border-top: $dp-border-thickness solid $default-border-color;
+        border-top: $dp-border-thickness solid $dp-color-border-default;
         transition: background-color #{$transition-speed-style-delay};
 
         & .is-hidden {

@@ -14,7 +14,7 @@
 /// @name .c-login-register
 
 .c-login-register {
-    $page-login-border-color: $default-border-color;
+    $page-login-border-color: $dp-color-border-default;
 
     @include media-query('desk-up') {
         &.is-separated {

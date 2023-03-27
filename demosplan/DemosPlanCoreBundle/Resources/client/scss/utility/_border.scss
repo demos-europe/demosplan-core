@@ -12,7 +12,7 @@
 //  border: <br-width> || <br-style> || <color>
 //  https://developer.mozilla.org/de/docs/Web/CSS/border
 
-$utility-border-color: $default-border-color;
+$utility-border-color: $dp-color-border-default;
 $utility-border-thickness: $dp-border-thickness;
 
 .border {

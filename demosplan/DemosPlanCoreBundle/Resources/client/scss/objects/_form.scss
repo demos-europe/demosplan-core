@@ -103,7 +103,7 @@ textarea {
 
     padding-left: $inuit-base-spacing-unit--tiny;
 
-    border: 2px solid $default-border-color;
+    border: 2px solid $dp-color-border-default;
     color: $default-input-color;
     cursor: text;
 
@@ -195,7 +195,7 @@ label input[type='radio'] {
 }
 
 select {
-    border: 2px solid $default-border-color;
+    border: 2px solid $dp-color-border-default;
     background-color: $dp-color-white;
     color: $default-input-color;
     cursor: default;

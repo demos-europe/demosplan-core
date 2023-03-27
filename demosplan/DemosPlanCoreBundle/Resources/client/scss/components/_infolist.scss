@@ -26,7 +26,7 @@
 
         &--bordered {
             @include media-query('lap-down') {
-                border-bottom: $dp-border-thickness solid $default-border-color;
+                border-bottom: $dp-border-thickness solid $dp-color-border-default;
             }
         }
     }
