@@ -46,7 +46,7 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
         &.closed {
 
             background: $dp-color-neutral-light-3; // check if the color fits
-            color: $deactivated-font-color !important;
+            color: $dp-color-text-muted !important;
         }
     }
 

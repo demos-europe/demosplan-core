@@ -433,7 +433,7 @@ a.is-disabled {
 
     &:disabled,
     &:disabled:hover {
-        color: $deactivated-font-color;
+        color: $dp-color-text-muted;
     }
 
     //  used to show small icon buttons without any vertical spacing between
@@ -461,6 +461,6 @@ a.is-disabled {
     }
 
     &--disabled {
-        color: $deactivated-font-color;
+        color: $dp-color-text-muted;
     }
 }

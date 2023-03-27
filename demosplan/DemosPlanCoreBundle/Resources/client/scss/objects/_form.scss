@@ -256,7 +256,7 @@ select.required {
 .disabled {
     @include unselectable;
     border: 2px solid $dp-color-white !important;
-    color: $deactivated-font-color;
+    color: $dp-color-text-muted;
 }
 
 i.disabled,
