@@ -5687,22 +5687,22 @@
         },
         {
             "name": "jfcherng/php-diff",
-            "version": "6.13.1",
+            "version": "6.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jfcherng/php-diff.git",
-                "reference": "2ee6d8efb77ab53711a459a8725e6704d00f3668"
+                "reference": "8b2bd0c987f69835a816642193d62a7c3664ca96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jfcherng/php-diff/zipball/2ee6d8efb77ab53711a459a8725e6704d00f3668",
-                "reference": "2ee6d8efb77ab53711a459a8725e6704d00f3668",
+                "url": "https://api.github.com/repos/jfcherng/php-diff/zipball/8b2bd0c987f69835a816642193d62a7c3664ca96",
+                "reference": "8b2bd0c987f69835a816642193d62a7c3664ca96",
                 "shasum": ""
             },
             "require": {
                 "jfcherng/php-color-output": "^3",
                 "jfcherng/php-mb-string": "^1.4.6",
-                "jfcherng/php-sequence-matcher": "^3.2.8",
+                "jfcherng/php-sequence-matcher": "^3.2.9",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -5741,7 +5741,7 @@
             ],
             "support": {
                 "issues": "https://github.com/jfcherng/php-diff/issues",
-                "source": "https://github.com/jfcherng/php-diff/tree/6.13.1"
+                "source": "https://github.com/jfcherng/php-diff/tree/6.14.2"
             },
             "funding": [
                 {
@@ -5749,7 +5749,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-02-27T11:28:39+00:00"
+            "time": "2023-03-15T19:26:28+00:00"
         },
         {
             "name": "jfcherng/php-mb-string",
@@ -5805,16 +5805,16 @@
         },
         {
             "name": "jfcherng/php-sequence-matcher",
-            "version": "3.2.8",
+            "version": "3.2.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jfcherng/php-sequence-matcher.git",
-                "reference": "410519ca07cd7989f450d6e2aa40975dbd1be048"
+                "reference": "5de2243aa611a66395d85ba1a9169b439bd13e4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jfcherng/php-sequence-matcher/zipball/410519ca07cd7989f450d6e2aa40975dbd1be048",
-                "reference": "410519ca07cd7989f450d6e2aa40975dbd1be048",
+                "url": "https://api.github.com/repos/jfcherng/php-sequence-matcher/zipball/5de2243aa611a66395d85ba1a9169b439bd13e4d",
+                "reference": "5de2243aa611a66395d85ba1a9169b439bd13e4d",
                 "shasum": ""
             },
             "require": {
@@ -5822,7 +5822,6 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.19",
-                "liip/rmt": "^1.6",
                 "phan/phan": "^2.5 || ^3 || ^4 || ^5",
                 "phpunit/phpunit": ">=7 <10",
                 "squizlabs/php_codesniffer": "^3.5"
@@ -5850,7 +5849,7 @@
             "description": "A longest sequence matcher. The logic is primarily based on the Python difflib package.",
             "support": {
                 "issues": "https://github.com/jfcherng/php-sequence-matcher/issues",
-                "source": "https://github.com/jfcherng/php-sequence-matcher/tree/3.2.8"
+                "source": "https://github.com/jfcherng/php-sequence-matcher/tree/3.2.9"
             },
             "funding": [
                 {
@@ -5858,7 +5857,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-09-02T04:02:02+00:00"
+            "time": "2023-03-11T06:56:44+00:00"
         },
         {
             "name": "jmikola/geojson",
