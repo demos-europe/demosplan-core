@@ -68,6 +68,12 @@ EOT
             InputOption::VALUE_REQUIRED,
             'Provide a YAML config file containing properties to be set in the generated customer.'
         );
+        $this->addOption(
+            'override-database',
+            null,
+            InputOption::VALUE_NONE,
+            'Override existing database'
+        );
     }
 
     /**
