@@ -131,12 +131,11 @@
       </header>
     </dp-sticky-element>
 
-    <div>
+    <div class="u-mt-0_5">
       <!--Statement meta data -->
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
-        class="u-mt-0_5"
         :current-user-id="currentUser.id"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
