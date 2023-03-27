@@ -145,13 +145,14 @@
         </template>
         <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
           <dp-flyout>
-            <a
-              class="is-disabled"
+            <button
               v-if="hasPermission('area_statement_segmentation')"
-              :href="Routing.generate('dplan_drafts_list_edit', { statementId: id, procedureId: procedureId })"
+              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              :disabled="segmentsCount > 0 && segmentsCount !== '-'"
+              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
               rel="noopener">
               {{ Translator.trans('split') }}
-            </a>
+            </button>
             <a
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               :class="{'is-disabled': synchronized }"
@@ -486,6 +487,41 @@ export default {
       }
     },
 
+    /**
+     * If statement already has segments, do nothing
+     * If statement is not claimed, silently assign it to the current user and go to split statement view
+     * If statement is claimed by current user, go to split statement view
+     * If statement is claimed by another user, ask the current user to claim it and, after they confirm, assign it to
+     * the current user, then go to split statement view. If the user doesn't confirm, do nothing.
+     * @param statementId {string}
+     * @param assignee {object} { data: { id: string, type: string }}
+     * @param segmentsCount {number || string} can be a number or '-'
+     */
+    handleStatementSegmentation (statementId, assignee, segmentsCount) {
+      const isStatementSegmented = segmentsCount > 0 && segmentsCount !== '-'
+      const isStatementClaimedByCurrentUser = assignee.id === this.currentUserId
+      const isStatementClaimed = assignee.id !== ''
+      const isStatementClaimedByOtherUser = isStatementClaimed && !isStatementClaimedByCurrentUser
+
+      if (isStatementSegmented) {
+        return
+      }
+
+      if (isStatementClaimedByCurrentUser) {
+        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+      }
+
+      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+        this.claimStatement(statementId)
+          .then(() => {
+            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
+    },
+
     applySearch (term, selectedFields) {
       this.searchValue = term
       this.searchFieldsSelected = selectedFields
@@ -524,9 +560,12 @@ export default {
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)
+            return response
           })
-          .then(() => {
+          .then(response => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
+
+            return response
           })
           .catch((err) => {
             console.error(err)

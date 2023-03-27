@@ -95,7 +95,7 @@
                 id="statementSubmitterName"
                 v-model="formFields.submitterName"
                 :label="{
-                  text: Translator.trans('institution')
+                  text: Translator.trans('name')
                 }"
                 required />
               <dp-input
