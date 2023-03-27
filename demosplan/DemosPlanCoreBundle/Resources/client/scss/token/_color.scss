@@ -20,7 +20,7 @@
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
 // @FIXME check overrides. these do not have to be defined here.
 $dp-color-interactive-default:                  $dp-color-brand-main !default;
-$dp-color-interactive-hover:                    $dp-color-brand-highlight-contrast !default;
+$dp-color-interactive-hover:                    $dp-color-brand-highlight !default;
 $dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1 !default;
 
 
@@ -33,7 +33,7 @@ $dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1
 // $dp-color-highlight !default;
 // $dp-color-highlight--light !default;
 $dp-token-color-brand-cta-dark:                 $dp-color-brand-highlight-dark-1 !default;
-$dp-token-color-brand-cta:                      $dp-color-brand-highlight-contrast !default;
+$dp-token-color-brand-cta:                      $dp-color-brand-highlight !default;
 $dp-token-color-brand-cta-light:                $dp-color-brand-highlight-light-2 !default;
 $dp-token-color-brand-cta-contrast:             $dp-color-white !default;
 
