@@ -19,7 +19,7 @@
 // Link color is applied to all links that should be branded... that is, basically, all links.
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
 // @FIXME check overrides. these do not have to be defined here.
-$dp-color-interactive-default:                  $dp-color-brand-main-base !default;
+$dp-color-interactive-default:                  $dp-color-brand-main !default;
 $dp-color-interactive-hover:                    $dp-color-brand-highlight-contrast !default;
 $dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1 !default;
 
@@ -40,17 +40,17 @@ $dp-token-color-brand-cta-contrast:             $dp-color-white !default;
 // The [header] tokens style both the pageheader & main navigation.
 // The value of [header(-<variant>)] should pass AAA contrast check with the value of [header(-<variant>)-contrast].
 // - Default main nav item colors, match fullscreen nav bar background + mobile current item
-$dp-token-color-brand-header:                   $dp-color-brand-main-base !default;
+$dp-token-color-brand-header:                   $dp-color-brand-main !default;
 $dp-token-color-brand-header-contrast:          $dp-color-white !default;
 // - Highlighted state for main nav items, matches pageheader colors
 $dp-token-color-brand-header-alt:               $dp-color-brand-alt-base !default;
 $dp-token-color-brand-header-alt-contrast:      $dp-color-white !default;
 // - Hover state for main nav items, matches :active state for mobile item
 $dp-token-color-brand-header-active:            $dp-color-neutral-light-3 !default;
-$dp-token-color-brand-header-active-contrast:   $dp-color-brand-main-base !default;
+$dp-token-color-brand-header-active-contrast:   $dp-color-brand-main !default;
 
 // The [nav-alt] tokens control the appearance of branded secondary navigation (project switcher, footer).
-$dp-token-color-brand-nav-alt-link:             $dp-color-brand-main-base !default;
+$dp-token-color-brand-nav-alt-link:             $dp-color-brand-main !default;
 $dp-token-color-brand-nav-alt-link-hover:       $dp-color-brand-highlight-base !default;
 $dp-token-color-brand-nav-alt-alt:              $dp-color-neutral-dark-1 !default;
 $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !default;

@@ -24,7 +24,7 @@
             color: $dp-color-text-default; // May be adapted to a11y-datepicker theming, or vice versa.
 
             &:hover {
-                border: $item-border-thickness solid $dp-color-brand-main-base;
+                border: $item-border-thickness solid $dp-color-brand-main;
                 cursor: pointer;
             }
 

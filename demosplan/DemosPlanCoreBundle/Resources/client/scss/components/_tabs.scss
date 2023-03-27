@@ -19,7 +19,7 @@
 
 //  placeholders
 %tabs-btn-color {
-    background-color: $dp-color-brand-main-base;
+    background-color: $dp-color-brand-main;
     color: $dp-color-brand-main-contrast;
 }
 
@@ -128,7 +128,7 @@
         overflow-y: hidden;
 
         .tab-header {
-            border-bottom: 1px solid $dp-color-brand-main-base;
+            border-bottom: 1px solid $dp-color-brand-main;
 
             .tab {
                 margin: 0;
@@ -148,7 +148,7 @@
                 &.active,
                 &:hover {
                     @extend %tabs-btn-color;
-                    background: $dp-color-brand-main-base;
+                    background: $dp-color-brand-main;
                 }
             }
         }
