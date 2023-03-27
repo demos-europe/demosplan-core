@@ -24,8 +24,8 @@
 }
 
 %tabs-btn-color-active {
-    background-color: $dp-color-white;
-    color: $dp-color-brand-highlight-base;
+    background-color: $dp-color-brand-highlight-contrast;
+    color: $dp-color-brand-highlight;
 }
 
 // Contains tab-nav. Tab content is a sibling of .c-tabs.

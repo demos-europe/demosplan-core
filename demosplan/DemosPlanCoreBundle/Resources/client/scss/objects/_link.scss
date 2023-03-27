@@ -72,7 +72,7 @@
             @include keyboard-focus;
 
             pointer-events: none;
-            color: $dp-color-brand-highlight-base;
+            color: $dp-color-brand-highlight;
             text-decoration: #{$dp-links-textdecoration-hover};
         }
     }
