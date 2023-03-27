@@ -10,6 +10,18 @@
 @use 'sass:color';
 @use 'sass:math';
 
+
+// Variables for o-form
+$form-border-color: $dp-color-neutral-light-1;
+$form-color: $dp-color-neutral-base;
+$form-border-width: 1px;
+$form-radius: $dp-input-radius;
+$form-background-disabled: $dp-color-neutral-light-3;
+$form-color-disabled: $dp-color-neutral-base;
+$form-lineheight: 1.3em !important; // Remove the !important once there is no more element styling
+$form-line-height: 1.3em; // use this for further calc() operations
+$form-multiselect-selected-background: $dp-color-neutral-light-3;
+
 ////
 /// @group objects
 ////
@@ -104,7 +116,7 @@ textarea {
     padding-left: $inuit-base-spacing-unit--tiny;
 
     border: 2px solid $dp-color-border-default;
-    color: $default-input-color;
+    color: $form-color;
     cursor: text;
 
     font-family: $normal-font-family;
@@ -180,7 +192,7 @@ input[type='file'] {
 
     background: transparent;
     border: none;
-    color: $default-input-color;
+    color: $form-color;
     cursor: pointer;
 }
 
@@ -197,7 +209,7 @@ label input[type='radio'] {
 select {
     border: 2px solid $dp-color-border-default;
     background-color: $dp-color-white;
-    color: $default-input-color;
+    color: $form-color;
     cursor: default;
 
     font-family: $normal-font-family;
@@ -272,18 +284,6 @@ input.disabled {
     font-weight: $normal-font-weight;
 }
 
-
-// Variables for o-form
-$form-border-color: $dp-color-neutral-light-1;
-$form-color: $dp-color-neutral-base;
-$form-border-width: 1px;
-$form-radius: $dp-input-radius;
-$form-background-disabled: $dp-color-neutral-light-3;
-$form-color-disabled: $dp-color-neutral-base;
-$form-lineheight: 1.3em !important; // Remove the !important once there is no more element styling
-$form-line-height: 1.3em; // use this for further calc() operations
-
-$form-multiselect-selected-background: $dp-color-neutral-light-3;
 
 .o-form {
     $element-spacing-vertical: $dp-form-element-spacing-vertical;
