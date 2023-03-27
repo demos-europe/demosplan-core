@@ -57,6 +57,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("feature_orga_get")
      */
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
@@ -95,6 +96,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     options={"expose": true},
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_organisations")
      *
      * @return APIResponse
@@ -274,6 +276,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"DELETE"},
      *     name="organisation_delete"
      * )
+     *
      * @DplanPermissions("feature_orga_delete")
      */
     public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
@@ -308,6 +311,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"POST"},
      *     name="organisation_create"
      * )
+     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return APIResponse
@@ -356,6 +360,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *     methods={"PATCH"},
      *     name="organisation_update"
      * )
+     *
      * @DplanPermissions("feature_orga_edit")
      *
      * @return APIResponse
