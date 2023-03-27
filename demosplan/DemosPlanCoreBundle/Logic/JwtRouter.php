@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -31,7 +32,7 @@ class JwtRouter extends Router
         JWTTokenManagerInterface $jwtManager,
         ProcedureRepository $procedureRepository,
         RouterInterface $router,
-        protected readonly CurrentContextProvider $contextProvider
+        protected readonly UserService $userService
     ) {
         $this->jwtManager = $jwtManager;
         parent::__construct($globalConfig, $procedureRepository, $router);
@@ -39,9 +40,8 @@ class JwtRouter extends Router
 
     public function generate($route, $parameters = [], $referenceType = self::ABSOLUTE_URL): string
     {
-        $customer = $this->contextProvider->getCurrentCustomer();
-
-        $apiAuthorization = $this->jwtManager->create(new AiApiUser($customer));
+        $aiApiUser = $this->userService->getValidUser(AiApiUser::AI_API_USER_LOGIN);
+        $apiAuthorization = $this->jwtManager->create($aiApiUser);
         if (!array_key_exists('jwt', $parameters)) {
             $parameters['jwt'] = $apiAuthorization;
         }
