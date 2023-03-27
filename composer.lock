@@ -3784,16 +3784,16 @@
         },
         {
             "name": "enqueue/fs",
-            "version": "0.10.16",
+            "version": "0.10.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/fs.git",
-                "reference": "74c26477130ad69376c9b4dabbceaa462063c8fe"
+                "reference": "e6eae250cdefbbf415c89996199f81c6e4b76c95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/74c26477130ad69376c9b4dabbceaa462063c8fe",
-                "reference": "74c26477130ad69376c9b4dabbceaa462063c8fe",
+                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/e6eae250cdefbbf415c89996199f81c6e4b76c95",
+                "reference": "e6eae250cdefbbf415c89996199f81c6e4b76c95",
                 "shasum": ""
             },
             "require": {
@@ -3844,7 +3844,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2022-02-16T11:14:49+00:00"
+            "time": "2023-02-26T03:18:02+00:00"
         },
         {
             "name": "enqueue/null",
