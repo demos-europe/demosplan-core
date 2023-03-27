@@ -139,7 +139,7 @@ h6 {
 }
 
 a {
-    color: $dp-color-interactive-base;
+    color: $dp-color-interactive-default;
     text-decoration: #{$dp-links-textdecoration};
 
     @if ($transition-nav == true) {

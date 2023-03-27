@@ -86,7 +86,7 @@
             }
 
             &__remove:hover {
-                background: $dp-color-interactive-base;
+                background: $dp-color-interactive-default;
                 color: $dp-color-white;
             }
         }
@@ -168,7 +168,7 @@
         .range-handle {
             position: relative;
             font-size: $dp-token-font-size-large;
-            color: $dp-color-interactive-base;
+            color: $dp-color-interactive-default;
 
             &::before {
                 content: '|';
@@ -185,7 +185,7 @@
                 z-index: 10000;
 
                 border-radius: 50%;
-                background-color: $dp-color-interactive-base;
+                background-color: $dp-color-interactive-default;
                 cursor: pointer;
 
                 &:hover {
@@ -197,7 +197,7 @@
                 }
 
                 &.is-active {
-                    border: 2px solid $dp-color-interactive-base;
+                    border: 2px solid $dp-color-interactive-default;
                     background-color: $dp-color-white;
                 }
             }

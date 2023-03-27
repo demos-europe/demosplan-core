@@ -49,7 +49,7 @@
         @if $outline {
             // The outline is combined with a bright background to let the focused element stand out even more.
             background-color: $dp-color-white;
-            outline: 2px solid $dp-color-interactive-base;
+            outline: 2px solid $dp-color-interactive-default;
         }
 
         @if $color {

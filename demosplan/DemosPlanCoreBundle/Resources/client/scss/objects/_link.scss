@@ -28,7 +28,7 @@
 
         &,
         &:visited {
-            color: $dp-color-interactive-base;
+            color: $dp-color-interactive-default;
         }
 
         &:hover,
@@ -41,7 +41,7 @@
             @extend %disabled-opacity;
 
             &:hover {
-                color: $dp-color-interactive-base;
+                color: $dp-color-interactive-default;
             }
         }
     }

@@ -33,7 +33,7 @@
 // Primary button
 $dp-button-color:                       $dp-color-white !default;
 $dp-button-color-hover:                 $dp-color-white !default;
-$dp-button-bg-color:                    $dp-color-interactive-base !default;
+$dp-button-bg-color:                    $dp-color-interactive-default !default;
 $dp-button-bg-color-hover:              $dp-color-interactive-hover !default;
 $dp-button-bg-color-active:             $dp-color-interactive-active !default;
 // Secondary button
@@ -212,7 +212,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-base;
+        box-shadow: 0 0 0 2px $dp-color-interactive-default;
         border-color: transparent !important;
     }
 
@@ -326,7 +326,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-base;
+        box-shadow: 0 0 0 2px $dp-color-interactive-default;
         border-color: transparent !important;
     }
 
@@ -343,7 +343,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
 
     border-radius: $dp-token-rounded-small;
 
-    color: $dp-color-interactive-base;
+    color: $dp-color-interactive-default;
     background-color: $dp-color-white;
 
     &:not(:disabled, :active, .is-disabled):hover {
@@ -418,7 +418,7 @@ a.is-disabled {
 
     background: transparent;
     border: none;
-    color: $dp-color-interactive-base;
+    color: $dp-color-interactive-default;
     cursor: pointer;
 
     font-weight: $bold-font-weight; // does not work for fonts that need a "bold" font style
@@ -452,7 +452,7 @@ a.is-disabled {
 //  @TODO move icons inside buttons (which means, change <input type="button"> to <button>)
 //  @deprecated See above.
 .btn-icns-icon {
-    color: $dp-color-interactive-base;
+    color: $dp-color-interactive-default;
 
     font-size: .9em;
 

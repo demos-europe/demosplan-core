@@ -29,7 +29,7 @@ $map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
 $map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
 
 $map-layer-color: $default-font-color;
-$map-layer-color-hover: $dp-color-interactive-base;
+$map-layer-color-hover: $dp-color-interactive-default;
 $map-layer-color-active: $dp-token-color-brand-cta;
 $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
@@ -113,7 +113,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             width: 0;
 
             // Like primary button background, this element shares the color with links.
-            background-color: $dp-color-interactive-base;
+            background-color: $dp-color-interactive-default;
             transition: width 250ms;
         }
 
@@ -443,7 +443,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  Huge layer toggle items in map area
         &__layer-button {
-            background-color: $dp-color-interactive-base;
+            background-color: $dp-color-interactive-default;
 
             &:hover {
                 background-color: $dp-color-interactive-hover;
@@ -487,7 +487,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             padding: 0;
 
             background-color: transparent;
-            color: $dp-color-interactive-base;
+            color: $dp-color-interactive-default;
             cursor: pointer !important;
 
             font-size: $dp-token-font-size-medium;

@@ -31,7 +31,7 @@
         color: $dp-color-interactive-muted;
 
         .row:hover & {
-            color: $dp-color-interactive-base;
+            color: $dp-color-interactive-default;
         }
 
         &:hover {
@@ -52,7 +52,7 @@
 
         i,
         span {
-            color: $dp-color-interactive-base;
+            color: $dp-color-interactive-default;
             display: inline;
             font-size: 1em;
         }

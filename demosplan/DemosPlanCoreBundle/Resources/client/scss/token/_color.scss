@@ -19,7 +19,7 @@
 // Link color is applied to all links that should be branded... that is, basically, all links.
 // All 3 colors should pass AAA contrast check with $dp-color-white as background.
 // @FIXME check overrides. these do not have to be defined here.
-$dp-color-interactive-base:                     $dp-color-brand-main-base !default;
+$dp-color-interactive-default:                  $dp-color-brand-main-base !default;
 $dp-color-interactive-hover:                    $dp-color-brand-highlight-contrast !default;
 $dp-color-interactive-active:                   $dp-color-brand-highlight-dark-1 !default;
 
@@ -62,11 +62,11 @@ $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !de
 
 // Lightest background color that is discernible on normal monitors.
 // May disappear on high contrast monitors, projectors and the like.
-// Should pass AA contrast check with $default-font-color and $dp-color-interactive-base
+// Should pass AA contrast check with $default-font-color and $dp-color-interactive-default
 $dp-token-color-ui-bg-neutral-light:            $dp-color-neutral-light-4;
 
 // Medium background color for boxes etc.
-// Should pass AA contrast check with $default-font-color and $dp-color-interactive-base
+// Should pass AA contrast check with $default-font-color and $dp-color-interactive-default
 $dp-token-color-ui-bg-neutral-medium:           $dp-color-neutral-light-3;
 
 // Text that should be readable but appear less dark
