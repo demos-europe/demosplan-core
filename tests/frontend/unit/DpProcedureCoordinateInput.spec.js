@@ -8,7 +8,7 @@
  */
 
 import DpProcedureCoordinateInput from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinateInput'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpProcedureCoordinateInput', () => {
   it('should be named DpProcedureCoordinateInput', () => {

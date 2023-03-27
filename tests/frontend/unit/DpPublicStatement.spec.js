@@ -10,7 +10,7 @@
 import { createLocalVue } from '@vue/test-utils'
 import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement'
 import { generateMenuItems } from '@DpJs/components/statement/publicStatementLists/menuItems'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpPublicStatement', () => {
   it('should be an object', () => {

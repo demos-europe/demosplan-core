@@ -8,7 +8,7 @@
  */
 
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 import Vuex from 'vuex'
 

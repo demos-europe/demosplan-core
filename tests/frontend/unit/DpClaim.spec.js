@@ -9,7 +9,7 @@
 
 import { createLocalVue } from '@vue/test-utils'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpClaim', () => {
   it('should be an object', () => {

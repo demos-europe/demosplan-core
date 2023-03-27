@@ -9,7 +9,7 @@
 
 import $ from 'jquery'
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import Vuex from 'vuex'
 
 global.$ = $

@@ -9,7 +9,7 @@
 
 import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
 import LayersStore from '@DpJs/store/map/Layers'
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 import Vuex from 'vuex'
 

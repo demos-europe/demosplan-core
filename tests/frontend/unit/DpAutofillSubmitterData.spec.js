@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import shallowMountWithGlobalMocks from '@DemosPlanCoreBundle/VueConfigLocal'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 // Component to test
 import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
