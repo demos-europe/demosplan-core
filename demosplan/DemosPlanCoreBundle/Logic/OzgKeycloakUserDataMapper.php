@@ -22,7 +22,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -42,9 +43,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Supposed to handle the request from @see OzgKeycloakAuthenticator to log in a user. Therefore, the information from
- * keycloak will be passed by @see OzgKeycloakResponseValueObject.
+ * keycloak will be passed by @see OzgKeycloakUserData.
  */
-class OzgKeycloakUserLogin
+class OzgKeycloakUserDataMapper
 {
     private CustomerService $customerService;
     private DepartmentRepository $departmentRepository;
@@ -54,25 +55,25 @@ class OzgKeycloakUserLogin
     private OrgaRepository $orgaRepository;
     private OrgaService $orgaService;
     private OrgaTypeRepository $orgaTypeRepository;
-    private OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject;
+    private KeycloakUserDataInterface $ozgKeycloakUserData;
     private RoleRepository $roleRepository;
     private UserRepository $userRepository;
     private UserRoleInCustomerRepository $userRoleInCustomerRepository;
     private UserService $userService;
     private ValidatorInterface $validator;
     private const ROLETITLE_TO_ROLECODE = [
-        // 'Mandanten-Administration'          => Role::ORGANISATION_ADMINISTRATION,
+        // 'Mandanten Administration'          => Role::ORGANISATION_ADMINISTRATION,
         'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
-        'Fachplanung-Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
+        'Fachplanung Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
         // 'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
-        'Fachplanung-Administration'        => Role::PLANNING_AGENCY_ADMIN,
+        'Fachplanung Administration'        => Role::PLANNING_AGENCY_ADMIN,
         // 'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
-        'Fachplanung-Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
-        // 'Verfahrens-Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
-        'Institutions-Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
-        'Institutions-Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
+        'Fachplanung Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
+        // 'Verfahrens Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
+        'Institutions Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
+        'Institutions Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
         'Support'                           => Role::PLATFORM_SUPPORT,
-        'Plattform-Administration'          => Role::CUSTOMER_MASTER_USER,
+        'Plattform Administration'          => Role::CUSTOMER_MASTER_USER,
         'Redaktion'                         => Role::CONTENT_EDITOR,
         'Privatperson/Angemeldet'           => Role::CITIZEN,
         'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
@@ -109,42 +110,41 @@ class OzgKeycloakUserLogin
     }
 
     /**
+     * Maps incoming data to dplan:user.
+     * Creates
+     *
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    public function handleKeycloakData(OzgKeycloakResponseValueObject $ozgKeycloakResponseValueObject): User
+    public function mapUserData(KeycloakUserDataInterface $ozgKeycloakUserData): User
     {
-        $this->ozgKeycloakResponseValueObject = $ozgKeycloakResponseValueObject;
-        // 1 get Desired Roles
-        $requestedRoles = $this->mapKeycloakRoleNamesToDplanRoles();
-        // 2 handle Organisation / load it / update it / create it --- handle special case CITIZEN
-        $requestedOrga = $this->getOrgaAndHandleRequestedOrgaData($requestedRoles);
-        // 3 handle user / load it / update it / create it / and add User to Orga and Department
+        $this->ozgKeycloakUserData = $ozgKeycloakUserData;
+        $requestedRoles = $this->mapUserRoleData();
+        $requestedOrganisation = $this->mapUserOrganisationData($requestedRoles);
+        $existingUser = $this->tryToFindExistingUser();
 
-        $existingUser = $this->fetchExistingUser();
-
-        if ($existingUser) {
-            // Update user information from keycloak
-            $existingUser = $this->updateExistingDplanUser($existingUser, $requestedOrga, $requestedRoles);
-
-            return $existingUser;
+        if ($existingUser instanceof User) {
+            // Update existing user with keycloak data
+            return $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
         }
 
-        // 4) Create new User using keycloak data
-        $newUser = $this->tryCreateNewUser($requestedOrga, $requestedRoles);
-
-        return $newUser;
+        // In case of no user was found, create a new User using keycloak data
+        return $this->createNewUser($requestedOrganisation, $requestedRoles);
     }
 
     /**
+     * Creates a new organisation in case of incoming organisation could not match with existing organisations.
+     * In case of incoming organisation can be found, it will be updated with incoming data.
+     * Also handles the special case of citizen organisation
+     *
      * @param array<int, Role> $requestedRoles
      *
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    private function getOrgaAndHandleRequestedOrgaData(array $requestedRoles): Orga
+    private function mapUserOrganisationData(array $requestedRoles): Orga
     {
-        $existingUser = $this->fetchExistingUser();
+        $existingUser = $this->tryToFindExistingUser();
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupOrgaByGwId();
 
@@ -152,11 +152,11 @@ class OzgKeycloakUserLogin
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
         if ($this->isUserCitizen($requestedRoles)
-            || ($existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
+            || (null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
         ) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
-            if ($existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
+            if (null !== $existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
@@ -168,14 +168,17 @@ class OzgKeycloakUserLogin
         // in case an organisation could be found using the given organisation attributes
         // and an existing user could be found using the given user attributes:
         // If the organisations are different - the assumption is that the user wants to change the orga.
-        $moveUserToAnotherOrganisation = $existingUser && $existingOrga && $existingUser->getOrga()
-            && $existingUser->getOrga() !== $existingOrga;
+        $moveUserToAnotherOrganisation =
+            null !== $existingUser &&
+            null !== $existingOrga &&
+            null !== $existingUser->getOrga() &&
+            $existingUser->getOrga()->getId() !== $existingOrga->getId();
 
         if ($moveUserToAnotherOrganisation) {
             $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
-        if ($existingOrga) {
+        if (null !== $existingOrga) {
             return $this->updateOrganisation($existingOrga, $requestedRoles);
         }
 
@@ -222,13 +225,13 @@ class OzgKeycloakUserLogin
         // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
         $existingOrga->addCustomer($customer);
-        $existingOrga->setGwId($this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId());
+        $existingOrga->setGwId($this->ozgKeycloakUserData->getOrganisationId());
         /*
          * This check prevents the case that someone tries to change the orga name to
          * @link User::ANONYMOUS_USER_ORGA_NAME. This name has to stay unique for the Citizen Orga.
          */
-        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
-            $existingOrga->setName($this->ozgKeycloakResponseValueObject->getVerfahrenstraeger());
+        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
+            $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
@@ -260,8 +263,8 @@ class OzgKeycloakUserLogin
         $this->logger->info(
             'Organisation updated',
             [
-                'OrgaName'           => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
-                'gwId'               => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId(),
+                'OrgaName'           => $this->ozgKeycloakUserData->getOrganisationName(),
+                'gwId'               => $this->ozgKeycloakUserData->getOrganisationId(),
                 'customer'           => $customer->getName(),
                 'requestedOrgaTypes' => $orgaTypesNeededToBeAccepted,
                 'newOrgaId'          => $existingOrga->getId(),
@@ -303,18 +306,18 @@ class OzgKeycloakUserLogin
         $department = new Department();
         $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
         $this->entityManager->persist($department);
-        if (User::ANONYMOUS_USER_ORGA_NAME === $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger()) {
+        if (User::ANONYMOUS_USER_ORGA_NAME === $this->ozgKeycloakUserData->getOrganisationName()) {
             throw new AuthenticationException('The Organisation name is reserved for citizen!');
         }
 
         $orgaData = [
             'customer'                  => $this->customerService->getCurrentCustomer(),
-            'name'                      => $this->ozgKeycloakResponseValueObject->getVerfahrenstraeger(),
+            'name'                      => $this->ozgKeycloakUserData->getOrganisationName(),
             'registrationStatuses'      => $registrationStatuses,
         ];
-        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
+        if ('' !== $this->ozgKeycloakUserData->getOrganisationId()) {
             // if we get this value set it
-            $orgaData['gwId'] = $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId();
+            $orgaData['gwId'] = $this->ozgKeycloakUserData->getOrganisationId();
         }
 
         $orga = $this->orgaService->addOrga($orgaData);
@@ -338,7 +341,7 @@ class OzgKeycloakUserLogin
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    private function tryCreateNewUser(Orga $userOrga, array $requestedRoles): ?User
+    private function createNewUser(Orga $userOrga, array $requestedRoles): ?User
     {
         // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
         if (User::ANONYMOUS_USER_ORGA_ID === $userOrga->getId()) {
@@ -346,10 +349,11 @@ class OzgKeycloakUserLogin
         }
 
         $userData = [
-            'lastname'      => $this->ozgKeycloakResponseValueObject->getVollerName(),
-            'email'         => $this->ozgKeycloakResponseValueObject->getEmailAdresse(),
-            'login'         => $this->ozgKeycloakResponseValueObject->getNutzerId(),
-            'gwId'          => $this->ozgKeycloakResponseValueObject->getProviderId(),
+            'firstname'     => $this->ozgKeycloakUserData->getFirstName(),
+            'lastname'      => $this->ozgKeycloakUserData->getLastName(),
+            'email'         => $this->ozgKeycloakUserData->getEmailAddress(),
+            'login'         => $this->ozgKeycloakUserData->getUserName(),
+            'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
             'department'    => $this->getDepartmentToSetForUser($userOrga),
@@ -411,26 +415,32 @@ class OzgKeycloakUserLogin
     }
 
     /**
+     * Map related roles of data stored in this->ozgKeycloakUserData.
+     *
      * @return array<int, Role>
      *
      * @throws AuthenticationCredentialsNotFoundException
      */
-    private function mapKeycloakRoleNamesToDplanRoles(): array
+    private function mapUserRoleData(): array
     {
-        $desiredRoleNames = $this->ozgKeycloakResponseValueObject->getRolleDiPlanBeteiligung();
+        $rolesOfCustomer = $this->ozgKeycloakUserData->getCustomerRoleRelations();
+        $customer = $this->customerService->getCurrentCustomer();
         $recognizedRoleCodes = [];
         $unIdentifiedRoles = [];
         // If we received partially recognizable roles - we try to ignore the garbage data...
         // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        foreach ($desiredRoleNames as $desiredRoleName) {
-            if (array_key_exists($desiredRoleName, self::ROLETITLE_TO_ROLECODE)) {
-                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$desiredRoleName];
-            } else {
-                $unIdentifiedRoles[] = $desiredRoleName;
+        if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
+            foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
+                $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
+                if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
+                } else {
+                    $unIdentifiedRoles[] = $roleName;
+                }
             }
         }
         if (0 !== count($unIdentifiedRoles)) {
-            $this->logger->info('at least one non recognizable role was requested!', $unIdentifiedRoles);
+            $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
         if (0 === count($requestedRoles)) {
@@ -470,13 +480,13 @@ class OzgKeycloakUserLogin
 
     private function tryLookupOrgaByGwId(): ?Orga
     {
-        $orga = null;
-        if ('' !== $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()) {
-            $orga = $this->orgaRepository
-                ->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getVerfahrenstraegerGatewayId()]);
+        $organisation = null;
+        if ('' !== $this->ozgKeycloakUserData->getOrganisationId()) {
+            $organisation = $this->orgaRepository
+                ->findOneBy(['gwId' => $this->ozgKeycloakUserData->getOrganisationId()]);
         }
 
-        return $orga;
+        return $organisation;
     }
 
     /**
@@ -505,31 +515,37 @@ class OzgKeycloakUserLogin
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getGwId(),
-            $this->ozgKeycloakResponseValueObject->getProviderId()
+            $this->ozgKeycloakUserData->getUserId()
         )) {
-            $dplanUser->setGwId($this->ozgKeycloakResponseValueObject->getProviderId());
+            $dplanUser->setGwId($this->ozgKeycloakUserData->getUserId());
         }
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getLogin(),
-            $this->ozgKeycloakResponseValueObject->getNutzerId()
+            $this->ozgKeycloakUserData->getUserName()
         )) {
-            $dplanUser->setLogin($this->ozgKeycloakResponseValueObject->getNutzerId());
+            $dplanUser->setLogin($this->ozgKeycloakUserData->getUserName());
         }
 
         if ($this->hasUserAttributeToUpdate(
             $dplanUser->getEmail(),
-            $this->ozgKeycloakResponseValueObject->getEmailAdresse()
+            $this->ozgKeycloakUserData->getEmailAddress()
         )) {
-            $dplanUser->setEmail($this->ozgKeycloakResponseValueObject->getEmailAdresse());
+            $dplanUser->setEmail($this->ozgKeycloakUserData->getEmailAddress());
         }
 
         if ($this->hasUserAttributeToUpdate(
-            $dplanUser->getFullname(),
-            $this->ozgKeycloakResponseValueObject->getVollerName()
+            $dplanUser->getFirstname(),
+            $this->ozgKeycloakUserData->getFirstName()
         )) {
-            $dplanUser->setFirstname('');
-            $dplanUser->setLastname($this->ozgKeycloakResponseValueObject->getVollerName());
+            $dplanUser->setFirstname($this->ozgKeycloakUserData->getFirstName());
+        }
+
+        if ($this->hasUserAttributeToUpdate(
+            $dplanUser->getLastname(),
+            $this->ozgKeycloakUserData->getLastName()
+        )) {
+            $dplanUser->setLastname($this->ozgKeycloakUserData->getLastName());
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
@@ -591,7 +607,14 @@ class OzgKeycloakUserLogin
         return $dplanUserAttribute !== $keycloakUserAttribute;
     }
 
-    private function fetchExistingUser(): ?User
+    /**
+     * Try to find a existing user based on the following data in the named order.´:
+     * - gatewayId
+     * - login
+     * - email
+     * Will return the user in case of user was found, otherwise null.
+     */
+    private function tryToFindExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
         $existingUser = $this->fetchExistingUserViaGatewayId();
@@ -609,16 +632,16 @@ class OzgKeycloakUserLogin
 
     private function fetchExistingUserViaGatewayId(): ?User
     {
-        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakResponseValueObject->getProviderId()]);
+        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakUserData->getUserId()]);
     }
 
     private function fetchExistingUserViaLoginAttribute(): ?User
     {
-        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakResponseValueObject->getNutzerId()]);
+        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakUserData->getUserName()]);
     }
 
     private function fetchExistingUserViaEmail(): ?User
     {
-        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakResponseValueObject->getEmailAdresse()]);
+        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakUserData->getEmailAddress()]);
     }
 }

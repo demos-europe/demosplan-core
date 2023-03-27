@@ -518,6 +518,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
 
