@@ -24,7 +24,6 @@
 $dp-bg-color:                           $dp-color-white !default;
 
 // Globals > Font colors
-$default-font-color:                    $dp-color-neutral-dark-1 !default;
 $deactivated-font-color:                $dp-color-neutral-base !default;
 
 // Globals > Forms
@@ -58,6 +57,6 @@ $pager-color-active-bg:                 $dp-color-neutral-light-1 !default;
 
 
 // @TODO sort into above or move to token
-$h1-color:                              $default-font-color !default;
-$h2-color:                              $default-font-color !default;
-$h3-color:                              $default-font-color !default;
+$h1-color:                              $dp-color-text-default !default;
+$h2-color:                              $dp-color-text-default !default;
+$h3-color:                              $dp-color-text-default !default;

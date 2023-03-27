@@ -62,11 +62,11 @@ $dp-token-color-brand-nav-alt-bg:               $dp-color-brand-main-light-3 !de
 
 // Lightest background color that is discernible on normal monitors.
 // May disappear on high contrast monitors, projectors and the like.
-// Should pass AA contrast check with $default-font-color and $dp-color-interactive-default
+// Should pass AA contrast check with $dp-color-text-default and $dp-color-interactive-default
 $dp-token-color-ui-bg-neutral-light:            $dp-color-neutral-light-4;
 
 // Medium background color for boxes etc.
-// Should pass AA contrast check with $default-font-color and $dp-color-interactive-default
+// Should pass AA contrast check with $dp-color-text-default and $dp-color-interactive-default
 $dp-token-color-ui-bg-neutral-medium:           $dp-color-neutral-light-3;
 
 // Text that should be readable but appear less dark

@@ -59,7 +59,7 @@
     &__toggle {
         @include keyboard-focus;
 
-        color: $default-font-color;
+        color: $dp-color-text-default;
 
         &:hover {
             color: $dp-color-interactive-hover;

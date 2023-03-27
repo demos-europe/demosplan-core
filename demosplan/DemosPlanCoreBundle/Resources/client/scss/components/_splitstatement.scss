@@ -72,7 +72,7 @@
 
             &:hover {
                 background: $dp-color-neutral-light-3;
-                color: $default-font-color;
+                color: $dp-color-text-default;
             }
 
             &__remove {
@@ -341,7 +341,7 @@
             // Default trigger
             .multiselect__placeholder {
                 display: block;
-                color: $default-font-color;
+                color: $dp-color-text-default;
             }
 
             // Trigger indicating at least one selected option

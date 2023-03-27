@@ -28,7 +28,7 @@ $map-height:                531px;
 $map-color-draw-fill:       $dp-token-color-ui-map-draw-fill;
 $map-color-draw-stroke:     $dp-token-color-ui-map-draw-stroke;
 
-$map-layer-color: $default-font-color;
+$map-layer-color: $dp-color-text-default;
 $map-layer-color-hover: $dp-color-interactive-default;
 $map-layer-color-active: $dp-token-color-brand-cta;
 $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
@@ -81,13 +81,13 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
     margin: 0;
     width: 100%;
 
-    color: $default-font-color;
+    color: $dp-color-text-default;
     cursor: pointer;
     list-style: none;
 }
 
 %map-toolbar-list-item-disabled {
-    color: $default-font-color;
+    color: $dp-color-text-default;
     cursor: default;
 }
 

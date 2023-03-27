@@ -27,7 +27,7 @@ $tooltip-width: 400px;
 
     padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small $inuit-base-spacing-unit--tiny * 1.5;
 
-    background-color: $default-font-color;
+    background-color: $dp-color-text-default;
     color: $dp-color-text-on-dark;
 
     font-family: $normal-font-family;
@@ -75,7 +75,7 @@ $tooltip-width: 400px;
         margin: - $inuit-base-spacing-unit--tiny;
         width: $inuit-base-spacing-unit--small;
 
-        background: $default-font-color;
+        background: $dp-color-text-default;
 
         transform: rotate(45deg);
 
@@ -139,7 +139,7 @@ $tooltip-width: 400px;
 //  Tooltip trigger with question mark icon
 .o-tooltip--question-circle {
     @extend .fa;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 
     &::before {
         content: $fa-var-question-circle; // variable from font awesome core scss holding the question circle
@@ -150,7 +150,7 @@ $tooltip-width: 400px;
 
 .o-tooltip--exclamation-circle {
     @extend .fa;
-    color: $default-font-color;
+    color: $dp-color-text-default;
 
     &::before {
         content: $fa-var-exclamation-circle; // variable from font awesome core scss holding the question circle
