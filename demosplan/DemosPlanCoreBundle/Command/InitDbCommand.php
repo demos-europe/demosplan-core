@@ -79,6 +79,7 @@ class InitDbCommand extends CoreCommand
         try {
             if ($this->sessionHandler instanceof PdoSessionHandler) {
                 $this->sessionHandler->createTable();
+                $output->note('Session table created');
             } else {
                 $output->note('Sessions are not configured to be stored in the database, sessions table will not be created.');
             }

@@ -351,3 +351,11 @@
         {% endblock %}
     </fieldset>
 {% endif %}
+
+
+{% block buttonRow %}
+    {{ uiComponent('button-row', {
+        primary: uiComponent('button', { type: 'submit' }),
+        secondary: uiComponent('button', { color: 'secondary', type: 'reset' })
+    }) }}
+{% endblock buttonRow %}
