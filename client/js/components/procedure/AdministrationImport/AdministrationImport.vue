@@ -96,6 +96,7 @@ export default {
   data () {
     return {
       activeTabId: '',
+      allComponentsLoaded: false,
       asyncComponents: []
     }
   },
@@ -165,8 +166,13 @@ export default {
   },
 
   mounted () {
-    this.loadComponents('import.tabs')
-    this.loadComponents('email.import')
+    Promise.allSettled([
+      this.loadComponents('import.tabs'),
+      this.loadComponents('email.import')
+    ])
+      .then(() => {
+        this.allComponentsLoaded = true
+      })
   }
 }
 </script>
