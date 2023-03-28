@@ -28,14 +28,16 @@
     </dp-tab>
   </dp-tabs>
 
-  <dp-loading v-else class="u-mv" />
+  <dp-loading
+    v-else
+    class="u-mv" />
 </template>
 
 <script>
+import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import { DpLoading, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
-import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -176,6 +178,7 @@ export default {
     ])
       .then(() => {
         this.allComponentsLoaded = true
+        this.setActiveTabId()
       })
   }
 }
