@@ -60,9 +60,4 @@ describe('Layers', () => {
     StubStore.state.layers.apiData.included.splice(0, 1)
     expect(StubStore.state.layers.apiData).not.toEqual(StubStore.state.layers.originalApiData)
   })
-
-  /*
-   * Commit('setLayersAndCategoriesById', data);
-   * commit('setVisibilityGroups');
-   */
 })
