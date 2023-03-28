@@ -33,7 +33,7 @@ class ParametersProviderSubscriber extends BaseEventSubscriber
         ];
     }
 
-    private function processParameters(ParameterProviderEventInterface $event)
+    public function processParameters(ParameterProviderEventInterface $event)
     {
         $view = $event->getView();
         $parameters = $event->getParameters();
