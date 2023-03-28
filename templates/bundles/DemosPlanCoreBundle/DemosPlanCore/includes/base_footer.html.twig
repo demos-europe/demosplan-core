@@ -47,12 +47,14 @@
                 </a>
             {% endif %}
 
+            {% block termsofuse %}
             {% if hasPermission('area_terms_of_use') %}
             <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
                aria-label="{{ 'terms.of.use'|trans }}">
                 {{- "terms.of.use"|trans -}}
             </a>
             {% endif %}
+            {% endblock termsofuse %}
 
             {% if hasPermission('area_main_contact') %}
                 <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_contact') }}"
