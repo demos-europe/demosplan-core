@@ -9,7 +9,7 @@
 
 import { createLocalVue } from '@vue/test-utils'
 import Filter from '@DpJs/store/statement/Filter'
-import { filterList } from './Filter.mock'
+import { filterList } from '../__mocks__/Filter.mock'
 import Vuex from 'vuex'
 
 describe('FilterStore', () => {

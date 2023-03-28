@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { apiData } from './__mocks__/layer_json.mock'
+import { apiData } from '../__mocks__/layer_json.mock'
 import { createLocalVue } from '@vue/test-utils'
 import Layers from '@DpJs/store/map/Layers'
 import Vuex from 'vuex'
