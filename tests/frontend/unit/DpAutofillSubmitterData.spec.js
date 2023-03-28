@@ -13,7 +13,7 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 
 // Test data which is defined in Twig
-import Submitters from './DpAutofillSubmitterData.json'
+import Submitters from './__mocks__/DpAutofillSubmitterData.json'
 
 describe('Submitter', () => {
   it('should be an object', () => {
@@ -24,7 +24,6 @@ describe('Submitter', () => {
     expect(SubmitterComponent.name).toBe('DpAutofillSubmitterData')
   })
 
-  //  This represents permissions for Bob-HH + Bob-SH
   it.skip('renders correct markup with permission..SubmitterInvited but permission..SubmitterCitizens = false', () => {
     global.features = {
       featureInstitutionParticipation: true,
