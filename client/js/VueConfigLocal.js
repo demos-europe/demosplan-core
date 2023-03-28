@@ -27,8 +27,8 @@ import Vuex from 'vuex'
 /*
  * This is copied from DpVueCore.js
  * Since there is an issue with the hasOwnProp and it has to be loaded via
- * async/await with makes prblems in the jest context, this looked like a way to
- * make the tests run without refactor everything
+ * async/await which causes problems in the jest context, this looked like a way to
+ * make the tests run without refactoring everything
  */
 const DPVueCorePlugin = {
   install: function (VueCore) {
