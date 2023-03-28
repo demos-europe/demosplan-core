@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use Symfony\Component\HttpFoundation\Response;
 use DemosEurope\DemosplanAddon\Contracts\Events\ParameterProviderEventInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 
@@ -36,7 +37,7 @@ class ParametersProviderSubscriber extends BaseEventSubscriber
     {
         $view = $event->getView();
         $parameters = $event->getParameters();
-        $response = $event->getResponse();
+        $response = new Response();
         $this->viewRenderer->processRequestStatus();
         $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);
         $event->setParameters($parameters);
