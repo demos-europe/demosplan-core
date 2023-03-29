@@ -8,13 +8,17 @@
 </license>
 
 <template>
-  <dp-email-list
-    :init-emails="allowedEmailAddresses"
-    form-field-name="allowedSenderEmailAddresses[][fullAddress]" />
+  <div>
+    <dp-email-list
+      v-on:saved="saveAllowedSenderAddresses"
+      v-on:updated="updateAllowedSenderAddresses"
+      :init-emails="allowedEmailAddresses"
+      form-field-name="allowedSenderEmailAddresses[][fullAddress]" />
+  </div>
 </template>
 
 <script>
-import { dpApi } from '@demos-europe/demosplan-utils'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
 export default {
@@ -43,8 +47,11 @@ export default {
   },
 
   methods: {
-    fetchAllowedSenderAddresses () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'MaillaneConnection', procedure: this.procedureId })
+    fetchAllowedSenderAddresses() {
+      const url = Routing.generate('api_resource_list', {
+        resourceType: 'MaillaneConnection',
+        procedure: this.procedureId
+      })
       const params = {
         filter: {
           procedureFilter: {
@@ -59,7 +66,7 @@ export default {
         }
       }
 
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params, {serialize: true})
         .then(response => {
           if (response.data.data.length !== 0) {
             response.data.data[0].attributes.allowedSenderEmailAddresses.forEach(
@@ -72,7 +79,31 @@ export default {
         .catch((e) => {
           console.error(e)
         })
-    }
+    },
+
+    saveAllowedSenderAddresses(emailAddress) {
+      const payload = {
+        type: 'MaillaneConnection',
+        attributes: {
+          allowedSenderEmailAddresses: emailAddress
+        },
+        procedureId: this.procedureId
+      }
+
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MaillaneConnection' }), {}, { data: payload })
+    },
+
+    updateAllowedSenderAddresses(index, extraEmailAddress='') {
+      const payload = {
+        type: 'MaillaneConnection',
+        attributes: {
+          allowedSenderEmailAddresses: extraEmailAddress
+        },
+        procedureId: this.procedureId
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MaillaneConnection', resourceId: index }), {}, payload)
+    },
   },
 
   mounted () {

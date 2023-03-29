@@ -172,7 +172,10 @@ export default {
   },
 
   mounted () {
-    Promise.allSettled([this.loadComponents('import.tabs')])
+    Promise.allSettled([
+      this.loadComponents('import.tabs'),
+      this.loadComponents('email.import')
+    ])
       .then(() => {
         this.allComponentsLoaded = true
         this.setActiveTabId()
