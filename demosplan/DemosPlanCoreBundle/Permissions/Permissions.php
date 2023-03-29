@@ -341,17 +341,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_user_list',
                 'field_statement_recommendation',
             ]);
-
-            if ($this->isMemberOfPlanningOrganisation()) {
-                $this->enablePermissions([
-                    'area_institution_tag_manage',
-                    'feature_institution_tag_assign',
-                    'feature_institution_tag_create',
-                    'feature_institution_tag_delete',
-                    'feature_institution_tag_read',
-                    'feature_institution_tag_update',
-                ]);
-            }
         }
 
         if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) {
