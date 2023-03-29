@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceInterface;
@@ -1110,9 +1111,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
-                PostNewProcedureCreatedEventInterface::class
-            );
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']), PostNewProcedureCreatedEventInterface::class);
             if ($postNewProcedureCreatedEvent->hasCriticalEventConcerns()) {
                 $doctrineConnection->rollBack();
                 throw new CriticalConcernException('Critical concerns occurs', $postNewProcedureCreatedEvent->getCriticalEventConcerns());
@@ -1273,7 +1272,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             // delete Procedure
             $repository->delete($procedureId);
 
-            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData));
+            $this->eventDispatcher->dispatch(new PostProcedureDeletedEvent($procedureData), PostProcedureDeletedEventInterface::class);
 
             $this->logger->info('Procedure deleted: '.$procedureId);
         } finally {

@@ -28,10 +28,13 @@
     </dp-tab>
   </dp-tabs>
 
-  <dp-loading v-else class="u-mv" />
+  <dp-loading
+    v-else
+    class="u-mv" />
 </template>
 
 <script>
+import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
 import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
@@ -169,9 +172,13 @@ export default {
   },
 
   mounted () {
-    Promise.allSettled([this.loadComponents('import.tabs')])
+    Promise.allSettled([
+      this.loadComponents('import.tabs'),
+      this.loadComponents('email.import')
+    ])
       .then(() => {
         this.allComponentsLoaded = true
+        this.setActiveTabId()
       })
   }
 }
