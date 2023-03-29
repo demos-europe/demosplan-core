@@ -8,11 +8,12 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use function demosplan\DemosPlanAssessmentTableBundle\Logic\gettype;
 
 class ClusterCitizenInstitutionSorter implements ArraySorterInterface
 {

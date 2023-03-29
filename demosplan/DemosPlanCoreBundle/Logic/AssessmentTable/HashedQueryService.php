@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -19,6 +19,7 @@ use demosplan\DemosPlanProcedureBundle\Exception\FilterHashException;
 use demosplan\DemosPlanProcedureBundle\Repository\HashedQueryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
 use Exception;
+use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 
 class HashedQueryService
 {

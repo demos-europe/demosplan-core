@@ -8,12 +8,12 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
-
-use function array_key_exists;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use TypeError;
+use function array_key_exists;
+use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 
 /**
  * Class KeysAtEndSorter

@@ -8,13 +8,9 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use Closure;
-
-use function collect;
-use function date;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -41,12 +37,6 @@ use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
-
-use function explode;
-use function htmlspecialchars;
-use function is_array;
-use function is_string;
-
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
@@ -58,17 +48,22 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
-
-use function strlen;
-use function strtotime;
-use function substr;
-
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+use function collect;
+use function date;
+use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
+use function explode;
+use function htmlspecialchars;
+use function is_array;
+use function is_string;
+use function strlen;
+use function strtotime;
+use function substr;
 
 class AssessmentTableServiceOutput
 {

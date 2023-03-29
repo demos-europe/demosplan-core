@@ -10,17 +10,17 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Exception;
 
 /**
- * copies Statements within procedure.
+ * deletes Statements within procedure.
  *
  * You find general RPC API usage information
- * {@link http://dplan-documentation.demos-europe.eu/development/application-architecture/web-api/jsonrpc/ here}.
+ * {@link http://dplan-documentation.ad.berlin.demos-europe.eu/development/application-architecture/web-api/jsonrpc/ here}.
  * Accepted parameters by this route are the following:
  * ```
  * "params": {
@@ -29,16 +29,18 @@ use Exception;
  * ```
  * the statementIds field is required, however the array statementIds may be empty.
  **/
-class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
+class RpcBulkDeleteStatements extends AbstractRpcStatementBulkAction
 {
-    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-statements-bulk-copy-schema.json';
+    public const RPC_JSON_SCHEMA_PATH = 'demosplan/DemosPlanCoreBundle/Resources/config/json-schema/rpc-statements-bulk-delete-schema.json';
 
-    public const STATEMENTS_BULK_COPY_METHOD = 'statements.bulk.copy';
+    public const STATEMENTS_BULK_DELETE_METHOD = 'statements.bulk.delete';
 
     protected function checkIfAuthorized(string $procedureId): bool
     {
         try {
-            return $this->procedureService->isUserAuthorized($procedureId)
+            $orgaId = $this->currentUser->getUser()->getOrga()->getId();
+
+            return $this->assessmentTableServiceOutput->isOrgaAuthorized($procedureId, $orgaId)
                 && $this->isAvailable();
         } catch (Exception $e) {
             return false;
@@ -52,18 +54,14 @@ class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
 
     protected function handleStatementAction(array $statements): bool
     {
-        try {
-            foreach ($statements as $statement) {
-                $copyResult = $this->statementCopier->copyStatementObjectWithinProcedure($statement);
-                if (!$copyResult instanceof Statement) {
-                    return false;
-                }
+        /** @var Statement $statement */
+        foreach ($statements as $statement) {
+            if (!$this->statementService->deleteStatement($statement->getId())) {
+                return false;
             }
-
-            return true;
-        } catch (Exception $e) {
-            return false;
         }
+
+        return true;
     }
 
     /**
@@ -76,6 +74,6 @@ class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
 
     public function supports(string $method): bool
     {
-        return self::STATEMENTS_BULK_COPY_METHOD === $method;
+        return self::STATEMENTS_BULK_DELETE_METHOD === $method;
     }
 }

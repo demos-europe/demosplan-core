@@ -18,12 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ClusterCitizenInstitutionSorter;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\KeysAtEndSorter;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\KeysAtStartSorter;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\TitleGroupsSorter;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -59,6 +53,12 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ClusterCitizenInstitutionSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
@@ -145,7 +145,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
-
 use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface

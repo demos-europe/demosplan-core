@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
@@ -37,6 +37,7 @@ use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {
