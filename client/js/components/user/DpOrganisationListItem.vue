@@ -64,7 +64,7 @@
         :title="Translator.trans('imprint')">
         <dp-label
           for="r_imprint"
-          :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
+          :text="Translator.trans('customer.imprint.explanation', { url: '/impressum' })" />
         <dp-editor
           id="r_imprint"
           v-model="customer.imprint"
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpEditor, DpIcon, DpLabel, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import CustomerSettingsSection from '@DpJs/components/user/CustomerSettings/CustomerSettingsSection'
 import { mapState } from 'vuex'
 
@@ -114,9 +114,11 @@ export default {
   name: 'DpOrganisationListItem',
 
   components: {
-    DpButtonRow,
     CustomerSettingsSection,
+    DpButtonRow,
+    DpEditor,
     DpIcon,
+    DpLabel,
     DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
     DpTableCard
   },
@@ -160,6 +162,10 @@ export default {
 
   data () {
     return {
+      customer: {
+        imprint: '',
+        dataProtection: ''
+      },
       isOpen: false,
       isLoading: true,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
