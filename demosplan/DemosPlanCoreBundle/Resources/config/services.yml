@@ -10,12 +10,12 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
-    demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         lazy: true
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
+    demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
