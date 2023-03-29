@@ -150,7 +150,7 @@ class DemosPlanDepartmentController extends BaseController
             if ($request->isMethod('POST') && $requestPost->has('orgaId')) {
                 $result = $userHandler->addDepartment($requestPost->get('orgaId'), $requestPost->all());
                 // Fehlermeldung, Pflichtfelder
-                if (array_key_exists('mandatoryfieldwarning', $result)) {
+                if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
                     $this->getMessageBag()->add('error', 'error.mandatoryfields');
                 }
 
