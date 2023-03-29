@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 

@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
