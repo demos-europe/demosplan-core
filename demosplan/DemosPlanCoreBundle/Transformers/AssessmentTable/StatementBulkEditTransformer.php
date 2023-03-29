@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanAssessmentTableBundle\Transformers;
+namespace demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable;
 
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
