@@ -106,6 +106,8 @@ parameters:
     # List of role group codes that faq articles may be visible for. There must be
     # at least one role activated via 'roles_allowed' for each role group set here.
     role_groups_faq_visibility:
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GPSORG
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GLAUTH
         - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GGUEST
 
     # Alternatives Login
