@@ -105,6 +105,7 @@ class Role extends CoreEntity implements UuidEntityInterface
 
     /**
      * MasterUser eines Mandanten.
+     * Mandanten-Administration
      *
      * Can manage customer affairs.
      *

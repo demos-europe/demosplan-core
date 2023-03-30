@@ -322,7 +322,7 @@ class DemosPlanOrgaController extends BaseController
     }
 
     /**
-     * List Orgas.
+     * List of organisations to administrate.
      *
      * @Route(
      *     name="DemosPlan_orga_list",
@@ -334,7 +334,7 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws Exception
      */
-    public function listOrgasAction()
+    public function listOrgasAction(): RedirectResponse|Response
     {
         $templateVars['proceduresDirectlinkPrefix'] = $this->generateUrl(
             'DemosPlan_procedure_public_orga_index',
