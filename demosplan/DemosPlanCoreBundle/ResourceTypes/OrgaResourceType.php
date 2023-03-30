@@ -177,6 +177,8 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->city)->readable(true, static function (Orga $orga): string {
                 return $orga->getCity();
             }),
+            $this->createAttribute($this->imprint)->readable(true),
+            $this->createAttribute($this->dataProtection)->readable(true),
             $this->createAttribute($this->competence)->readable(true),
             $this->createAttribute($this->contactPerson)->readable(true),
             $this->createAttribute($this->copy)->aliasedPath($this->paperCopy)->readable(true),
@@ -242,24 +244,6 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, [$this, 'getAllowedRoles']);
-        }
-
-        if ($this->currentUser->hasPermission('field_data_protection_text_customized_edit_orga')) {
-            $properties[] = $this->createAttribute($this->dataProtection)->readable(
-                true,
-                static function (Orga $orga): string {
-                    return $orga->getDataProtection();
-                }
-            );
-        }
-
-        if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_orga')) {
-            $properties[] = $this->createAttribute($this->imprint)->readable(
-                true,
-                static function (Orga $orga): string {
-                    return $orga->getImprint();
-                }
-            );
         }
 
         return $properties;
