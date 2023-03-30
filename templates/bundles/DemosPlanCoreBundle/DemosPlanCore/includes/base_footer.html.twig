@@ -47,14 +47,12 @@
                 </a>
             {% endif %}
 
-            {% block termsofuse %}
             {% if hasPermission('area_terms_of_use') %}
-            <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
-               aria-label="{{ 'terms.of.use'|trans }}">
-                {{- "terms.of.use"|trans -}}
-            </a>
+                <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_terms') }}"
+                   aria-label="{{ 'terms.of.use'|trans }}">
+                    {{- "terms.of.use"|trans -}}
+                </a>
             {% endif %}
-            {% endblock termsofuse %}
 
             {% if hasPermission('area_main_contact') %}
                 <a class="c-footer__link" href="{{ path( 'DemosPlan_misccontent_static_contact') }}"
@@ -70,7 +68,7 @@
 
     <div class="c-footer__version float--right u-pt-0_25-palm"
          aria-label="{{ 'system.version_info'|trans }}">
-        v{{ projectVersion }}
+          v{{ projectVersion }}
     </div>
 
 </footer>
