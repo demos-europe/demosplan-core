@@ -485,7 +485,17 @@ export default {
           size: 1
         },
         sort: 'pageSortIndex',
-        include: ['annotatedStatementPdf', 'annotatedStatementPdf.annotatedStatementPdfPages'].join()
+        fields: {
+          AnnotatedStatementPdf:['id'].join(),
+          AnnotatedStatementPdfPage:[
+            'status',
+            'text',
+            'statementText',
+            'file',
+            'annotatedStatementPdf',
+          ].join()
+        },
+        include: ['annotatedStatementPdf'].join()
       }
       const pageResponse = await dpApi.get(url, params, { serialize: true })
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
