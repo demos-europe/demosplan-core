@@ -58,6 +58,8 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $submissionType
  * @property-read End                              $types @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
+ * @property-read End                              $dataProtection
+ * @property-read End                              $imprint
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
@@ -240,6 +242,24 @@ final class OrgaResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, [$this, 'getAllowedRoles']);
+        }
+
+        if ($this->currentUser->hasPermission('field_data_protection_text_customized_edit_orga')) {
+            $properties[] = $this->createAttribute($this->dataProtection)->readable(
+                true,
+                static function (Orga $orga): string {
+                    return $orga->getDataProtection();
+                }
+            );
+        }
+
+        if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_orga')) {
+            $properties[] = $this->createAttribute($this->imprint)->readable(
+                true,
+                static function (Orga $orga): string {
+                    return $orga->getImprint();
+                }
+            );
         }
 
         return $properties;
