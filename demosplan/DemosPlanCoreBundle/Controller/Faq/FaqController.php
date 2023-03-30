@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
@@ -150,6 +151,7 @@ class FaqController extends BaseController
     public function faqAdminListAction(
         Request $request,
         FaqHandler $faqHandler,
+        GlobalConfig $globalConfig,
         string $procedure = null
     ) {
         $requestPost = $request->request->all();
@@ -183,8 +185,9 @@ class FaqController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_list.html.twig',
             [
-                'procedure' => $procedure,
-                'title'     => 'faq.admin',
+                'procedure'                 => $procedure,
+                'title'                     => 'faq.admin',
+                'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
             ]
         );
     }
@@ -205,6 +208,7 @@ class FaqController extends BaseController
      */
     public function faqAdminEditAction(
         Breadcrumb $breadcrumb,
+        GlobalConfig $globalConfig,
         Request $request,
         string $faqID,
         TranslatorInterface $translator,
@@ -237,10 +241,6 @@ class FaqController extends BaseController
             }
         }
 
-        $templateVars = [
-            'faq' => $faq,
-        ];
-
         $breadcrumb->addItem(
             [
                 'title' => $translator->trans('faq.list', [], 'page-title'),
@@ -249,9 +249,12 @@ class FaqController extends BaseController
         );
 
         $categoryTypeNames = FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY;
-        $templateVars['categories'] = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(
-            $categoryTypeNames
-        );
+
+        $templateVars = [
+            'categories'                => $faqHandler->getCustomFaqCategoriesByNamesOrCustom($categoryTypeNames),
+            'faq'                       => $faq,
+            'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
+        ];
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
@@ -280,6 +283,7 @@ class FaqController extends BaseController
     public function faqAdminNewAction(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
+        GlobalConfig $globalConfig,
         Request $request,
         TranslatorInterface $translator,
         string $procedure = null
@@ -319,9 +323,11 @@ class FaqController extends BaseController
         );
 
         $categoryTypeNames = FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY;
-        $templateVars['categories'] = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(
-            $categoryTypeNames
-        );
+
+        $templateVars = [
+            'categories'                => $faqHandler->getCustomFaqCategoriesByNamesOrCustom($categoryTypeNames),
+            'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
+        ];
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_new.html.twig',

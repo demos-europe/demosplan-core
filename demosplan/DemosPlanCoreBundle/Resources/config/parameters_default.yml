@@ -99,9 +99,14 @@ parameters:
         - 'Gesamtstellungnahme'
         - 'Fehlanzeige'
 
-    #List of Role codes that are allowed in current project
+    # List of role codes that are allowed in current project
     roles_allowed:
         - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GUEST
+
+    # List of role group codes that faq articles may be visible for. There must be
+    # at least one role activated via 'roles_allowed' for each role group set here.
+    role_groups_faq_visibility:
+        - !php/const demosplan\DemosPlanCoreBundle\Entity\User\Role::GGUEST
 
     # Alternatives Login
     # #refactor: This should be renamed e.g. in local login, form login or the like

@@ -63,35 +63,50 @@
         }) }}
 
         <div class="u-mb" id="groupCodeWrapper" data-cy="groupVisibleCheckbox">
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'role.fp.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GLAUTH', checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
-                        id: 'fachplanerVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium'
-                    },
-                    {
-                        label: { text: 'citizen.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GGUEST', checked: GGUEST == true, attributes: ['data-cy=citizenVisibility'] },
-                        id: 'citizenVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium'
-                    },
-                    {
-                        label: { text: 'invitable_institution.for'|trans, labelRequired: false },
-                        control: { name: 'r_group_code[]', value: 'GPSORG', checked: GPSORG == true, attributes: ['data-cy=publicAgencyVisibility'] },
-                        id: 'publicAgencyVisibility',
-                        type: 'checkbox',
-                        elementSize: 'medium',
-                        display: hasPermission('feature_institution_participation')
-                    }
-                ]|filter(item => item.display is not defined or item.display),
-                heading: 'visible',
-                required: true,
-                isFieldset: true
-            }) }}
+            {% set roleGroupsFaqVisibilityOptions = [
+                {
+                    label: { text: 'role.fp.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GLAUTH',checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
+                    id: 'fachplanerVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GLAUTH'
+                },
+                {
+                    label: { text: 'citizen.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GGUEST', checked: GGUEST == true, attributes: ['data-cy=citizenVisibility'] },
+                    id: 'citizenVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GGUEST'
+                },
+                {
+                    label: { text: 'invitable_institution.for'|trans, labelRequired: false },
+                    control: { name: 'r_group_code[]', value: 'GPSORG', checked: GPSORG == true, attributes: ['data-cy=publicAgencyVisibility'] },
+                    id: 'publicAgencyVisibility',
+                    type: 'checkbox',
+                    elementSize: 'medium',
+                    showFor: 'GPSORG'
+                }
+            ]|filter(item => item.showFor in templateVars.roleGroupsFaqVisibility) %}
+
+            {% if (roleGroupsFaqVisibilityOptions|length > 1) %}
+                {{ uiComponent('form.row', {
+                    elements: roleGroupsFaqVisibilityOptions,
+                    heading: 'visible',
+                    required: true,
+                    isFieldset: true
+                }) }}
+            {% else %}
+                {#  If there is only one role group to activate within the project,
+                    users may control visibility by using the "status" toggle.
+                    The value for visibility for that role group is saved as true,
+                    in case another role group is activated later within the project. #}
+                <input
+                    type="hidden"
+                    name="{{ roleGroupsFaqVisibilityOptions[0].control.name }}"
+                    value="{{ roleGroupsFaqVisibilityOptions[0].control.value }}">
+            {% endif %}
         </div>
 
         {% if templateVars.categories is defined %}
