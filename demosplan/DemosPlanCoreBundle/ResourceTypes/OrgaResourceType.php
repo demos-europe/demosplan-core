@@ -60,6 +60,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $dataProtection
  * @property-read End                              $imprint
+ * @property-read End                              $isPlanningOrganisation
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
@@ -219,6 +220,13 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
                 return $orga->getDepartments();
             }),
+            $this->createAttribute($this->isPlanningOrganisation)->readable(false,
+                function (Orga $orga): bool {
+                    return $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
+                        || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
+                        || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $this->globalConfig->getSubdomain());
+                }
+            ),
             $statusInCustomers,
         ];
 
