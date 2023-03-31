@@ -1724,13 +1724,13 @@
     "@sentry/utils" "7.45.0"
     tslib "^1.9.3"
 
-"@sentry/integrations@^7.43.0":
-  version "7.43.0"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.43.0.tgz#937bea068e4876f7be476b2f698534d2176f2c03"
-  integrity sha512-rob7/PAUWFTuodCDlRoB0+7vQ7Fc/LlkvprLlB1Qqt34OIgOll4T72zVSaAXWSHZz7nGU8mS2XdYkRSXbDMK4w==
+"@sentry/integrations@^7.46.0":
+  version "7.46.0"
+  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.46.0.tgz#24c02d61c62bd7093c9c748b622858667025b028"
+  integrity sha512-Y/KreRcROYJif0nM8+kQAkaCvuwGzpqMwLKkC5CfG1xLLDch+OI7HRU98HevyqXNk6YAzQdvBOYXSe7Ny6Zc0A==
   dependencies:
-    "@sentry/types" "7.43.0"
-    "@sentry/utils" "7.43.0"
+    "@sentry/types" "7.46.0"
+    "@sentry/utils" "7.46.0"
     localforage "^1.8.1"
     tslib "^1.9.3"
 
@@ -1763,6 +1763,11 @@
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.45.0.tgz#b5e2db7a421f6090398565b0a72fb3bbdc94233a"
   integrity sha512-iFt7msfUK8LCodFF3RKUyaxy9tJv/gpWhzxUFyNxtuVwlpmd+q6mtsFGn8Af3pbpm8A+MKyz1ebMwXj0PQqknw==
 
+"@sentry/types@7.46.0":
+  version "7.46.0"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.46.0.tgz#8573ba8676342c594fcfefff4552123278cfec51"
+  integrity sha512-2FMEMgt2h6u7AoELhNhu9L54GAh67KKfK2pJ1kEXJHmWxM9FSCkizjLs/t+49xtY7jEXr8qYq8bV967VfDPQ9g==
+
 "@sentry/utils@7.43.0":
   version "7.43.0"
   resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-7.43.0.tgz#ad16efb86b94ffe6dca2ed2b299d5230ba6d815b"
@@ -1777,6 +1782,14 @@
   integrity sha512-aTY7qqtNUudd09SH5DVSKMm3iQ6ZeWufduc0I9bPZe6UMM09BDc4KmjmrzRkdQ+VaOmHo7+v+HZKQk5f+AbuTQ==
   dependencies:
     "@sentry/types" "7.45.0"
+    tslib "^1.9.3"
+
+"@sentry/utils@7.46.0":
+  version "7.46.0"
+  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-7.46.0.tgz#7a713724db3d1c8bc0aef6d19a7fe2c76db0bdf2"
+  integrity sha512-elRezDAF84guMG0OVIIZEWm6wUpgbda4HGks98CFnPsrnMm3N1bdBI9XdlxYLtf+ir5KsGR5YlEIf/a0kRUwAQ==
+  dependencies:
+    "@sentry/types" "7.46.0"
     tslib "^1.9.3"
 
 "@sinclair/typebox@^0.24.1":
