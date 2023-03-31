@@ -48,7 +48,7 @@ parameters:
     public_index_route: ""
     public_index_route_parameters: []
 
-    gateway_url: "/connect/keycloak_ozg"
+    gateway_url: ""
     gateway_register_url: ""
     gateway_register_citizen_url: ""
     gateway_authenticate_url: ""
