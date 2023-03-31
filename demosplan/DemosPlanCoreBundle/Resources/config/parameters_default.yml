@@ -48,7 +48,7 @@ parameters:
     public_index_route: ""
     public_index_route_parameters: []
 
-    gateway_url: ""
+    gateway_url: "/connect/keycloak_ozg"
     gateway_register_url: ""
     gateway_register_citizen_url: ""
     gateway_authenticate_url: ""
@@ -334,7 +334,7 @@ parameters:
     avscan_enable: true
 
     # should file table entries be checked regularly whether they are referenced in some other entities
-    # and be soft deleted if no reference is found?
+    # and be fully deleted if no reference is found?
     delete_removed_files: true
 
     # disable honeypot check
@@ -446,7 +446,7 @@ parameters:
     ai_service_post_url: ""
 
     # #refactor: used only once, could be constant
-    drafts_info_schema_path: "%kernel.project_dir%/demosplan/plugins/workflow/SegmentsManager/Resources/validator/drafts-info-schema.json"
+    drafts_info_schema_path: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/json-schema/drafts-info-schema.json"
 
     public_css_class_prefix: ""
 
