@@ -486,13 +486,21 @@ export default {
         },
         sort: 'pageSortIndex',
         fields: {
-          AnnotatedStatementPdf:['id'].join(),
           AnnotatedStatementPdfPage:[
+            'id',
+            'url',
+            'width',
+            'height',
+            'geoJson',
+            'annotatedStatementPdf'
+          ].join(),
+          AnnotatedStatementPdf:[
             'status',
             'text',
-            'statementText',
             'file',
-            'annotatedStatementPdf',
+            'procedure',
+            'statement',
+            'annotatedStatementPdfPages',
           ].join()
         },
         include: ['annotatedStatementPdf'].join()
