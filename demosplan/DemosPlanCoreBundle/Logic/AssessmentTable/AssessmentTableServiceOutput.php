@@ -56,7 +56,6 @@ use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 use function collect;
 use function date;
-use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 use function explode;
 use function htmlspecialchars;
 use function is_array;

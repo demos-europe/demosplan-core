@@ -37,7 +37,6 @@ use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
-use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {

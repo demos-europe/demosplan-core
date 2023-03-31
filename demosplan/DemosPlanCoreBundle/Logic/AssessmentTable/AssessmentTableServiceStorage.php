@@ -45,7 +45,6 @@ use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Container;
-use function demosplan\DemosPlanAssessmentTableBundle\Logic\count;
 
 class AssessmentTableServiceStorage
 {
