@@ -120,7 +120,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
      *
      * @return $this
      */
-    public function lock(): self
+    public function lock(): ValueObjectInterface
     {
         $this->locked = true;
 
