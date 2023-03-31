@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
@@ -19,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -51,6 +51,7 @@ class FaqController extends BaseController
      *     path="/haeufigefragen",
      *     name="DemosPlan_haeufigefragen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function faqListAction(
@@ -95,6 +96,7 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_public_project",
      *     defaults={"type": "oeb_bob"}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $type
@@ -146,6 +148,7 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminListAction(
@@ -204,6 +207,7 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq_edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminEditAction(
@@ -278,6 +282,7 @@ class FaqController extends BaseController
      *     name="DemosPlan_faq_administration_faq_new",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_faq")
      */
     public function faqAdminNewAction(
@@ -392,6 +397,7 @@ class FaqController extends BaseController
 
     /**
      * @DplanPermissions("area_admin_faq")
+     *
      * @Route(
      *     path="/category/new",
      *     name="DemosPlan_faq_administration_category_new",
@@ -484,6 +490,7 @@ class FaqController extends BaseController
 
     /**
      * @DplanPermissions("area_admin_faq")
+     *
      * @Route(
      *     path="/category/{categoryId}/delete",
      *     name="DemosPlan_faq_administration_category_delete",
