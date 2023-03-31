@@ -46,7 +46,7 @@ class AddonBuildFrontendCommand extends CoreCommand
         $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
         $consoleReturn = Batch::create($this->getApplication(), $output)
             ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonPath)
-            ->addShell(['yarn', 'run', 'webpack', '--node-env=production'], $addonPath)
+            ->addShell(['yarn', 'prod'], $addonPath)
             ->run();
 
         return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;
