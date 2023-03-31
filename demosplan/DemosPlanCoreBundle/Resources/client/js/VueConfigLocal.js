@@ -75,7 +75,7 @@ global.dplan = dplan
 // Add plugins to Vue instance
 Vue.use(PortalVue)
 
-Vue.use(Vuex)
+// Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 Vue.directive('tooltip', VTooltip)

@@ -51,13 +51,11 @@
         </div>
       </template>
 
-      <template>
-        <dp-ol-map-layer-vector
-          :features="featuresFromCoordinate"
-          ref="procedureCoordinateDrawer"
-          name="procedureCoordinateDrawer"
-          @layer:features:changed="updateProcedureCoordinate" />
-      </template>
+      <dp-ol-map-layer-vector
+        :features="featuresFromCoordinate"
+        ref="procedureCoordinateDrawer"
+        name="procedureCoordinateDrawer"
+        @layer:features:changed="updateProcedureCoordinate" />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.
@@ -244,13 +242,23 @@ export default {
     //  Only assign coordinate from props if it is valid
     this.coordinate = this.isValidProcedureCoordinate(this.procedureCoordinate) || this.coordinate
 
-    //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
-    window.Bus.on('wizard:show toggleAnything:clicked', (sender, data) => {
-      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+    const handleWizardShow = data => {
       if (data === Translator.trans('wizard.topic.location') || data === 'procedureLocation') {
         this.$refs.map.updateMapInstance()
       }
+    }
+
+    //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
+    document.addEventListener('wizard:show', data => {
+      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+      handleWizardShow(data)
     })
+
+    document.addEventListener('toggleAnything:clicked', data => {
+      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+      handleWizardShow(data)
+    })
+
 
     document.addEventListener('customValidationPassed', () => {
       this.setProcedureCoordinateValidState()

@@ -32,20 +32,21 @@
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
         label="value" />
 
-      <template v-else>
-        <label
-          for="procedure_search_simple"
-          class="hide-visually"
-          v-html="Translator.trans('procedure.public.search.placeholder')" />
-        <dp-input
-          :class="prefixClass('c-proceduresearch__search-field')"
-          id="procedure_search_simple"
-          name="search"
-          width="auto"
-          @enter="form.search = currentAutocompleteSearch; submitForm();"
-          :placeholder="Translator.trans('procedure.public.search.placeholder')"
-          v-model="currentAutocompleteSearch" />
-      </template>
+      <label
+        v-if="dplan.settings.useOpenGeoDb"
+        for="procedure_search_simple"
+        class="hide-visually"
+        v-html="Translator.trans('procedure.public.search.placeholder')" />
+
+      <dp-input
+        v-if="dplan.settings.useOpenGeoDb"
+        :class="prefixClass('c-proceduresearch__search-field')"
+        id="procedure_search_simple"
+        name="search"
+        width="auto"
+        @enter="form.search = currentAutocompleteSearch; submitForm();"
+        :placeholder="Translator.trans('procedure.public.search.placeholder')"
+        v-model="currentAutocompleteSearch" />
 
       <button
         type="button"
@@ -144,9 +145,10 @@
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
-          :key="'label_' + idx"
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
@@ -158,7 +160,6 @@
             v-tooltip="{ content: filter.contextHelp }" />
         </label><!--
      --><div
-          :key="'select_' + filter.name"
           :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :ref="'filter_' + idx"

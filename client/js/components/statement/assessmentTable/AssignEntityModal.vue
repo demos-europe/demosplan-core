@@ -22,30 +22,32 @@
       ATTENTION! To be able to reduce the dropdown's size, I had to change styling in _multiselect.scss (overflow and max-height props in dropdown__content). It may cause the comeback of T11129 bug -->
 
       <!-- modal content -->
-      <div class="height-220">
-        <h3>{{ Translator.trans('user.choose') }}:</h3>
-        <div>
-          <dp-multiselect
-            :options="[{ id: '', name: '-'}, ...users]"
-            :allow-empty="false"
-            :name="`r_${entityId}`"
-            :id="`r_${entityId}`"
-            track-by="id"
-            class="u-n-ml-0_25"
-            v-model="selected"
-            :max-height="150"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`">
-            <template v-slot:option="{ option }">
-              {{ option.name }} {{ option.id === currentUserId ? ` (Sie)` : '' }}
-            </template>
-          </dp-multiselect>
+      <template v-slot:default>
+        <div class="height-220">
+          <h3>{{ Translator.trans('user.choose') }}:</h3>
+          <div>
+            <dp-multiselect
+              :options="[{ id: '', name: '-'}, ...users]"
+              :allow-empty="false"
+              :name="`r_${entityId}`"
+              :id="`r_${entityId}`"
+              track-by="id"
+              class="u-n-ml-0_25"
+              v-model="selected"
+              :max-height="150"
+              :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`">
+              <template v-slot:option="{ option }">
+                {{ option.name }} {{ option.id === currentUserId ? ` (Sie)` : '' }}
+              </template>
+            </dp-multiselect>
+          </div>
+          <dp-button
+            class="u-mt float--right"
+            :busy="loading"
+            :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
+            @click="assignEntity" />
         </div>
-        <dp-button
-          class="u-mt float--right"
-          :busy="loading"
-          :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
-          @click="assignEntity" />
-      </div>
+      </template>
     </dp-modal>
   </portal>
 </template>

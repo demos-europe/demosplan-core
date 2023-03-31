@@ -37,11 +37,13 @@
                       aria-hidden="true" />
                   </span>
                 </template>
-                <statement-meta-tooltip
-                  v-if="statement"
-                  :statement="statement"
-                  toggle-button
-                  @toggle="toggleInfobox" />
+                <template v-slot:default>
+                  <statement-meta-tooltip
+                    v-if="statement"
+                    :statement="statement"
+                    toggle-button
+                    @toggle="toggleInfobox" />
+                </template>
               </dp-flyout>
             </li>
           </ul>

@@ -54,7 +54,7 @@ module.exports = {
   // Required to lint *.vue files
   plugins: [
     '@babel',
-    'vue',
+    '@vue/compat',
     'jest',
     'jquery',
     'vuejs-accessibility'

@@ -96,22 +96,24 @@
     </template>
 
     <!-- Item content / editable data -->
-    <div
-      data-cy="userForm"
-      data-dp-validate="userForm">
-      <dp-user-form-fields
-        :user="user"
-        :user-id="user.id"
-        @user-update="updateUser"
-        :ref="'user-form-fields-' + user.id" />
+    <template v-slot:default>
+      <div
+        data-cy="userForm"
+        data-dp-validate="userForm">
+        <dp-user-form-fields
+          :user="user"
+          :user-id="user.id"
+          @user-update="updateUser"
+          :ref="'user-form-fields-' + user.id" />
 
-      <dp-button-row
-        form-name="userForm"
-        primary
-        secondary
-        @primary-action="dpValidateAction('userForm', save, false)"
-        @secondary-action="reset" />
-    </div>
+        <dp-button-row
+          form-name="userForm"
+          primary
+          secondary
+          @primary-action="dpValidateAction('userForm', save, false)"
+          @secondary-action="reset" />
+      </div>
+    </template>
   </dp-table-card>
 </template>
 

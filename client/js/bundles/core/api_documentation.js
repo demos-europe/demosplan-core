@@ -8,7 +8,6 @@
  */
 
 /* eslint-disable-next-line import/extensions */
-import 'swagger-ui-dist/swagger-ui.css'
 import { initialize } from '@DpJs/InitVue'
 import { SwaggerUIBundle } from 'swagger-ui-dist'
 

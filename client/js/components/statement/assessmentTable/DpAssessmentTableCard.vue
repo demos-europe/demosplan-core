@@ -62,25 +62,27 @@
             v-if="hasPermission('feature_statement_assignment')"
             @click="updateClaim" />
         </div><!--
-       --><div class="layout--flush layout__item c-at-item__row">
+     --><div class="layout--flush layout__item c-at-item__row">
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
             <v-popover>
-              <i
-                v-if="statement.isCluster && hasPermission('feature_statement_cluster')"
-                class="fa fa-object-group"
-                aria-hidden="true" />
-              <span data-cy="statementExtID">{{ extid }}</span>
-              <!--  Display icon anyways when moved from/to another procedure, otherwise display it when frontend state changes  -->
-              <i
-                v-if="!!statement.movedFromProcedureName"
-                class="fa fa-exchange"
-                aria-hidden="true" />
+              <template v-slot:default>
+                <i
+                  v-if="statement.isCluster && hasPermission('feature_statement_cluster')"
+                  class="fa fa-object-group"
+                  aria-hidden="true" />
+                <span data-cy="statementExtID">{{ extid }}</span>
+                <!--  Display icon anyways when moved from/to another procedure, otherwise display it when frontend state changes  -->
+                <i
+                  v-if="!!statement.movedFromProcedureName"
+                  class="fa fa-exchange"
+                  aria-hidden="true" />
 
-              <span class="weight--normal display--block">
-                {{ statementDate(statement.submitDate) }}
-              </span>
+                <span class="weight--normal display--block">
+                  {{ statementDate(statement.submitDate) }}
+                </span>
+              </template>
 
               <template v-slot:popover>
                 <span
@@ -106,8 +108,7 @@
             </v-popover>
           </label><!--
 
-       --><div
-            class="layout__item u-3-of-6 o-hellip">
+       --><div class="layout__item u-3-of-6 o-hellip">
             <!--  author  -->
             <div
               v-if="false === statement.isCluster"
@@ -163,7 +164,7 @@
                   <!--  Popover content  -->
                   <template
                     v-if="hasOwnProp(statement, 'initialOrganisationName')"
-                     v-slot:popover>
+                    v-slot:popover>
                     <div
                       class="whitespace--normal display--none"
                       :class="{'display--inline-block': assessmentBaseLoaded}">
@@ -188,12 +189,12 @@
                       </template>
 
                       <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
-                      <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
+                      <template v-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
                         {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
                       </template>
 
                       <!-- if anonymous citizen (unregistered or manual statement) -->
-                      <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
+                      <template v-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
                         {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
                       </template>
 
@@ -215,14 +216,14 @@
                       </template>
                     </div>
                   </template>
-                  <template v-else>
+                  <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
                 </v-popover>
               </div>
             </div>
             <div
-              v-else-if="true === statement.isCluster && statement.clusterName !== ''"
+              v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}
@@ -285,7 +286,7 @@
                 style="font-size: 1.8rem; line-height: 1.2em;" />
             </button>
           </div>
-          </div>
+        </div>
       </div>
 
       <!--  item content - hidden with table-cards:toggle-view 'collapsed' (List view)  -->

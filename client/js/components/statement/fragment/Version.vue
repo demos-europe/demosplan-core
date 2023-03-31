@@ -57,7 +57,7 @@
               class="display--inline-block u-mv-0_25 u-mh-0_5"
               v-once>
               <template v-slot:title>
-                  {{ Translator.trans('fragment.voteAdvice.short') }}
+                {{ Translator.trans('fragment.voteAdvice.short') }}
               </template>
             </dp-fragment-status>
             <dp-fragment-status
@@ -67,7 +67,7 @@
               class="display--inline-block u-mv-0_25 u-mh-0_5"
               :badge="true">
               <template v-slot:title>
-                  {{ Translator.trans('fragment.vote.short') }}
+                {{ Translator.trans('fragment.vote.short') }}
               </template>
             </dp-fragment-status>
           </div>

@@ -28,17 +28,17 @@
                     v-model="scales"
                     @input="sortSelected('scales')"
                     label="label"
-                    track-by="value"
-                >
+                    track-by="value">
                     <template v-slot:option="props">
                         {% verbatim %}{{ props.option.label }}{% endverbatim %}
                     </template>
+
                     <template v-slot:tag="props">
-                                <span class="multiselect__tag">
-                                    {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
-                                    <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                    <input type="hidden" :value="props.option.value" name="r_scales[]"/>
-                                </span>
+                        <span class="multiselect__tag">
+                            {%  verbatim %}{{ props.option.label }}{%  endverbatim %}
+                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                            <input type="hidden" :value="props.option.value" name="r_scales[]"/>
+                        </span>
                     </template>
                 </dp-multiselect>
                 <p class="lbl__hint u-mt-0_25">{{ 'map.scales.select.hint'|trans }}</p>

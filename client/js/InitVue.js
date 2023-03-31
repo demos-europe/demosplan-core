@@ -7,16 +7,21 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpNotifyContainer, dpValidateMultiselectDirective, Tooltip } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpNotifyContainer, dpValidateMultiselectDirective, MatchMedia, Tooltip } from '@demos-europe/demosplan-ui'
 import { initGlobalEventListener, ToggleSideMenu, touchFriendlyUserbox } from '@DpJs/lib/core/libs'
 import { bootstrap } from '@DpJs/bootstrap'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 
+const hasOwnProp = async (obj, prop) => {
+  const { hasOwnProp } = await import('@demos-europe/demosplan-ui')
+  return hasOwnProp(obj, prop)
+}
+
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
-  window.Bus = Bus
+
   Vue.prototype.Routing = window.Routing
   Vue.prototype.Translator = window.Translator
   Vue.prototype.hasPermission = window.hasPermission
@@ -24,6 +29,12 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
   Vue.directive('tooltip', Tooltip)
   Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
+
+  if (typeof dplan !== 'undefined' && hasOwnProp(dplan, 'settings') && dplan.settings.debug) {
+    Vue.config.performance = false
+  }
+
+  Vue.prototype.dplan = window.dplan
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     /* eslint-disable no-new */

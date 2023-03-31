@@ -46,26 +46,28 @@
     </template>
 
     <!-- Item content / editable data -->
-    <div
-      data-cy="editItemToggle"
-      class="u-mt"
-      data-dp-validate="organisationForm">
-      <!-- Form fields -->
-      <dp-organisation-form-fields
-        :available-orga-types="availableOrgaTypes"
-        :initial-organisation="initialOrganisation"
-        :organisation="organisation"
-        :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation" />
+    <template v-slot:default>
+      <div
+        data-cy="editItemToggle"
+        class="u-mt"
+        data-dp-validate="organisationForm">
+        <!-- Form fields -->
+        <dp-organisation-form-fields
+          :available-orga-types="availableOrgaTypes"
+          :initial-organisation="initialOrganisation"
+          :organisation="organisation"
+          :organisation-id="organisation.id"
+          @organisation-update="updateOrganisation" />
 
-      <!-- Button row -->
-      <dp-button-row
-        form-name="organisationForm"
-        :primary="editable"
-        secondary
-        @primary-action="dpValidateAction('organisationForm', save)"
-        @secondary-action="reset" />
-    </div>
+        <!-- Button row -->
+        <dp-button-row
+          form-name="organisationForm"
+          :primary="editable"
+          secondary
+          @primary-action="dpValidateAction('organisationForm', save)"
+          @secondary-action="reset" />
+      </div>
+    </template>
   </dp-table-card>
 </template>
 

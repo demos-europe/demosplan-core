@@ -34,34 +34,36 @@
           @click="updateClaim" />
 
         <v-popover class="display--inline-block u-mr">
-          <div>
-            <span
-              v-if="isArchive"
-              class="c-at-item__row-icon display--inline-block">
+          <template v-slot:default>
+            <div>
+              <span
+                v-if="isArchive"
+                class="c-at-item__row-icon display--inline-block">
+                <input
+                  type="checkbox"
+                  :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
+                  name="item_check[]"
+                  :value="fragment.id || 0"
+                  data-selection-checkbox
+                  aria-describedby="exportCheckboxDescription">
+              </span>
+
               <input
+                v-else
                 type="checkbox"
                 :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
                 name="item_check[]"
                 :value="fragment.id || 0"
                 data-selection-checkbox
                 aria-describedby="exportCheckboxDescription">
-            </span>
 
-            <input
-              v-else
-              type="checkbox"
-              :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
-              name="item_check[]"
-              :value="fragment.id || 0"
-              data-selection-checkbox
-              aria-describedby="exportCheckboxDescription">
-
-            <label
-              class="u-m-0 display--inline-block"
-              :for="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'">
-              ID {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }} ({{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }})
-            </label>
-          </div>
+              <label
+                class="u-m-0 display--inline-block"
+                :for="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'">
+                ID {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }} ({{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }})
+              </label>
+            </div>
+          </template>
 
           <template v-slot:popover>
             <div>
@@ -697,7 +699,7 @@ export default {
     })
 
     //  Destroy instance on reassign
-    Bus.on('fragment-reassigned', data => {
+    this.$root.$on('fragment-reassigned', data => {
       if (data.id === this.fragmentId) {
         this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment.statement.id })
         /*
@@ -705,13 +707,6 @@ export default {
          * this can be refactored when the fragment-list gets the data from the store
          */
         this.fragmentExists = false
-      }
-    })
-
-    // When a fragment is unassigned by <dp-assessment-claim>, editing is not possible anymore
-    Bus.on('dp-fragment-assignment-reset', () => {
-      if (this.editing === true) {
-        this.toggleEditing()
       }
     })
   }

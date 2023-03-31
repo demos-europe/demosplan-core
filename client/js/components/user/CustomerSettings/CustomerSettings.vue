@@ -16,7 +16,7 @@
     enctype="multipart/form-data">
     <dp-loading v-if="isLoading" />
 
-    <template v-else>
+    <template v-if="!isLoading">
       <!-- Logo and Color Variables -->
       <customer-settings-section
         v-if="hasPermission('feature_platform_logo_edit') || hasPermission('feature_customer_branding_edit')"

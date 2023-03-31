@@ -254,32 +254,32 @@
                     {# depending on which option is selected in the role radio, internal or external phases are displayed
                        - unless only external phases should be displayed here in the project
                      #}
-                    {% if hasPermission('field_statement_phase') %}
-                        <div class="layout u-mb-0_75">
-                            <div class="u-1-of-2 layout__item">
-                                <label class="o-form__label">
-                                    {{ "procedure.public.phase"|trans }}*
-                                </label>
-                                <dp-multiselect
-                                    class="o-form__control-wrapper"
-                                    :options="phases"
-                                    :value="values.phase"
-                                    @input="setPhaseValue"
-                                    track-by="key"
-                                    label="name"
-                                    required>
-                                    <template v-slot:option="props">
-                                        <span class="weight--normal">
-                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                        </span>
-                                    </template>
-                                </dp-multiselect>
-                                <input type="hidden" :value="values.phase.key" name="r_phase"/>
-                            </div>
+                    <div
+                        v-if="hasPermission('field_statement_phase')"
+                        class="layout u-mb-0_75">
+                        <div class="u-1-of-2 layout__item">
+                            <label class="o-form__label">
+                                {{ "procedure.public.phase"|trans }}*
+                            </label>
+                            <dp-multiselect
+                                class="o-form__control-wrapper"
+                                :options="phases"
+                                :value="values.phase"
+                                @input="setPhaseValue"
+                                track-by="key"
+                                label="name"
+                                required>
+                                <template v-slot:option="props">
+                                    <span class="weight--normal">
+                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                    </span>
+                                </template>
+                            </dp-multiselect>
+                            <input type="hidden" :value="values.phase.key" name="r_phase"/>
                         </div>
-                    {% endif %}
+                    </div>
 
-                    {% if hasPermission('feature_statement_cluster') %}
+                    <template v-if="hasPermission('feature_statement_cluster')">
                         {% set clusters = [] %}
                         {% if templateVars.table.procedure.clusterStatements is defined %}
                             {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
@@ -303,9 +303,9 @@
                             :ignore-last-claimed="true"
                             :key="'cluster_' + values.headStatement"
                         ></dp-select-statement-cluster>
-                    {% endif %}
+                    </template>
 
-                    {% if hasPermission('field_procedure_elements') %}
+                   <template v-if="hasPermission('field_procedure_elements')">
                         <label class="o-form__label">
                             {{ "plandocument"|trans }}
                         </label>
@@ -315,56 +315,49 @@
                             v-model="values.element"
                             track-by="id"
                             label="title"
-                            @input="checkForParagraphsAndFiles()"
-                        >
+                            @input="checkForParagraphsAndFiles()">
                             <template v-slot:option="props">
                                 {% verbatim %}{{ props.option.title }}{% endverbatim %}
                             </template>
                         </dp-multiselect>
                         <input type="hidden" :value="values.element.id" name="r_element"/>
-                    {% endif %}
+                   </template>
 
-                    {% if hasPermission('field_procedure_paragraphs') %}
-                        <template v-if="elementHasParagraphs">
-                            <label class="o-form__label">
-                                {{ "paragraph"|trans }}*
-                            </label>
-                            <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="paragraph[values.element.id]"
-                                v-model="values.paragraph"
-                                track-by="id"
-                                label="title"
-                            >
-                                <template v-slot:option="props">
-                                    {% verbatim %}{{ props.option.title }}{% endverbatim %}
-                                </template>
-                            </dp-multiselect>
-                            <input type="hidden" :value="values.paragraph ? values.paragraph.id : null" :name="'r_paragraph_' + values.element.id"/>
-                        </template>
-                    {% endif %}
+                    <template v-if="elementHasParagraphs && hasPermission('field_procedure_paragraphs')">
+                        <label class="o-form__label">
+                            {{ "paragraph"|trans }}*
+                        </label>
+                        <dp-multiselect
+                            required
+                            class="o-form__control-wrapper u-mb-0_75"
+                            :options="paragraph[values.element.id]"
+                            v-model="values.paragraph"
+                            track-by="id"
+                            label="title">
+                            <template v-slot:option="props">
+                                {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                            </template>
+                        </dp-multiselect>
+                        <input type="hidden" :value="values.paragraph ? values.paragraph.id : null" :name="'r_paragraph_' + values.element.id"/>
+                    </template>
 
-                    {% if hasPermission('field_procedure_documents') %}
-                        <template v-if="elementHasFiles">
-                            <label class="o-form__label">
-                                {{ "file"|trans }}*
-                            </label>
-                            <dp-multiselect
-                                required
-                                class="o-form__control-wrapper u-mb-0_75"
-                                :options="documents[values.element.id]"
-                                v-model="values.document"
-                                track-by="id"
-                                label="title"
-                            >
-                                <template v-slot:option="props">
-                                    {% verbatim %}{{ props.option.title }}{% endverbatim %}
-                                </template>
-                            </dp-multiselect>
-                            <input type="hidden" :value="values.document ? values.document.id : null" :name="'r_document_' + values.element.id"/>
-                        </template>
-                    {% endif %}
+                    <template v-if="elementHasFiles && hasPermission('field_procedure_documents')">
+                        <label class="o-form__label">
+                            {{ "file"|trans }}*
+                        </label>
+                        <dp-multiselect
+                            required
+                            class="o-form__control-wrapper u-mb-0_75"
+                            :options="documents[values.element.id]"
+                            v-model="values.document"
+                            track-by="id"
+                            label="title">
+                            <template v-slot:option="props">
+                                {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                            </template>
+                        </dp-multiselect>
+                        <input type="hidden" :value="values.document ? values.document.id : null" :name="'r_document_' + values.element.id"/>
+                    </template>
 
                     {% block priority %}{% endblock priority %}
 
@@ -389,17 +382,17 @@
                                     v-model="values.counties"
                                     @input="sortSelected('counties')"
                                     track-by="id"
-                                    label="name"
-                                >
+                                    label="name">
                                     <template v-slot:option="props">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
+
                                     <template v-slot:tag="props">
-                            <span class="multiselect__tag">
-                                {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
-                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                <input type="hidden" :value="props.option.id" name="r_counties[]"/>
-                            </span>
+                                        <span class="multiselect__tag">
+                                            {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
+                                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                            <input type="hidden" :value="props.option.id" name="r_counties[]"/>
+                                        </span>
                                     </template>
                                 </dp-multiselect>
                             </div>
@@ -423,11 +416,11 @@
                                     v-model="values.municipalities"
                                     @input="sortSelected('municipalities')"
                                     track-by="id"
-                                    label="name"
-                                >
+                                    label="name">
                                     <template v-slot:option="props">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
+
                                     <template v-slot:tag="props">
                                         <span class="multiselect__tag">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
@@ -453,17 +446,17 @@
                                     v-model="values.priorityAreas"
                                     @input="sortSelected('priorityAreas')"
                                     track-by="id"
-                                    label="name"
-                                >
+                                    label="name">
                                     <template v-slot:option="props">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
+
                                     <template v-slot:tag="props">
-                            <span class="multiselect__tag">
-                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
-                            </span>
+                                        <span class="multiselect__tag">
+                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                            <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                            <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                                        </span>
                                     </template>
                                 </dp-multiselect>
                             </div>
@@ -493,6 +486,7 @@
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                 </span>
                             </template>
+
                             <template v-slot:tag="props">
                                 <span class="multiselect__tag">
                                     {% verbatim %}{{ props.option.name }}{% endverbatim %}

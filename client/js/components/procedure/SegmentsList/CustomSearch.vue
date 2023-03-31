@@ -26,45 +26,47 @@
             icon="settings" />
         </template>
         <!-- Checkboxes to specify in which fields to search -->
-        <div class="space-stack-s space-inset-s width-600">
-          <div class="flex">
-            <span
-              class="weight--bold"
-              v-text="Translator.trans('search.custom.limit_fields')" />
-            <button
-              class="btn--blank o-link--default flex-item-end"
-              v-text="Translator.trans('search.custom.toggle_all')"
-              @click="toggleAllFields(selectedFields.length < fields.length)" />
+        <template v-slot:default>
+          <div class="space-stack-s space-inset-s width-600">
+            <div class="flex">
+              <span
+                class="weight--bold"
+                v-text="Translator.trans('search.custom.limit_fields')" />
+              <button
+                class="btn--blank o-link--default flex-item-end"
+                v-text="Translator.trans('search.custom.toggle_all')"
+                @click="toggleAllFields(selectedFields.length < fields.length)" />
+            </div>
+            <div
+              class="o-list--col-3"
+              v-if="isLoading === false">
+              <dp-checkbox
+                v-for="({label, value}, i) in fields"
+                :id="value"
+                :key="i"
+                :checked="selectedFields.includes(value)"
+                :label="{
+                  text: Translator.trans(label)
+                }"
+                @change="handleChange(value, !selectedFields.includes(value))" />
+            </div>
+            <div
+              class="font-size-small"
+              v-text="Translator.trans('search.custom.explanation')" />
           </div>
+          <hr class="border--top u-m-0">
+          <!-- Explanation of search options and special characters -->
           <div
-            class="o-list--col-3"
-            v-if="isLoading === false">
-            <dp-checkbox
-              v-for="({label, value}, i) in fields"
-              :id="value"
-              :key="i"
-              :checked="selectedFields.includes(value)"
-              :label="{
-                text: Translator.trans(label)
-              }"
-              @change="handleChange(value, !selectedFields.includes(value))" />
+            class="space-stack-xs space-inset-s width-600 overflow-y-auto"
+            :style="maxHeight">
+            <dp-details
+              v-for="explanation in explanations"
+              :key="explanation.title"
+              :summary="explanation.title">
+              <span v-html="explanation.description" />
+            </dp-details>
           </div>
-          <div
-            class="font-size-small"
-            v-text="Translator.trans('search.custom.explanation')" />
-        </div>
-        <hr class="border--top u-m-0">
-        <!-- Explanation of search options and special characters -->
-        <div
-          class="space-stack-xs space-inset-s width-600 overflow-y-auto"
-          :style="maxHeight">
-          <dp-details
-            v-for="explanation in explanations"
-            :key="explanation.title"
-            :summary="explanation.title">
-            <span v-html="explanation.description" />
-          </dp-details>
-        </div>
+        </template>
       </dp-flyout>
     </div>
     <dp-button

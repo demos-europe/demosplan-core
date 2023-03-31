@@ -26,6 +26,7 @@
       <dp-loading
         v-if="pendingOrganisationsLoading"
         class="u-ml u-mt u-mb-2" />
+
       <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
         <ul class="o-list o-list--card u-mb">
           <dp-organisation-list-item
@@ -38,6 +39,7 @@
             module-name="pending"
             data-cy="pendingOrganisationListBlk" />
         </ul>
+
         <dp-sliding-pagination
           v-if="pendingOrganisationsTotalPages > 1"
           :current="pendingOrganisationsCurrentPage"
@@ -45,8 +47,9 @@
           :non-sliding-size="10"
           @page-change="(page) => getItemsByPage(page, true)" />
       </template>
+
       <p
-        v-else-if="Object.keys(pendingOrgs).length === 0 && pendingOrganisationsLoading === false"
+        v-if="Object.keys(pendingOrgs).length === 0 && pendingOrganisationsLoading === false"
         class="color--grey u-mb-2">
         {{ Translator.trans('organisations.pending.none') }}
       </p>
@@ -107,14 +110,17 @@
         </div>
       </div>
     </div>
+
     <div
       v-if="noResults"
       class="u-mt-0_75"
       v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
+
     <!-- list -->
     <template v-if="isLoading && isInitialLoad">
       <dp-loading class="u-ml u-mt" />
     </template>
+
     <template v-if="isLoading && !isInitialLoad">
       <dp-skeleton-box
         class="u-mb-0_5"

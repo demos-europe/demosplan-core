@@ -37,18 +37,20 @@
         <dp-split-button
             data-cy="addNewBoilerplate"
             class="display--inline-block float--right">
-            <a
-               class="btn btn--primary has-dropdown u-m-0"
-               data-cy="generateBoilerplate"
-               href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
-                {{ "boilerplate.generate"|trans }}
-            </a><!--
+            <template v-slot:default>
+                <a
+                   class="btn btn--primary has-dropdown u-m-0"
+                   data-cy="generateBoilerplate"
+                   href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
+                    {{ "boilerplate.generate"|trans }}
+                </a>
+            </template><!--
          --><template v-slot:dropdown>
-            <a
-               data-cy="addNewBoilerplateGroup"
-               href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
-               {{ "new.group.create"|trans }}
-            </a>
+                <a
+                   data-cy="addNewBoilerplateGroup"
+                   href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
+                   {{ "new.group.create"|trans }}
+                </a>
             </template>
         </dp-split-button>
 

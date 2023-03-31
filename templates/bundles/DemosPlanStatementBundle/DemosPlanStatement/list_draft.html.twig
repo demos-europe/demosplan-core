@@ -63,80 +63,76 @@
                     {% if hasPermission('feature_statements_draft_release') %}
                         {% block statement_release %}
 
-                        {# Handle default submission with releasing Statement to coordinator #}
-                        {% if templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT') %}
-                            <dp-modal
-                                content-classes="u-2-of-3"
-                                ref="confirmModal"
-                                aria-label="{{ 'statements.marked.release'|trans }}"
-                                aria-modal='true'
-                            >
-                                <template v-slot:header>
+                            {# Handle default submission with releasing Statement to coordinator #}
+                            {% if templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT') %}
+                                <dp-modal
+                                    content-classes="u-2-of-3"
+                                    ref="confirmModal"
+                                    aria-label="{{ 'statements.marked.release'|trans }}"
+                                    aria-modal='true'>
+                                    <template v-slot:header>
+                                        {{ 'statements.marked.release'|trans }}
+                                    </template>
+
+                                    <template v-slot:default>
+                                        <p>
+                                            {{ 'check.statement.marked.release'|trans }}
+                                        </p>
+
+                                        <dp-button
+                                            data-cy="submitStatement"
+                                            name="statement_release"
+                                            :text="Translator.trans('statements.marked.release')"
+                                            @click="dpValidateAction('draftForm', () => submitForm('draftForm', 'statement_release'), false)"
+                                        ></dp-button>
+                                    </template>
+                                </dp-modal>
+
+                                <button
+                                    type="button"
+                                    @click="toggleConfirmModal"
+                                    class="{{ 'btn btn--primary'|prefixClass }}"
+                                    data-cy="approveSelectedStatements"
+                                    aria-label="{{ 'statements.marked.release'|trans }}"
+                                    value="{{ 'statements.marked.release'|trans }}"
+                                >
                                     {{ 'statements.marked.release'|trans }}
-                                </template>
+                                </button>
 
-                                <template>
-                                    <p>
-                                        {{ 'check.statement.marked.release'|trans }}
-                                    </p>
+                                {# Handle short submission with submitting Statement directly without coordinator #}
+                            {% elseif templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_SHORT')  %}
+                                <dp-modal
+                                    content-classes="u-2-of-3"
+                                    ref="confirmModal"
+                                    aria-label="{{ 'statements.marked.submit'|trans }}"
+                                    aria-modal='true'>
+                                    <template v-slot:header>
+                                        {{ 'statements.marked.submit'|trans }}
+                                    </template>
 
-                                    <dp-button
-                                        data-cy="submitStatement"
-                                        name="statement_release"
-                                        :text="Translator.trans('statements.marked.release')"
-                                        @click="dpValidateAction('draftForm', () => submitForm('draftForm', 'statement_release'), false)"
-                                    ></dp-button>
-                                </template>
+                                    <template v-slot:default>
+                                        {# The dropdown for `feature_statement_notify_counties is shown in the draft list
+                                            only if short submission process is enabled because then, statements are directly
+                                            submitted from this view. If the default submission process is enabled, the dropdown
+                                            is shown in the `list_released_group` view instead. #}
+                                        {% include '@DemosPlanStatement/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                                            showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
+                                                templateVars.hasPermissionsetWrite == true and
+                                                proceduresettings.settings.sendMailsToCounties == true,
+                                            targetForm: 'draftForm'
+                                        } %}
+                                    </template>
+                                </dp-modal>
 
-                            </dp-modal>
-
-                            <button
-                                type="button"
-                                @click="toggleConfirmModal"
-                                class="{{ 'btn btn--primary'|prefixClass }}"
-                                data-cy="approveSelectedStatements"
-                                aria-label="{{ 'statements.marked.release'|trans }}"
-                                value="{{ 'statements.marked.release'|trans }}"
-                            >
-                                {{ 'statements.marked.release'|trans }}
-                            </button>
-
-                            {# Handle short submission with submitting Statement directly without coordinator #}
-                        {% elseif templateVars.orga.submissionType|default == constant('demosplan\\DemosPlanCoreBundle\\Entity\\User\\Orga::STATEMENT_SUBMISSION_TYPE_SHORT')  %}
-                            <dp-modal
-                                content-classes="u-2-of-3"
-                                ref="confirmModal"
-                                aria-label="{{ 'statements.marked.submit'|trans }}"
-                                aria-modal='true'
-                            >
-                                <template v-slot:header>
+                                <button
+                                    type="button"
+                                    @click="toggleConfirmModal"
+                                    class="{{ 'btn btn--primary'|prefixClass }}"
+                                >
                                     {{ 'statements.marked.submit'|trans }}
-                                </template>
+                                </button>
 
-                                <template>
-                                    {# The dropdown for `feature_statement_notify_counties is shown in the draft list
-                                        only if short submission process is enabled because then, statements are directly
-                                        submitted from this view. If the default submission process is enabled, the dropdown
-                                        is shown in the `list_released_group` view instead. #}
-                                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
-                                        showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
-                                            templateVars.hasPermissionsetWrite == true and
-                                            proceduresettings.settings.sendMailsToCounties == true,
-                                        targetForm: 'draftForm'
-                                    } %}
-                                </template>
-
-                            </dp-modal>
-
-                            <button
-                                type="button"
-                                @click="toggleConfirmModal"
-                                class="{{ 'btn btn--primary'|prefixClass }}"
-                            >
-                                {{ 'statements.marked.submit'|trans }}
-                            </button>
-
-                        {% endif %}
+                            {% endif %}
                         {% endblock %}
                     {% endif %}
 

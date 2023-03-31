@@ -109,22 +109,20 @@
           </dp-tabs>
 
           <!-- hidden selects so selected fields can be saved via form submit -->
-          <template>
-            <select
-              v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
+          <select
+            v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
+            :key="optionKey"
+            :id="option.name"
+            :name="option.name"
+            multiple
+            style="display: none">
+            <option
               :key="optionKey"
-              :id="option.name"
-              :name="option.name"
-              multiple
-              style="display: none">
-              <option
-                :key="optionKey"
-                :value="option.value"
-                selected>
-                {{ option.label }}
-              </option>
-            </select>
-          </template>
+              :value="option.value"
+              selected>
+              {{ option.label }}
+            </option>
+          </select>
 
           <!-- Checkbox to indicate user wants to save the current filter set -->
           <template v-if="userFilterSetSaveEnabled">

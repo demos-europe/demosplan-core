@@ -19,47 +19,44 @@
       </button>
     </div>
 
-    <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
-      <ul
-        :class="prefixClass('c-map__group js__mapLayerLegends')"
-        v-show="unfolded">
-        <li
-          v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
-          :class="prefixClass('list-style-none')">
-          <a
-            :class="prefixClass('c-map__group-item display--block')"
-            target="_blank"
-            :href="Routing.generate('core_file', { hash: planPdf.hash })"
-            :title="planPdfTitle">
-            <i
-              :class="prefixClass('fa fa-download')"
-              aria-hidden="true" />
-            {{ Translator.trans('legend.download') }}
-          </a>
-        </li>
+    <ul
+      v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')"
+      :class="prefixClass('c-map__group js__mapLayerLegends')"
+      v-show="unfolded">
+      <li
+        v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
+        :class="prefixClass('list-style-none')">
+        <a
+          :class="prefixClass('c-map__group-item display--block')"
+          target="_blank"
+          :href="Routing.generate('core_file', { hash: planPdf.hash })"
+          :title="planPdfTitle">
+          <i
+            :class="prefixClass('fa fa-download')"
+            aria-hidden="true" />
+          {{ Translator.trans('legend.download') }}
+        </a>
+      </li>
 
-        <dp-layer-legend-item
-          v-for="item in legends"
-          :key="item.id"
-          :legend="item" />
+      <dp-layer-legend-item
+        v-for="item in legends"
+        :key="item.id"
+        :legend="item" />
 
-        <template v-if="hasPermission('feature_map_layer_legend_file')">
-          <li
-            v-for="(layer, idx) in layersWithLegendFiles"
-            :key="idx"
-            :data-layername="layer.name"
-            :class="prefixClass('list-style-none')">
-            <a
-              :class="prefixClass('c-map__group-item display--block')"
-              target="_blank"
-              :href="Routing.generate('core_file', { hash: layer.legend.hash })"
-              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
-              {{ layer.name }}
-            </a>
-          </li>
-        </template>
-      </ul>
-    </template>
+      <li
+        v-for="(layer, idx) in (hasPermission('feature_map_layer_legend_file') ? layersWithLegendFiles : [])"
+        :key="idx"
+        :data-layername="layer.name"
+        :class="prefixClass('list-style-none')">
+        <a
+          :class="prefixClass('c-map__group-item display--block')"
+          target="_blank"
+          :href="Routing.generate('core_file', { hash: layer.legend.hash })"
+          :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
+          {{ layer.name }}
+        </a>
+      </li>
+    </ul>
   </div>
 </template>
 <script>

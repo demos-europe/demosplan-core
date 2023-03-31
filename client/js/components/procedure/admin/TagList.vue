@@ -66,42 +66,42 @@
       </template>
       <template v-slot:action="rowData">
         <div class="float--right">
-          <template v-if="!rowData.edit">
-            <button
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              @click="editTag(rowData.id)">
-              <i
-                class="fa fa-pencil"
-                aria-hidden="true" />
-            </button>
-            <button
-              :aria-label="Translator.trans('item.delete')"
-              class="btn--blank o-link--default"
-              @click="deleteTag(rowData.id)">
-              <i
-                class="fa fa-trash"
-                aria-hidden="true" />
-            </button>
-          </template>
-          <template v-else>
-            <button
-              :aria-label="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25"
-              @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.label), false)">
-              <dp-icon
-                icon="check"
-                aria-hidden="true" />
-            </button>
-            <button
-              class="btn--blank o-link--default"
-              :aria-label="Translator.trans('abort')"
-              @click="abortEdit()">
-              <dp-icon
-                icon="xmark"
-                aria-hidden="true" />
-            </button>
-          </template>
+          <button
+            v-if="!rowData.edit"
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            @click="editTag(rowData.id)">
+            <i
+              class="fa fa-pencil"
+              aria-hidden="true" />
+          </button>
+          <button
+            v-if="!rowData.edit"
+            :aria-label="Translator.trans('item.delete')"
+            class="btn--blank o-link--default"
+            @click="deleteTag(rowData.id)">
+            <i
+              class="fa fa-trash"
+              aria-hidden="true" />
+          </button>
+          <button
+            v-if="rowData.edit"
+            :aria-label="Translator.trans('save')"
+            class="btn--blank o-link--default u-mr-0_25"
+            @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.label), false)">
+            <dp-icon
+              icon="check"
+              aria-hidden="true" />
+          </button>
+          <button
+            v-if="rowData.edit"
+            class="btn--blank o-link--default"
+            :aria-label="Translator.trans('abort')"
+            @click="abortEdit()">
+            <dp-icon
+              icon="xmark"
+              aria-hidden="true" />
+          </button>
         </div>
       </template>
     </dp-data-table>

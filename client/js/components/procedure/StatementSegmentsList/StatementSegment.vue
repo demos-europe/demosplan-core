@@ -16,11 +16,13 @@
     :id="'segment_' + segment.id">
     <div class="flex flex-column flex-content-start flex-basis-20 u-pt-0_5 u-pl-0_5">
       <v-popover>
-        <i
-          class="fa fa-hashtag color--grey-light"
-          :class="{'color--grey-dark': isAssignedToMe || isHover}"
-          aria-hidden="true" />
-        <span>{{ this.segment.attributes.externId }}</span>
+        <template v-slot:default>
+          <i
+            class="fa fa-hashtag color--grey-light"
+            :class="{'color--grey-dark': isAssignedToMe || isHover}"
+            aria-hidden="true" />
+          <span>{{ this.segment.attributes.externId }}</span>
+        </template>
         <template v-slot:popover>
           <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
             <dl>

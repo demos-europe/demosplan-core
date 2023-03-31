@@ -18,14 +18,12 @@
         :header-fields="headerFields"
         :items="rowItems"
         track-by="id">
-        <template
-          v-slot:createdDate>
+        <template v-slot:createdDate>
           <p>
             {{ rowDataCreatedDate }}
           </p>
         </template>
-        <template
-          v-slot:status="rowData">
+        <template v-slot:status="rowData">
           <div v-if="rowData.status === 'publication_approved'">
             <i
               :aria-label="Translator.trans('publication.approved')"
@@ -45,8 +43,7 @@
               class="fa fa-exclamation-circle color--highlight u-ml u-mt-0_25" />
           </div>
         </template>
-        <template
-          v-slot:actions="rowData">
+        <template v-slot:actions="rowData">
           <div>
             <button
               v-if="rowData.status !== 'publication_approved'"

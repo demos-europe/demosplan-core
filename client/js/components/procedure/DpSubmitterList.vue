@@ -8,72 +8,69 @@
 </license>
 
 <template>
-  <div>
-    <p>
-      {{ Translator.trans('explanation.list.of.submitters') }}
-    </p>
+  <p>
+    {{ Translator.trans('explanation.list.of.submitters') }}
+  </p>
 
-    <div class="flex flex-items-center u-pv-0_5">
+  <div class="flex flex-items-center u-pv-0_5">
+    <a
+      :href="exportSubmitterList">
+      <i
+        class="fa fa-download"
+        aria-hidden="true" />
+      {{ Translator.trans('export') }}
+    </a>
+
+    <dp-column-selector
+      class="flex-item-end"
+      :initial-selection="currentSelection"
+      :selectable-columns="selectableColumns"
+      @selection-changed="setCurrentSelection"
+      use-local-storage
+      local-storage-key="submitterList" />
+  </div>
+
+  <dp-loading v-if="isLoading" />
+
+  <dp-data-table
+    class="overflow-x-auto"
+    v-if="!isLoading && items.length"
+    :header-fields="headerFields"
+    :items="items"
+    track-by="id">
+    <template v-slot:statement="rowData">
       <a
-        :href="exportSubmitterList">
-        <i
-          class="fa fa-download"
-          aria-hidden="true" />
-        {{ Translator.trans('export') }}
+        :href="SubmitterListItem(rowData)"
+        data-cy="SubmitterListItem">
+        {{ rowData.statement }}
       </a>
-
-      <dp-column-selector
-        class="flex-item-end"
-        :initial-selection="currentSelection"
-        :selectable-columns="selectableColumns"
-        @selection-changed="setCurrentSelection"
-        use-local-storage
-        local-storage-key="submitterList" />
-    </div>
-
-    <dp-loading v-if="isLoading" />
-    <template v-else>
-      <dp-data-table
-        class="overflow-x-auto"
-        v-if="items.length"
-        :header-fields="headerFields"
-        :items="items"
-        track-by="id">
-        <template v-slot:statement="rowData">
-          <a
-            :href="SubmitterListItem(rowData)"
-            data-cy="SubmitterListItem">
-            {{ rowData.statement }}
-          </a>
-        </template>
-        <template v-slot:street="rowData">
-          <div class="o-hellip--nowrap">
-            <span v-cleanhtml="rowData.street" />
-          </div>
-        </template>
-        <template v-slot:postalCodeAndCity="rowData">
-          <div class="o-hellip--nowrap">
-            <span v-cleanhtml="rowData.postalCodeAndCity" />
-          </div>
-        </template>
-        <template v-slot:internId="{ internId }">
-          <div
-            class="o-hellip__wrapper">
-            <div
-              v-text="internId"
-              class="o-hellip--nowrap text--right"
-              v-tooltip="internId"
-              dir="rtl" />
-          </div>
-        </template>
-      </dp-data-table>
-
-      <div v-else-if="items.length === 0">
-        <p class="flash flash-info">
-          {{ Translator.trans('statements.submitted.none') }}
-        </p>
+    </template>
+    <template v-slot:street="rowData">
+      <div class="o-hellip--nowrap">
+        <span v-cleanhtml="rowData.street" />
       </div>
     </template>
+    <template v-slot:postalCodeAndCity="rowData">
+      <div class="o-hellip--nowrap">
+        <span v-cleanhtml="rowData.postalCodeAndCity" />
+      </div>
+    </template>
+    <template v-slot:internId="{ internId }">
+      <div
+        class="o-hellip__wrapper">
+        <div
+          v-text="internId"
+          class="o-hellip--nowrap text--right"
+          v-tooltip="internId"
+          dir="rtl" />
+      </div>
+    </template>
+  </dp-data-table>
+
+  <div v-if="!isLoading && items.length === 0">
+    <p class="flash flash-info">
+      {{ Translator.trans('statements.submitted.none') }}
+    </p>
   </div>
 </template>
 

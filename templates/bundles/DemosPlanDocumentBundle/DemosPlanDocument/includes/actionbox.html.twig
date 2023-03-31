@@ -21,13 +21,13 @@
             data-cy="statementModal"
             aria-controls="statementModal"
             aria-describedby="statementActionDescription{{ context|capitalize }}"
-            role="button"
-        >
+            role="button">
             <template v-if="activeStatement">
                 <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
                 {{ 'statement.participate.resume'|trans }}
             </template>
-            <template v-else>
+
+            <template  v-if="!activeStatement">
                 {{ 'statement.participate'|trans }}
             </template>
         </a>

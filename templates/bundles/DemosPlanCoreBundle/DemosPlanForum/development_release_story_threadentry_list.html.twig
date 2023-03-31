@@ -41,14 +41,16 @@
                             {% endif %}
                             {% if templateVars.userStory.onlineVotes is defined and 0 < templateVars.userStory.onlineVotes %}
                                 <v-popover class="display--inline-block">
-                                    <button type="button" class="btn--blank o-link--default weight--bold">
-                                        <i class="fa fa-caret-right"></i>
-                                        {% if 1 == templateVars.userStory.onlineVotes|default() %}
-                                            {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVote'|trans }}
-                                        {% else %}
-                                            {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVotes'|trans }}
-                                        {% endif %}
-                                    </button>
+                                    <template v-slot:default>
+                                        <button type="button" class="btn--blank o-link--default weight--bold">
+                                            <i class="fa fa-caret-right"></i>
+                                            {% if 1 == templateVars.userStory.onlineVotes|default() %}
+                                                {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVote'|trans }}
+                                            {% else %}
+                                                {{ templateVars.userStory.onlineVotes }} {{ 'userStory.onlineVotes'|trans }}
+                                            {% endif %}
+                                        </button>
+                                    </template>
                                     <template v-slot:popover>
                                         <div class="space-inset-s">
                                             {% for vote in templateVars.votes %}

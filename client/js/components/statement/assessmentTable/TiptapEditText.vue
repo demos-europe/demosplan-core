@@ -85,7 +85,7 @@
           :element="editLabel"
           :is-shortened="isShortened"
           @heightLimit:toggle="update"
-          @click.native="toggleEditMode" />
+          @click="toggleEditMode" />
         <button
           type="button"
           :disabled="!editable"

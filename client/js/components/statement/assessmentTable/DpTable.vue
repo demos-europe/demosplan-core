@@ -168,10 +168,10 @@
       <!-- Loop statements in default viewMode -->
       <template
         v-else
-        v-for="statement in statements">
+        v-for="statement in statements"
+        :key="`statement:${statement.id}`">
         <dp-assessment-table-card
           :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
           class="o-list__item"
           :init-statement="{}"
           :statement-procedure-id="statement.procedureId"
@@ -229,6 +229,7 @@
       @size-change="handleSizeChange"
       :key="`pager2_${pagination.current_page}_${pagination.count}`" />
   </form>
+
 </template>
 
 <script>

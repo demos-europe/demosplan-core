@@ -252,11 +252,11 @@
                         v-model="selectedOrgas"
                         @input="sortSelected('Orgas')"
                         track-by="id"
-                        label="name"
-                    >
+                        label="name">
                         <template v-slot:option="props">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
+
                         <template v-slot:tag="props">
                             <span class="multiselect__tag">
                                 {% verbatim %}{{ props.option.name }}{% endverbatim %}

@@ -77,16 +77,15 @@
                             data-cy="publicStatementButton"
                             aria-controls="statementModal"
                             aria-describedby="statementActionDescriptionMap"
-                            role="button"
-                        >
+                            role="button">
                             <template v-if="activeStatement">
                                 {{ 'statement.participate.resume'|trans }}
                             </template>
-                            <template v-else>
+                            <template v-if="!activeStatement"
                                 {{ 'statement.participate'|trans }}
                             </template>
                         </a>
-                        <p v-if="activeStatement === false" class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.hint'|trans|wysiwyg }}</p>
+                        <p v-if="!activeStatement" class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.hint'|trans|wysiwyg }}</p>
                         <p class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.resume.hint'|trans }}</p>
                     </div>
 
@@ -395,7 +394,7 @@
                         <template v-if="activeStatement">
                             {{ 'statement.form.edit.location_relation'|trans }}
                         </template>
-                        <template v-else>
+                        <template v-if="!activeStatement">
                             {{ 'statement.new'|trans }}
                         </template>
                     </button>

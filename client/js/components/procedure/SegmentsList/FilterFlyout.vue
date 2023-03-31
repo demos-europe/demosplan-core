@@ -66,92 +66,94 @@
         aria-hidden="true" />
     </template>
 
-    <div
-      style="min-width: 300px;"
-      class="border--bottom u-p-0_5">
-      <dp-resettable-input
-        :id="`searchField_${path}`"
-        :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
-        @reset="resetSearch"
-        v-model="searchTerm" />
-    </div>
-
-    <dp-loading
-      v-if="isLoading"
-      class="u-mt u-ml-0_5 u-pb" />
-
-    <div v-else>
+    <template v-slot:default>
       <div
-        :style="maxHeight"
-        class="width-100p border--bottom overflow-y-scroll u-p-0_5">
-        <ul
-          v-if="getUngroupedItems().length"
-          class="o-list line-height--1_6">
-          <filter-flyout-checkbox
-            v-for="item in getUngroupedItems()"
-            @change="updateQuery"
-            :checked="isChecked(item)"
-            :option="item"
-            instance="ungrouped"
-            :key="item.id" />
-        </ul>
-        <ul
-          v-for="group in groups"
-          class="o-list line-height--1_6"
-          :key="`list_${group.id}}`">
-          <span class="font-size-small">
-            {{ group.attributes.label }}
+        style="min-width: 300px;"
+        class="border--bottom u-p-0_5">
+        <dp-resettable-input
+          :id="`searchField_${path}`"
+          :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
+          @reset="resetSearch"
+          v-model="searchTerm" />
+      </div>
+
+      <dp-loading
+        v-if="isLoading"
+        class="u-mt u-ml-0_5 u-pb" />
+
+      <div v-else>
+        <div
+          :style="maxHeight"
+          class="width-100p border--bottom overflow-y-scroll u-p-0_5">
+          <ul
+            v-if="getUngroupedItems().length"
+            class="o-list line-height--1_6">
+            <filter-flyout-checkbox
+              v-for="item in getUngroupedItems()"
+              @change="updateQuery"
+              :checked="isChecked(item)"
+              :option="item"
+              instance="ungrouped"
+              :key="item.id" />
+          </ul>
+          <ul
+            v-for="group in groups"
+            class="o-list line-height--1_6"
+            :key="`list_${group.id}}`">
+            <span class="font-size-small">
+              {{ group.attributes.label }}
+            </span>
+            <filter-flyout-checkbox
+              v-for="item in getItemsByGroup(group)"
+              @change="updateQuery"
+              :checked="isChecked(item)"
+              :option="item"
+              :instance="group.id"
+              :key="item.id" />
+          </ul>
+          <span v-if="groups.length === 0 && getUngroupedItems().length === 0">
+            {{ Translator.trans('search.results.none') }}
           </span>
+        </div>
+        <div
+          v-if="itemsSelected.length > 0"
+          class="cf">
+          <h3
+            class="display--inline-block font-size-small weight--normal u-m-0_5">
+            {{ Translator.trans('filter.active') }}
+          </h3>
+          <button
+            v-if="currentQuery.length"
+            class="o-link--default btn--blank font-size-small u-m-0_5 float--right"
+            @click="resetAndApply">
+            {{ Translator.trans('filter.active.remove') }}
+          </button>
+        </div>
+        <ul
+          class="o-list u-p-0_5 u-pt-0 line-height--1_6">
           <filter-flyout-checkbox
-            v-for="item in getItemsByGroup(group)"
+            v-for="item in itemsSelected"
             @change="updateQuery"
-            :checked="isChecked(item)"
+            :checked="true"
+            :show-count="false"
+            :highlight="appliedQuery.includes(item.id) === false"
             :option="item"
-            :instance="group.id"
-            :key="item.id" />
+            instance="itemsSelected"
+            :key="`itemsSelected_${item.id}}`" />
         </ul>
-        <span v-if="groups.length === 0 && getUngroupedItems().length === 0">
-          {{ Translator.trans('search.results.none') }}
-        </span>
+        <div class="cf u-p-0_5 u-pt-0">
+          <dp-button
+            class="float--left"
+            :text="Translator.trans('apply')"
+            @click="apply" />
+          <dp-button
+            class="float--right"
+            color="secondary"
+            :text="Translator.trans('abort')"
+            @click="close" />
+        </div>
       </div>
-      <div
-        v-if="itemsSelected.length > 0"
-        class="cf">
-        <h3
-          class="display--inline-block font-size-small weight--normal u-m-0_5">
-          {{ Translator.trans('filter.active') }}
-        </h3>
-        <button
-          v-if="currentQuery.length"
-          class="o-link--default btn--blank font-size-small u-m-0_5 float--right"
-          @click="resetAndApply">
-          {{ Translator.trans('filter.active.remove') }}
-        </button>
-      </div>
-      <ul
-        class="o-list u-p-0_5 u-pt-0 line-height--1_6">
-        <filter-flyout-checkbox
-          v-for="item in itemsSelected"
-          @change="updateQuery"
-          :checked="true"
-          :show-count="false"
-          :highlight="appliedQuery.includes(item.id) === false"
-          :option="item"
-          instance="itemsSelected"
-          :key="`itemsSelected_${item.id}}`" />
-      </ul>
-      <div class="cf u-p-0_5 u-pt-0">
-        <dp-button
-          class="float--left"
-          :text="Translator.trans('apply')"
-          @click="apply" />
-        <dp-button
-          class="float--right"
-          color="secondary"
-          :text="Translator.trans('abort')"
-          @click="close" />
-      </div>
-    </div>
+    </template>
   </dp-flyout>
 </template>
 

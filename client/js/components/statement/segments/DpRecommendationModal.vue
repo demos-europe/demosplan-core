@@ -11,22 +11,21 @@
   <dp-modal
     ref="recommendationModal"
     content-classes="u-2-of-3">
-    <template>
-      <h3>{{ Translator.trans('segment.recommendation.insert.similar') }}</h3>
-      <div class="layout u-mb">
-        <div class="layout__item u-1-of-3">
-          <span class="display--block weight--bold">
-            {{ Translator.trans('segment.tags') }}
+    <h3>{{ Translator.trans('segment.recommendation.insert.similar') }}</h3>
+    <div class="layout u-mb">
+      <div class="layout__item u-1-of-3">
+        <span class="display--block weight--bold">
+          {{ Translator.trans('segment.tags') }}
+        </span>
+        <div class="bg-color--grey-light-2 u-p-0_25">
+          <span
+            :key="id"
+            v-for="(id, idx) in tagIds">
+            {{ getTagTitle(id, idx) }}
           </span>
-          <div class="bg-color--grey-light-2 u-p-0_25">
-            <span
-              :key="id"
-              v-for="(id, idx) in tagIds">
-              {{ getTagTitle(id, idx) }}
-            </span>
-          </div>
-        </div><!--
-     --><div class="layout__item u-2-of-3">
+        </div>
+      </div><!--
+   --><div class="layout__item u-2-of-3">
         <dp-label
           :text="Translator.trans('search.text')"
           for="searchField" />
@@ -36,31 +35,28 @@
           class="width--100p"
           :placeholder="Translator.trans('search')" />
       </div>
-      </div>
+    </div>
 
-      <dp-loading v-if="isLoading" />
+    <dp-loading v-if="isLoading" />
 
-      <template v-else>
-        <ul
-          v-if="currentRecommendations.length > 0"
-          class="o-list space-stack-m u-pt-0_5 border--top height-50vh overflow-auto">
-          <dp-insertable-recommendation
-            class="o-list__item"
-            :from-other-procedure="recommendation.fromOtherProcedure"
-            :key="recommendation.id"
-            :procedure-name="recommendation.procedureName"
-            v-for="recommendation in currentRecommendations"
-            :search-term="searchTerm"
-            @insert-recommendation="toggleInsert(recommendation.attributes.recommendation)"
-            :recommendation="recommendation.attributes.recommendation" />
-        </ul>
-        <div
-          v-if="currentRecommendations.length === 0"
-          class="u-pt-0_5 border--top">
-          {{ Translator.trans('statement.list.empty') }}
-        </div>
-      </template>
-    </template>
+    <ul
+      v-if="!isLoading && currentRecommendations.length > 0"
+      class="o-list space-stack-m u-pt-0_5 border--top height-50vh overflow-auto">
+      <dp-insertable-recommendation
+        class="o-list__item"
+        :from-other-procedure="recommendation.fromOtherProcedure"
+        :key="recommendation.id"
+        :procedure-name="recommendation.procedureName"
+        v-for="recommendation in currentRecommendations"
+        :search-term="searchTerm"
+        @insert-recommendation="toggleInsert(recommendation.attributes.recommendation)"
+        :recommendation="recommendation.attributes.recommendation" />
+    </ul>
+    <div
+      v-if="!isLoading && currentRecommendations.length === 0"
+      class="u-pt-0_5 border--top">
+      {{ Translator.trans('statement.list.empty') }}
+    </div>
   </dp-modal>
 </template>
 

@@ -94,7 +94,8 @@ export default function DpWizard () {
           .addClass('is-active')
 
         //  Vue Components that need to init on visible elements may listen to this
-        window.Bus.emit('wizard:show', $currentItem.attr('data-wizard-topic'))
+        const wizardShow = new CustomEvent("wizard:show", $currentItem.attr('data-wizard-topic'));
+        window.dispatchEvent(wizardShow);
 
         this.$menu.find('li').removeClass('active').eq(idx).addClass('active')
 

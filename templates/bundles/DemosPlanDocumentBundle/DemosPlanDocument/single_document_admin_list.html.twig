@@ -46,6 +46,7 @@
                 <template #file="rowData">
                     <span class="overflow-word-break" v-text="rowData.file" />
                 </template>
+
                 <template #actions="rowData">
                     <a
                         :href="Routing.generate('DemosPlan_singledocument_administration_edit', { documentID: rowData.id, procedure: rowData.procedure })"

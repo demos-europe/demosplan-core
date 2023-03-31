@@ -8,8 +8,7 @@
 
     {% set selectedGroup = { id: form.vars.value.group.id|default(''), title: form.vars.value.group.title|default('-') } %}
 
-    <dp-edit-boilerplate
-        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
+    <dp-edit-boilerplate  :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
         <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
             <form
                 class="layout cf"
@@ -67,6 +66,7 @@
              --><div class="layout__item u-3-of-4 u-pl-0">
                     {% set boilerplatesGroups = [{ id: '', title: '-'}] %}
                     {% set boilerplatesGroups = boilerplatesGroups|merge(boilerplateGroupsOfProcedure|map(group => { id: group.id, title: group.title })) %}
+
                     <dp-multiselect
                         :options="JSON.parse('{{ boilerplatesGroups|json_encode|e('js', 'utf-8') }}')"
                         v-model="boilerplateGroup"
@@ -75,12 +75,12 @@
                         label="title"
                         @input="val => setBoilerplateGroup(val)"
                         :allow-empty="false"
-                        class="display--inline-block u-valign--middle u-mb"
-                    >
+                        class="display--inline-block u-valign--middle u-mb">
                         <template v-slot:option="props">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>
                     </dp-multiselect>
+
                     <input type="hidden" :value="boilerplateGroup.id" name="r_boilerplateGroup[id]"/>
                 </div><!--
 

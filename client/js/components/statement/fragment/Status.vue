@@ -30,18 +30,19 @@
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
     <v-popover v-else>
       <!-- Target/Trigger (for the events and position) -->
-      <div>
-        <slot name="title" />
-        <i
-          class="fa color--grey"
-          :class="{
-            'fa-hourglass-half': hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending,
-            'fa-question': status === '',
-            'fa-check': status !== ''
-          }"
-          aria-hidden="true" />
-      </div>
-
+      <template v-slot:default>
+        <div>
+          <slot name="title" />
+          <i
+            class="fa color--grey"
+            :class="{
+              'fa-hourglass-half': hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending,
+              'fa-question': status === '',
+              'fa-check': status !== ''
+            }"
+            aria-hidden="true" />
+        </div>
+      </template>
       <!-- Content -->
       <template v-slot:popover>
         <div>

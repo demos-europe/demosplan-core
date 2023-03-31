@@ -40,10 +40,11 @@
     <dp-loading
       v-if="isLoading"
       class="u-ml u-mt" />
+
     <!-- List of all items -->
     <div
       class="layout u-mb"
-      v-if="false === isLoading">
+      v-if="!isLoading">
       <div class="u-mt">
       <!--Button row --><!--
      --><div class="text--right float--right display--inline-block u-4-of-7 u-mb-0_5">
@@ -81,26 +82,27 @@
         </div>
       </div>
     </div>
-    <template
-      v-if="false === isLoading">
-      <ul class="o-list o-list--card u-mb">
-        <dp-user-list-item
-          class="o-list__item"
-          v-for="(item, idx) in items"
-          :key="idx"
-          :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
-          :user="item"
-          :data-cy="`userListBlk`"
-          :project-name="projectName"
-          @item:selected="dpToggleOne" />
-      </ul>
 
-      <dp-sliding-pagination
-        :current="currentPage"
-        :total="totalPages"
-        :non-sliding-size="10"
-        @page-change="getItemsByPage" />
-    </template>
+    <ul
+      v-if="!isLoading"
+      class="o-list o-list--card u-mb">
+      <dp-user-list-item
+        class="o-list__item"
+        v-for="(item, idx) in items"
+        :key="idx"
+        :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
+        :user="item"
+        :data-cy="`userListBlk`"
+        :project-name="projectName"
+        @item:selected="dpToggleOne" />
+    </ul>
+
+    <dp-sliding-pagination
+      v-if="!isLoading"
+      :current="currentPage"
+      :total="totalPages"
+      :non-sliding-size="10"
+      @page-change="getItemsByPage" />
   </div>
 </template>
 

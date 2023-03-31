@@ -184,9 +184,10 @@
 
         <!-- Currently assigned or requested permissions -->
         <template v-if="registrationStatuses.length > 0 && canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')">
-          <template v-for="(registrationStatus, idx) in registrationStatuses">
+          <template
+            v-for="(registrationStatus, idx) in registrationStatuses"
+            :key="`lbl${idx}`">
             <div
-              :key="`lbl${idx}`"
               class="layout">
               <div class="layout__item u-1-of-4">
                 <label

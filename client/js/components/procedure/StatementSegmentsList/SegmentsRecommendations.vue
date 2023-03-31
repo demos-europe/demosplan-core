@@ -49,7 +49,7 @@
           v-for="segment in segments"
           :key="'segment_' + segment.id"
           :segment="segment"
-          ref="segment"
+          :ref="segment[segment.id]"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"

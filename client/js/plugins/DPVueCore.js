@@ -12,7 +12,6 @@
  */
 
 import { extendedEmit, extendedOn } from '../lib/core/ExtendedVueEvents'
-import { MatchMedia } from '@demos-europe/demosplan-ui'
 
 const hasOwnProp = async (obj, prop) => {
   const { hasOwnProp } = await import('@demos-europe/demosplan-ui')
@@ -27,8 +26,6 @@ const DPVueCorePlugin = {
 
     VueCore.prototype.dplan = window.dplan
     VueCore.prototype.hasPermission = window.hasPermission
-
-    VueCore.prototype.$currentViewport = MatchMedia
 
     VueCore.prototype.emit = extendedEmit
     VueCore.prototype.on = extendedOn

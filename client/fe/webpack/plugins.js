@@ -100,8 +100,7 @@ const webpackDefaultPlugins = [
 
   // Provide configured Vue and Bus instances to all modules
   new webpack.ProvidePlugin({
-    Vue: ['@DpJs/VueConfigCore', 'default'],
-    Bus: ['@DpJs/VueConfigBus', 'default']
+    Vue: ['@DpJs/VueConfigCore', 'default']
   })
 ]
 

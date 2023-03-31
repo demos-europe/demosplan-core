@@ -51,6 +51,7 @@
                     {% set groups = groups|merge([{id: topicGroup.id, groupName: topicGroup.title, tags: tagArray }]) %}
                     {% set tagArray = [] %}
                 {% endfor %}
+
                 <dp-multiselect
                     multiple
                     id="r_tags[]"
@@ -62,8 +63,7 @@
                     group-label="groupName"
                     :group-select="false"
                     class="u-mt-0_25 weight--normal"
-                    data-cy="fragmentTopicsTags"
-                >
+                    data-cy="fragmentTopicsTags">
                     <template v-slot:option="props">
                         <strong v-if="props.option.$isLabel">
                             {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}
@@ -114,6 +114,7 @@
                     {% for county in templateVars.availableCounties %}
                         {% set counties = counties|merge([{id: county.id, name: county.name}]) %}
                     {% endfor %}
+
                     <dp-multiselect
                         multiple
                         id="r_counties[]"
@@ -122,17 +123,16 @@
                         label="name"
                         track-by="id"
                         class="u-mt-0_25 weight--normal"
-                        data-cy="fragmentCounties"
-                    >
+                        data-cy="fragmentCounties">
                         <template v-slot:option="props">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
                         <template v-slot:tag="props">
-                        <span class="multiselect__tag">
-                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                            <input type="hidden" :value="props.option.id" name="r_counties[]"/>
-                        </span>
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_counties[]"/>
+                            </span>
                         </template>
                     </dp-multiselect>
                 </label>
@@ -171,11 +171,11 @@
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
                         <template v-slot:tag="props">
-                        <span class="multiselect__tag">
-                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                            <input type="hidden" :value="props.option.id" name="r_municipalities[]"/>
-                        </span>
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_municipalities[]"/>
+                            </span>
                         </template>
                     </dp-multiselect>
                     </label>
@@ -215,11 +215,11 @@
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
                         <template v-slot:tag="props">
-                        <span class="multiselect__tag">
-                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                            <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
-                        </span>
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                            </span>
                         </template>
                     </dp-multiselect>
                     </label>

@@ -11,75 +11,74 @@
   <div>
     <dp-loading v-if="isLoading" />
 
-    <template v-else>
-      <dp-data-table
-        class="width-100p"
-        v-if="uploadedStatementFiles.length"
-        :header-fields="headerFields"
-        :items="uploadedStatementFiles"
-        track-by="id">
-        <template v-slot:header-uploadedDate="headerData">
-          <div class="text--center">
-            {{ headerData.label }}
-          </div>
-        </template>
-        <template v-slot:header-status="headerData">
-          <div class="text--center">
-            {{ headerData.label }}
-          </div>
-        </template>
-        <template v-slot:header-nextStep="headerData">
-          <div class="text--center">
-            {{ headerData.label }}
-          </div>
-        </template>
-        <template v-slot:fileName="{ fileName }">
-          <div class="o-hellip__wrapper">
-            <div
-              v-text="fileName"
-              class="o-hellip--nowrap" />
-          </div>
-        </template>
-        <template v-slot:uploadedDate="rowData">
-          <div class="text--center">
-            {{ rowData.uploadedDate }}
-          </div>
-        </template>
-        <template v-slot:status="rowData">
+    <dp-data-table
+      class="width-100p"
+      v-if="!isLoading && uploadedStatementFiles.length"
+      :header-fields="headerFields"
+      :items="uploadedStatementFiles"
+      track-by="id">
+      <template v-slot:header-uploadedDate="headerData">
+        <div class="text--center">
+          {{ headerData.label }}
+        </div>
+      </template>
+      <template v-slot:header-status="headerData">
+        <div class="text--center">
+          {{ headerData.label }}
+        </div>
+      </template>
+      <template v-slot:header-nextStep="headerData">
+        <div class="text--center">
+          {{ headerData.label }}
+        </div>
+      </template>
+      <template v-slot:fileName="{ fileName }">
+        <div class="o-hellip__wrapper">
           <div
-            v-tooltip="Translator.trans(rowData.status.transkey)"
-            class="text--center">
-            <i
-              v-if="rowData.status.name === 'pending' || rowData.status.name === 'reviewed'"
-              class="fa fa-hourglass-half"
-              aria-hidden="true" />
-            <i
-              v-if="rowData.status.name === 'ready_to_review' || rowData.status.name === 'ready_to_convert'"
-              class="fa fa-check-circle color--grey"
-              aria-hidden="true" />
-            <i
-              v-if="rowData.status.name === 'converted'"
-              class="fa fa-check color--system-confirm"
-              aria-hidden="true" />
-            <i
-              v-if="rowData.status.name === 'boxes_review' || rowData.status.name === 'text_review'"
-              class="fa fa-user color--grey"
-              aria-hidden="true" />
-          </div>
-        </template>
-        <template v-slot:nextStep="rowData">
-          <div class="text--center">
-            <a
-              :href="rowData.nextStep.link"
-              v-if="rowData.nextStep.link">{{ rowData.nextStep.text }}</a>
-            <span v-else>-</span>
-          </div>
-        </template>
-      </dp-data-table>
-      <div v-else-if="!uploadedStatementFiles.length">
-        {{ Translator.trans('files.empty') }}
-      </div>
-    </template>
+            v-text="fileName"
+            class="o-hellip--nowrap" />
+        </div>
+      </template>
+      <template v-slot:uploadedDate="rowData">
+        <div class="text--center">
+          {{ rowData.uploadedDate }}
+        </div>
+      </template>
+      <template v-slot:status="rowData">
+        <div
+          v-tooltip="Translator.trans(rowData.status.transkey)"
+          class="text--center">
+          <i
+            v-if="rowData.status.name === 'pending' || rowData.status.name === 'reviewed'"
+            class="fa fa-hourglass-half"
+            aria-hidden="true" />
+          <i
+            v-if="rowData.status.name === 'ready_to_review' || rowData.status.name === 'ready_to_convert'"
+            class="fa fa-check-circle color--grey"
+            aria-hidden="true" />
+          <i
+            v-if="rowData.status.name === 'converted'"
+            class="fa fa-check color--system-confirm"
+            aria-hidden="true" />
+          <i
+            v-if="rowData.status.name === 'boxes_review' || rowData.status.name === 'text_review'"
+            class="fa fa-user color--grey"
+            aria-hidden="true" />
+        </div>
+      </template>
+      <template v-slot:nextStep="rowData">
+        <div class="text--center">
+          <a
+            :href="rowData.nextStep.link"
+            v-if="rowData.nextStep.link">{{ rowData.nextStep.text }}</a>
+          <span v-else>-</span>
+        </div>
+      </template>
+    </dp-data-table>
+
+    <div v-else-if="!isLoading && !uploadedStatementFiles.length">
+      {{ Translator.trans('files.empty') }}
+    </div>
   </div>
 </template>
 

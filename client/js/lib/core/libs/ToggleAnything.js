@@ -266,8 +266,11 @@ export default function ToggleAnything () {
             el.config.targetObj.trigger('isVisible').data('toggle-touched', 1)
           }
 
+          const toggleAnythingClicked = new CustomEvent("toggleAnything:clicked", el.data('toggle-id'));
+
           //  Vue Components may listen to this
-          window.Bus.emit('toggleAnything:clicked', el.data('toggle-id'))
+          window.dispatchEvent(toggleAnythingClicked);
+
         })
       }
     }

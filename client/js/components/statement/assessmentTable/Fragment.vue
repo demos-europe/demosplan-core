@@ -110,7 +110,7 @@ useful info about the component:
             </div>
           </div>
         </template>
-        <template v-else>
+        <template v-if="fragment.archivedOrgaName !== null || fragment.archivedDepartmentName !== null || fragment.voteAdvice !== null">
           <div class="display--inline-block u-1-of-2 weight--bold u-pr-0_5 u-valign--top u-mt-0_25">
             {{ Translator.trans('fragment.assign.reviewer') }}:
           </div><!--
@@ -118,7 +118,7 @@ useful info about the component:
             <template v-if="fragment.archivedOrgaName === null && fragment.archivedDepartmentName === null && fragment.voteAdvice !== null">
               {{ hasPermission('feature_statements_fragment_advice') ? Translator.trans("fragment.assign.reviewer.voteAdvice.pending.reset") : Translator.trans('fragment.assign.reviewer.voteAdvice.pending') }}
             </template>
-            <template v-else>
+            <template v-if="fragment.archivedOrgaName !== null || fragment.archivedDepartmentName !== null || fragment.voteAdvice === null">
               {{ Translator.trans('fragment.voteAdvice.given') }}
             </template>
           </div>

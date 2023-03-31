@@ -44,22 +44,24 @@
               class="fa fa-angle-down"
               aria-hidden="true" />
           </template>
-          <a
-            :href="exportRoute('dplan_statement_segments_export')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.docx') }}
-          </a>
-          <a
-            :href="exportRoute('dplan_statement_segments_export_packaged')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.zip') }}
-          </a>
-          <a
-            v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-            :href="exportRoute('dplan_statement_xls_export')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.xlsx') }}
-          </a>
+          <template v-slot:default>
+            <a
+              :href="exportRoute('dplan_statement_segments_export')"
+              rel="noopener">
+              {{ Translator.trans('export.statements.docx') }}
+            </a>
+            <a
+              :href="exportRoute('dplan_statement_segments_export_packaged')"
+              rel="noopener">
+              {{ Translator.trans('export.statements.zip') }}
+            </a>
+            <a
+              v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
+              :href="exportRoute('dplan_statement_xls_export')"
+              rel="noopener">
+              {{ Translator.trans('export.statements.xlsx') }}
+            </a>
+          </template>
         </dp-flyout>
         <div class="flex-item-end flex flex-items-center space-inline-xs">
           <label class="u-mb-0">

@@ -56,8 +56,7 @@
                                 :disabled="Boolean({{ readonly }})"
                                 :group-select="false"
                                 group-values="tags"
-                                group-label="title"
-                            >
+                                group-label="title">
                                 <template v-slot:option="props">
                                     <span {% verbatim %}v-if="props.option.$isLabel"{% endverbatim %}>
                                         {% verbatim %}{{ props.option.$groupLabel }}{% endverbatim %}

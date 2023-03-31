@@ -21,63 +21,62 @@
       {{ filterItem.attributes.label }}
     </label><!--
 
-     --><div class="layout__item u-2-of-3">
-          <dp-multiselect
-            :value="selected"
-            :id="filterItem.id"
-            :loading="isLoading"
-            :name="filterItem.attributes.name + '_multiselect'"
-            :options="availableOptions"
-            :searchable="true"
-            :close-on-select="false"
-            multiple
-            track-by="label"
-            label="label"
-            @select="selectFilterOption"
-            @close="updateFilterOptions"
-            @open="loadFilterOptions"
-            @remove="removeFilterOption">
-            <!-- selected options -->
-            <template v-slot:tag="props">
-              <span class="multiselect__tag">
-                <span>
-                  {{ props.option.label }}
-                  <template v-if="'fragment' !== filterGroup.type">
-                    ({{ props.option.count }})
-                  </template>
-                </span>
-                <i
-                  aria-hidden="true"
-                  @click="props.remove(props.option)"
-                  tabindex="1"
-                  class="multiselect__tag-icon" />
-              </span>
-            </template>
-
-            <!-- sorting -->
-            <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
-            <template
-              v-if="'fragment' !== filterGroup.type"
-              v-slot:beforeList>
-              <li>
-                <button
-                  type="button"
-                  @click="toggleSorting(filterItem.id)"
-                  v-cleanhtml="sortingLabel"
-                  class="btn--blank o-link--default" />
-              </li>
-            </template>
-
-            <!-- selectable options -->
-            <template
-              v-slot:option="props">
+ --><div class="layout__item u-2-of-3">
+      <dp-multiselect
+        :value="selected"
+        :id="filterItem.id"
+        :loading="isLoading"
+        :name="filterItem.attributes.name + '_multiselect'"
+        :options="availableOptions"
+        :searchable="true"
+        :close-on-select="false"
+        multiple
+        track-by="label"
+        label="label"
+        @select="selectFilterOption"
+        @close="updateFilterOptions"
+        @open="loadFilterOptions"
+        @remove="removeFilterOption">
+        <!-- selected options -->
+        <template v-slot:tag="props">
+          <span class="multiselect__tag">
+            <span>
               {{ props.option.label }}
               <template v-if="'fragment' !== filterGroup.type">
                 ({{ props.option.count }})
               </template>
-            </template>
-          </dp-multiselect>
-        </div>
+            </span>
+            <i
+              aria-hidden="true"
+              @click="props.remove(props.option)"
+              tabindex="1"
+              class="multiselect__tag-icon" />
+          </span>
+        </template>
+
+        <!-- sorting -->
+        <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
+        <template
+          v-if="'fragment' !== filterGroup.type"
+          v-slot:beforeList>
+          <li>
+            <button
+              type="button"
+              @click="toggleSorting(filterItem.id)"
+              v-cleanhtml="sortingLabel"
+              class="btn--blank o-link--default" />
+          </li>
+        </template>
+
+        <!-- selectable options -->
+        <template v-slot:option="props">
+          {{ props.option.label }}
+          <template v-if="'fragment' !== filterGroup.type">
+            ({{ props.option.count }})
+          </template>
+        </template>
+      </dp-multiselect>
+    </div>
   </div>
 
   <!-- hidden select -->

@@ -12,8 +12,7 @@
     class="layout__item c-card list-style-none u-1-of-1"
     :open="isOpen">
     <!-- card header -->
-    <template
-      v-slot:header="">
+    <template v-slot:header>
       <div
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
         class="cursor--pointer"
@@ -64,33 +63,35 @@
     </template>
 
     <!-- card content -->
-    <dl
-      :class="{'u-pt-0_5' : isOpen}"
-      class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
-      <dd class="layout__item u-pr u-1-of-2">
-        <dp-edit-field-single-select
-          label="Organisation"
-          field-key="organisation"
-          :entity-id="user.id"
-          :label-grid-cols="4"
-          :options="availableOrganisations"
-          :value="currentOrganisation"
-          @field:input="(val) => updateRelationship('currentOrganisation', val)"
-          @field:save="saveUser" />
-      </dd><!--
-   --><dd class="layout__item u-1-of-2">
-        <dp-edit-field-single-select
-          label="Abteilung"
-          ref="departmentSelect"
-          field-key="department"
-          :entity-id="user.id"
-          :label-grid-cols="4"
-          :options="availableDepartments"
-          :value="currentDepartment"
-          @field:input="(val) => updateRelationship('currentDepartment', val)"
-          @field:save="saveUser" />
-      </dd>
-    </dl>
+    <template v-slot:default>
+      <dl
+        :class="{'u-pt-0_5' : isOpen}"
+        class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
+        <dd class="layout__item u-pr u-1-of-2">
+          <dp-edit-field-single-select
+            label="Organisation"
+            field-key="organisation"
+            :entity-id="user.id"
+            :label-grid-cols="4"
+            :options="availableOrganisations"
+            :value="currentOrganisation"
+            @field:input="(val) => updateRelationship('currentOrganisation', val)"
+            @field:save="saveUser" />
+        </dd><!--
+     --><dd class="layout__item u-1-of-2">
+          <dp-edit-field-single-select
+            label="Abteilung"
+            ref="departmentSelect"
+            field-key="department"
+            :entity-id="user.id"
+            :label-grid-cols="4"
+            :options="availableDepartments"
+            :value="currentDepartment"
+            @field:input="(val) => updateRelationship('currentDepartment', val)"
+            @field:save="saveUser" />
+        </dd>
+      </dl>
+    </template>
   </dp-table-card>
 </template>
 
