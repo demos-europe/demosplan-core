@@ -58,6 +58,7 @@ use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_key_exists;
 use function array_keys;
 use function is_int;
@@ -101,6 +102,7 @@ class DemosPlanStatementAPIController extends APIController
      *        options={"expose": true})
      *
      * Copy Statement into (another) procedure.
+     *
      * @DplanPermissions("feature_statement_copy_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -196,6 +198,7 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_statement_move",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_move_to_procedure")
      *
      * @return APIResponse|JsonResponse
@@ -408,6 +411,7 @@ class DemosPlanStatementAPIController extends APIController
      *        methods={"GET"},
      *        name="dplan_assessmentqueryhash_get_procedure_statement_list",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin_assessmenttable")
      */
     public function listAction(
@@ -497,6 +501,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -545,6 +550,7 @@ class DemosPlanStatementAPIController extends APIController
      *
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
      *
      * @throws MessageBagException
@@ -598,6 +604,7 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent placeholder statements (only or together with other statements): Show message "%count% der markierten Stellungnahmen befinden sich nicht im aktuellen Verfahren und wurden Ihnen nicht zugewiesen."
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
+     *
      * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
      *
      * @return JsonResponse

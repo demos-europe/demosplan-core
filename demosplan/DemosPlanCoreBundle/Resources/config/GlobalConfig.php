@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_key_exists;
 use function array_map;
 use function explode;
@@ -38,6 +39,7 @@ use function strncasecmp;
 use function strpos;
 use function substr;
 use function trim;
+
 use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface

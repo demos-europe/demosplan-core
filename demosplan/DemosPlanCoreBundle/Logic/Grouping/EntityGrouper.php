@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ArraySorterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_shift;
 use function count;
 use function is_countable;

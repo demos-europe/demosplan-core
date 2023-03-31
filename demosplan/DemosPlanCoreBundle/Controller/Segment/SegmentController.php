@@ -40,6 +40,7 @@ class SegmentController extends BaseController
      *     methods="GET",
      *     path="/verfahren/{procedureId}/abschnitte",
      *     options={"expose": true})
+     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
@@ -60,6 +61,7 @@ class SegmentController extends BaseController
      *        methods="GET",
      *        path="/verfahren/{procedureId}/{statementId}/abschnitte",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_segments_of_statement_list")
      *
      * @throws ProcedureNotFoundException
@@ -112,6 +114,7 @@ class SegmentController extends BaseController
      *     methods="POST",
      *     path="/verfahren/{procedureId}/abschnitte/speichern",
      *     options={"expose": true})
+     *
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException
@@ -197,6 +200,7 @@ class SegmentController extends BaseController
      *     methods="GET",
      *     path="/verfahren/{procedureId}/abschnitte/{queryHash}",
      *     options={"expose": true})
+     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function listFilteredAction(
