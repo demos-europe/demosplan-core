@@ -1,9 +1,10 @@
-{% set faq = templateVars.faq %}
+{% set faq = templateVars.faq|default({}) %}
 
 {# Rollengruppe initialisieren #}
 {% set GGUEST = false %}
 {% set GLAUTH = false %}
 {% set GPSORG = false %}
+
 {# Rollengruppe setzen #}
 {% if faq.roles is defined %}
     {% for role in faq.roles %}
@@ -17,19 +18,21 @@
     {% endfor %}
 {% endif %}
 
-{% set actionname = 'faqnew' %}
 {% if faq.id is defined %}
     {% set actionName = 'faqedit' %}
+    {% set actionPath = path('DemosPlan_faq_administration_faq_edit',{'faqID':faq.id}) %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
+{% else %}
+    {% set actionName = 'faqnew' %}
+    {% set actionPath = path('DemosPlan_faq_administration_faq_new',{'procedure': procedure }) %}
+    {% set cancelPath = path('DemosPlan_faq_administration_faq',{'procedure': procedure}) %}
 {% endif %}
 
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
 {% block component_part %}
 
-    {% set actionPath = path('DemosPlan_faq_administration_faq_edit',{'faqID':faq.id}) %}
-    {% set cancelPath = path('DemosPlan_faq_administration_faq') %}
-
-    <h1>{{ 'edit.entity'|trans({ entity: 'faq'|trans }) }}</h1>
+    <h1>{{ (actionName == 'faqedit' ? 'edit.entity' : 'add.entity')|trans({ entity: 'faq'|trans }) }}</h1>
 
     <form class="cf u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
 		<input name="action" type="hidden" value="{{ actionName }}">
@@ -45,12 +48,12 @@
                             {
                                 label: 'released',
                                 value: '1',
-                                selected: templateVars.faq.enabled == true
+                                selected: faq.enabled|default(false) == true
                             },
                             {
                                 label: 'blocked',
                                 value: '0',
-                                selected: templateVars.faq.enabled == false
+                                selected: faq.enabled|default(false) == false
                             }
                         ],
                         attributes: ['data-cy=FAQStatus']
@@ -66,7 +69,7 @@
             {% set roleGroupsFaqVisibilityOptions = [
                 {
                     label: { text: 'role.fp.for'|trans, labelRequired: false },
-                    control: { name: 'r_group_code[]', value: 'GLAUTH',checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
+                    control: { name: 'r_group_code[]', value: 'GLAUTH', checked: GLAUTH == true, attributes: ['data-cy=fachplanerVisibility'] },
                     id: 'fachplanerVisibility',
                     type: 'checkbox',
                     elementSize: 'medium',
@@ -135,7 +138,7 @@
             elements: [
                 {
                     label: { text: 'heading'|trans },
-                    control: { name: 'r_title', value: faq.title, attributes: ['data-cy=FAQTitle'] },
+                    control: { name: 'r_title', value: faq.title|default, attributes: ['data-cy=FAQTitle'] },
                     type: 'text',
                     required: true
                 }
@@ -147,7 +150,7 @@
                 {
                     label: { text: 'text'|trans },
                     control: {
-                        value: faq.text,
+                        value: faq.text|default,
                         hiddenInput: 'r_text',
                         linkButton: true,
                         ref: 'r_text'
@@ -165,7 +168,7 @@
         }) }}
     </form>
 
-{% endblock %}
+{% endblock component_part %}
 
 {% block javascripts %}
     {{ parent() }}

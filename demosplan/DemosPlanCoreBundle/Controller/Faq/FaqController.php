@@ -38,7 +38,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class FaqController extends BaseController
 {
     /**
-     * Gib die Faqliste eines Verfahrens? aus.
+     * Displays a list of Faq Articles visible to the current user (all categories).
      *
      * @throws Exception
      *
@@ -83,7 +83,7 @@ class FaqController extends BaseController
     }
 
     /**
-     * Gib die öffentliche Faqliste für die Beteiligungsebene aus.
+     * Displays a list of Faq Articles visible to the current user (only one category, based on route).
      *
      * @Route(
      *     path="/faq/bauleitplanung",
@@ -330,7 +330,7 @@ class FaqController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanFaq/faq_admin_new.html.twig',
+            '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
