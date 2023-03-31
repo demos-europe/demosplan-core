@@ -240,8 +240,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *
      * @throws AccessDeniedException|Exception
      */
-    public function alternativeLoginAction(CustomerService $customerService, ParameterBagInterface $parameterBag, CurrentUserInterface $currentUser, CacheInterface $cache)
-    {
+    public function alternativeLoginAction(
+        CacheInterface $cache,
+        CurrentUserInterface $currentUser,
+        CustomerService $customerService,
+        ParameterBagInterface $parameterBag,
+        Request $request
+    ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
         }
@@ -254,6 +259,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $users = [];
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
+        $useIdp = false;
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
@@ -265,6 +271,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
                     return $this->userService->getTestUsers($testPassword);
                 });
+
+            // add access to test external identity provider
+            // do not display link when it targets same site
+            $gatewayUrl = $parameterBag->get('gateway_url');
+            $useIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo()) ;
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
@@ -289,6 +300,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 'useSaml'   => $useSaml,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'useIdp'   => $useIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
