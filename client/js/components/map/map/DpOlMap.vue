@@ -212,7 +212,8 @@ export default {
       },
       baselayer: '',
       baselayerLayers: '',
-      baseLayerProjection: ''
+      baseLayerProjection: '',
+      mapExtent: []
     }
   },
 
@@ -232,6 +233,7 @@ export default {
     /**
      * Transform function to only return results from inside current maxExtent to AutoComplete
      * @todo make it work - somehow there seem to be different projections ?:/
+     *
      * @return {function(*=): *}
      */
     transformAutoCompleteResult () {
@@ -282,9 +284,9 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length > 0) {
         this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent) {
+      } else if (mapOptions.procedureDefaultMaxExtent.length > 0) {
         this.maxExtent = mapOptions.procedureDefaultMaxExtent
       } else {
         this.maxExtent = mapOptions.defaultMapExtent
