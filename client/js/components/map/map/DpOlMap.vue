@@ -284,9 +284,9 @@ export default {
      * @return void
      */
     defineExtent (mapOptions) {
-      if (this._options.procedureExtent && mapOptions.procedureMaxExtent.length > 0) {
+      if (this._options.procedureExtent && mapOptions.procedureMaxExtent?.length > 0) {
         this.maxExtent = mapOptions.procedureMaxExtent
-      } else if (mapOptions.procedureDefaultMaxExtent.length > 0) {
+      } else if (mapOptions.procedureDefaultMaxExtent?.length > 0) {
         this.maxExtent = mapOptions.procedureDefaultMaxExtent
       } else {
         this.maxExtent = mapOptions.defaultMapExtent
