@@ -300,7 +300,7 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * Check whether some files should be (soft) deleted as they are
+     * Check whether some (already soft deleted) files should be fully deleted as they are
      * not used anywhere anymore.
      *
      * @return int Amount of deleted Files
@@ -313,7 +313,7 @@ class FileService extends CoreService implements FileServiceInterface
         /** @var File $file */
         foreach ($allSoftDeletedFiles as $file) {
             try {
-                $this->getLogger()->info('Try to remove soft deleted File ', [$file->getId()]);
+                $this->getLogger()->info('Try to fully remove soft deleted File ', [$file->getId()]);
                 $deleted = $this->deleteFile($file->getId());
                 if ($deleted) {
                     if (null === $file->getId()) {

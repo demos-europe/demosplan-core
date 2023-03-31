@@ -584,12 +584,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this;
     }
 
-    /**
-     * Get deleted.
-     *
-     * @return bool
-     */
-    public function getDeleted()
+    public function getDeleted(): bool
     {
         return (bool) $this->deleted;
     }
