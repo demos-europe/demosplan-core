@@ -386,9 +386,15 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $em->persist($mail);
+
+                    continue;
                 } catch (Exception $e) {
-                    $this->logger->error('General exception on sending e-mail.');
+                    $this->logger->error('General exception on sending e-mail.', [$e]);
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $em->persist($mail);
+
+                    continue;
                 }
 
                 $em->persist($mail);

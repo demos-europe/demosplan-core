@@ -334,7 +334,7 @@ parameters:
     avscan_enable: true
 
     # should file table entries be checked regularly whether they are referenced in some other entities
-    # and be soft deleted if no reference is found?
+    # and be fully deleted if no reference is found?
     delete_removed_files: true
 
     # disable honeypot check
