@@ -124,11 +124,7 @@ export default {
     return {
       isOpen: false,
       isLoading: true,
-      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
-      editorData: {
-        imprint: this.organisation.attributes.imprint,
-        dataProtection: this.organisation.attributes.dataProtection
-      }
+      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
     }
   },
 
