@@ -678,17 +678,59 @@
         </div>
       </div>
     </fieldset>
+
+    <fieldset>
+      <!-- Imprint -->
+      <customer-settings-section
+        v-if="hasPermission('feature_imprint_text_customized_view')"
+        :title="Translator.trans('imprint')">
+        <dp-label
+          for="r_imprint"
+          :text="Translator.trans('customer.imprint.explanation', { url: '/impressum' })" />
+        <dp-editor
+          id="r_imprint"
+          v-model="localOrganisation.attributes.imprint"
+          hidden-input="r_imprint"
+          :toolbar-items="{
+            fullscreenButton: true,
+            headings: [2,3,4],
+            linkButton: true
+          }" />
+      </customer-settings-section>
+
+      <!-- Data Protection -->
+      <customer-settings-section
+        v-if="hasPermission('feature_data_protection_text_customized_view')"
+        :title="Translator.trans('data.protection.notes')">
+        <dp-label
+          for="r_dataProtection"
+          :text="Translator.trans('customer.data.protection.explanation')" />
+        <dp-editor
+          id="r_dataProtection"
+          v-model="localOrganisation.attributes.dataProtection"
+          hidden-input="r_dataProtection"
+          :toolbar-items="{
+            fullscreenButton: true,
+            headings: [2,3,4],
+            linkButton: true
+          }" />
+      </customer-settings-section>
+    </fieldset>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import CustomerSettingsSection from '@DpJs/components/user/CustomerSettings/CustomerSettingsSection'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    CustomerSettingsSection,
     DpDetails,
+    DpEditor,
+    DpLabel,
     DpTextArea
   },
 
@@ -726,6 +768,7 @@ export default {
           attributes: {
             ccEmail2: '',
             city: '',
+            dataProtection: '',
             postalcode: '',
             competence: '',
             contactPerson: null,
@@ -734,6 +777,7 @@ export default {
             email2: '',
             emailNotificationEndingPhase: false,
             emailNotificationNewStatement: false,
+            imprint: '',
             name: '',
             participationEmail: '',
             phone: '',
