@@ -1649,15 +1649,15 @@
   resolved "https://registry.yarnpkg.com/@mapbox/unitbezier/-/unitbezier-0.0.0.tgz#15651bd553a67b8581fb398810c98ad86a34524e"
   integrity sha512-HPnRdYO0WjFjRTSwO3frz1wKaU649OBFPX3Zo/2WZvuRi6zMiRGui8SnPQiQABgqCf8YikDe5t3HViTVw1WUzA==
 
-"@masterportal/masterportalapi@^2.15.2":
-  version "2.15.2"
-  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.15.2.tgz#729cd2e135dff553ccbf5ede44a56ab7b6baed08"
-  integrity sha512-o6hlBNDrrPgZNc6fMogwRwYc6feNCIEStDFNVNUQnLsPgHiKDSjt1lI0On6T/JaTEVPLPu8tI/F0GqUkV08UZA==
+"@masterportal/masterportalapi@^2.16.0":
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/@masterportal/masterportalapi/-/masterportalapi-2.16.0.tgz#1b902a897ca943e05296c6ea3259fe23e49e825f"
+  integrity sha512-djQKSGTowIpO/36Oc62GX6wVWyhRJB/gvTjCYLu0v9NM9N6KVZUlHetXjme7Ykm71CSQkqARLoqwaCCzT3If2w==
   dependencies:
-    core-js "^3.27.1"
-    ol "7.2.2"
+    core-js "^3.29.1"
+    ol "7.3.0"
     olcs "^2.13.1"
-    proj4 "^2.8.1"
+    proj4 "^2.9.0"
     xml2js "^0.4.23"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
@@ -3053,7 +3053,7 @@ core-js-compat@^3.25.1:
   dependencies:
     browserslist "^4.21.4"
 
-core-js@3, core-js@^3.26.1, core-js@^3.27.1, core-js@^3.29.1, core-js@^3.6.5:
+core-js@3, core-js@^3.26.1, core-js@^3.29.1, core-js@^3.6.5:
   version "3.29.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.29.1.tgz#40ff3b41588b091aaed19ca1aa5cb111803fa9a6"
   integrity sha512-+jwgnhg6cQxKYIIjGtAHq2nwUOolo9eoFZ4sHfUH09BLXBgxnH4gA0zEd+t+BO2cNB8idaBtZFcFTRjQJRJmAw==
@@ -6538,18 +6538,7 @@ ol-mapbox-style@^9.2.0:
     "@mapbox/mapbox-gl-style-spec" "^13.23.1"
     mapbox-to-css-font "^2.4.1"
 
-ol@7.2.2:
-  version "7.2.2"
-  resolved "https://registry.yarnpkg.com/ol/-/ol-7.2.2.tgz#d675a1525fd995a29a70a9a9fa9c3a9bc827aa39"
-  integrity sha512-eqJ1hhVQQ3Ap4OhYq9DRu5pz9RMpLhmoTauDoIqpn7logVi1AJE+lXjEHrPrTSuZYjtFbMgqr07sxoLNR65nrw==
-  dependencies:
-    earcut "^2.2.3"
-    geotiff "^2.0.7"
-    ol-mapbox-style "^9.2.0"
-    pbf "3.2.1"
-    rbush "^3.0.1"
-
-ol@~7.3.0:
+ol@7.3.0, ol@~7.3.0:
   version "7.3.0"
   resolved "https://registry.yarnpkg.com/ol/-/ol-7.3.0.tgz#7ffb5f258dafa4a3e218208aad9054d61f6fe786"
   integrity sha512-08vJE4xITKPazQ9qJjeqYjRngnM9s+1eSv219Pdlrjj3LpLqjEH386ncq+76Dw1oGPGR8eLVEePk7FEd9XqqMw==
@@ -7384,7 +7373,7 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-proj4@^2.8.1, proj4@^2.9.0:
+proj4@^2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.9.0.tgz#1b61db8c998313f80e2514609b339fb2d28cbb82"
   integrity sha512-BoDXEzCVnRJVZoOKA0QHTFtYoE8lUxtX1jST38DJ8U+v1ixY70Kpwi0Llu6YqSWEH2xqu4XMEBNGcgeRIEywoA==
