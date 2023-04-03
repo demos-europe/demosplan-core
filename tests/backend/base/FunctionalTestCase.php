@@ -263,7 +263,7 @@ class FunctionalTestCase extends WebTestCase
      *
      * @return int - The number of entries of the table
      */
-    public function countEntries($entityName, array $criteria = []): int
+    public function countEntries(string $entityName, array $criteria = []): int
     {
         return count($this->getEntries($entityName, $criteria));
     }

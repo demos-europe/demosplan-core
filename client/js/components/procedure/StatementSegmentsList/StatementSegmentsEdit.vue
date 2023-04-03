@@ -67,19 +67,28 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <dp-editor
-        hidden-input="statementText"
-        @input="updateStatementText"
-        :value="statement.attributes.fullText || ''"
-        :toolbar-items="{ linkButton: true }"
-        :readonly="!editable"
-        required />
-      <dp-button-row
-        class="u-mv"
-        primary
-        secondary
-        @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-        @secondary-action="resetStatement" />
+      <template v-if="editable">
+        <dp-editor
+          hidden-input="statementText"
+          @input="updateStatementText"
+          :value="statement.attributes.fullText || ''"
+          :toolbar-items="{ linkButton: true }"
+          required />
+        <dp-button-row
+          class="u-mv"
+          primary
+          secondary
+          @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
+          @secondary-action="resetStatement" />
+      </template>
+      <div
+        v-else
+        class="border space-inset-s">
+        <p class="weight--bold">
+          {{ Translator.trans('statement.text.short') }}
+        </p>
+        <div v-cleanhtml="statement.attributes.fullText || ''" />
+      </div>
     </template>
   </div>
 </template>

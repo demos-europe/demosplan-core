@@ -1338,7 +1338,7 @@ feature_procedure_couple_by_token:
         Allows to enter a couple-token (feature_procedure_couple_token_autocreate) when creating a procedure
         and view it afterwards in that procedure.
         This permission is not a child of feature_procedure_couple_token_autocreate, instead it describes the opposite function.
-    expose: false
+    expose: true
     label: 'Allows to enter a token (feature_procedure_couple_token_autocreate) when creating a procedure.'
     loginRequired: true
 feature_procedure_couple_token_autocreate:

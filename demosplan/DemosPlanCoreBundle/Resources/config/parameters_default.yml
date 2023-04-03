@@ -48,7 +48,7 @@ parameters:
     public_index_route: ""
     public_index_route_parameters: []
 
-    gateway_url: ""
+    gateway_url: "/connect/keycloak_ozg"
     gateway_register_url: ""
     gateway_register_citizen_url: ""
     gateway_authenticate_url: ""
@@ -306,17 +306,17 @@ parameters:
 
     # SAML-related settings. These are set in config files in project folder
     # this is just an example to document the keys
-    saml_baseurl: ''
-    saml_idp_entityid: ''
-    saml_idp_slo_url: ''
-    saml_idp_sso_url: ''
-    saml_idp_x509_string: ''
-    saml_sp_acs_url: ''
-    saml_sp_entityid: ''
-    saml_sp_sls_url: ''
-    saml_sp_x509_private_string: ''
-    saml_sp_x509_string: ''
-    saml_registration_url: ''
+    saml_baseurl: 'http://localhost/'
+    saml_idp_entityid: 'id'
+    saml_idp_slo_url: 'http://localhost/'
+    saml_idp_sso_url: 'http://localhost/'
+    saml_idp_x509_string: 'secretString'
+    saml_sp_acs_url: 'http://localhost/'
+    saml_sp_entityid: 'id'
+    saml_sp_sls_url: 'http://localhost/'
+    saml_sp_x509_private_string: 'secretString'
+    saml_sp_x509_string: 'secretString'
+    saml_registration_url: 'http://localhost/'
 
     # Set users with permissions to alter Database
     database_install_user: ""
@@ -334,7 +334,7 @@ parameters:
     avscan_enable: true
 
     # should file table entries be checked regularly whether they are referenced in some other entities
-    # and be soft deleted if no reference is found?
+    # and be fully deleted if no reference is found?
     delete_removed_files: true
 
     # disable honeypot check
@@ -446,7 +446,7 @@ parameters:
     ai_service_post_url: ""
 
     # #refactor: used only once, could be constant
-    drafts_info_schema_path: "%kernel.project_dir%/demosplan/plugins/workflow/SegmentsManager/Resources/validator/drafts-info-schema.json"
+    drafts_info_schema_path: "%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Resources/config/json-schema/drafts-info-schema.json"
 
     public_css_class_prefix: ""
 
