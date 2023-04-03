@@ -682,7 +682,7 @@
     <!-- Imprint -->
     <fieldset v-if="hasPermission('feature_imprint_text_customized_view')">
       <legend class="layout__item u-p-0 u-pb-0_5">
-        {{ Translator.trans('Impressum auf Mandantenebene anpassen') }}
+        {{ Translator.trans('procedure.agency.imprint') }}
       </legend>
       <dp-editor
         id="r_imprint"
@@ -697,9 +697,9 @@
     </fieldset>
 
     <!-- Data Protection -->
-    <fieldset v-if="hasPermission('feature_imprint_text_customized_view')">
+    <fieldset v-if="hasPermission('field_data_protection_text_customized_edit_orga')">
       <legend class="layout__item u-p-0 u-pb-0_5">
-        {{ Translator.trans('Datenschutzhinweise auf Mandantenebene anpassen') }}
+        {{ Translator.trans('data.protection.organisations') }}
       </legend>
       <dp-editor
         id="r_dataProtection"
