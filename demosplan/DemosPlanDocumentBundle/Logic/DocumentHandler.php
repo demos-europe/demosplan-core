@@ -391,9 +391,11 @@ class DocumentHandler extends CoreHandler
      */
     public function hasProcedureElements(string $procedureId, $userOrgaId): bool
     {
+        $procedure = $this->procedureService->getProcedure($procedureId);
         $outputResultElementList = $this->elementsService->getElementsListObjects(
             $procedureId,
-            $userOrgaId
+            $userOrgaId,
+            $userOrgaId === $procedure->getOrgaId()
         );
 
         $hasProcedureElements = false;
