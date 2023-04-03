@@ -679,57 +679,49 @@
       </div>
     </fieldset>
 
-    <fieldset>
-      <!-- Imprint -->
-      <customer-settings-section
-        v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')">
-        <dp-label
-          for="r_imprint"
-          :text="Translator.trans('customer.imprint.explanation', { url: '/impressum' })" />
-        <dp-editor
-          id="r_imprint"
-          v-model="localOrganisation.attributes.imprint"
-          @input="emitOrganisationUpdate"
-          hidden-input="r_imprint"
-          :toolbar-items="{
-            fullscreenButton: true,
-            headings: [2,3,4],
-            linkButton: true
-          }" />
-      </customer-settings-section>
+    <!-- Imprint -->
+    <fieldset v-if="hasPermission('feature_imprint_text_customized_view')">
+      <legend class="layout__item u-p-0 u-pb-0_5 font-size-medium">
+        {{ Translator.trans('Impressum auf Mandantenebene anpassen') }}
+      </legend>
+      <dp-editor
+        id="r_imprint"
+        v-model="localOrganisation.attributes.imprint"
+        @input="emitOrganisationUpdate"
+        hidden-input="r_imprint"
+        :toolbar-items="{
+          fullscreenButton: true,
+          headings: [2,3,4],
+          linkButton: true
+        }" />
+    </fieldset>
 
-      <!-- Data Protection -->
-      <customer-settings-section
-        v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')">
-        <dp-label
-          for="r_dataProtection"
-          :text="Translator.trans('customer.data.protection.explanation')" />
-        <dp-editor
-          id="r_dataProtection"
-          v-model="localOrganisation.attributes.dataProtection"
-          @input="emitOrganisationUpdate"
-          hidden-input="r_dataProtection"
-          :toolbar-items="{
-            fullscreenButton: true,
-            headings: [2,3,4],
-            linkButton: true
-          }" />
-      </customer-settings-section>
+    <!-- Data Protection -->
+    <fieldset v-if="hasPermission('feature_imprint_text_customized_view')">
+      <legend class="layout__item u-p-0 u-pb-0_5 font-size-medium">
+        {{ Translator.trans('Datenschutzhinweise auf Mandantenebene anpassen') }}
+      </legend>
+      <dp-editor
+        id="r_dataProtection"
+        v-model="localOrganisation.attributes.dataProtection"
+        @input="emitOrganisationUpdate"
+        hidden-input="r_dataProtection"
+        :toolbar-items="{
+          fullscreenButton: true,
+          headings: [2,3,4],
+          linkButton: true
+        }" />
     </fieldset>
   </div>
 </template>
 
 <script>
 import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
-import CustomerSettingsSection from '@DpJs/components/user/CustomerSettings/CustomerSettingsSection'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
-    CustomerSettingsSection,
     DpDetails,
     DpEditor,
     DpLabel,
