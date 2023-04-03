@@ -37,6 +37,42 @@
           :map-extent="mapExtent" />
       </customer-settings-section>
 
+      <!-- Imprint -->
+      <customer-settings-section
+        v-if="hasPermission('feature_imprint_text_customized_view')"
+        :title="Translator.trans('imprint')">
+        <dp-label
+          for="r_imprint"
+          :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
+        <dp-editor
+          id="r_imprint"
+          v-model="customer.imprint"
+          hidden-input="r_imprint"
+          :toolbar-items="{
+            fullscreenButton: true,
+            headings: [2,3,4],
+            linkButton: true
+          }" />
+      </customer-settings-section>
+
+      <!-- Data Protection -->
+      <customer-settings-section
+        v-if="hasPermission('feature_data_protection_text_customized_view')"
+        :title="Translator.trans('data.protection.notes')">
+        <dp-label
+          for="r_dataProtection"
+          :text="Translator.trans('customer.data.protection.explanation')" />
+        <dp-editor
+          id="r_dataProtection"
+          v-model="customer.dataProtection"
+          hidden-input="r_dataProtection"
+          :toolbar-items="{
+            fullscreenButton: true,
+            headings: [2,3,4],
+            linkButton: true
+          }" />
+      </customer-settings-section>
+
       <!-- Terms of use -->
       <customer-settings-section
         v-if="hasPermission('feature_customer_terms_of_use_edit')"
