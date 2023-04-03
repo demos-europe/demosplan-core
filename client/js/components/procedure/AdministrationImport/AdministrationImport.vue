@@ -9,6 +9,7 @@
 
 <template>
   <dp-tabs
+    v-if="allComponentsLoaded"
     :active-id="activeTabId"
     use-url-fragment
     @change="setActiveTabId">
@@ -26,10 +27,14 @@
       </slot>
     </dp-tab>
   </dp-tabs>
+
+  <dp-loading
+    v-else
+    class="u-mv" />
 </template>
 
 <script>
-import { checkResponse, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -39,6 +44,7 @@ export default {
 
   components: {
     AdministrationImportNone,
+    DpLoading,
     DpTab,
     DpTabs,
     ExcelImport,
@@ -95,6 +101,7 @@ export default {
   data () {
     return {
       activeTabId: '',
+      allComponentsLoaded: false,
       asyncComponents: []
     }
   },
@@ -135,7 +142,7 @@ export default {
         hookName: hookName
       }
 
-      dpRpc('addons.assets.load', params)
+      return dpRpc('addons.assets.load', params)
         .then(response => checkResponse(response))
         .then(response => {
           const result = response[0].result
@@ -164,7 +171,14 @@ export default {
   },
 
   mounted () {
-    this.loadComponents('import.tabs')
+    Promise.allSettled([
+      this.loadComponents('import.tabs'),
+      this.loadComponents('email.import')
+    ])
+      .then(() => {
+        this.allComponentsLoaded = true
+        this.setActiveTabId()
+      })
   }
 }
 </script>

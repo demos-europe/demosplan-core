@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
@@ -48,7 +49,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         string $procedureId
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
-        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request));
+        $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);
         $eventStatementCreator = $event->getStatementFromEmailCreator();
         if (null !== $eventStatementCreator && is_callable($eventStatementCreator)) {
             return $eventStatementCreator($request, $procedureId);

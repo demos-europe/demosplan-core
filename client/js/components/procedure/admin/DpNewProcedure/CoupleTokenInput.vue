@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div>
+  <div class="space-stack-s">
     <dp-input
       aria-labelledby="token-notification"
       id="procedureCoupleToken"
@@ -22,6 +22,7 @@
       @input="validateToken" />
     <dp-inline-notification
       v-if="notification"
+      class="u-mb-0"
       id="token-notification"
       :message="notification.text"
       :type="notification.type" />

@@ -118,14 +118,24 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
+    /**
+     * @param User|non-empty-string $user if no user instance is available, the username must be passed
+     *
+     * @throws JsonException
+     */
     public function createPhaseChangeEntry(
         Procedure $procedure,
         array $data,
-        ?User $user
+        User|string $user
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES);
-        $entry->setUser($user);
+        if ($user instanceof User) {
+            $entry->setUser($user);
+        } else {
+            $entry->setUserId('');
+            $entry->setUserName($user);
+        }
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setIdentifier($procedure->getId());
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));

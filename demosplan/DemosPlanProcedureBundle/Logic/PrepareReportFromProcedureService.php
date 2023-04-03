@@ -37,6 +37,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
@@ -93,7 +95,8 @@ class PrepareReportFromProcedureService extends CoreService
         PermissionsInterface $permissions,
         ReportService $reportService,
         ProcedureReportEntryFactory $procedureReportEntryFactory,
-        StatementReportEntryFactory $statementReportEntryFactory
+        StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -282,16 +285,10 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
         }
 
-        $user = null;
-        try {
-            $user = $this->currentUser->getUser();
-        } catch (UserNotFoundException $e) {
-            $this->logger->info('No user found for log creation');
-        }
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
             $sourceProcedure,
             $destinationProcedure,
-            $user,
+            $this->getUserForReportEntry(),
             false
         );
         if (null !== $phaseChangeEntry) {
@@ -308,12 +305,33 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * @param User|null $user avoid passing `null`, as we want to show a user when the report is listed in the UI
+     * @return User|non-empty-string
+     */
+    private function getUserForReportEntry(): User|string
+    {
+        $user = null;
+        try {
+            $user = $this->currentUser->getUser();
+        } catch (UserNotFoundException $e) {
+            $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
+        }
+        if (null !== $user && '' !== $user->getFullname()) {
+            return $user;
+        }
+
+        $systemUserName = $this->translator->trans('user.system.name');
+        Assert::stringNotEmpty($systemUserName);
+
+        return $systemUserName;
+    }
+
+    /**
+     * @param User|non-empty-string $user if no user instance is available, the username must be passed
      */
     public function createPhaseChangeReportEntryIfChangesOccurred(
         Procedure $sourceProcedure,
         Procedure $destinationProcedure,
-        ?User $user,
+        User|string $user,
         bool $createdBySystem
     ): ?ReportEntry {
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {

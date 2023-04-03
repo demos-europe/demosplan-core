@@ -195,6 +195,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanStatementBundle\Logic\StatementService
 
+    DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
+        class: 'demosplan\DemosPlanUserBundle\Logic\UserService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\CurrentUserProviderInterface:
         class: demosplan\DemosPlanUserBundle\Logic\CurrentUserService
 
@@ -517,6 +520,8 @@ services:
             $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanUserBundle\Logic\UserMapper'
