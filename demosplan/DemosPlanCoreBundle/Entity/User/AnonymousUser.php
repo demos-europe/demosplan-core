@@ -21,6 +21,7 @@ class AnonymousUser extends FunctionalUser
     {
         $this->id = self::ANONYMOUS_USER_ID;
         $this->login = self::ANONYMOUS_USER_NAME;
+        $this->lastname = self::ANONYMOUS_USER_NAME;
         $this->functionalOrga = new Orga();
         $this->functionalOrga->setId(self::ANONYMOUS_USER_ORGA_ID);
         $this->functionalOrga->setName(self::ANONYMOUS_USER_ORGA_NAME);
