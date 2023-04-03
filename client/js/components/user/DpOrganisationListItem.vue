@@ -58,42 +58,6 @@
         :organisation-id="organisation.id"
         @organisation-update="updateOrganisation" />
 
-      <!-- Imprint -->
-      <customer-settings-section
-        v-if="hasPermission('feature_imprint_text_customized_view')"
-        :title="Translator.trans('imprint')">
-        <dp-label
-          for="r_imprint"
-          :text="Translator.trans('customer.imprint.explanation', { url: '/impressum' })" />
-        <dp-editor
-          id="r_imprint"
-          v-model="customer.imprint"
-          hidden-input="r_imprint"
-          :toolbar-items="{
-            fullscreenButton: true,
-            headings: [2,3,4],
-            linkButton: true
-          }" />
-      </customer-settings-section>
-
-      <!-- Data Protection -->
-      <customer-settings-section
-        v-if="hasPermission('feature_data_protection_text_customized_view')"
-        :title="Translator.trans('data.protection.notes')">
-        <dp-label
-          for="r_dataProtection"
-          :text="Translator.trans('customer.data.protection.explanation')" />
-        <dp-editor
-          id="r_dataProtection"
-          v-model="customer.dataProtection"
-          hidden-input="r_dataProtection"
-          :toolbar-items="{
-            fullscreenButton: true,
-            headings: [2,3,4],
-            linkButton: true
-          }" />
-      </customer-settings-section>
-
       <!-- Button row -->
       <dp-button-row
         form-name="organisationForm"
@@ -106,19 +70,15 @@
 </template>
 
 <script>
-import { DpButtonRow, DpEditor, DpIcon, DpLabel, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import CustomerSettingsSection from '@DpJs/components/user/CustomerSettings/CustomerSettingsSection'
+import { DpButtonRow, DpIcon, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
 
 export default {
   name: 'DpOrganisationListItem',
 
   components: {
-    CustomerSettingsSection,
     DpButtonRow,
-    DpEditor,
     DpIcon,
-    DpLabel,
     DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
     DpTableCard
   },
@@ -162,13 +122,13 @@ export default {
 
   data () {
     return {
-      customer: {
-        imprint: '',
-        dataProtection: ''
-      },
       isOpen: false,
       isLoading: true,
-      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
+      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
+      editorData: {
+        imprint: this.organisation.attributes.imprint,
+        dataProtection: this.organisation.attributes.dataProtection
+      }
     }
   },
 
