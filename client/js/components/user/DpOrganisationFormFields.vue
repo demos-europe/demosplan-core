@@ -690,6 +690,7 @@
         <dp-editor
           id="r_imprint"
           v-model="localOrganisation.attributes.imprint"
+          @input="emitOrganisationUpdate"
           hidden-input="r_imprint"
           :toolbar-items="{
             fullscreenButton: true,
@@ -708,6 +709,7 @@
         <dp-editor
           id="r_dataProtection"
           v-model="localOrganisation.attributes.dataProtection"
+          @input="emitOrganisationUpdate"
           hidden-input="r_dataProtection"
           :toolbar-items="{
             fullscreenButton: true,
