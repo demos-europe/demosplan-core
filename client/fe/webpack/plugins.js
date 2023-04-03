@@ -99,9 +99,9 @@ const webpackDefaultPlugins = [
   new VueLoader.VueLoaderPlugin(),
 
   // Provide configured Vue and Bus instances to all modules
-  new webpack.ProvidePlugin({
-    Vue: ['@DpJs/VueConfigCore', 'default']
-  })
+  // new webpack.ProvidePlugin({
+  //   Vue: ['@DpJs/VueConfigCore', 'default']
+  // })
 ]
 
 module.exports = {

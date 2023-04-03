@@ -43,7 +43,7 @@
     </button>
 
     <!-- Modal content -->
-    <portal to="vueModals">
+    <portal target="#vueModals">
       <dp-modal
         ref="searchModal"
         content-classes="u-4-of-8-wide u-2-of-3-desk-down"

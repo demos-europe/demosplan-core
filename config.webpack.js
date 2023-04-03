@@ -103,7 +103,17 @@ const bundlesConfig = merge(baseConfig, {
   optimization: optimization(),
   plugins: [
     new DefinePlugin({
-      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix) // Path prefix for dynamically generated urls
+      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
+      initFeatureFlags: true,
+      baseCreateRenderer: true,
+      createRenderer: true,
+      ensureRenderer: true,
+      createApp: true,
+      wrappedCreateApp: true,
+      createCompatVue: true,
+      createCompatVue$1: true
     }),
     new WebpackManifestPlugin({
       fileName: '../../dplan.manifest.json'

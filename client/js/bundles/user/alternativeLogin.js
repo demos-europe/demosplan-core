@@ -23,6 +23,7 @@ const components = {
   SamlLoginForm
 }
 
-initialize(components).then(() => {
+initialize(components).then(vm => {
+  console.log(vm)
   dpValidate()
 })

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <portal to="vueModals">
+  <portal target="#vueModals">
     <dp-modal
       ref="exportModal"
       content-classes="u-1-of-2"

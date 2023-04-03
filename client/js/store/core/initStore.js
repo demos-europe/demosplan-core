@@ -10,8 +10,8 @@
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
-// import Vue from '@vue/compat'
-import Vuex from 'vuex'
+// import Vue from 'vue'
+import { createStore } from 'vuex'
 import { VuexApiRoutes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
@@ -31,13 +31,14 @@ function registerPresetModules (store, presetStoreModules) {
       }
     }
   }
+
   return store
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
   console.log('initStore')
 
-  Vue.use(Vuex)
+  // Vue.use(Vuex)
 
   const staticModules = { notify, ...storeModules }
 
@@ -59,46 +60,46 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   return router
     .updateRoutes()
     .then(router => {
-      const store = new Vuex.Store({
-        strict: process.env.NODE_ENV !== 'production',
-
-        modules: prepareModuleHashMap(staticModules),
-        plugins: [
-          initJsonApiPlugin({
-            apiModules: apiStoreModules,
-            router: router,
-            baseUrl: baseUrl,
-            headers: {
-              'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
-            },
-            preprocessingCallbacks: [
-              (response) => {
-                if (typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
-                }
-                return Promise.resolve(response)
-              }
-            ],
-            errorCallbacks: [
-              (err) => {
-                const response = err.response
-                if (typeof response !== 'undefined' &&
-                typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
-                }
-                return Promise.reject(err)
-              }
-            ]
-          }),
-          store => {
-            store.api.checkResponse = checkResponse
-          }
-        ]
+      const store = createStore({
+        // strict: process.env.NODE_ENV !== 'production',
+        //
+        // modules: prepareModuleHashMap(staticModules),
+        // plugins: [
+        //   initJsonApiPlugin({
+        //     apiModules: apiStoreModules,
+        //     router: router,
+        //     baseUrl: baseUrl,
+        //     headers: {
+        //       'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
+        //       'X-Demosplan-Procedure-Id': dplan.procedureId
+        //     },
+        //     preprocessingCallbacks: [
+        //       (response) => {
+        //         if (typeof response.data !== 'undefined' &&
+        //           typeof response.data.meta !== 'undefined' &&
+        //           typeof response.data.meta.messages !== 'undefined') {
+        //           handleResponseMessages(response.data.meta)
+        //         }
+        //         return Promise.resolve(response)
+        //       }
+        //     ],
+        //     errorCallbacks: [
+        //       (err) => {
+        //         const response = err.response
+        //         if (typeof response !== 'undefined' &&
+        //         typeof response.data !== 'undefined' &&
+        //         typeof response.data.meta !== 'undefined' &&
+        //         typeof response.data.meta.messages !== 'undefined') {
+        //           handleResponseMessages(response.data.meta)
+        //         }
+        //         return Promise.reject(err)
+        //       }
+        //     ]
+        //   }),
+        //   store => {
+        //     store.api.checkResponse = checkResponse
+        //   }
+        // ]
       })
 
       if (process.env.NODE_ENV === 'development') {
@@ -106,7 +107,8 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
       }
 
       return store
-    }).then(store => registerPresetModules(store, presetStoreModules))
+    })
+    .then(store => registerPresetModules(store, presetStoreModules))
 }
 
 export { initStore }
