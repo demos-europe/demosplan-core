@@ -65,6 +65,7 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_user_verify_orga_switch_or_update",
      *     path="/organisation/verifychanges"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -122,6 +123,7 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/edit/{orgaId}",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
@@ -154,6 +156,7 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/edit/{orgaId}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_manage_orgadata")
      *
      * @return RedirectResponse|Response
@@ -213,6 +216,7 @@ class DemosPlanOrgaController extends BaseController
      *     path="/organisation/branding/edit/{orgaId}",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_manage_orgadata","feature_orga_logo_edit"})
      *
      * @param string $orgaId
@@ -328,9 +332,8 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_orga_list",
      *     path="/organisation/list"
      * )
-     * @DplanPermissions("area_organisations")
      *
-     * @return RedirectResponse|Response
+     * @DplanPermissions("area_organisations")
      *
      * @throws Exception
      */
@@ -360,6 +363,7 @@ class DemosPlanOrgaController extends BaseController
      *     name="DemosPlan_user_switch_orga",
      *     path="/organisation/switch"
      * )
+     *
      * @DplanPermissions("feature_switchorga")
      *
      * @throws Exception
@@ -431,6 +435,7 @@ class DemosPlanOrgaController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions("feature_orga_registration")
      *
      * @throws CustomerNotFoundException
@@ -458,6 +463,7 @@ class DemosPlanOrgaController extends BaseController
      *     methods={"POST"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_orga_registration")
      *
      * @throws MessageBagException
