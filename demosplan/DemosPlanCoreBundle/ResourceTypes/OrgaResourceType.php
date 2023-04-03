@@ -220,7 +220,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createToManyRelationship($this->departments)->readable(false, static function (Orga $orga): TightencoCollection {
                 return $orga->getDepartments();
             }),
-            $this->createAttribute($this->isPlanningOrganisation)->readable(false,
+            $this->createAttribute($this->isPlanningOrganisation)->readable(true,
                 function (Orga $orga): bool {
                     return $orga->hasType(OrgaType::MUNICIPALITY, $this->globalConfig->getSubdomain())
                         || $orga->hasType(OrgaType::PLANNING_AGENCY, $this->globalConfig->getSubdomain())
