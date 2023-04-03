@@ -58,7 +58,7 @@ $utility-border-thickness: $dp-border-thickness;
     }
 
     &--error {
-        border: 2px solid $dp-color-system-error !important;
+        border: 2px solid $dp-color-status-failed-border !important;
         margin: -1px 0;
         box-shadow: none;
     }
@@ -87,6 +87,6 @@ $utility-border-thickness: $dp-border-thickness;
 }
 
 input[type='checkbox'].border--error {
-    border: 2px solid $dp-color-system-error !important;
-    box-shadow: 0 0 2px 2px $dp-color-system-error;
+    border: 2px solid $dp-color-status-failed-border !important;
+    box-shadow: 0 0 2px 2px $dp-color-status-failed-fill;
 }

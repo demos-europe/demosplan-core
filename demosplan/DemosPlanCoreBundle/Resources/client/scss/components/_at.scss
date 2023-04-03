@@ -213,7 +213,7 @@ $at-icon-row-width: math.round($inuit-base-spacing-unit * 1.3);
         // Highlight statement item currently targeted by #id in url
         &:target tr,
         &:target:hover tr {
-            background-color: $msg-confirm-bg-color;
+            background-color: $dp-color-message-success-bg;
         }
 
         & > td {

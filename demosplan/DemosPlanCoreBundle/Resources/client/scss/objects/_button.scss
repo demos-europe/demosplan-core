@@ -45,9 +45,9 @@ $dp-button-bg-color-alt-active:         $dp-color-neutral-dark-2 !default;
 // Warning button
 $dp-button-color-warning:               $dp-color-white !default;
 $dp-button-color-warning-hover:         $dp-color-white !default;
-$dp-button-bg-color-warning:            $dp-color-system-error--dark !default;
-$dp-button-bg-color-warning-hover:      $dp-color-system-error--dark-1 !default;
-$dp-button-bg-color-warning-active:     color.adjust($dp-color-system-error--dark-1, $lightness: -5%) !default;
+$dp-button-bg-color-warning:            $dp-color-red-base !default;
+$dp-button-bg-color-warning-hover:      $dp-color-red-dark-1 !default;
+$dp-button-bg-color-warning-active:     $dp-color-red-dark-2 !default;
 // Spacing
 $dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small * 1.2;
 

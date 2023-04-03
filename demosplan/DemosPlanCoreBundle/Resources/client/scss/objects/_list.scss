@@ -116,7 +116,7 @@
 
         // Stacked items with bg color, separated by margin. This is the original "assessment table list style".
         .o-list--card > & {
-            background-color: $dp-token-color-ui-bg-neutral-medium;
+            background-color: $dp-color-background-medium;
             margin-bottom: $inuit-base-spacing-unit--small;
 
             &:last-child {

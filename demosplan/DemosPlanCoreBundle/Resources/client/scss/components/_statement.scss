@@ -78,15 +78,15 @@
 
                 //  state feedback
                 .is-added {
-                    background: $msg-confirm-bg-color !important;
-                    color: $msg-confirm-color;
+                    background: $dp-color-message-success-bg !important;
+                    color: $dp-color-message-success-text;
 
                     &[data-statement-state-feedback='element'] {
                         padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
                     }
 
                     a {
-                        color: $msg-confirm-color;
+                        color: $dp-color-message-success-interactive;
                     }
                 }
             }

@@ -14,9 +14,9 @@
 /// @name .split-statement
 .split-statement {
     // Segment
-    $segment-bg-color: $dp-color-system-info--light-1;
+    $segment-bg-color: $dp-color-selection-bg;
     $segment-confirmed-bg-color: $dp-color-neutral-light-3;
-    $segment-highlight-bg-color: $dp-color-system-warning--light;
+    $segment-highlight-bg-color: $dp-color-message-warning-bg;
 
     // Sidebar
     $sidebar-width: 300px;
@@ -28,7 +28,7 @@
         width: 80px;
         height: 80px;
         border-radius: 45px;
-        background: $dp-token-color-ui-bg-neutral-medium;
+        background-color: $dp-color-background-medium;
         margin: auto;
 
         .fa-hourglass-half {
@@ -128,11 +128,11 @@
         margin-left: calc(#{$segmentation-editor-width} / 2);
 
         border-radius: 50%;
-        background-color: $dp-color-system-warning;
+        background-color: $dp-color-yellow-base;
         font-size: 20px;
 
         &:hover {
-            background: $dp-color-system-warning--light !important;
+            background: $dp-color-yellow-light-1 !important;
         }
     }
 
@@ -228,7 +228,7 @@
 
         &.highlighted {
             z-index: 1;
-            border-color: $dp-color-system-warning;
+            border-color: $dp-color-message-warning-border;
         }
     }
 

@@ -28,7 +28,7 @@ $utility-border-thickness: $dp-border-thickness;
         }
 
         &--assigned {
-            background-color: $dp-color-system-info--light-1;
+            background-color: $dp-color-selection-bg;
         }
 
         &--assigned + .segment-list-row--assigned {

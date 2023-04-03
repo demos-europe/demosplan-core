@@ -101,11 +101,11 @@
     // Styling of <del> and <ins> tags should match styling in version sidebar in assessment table and styling in tiptap
 
     del {
-        background-color: $dp-color-system-warning--light;
+        background-color: $dp-color-text-deleted-bg;
     }
 
     ins {
-        background-color: $dp-color-system-info--light-1;
+        background-color: $dp-color-text-inserted-bg;
     }
 
     &.c-styled-html--large {

@@ -58,7 +58,7 @@
       data-cy="editButtonDesc"
       v-tooltip="Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{ 'color--highlight' : currentlyActive }">
+      :class="{ 'color-brand-highlight' : currentlyActive }">
       <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>

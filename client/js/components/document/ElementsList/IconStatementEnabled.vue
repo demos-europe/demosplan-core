@@ -12,8 +12,8 @@
     <i
       class="fa cursor--help"
       :class="{
-        'fa-microphone color--system-confirm': enabled,
-        'fa-microphone-slash color--system-error': enabled === false
+        'fa-microphone color-ui-message-success-fill': enabled,
+        'fa-microphone-slash color-ui-message-severe-fill': enabled === false
       }"
       aria-hidden="true"
       v-tooltip="text"

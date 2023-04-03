@@ -55,20 +55,25 @@ $flash-classes:
     flash-warning,
     flash-error;
 $flash-colors:
-    $msg-confirm-color,
-    $msg-info-color,
-    $msg-warning-color,
-    $msg-error-color;
+    $dp-color-message-success-text,
+    $dp-color-message-info-text,
+    $dp-color-message-warning-text,
+    $dp-color-message-severe-text;
 $flash-colors-bg:
-    $msg-confirm-bg-color,
-    $msg-info-bg-color,
-    $msg-warning-bg-color,
-    $msg-error-bg-color;
+    $dp-color-message-success-bg,
+    $dp-color-message-info-bg,
+    $dp-color-message-warning-bg,
+    $dp-color-message-severe-bg;
 $flash-colors-border:
-    $msg-confirm-border-color,
-    $msg-info-border-color,
-    $msg-warning-border-color,
-    $msg-error-border-color;
+    $dp-color-message-success-border,
+    $dp-color-message-info-border,
+    $dp-color-message-warning-border,
+    $dp-color-message-severe-border;
+$flash-colors-interactive:
+    $dp-color-message-success-interactive,
+    $dp-color-message-info-interactive,
+    $dp-color-message-warning-interactive,
+    $dp-color-message-severe-interactive;
 
 .flash,
 %flash {
@@ -77,7 +82,7 @@ $flash-colors-border:
     margin: 1.5 * $inuit-base-spacing-unit--small 0 $inuit-base-spacing-unit--small;
     padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit * .8;
 
-    color: $msg-color;
+    color: $dp-color-text-default;
 
     @include inuit-font-size($base-font-size);
     font-weight: $base-font-weight;
@@ -85,7 +90,11 @@ $flash-colors-border:
 
     //  default links in flash messages
     a {
-        color: $msg-color;
+        color: $dp-color-interactive-default;
+    }
+
+    a:hover {
+        color: $dp-color-interactive-hover;
         text-decoration: underline;
     }
 }
@@ -106,10 +115,11 @@ $flash-colors-border:
         color: list.nth($flash-colors, $i);
 
         a {
-            color: list.nth($flash-colors, $i);
+            color: list.nth($flash-colors-interactive, $i);
 
             &:hover {
-                color: $msg-color; // assuming black
+                color: list.nth($flash-colors-interactive, $i);
+                text-decoration: underline;
             }
         }
     }

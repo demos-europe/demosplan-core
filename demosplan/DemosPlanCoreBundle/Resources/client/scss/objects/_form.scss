@@ -39,7 +39,7 @@ $form-multiselect-selected-background: $dp-color-neutral-light-3;
     &.is-invalid {
         outline: none;
         border-color: transparent !important;
-        box-shadow: 0 0 0 2px $dp-color-system-error;
+        box-shadow: 0 0 0 2px $dp-color-status-failed-fill;
     }
 }
 
@@ -251,18 +251,18 @@ input::-webkit-inner-spin-button {
 .is-invalid + .validation-hint {
     display: block;
     margin-top: $inuit-base-spacing-unit--small;
-    color: $dp-color-system-error;
+    color: $dp-color-status-failed-text;
 }
 
 label.required {
-    color: $dp-color-system-error !important;
+    color: $dp-color-status-failed-text !important;
 }
 
 input[type='text'].required,
 input[type='number'].required,
 input[type='email'].required,
 select.required {
-    border-color: $dp-color-system-error !important;
+    border-color: $dp-color-status-failed-border !important;
 }
 
 .disabled {
