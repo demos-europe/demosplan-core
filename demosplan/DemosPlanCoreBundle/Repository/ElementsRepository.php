@@ -8,10 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Repository;
-
-use function array_key_exists;
-use function collect;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -30,6 +27,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
+use function array_key_exists;
+use function collect;
+use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {

@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -26,8 +26,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
-
 use function array_key_exists;
+use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {

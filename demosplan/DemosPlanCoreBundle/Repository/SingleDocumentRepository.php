@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Repository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -21,6 +21,7 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundExcepti
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class SingleDocumentRepository extends CoreRepository implements ArrayInterface
 {
