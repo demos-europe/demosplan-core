@@ -21,7 +21,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 class ParagraphExporter
 {

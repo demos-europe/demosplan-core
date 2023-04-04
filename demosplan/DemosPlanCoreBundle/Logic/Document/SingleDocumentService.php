@@ -24,8 +24,6 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
-use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {

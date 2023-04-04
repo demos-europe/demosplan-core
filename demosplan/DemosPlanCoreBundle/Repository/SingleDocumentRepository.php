@@ -21,7 +21,6 @@ use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundExcepti
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
-use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class SingleDocumentRepository extends CoreRepository implements ArrayInterface
 {

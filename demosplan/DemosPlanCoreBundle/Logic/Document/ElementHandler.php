@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use function array_key_exists;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 class ElementHandler extends CoreHandler
 {

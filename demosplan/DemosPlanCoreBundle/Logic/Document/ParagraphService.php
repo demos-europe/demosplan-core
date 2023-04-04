@@ -26,8 +26,6 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use ReflectionException;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
-use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class ParagraphService extends CoreService
 {

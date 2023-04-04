@@ -46,8 +46,6 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
 use Throwable;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
-use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
 {

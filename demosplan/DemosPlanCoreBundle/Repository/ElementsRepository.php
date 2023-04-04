@@ -29,7 +29,6 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use function array_key_exists;
 use function collect;
-use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class ElementsRepository extends FluentRepository implements ArrayInterface, ObjectInterface
 {

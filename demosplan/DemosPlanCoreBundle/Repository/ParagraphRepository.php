@@ -27,7 +27,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use function array_key_exists;
-use function demosplan\DemosPlanDocumentBundle\Repository\count;
 
 class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {

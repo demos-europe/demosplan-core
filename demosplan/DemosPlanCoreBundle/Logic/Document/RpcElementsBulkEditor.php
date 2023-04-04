@@ -25,7 +25,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
-use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 /**
  * Input:
