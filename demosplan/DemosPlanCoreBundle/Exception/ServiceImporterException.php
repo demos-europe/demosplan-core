@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use UnexpectedValueException;
 

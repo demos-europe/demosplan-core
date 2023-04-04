@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Exception;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use Exception;
 
