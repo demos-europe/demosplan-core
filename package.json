@@ -159,7 +159,7 @@
     "node-notifier": "^10.0.1",
     "postcss": "^8.4.21",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "postcss-loader": "^7.1.0",
+    "postcss-loader": "^7.2.3",
     "postcss-prefix-selector": "^1.16.0",
     "postcss-preset-env": "^8.2.0",
     "purgecss-webpack-plugin": "^5.0.0",
