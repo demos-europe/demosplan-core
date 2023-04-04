@@ -60,7 +60,7 @@ use Tightenco\Collect\Support\Collection as TightencoCollection;
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $dataProtection
  * @property-read End                              $imprint
- * @property-read End                              $isPlanningOrganisation Indicates an organisation as orga wich can be a "procedrue agency"
+ * @property-read End                              $isPlanningOrganisation Indicates an organisation as organisation which can be administrate procedures"
  * @property-read DepartmentResourceType           $departments
  * @property-read SlugResourceType                 $currentSlug
  * @property-read BrandingResourceType             $branding
