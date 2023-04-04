@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
-
-use function array_key_exists;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -21,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function array_key_exists;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 class ElementHandler extends CoreHandler
 {

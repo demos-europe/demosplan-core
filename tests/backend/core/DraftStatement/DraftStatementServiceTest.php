@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
 use demosplan\DemosPlanStatementBundle\ValueObject\DraftStatementResult;
@@ -49,7 +49,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanDocumentBundle\Logic\ElementsService|object|null
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
      */
     protected $elementsService;
 

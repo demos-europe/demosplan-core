@@ -11,10 +11,6 @@
 namespace demosplan\DemosPlanAssessmentTableBundle\Logic;
 
 use Closure;
-
-use function collect;
-use function date;
-
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -23,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
@@ -30,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
 use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
@@ -41,12 +37,6 @@ use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
-
-use function explode;
-use function htmlspecialchars;
-use function is_array;
-use function is_string;
-
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
@@ -58,17 +48,21 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
-
-use function strlen;
-use function strtotime;
-use function substr;
-
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
+use function collect;
+use function date;
+use function explode;
+use function htmlspecialchars;
+use function is_array;
+use function is_string;
+use function strlen;
+use function strtotime;
+use function substr;
 
 class AssessmentTableServiceOutput
 {

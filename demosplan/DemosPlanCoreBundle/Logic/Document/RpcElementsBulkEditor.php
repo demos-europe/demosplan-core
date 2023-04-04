@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -25,6 +25,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 /**
  * Input:

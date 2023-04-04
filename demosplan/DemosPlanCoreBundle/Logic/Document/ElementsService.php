@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -46,6 +46,8 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
 use Throwable;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
+use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
 {

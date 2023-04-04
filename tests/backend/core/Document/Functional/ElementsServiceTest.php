@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;

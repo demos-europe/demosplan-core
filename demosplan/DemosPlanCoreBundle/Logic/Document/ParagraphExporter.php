@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -21,6 +21,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 class ParagraphExporter
 {

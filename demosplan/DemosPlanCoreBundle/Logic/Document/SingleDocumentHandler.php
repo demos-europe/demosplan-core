@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;

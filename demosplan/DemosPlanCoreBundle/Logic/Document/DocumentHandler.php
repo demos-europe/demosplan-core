@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -30,6 +30,8 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
+use function demosplan\DemosPlanDocumentBundle\Logic\utf8_decode;
 
 class DocumentHandler extends CoreHandler
 {

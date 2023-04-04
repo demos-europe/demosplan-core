@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -26,6 +26,8 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use ReflectionException;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
+use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class ParagraphService extends CoreService
 {

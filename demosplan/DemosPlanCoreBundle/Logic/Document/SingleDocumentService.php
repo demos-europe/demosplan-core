@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
@@ -24,6 +24,8 @@ use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
+use function demosplan\DemosPlanDocumentBundle\Logic\sizeof;
 
 class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {

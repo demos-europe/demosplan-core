@@ -8,12 +8,13 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanDocumentBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function demosplan\DemosPlanDocumentBundle\Logic\count;
 
 class ParagraphHandler extends CoreHandler
 {
