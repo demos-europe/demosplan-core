@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader;
+use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
@@ -104,6 +106,8 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
      */
     protected $currentCustomerService;
 
+    protected CurrentContextProviderInterface $currentContext;
+
     protected DqlConditionFactory $conditionFactory;
 
     private TypeProviderInterface $typeProvider;
@@ -151,6 +155,16 @@ abstract class DplanResourceType extends CachingResourceType implements Iterator
     public function setCustomerService(CustomerService $customerService): void
     {
         $this->currentCustomerService = $customerService;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @required
+     */
+    public function setCurrentContext(CurrentContextProviderInterface $currentContext): void
+    {
+        $this->currentContext = $currentContext;
     }
 
     /**
