@@ -822,19 +822,17 @@ export default {
     customers () {
       if (hasOwnProp(this.organisation.relationships, 'customers') === false) {
         return ''
+      } else if (Object.keys(this.organisation.relationships.customers.data).length && this.organisation.relationships.customers.data[0].id !== '') {
+        const allCustomers = Object.values(this.organisation.relationships.customers.list())
+        const names = []
+        allCustomers.forEach(el => {
+          if (typeof el !== 'undefined') {
+            names.push(el.attributes.name)
+          }
+        })
+        return names.join(', ')
       } else {
-        if (Object.keys(this.organisation.relationships.customers.data).length) {
-          const allCustomers = Object.values(this.organisation.relationships.customers.list())
-          const names = []
-          allCustomers.forEach(el => {
-            if (typeof el !== 'undefined') {
-              names.push(el.attributes.name)
-            }
-          })
-          return names.join(', ')
-        } else {
-          return ''
-        }
+        return ''
       }
     },
 
@@ -844,7 +842,15 @@ export default {
      * @return {string}
      */
     organisationSlug () {
-      return Object.keys(this.organisation.relationships.currentSlug.data).length ? this.organisation.relationships.currentSlug.get().attributes.name : ''
+      let organisationSlug
+
+      if (hasOwnProp(this.organisation.relationships, 'currentSlug') && this.organisation.relationships.currentSlug.data?.id !== '') {
+        organisationSlug = this.organisation.relationships.currentSlug.get().attributes.name
+      } else {
+        organisationSlug = ''
+      }
+
+      return organisationSlug
     },
 
     /**

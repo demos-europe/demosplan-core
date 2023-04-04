@@ -55,20 +55,16 @@
         </div>
         <ul class="float--right u-m-0 space-inline-s flex">
           <li class="display--inline-block">
-            <button
-              class="o-flyout__trigger btn--blank o-link--default u-ph-0_25 line-height--2 whitespace--nowrap"
-              @click="toggleClaimStatement">
-              <dp-claim
-                entity-type="statement"
-                :assigned-id="currentAssignee.id"
-                :assigned-name="currentAssignee.name"
-                :assigned-organisation="currentAssignee.orgaName"
-                :current-user-id="currentUser.id"
-                :is-loading="isLoading" />
-              <span
-                v-if="!isLoading"
-                v-text="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)" />
-            </button>
+            <dp-claim
+              class="o-flyout__trigger u-ph-0_25 line-height--2"
+              entity-type="statement"
+              :assigned-id="currentAssignee.id"
+              :assigned-name="currentAssignee.name"
+              :assigned-organisation="currentAssignee.orgaName"
+              :current-user-id="currentUser.id"
+              :is-loading="isLoading"
+              :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
+              @click="toggleClaimStatement" />
           </li>
           <li class="display--inline-block">
             <a
@@ -135,12 +131,11 @@
       </header>
     </dp-sticky-element>
 
-    <div>
+    <div class="u-mt-0_5">
       <!--Statement meta data -->
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
-        class="u-mt-0_5"
         :current-user-id="currentUser.id"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
@@ -440,9 +435,6 @@ export default {
      */
     claimStatement () {
       this.isLoading = true
-      const dataToUpdate = this.setDataToUpdate(true)
-      this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
-
       const payload = {
         data: {
           id: this.statement.id,
@@ -461,6 +453,9 @@ export default {
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
         .then(response => { checkResponse(response) })
         .then(() => {
+          const dataToUpdate = this.setDataToUpdate(true)
+
+          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -539,9 +534,12 @@ export default {
     },
 
     saveStatement (statement) {
+      this.synchronizeAssignee(statement)
+      this.synchronizeFullText(statement)
       // The key isManual is readonly, so we should remove it before saving
       delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
+
       this.saveStatementAction(statement.id)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -580,6 +578,35 @@ export default {
       this.currentAction = action || defaultAction
     },
 
+    /**
+     * If `this.statement` has changed its assignee (which does not propagate to the
+     * localStatement in StatementMeta), it must be synced back before applying the
+     * StatementMeta data to `this.statement`.
+     * @param {object} statement - The local statement of StatementMeta.vue.
+     */
+    synchronizeAssignee (statement) {
+      const oldAssignee = JSON.stringify(statement.relationships.assignee.data)
+      const newAssignee = JSON.stringify(this.statement.relationships.assignee.data)
+
+      if (oldAssignee !== newAssignee) {
+        statement.relationships.assignee.data = this.statement.relationships.assignee.data
+      }
+    },
+
+    /**
+     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
+     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
+     * with the statements from store. The editor automatically updates the state of statements in the
+     * store when registering an input. This only occurs when a statement has not been segmented already.
+     *
+     * @param {object} statement - The local statement of StatementMeta.vue.
+     */
+    synchronizeFullText (statement) {
+      if (statement.attributes.fullText !== this.statement.attributes.fullText && dpconfirm(Translator.trans('statement.save.text'))) {
+        statement.attributes.fullText = this.statement.attributes.fullText
+      }
+    },
+
     toggleClaimStatement () {
       if (this.statements[this.statementId].relationships?.assignee?.data === null || this.currentUser.id !== this.statements[this.statementId].relationships?.assignee?.data?.id) {
         this.claimStatement()
@@ -595,8 +622,6 @@ export default {
 
     unclaimStatement () {
       this.isLoading = true
-      const dataToUpdate = this.setDataToUpdate()
-      this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
       const payload = {
         data: {
           type: 'Statement',
@@ -609,8 +634,12 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then((response) => {
-          checkResponse(response)
+        .then(response => checkResponse(response))
+        .then(() => {
+          const dataToUpdate = this.setDataToUpdate()
+
+          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
           this.restoreStatementAction(this.statement.id)

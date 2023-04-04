@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event;
 
-class IsOriginalStatementAvailableEvent extends DPlanEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
+
+class IsOriginalStatementAvailableEvent extends DPlanEvent implements IsOriginalStatementAvailableEventInterface
 {
     /**
      * @param bool

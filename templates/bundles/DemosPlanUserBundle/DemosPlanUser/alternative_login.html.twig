@@ -16,6 +16,10 @@
         {% endblock content %}
     {% endembed %}
 
+    {% if loginList.useIdp %}
+        <p>Login with <a href="{{ gatewayURL }}">external provider</a></p>
+    {% endif %}
+
     {# Login lists (platform, simulated osi login) that are available during testing #}
     {% if loginList.enabled %}
         <div class="{{ 'u-m u-mt-0'|prefixClass }}">

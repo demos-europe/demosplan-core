@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserLogin;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakResponseValueObject;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -32,24 +32,27 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
 {
-    private OzgKeycloakUserLogin $ozgKeycloakUserLogin;
+    private OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper;
     private ClientRegistry $clientRegistry;
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
     private RouterInterface $router;
+    private KeycloakUserDataInterface $keycloakUserData;
 
     public function __construct(
-        OzgKeycloakUserLogin $ozgKeycloakUserLogin,
         ClientRegistry $clientRegistry,
         EntityManagerInterface $entityManager,
+        KeycloakUserDataInterface $keycloakResponse,
         LoggerInterface $logger,
+        OzgKeycloakUserDataMapper $ozgKeycloakUserLogin,
         RouterInterface $router
     ) {
-        $this->ozgKeycloakUserLogin = $ozgKeycloakUserLogin;
+        $this->ozgKeycloakUserDataMapper = $ozgKeycloakUserLogin;
         $this->clientRegistry = $clientRegistry;
         $this->entityManager = $entityManager;
         $this->logger = $logger;
         $this->router = $router;
+        $this->keycloakUserData = $keycloakResponse;
     }
 
     public function supports(Request $request): ?bool
@@ -62,25 +65,30 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $client = $this->clientRegistry->getClient('keycloak_ozg');
         $accessToken = $this->fetchAccessToken($client);
+        $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
                 try {
                     $this->entityManager->getConnection()->beginTransaction();
-                    $ozgKeycloakResponseValueObject = new OzgKeycloakResponseValueObject(
-                        $client->fetchUserFromToken($accessToken)->toArray()
-                    );
-                    $user = $this->ozgKeycloakUserLogin->handleKeycloakData($ozgKeycloakResponseValueObject);
+                    $this->logger->info('Start of doctrine transaction.');
+
+                    $this->keycloakUserData->fill($client->fetchUserFromToken($accessToken));
+                    $this->logger->info('Found user data: '.$this->keycloakUserData);
+                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->keycloakUserData);
+
                     $this->entityManager->getConnection()->commit();
+                    $this->logger->info('doctrine transaction commit.');
                     $request->getSession()->set('userId', $user->getId());
 
                     return $user;
                 } catch (Exception $e) {
                     $this->entityManager->getConnection()->rollBack();
-                    $this->logger->info(
+                    $this->logger->info('doctrine transaction rollback.');
+                    $this->logger->error(
                         'login failed',
                         [
-                            'requestValues' => $ozgKeycloakResponseValueObject ?? null,
+                            'requestValues' => $this->keycloakUserData ?? null,
                             'exception'     => $e,
                         ]
                     );

@@ -831,8 +831,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                 /** @var Statement $statement */
                 foreach ($similarStatements as $statement) {
                     $statement->getSimilarStatementSubmitters()->add($submitter);
-                    $change->addEntitiesToPersist($statement);
                 }
+                $change->addEntitiesToPersist($similarStatements->getValues());
             }
         );
 
