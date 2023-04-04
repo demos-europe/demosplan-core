@@ -148,7 +148,9 @@ final class OrgaResourceType extends DplanResourceType
      * resource type regardless of the permissions enabled. **All** conditions must apply.
      * Depending on the permission you may need to add additional conditions to reduce the set of
      * {@link Orga} entities in the database further.
+     *
      * @return array<int, FunctionInterface<bool>>
+     *
      * @throws PathException|CustomerNotFoundException
      */
     public function getMandatoryConditions(): array
@@ -190,7 +192,7 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
             $this->createAttribute($this->city)
-                ->readable(true, static fn(Orga $orga): string => $orga->getCity()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getCity()),
             $this->createAttribute($this->imprint)->readable(true),
             $this->createAttribute($this->dataProtection)->readable(true),
             $this->createAttribute($this->competence)->readable(true),
@@ -200,38 +202,39 @@ final class OrgaResourceType extends DplanResourceType
             $this->createAttribute($this->email2)->readable(true),
             $this->createAttribute($this->participationEmail)->aliasedPath($this->email2)->readable(true),
             $this->createAttribute($this->phone)
-                ->readable(true, static fn(Orga $orga): string => $orga->getPhone()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getPhone()),
             $this->createAttribute($this->emailNotificationEndingPhase)
                 ->readable(true, [$this, 'getEmailNotificationEndingPhase']),
             $this->createAttribute($this->emailNotificationNewStatement)
                 ->readable(true, [$this, 'getEmailNotificationNewStatement']),
             $this->createAttribute($this->postalcode)
-                ->readable(true, static fn(Orga $orga): string => $orga->getPostalcode()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getPostalcode()),
             $this->createAttribute($this->reviewerEmail)->aliasedPath($this->emailReviewerAdmin)->readable(true),
             $this->createAttribute($this->showlist)->readable(true),
             $this->createAttribute($this->showname)->readable(true),
             $this->createAttribute($this->state)
-                ->readable(true, static fn(Orga $orga): string => $orga->getState()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getState()),
             $this->createAttribute($this->street)
-                ->readable(true, static fn(Orga $orga): string => $orga->getStreet()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getStreet()),
             $this->createAttribute($this->houseNumber)
-                ->readable(true, static fn(Orga $orga): string => $orga->getHouseNumber()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getHouseNumber()),
             $this->createAttribute($this->submissionType)
-                ->readable(true, static fn(Orga $orga): string => $orga->getSubmissionType()),
+                ->readable(true, static fn (Orga $orga): string => $orga->getSubmissionType()),
             $this->createAttribute($this->types)
-                ->readable(true, fn(Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
+                ->readable(true, fn (Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
             $this->createAttribute($this->registrationStatuses)
                 ->readable(true, [$this, 'getRegistrationStatuses']),
             $this->createToOneRelationship($this->currentSlug, true)->readable(true),
             $this->createToManyRelationship($this->customers)
-                ->readable(false, static fn(Orga $orga): Collection => $orga->getCustomers()),
+                ->readable(false, static fn (Orga $orga): Collection => $orga->getCustomers()),
             $this->createToManyRelationship($this->departments)
-                ->readable(false, static fn(Orga $orga): TightencoCollection => $orga->getDepartments()),
+                ->readable(false, static fn (Orga $orga): TightencoCollection => $orga->getDepartments()),
             $this->createAttribute($this->isPlanningOrganisation)->readable(
                 true,
                 function (Orga $orga): bool {
                     $currentSubdomain1 = $this->currentContext->getCurrentCustomer()->getSubdomain();
                     $currentSubdomain = $this->currentCustomerService->getCurrentCustomer()->getSubdomain();
+
                     return $orga->hasType(OrgaType::MUNICIPALITY, $currentSubdomain)
                         || $orga->hasType(OrgaType::PLANNING_AGENCY, $currentSubdomain)
                         || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $currentSubdomain);
@@ -269,17 +272,16 @@ final class OrgaResourceType extends DplanResourceType
 
     /**
      * @return array<int, Role>
+     *
      * @throws CustomerNotFoundException
      */
     public function getAllowedRoles(Orga $orga): array
     {
         $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
         $acceptedOrgaTypes = $orga->getStatusInCustomers()
-            ->filter(static fn(OrgaStatusInCustomer $orgaStatus): bool
-            => OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
-            ->filter(static fn(OrgaStatusInCustomer $orgaStatus): bool
-            => $orgaStatus->getCustomer() === $currentCustomer)
-            ->map(static fn(OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType())->getValues();
+            ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
+            ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
+            ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType())->getValues();
 
         return $this->roleService->getGivableRoles($acceptedOrgaTypes);
     }
@@ -290,8 +292,7 @@ final class OrgaResourceType extends DplanResourceType
      */
     public function getRegistrationStatuses(Orga $orga): array
     {
-        return $this->getRegistration($orga)->map(static fn(OrgaStatusInCustomer $orgaStatusInCustomer): array
-        => [
+        return $this->getRegistration($orga)->map(static fn (OrgaStatusInCustomer $orgaStatusInCustomer): array => [
             OrgaResourceType::REGISTRATION_STATUSES_STATUS    => $orgaStatusInCustomer->getStatus(),
             OrgaResourceType::REGISTRATION_STATUSES_TYPE      => $orgaStatusInCustomer->getOrgaType()->getName(),
             OrgaResourceType::REGISTRATION_STATUSES_SUBDOMAIN => $orgaStatusInCustomer->getCustomer()->getSubdomain(),
@@ -321,9 +322,6 @@ final class OrgaResourceType extends DplanResourceType
     }
 
     /**
-     * @param Orga $orga
-     *
-     * @return Collection
      * @throws CustomerNotFoundException
      * @throws UserNotFoundException
      */
@@ -333,8 +331,7 @@ final class OrgaResourceType extends DplanResourceType
         $orgaStatuses = $orga->getStatusInCustomers();
         if (!$this->currentUser->hasPermission('area_manage_orgas_all')) {
             $orgaStatuses = $orgaStatuses
-                ->filter(static fn(OrgaStatusInCustomer $orgaStatusInCustomer): bool
-                => $orgaStatusInCustomer->getCustomer()->getSubdomain() === $currentCustomer->getSubdomain());
+                ->filter(static fn (OrgaStatusInCustomer $orgaStatusInCustomer): bool => $orgaStatusInCustomer->getCustomer()->getSubdomain() === $currentCustomer->getSubdomain());
         }
 
         return $orgaStatuses;
