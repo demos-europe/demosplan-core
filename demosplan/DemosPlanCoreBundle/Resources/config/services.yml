@@ -162,9 +162,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface:
         class: demosplan\DemosPlanCoreBundle\Exception\ViolationsException
 
-    DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface:
-        class: DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel
-
     DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Services\ApiResourceService
 
