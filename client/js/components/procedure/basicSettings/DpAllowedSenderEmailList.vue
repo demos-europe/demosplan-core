@@ -85,7 +85,7 @@ export default {
       const payload = {
         type: 'MaillaneConnection',
         attributes: {
-          allowedSenderEmailAddresses: emailAddress
+          allowedSenderEmailAddresses: [emailAddress]
         },
         procedureId: this.procedureId
       }
@@ -97,7 +97,7 @@ export default {
       const payload = {
         type: 'MaillaneConnection',
         attributes: {
-          allowedSenderEmailAddresses: extraEmailAddress
+          allowedSenderEmailAddresses: [extraEmailAddress]
         },
         procedureId: this.procedureId
       }
