@@ -19,11 +19,11 @@ use Throwable;
 
 class HandleEmailAddressSubscriber implements EventSubscriberInterface
 {
-
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly EmailAddressRepository $emailAddressRepository
-    ){}
+    ) {
+    }
 
     public static function getSubscribedEvents()
     {
