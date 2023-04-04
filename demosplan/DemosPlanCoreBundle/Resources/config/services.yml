@@ -47,7 +47,7 @@ services:
         class:
 
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
-        class:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
     DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
         class:
