@@ -40,6 +40,7 @@ class HandleEmailAddressSubscriber implements EventSubscriberInterface
     {
         $inputEmailAddressStrings = $event->getInputEmailAddressStrings();
 
+        $savedAllowedMailAddresses = [];
         foreach ($inputEmailAddressStrings as $addressString) {
             try {
                 $savedAllowedMailAddresses[] = $emailAddressRepository->getOrCreateEmailAddress($addressString);
