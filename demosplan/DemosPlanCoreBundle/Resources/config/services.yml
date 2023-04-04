@@ -453,6 +453,13 @@ services:
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
 
+    Doctrine\ORM\EntityManager:
+        arguments:
+            $config: '@doctrine.orm.default_configuration'
+
+    EDT\JsonApi\RequestHandling\EntityFetcherInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher
+
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
     # Used in Migrations. As long as DI is not usable in Migrations yet these have to be public
