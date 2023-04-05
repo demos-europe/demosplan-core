@@ -7,7 +7,7 @@ knpu_oauth2_client:
         keycloak_ozg:
             # must be "keycloak" - it activates that type!
             type: keycloak
-            # add and set these environment variables in your .env files
+            # add and set these environment variables in your parameters.yml files
             client_id: '%oauth_keycloak_client_id%'
             client_secret: '%oauth_keycloak_client_secret%'
             # a route name you'll create
