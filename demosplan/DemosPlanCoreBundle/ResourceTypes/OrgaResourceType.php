@@ -232,6 +232,7 @@ final class OrgaResourceType extends DplanResourceType
                 true,
                 function (Orga $orga): bool {
                     $currentSubdomain = $this->currentContext->getCurrentCustomer()->getSubdomain();
+
                     return $orga->hasType(OrgaType::MUNICIPALITY, $currentSubdomain)
                         || $orga->hasType(OrgaType::PLANNING_AGENCY, $currentSubdomain)
                         || $orga->hasType(OrgaType::HEARING_AUTHORITY_AGENCY, $currentSubdomain);
