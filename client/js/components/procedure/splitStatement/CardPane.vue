@@ -20,8 +20,8 @@
       @confirm-segment="$emit('confirm-segment', segment.id)"
       @edit-segment="$emit('edit-segment', segment.id)"
       @delete-segment="$emit('delete-segment', segment.id)"
-      @mouseenter.native="handleMouseEnter(segment.id)"
-      @mouseleave.native="handleMouseLeave(segment.id)"
+      @mouseenter="handleMouseEnter(segment.id)"
+      @mouseleave="handleMouseLeave(segment.id)"
       @check-card-overlap="positionCards" />
   </div>
 </template>

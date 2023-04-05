@@ -90,8 +90,8 @@
             v-else-if="initialData">
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
+              @mouseover="handleMouseOver"
+              @mouseleave="handleMouseLeave"
               :init-statement-text="initText"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
