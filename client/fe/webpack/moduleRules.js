@@ -99,12 +99,28 @@ const moduleRules =
       test: /\.css$/,
       use: [
         MiniCssExtractPlugin.loader,
-        'vue-loader'
+        {
+          loader: 'vue-loader',
+          options: {
+            compilerOptions: {
+              compatConfig: {
+                MODE: 2
+              }
+            }
+          }
+        },
       ]
     },
     {
       test: /\.vue$/,
-      loader: 'vue-loader'
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
     },
     {
       test: /\.js$/,

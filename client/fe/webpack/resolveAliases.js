@@ -14,7 +14,7 @@ const config = require('../config/config').config
 function resolveAliases () {
   const aliases = {
     '@DpJs': config.absoluteRoot + 'client/js',
-    vue: 'vue/dist/vue.esm.js',
+    vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
     'prosemirror-model': config.absoluteRoot + 'node_modules/prosemirror-model',
     'prosemirror-state': config.absoluteRoot + 'node_modules/prosemirror-state',
     'prosemirror-view': config.absoluteRoot + 'node_modules/prosemirror-view',
