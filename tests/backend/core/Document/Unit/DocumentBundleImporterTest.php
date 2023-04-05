@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
