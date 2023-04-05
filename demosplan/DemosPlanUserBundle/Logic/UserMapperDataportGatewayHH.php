@@ -338,6 +338,11 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                 // Hat der User Orga oder Department gewechselt, kommt er auch hier hin
                 if (!$publicAgencyUser instanceof User || (is_null($publicAgencyUser->getOrga()) || is_null($publicAgencyUser->getDepartment()))) {
                     if (!$publicAgencyUser instanceof User) {
+                        $getUserContext = [
+                            'foundUser' => $publicAgencyUser,
+                            'userData' => $this->data['user']
+                        ];
+                        $this->logger->info('Could not find user with data', $getUserContext);
                         $this->logger->info('User does not exist create with roles', ['roles' => $toebRoles]);
                         $publicAgencyUser = $this->createUserMode2($toebRoles, 'T');
                     }
