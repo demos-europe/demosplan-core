@@ -35,7 +35,6 @@ function registerPresetModules (store, presetStoreModules) {
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
-  Vue.use(Vuex)
 
   const staticModules = { notify, ...storeModules }
 
@@ -57,6 +56,10 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   return router
     .updateRoutes()
     .then(router => {
+      /**
+      `* vue.use(vuex) is fired in the vuex-json-api
+       * so we don't have to do it here
+       */
       const store = new Vuex.Store({
         strict: process.env.NODE_ENV !== 'production',
 

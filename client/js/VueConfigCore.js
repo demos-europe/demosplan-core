@@ -17,11 +17,9 @@ import { DpObscure } from '@demos-europe/demosplan-ui'
 import DPVueCorePlugin from './plugins/DPVueCore'
 import PortalVue from 'portal-vue'
 import Vue from 'vue'
-import Vuex from 'vuex'
 
 // Add plugins to Vue instance
 Vue.use(PortalVue)
-Vue.use(Vuex)
 Vue.use(DPVueCorePlugin)
 
 // Register components that are used globally
