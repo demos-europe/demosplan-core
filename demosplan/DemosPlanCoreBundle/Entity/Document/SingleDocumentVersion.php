@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_single_doc_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository")
  */
 class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface
 {

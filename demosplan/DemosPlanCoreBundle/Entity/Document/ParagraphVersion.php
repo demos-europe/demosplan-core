@@ -19,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_para_doc_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository")
  */
 class ParagraphVersion extends CoreEntity implements UuidEntityInterface
 {

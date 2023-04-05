@@ -21,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_para_doc")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository")
  */
 class Paragraph extends CoreEntity implements UuidEntityInterface
 {
