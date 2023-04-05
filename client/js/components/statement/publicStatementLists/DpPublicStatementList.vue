@@ -22,8 +22,8 @@
       @change="saveSort">
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
-        :key="idx"
         v-bind="statement"
+        :key="idx"
         @open-map-modal="openMapModal"
         @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
         :menu-items-generator="menuItemCallback"

@@ -27,9 +27,9 @@
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
+          v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          v-bind="dynamicComponentProps"
           @[dynamicEvent]="update" />
 
         <!-- Save/Abort buttons   -->
