@@ -23,6 +23,7 @@ use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
 use Doctrine\Common\Collections\Collection;
+use EDT\JsonApi\ResourceTypes\RelationshipBuilder;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
@@ -128,17 +129,14 @@ final class OrgaResourceType extends DplanResourceType
             );
         }
 
-        $user = $this->currentUser->getUser();
-        if (null === $user->getOrga()) {
-            $this->logger->error('User without organisation.', [$user->getId()]);
-            throw new MissingOrganisationException();
+        $orga = $this->currentUser->getUser()->getOrga();
+        if (null === $orga) {
+            return $this->conditionFactory->false();
         }
-
-        $organisationId = $user->getOrga()->getId();
 
         // if no special permissions are given, the user can at least access its own organisation
         return $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($organisationId, $this->id),
+            $this->conditionFactory->propertyHasValue($orga->getId(), $this->id),
             ...$mandatoryConditions
         );
     }
@@ -182,6 +180,7 @@ final class OrgaResourceType extends DplanResourceType
     }
 
     /**
+     * @return array<int, RelationshipBuilder>
      * @throws UserNotFoundException
      */
     protected function getProperties(): array
@@ -287,6 +286,7 @@ final class OrgaResourceType extends DplanResourceType
     }
 
     /**
+     * @return array<string, string>
      * @throws UserNotFoundException
      * @throws CustomerNotFoundException
      */
@@ -322,6 +322,7 @@ final class OrgaResourceType extends DplanResourceType
     }
 
     /**
+     * @return Collection<int, OrgaStatusInCustomer>
      * @throws CustomerNotFoundException
      * @throws UserNotFoundException
      */
