@@ -8,7 +8,7 @@
  */
 
 /* eslint-disable-next-line import/extensions */
-import 'swagger-ui-dist/swagger-ui.css'
+// import 'swagger-ui-dist/swagger-ui.css' // This has to be commented out, to make the vue-compate run.
 import { initialize } from '@DpJs/InitVue'
 import { SwaggerUIBundle } from 'swagger-ui-dist'
 
