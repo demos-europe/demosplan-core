@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Exception\MissingOrganisationException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
@@ -181,6 +180,7 @@ final class OrgaResourceType extends DplanResourceType
 
     /**
      * @return array<int, RelationshipBuilder>
+     *
      * @throws UserNotFoundException
      */
     protected function getProperties(): array
@@ -287,6 +287,7 @@ final class OrgaResourceType extends DplanResourceType
 
     /**
      * @return array<string, string>
+     *
      * @throws UserNotFoundException
      * @throws CustomerNotFoundException
      */
@@ -323,6 +324,7 @@ final class OrgaResourceType extends DplanResourceType
 
     /**
      * @return Collection<int, OrgaStatusInCustomer>
+     *
      * @throws CustomerNotFoundException
      * @throws UserNotFoundException
      */
