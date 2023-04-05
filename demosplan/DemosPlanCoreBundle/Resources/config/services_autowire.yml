@@ -16,10 +16,6 @@ services:
         exclude:
             - '../../../../demosplan/DemosPlanCoreBundle/{Entity,Tests,ResourceTypes,StoredQuery,Resources/config}'
 
-    demosplan\DemosPlanDocumentBundle\:
-        resource: '../../../../demosplan/DemosPlanDocumentBundle/*'
-        exclude: '../../../../demosplan/DemosPlanDocumentBundle/{Entity,Tests}'
-
     demosplan\DemosPlanMapBundle\:
         resource: '../../../../demosplan/DemosPlanMapBundle/*'
         exclude: '../../../../demosplan/DemosPlanMapBundle/{Entity,Tests}'
