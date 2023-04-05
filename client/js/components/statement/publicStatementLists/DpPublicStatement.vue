@@ -115,20 +115,19 @@
       </div>
     </template>
 
-    <template>
-      <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
-        <div class="u-1-of-1 c-public-statement__content-item">
-          <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
-            {{ Translator.trans('organisation') }}
-          </div><!--
-       --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
-            {{ organisation || '-' }}
-          </div>
+    <div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
+      <div class="u-1-of-1 c-public-statement__content-item">
+        <div class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          {{ Translator.trans('organisation') }}
         </div><!--
-     --><div class="u-1-of-1 c-public-statement__content-item">
-          <div
-              v-if="showAuthor"
-              class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+     --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
+          {{ organisation || '-' }}
+        </div>
+      </div><!--
+   --><div class="u-1-of-1 c-public-statement__content-item">
+        <div
+          v-if="showAuthor"
+          class="display--inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
           {{ Translator.trans('authored.by') }}
         </div><!--
      --><div class="display--inline-block u-2-of-3 u-1-of-1-palm">
@@ -169,7 +168,7 @@
           {{ paragraph }}
         </div>
       </div>
-      </div><!--
+    </div><!--
  --><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
       <div class="u-1-of-1 c-public-statement__content-item">
         <template v-if="hasPermission('field_statement_location')">
@@ -218,24 +217,23 @@
      --><div
           class="display--inline-block u-2-of-3 u-1-of-1-palm overflow-word-break"
           v-cleanhtml="renderAttachments(attachments)" />
-        </div>
       </div>
-      <dp-inline-notification
-        v-if="rejectedReason"
-        class="u-mt"
-        type="info">
-        <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
-        <div>{{ rejectedReason }}</div>
-      </dp-inline-notification>
-      <div class="u-1-of-1 u-mt">
-        <div class="c-public-statement__label">
-          {{ Translator.trans('statementtext') }}
-        </div>
-        <div
-          class="overflow-word-break"
-          v-cleanhtml="text" />
+    </div>
+    <dp-inline-notification
+      v-if="rejectedReason"
+      class="u-mt"
+      type="info">
+      <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
+      <div>{{ rejectedReason }}</div>
+    </dp-inline-notification>
+    <div class="u-1-of-1 u-mt">
+      <div class="c-public-statement__label">
+        {{ Translator.trans('statementtext') }}
       </div>
-    </template>
+      <div
+        class="overflow-word-break"
+        v-cleanhtml="text" />
+    </div>
   </dp-table-card>
 </template>
 

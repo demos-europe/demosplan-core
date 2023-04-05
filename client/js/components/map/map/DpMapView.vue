@@ -114,15 +114,15 @@
               container: '#DpOlMap'
             }" />
         </div>
-        <template v-else>
-          <dp-ol-map-draw-feature
-            name="Coordinates"
-            type="Point"
-            class="u-mb-0_5"
-            :label="Translator.trans('map.relation.set')"
-            :features="procedureCoordinatesFeature"
-            @layerFeatures:changed="updateCoordinates" />
-        </template>
+
+        <dp-ol-map-draw-feature
+          v-else
+          name="Coordinates"
+          type="Point"
+          class="u-mb-0_5"
+          :label="Translator.trans('map.relation.set')"
+          :features="procedureCoordinatesFeature"
+          @layerFeatures:changed="updateCoordinates" />
 
         <dp-ol-map-drag-zoom class="u-mb-0_5" />
       </template>

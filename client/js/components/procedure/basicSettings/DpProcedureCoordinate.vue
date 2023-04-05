@@ -51,13 +51,11 @@
         </div>
       </template>
 
-      <template>
-        <dp-ol-map-layer-vector
-          :features="featuresFromCoordinate"
-          ref="procedureCoordinateDrawer"
-          name="procedureCoordinateDrawer"
-          @layer:features:changed="updateProcedureCoordinate" />
-      </template>
+      <dp-ol-map-layer-vector
+        :features="featuresFromCoordinate"
+        ref="procedureCoordinateDrawer"
+        name="procedureCoordinateDrawer"
+        @layer:features:changed="updateProcedureCoordinate" />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.

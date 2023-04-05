@@ -13,25 +13,21 @@
       ref="mapModal"
       content-classes="u-1-of-2 u-pb"
       @modal:toggled="(open) => {isModalOpen = open}">
-      <template>
-        <dp-ol-map
-          :class="prefixClass('u-mv-0_5')"
-          v-if="isModalOpen"
-          :procedure-id="procedureId"
-          :map-options-route="mapOptionsRoute"
-          ref="map"
-          :options="{
-            autoSuggest: false,
-            scaleSelect: false,
-            procedureExtent: false,
-          }">
-          <template>
-            <dp-ol-map-layer-vector
-              zoom-to-drawing
-              :features="drawing" />
-          </template>
-        </dp-ol-map>
-      </template>
+      <dp-ol-map
+        :class="prefixClass('u-mv-0_5')"
+        v-if="isModalOpen"
+        :procedure-id="procedureId"
+        :map-options-route="mapOptionsRoute"
+        ref="map"
+        :options="{
+          autoSuggest: false,
+          scaleSelect: false,
+          procedureExtent: false,
+        }">
+        <dp-ol-map-layer-vector
+          zoom-to-drawing
+          :features="drawing" />
+      </dp-ol-map>
     </dp-modal>
   </portal>
 </template>

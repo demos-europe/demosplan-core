@@ -11,24 +11,22 @@
   <dp-modal
     ref="labelModal"
     content-classes="width-auto">
-    <template>
-      <h3>
-        {{ Translator.trans('format') }}
-      </h3>
-      <div class="flex space-inline-s">
-        <dp-select
-          v-model="selectedLabel"
-          classes="width-300"
-          name="labelSelect"
-          placeholder="-"
-          :options="labels" />
-        <button
-          @click="setLabel"
-          class="btn btn--primary">
-          {{ Translator.trans('accept') }}
-        </button>
-      </div>
-    </template>
+    <h3>
+      {{ Translator.trans('format') }}
+    </h3>
+    <div class="flex space-inline-s">
+      <dp-select
+        v-model="selectedLabel"
+        classes="width-300"
+        name="labelSelect"
+        placeholder="-"
+        :options="labels" />
+      <button
+        @click="setLabel"
+        class="btn btn--primary">
+        {{ Translator.trans('accept') }}
+      </button>
+    </div>
   </dp-modal>
 </template>
 
