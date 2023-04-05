@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer;
+use demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer;
 use demosplan\DemosPlanMapBundle\Logic\MapHandler;
 use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
