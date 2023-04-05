@@ -20,6 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/
  *
  * @ORM\Table(name="_role")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\RoleRepository")
  */
 class Role extends CoreEntity implements UuidEntityInterface
@@ -105,6 +106,7 @@ class Role extends CoreEntity implements UuidEntityInterface
 
     /**
      * MasterUser eines Mandanten.
+     * Mandanten-Administration.
      *
      * Can manage customer affairs.
      *
@@ -303,8 +305,11 @@ class Role extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="_r_id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $ident;
