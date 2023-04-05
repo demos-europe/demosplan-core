@@ -326,13 +326,10 @@ parameters:
     saml_registration_url: ''
 
     # knpu_oauth2_client settings
-    type: ''
-    client_id: ''
-    client_secret: ''
-    redirect_route: ''
-    redirect_params: {}
-    auth_server_url: ''
-    realm: ''
+    oauth_keycloak_client_id: ''
+    oauth_keycloak_client_secret: ''
+    oauth_keycloak_auth_server_url: ''
+    oauth_keycloak_realm: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
