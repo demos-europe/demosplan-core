@@ -104,7 +104,7 @@ const moduleRules =
           options: {
             compilerOptions: {
               compatConfig: {
-                MODE: 2
+                MODE: 3
               }
             }
           }
@@ -117,7 +117,7 @@ const moduleRules =
       options: {
         compilerOptions: {
           compatConfig: {
-            MODE: 2
+            MODE: 3
           }
         }
       }
