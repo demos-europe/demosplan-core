@@ -24,48 +24,52 @@
                 login-route="{{ path('DemosPlan_user_login') }}"
                 password="{{ alternative_login_testuser_defaultpass }}"
                 v-slot="{ headerFields, loginRoute, password, rowItems }">
-                <dp-data-table-extended
-                    :header-fields="headerFields"
-                    :init-items-per-page="200"
-                    :table-items="rowItems"
-                    track-by="login">
-                    <template v-slot:button="rowData">
+
+{#                <dp-data-table-extended#}
+{#                    :header-fields="headerFields"#}
+{#                    :init-items-per-page="200"#}
+{#                    :table-items="rowItems"#}
+{#                    track-by="login">#}
+{#                    <template v-slot:button="rowData">#}
                         <form
                             method="post"
                             :action="loginRoute">
-                            <input type="hidden" name="r_useremail" :value="rowData.login">
-                            <input type="hidden" name="password" :value="password">
-                            <input type="submit" class="{{ 'btn btn--primary'|prefixClass }}" value="Login">
+                            <div v-for="item in rowItems">
+                                <div v-html="item.name"></div>
+                                <input name="r_useremail" :value="item.login">
+                                <input name="password" :value="item.password">
+                                <input type="submit" class="btn btn--primary" value="Login">
+                            </div>
                         </form>
-                    </template>
-                </dp-data-table-extended>
+{#                    </template>#}
+{#                </dp-data-table-extended>#}
             </alternative-login>
 
-            {% if loginList.usersOsi|default([])|length > 0 %}
-                <h2 class="u-mt-2">Simuliertes OSI-Login</h2>
-                <alternative-login
-                    class="{{ 'u-mt-2'|prefixClass }}"
-                    :users="JSON.parse('{{ loginList.usersOsi|json_encode|e('js', 'utf-8') }}')"
-                    login-route="{{ path('DemosPlan_user_login_osi_legacy') }}"
-                    password="{{ alternative_login_testuser_defaultpass }}"
-                    v-slot="{ headerFields, loginRoute, password, rowItems }">
-                    <dp-data-table-extended
-                        :header-fields="headerFields"
-                        :initial-items-per-page="200"
-                        :table-items="rowItems"
-                        track-by="login">
-                        <template v-slot:button="rowData">
-                            <div>
-                                <a
-                                    :href="'{{ path('DemosPlan_user_login_osi_legacy', {'project': projectFolder|default}) }}&TokenTest='+rowData.name"
-                                    class="{{ 'btn btn--primary'|prefixClass }}">
-                                    Login
-                                </a>
-                            </div>
-                        </template>
-                    </dp-data-table-extended>
-                </alternative-login>
-            {% endif %}
+{#            {% if loginList.usersOsi|default([])|length > 0 %}#}
+{#                <h2 class="u-mt-2">Simuliertes OSI-Login</h2>#}
+{#                <alternative-login#}
+{#                    class="{{ 'u-mt-2'|prefixClass }}"#}
+{#                    :users="JSON.parse('{{ loginList.usersOsi|json_encode|e('js', 'utf-8') }}')"#}
+{#                    login-route="{{ path('DemosPlan_user_login_osi_legacy') }}"#}
+{#                    password="{{ alternative_login_testuser_defaultpass }}"#}
+{#                    v-slot="{ headerFields, loginRoute, password, rowItems }">#}
+{#                    <dp-data-table-extended#}
+{#                        :header-fields="headerFields"#}
+{#                        :initial-items-per-page="200"#}
+{#                        :table-items="rowItems"#}
+{#                        track-by="login">#}
+{#                        <template v-slot:button="rowData">#}
+{#                            <div>#}
+{#                                <a#}
+{#                                    :href="'{{ path('DemosPlan_user_login_osi_legacy', {'project': projectFolder|default}) }}&TokenTest='+rowData.name"#}
+{#                                    class="{{ 'btn btn--primary'|prefixClass }}">#}
+{#                                    Login#}
+{#                                </a>#}
+{#                            </div>#}
+{#                        </template>#}
+{#                    </dp-data-table-extended>#}
+{#                </alternative-login>#}
+{#            {% endif %}#}
 
         </div>
     {% endif %}

@@ -30,7 +30,7 @@ const baseConfig = {
     filename: './[name].[contenthash:6].js',
     chunkFilename: './[name].[contenthash:6].js'
   },
-  devtool: (config.isProduction) ? false : 'eval',
+  devtool: 'eval',
   plugins: (() => {
     let plugins = webpackDefaultPlugins
     switch (config.mode) {
@@ -42,7 +42,7 @@ const baseConfig = {
         break
 
       case 'production':
-        plugins = plugins.concat(webpackProdOnlyPlugins)
+        plugins = plugins.concat(webpackDevOnlyPlugins)
         break
 
       default:
@@ -95,7 +95,6 @@ const bundlesConfig = merge(baseConfig, {
     path: config.projectRoot + '/web/js/bundles',
     publicPath: config.urlPathPrefix + '/js/bundles/'
   },
-  devtool: (config.isProduction) ? false : 'eval',
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: resolveAliases()
@@ -105,7 +104,7 @@ const bundlesConfig = merge(baseConfig, {
     new DefinePlugin({
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
       __VUE_OPTIONS_API__: true,
-      __VUE_PROD_DEVTOOLS__: false,
+      __VUE_PROD_DEVTOOLS__: true,
       initFeatureFlags: true,
       baseCreateRenderer: true,
       createRenderer: true,

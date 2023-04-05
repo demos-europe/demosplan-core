@@ -37,7 +37,7 @@ export function loadLibs () {
   FormActions()
   ToggleAnything()
   Pager()
-  Sticky()
+  // Sticky()
 
   window.dplan.tooltips = Tooltips()
 }

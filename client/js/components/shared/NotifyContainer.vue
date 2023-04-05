@@ -12,13 +12,15 @@
   <div
     :class="prefixClass('c-notify')"
     :aria-live="liveState">
-    <transition-group name="transition-slide-up">
-      <dp-notify-message
-        v-for="message in messages"
-        :key="message.uid"
-        :message="message"
-        @dp-notify-remove="removeMessage"
-        :role="messageRole" />
+    <transition-group
+      name="transition-slide-up"
+      tag="span">
+<!--      <dp-notify-message-->
+<!--        v-for="message in notificationMessages"-->
+<!--        :key="message.uid"-->
+<!--        :message="message"-->
+<!--        @dp-notify-remove="removeMessage"-->
+<!--        :role="messageRole" />-->
     </transition-group>
   </div>
 </template>
@@ -73,6 +75,11 @@ export default {
 
     messageRole () {
       return (this.isVisible) ? 'message' : 'none'
+    },
+
+    notificationMessages () {
+      console.log(this.messages)
+      return this.messages
     }
   },
 
@@ -80,6 +87,8 @@ export default {
     ...mapMutations('notify', ['add', 'remove']),
 
     init () {
+      console.log(this.add)
+      console.log(this.$store)
       for (const type in this.notifications) {
         if (hasOwnProp(this.notifications, type)) {
           const messages = this.notifications[type]

@@ -24,6 +24,5 @@ const components = {
 }
 
 initialize(components).then(vm => {
-  console.log(vm)
   dpValidate()
 })
