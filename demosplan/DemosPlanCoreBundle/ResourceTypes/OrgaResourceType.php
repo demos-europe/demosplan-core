@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanUserBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanUserBundle\Logic\RoleService;
@@ -147,6 +148,7 @@ final class OrgaResourceType extends DplanResourceType
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
                 $this->statusInCustomers->customer->id
             ),
+            $this->conditionFactory->propertyHasNotValue(User::ANONYMOUS_USER_ORGA_ID, $this->id),
         ];
     }
 
