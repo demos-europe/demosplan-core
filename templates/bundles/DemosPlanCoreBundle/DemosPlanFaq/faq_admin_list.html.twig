@@ -15,7 +15,9 @@
         }) }}
     </aside>
 
-    <dp-faq-list class="u-mb">
+    <dp-faq-list
+        class="u-mv"
+        :role-groups-faq-visibility="JSON.parse('{{ roleGroupsFaqVisibility|default([])|json_encode|e('js', 'utf-8') }}')">
     </dp-faq-list>
 {% endblock %}
 
