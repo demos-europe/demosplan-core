@@ -144,8 +144,7 @@
                     name="r_orga_city"
                     :label="{
                       text: Translator.trans('city')
-                    }"
-                    pattern="^[A-Za-zÄäÜüÖöß -]+$" />
+                    }" />
                 </div>
               </div><!--
 

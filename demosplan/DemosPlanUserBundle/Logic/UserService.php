@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanUserBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -64,7 +65,7 @@ use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 use function array_key_exists;
 
-class UserService extends CoreService
+class UserService extends CoreService implements UserServiceInterface
 {
     private const HEX_CHARS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 

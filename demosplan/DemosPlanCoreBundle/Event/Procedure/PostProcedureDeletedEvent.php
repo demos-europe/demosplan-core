@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
-class PostProcedureDeletedEvent extends DPlanEvent
+class PostProcedureDeletedEvent extends DPlanEvent implements PostProcedureDeletedEventInterface
 {
     /** @var array<string, mixed> */
     protected $procedureData;
