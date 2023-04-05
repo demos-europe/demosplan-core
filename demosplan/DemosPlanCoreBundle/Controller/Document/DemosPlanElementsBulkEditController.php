@@ -27,6 +27,7 @@ class DemosPlanElementsBulkEditController extends BaseController
      *     path="/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_admin_element_edit")
      *
      * @throws Exception

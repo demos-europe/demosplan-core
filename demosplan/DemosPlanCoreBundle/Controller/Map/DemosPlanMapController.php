@@ -59,6 +59,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/globaleGisEinstellungen",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -149,6 +150,7 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_new",
      *     path="/verfahren/{procedure}/verwalten/gislayer/neu"
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -231,6 +233,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedure}/verwalten/gislayer/{gislayerID}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedure
@@ -318,6 +321,7 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_category_new",
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/new-category"
      * )
+     *
      *  @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -389,6 +393,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @param string $procedureId
@@ -458,6 +463,7 @@ class DemosPlanMapController extends BaseController
      *     path="/verfahren/{procedureId}/verwalten/gislayer",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @param string $procedureId
@@ -584,6 +590,7 @@ class DemosPlanMapController extends BaseController
      *     name="DemosPlan_map_administration_gislayer_global",
      *     path="/gislayer"
      * )
+     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @return RedirectResponse|Response
@@ -653,6 +660,7 @@ class DemosPlanMapController extends BaseController
      *     path="/gislayer/{gislayerID}",
      *     defaults={"type": "edit"},
      * )
+     *
      * @DplanPermissions("area_admin_gislayer_global_edit")
      *
      * @param string      $type
@@ -745,6 +753,7 @@ class DemosPlanMapController extends BaseController
      *     path="/getFeatureInfo/{procedure}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("area_map_participation_area")
      *
      * @return Response
@@ -796,6 +805,7 @@ class DemosPlanMapController extends BaseController
      *     path="/getPlanningArea/{procedure}",
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions("feature_procedure_planning_area_match")
      *
      * @param string $procedure

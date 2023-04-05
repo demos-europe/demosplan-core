@@ -31,6 +31,7 @@ class DemosPlanElementsAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_elements_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      */
     public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
@@ -61,6 +62,7 @@ class DemosPlanElementsAPIController extends APIController
 
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/api/1.0/element/{elementId}",
      *        methods={"GET"},
      *        name="dp_api_elements_get",
