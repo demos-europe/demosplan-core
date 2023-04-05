@@ -108,7 +108,9 @@
                                             {% endfor %}
                                         {% endfor %}
                                     {% endfor %}
-                                    <template v-for="filter in group.values">
+                                    <template
+                                        v-for="(filter, idx) in group.values"
+                                        :key="`filter_${idx}`">
                                         <template v-if="filter.hasPermission">
                                             <label :for="filter.name" class="layout__item u-1-of-4 u-pl-0 text--right">
                                                 {% verbatim %}{{ Translator.trans(filter.title) }}{% endverbatim %}
