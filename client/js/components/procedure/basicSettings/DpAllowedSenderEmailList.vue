@@ -85,9 +85,8 @@ export default {
       const payload = {
         type: 'MaillaneConnection',
         attributes: {
-          allowedSenderEmailAddresses: emailAddress
-        },
-        procedureId: this.procedureId
+          allowedSenderEmailAddresses: [emailAddress]
+        }
       }
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MaillaneConnection' }), {}, { data: payload })
@@ -97,9 +96,8 @@ export default {
       const payload = {
         type: 'MaillaneConnection',
         attributes: {
-          allowedSenderEmailAddresses: extraEmailAddress
-        },
-        procedureId: this.procedureId
+          allowedSenderEmailAddresses: [extraEmailAddress]
+        }
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MaillaneConnection', resourceId: index }), {}, payload)

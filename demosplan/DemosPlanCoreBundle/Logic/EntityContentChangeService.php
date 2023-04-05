@@ -49,8 +49,12 @@ class EntityContentChangeService extends CoreService
      */
     private $entityContentChangeRepository;
 
-    /** @var array[] */
-    protected $fieldMapping;
+    /**
+     * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
+     *
+     * @var array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|null
+     */
+    protected ?array $fieldMapping;
 
     /**
      * @var MailService
@@ -119,23 +123,44 @@ class EntityContentChangeService extends CoreService
      * Returns list of fields to create entityContentChanges for as array.
      * Including necessary meta data for each field.
      *
-     * @return array list of fields to create entityContentChanges for
+     * @return array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|array<non-empty-string, array<non-empty-string, mixed>> list of fields to create entityContentChanges for
      */
     public function getFieldMapping(string $class = ''): array
     {
+        $this->loadFieldMapping();
         if ('' === $class) {
             return $this->fieldMapping;
         }
 
         // convert Proxy-class (for tests)
         $class = str_replace('Proxies\\__CG__\\', '', $class);
-        $this->loadFieldMapping();
 
         if (array_key_exists($class, $this->fieldMapping)) {
             return $this->fieldMapping[$class];
         }
 
         return $this->fieldMapping;
+    }
+
+    /**
+     * @param class-string $class
+     *
+     * @return array<non-empty-string, array<non-empty-string, mixed>> list of fields to create entityContentChanges for
+     */
+    public function getFieldMappingForClass(string $class): array
+    {
+        $this->loadFieldMapping();
+
+        // convert Proxy-class (for tests)
+        $class = str_replace('Proxies\\__CG__\\', '', $class);
+
+        if (array_key_exists($class, $this->fieldMapping)) {
+            return $this->fieldMapping[$class];
+        }
+
+        $availableClasses = implode(', ', array_keys($this->fieldMapping));
+
+        throw new InvalidArgumentException("No mapping class found for '$class'. Available class mappings are: $availableClasses");
     }
 
     /**
@@ -231,7 +256,7 @@ class EntityContentChangeService extends CoreService
     public function diffArrayAndObject(array $preUpdateArray, CoreEntity $incomingUpdatedObject): array
     {
         $changes = [];
-        foreach ($this->getFieldMapping(ClassUtils::getClass($incomingUpdatedObject)) as $propertyName => $fieldMetaInfo) {
+        foreach ($this->getFieldMappingForClass(ClassUtils::getClass($incomingUpdatedObject)) as $propertyName => $fieldMetaInfo) {
             $methodName = $this->getGetterMethodName($incomingUpdatedObject, $propertyName);
             // If the entity is not managed by doctrine (e.g. because it was just created)
             // we use `null` as pre update value.
