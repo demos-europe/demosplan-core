@@ -50,8 +50,9 @@
             <dp-button
               :class="prefixClass('u-mt')"
               data-cy="submit"
-              :text="Translator.trans('login')"
-              type="submit" />
+              type="submit">
+              {{ Translator.trans('login') }}
+            </dp-button>
           </dp-form-row>
           <a
             :class="prefixClass('o-link--default')"
