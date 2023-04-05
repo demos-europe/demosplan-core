@@ -225,7 +225,7 @@ class DemosPlanAssessmentController extends BaseController
         // atm use Template from DemosPlanAssessmentTableBundle as refactoring it to this Bundle
         // generates quite a hassle as it needs to be done in all projects
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,

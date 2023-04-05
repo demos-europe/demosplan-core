@@ -107,10 +107,10 @@
                 {% include '@DemosPlanCore/DemosPlanCore/includes/statement_detail_subheader.html.twig' %}
 
 
-                {% include '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_data.html.twig' with { 'readonly': readonly } %}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_data.html.twig' with { 'readonly': readonly } %}
 
 
-                {% include '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
 
                 {# MITZEICHNER #}
                 {# To show this section at all we need the permission activated #}
@@ -233,7 +233,7 @@
                 {% endif %}
 
                 {% if hasPermission('field_send_final_email')%}
-                    {% include '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final.html.twig' with { 'readonly': readonly } %}
+                    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final.html.twig' with { 'readonly': readonly } %}
                 {% endif %}
 
                 {% if not readonly %}

@@ -1,13 +1,13 @@
 {% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
 
-{% import '@DemosPlanAssessmentTable/DemosPlan/statement_macros.tex.twig' as statement_macros %}
+{% import '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/statement_macros.tex.twig' as statement_macros %}
 {% block demosplanbundlecontent %}
     \section*{{ '{' }}{{title}}{{ '}' }}
     {% if templateVars.table.entries is defined and templateVars.table.entries.total is defined and templateVars.table.entries.total > 0 and templateVars.table.entries.statements is defined %}
         {% for statement in templateVars.table.entries.statements %}
-            {% include '@DemosPlanAssessmentTable/DemosPlan/snipped_statement_head.tex.twig' %}
+            {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/snipped_statement_head.tex.twig' %}
             {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
-                {% include '@DemosPlanAssessmentTable/DemosPlan/snipped_statement_moved.tex.twig' %}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/snipped_statement_moved.tex.twig' %}
             {% else %}
                 {% if statement.fragments is defined and statement.fragments is iterable and statement.fragments|length > 0 %}
                     {% for fragment in statement.fragments %}

@@ -261,7 +261,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Kompakte Ansicht: DemosPlanAssessmentTableBundle:DemosPlan:export_condensed.tex.twig
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
-            $fullTemplateName = '@DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+            $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
