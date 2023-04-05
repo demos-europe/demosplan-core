@@ -71,7 +71,7 @@
             {% endif %}
         {% endif %}
 
-        {% include "@DemosPlanDocument/DemosPlanDocument/includes/single_document_text.html.twig" with {
+        {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_text.html.twig" with {
             text: document.text|default
         } %}
 
@@ -104,7 +104,7 @@
             <input type="hidden" value="0" name="r_statement_enabled">
         {% endif %}
 
-        {% include "@DemosPlanDocument/DemosPlanDocument/includes/single_document_file_upload.html.twig" with {
+        {% include "@DemosPlanCore/DemosPlanDocument/includes/single_document_file_upload.html.twig" with {
             required: false
         } %}
 

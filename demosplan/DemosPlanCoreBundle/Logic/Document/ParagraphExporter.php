@@ -142,7 +142,7 @@ class ParagraphExporter
         $templateVars['procedure'] = $procedure;
 
         $content = $this->twig->render(
-            '@DemosPlanDocument/DemosPlanDocument/paragraph_list_export.tex.twig',
+            '@DemosPlanCore/DemosPlanDocument/paragraph_list_export.tex.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,

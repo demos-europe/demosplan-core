@@ -53,7 +53,7 @@
 
                     {% block actionbox %}
 
-                        {% include '@DemosPlanDocument/DemosPlanDocument/includes/actionbox.html.twig' with {
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
                             css_classes: ' u-mb-0-palm u-mb-lap-up',
                             context: 'documents',
                             jump_marker: 'documents'
@@ -71,7 +71,7 @@
                         role="navigation"
                     >
                         {# this toc is called recursive to render menu tree #}
-                        {% include '@DemosPlanDocument/DemosPlanDocument/includes/toc.html.twig' with {'tree': templateVars.list.documentlistToc, 'level': 0} %}
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/toc.html.twig' with {'tree': templateVars.list.documentlistToc, 'level': 0} %}
                     </nav>
 
                 </div><!--
@@ -117,7 +117,7 @@
                         </div>
 
                         {% if not hasPermission('feature_documents_new_statement') and hasPermission('feature_statement_to_entire_document') %}
-                            {% include '@DemosPlanDocument/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_all'} %}
+                            {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_all'} %}
                         {% endif %}
                     </h2>
 
@@ -165,7 +165,7 @@
                             </header>
 
                             {% if document.visible == 1 and not hasPermission('feature_documents_new_statement') %}
-                                {% include '@DemosPlanDocument/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_single'} %}
+                                {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_single'} %}
                             {% endif %}
 
                             {# Display hint about locked paragraph.

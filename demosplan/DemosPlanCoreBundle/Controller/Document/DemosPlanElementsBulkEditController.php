@@ -34,7 +34,7 @@ class DemosPlanElementsBulkEditController extends BaseController
     public function showFormAction(string $procedureId): Response
     {
         return $this->renderTemplate(
-            '@DemosPlanDocument/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
             [
                 'title'       => 'elements.bulk.edit',
             ]

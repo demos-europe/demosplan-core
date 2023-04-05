@@ -65,7 +65,7 @@
 
         {# if there are children, include self recursive #}
         {% if document.children %}
-            {% include '@DemosPlanDocument/DemosPlanDocument/paragraph_admin_list_entry.html.twig' with {'documents': document.children, 'level': level + 1} %}
+            {% include '@DemosPlanCore/DemosPlanDocument/paragraph_admin_list_entry.html.twig' with {'documents': document.children, 'level': level + 1} %}
         {% endif %}
 
     {% endfor %}

@@ -53,7 +53,7 @@
                 <div class="{{ 'elements__description u-1-of-1-desk-up overflow-word-break'|prefixClass }}">
                     {# display to planners if only specific orgas see this element #}
                     {% if hasPermission('feature_admin_element_authorisations') %}
-                    {% include '@DemosPlanDocument/DemosPlanDocument/includes/permissions.html.twig' with {
+                    {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {
                             context: 'element',
                             organisations: element.organisation|default,
                             element_title: element.title
@@ -190,7 +190,7 @@
                                        instead of the "New statement" button a message is displayed #}
                                     {% if not statementEnabled and document.statementEnabled == true %}
                                         <div class="elements__permission">
-                                            {% include '@DemosPlanDocument/DemosPlanDocument/includes/permissions.html.twig' with {
+                                            {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {
                                                 context: 'file',
                                                 orga_count: element.organisation|default([])|length > 0,
                                                 element_title: element.title

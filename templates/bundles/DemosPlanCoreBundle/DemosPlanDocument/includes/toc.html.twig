@@ -36,7 +36,7 @@
                         >
                             <i class="{{ 'o-toggle__icon c-toc__toggle-icon'|prefixClass }}" aria-hidden="true"></i>
                         </button>
-                        {% include '@DemosPlanDocument/DemosPlanDocument/includes/toc.html.twig' with {'tree': node.children, 'level': level + 1, 'parent_id': 'toc' ~ node.id} %}
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/toc.html.twig' with {'tree': node.children, 'level': level + 1, 'parent_id': 'toc' ~ node.id} %}
                     {% endif %}
 
                 </li>

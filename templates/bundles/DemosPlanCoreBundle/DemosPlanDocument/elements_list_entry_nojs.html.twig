@@ -31,7 +31,7 @@
         {% endif %}
         {% for child in element.children %}
             {% if (child.enabled is defined and child.enabled == true) and (child.deleted is defined and child.deleted == false) %}
-                {% include '@DemosPlanDocument/DemosPlanDocument/elements_list_entry_nojs.html.twig' with {'element': child, 'depth':depth+1} %}
+                {% include '@DemosPlanCore/DemosPlanDocument/elements_list_entry_nojs.html.twig' with {'element': child, 'depth':depth+1} %}
             {% endif %}
         {% endfor %}
     </section>

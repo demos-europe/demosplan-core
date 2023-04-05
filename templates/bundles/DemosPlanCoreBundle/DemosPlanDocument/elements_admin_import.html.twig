@@ -10,8 +10,8 @@
             {{ "confirm.elementimport.filecount"|trans({ imported: templateVars.importedFiles, total: templateVars.totalFiles }) }}
         </p>
 
-        {% include "@DemosPlanDocument/DemosPlanDocument/elements_admin_import_entry.html.twig" %}
-        
+        {% include "@DemosPlanCore/DemosPlanDocument/elements_admin_import_entry.html.twig" %}
+
         {% if hasPermission('feature_auto_switch_element_state') %}
             <dp-checkbox
                 class="u-mt-0_75"
