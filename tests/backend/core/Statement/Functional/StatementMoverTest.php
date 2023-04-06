@@ -29,11 +29,8 @@ class StatementMoverTest extends FunctionalTestCase
     /** @var StatementMover */
     protected $sut;
 
-    /** @var StatementService */
-    private $statementService;
-
-    /** @var StatementDeleter */
-    private $statementDeleter;
+    private StatementService|null $statementService;
+    private StatementDeleter|null $statementDeleter;
 
     protected function setUp(): void
     {

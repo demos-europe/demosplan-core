@@ -15,15 +15,9 @@ use Closure;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
@@ -46,11 +40,8 @@ class StatementServiceTest extends FunctionalTestCase
     /** @var StatementService */
     protected $sut;
 
-    /** @var DraftStatement */
-    protected $testDraftStatement;
-
-    /** @var StatementCopier */
-    private $statementCopier;
+    protected DraftStatement|null $testDraftStatement;
+    private StatementCopier|null $statementCopier;
 
     /**
      * @var Session
