@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
-
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -17,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Connection;
@@ -69,13 +76,8 @@ class StatementDeleter extends CoreService
     }
 
     /**
-     * $ignoreOriginal is never used as true as far as i can see
+     * $ignoreOriginal is never used as true as far as i can see.
      *
-     * @param Statement $statement
-     * @param bool      $ignoreAssignment
-     * @param bool      $ignoreOriginal
-     *
-     * @return bool
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws OptimisticLockException|Exception
@@ -85,7 +87,6 @@ class StatementDeleter extends CoreService
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false
     ): bool {
-
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->getDoctrine()->getConnection();
         try {
@@ -120,16 +121,14 @@ class StatementDeleter extends CoreService
                 try {
                     // Prohibit deletion if a consultation token exists for this statement
                     if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
-                        throw new DemosException(
-                            'error.delete.statement.consultation.token',
-                            'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
+                        throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
 
                     $doctrineConnection->beginTransaction();
                     $forReport = clone $statement;
 
                     $attachedFileIdents = \collect($statement->getAttachments())
-                        ->map(static fn(StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
+                        ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
                     $this->statementAttachmentService->deleteStatementAttachments($statement->getAttachments()->getValues());
 
