@@ -47,7 +47,7 @@ services:
         class:
 
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
-        class:
+        class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
     DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
         class:
@@ -161,9 +161,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface:
         class: demosplan\DemosPlanCoreBundle\Exception\ViolationsException
-
-    DemosEurope\DemosplanAddon\Contracts\ApiRequest\TopLevelInterface:
-        class: DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel
 
     DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiResourceServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Services\ApiResourceService
@@ -455,6 +452,13 @@ services:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
             $entityManager: '@doctrine.orm.entity_manager'
+
+    Doctrine\ORM\EntityManager:
+        arguments:
+            $config: '@doctrine.orm.default_configuration'
+
+    EDT\JsonApi\RequestHandling\EntityFetcherInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 

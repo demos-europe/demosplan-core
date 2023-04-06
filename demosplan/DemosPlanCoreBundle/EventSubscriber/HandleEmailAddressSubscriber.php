@@ -19,11 +19,10 @@ use Throwable;
 
 class HandleEmailAddressSubscriber implements EventSubscriberInterface
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly EmailAddressRepository $emailAddressRepository
+    ) {
     }
 
     public static function getSubscribedEvents()
@@ -36,13 +35,14 @@ class HandleEmailAddressSubscriber implements EventSubscriberInterface
     /**
      * @throws ORMException
      */
-    public function handleEmailAddresses(HandleEmailAddressesEventInterface $event, EmailAddressRepository $emailAddressRepository)
+    public function handleEmailAddresses(HandleEmailAddressesEventInterface $event)
     {
         $inputEmailAddressStrings = $event->getInputEmailAddressStrings();
 
+        $savedAllowedMailAddresses = [];
         foreach ($inputEmailAddressStrings as $addressString) {
             try {
-                $savedAllowedMailAddresses[] = $emailAddressRepository->getOrCreateEmailAddress($addressString);
+                $savedAllowedMailAddresses[] = $this->emailAddressRepository->getOrCreateEmailAddress($addressString);
             } catch (Throwable $e) {
                 $this->logger->error('Could not get or create EmailAdress', [
                     'EmailAddress'      => $addressString,
@@ -51,6 +51,6 @@ class HandleEmailAddressSubscriber implements EventSubscriberInterface
             }
         }
 
-        $emailAddressRepository->persistEntities($savedAllowedMailAddresses);
+        $this->emailAddressRepository->persistEntities($savedAllowedMailAddresses);
     }
 }
