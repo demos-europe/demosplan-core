@@ -102,7 +102,6 @@ use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Exception\ErroneousDoctrineResult;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanStatementBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository;
