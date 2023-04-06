@@ -76,8 +76,6 @@ class StatementDeleter extends CoreService
     }
 
     /**
-     * $ignoreOriginal is never used as true as far as i can see.
-     *
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws OptimisticLockException|Exception
