@@ -2713,4 +2713,5 @@ feature_auto_delete_original_statement:
     label: 'Automatically delete related original statement, in case of last child was deleted.'
     expose: false
     loginRequired: true
+    parent: feature_statement_delete
 
