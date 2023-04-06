@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
+use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Repository\StatementRepository;
 use demosplan\DemosPlanUserBundle\Exception\UserNotFoundException;
 use Doctrine\DBAL\Connection;
@@ -73,6 +74,22 @@ class StatementDeleter extends CoreService
         $this->messageBag = $messageBag;
         $this->entityContentChangeService = $entityContentChangeService;
         $this->statementService = $statementService;
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws StatementNotFoundException
+     */
+    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
+    {
+        $statement = $this->statementService->getStatement($statementId);
+        if (!$statement instanceof Statement) {
+            throw StatementNotFoundException::createFromId($statementId);
+        }
+        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
+
+        return $this->statementService->updateStatementObject($statement);
     }
 
     /**

@@ -690,20 +690,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * @throws Exception
-     */
-    public function deleteOriginalStatementAttachmentByStatementId(string $statementId): Statement
-    {
-        $statement = $this->getStatement($statementId);
-        if (!$statement instanceof Statement) {
-            throw StatementNotFoundException::createFromId($statementId);
-        }
-        $statement = $this->statementAttachmentService->deleteOriginalAttachment($statement);
-
-        return $this->updateStatementObject($statement);
-    }
-
-    /**
      * This method basically uses the fingerprint principle: Whoever touches (claims = assignee) a DS, has his/her fingerprint on it (is lastClaimedId). Unless that person is a reviewer (uses gloves).
      *
      * Use after all other changes have been done to the object, but (of course) before the object is updated in the database.
@@ -1994,26 +1980,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             return $statement;
         }, $statements);
-    }
-
-    /**
-     * Löscht eine Stellungnahme nur wenn diese keinem Anwender zugewiesen ist.
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws UserNotFoundException
-     * @throws \Doctrine\DBAL\Exception
-     */
-    public function deleteStatement(string $statementId, bool $ignoreAssignment = false, bool $ignoreOriginal = false): bool
-    {
-        $statement = $this->statementRepository->get($statementId);
-        if (null === $statement) {
-            $this->getLogger()->warning('Fehler beim Löschen eines Statements: Statement '.$statementId.' nicht gefunden.');
-
-            return false;
-        }
-
-        return $this->statementDeleter->deleteStatementObject($statement, $ignoreAssignment, $ignoreOriginal);
     }
 
     /**

@@ -37,6 +37,7 @@ use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
+use demosplan\DemosPlanStatementBundle\Logic\StatementDeleter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
@@ -115,6 +116,7 @@ class AssessmentTableServiceStorage
      * @var CurrentUserService
      */
     private $currentUser;
+    private StatementDeleter $statementDeleter;
 
     public function __construct(
         CurrentProcedureService $currentProcedureService,
@@ -129,6 +131,7 @@ class AssessmentTableServiceStorage
         StatementAttachmentService $statementAttachmentService,
         StatementHandler $statementHandler,
         StatementService $statementService,
+        StatementDeleter $statementDeleter,
         FileService $fileService,
         UserService $userService
     ) {
@@ -146,6 +149,7 @@ class AssessmentTableServiceStorage
         $this->fileService = $fileService;
         $this->setElasticsearchIndexManager($indexManager);
         $this->currentUser = $currentUser;
+        $this->statementDeleter = $statementDeleter;
     }
 
     protected function getMessageBag(): MessageBagInterface
@@ -301,7 +305,7 @@ class AssessmentTableServiceStorage
 
         if (array_key_exists('delete_file_'.StatementAttachment::SOURCE_STATEMENT, $rParams['request'])) {
             foreach ($rParams['request']['delete_file_'.StatementAttachment::SOURCE_STATEMENT] as $fileId) {
-                $this->statementService->deleteOriginalStatementAttachmentByStatementId($statementArray['ident']);
+                $this->statementDeleter->deleteOriginalStatementAttachmentByStatementId($statementArray['ident']);
             }
         }
 
@@ -936,7 +940,7 @@ class AssessmentTableServiceStorage
                 if ($statement->isClusterStatement()) {
                     $statementHandler->resolveCluster($statement);
                 } else {
-                    $success = $this->statementService->deleteStatement($item);
+                    $success = $this->statementDeleter->deleteStatementObject($statement);
                     if ($success) {
                         ++$successful;
                     } else {

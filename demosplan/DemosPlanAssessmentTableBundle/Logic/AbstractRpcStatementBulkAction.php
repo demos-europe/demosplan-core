@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
+use demosplan\DemosPlanStatementBundle\Logic\StatementDeleter;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\DBAL\ConnectionException;
@@ -99,6 +100,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      * @var TransactionService
      */
     private $transactionService;
+    protected StatementDeleter $statementDeleter;
 
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
@@ -112,7 +114,8 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementResourceType $statementResourceType,
         StatementService $statementService,
         StatementCopier $statementCopier,
-        TransactionService $transactionService
+        TransactionService $transactionService,
+        StatementDeleter $statementDeleter
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -126,6 +129,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
         $this->transactionService = $transactionService;
+        $this->statementDeleter = $statementDeleter;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
