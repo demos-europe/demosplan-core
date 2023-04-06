@@ -32,6 +32,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Yaml\Yaml;
 
 use function is_string;
+use Throwable;
 
 class ContainerInitCommand extends CoreCommand
 {
@@ -54,7 +55,12 @@ class ContainerInitCommand extends CoreCommand
 
     public function configure(): void
     {
-        $this
+        $this->addOption(
+            'override-database',
+            '',
+            InputOption::VALUE_NONE,
+            'If this is set, the existing database will be overridden. Use with care.'
+        )
            ->setHelp(
                <<<EOT
 Perform startup tasks as an init container in kubernetes setup. Usage:
