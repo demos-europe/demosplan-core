@@ -20,7 +20,7 @@ const chunkSplitting = {
       chunks: 'all',
       minChunks: 40,
       enforce: true,
-      test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue|VueConfigCore)\.js/,
+      test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue)\.js/,
       priority: 2
     },
     common: {

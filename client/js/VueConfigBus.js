@@ -11,7 +11,7 @@
  * Vue configuration for bus instance.
  * This is imported via infrastructure/frontend/config.webpack.babel.js:75.
  *
- * Other than the core instance equivalent VueConfigCore.js which returns a Vue() constructor, a Vue instance
+ * Other than the core instance equivalent InitVue.js which returns a Vue() constructor, a Vue instance
  * is returned here, because Vue.emit is available only after new Vue().
  */
 import DPVueBusPlugin from './plugins/DPVueBus'
