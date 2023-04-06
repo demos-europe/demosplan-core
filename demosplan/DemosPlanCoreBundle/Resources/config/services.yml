@@ -1271,6 +1271,9 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
 
+    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface:
+        class: 'demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'
+
     EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
 
