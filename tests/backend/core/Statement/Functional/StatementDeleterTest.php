@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS E-Partizipation GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Statement\Functional;
-
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -12,10 +20,9 @@ class StatementDeleterTest extends FunctionalTestCase
 {
     public function testEmtpyInternIdOfOriginalInCaseOfDeleteLastChild()
     {
-        //get statement with OSTN (with set internID) with only one child
-        //delete statement
-        //check if related original stn has null as internid
-
+        // get statement with OSTN (with set internID) with only one child
+        // delete statement
+        // check if related original stn has null as internid
 
         $testTag1 = $this->getTagReference('testFixtureTag_1');
         $testStatement2 = $this->getStatementReference('testStatement2');

@@ -53,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementUpdatedEvent;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -2000,7 +1999,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Löscht eine Stellungnahme nur wenn diese keinem Anwender zugewiesen ist.
      *
-     * @return bool
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws UserNotFoundException
