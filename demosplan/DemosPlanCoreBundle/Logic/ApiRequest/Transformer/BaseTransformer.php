@@ -48,11 +48,6 @@ abstract class BaseTransformer extends TransformerAbstract
         return static::class;
     }
 
-    public function getInstance(): self
-    {
-        return $this;
-    }
-
     /**
      * @deprecated use {@link ResourceTypeInterface::getName()} where possible, because it should
      *             be the actual source for this information and not the transformer
