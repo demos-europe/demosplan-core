@@ -45,6 +45,26 @@ class StatementDeleterTest extends FunctionalTestCase
 
         $this->sut->deleteStatementObject($testStatement);
         static::assertNull($this->find(Statement::class, $testStatementId));
-        static::assertNull($testStatement->getInternId());
+        static::assertNull($relatedOriginal->getInternId());
+    }
+
+    public function testDoNotEmtpyInternIdOfOriginalInCaseOfDeleteLastChild(): void
+    {
+        $this->enablePermissions(['feature_auto_delete_original_statement']);
+
+        $testStatement = $this->getStatementReference('testFixtureStatement');
+        $testStatementId = $testStatement->getId();
+        $relatedOriginal = $testStatement->getOriginal();
+        $numberOfChildrenBefore = $relatedOriginal->getChildren()->count();
+
+        static::assertInstanceOf(Statement::class, $relatedOriginal);
+        static::assertNotNull($testStatement->getInternId());
+        static::assertNotNull($relatedOriginal->getInternId());
+        static::assertGreaterThan(1, $numberOfChildrenBefore);
+
+        $this->sut->deleteStatementObject($testStatement);
+        static::assertNull($this->find(Statement::class, $testStatementId));
+        static::assertNotNull($testStatement->getInternId());
+        static::assertCount($numberOfChildrenBefore - 1, $relatedOriginal->getChildren());
     }
 }
