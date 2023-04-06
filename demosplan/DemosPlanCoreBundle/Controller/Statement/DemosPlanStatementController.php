@@ -1898,7 +1898,7 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     * Löschen eines Statements.
+     * Deleting a draftstatement.
      *
      * @param string $_route
      * @param string $procedure
