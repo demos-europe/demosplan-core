@@ -21,7 +21,6 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use SimpleXMLElement;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use function demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\count;
 
 class GetFeatureInfo
 {
