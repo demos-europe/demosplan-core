@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Transformers;
+namespace demosplan\DemosPlanCoreBundle\Transformers\Map;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanMapBundle\ValueObject\MapOptions;

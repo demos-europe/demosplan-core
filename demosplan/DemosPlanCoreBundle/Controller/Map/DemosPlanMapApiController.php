@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
+use demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer;
 use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 

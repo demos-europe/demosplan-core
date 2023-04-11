@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
+use demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer;
 use Exception;
 
 class ProcedureProposalHandler extends CoreHandler
