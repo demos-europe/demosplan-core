@@ -98,10 +98,10 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
-    demosplan\DemosPlanMapBundle\Repository\MapRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MapRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer'
 
-    demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
@@ -254,6 +254,6 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
 
-    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
 
-    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\MapRepository'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'

@@ -724,49 +724,49 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo: ~
+    demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo: ~
 
-    demosplan\DemosPlanMapBundle\Logic\MapService:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
             - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanStatementBundle\Logic\DraftStatementService' ] ]
             - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
 
-    demosplan\DemosPlanMapBundle\Logic\MapHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter:
+    demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
         arguments:
             $logger: '@monolog.logger.dplan'
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToCoordinatesCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToCoordinatesCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToPolygonCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToPolygonCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PolygonIntoMapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PrintLayerToMapLayerConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PrintLayerToMapLayerConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\WmsToWmtsCoordinatesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
