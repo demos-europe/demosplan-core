@@ -46,7 +46,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
 /**
- * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
+ * @ORM\Table(
+ *     name="_statement",
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"}),
+ *         @ORM\UniqueConstraint(name="externId_procedure", columns={"_st_extern_id", "_p_id"})
+ *     }
+ * )
+ *
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
  * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
@@ -1292,21 +1299,32 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
         }
     }
 
-    /**
-     * Set externId.
-     *
-     * @param string $externId
-     */
-    public function setExternId($externId): Statement
+    public function setExternId(string $externId): Statement
     {
+        if (!$this->isOriginal()) {
+            throw new \Exception('ExternId is non-writable.');
+        }
+
         $this->externId = $externId;
 
         return $this;
     }
 
+    /**
+     * If an extern ID is set on this statement it will be returned. If not the extern ID
+     * of the original statement will be returned, which must have an extern ID set.
+     */
     public function getExternId(): string
     {
-        return $this->externId;
+        if (null !== $this->externId) {
+            return $this->externId;
+        }
+
+        if (null !== $this->original) {
+            return $this->original->getExternId();
+        }
+
+        throw new \Exception('missing extern ID on original statement');
     }
 
     public function getInternId(): ?string

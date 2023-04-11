@@ -142,4 +142,15 @@ class Segment extends Statement implements SegmentInterface
 
         return $this;
     }
+
+    public function getExternId(): string
+    {
+        return $this->externId;
+    }
+
+    public function setExternId(string $externId): Statement
+    {
+       $this->externId = $externId;
+       return $this;
+    }
 }
