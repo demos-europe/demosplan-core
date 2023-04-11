@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class GisLayerCategoryNotFoundException extends ResourceNotFoundException
 {
