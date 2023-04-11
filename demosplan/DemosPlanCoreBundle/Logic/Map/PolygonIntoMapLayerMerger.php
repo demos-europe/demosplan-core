@@ -17,7 +17,6 @@ use GdImage;
 use Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
-use function demosplan\DemosPlanMapBundle\Logic\count;
 
 class PolygonIntoMapLayerMerger
 {

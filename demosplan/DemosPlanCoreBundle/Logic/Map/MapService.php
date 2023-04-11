@@ -34,7 +34,6 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
-use function demosplan\DemosPlanMapBundle\Logic\count;
 
 class MapService extends CoreService
 {

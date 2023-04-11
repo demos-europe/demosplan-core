@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
-use function demosplan\DemosPlanMapBundle\Repository\count;
 
 class MapRepository extends CoreRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {

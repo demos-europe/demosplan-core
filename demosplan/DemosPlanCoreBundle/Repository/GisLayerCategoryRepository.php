@@ -26,7 +26,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
-use function demosplan\DemosPlanMapBundle\Repository\count;
 
 class GisLayerCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
