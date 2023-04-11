@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 
 /**
  * @method int|float   getLatitude()

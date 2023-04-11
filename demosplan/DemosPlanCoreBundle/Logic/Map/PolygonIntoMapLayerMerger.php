@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanMapBundle\ValueObject\Feature;
@@ -17,6 +17,7 @@ use GdImage;
 use Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
+use function demosplan\DemosPlanMapBundle\Logic\count;
 
 class PolygonIntoMapLayerMerger
 {

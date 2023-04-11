@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
 use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
 use Geometry;

@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer;
 use Exception;
 use Symfony\Component\Routing\Annotation\Route;

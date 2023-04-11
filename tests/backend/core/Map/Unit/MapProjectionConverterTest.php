@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
 use proj4php\Proj;
 use proj4php\Proj4php;

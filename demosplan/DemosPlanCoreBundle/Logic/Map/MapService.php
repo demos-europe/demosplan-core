@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -34,6 +34,7 @@ use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use function demosplan\DemosPlanMapBundle\Logic\count;
 
 class MapService extends CoreService
 {

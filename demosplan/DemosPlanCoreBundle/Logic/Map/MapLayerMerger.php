@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
 use Exception;
