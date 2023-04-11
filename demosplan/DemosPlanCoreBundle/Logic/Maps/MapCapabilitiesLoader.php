@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapCapabilities;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+
 use function in_array;
 use function simplexml_load_string;
 use function str_replace;

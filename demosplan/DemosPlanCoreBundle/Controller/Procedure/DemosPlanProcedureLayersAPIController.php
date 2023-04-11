@@ -36,6 +36,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * get params: type.
      *
      * @Route(methods={"GET"}, name="list")
+     *
      * @DplanPermissions("area_map_participation_area")
      */
     public function layersListAction(MapHandler $mapHandler, string $procedureId): APIResponse
@@ -48,6 +49,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
 
     /**
      * @Route(methods={"POST", "PATCH"}, name="update")
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @throws MessageBagException
@@ -80,6 +82,7 @@ class DemosPlanProcedureLayersAPIController extends APIController
      * Delete a specific GisLayer.
      *
      * @Route(path="{layerId}", methods={"DELETE"}, name="delete")
+     *
      * @DplanPermissions("area_admin_map")
      *
      * @return $this|JsonResponse

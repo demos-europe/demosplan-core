@@ -25,6 +25,7 @@ class DemosPlanMapApiController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_map_options_admin",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      *
      * @throws Exception
@@ -42,6 +43,7 @@ class DemosPlanMapApiController extends APIController
      *        methods={"GET"},
      *        name="dplan_api_map_options_public",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @throws Exception

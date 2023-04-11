@@ -75,6 +75,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"GET"},
      *        name="dp_api_documents_dashboard_get",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      *
      * Manages the display of the dashboard on load.
@@ -139,6 +140,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dp_api_documents_dashboard_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_admin")
      *
      * Manages some updates performed from the dashboard.

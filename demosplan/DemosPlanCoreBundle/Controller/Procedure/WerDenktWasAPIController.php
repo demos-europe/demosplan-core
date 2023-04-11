@@ -29,6 +29,7 @@ class WerDenktWasAPIController extends BaseController
      *      path="/api/werdenktwas/procedures",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_public_participation")
      */
     public function procedureListGeoJSONAction(TranslatorInterface $translator): ?JsonResponse

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
+
 use function imagecolorallocate;
 
 class PrintLayerToMapLayerConverterTest extends UnitTestCase

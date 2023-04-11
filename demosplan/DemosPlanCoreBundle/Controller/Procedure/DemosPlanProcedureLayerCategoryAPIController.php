@@ -36,6 +36,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      *     path="/{layerCategoryId}",
      *     methods={"DELETE"},
      *     name="dplan_api_procedure_layer_category_delete")
+     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @return $this|JsonResponse

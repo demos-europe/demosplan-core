@@ -24,6 +24,7 @@ use Intervention\Image\ImageManager;
 use Point;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
+
 use function imagecolorallocate;
 
 class FeaturesToMapLayersConverterTest extends UnitTestCase
