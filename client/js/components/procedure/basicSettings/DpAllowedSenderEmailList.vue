@@ -10,7 +10,7 @@
 <template>
   <div>
     <dp-email-list
-      v-on:saved="saveAllowedSenderAddresses"
+      v-on:saved="maillaneConnectionId === null ? saveAllowedSenderAddresses : updateAllowedSenderAddresses"
       v-on:updated="updateAllowedSenderAddresses"
       :init-emails="allowedEmailAddresses"
       form-field-name="allowedSenderEmailAddresses[][fullAddress]" />
@@ -42,7 +42,8 @@ export default {
 
   data () {
     return {
-      allowedEmailAddresses: []
+      allowedEmailAddresses: [],
+      maillaneConnectionId: null
     }
   },
 
@@ -69,6 +70,7 @@ export default {
       return dpApi.get(url, params, {serialize: true})
         .then(response => {
           if (response.data.data.length !== 0) {
+            response.data.data[0].id = this.maillaneConnectionId
             response.data.data[0].attributes.allowedSenderEmailAddresses.forEach(
               emailAddress => {
                 this.allowedEmailAddresses.push({ mail: emailAddress })
@@ -92,16 +94,19 @@ export default {
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MaillaneConnection' }), {}, { data: payload })
     },
 
-    updateAllowedSenderAddresses(index, extraEmailAddress='') {
+    updateAllowedSenderAddresses() {
+      const addresses = []
+      this.allowedEmailAddresses.forEach(address => addresses.push(address.mail))
+
       const payload = {
         type: 'MaillaneConnection',
         attributes: {
-          allowedSenderEmailAddresses: [extraEmailAddress]
+          allowedSenderEmailAddresses: addresses
         }
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MaillaneConnection', resourceId: index }), {}, payload)
-    },
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MaillaneConnection', resourceId: this.maillaneConnectionId }), {}, { data: payload })
+    }
   },
 
   mounted () {
