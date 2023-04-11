@@ -83,7 +83,7 @@
             markersLayer = L.markerClusterGroup();
             {# test for valid procedure coordinates via twig regex #}
             {% for publicProcedure in publicProcedures|filter(publicProcedure => publicProcedure.settings.coordinate|split(',')[0] matches '/^[-+]?[0-9]*\\.?[0-9]+$/' and publicProcedure.settings.coordinate|split(',')[1] matches '/^[-+]?[0-9]*\\.?[0-9]+$/') %}
-                popupMarker = {% include '@DemosPlanMap/DemosPlanMap/map_public_participation_popup.html.twig' with {
+                popupMarker = {% include '@DemosPlanCore/DemosPlanMap/map_public_participation_popup.html.twig' with {
                     procedureTitle: getProcedureName(publicProcedure),
                     periodStart: getProcedureStartDate(publicProcedure)|dplanDateAnnotated ,
                     periodEnd: getProcedureEndDate(publicProcedure)|dplanDateAnnotated ,
