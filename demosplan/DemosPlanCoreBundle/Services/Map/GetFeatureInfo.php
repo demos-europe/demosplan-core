@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Services\GetFeatureInfo;
+namespace demosplan\DemosPlanCoreBundle\Services\Map;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
@@ -21,6 +21,7 @@ use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use Exception;
 use SimpleXMLElement;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use function demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\count;
 
 class GetFeatureInfo
 {
