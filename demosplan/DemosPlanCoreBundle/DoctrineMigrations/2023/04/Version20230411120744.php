@@ -19,6 +19,7 @@ class Version20230411120744 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
+        $this->addSql('ALTER TABLE _statement CHANGE _st_extern_id _st_extern_id CHAR(25) NULL');
         $this->addSql('UPDATE `_statement` SET `_st_extern_id` = NULL WHERE `_st_o_id` IS NOT NULL');
     }
 

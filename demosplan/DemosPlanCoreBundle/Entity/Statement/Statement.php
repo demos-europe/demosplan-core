@@ -202,7 +202,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, SegmentInterf
      *
      * @var string
      *
-     * @ORM\Column(name="_st_extern_id", type="string", length=25, nullable=false, options={"fixed":true})
+     * @ORM\Column(name="_st_extern_id", type="string", length=25, nullable=true, options={"fixed":true})
      */
     protected $externId = '';
 
