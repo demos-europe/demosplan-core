@@ -680,7 +680,7 @@
     </fieldset>
 
     <!-- Imprint -->
-    <fieldset v-if="hasPermission('feature_imprint_text_customized_view') && organisation.attributes.isPlanningOrganisation === true">
+    <fieldset v-if="hasPermission('field_imprint_text_customized_edit_orga') && organisation.attributes.isPlanningOrganisation === true">
       <legend class="layout__item u-p-0 u-pb-0_5">
         {{ Translator.trans('procedure.agency.imprint') }}
       </legend>
@@ -696,7 +696,7 @@
     </fieldset>
 
     <!-- Data Protection -->
-    <fieldset v-if="hasPermission('feature_data_protection_text_customized_view') && organisation.attributes.isPlanningOrganisation === true">
+    <fieldset v-if="hasPermission('field_data_protection_text_customized_edit_orga') && organisation.attributes.isPlanningOrganisation === true">
       <legend class="layout__item u-p-0 u-pb-0_5">
         {{ Translator.trans('data.protection.organisations') }}
       </legend>
