@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter;
+use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use demosplan\DemosPlanMapBundle\ValueObject\MapOptions;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;

@@ -13,7 +13,7 @@ namespace Tests\Core\Map\Functional;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\PolygonIntoMapLayerMerger;
-use demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter;
+use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use Tests\Base\FunctionalTestCase;
 
 class MapScreenshotterTest extends FunctionalTestCase

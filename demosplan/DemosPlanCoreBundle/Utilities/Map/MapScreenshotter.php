@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\Utilities;
+namespace demosplan\DemosPlanCoreBundle\Utilities\Map;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
