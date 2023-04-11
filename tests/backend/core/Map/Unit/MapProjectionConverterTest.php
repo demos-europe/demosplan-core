@@ -16,7 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;

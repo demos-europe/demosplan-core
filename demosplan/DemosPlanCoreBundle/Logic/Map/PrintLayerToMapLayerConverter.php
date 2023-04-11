@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Filesystem\Filesystem;

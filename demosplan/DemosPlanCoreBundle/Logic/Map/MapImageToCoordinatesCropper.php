@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**

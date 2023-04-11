@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
-use demosplan\DemosPlanMapBundle\ValueObject\Feature;
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Tightenco\Collect\Support\Collection;
 
 class FeaturesToMapLayersConverter

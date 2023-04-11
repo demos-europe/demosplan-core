@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Psr\Log\InvalidArgumentException;

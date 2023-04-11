@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 
 /**
  * Given an array of Map Layers, returns an array with the left-bottom-right-top coordinates

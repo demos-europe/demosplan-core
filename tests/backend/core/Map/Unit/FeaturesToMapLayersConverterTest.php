@@ -14,12 +14,12 @@ namespace Tests\Core\Map\Unit;
 
 use demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use demosplan\DemosPlanMapBundle\ValueObject\Feature;
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Intervention\Image\ImageManager;
 use Point;
 use Tests\Base\UnitTestCase;

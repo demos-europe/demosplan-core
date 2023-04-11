@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
 use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Filesystem\Filesystem;

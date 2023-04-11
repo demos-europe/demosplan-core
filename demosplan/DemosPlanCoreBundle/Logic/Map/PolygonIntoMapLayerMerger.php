@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanMapBundle\ValueObject\Feature;
-use demosplan\DemosPlanMapBundle\ValueObject\MapLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use GdImage;
 use Point;
 use stdClass;
@@ -54,7 +54,7 @@ class PolygonIntoMapLayerMerger
         $imageWidth = $mapLayer->getWidthInPixels();
         $imageHeight = $mapLayer->getHeightInPixels();
 
-        /** @var \demosplan\DemosPlanMapBundle\ValueObject\Feature $geoJsonFeature */
+        /** @var \demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature $geoJsonFeature */
         foreach ($geo as $geoJsonFeature) {
             $geometry = $geoJsonFeature->getGeometry();
             $feature = $geometry->out('wkt');

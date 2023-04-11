@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
