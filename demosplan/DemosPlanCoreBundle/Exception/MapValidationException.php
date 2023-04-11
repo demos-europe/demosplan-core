@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanMapBundle;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use Exception;
 
