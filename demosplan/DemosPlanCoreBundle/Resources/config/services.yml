@@ -920,9 +920,6 @@ services:
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
-        lazy: true
-
     demosplan\DemosPlanStatementBundle\Logic\AssignService:
         lazy: true
 
