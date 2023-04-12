@@ -251,7 +251,7 @@ export default {
     }
     //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
     document.addEventListener('wizard:show', ({ data }) => {
-      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+      //  Only fire when relevant wizard step is transmitted
       handleWizardShow(data)
     })
 
