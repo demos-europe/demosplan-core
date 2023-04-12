@@ -10,7 +10,7 @@
 /**
  * This is the entry point for administration_edit.html.twig
  */
-
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
 // Import this separately because Planfest has a separate twig template which does not use DpBasicSettings
@@ -21,7 +21,7 @@ import DPWizard from '@DpJs/lib/procedure/DPWizard'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
-const components = { DpBasicSettings, DpEmailList, DpDateRangePicker }
+const components = { AddonWrapper, DpBasicSettings, DpEmailList, DpDateRangePicker }
 
 initialize(components).then(() => {
   UrlPreview()
