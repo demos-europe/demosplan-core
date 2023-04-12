@@ -510,7 +510,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if ($this->user->hasRole(Role::CUSTOMER_MASTER_USER)) {
             $this->enablePermissions([
                 'area_organisations',
-                'area_organisations_applications_manage',
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
