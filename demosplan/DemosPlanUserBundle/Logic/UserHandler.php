@@ -2236,7 +2236,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $keyArray = [
                 'city', 'competence', 'copy', 'copySpec', 'cssvars', 'email2', 'emailNotificationEndingPhase',
                 'emailNotificationNewStatement', 'houseNumber', 'name', 'phone', 'postalcode', 'registrationStatuses',
-                'showlist', 'showlistChangeReason', 'showname', 'street', 'url',
+                'showlist', 'showlistChangeReason', 'showname', 'street', 'url', 'imprint', 'dataProtection',
             ];
             foreach ($keyArray as $key) {
                 if (isset($data['attributes'][$key])) {

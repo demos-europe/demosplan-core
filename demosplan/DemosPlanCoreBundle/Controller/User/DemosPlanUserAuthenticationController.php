@@ -26,9 +26,6 @@ use demosplan\DemosPlanUserBundle\Logic\UserHasher;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use demosplan\DemosPlanUserBundle\Repository\UserRepository;
 use Exception;
-
-use function in_array;
-
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,6 +38,8 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Throwable;
+
+use function in_array;
 
 /**
  * Class DemosPlanAuthenticationController.
@@ -77,6 +76,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/change",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_mydata_password")
      *
      * @return Response
@@ -107,6 +107,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_change_email_request",
      *     path="/email/change"
      * )
+     *
      * @DplanPermissions("feature_change_own_email")
      *
      * @return RedirectResponse|Response
@@ -135,6 +136,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_change_email",
      *     path="email/change/doubleoptin/{uId}/{key}"
      * )
+     *
      * @DplanPermissions("feature_change_own_email")
      */
     public function changeEmailConfirmationAction(string $uId, string $key): RedirectResponse
@@ -167,6 +169,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/password/recover",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
      *
      * @return RedirectResponse|Response
@@ -234,14 +237,20 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/dplan/login",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return Response
      *
      * @throws AccessDeniedException|Exception
      */
-    public function alternativeLoginAction(CustomerService $customerService, ParameterBagInterface $parameterBag, CurrentUserInterface $currentUser, CacheInterface $cache)
-    {
+    public function alternativeLoginAction(
+        CacheInterface $cache,
+        CurrentUserInterface $currentUser,
+        CustomerService $customerService,
+        ParameterBagInterface $parameterBag,
+        Request $request
+    ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
         }
@@ -254,6 +263,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $users = [];
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
+        $useIdp = false;
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
@@ -265,6 +275,11 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
                     return $this->userService->getTestUsers($testPassword);
                 });
+
+            // add access to test external identity provider
+            // do not display link when it targets same site
+            $gatewayUrl = $parameterBag->get('gateway_url');
+            $useIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
@@ -289,6 +304,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 'useSaml'   => $useSaml,
                 'loginList' => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
+                    'useIdp'   => $useIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
@@ -311,6 +327,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/logout/gateway",
      *     defaults={"toGateway": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param bool $toGateway
@@ -355,6 +372,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_logout_success",
      *     path="/user/logout/success"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -379,6 +397,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     name="DemosPlan_user_doubleoptin_invite_confirmation",
      *     path="/doubleoptin/{uId}/{token}"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -409,6 +428,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      *     path="/user/{uId}/setpass/{token}",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
