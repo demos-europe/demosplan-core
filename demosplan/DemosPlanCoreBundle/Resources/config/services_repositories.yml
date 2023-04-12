@@ -257,3 +257,5 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'
