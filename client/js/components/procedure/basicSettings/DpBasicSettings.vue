@@ -10,7 +10,6 @@
 <script>
 import { dpApi, sortAlphabetically } from '@demos-europe/demosplan-utils'
 import { DpButton, DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
-import DpAllowedSenderEmailList from './DpAllowedSenderEmailList'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 
@@ -19,7 +18,6 @@ export default {
 
   components: {
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
-    DpAllowedSenderEmailList,
     DpButton,
     DpDateRangePicker,
     DpDatetimePicker,
