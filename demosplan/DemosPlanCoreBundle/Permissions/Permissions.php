@@ -514,6 +514,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
+                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
