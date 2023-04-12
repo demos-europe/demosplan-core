@@ -10,9 +10,6 @@
 /**
  * DPVueCorePlugin adds dplan object, globally used functions and filters to the main Vue instance
  */
-
-import { extendedEmit, extendedOn } from '../lib/core/ExtendedVueEvents'
-
 const DPVueCorePlugin = {
   install: function (VueCore) {
     if (dplan?.settings?.debug) {
@@ -21,9 +18,6 @@ const DPVueCorePlugin = {
 
     VueCore.prototype.dplan = window.dplan
     VueCore.prototype.hasPermission = window.hasPermission
-
-    VueCore.prototype.emit = extendedEmit
-    VueCore.prototype.on = extendedOn
   }
 }
 
