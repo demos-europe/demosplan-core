@@ -10,15 +10,9 @@
 /**
  * DPVueCorePlugin adds dplan object, globally used functions and filters to the main Vue instance
  */
-
-const hasOwnProp = async (obj, prop) => {
-  const { hasOwnProp } = await import('@demos-europe/demosplan-ui')
-  return hasOwnProp(obj, prop)
-}
-
 const DPVueCorePlugin = {
   install: function (VueCore) {
-    if (typeof dplan !== 'undefined' && hasOwnProp(dplan, 'settings') && dplan.settings.debug) {
+    if (dplan?.settings?.debug) {
       VueCore.config.performance = false
     }
 
