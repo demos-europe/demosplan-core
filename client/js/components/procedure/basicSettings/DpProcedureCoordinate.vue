@@ -256,7 +256,7 @@ export default {
     })
 
     document.addEventListener('toggleAnything:clicked', ({ data }) => {
-      //  Only fire when relevant wizard step / toggleAnything toggleId is transmitted
+      //  Only fire when relevant toggleAnything toggleId is transmitted
       handleWizardShow(data)
     })
 
