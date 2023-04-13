@@ -236,16 +236,16 @@ services:
     demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 
     demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository:
