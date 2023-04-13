@@ -159,14 +159,14 @@
                                 </div>
                             {% endblock %}
 
-                            {% include '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_cluster_detail_statement_data.html.twig' with { 'readonly': readonly } %}
+                            {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_cluster_detail_statement_data.html.twig' with { 'readonly': readonly } %}
                         </div>
                     </dp-accordion>
                 </fieldset>
 
 
                 {# statement text + consideration #}
-                {% include '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
 
 
                 {# memo #}
