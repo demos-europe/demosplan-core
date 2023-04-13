@@ -32,13 +32,13 @@ services:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+        class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
