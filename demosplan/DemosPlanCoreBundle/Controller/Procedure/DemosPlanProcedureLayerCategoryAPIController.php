@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,6 +36,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      *     path="/{layerCategoryId}",
      *     methods={"DELETE"},
      *     name="dplan_api_procedure_layer_category_delete")
+     *
      * @DplanPermissions({"area_admin_map","feature_map_category"})
      *
      * @return $this|JsonResponse

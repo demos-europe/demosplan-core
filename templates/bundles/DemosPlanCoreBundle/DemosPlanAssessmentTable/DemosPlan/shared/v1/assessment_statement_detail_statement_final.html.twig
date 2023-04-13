@@ -1,0 +1,102 @@
+<fieldset>
+    <dp-accordion title="{{ "statement.final.send"|trans }}">
+        <div class="o-box--dark u-ph u-pv-0_5">
+            {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+                {{ "explanation.no.statement.final.sent"|trans }}
+            {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and templateVars.table.statement.meta.authorFeedback|default() == false %}
+                {{ "explanation.no.statement.final.no.feedback.wanted"|trans }}
+            {% elseif templateVars.email2|default()|length == 0 %}
+                {{ "explanation.no.statement.final.no.email"|trans }}
+            {% else %}
+                {% if templateVars.finalEmailOnlyToVoters is defined and templateVars.finalEmailOnlyToVoters == true %}
+                    {{ "explanation.statement.final.sent.only.voters"|trans }}
+                {% endif %}
+
+                {% if templateVars.table.statement.sentAssessment is defined and templateVars.table.statement.sentAssessment == true %}
+                    <p>{{ "confirm.statement.final.sent.date"|trans({'date': templateVars.table.statement.sentAssessmentDate|dplanDate('d.m.Y | H:i') })|wysiwyg }}</p>
+                {% else %}
+                    <p>{{ "confirm.statement.final.not.sent"|trans }}</p>
+                {% endif %}
+
+                {% if hasPermission('field_organisation_email2_cc') %}
+                    <label>
+                        {{ "email.recipient"|trans }}
+                        <p class="lbl--text color--grey">
+                            {% if templateVars.table.statement.publicStatement == 'external' %}
+                                {{ "explanation.statement.final.citizen.email.hidden"|trans }}
+                            {% else %}
+                                {{ templateVars.email2|default() }}
+                            {% endif %}
+                            {% if templateVars.ccEmail2 is defined and templateVars.ccEmail2 != false  %}, {{ 'recipients.additional'|trans }}: {{ templateVars.ccEmail2|default() }}{% endif %}
+                        </p>
+                    </label>
+                {% endif %}
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'email.cc'|trans, hint: 'explanation.email.cc' },
+                            control: { name: 'r_send_emailCC', value: templateVars.emailsCC|default },
+                            id: 'r_send_emailCC',
+                            type: 'text',
+                            disabled: readonly
+                        }
+                    ]
+                }) }}
+
+                {{ uiComponent('form.row', {
+                    elements: [
+                        {
+                            label: { text: 'subject'|trans },
+                            control: { name: 'r_send_title', value: 'statement.final.email.subject'|trans({ procedureName: templateVars.table.procedure.name|default }) },
+                            id: 'r_send_title',
+                            type: 'text',
+                            disabled: readonly
+                        }
+                    ]
+                }) }}
+
+                {# set as include to be easily overridden in Projects #}
+                {% set predefinedText -%}
+                    {{ include('@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final_emailtext.html.twig') }}
+                {%- endset %}
+
+                <detail-view-final-email-body
+                    class="u-mb-0_5"
+                    init-text="{{ predefinedText|default }}"
+                    procedure-id="{{ templateVars.table.procedure.ident }}">
+                </detail-view-final-email-body>
+
+                {% if not readonly %}
+                    <div class="layout--flush">
+                        <div class="layout__item u-1-of-1">
+                            {{
+                            fileupload(
+                                "r_attachments",
+                                "documents.attach",
+                                "all",
+                                "form.button.upload.files",
+                                20,
+                                true
+                            )
+                            }}
+                        </div>
+                    </div>
+
+                    <div class="text--right">
+                        <button
+                            class="btn btn--primary btn--outline"
+                            data-send-form="{# This attribute is used as a hook to append an EventListener in assessment_statement.html.twig #}"
+                            type="button">
+                            <i
+                                class="fa fa-envelope u-mr-0_125"
+                                aria-hidden="true"></i>
+                            {{ 'send'|trans }}
+                        </button>
+                    </div>
+                {% endif %}
+
+            {% endif %}
+        </div>
+    </dp-accordion>
+</fieldset>
