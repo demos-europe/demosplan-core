@@ -11,16 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\Form\StatementBulkEditType;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableViewMode;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Form\StatementBulkEditType;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -31,6 +30,8 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
+use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\ClusterStatementCopyNotImplementedException;
@@ -342,7 +343,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'assessment.table',
@@ -614,7 +615,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['table']['baseData'] = Json::encode($baseData);
 
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_view.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_view.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'assessment.table',
@@ -808,7 +809,7 @@ class DemosPlanAssessmentTableController extends BaseController
         // reload files as the might be updated
         $templateVars['table']['statement']['files'] = $fileService->getEntityFileString(Statement::class, $statementObject->getId(), 'file');
 
-        $template = '@DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
+        $template = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
         if ($isCluster) {
             $template = '@DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
             $clusterStatements = $templateVars['table']['statement']['cluster'];

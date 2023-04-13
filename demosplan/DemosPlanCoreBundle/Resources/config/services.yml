@@ -10,12 +10,12 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
-    demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         lazy: true
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
+    demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
@@ -919,9 +919,6 @@ services:
         lazy: true
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
-
-    demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
-        lazy: true
 
     demosplan\DemosPlanStatementBundle\Logic\AssignService:
         lazy: true
