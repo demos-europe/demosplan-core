@@ -72,17 +72,6 @@ class ReportMessageConverter
         $this->translator = $translator;
     }
 
-    public function extractOrgaNameFromReportEntryMessage(ReportEntry $reportEntry): string
-    {
-        $orgaName = '';
-        $reportEntryMessage = $reportEntry->getMessageDecoded(true);
-        if (array_key_exists('oName', $reportEntryMessage)) {
-            $orgaName = $reportEntryMessage['oName'];
-        }
-
-        return $orgaName;
-    }
-
     public function convertMessage(ReportEntry $reportEntry): string
     {
         $message = '';
