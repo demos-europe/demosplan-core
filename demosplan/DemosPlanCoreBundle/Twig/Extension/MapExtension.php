@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
-use demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter;
+use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use Psr\Container\ContainerInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;

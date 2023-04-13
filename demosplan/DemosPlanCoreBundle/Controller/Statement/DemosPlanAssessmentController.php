@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanAssessmentTableBundle\ValueObject\SubmitterValueObject;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -24,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
@@ -225,7 +225,7 @@ class DemosPlanAssessmentController extends BaseController
         // atm use Template from DemosPlanAssessmentTableBundle as refactoring it to this Bundle
         // generates quite a hassle as it needs to be done in all projects
         return $this->renderTemplate(
-            '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
+            '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
             [
                 'procedure'    => $procedureId,
                 'templateVars' => $templateVars,

@@ -10,8 +10,8 @@
 
 namespace Tests\Core\AssessmentTable\Functional;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use Tests\Base\FunctionalTestCase;
 use TypeError;

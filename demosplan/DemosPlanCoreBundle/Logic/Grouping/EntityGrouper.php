@@ -12,18 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Grouping;
 
-use function array_shift;
-use function count;
-
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ArraySorterInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ArraySorterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_shift;
+use function count;
 use function is_countable;
 use function key;
 use function reset;
-
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @template T of \demosplan\DemosPlanCoreBundle\Entity\CoreEntity

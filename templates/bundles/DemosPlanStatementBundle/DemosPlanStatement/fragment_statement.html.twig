@@ -19,7 +19,7 @@
         {% if (hasPermission('feature_statement_assignment') and entry_assignee_id == currentUser.ident) or not hasPermission('feature_statement_assignment') %}
 
             {# Header #}
-            {% include '@DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
+            {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
                 area: 'assessment_table_back',
                 heading: 'statement.do.fragment'|trans
             } %}

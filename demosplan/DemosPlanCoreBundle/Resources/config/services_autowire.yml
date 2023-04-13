@@ -7,10 +7,6 @@ services:
     # makes classes in demosplan/* available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
 
-    demosplan\DemosPlanAssessmentTableBundle\:
-        resource: '../../../../demosplan/DemosPlanAssessmentTableBundle/*'
-        exclude: '../../../../demosplan/DemosPlanAssessmentTableBundle/{Entity,Tests}'
-
     demosplan\DemosPlanCoreBundle\:
         resource: '../../../../demosplan/DemosPlanCoreBundle/*'
         exclude:
@@ -19,10 +15,6 @@ services:
     demosplan\DemosPlanDocumentBundle\:
         resource: '../../../../demosplan/DemosPlanDocumentBundle/*'
         exclude: '../../../../demosplan/DemosPlanDocumentBundle/{Entity,Tests}'
-
-    demosplan\DemosPlanMapBundle\:
-        resource: '../../../../demosplan/DemosPlanMapBundle/*'
-        exclude: '../../../../demosplan/DemosPlanMapBundle/{Entity,Tests}'
 
     demosplan\DemosPlanProcedureBundle\:
         resource: '../../../../demosplan/DemosPlanProcedureBundle/*'
