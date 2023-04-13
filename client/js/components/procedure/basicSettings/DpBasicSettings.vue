@@ -27,6 +27,7 @@ export default {
   name: 'DpBasicSettings',
 
   components: {
+    AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
     DpDateRangePicker,
