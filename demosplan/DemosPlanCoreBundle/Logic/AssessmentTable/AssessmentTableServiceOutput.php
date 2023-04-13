@@ -64,16 +64,6 @@ use function strlen;
 use function strtotime;
 use function substr;
 
-use function collect;
-use function date;
-use function explode;
-use function htmlspecialchars;
-use function is_array;
-use function is_string;
-use function strlen;
-use function strtotime;
-use function substr;
-
 class AssessmentTableServiceOutput
 {
     public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
