@@ -49,9 +49,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
-    DemosEurope\DemosplanAddon\Contracts\StatementHandlerInterface:
-        class:
-
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
 
@@ -108,7 +105,7 @@ services:
 #        class:
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
-        class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
+        class: 'demosplan\DemosPlanStatementBundle\Logic\StatementHandler'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler
