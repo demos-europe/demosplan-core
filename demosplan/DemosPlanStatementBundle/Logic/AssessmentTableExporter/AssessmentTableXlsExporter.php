@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;

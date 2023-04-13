@@ -1,0 +1,48 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% import "@DemosPlanCore/macros.html.twig" as macros %}
+
+{% block component_part %}
+
+    {# Several Vue components need to differenciate between assessment table + original statements #}
+    {% set assessmentTableView = 'original_statements' %}
+
+    {# User data for <dp-claim> #}
+    {% set user = currentUser %}
+    {% set username = user.firstName ~ ' ' ~ user.lastName %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
+        area: 'assessment_table',
+        heading: 'statements.original'|trans,
+        highlighted: 'assessment_table_original'
+    } %}
+
+        {# original statements #}
+        <original-statements-table
+            :export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
+            init-filter-hash="{{ templateVars.filterHash }}"
+            :init-pagination="{
+                count: parseInt('{{ templateVars.pager.maxPerPage|default(25) }}'),
+                current_page: parseInt('{{ templateVars.pager.currentPage|default(1) }}'),
+                total_pages: parseInt('{{ templateVars.pager.NbPages|default(1) }}'),
+                limits: JSON.parse('{{ templateVars.pager.limits|default([])|json_encode }}'),
+                total: parseInt('{{ templateVars.totalResults|default(0) }}')
+            }"
+            procedure-id="{{ templateVars.table.procedure.ident }}"
+        >
+            <template v-slot:filter="{ allItemsOnPageSelected, procedureId, copyStatements }">
+                {# filters + sorting #}
+                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_filter.html.twig' %}
+            </template>
+        </original-statements-table>
+
+    </form>
+
+{% endblock component_part %}
+
+
+{#  bundles generated via webpack/gulp build are included here  #}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-originalStatementsTableView.js']) }}
+{% endblock javascripts %}

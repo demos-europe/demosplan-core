@@ -10,9 +10,9 @@
 
 namespace Tests\Core\AssessmentTable\Functional;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceStorage;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceStorage;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
 use Tests\Base\FunctionalTestCase;

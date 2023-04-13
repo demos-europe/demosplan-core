@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use Exception;
 

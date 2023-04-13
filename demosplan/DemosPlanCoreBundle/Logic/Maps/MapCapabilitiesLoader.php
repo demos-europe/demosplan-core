@@ -14,15 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use demosplan\DemosPlanCoreBundle\Exception\ExternalDataFetchException;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
-use demosplan\DemosPlanMapBundle\ValueObject\MapCapabilities;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapCapabilities;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 use function in_array;
 use function simplexml_load_string;
 use function str_replace;
 use function strtolower;
-
-use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class MapCapabilitiesLoader
 {

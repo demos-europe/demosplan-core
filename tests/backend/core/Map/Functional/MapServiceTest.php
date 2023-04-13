@@ -12,7 +12,7 @@ namespace Tests\Core\Map\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use Tests\Base\FunctionalTestCase;
 
 class MapServiceTest extends FunctionalTestCase

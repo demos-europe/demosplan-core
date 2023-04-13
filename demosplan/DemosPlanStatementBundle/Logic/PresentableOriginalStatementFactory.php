@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
 use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
 use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;

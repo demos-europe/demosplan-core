@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +28,7 @@ class SegmentRpcController extends APIController
      *     options={"expose": true},
      *     methods={"PATCH"}
      * )
+     *
      * @DplanPermissions("area_statement_segmentation")
      */
     public function updateSegmentListQueryAction(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response

@@ -25,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository")
  */
 class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 {
