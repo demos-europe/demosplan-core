@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
-use demosplan\DemosPlanMapBundle\Logic\MapHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;

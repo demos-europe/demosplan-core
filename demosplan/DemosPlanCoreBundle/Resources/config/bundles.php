@@ -34,7 +34,6 @@ return [
     demosplan\DemosPlanAssessmentTableBundle\DemosPlanAssessmentTableBundle::class     => ['all' => true],
     demosplan\DemosPlanCoreBundle\DemosPlanCoreBundle::class                           => ['all' => true],
     demosplan\DemosPlanDocumentBundle\DemosPlanDocumentBundle::class                   => ['all' => true],
-    demosplan\DemosPlanMapBundle\DemosPlanMapBundle::class                             => ['all' => true],
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class                 => ['all' => true],
     demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class                       => ['all' => true],
     demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class                 => ['all' => true],
