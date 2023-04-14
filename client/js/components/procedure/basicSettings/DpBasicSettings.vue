@@ -116,6 +116,11 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+
+    procedureId: {
+      required: true,
+      type: String
     }
   },
 

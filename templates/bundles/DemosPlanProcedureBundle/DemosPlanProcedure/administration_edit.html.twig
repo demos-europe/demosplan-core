@@ -99,6 +99,7 @@
     <dp-basic-settings
         inline-template
         plis-id="{{ proceduresettings.plisId|default }}"
+        procedure-id="{{ proceduresettings.ident|default }}"
         procedure-external-desc="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}"
         init-procedure-name="{{ proceduresettings.name|default( 'notspecified'|trans ) }}"
         :authorized-users-options="JSON.parse('{{ authUsers|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -114,17 +115,17 @@
         <form
             name="configForm"
             enctype="multipart/form-data"
-            data-procedure="{{ proceduresettings.ident }}"
+            :data-procedure="procedureId"
             data-dp-validate="configForm"
             method="post"
-            action="{{ path('DemosPlan_procedure_edit',{'procedure':proceduresettings.ident}) }}"
+            :action="Routing.generate('DemosPlan_procedure_edit', { procedure: procedureId })"
         >
             <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
             <input type="hidden" value="edit" name="action">
-            <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
+            <input type="hidden" :value="procedureId" name="r_ident">
 
             {% if hasPermission('feature_institution_participation') %}
-                <input type="hidden" name="r_currentPublicParticipationPhase" value="{{ proceduresettings.publicParticipationPhase|default }}">
+                <input type="hidden" name="r_currentPublicParticipationPhase" :value="initProcedurePhasePublic">
             {% endif %}
 
             {#  The following contextual help elements were displayed besides the accordion toggles for the former field groups.
@@ -157,12 +158,12 @@
                                     <label class="display--inline-block u-mb-0" for="r_agency">
                                         {{ "planningagency"|trans }}
                                     </label>
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: 'text.procedure.edit.planning_agency'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
-                                        showPlainHint: true
-                                    } %}
-
+                                    <i
+                                        class="fa fa-question-circle float--right u-mt-0_125"
+                                        :aria-label="Translator.trans('contextual.help')"
+                                        v-tooltip="{
+                                           content: Translator.trans('text.procedure.edit.planning_agency'),
+                                        }"></i>
                                     <dp-multiselect
                                         multiple
                                         id="r_agency"
@@ -170,17 +171,16 @@
                                         v-model="selectedAgencies"
                                         data-cy="selectedAgencies"
                                         label="name"
-                                        track-by="id"
-                                    >
+                                        track-by="id">
                                         <template v-slot:option="props">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
                                         <template v-slot:tag="props">
-                                        <span class="multiselect__tag">
-                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                            <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                            <input type="hidden" :value="props.option.id" name="r_agency[]"/>
-                                        </span>
+                                            <span class="multiselect__tag">
+                                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                                <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                                <input type="hidden" :value="props.option.id" name="r_agency[]"/>
+                                            </span>
                                         </template>
                                     </dp-multiselect>
 
@@ -234,11 +234,12 @@
                                     <label class="display--inline-block u-mb-0" for="r_dataInputOrga">
                                         {{ "data.input.orga"|trans }}
                                     </label>
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: 'text.procedure.edit.data_input_orgas'|trans,
-                                        cssClasses:'float--right u-mt-0_125',
-                                        showPlainHint: true
-                                    } %}
+                                    <i
+                                        class="fa fa-question-circle float--right u-mt-0_125"
+                                        :aria-label="Translator.trans('contextual.help')"
+                                        v-tooltip="{
+                                            content: Translator.trans('text.procedure.edit.data_input_orgas'),
+                                        }"></i>
 
                                     <dp-multiselect
                                         multiple
@@ -246,8 +247,7 @@
                                         :options="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
                                         v-model="selectedDataInputOrgas"
                                         label="name"
-                                        track-by="id"
-                                    >
+                                        track-by="id">
                                         <template v-slot:option="props">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
