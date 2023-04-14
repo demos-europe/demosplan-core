@@ -110,6 +110,7 @@ class MaintenanceController extends BaseController
      * User facing page for active service mode.
      *
      * @Route(path="/servicemode", name="core_service_mode")
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -138,6 +139,7 @@ class MaintenanceController extends BaseController
      * Simple Action to evaluate response code for heartbeat monitoring.
      *
      * @Route(path="/_heartbeat", name="core_server_heartbeat")
+     *
      * @DplanPermissions("area_demosplan")
      */
     public function heartbeatAction(): Response
@@ -152,6 +154,7 @@ class MaintenanceController extends BaseController
      * why they are currently managed in this action
      *
      * @Route(path="/maintenance/{key}", name="core_maintenance")
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @param string $key

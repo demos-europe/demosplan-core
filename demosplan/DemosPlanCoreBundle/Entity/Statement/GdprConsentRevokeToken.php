@@ -46,8 +46,11 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface
      * @var string|null
      *
      * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -75,6 +78,7 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface
      * @var Statement[]
      *
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
+     *
      * @ORM\JoinTable(name="gdpr_consent_revoke_token_statements",
      *      joinColumns={@ORM\JoinColumn(name="token_id", referencedColumnName="id", nullable=false)},
      *      inverseJoinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", unique=true, nullable=false)}
@@ -104,6 +108,7 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface
      * @ORM\ManyToOne(
      *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
      *     cascade={"persist"})
+     *
      * @ORM\JoinColumn(name="email_id",
      *     referencedColumnName="id",
      *     nullable = false)

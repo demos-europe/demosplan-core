@@ -40,6 +40,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_assessment_table_statement_fragment_update_create",
      *        options={"expose": true})
+     *
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"})
      *
      * Action to update multiple Fragments.

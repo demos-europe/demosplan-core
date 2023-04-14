@@ -39,6 +39,7 @@ class DemosPlanDepartmentController extends BaseController
      *     path="/department/verifychanges",
      *     methods={"GET"}
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -73,6 +74,7 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_list",
      *     path="/department/list/{orgaId}"
      * )
+     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param null $orgaId
@@ -137,6 +139,7 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_add",
      *     path="/department/add"
      * )
+     *
      * @DplanPermissions("feature_department_add")
      *
      * @return RedirectResponse|Response
@@ -179,6 +182,7 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_department_edit",
      *     path="/department/edit/{departmentId}"
      * )
+     *
      * @DplanPermissions("area_manage_orgas")
      *
      * @return RedirectResponse|Response
@@ -204,6 +208,7 @@ class DemosPlanDepartmentController extends BaseController
      *     name="DemosPlan_departments_admin",
      *     path="/departments/admin/{orgaId}"
      * )
+     *
      * @DplanPermissions("area_manage_departments")
      *
      * @param string $orgaId

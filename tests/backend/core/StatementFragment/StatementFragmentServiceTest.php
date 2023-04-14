@@ -28,6 +28,7 @@ use Tests\Base\FunctionalTestCase;
 use Tests\Core\Statement\Functional\Procedure;
 use Tests\Core\Statement\Functional\Statement;
 use Tightenco\Collect\Support\Collection;
+
 use function collect;
 
 class StatementFragmentServiceTest extends FunctionalTestCase

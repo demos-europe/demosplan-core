@@ -76,6 +76,7 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/gruppiert",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
     public function exportByStatementsFilterAction(
@@ -109,6 +110,7 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/xlsx",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_admin_assessmenttable_export_statement_generic_xlsx")
      */
     public function exportByStatementsFilterXlsAction(
@@ -151,6 +153,7 @@ class SegmentsExportController extends BaseController
      *     path="/verfahren/{procedureId}/abschnitte/export/gepackt",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_segments_of_statement_list")
      */
     public function exportPackagedStatementsAction(

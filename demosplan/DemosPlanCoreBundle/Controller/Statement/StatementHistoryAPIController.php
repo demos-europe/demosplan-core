@@ -30,6 +30,7 @@ class StatementHistoryAPIController extends APIController
      *     name="dplan_api_statement_history_get",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statement_content_changes_view")
      */
     public function getAction(

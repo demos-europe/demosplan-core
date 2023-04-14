@@ -38,6 +38,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/tag/{tag}",
      *     defaults={"master": false}
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -113,6 +114,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     defaults={"master": false},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response
@@ -149,6 +151,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *     path="/verfahren/{procedure}/schlagworte/edit",
      *     defaults={"master": false},
      * )
+     *
      * @DplanPermissions("area_admin_statements_tag")
      *
      * @return RedirectResponse|Response

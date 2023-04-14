@@ -33,6 +33,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @Route(path="/einwilligung-widerrufen",
      *        methods={"POST"},
      *        name="DemosPlan_statement_revoke_gdpr_consent_post")
+     *
      * @DplanPermissions("area_gdpr_consent_revoke_page")
      *
      * @throws MessageBagException
@@ -63,6 +64,7 @@ class GdprConsentRevokeTokenController extends BaseController
 
     /**
      * @DplanPermissions("area_demosplan")
+     *
      * @Route(path="/einwilligung-widerrufen",
      *        methods={"GET"},
      *        name="DemosPlan_statement_revoke_gdpr_consent_get"

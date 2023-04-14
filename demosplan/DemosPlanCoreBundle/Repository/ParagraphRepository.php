@@ -25,6 +25,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Exception;
+
 use function array_key_exists;
 
 class ParagraphRepository extends CoreRepository implements ArrayInterface, ObjectInterface

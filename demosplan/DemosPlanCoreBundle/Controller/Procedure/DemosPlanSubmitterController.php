@@ -55,6 +55,7 @@ class DemosPlanSubmitterController extends BaseController
      *      methods={"GET"},
      *      options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_admin_submitters")
      */
     public function exportAction(

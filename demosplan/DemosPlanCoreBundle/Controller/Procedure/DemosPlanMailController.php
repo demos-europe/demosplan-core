@@ -36,6 +36,7 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mail",
      *     methods={"POST"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -154,6 +155,7 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mailconfirm",
      *     methods={"HEAD", "GET"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId
@@ -201,6 +203,7 @@ class DemosPlanMailController extends BaseController
      *     path="/verfahren/{procedureId}/mailconfirm",
      *     methods={"POST"},
      * )
+     *
      * @DplanPermissions("area_procedure_send_submitter_email")
      *
      * @param string $procedureId

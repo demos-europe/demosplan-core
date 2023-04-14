@@ -34,6 +34,7 @@ class StatementAnonymizeController extends BaseController
      *     name="DemosPlan_statement_anonymize_view",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statement_anonymize")
      */
     public function statementAnonymizeAction(

@@ -36,6 +36,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 use function in_array;
 
 class StatementSynchronizer

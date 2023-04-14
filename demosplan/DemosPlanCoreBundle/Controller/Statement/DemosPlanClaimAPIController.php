@@ -86,6 +86,7 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_statements_api",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateStatementAssignmentAction(string $statementId): APIResponse
@@ -98,6 +99,7 @@ class DemosPlanClaimAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_claim_fragments_api",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_statement_assignment")
      */
     public function updateFragmentAssignmentAction(string $entityId): APIResponse

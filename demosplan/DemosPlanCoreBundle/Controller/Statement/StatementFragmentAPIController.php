@@ -35,6 +35,7 @@ class StatementFragmentAPIController extends APIController
      *     name="dplan_api_statement_fragment_edit",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_statements_fragment_edit")
      *
      * @return JsonResponse

@@ -32,6 +32,7 @@ class TagTopicAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_tag_topic_create",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_json_api_tag_topic_create")
      */
     public function createAction(
