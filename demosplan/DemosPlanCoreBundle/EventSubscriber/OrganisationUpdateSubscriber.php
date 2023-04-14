@@ -8,13 +8,11 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\EventSubscriber;
+namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaEditedEvent;
-use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
 
 class OrganisationUpdateSubscriber extends BaseEventSubscriber
