@@ -44,8 +44,14 @@
     {% endblock page_header %}
 
     {# content #}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
-        <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
+    <dp-public-detail-no-map
+        inline-template
+        procedure-id="{{ procedure }}"
+        user-id="{{ app.user.id|default }}">
+        <div
+            id="scParagraph"
+            class="{{ 'o-page__padded'|prefixClass }}"
+            ref="root">
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}
 

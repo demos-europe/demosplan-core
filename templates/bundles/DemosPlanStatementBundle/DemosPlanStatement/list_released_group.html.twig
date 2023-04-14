@@ -22,7 +22,9 @@
 
     <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
 
-    <div class="o-page__padded--spaced u-pv">
+    <div
+        class="o-page__padded--spaced u-pv"
+        ref="root">
 
         <form
             data-dp-validate="releaseForm"

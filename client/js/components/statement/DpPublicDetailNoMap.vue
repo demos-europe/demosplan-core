@@ -81,7 +81,7 @@ export default {
     ...mapMutations('publicStatement', ['initialiseStore', 'updateHighlighted', 'updateStatement', 'localStorageName']),
 
     submitForm (formId, hiddenFieldName) {
-      const form = this.$el.querySelector(`[data-dp-validate="${formId}"]`)
+      const form = this.$refs.root.querySelector(`[data-dp-validate="${formId}"]`)
       if (hiddenFieldName) {
         addFormHiddenField(form, hiddenFieldName)
       }

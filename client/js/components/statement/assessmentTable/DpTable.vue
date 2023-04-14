@@ -11,10 +11,12 @@
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
     id="start"
+    :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
+    :data-statement-admin-container="procedureId"
     name="bpform"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
     method="post"
-    :data-statement-admin-container="procedureId"
+    ref="root"
     v-cloak>
     <input
       type="hidden"

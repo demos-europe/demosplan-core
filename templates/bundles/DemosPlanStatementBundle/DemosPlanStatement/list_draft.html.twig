@@ -1,7 +1,11 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
 {% block demosplanbundlecontent %}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}"><div>
+    <dp-public-detail-no-map
+        inline-template
+        procedure-id="{{ procedure }}"
+        user-id="{{ app.user.id|default }}">
+        <div ref="root">
 
     {% set owndraftText = "text.statements.owndraft"|trans %}
     {% set permissionSubmit = 'feature_statements_released_group_submit' %}
@@ -35,7 +39,9 @@
         %}
     {% endblock %}
 
-    <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
+    <div
+        class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}"
+        ref="root">
         <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
 
             {#  filter fieldsets  #}
