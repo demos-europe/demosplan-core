@@ -730,7 +730,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
-            - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanStatementBundle\Logic\DraftStatementService' ] ]
+            - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService' ] ]
             - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
