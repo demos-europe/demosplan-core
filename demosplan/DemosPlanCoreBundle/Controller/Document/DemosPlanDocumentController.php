@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEve
 use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
@@ -46,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanUserBundle\Logic\BrandingService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
@@ -68,7 +68,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-
 use function array_key_exists;
 use function array_merge;
 use function compact;

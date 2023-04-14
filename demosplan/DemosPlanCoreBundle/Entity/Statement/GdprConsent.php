@@ -14,7 +14,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

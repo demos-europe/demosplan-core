@@ -10,7 +10,7 @@
 
 namespace Tests\Core\AssessmentTable;
 
-use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions;
 use Tests\Base\FunctionalTestCase;
 

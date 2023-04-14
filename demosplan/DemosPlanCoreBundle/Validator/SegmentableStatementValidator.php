@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 

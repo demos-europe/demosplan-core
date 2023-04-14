@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanStatementBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanStatementBundle\Exception\AssessmentExportOptionsException;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;

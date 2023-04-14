@@ -14,9 +14,9 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\FileInUseChecker;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 

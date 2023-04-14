@@ -10,8 +10,6 @@
 
 namespace Tests\Core\StatementFragment;
 
-use function collect;
-
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
@@ -20,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementFragmentService;
 use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -30,6 +28,7 @@ use Tests\Base\FunctionalTestCase;
 use Tests\Core\Statement\Functional\Procedure;
 use Tests\Core\Statement\Functional\Statement;
 use Tightenco\Collect\Support\Collection;
+use function collect;
 
 class StatementFragmentServiceTest extends FunctionalTestCase
 {

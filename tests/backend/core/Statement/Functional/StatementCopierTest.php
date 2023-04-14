@@ -208,7 +208,7 @@ class StatementCopierTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCopyStatementWithFragments(): void
     {

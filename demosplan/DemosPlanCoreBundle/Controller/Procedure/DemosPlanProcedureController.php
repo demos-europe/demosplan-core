@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\PublicDetailStatementListLoade
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
+use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -75,7 +76,6 @@ use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateGroupVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\BoilerplateVO;
 use demosplan\DemosPlanProcedureBundle\ValueObject\ProcedureFormData;
-use demosplan\DemosPlanStatementBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
 use demosplan\DemosPlanStatementBundle\Logic\CountyService;
 use demosplan\DemosPlanStatementBundle\Logic\DraftStatementHandler;
