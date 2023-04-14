@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 
 class DraftsInfoService extends CoreService
 {

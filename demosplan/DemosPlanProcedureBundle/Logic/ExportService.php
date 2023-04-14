@@ -28,6 +28,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
@@ -36,10 +40,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanReportBundle\Logic\ExportReportService;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementListUserFilter;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\DocxExportResult;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Doctrine\Common\Collections\Collection;
@@ -92,7 +92,7 @@ class ExportService
     protected $paragraphExporter;
 
     /**
-     * @var \demosplan\DemosPlanStatementBundle\Logic\DraftStatementService DraftStatementService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService DraftStatementService
      */
     protected $draftStatementService;
 

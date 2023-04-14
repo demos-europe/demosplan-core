@@ -11,7 +11,7 @@
 namespace Tests\Core\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use Tests\Base\FunctionalTestCase;
 
 class AssessmentExportOptionsTest extends FunctionalTestCase

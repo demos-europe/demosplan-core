@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService;
 use demosplan\DemosPlanProcedureBundle\Form\PreparationMailType;
 use demosplan\DemosPlanProcedureBundle\ValueObject\PreparationMailVO;
-use demosplan\DemosPlanStatementBundle\Logic\SubmitterService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use Exception;
 use Symfony\Component\Form\FormFactoryInterface;
