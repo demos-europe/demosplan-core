@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;

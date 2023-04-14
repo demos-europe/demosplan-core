@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 use demosplan\DemosPlanCoreBundle\Constraint\StatementIdsInProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementIdsInProcedureVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementIdsInProcedureVO;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

@@ -30,7 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementStatistic;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use Exception;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;

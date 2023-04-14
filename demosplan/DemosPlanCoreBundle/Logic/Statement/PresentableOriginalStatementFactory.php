@@ -15,8 +15,8 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
-use demosplan\DemosPlanStatementBundle\ValueObject\PresentableOriginalStatement;
-use demosplan\DemosPlanStatementBundle\ValueObject\ValuedLabel;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;

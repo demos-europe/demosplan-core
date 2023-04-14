@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
