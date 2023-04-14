@@ -27,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * Statement Fragment Versions are part of the assessment process
  *
  * @ORM\Table(name="statement_fragment_version")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentVersionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository")
  */
 class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 {

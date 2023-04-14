@@ -29,7 +29,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository")
  * @FormDefinitionConstraint()
  */
 class DraftStatement extends CoreEntity implements UuidEntityInterface

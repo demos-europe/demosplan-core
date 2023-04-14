@@ -36,7 +36,7 @@ use Doctrine\ORM\Mapping as ORM;
  * results in an additional one-to-many relationship between DraftStatements and GdprConsent).
  *
  * @ORM\Table
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository")
  */
 class GdprConsent extends CoreEntity implements UuidEntityInterface
 {

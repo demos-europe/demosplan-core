@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_municipality", uniqueConstraints={@ORM\UniqueConstraint(name="official_municipality_key", columns={"official_municipality_key"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\MunicipalityRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository")
  */
 class Municipality extends CoreEntity implements UuidEntityInterface
 {

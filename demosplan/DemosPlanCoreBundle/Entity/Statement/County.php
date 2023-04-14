@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="_county")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\CountyRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CountyRepository")
  */
 class County extends CoreEntity implements UuidEntityInterface
 {

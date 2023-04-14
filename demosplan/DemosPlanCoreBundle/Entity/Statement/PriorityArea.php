@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Table(name="_priority_area",uniqueConstraints={@UniqueConstraint(name="key_idx", columns={"_pa_key"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\PriorityAreaRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository")
  */
 class PriorityArea extends CoreEntity implements UuidEntityInterface
 {

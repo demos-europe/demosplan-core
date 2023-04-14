@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementFragmentRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository")
  */
 class StatementFragment extends CoreEntity implements UuidEntityInterface
 {

@@ -38,7 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
  * The usage of the token is possible only once. However the token must not be deleted to be able
  * to inform the user that the token was already used in case he tries to use it multiple times.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\GdprConsentRevokeTokenRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository")
  */
 class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface
 {

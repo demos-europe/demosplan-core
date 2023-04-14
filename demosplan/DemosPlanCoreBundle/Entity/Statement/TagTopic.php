@@ -29,7 +29,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\TagTopicRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository")
  */
 class TagTopic extends CoreEntity implements UuidEntityInterface
 {

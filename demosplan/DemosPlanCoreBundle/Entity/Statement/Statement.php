@@ -51,7 +51,7 @@ use UnexpectedValueException;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
  * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\StatementRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementRepository")
  * @ClaimConstraint()
  * @CorrectDateOrderConstraint(groups={Statement::IMPORT_VALIDATION})
  * @FormDefinitionConstraint()

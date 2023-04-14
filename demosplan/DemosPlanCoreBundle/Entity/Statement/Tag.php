@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         )
  *     }
  * )
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\TagRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagRepository")
  */
 class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 {

@@ -27,7 +27,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="_draft_statement_versions", indexes={@ORM\Index(name="_ds_id", columns={"_ds_id"})})
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository")
  */
 class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
 {
