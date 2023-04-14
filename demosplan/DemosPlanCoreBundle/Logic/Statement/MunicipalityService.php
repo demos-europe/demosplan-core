@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanStatementBundle\Repository\MunicipalityRepository;
+use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
 use Exception;
 
 class MunicipalityService extends CoreService

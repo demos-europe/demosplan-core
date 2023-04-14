@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanStatementBundle\Repository\CountyRepository;
+use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use Exception;
 

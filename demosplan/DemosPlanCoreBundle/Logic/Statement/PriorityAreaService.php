@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanStatementBundle\Repository\PriorityAreaRepository;
+use demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository;
 use Exception;
 
 class PriorityAreaService extends CoreService
