@@ -809,7 +809,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $template = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
         if ($isCluster) {
-            $template = '@DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
             $clusterStatements = $templateVars['table']['statement']['cluster'];
             $templateVars['table']['countOfClusterElements'] =
                 $clusterStatements instanceof Collection ? $clusterStatements->count() : 0;
@@ -1122,7 +1122,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['form'] = $statementBulkEditForm->createView();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.bulk.edit',
@@ -1157,7 +1157,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragment.bulk.edit',

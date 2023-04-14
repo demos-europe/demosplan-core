@@ -144,7 +144,7 @@ class DemosPlanAssessmentController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_orga_statements.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statements',
@@ -275,7 +275,7 @@ class DemosPlanAssessmentController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             compact('title', 'templateVars')
         );
     }
@@ -300,7 +300,7 @@ class DemosPlanAssessmentController extends BaseController
         $templateVars['table']['procedure'] = $statement->getProcedure();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.view',

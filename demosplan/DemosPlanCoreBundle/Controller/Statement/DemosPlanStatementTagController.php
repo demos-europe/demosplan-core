@@ -94,7 +94,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/edit_tag.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'tag.administration_single',
@@ -132,7 +132,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $title = $translator->trans('tag.administration');
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_tags.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => $title,

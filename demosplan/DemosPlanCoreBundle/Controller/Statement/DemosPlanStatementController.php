@@ -290,7 +290,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedureLayer'] = 'participation';
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_public.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_public.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
@@ -499,7 +499,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -608,14 +608,14 @@ class DemosPlanStatementController extends BaseController
         $fscope = 'group';
 
         if (Role::CITIZEN === $userRole) {
-            $template = '@DemosPlanStatement/DemosPlanStatement/'.$templateName.'_citizen.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/'.$templateName.'_citizen.html.twig';
             // Ändere den Templatename für den pdf-export
             $templateName = 'list_final_group_citizen';
             if ('statements.final.group' === $title) {
                 $title = 'statements.final.own';
             }
         } else {
-            $template = '@DemosPlanStatement/DemosPlanStatement/'.$templateName.'.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/'.$templateName.'.html.twig';
         }
 
         $manualSortScope = null;
@@ -903,7 +903,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedure'] = $procedureService->getProcedure($procedureId);
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedureId,
@@ -1155,7 +1155,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_public_participation_published_entry.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_public_participation_published_entry.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.public',
@@ -1352,7 +1352,7 @@ class DemosPlanStatementController extends BaseController
             ];
 
             $templateVars['mailbody'] = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/send_statement_email.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/send_statement_email.html.twig')
                 ->renderBlock(
                     'body_plain',
                     [
@@ -1366,7 +1366,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['procedureLayer'] = 'participation';
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/send_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedure,
@@ -1429,7 +1429,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['backToUrl'] = $refererRoute;
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/versions_of_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/versions_of_statement.html.twig',
             [
                 'templateVars'    => $templateVars,
                 'origStatementId' => $statementID,
@@ -2072,7 +2072,7 @@ class DemosPlanStatementController extends BaseController
             ];
 
             $rejectMailBody = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/reject_statement_email.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/reject_statement_email.html.twig')
                 ->renderBlock(
                     'body_plain',
                     [
@@ -2205,7 +2205,7 @@ class DemosPlanStatementController extends BaseController
                     );
                     $orgaName = $countyNotificationData->getOrgaName();
                     $mailBody = $this->twig
-                        ->load('@DemosPlanStatement/DemosPlanStatement/notify_county_email.html.twig')
+                        ->load('@DemosPlanCore/DemosPlanStatement/notify_county_email.html.twig')
                         ->renderBlock(
                             'body_content',
                             [
@@ -2498,7 +2498,7 @@ class DemosPlanStatementController extends BaseController
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statements.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
                 'procedure'    => $procedureId,
                 'title'        => 'statements',

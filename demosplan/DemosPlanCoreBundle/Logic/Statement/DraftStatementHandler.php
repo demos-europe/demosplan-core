@@ -171,7 +171,7 @@ class DraftStatementHandler extends CoreHandler
         $mailTemplateVars['procedure'] = $procedure;
 
         $emailText = $this->twig->load(
-            '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_released_statement.html.twig'
+            '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_released_statement.html.twig'
         )
             ->renderBlock(
                 'body_plain',
@@ -804,7 +804,7 @@ class DraftStatementHandler extends CoreHandler
                 $user = $userAndDraftStatements['user'];
 
                 $emailText = $this->twig->load(
-                    '@DemosPlanStatement/DemosPlanStatement/send_notification_email_for_unsubmitted_draft_statements.html.twig'
+                    '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_unsubmitted_draft_statements.html.twig'
                 )->renderBlock(
                     'body_plain',
                     [

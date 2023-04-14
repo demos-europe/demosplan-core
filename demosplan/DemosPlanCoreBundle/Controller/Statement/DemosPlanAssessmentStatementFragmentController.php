@@ -160,7 +160,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['procedure'] = $procedure;
 
             return $this->renderTemplate(
-                '@DemosPlanStatement/DemosPlanStatement/fragment_statement.html.twig',
+                '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
                     'procedure'    => $procedureId,
@@ -250,7 +250,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments_archive.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list.archive',
@@ -356,7 +356,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         // </temporaryHack>
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_statement_fragments.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragments.list',

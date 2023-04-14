@@ -999,7 +999,7 @@ class DraftStatementService extends CoreService
         $templateVars['procedure'] = $procedureId;
         $procedure = $this->procedureService->getProcedure($procedureId);
 
-        $content = $this->twig->render('@DemosPlanStatement/DemosPlanStatement/'.$template.'.tex.twig', [
+        $content = $this->twig->render('@DemosPlanCore/DemosPlanStatement/'.$template.'.tex.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => 'DPlan',

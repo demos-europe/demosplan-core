@@ -853,7 +853,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $subject = $this->translator->trans('fragment.evaluated.notification.subject');
             $emailText = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/email_fragment_notify_planner.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/email_fragment_notify_planner.html.twig')
                 ->render(
                     [
                         'templateVars' => [
@@ -884,7 +884,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                             'email.subject.reviewer.admin.orga.reassign.fragment'
                         );
                         $emailText = $this->twig
-                            ->load('@DemosPlanStatement/DemosPlanStatement/email_fragment_notify_reviewer_admin_reassign_planner.html.twig')
+                            ->load('@DemosPlanCore/DemosPlanStatement/email_fragment_notify_reviewer_admin_reassign_planner.html.twig')
                             ->render([
                                 'templateVars' => [
                                     'title'     => $procedure->getName(),
@@ -910,7 +910,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         } else {
             $subject = $this->translator->trans('fragment.assigned.notification.subject');
             $emailText = $this->twig
-                ->load('@DemosPlanStatement/DemosPlanStatement/email_fragment_notify_reviewer.html.twig')
+                ->load('@DemosPlanCore/DemosPlanStatement/email_fragment_notify_reviewer.html.twig')
                 ->render(
                     [
                         'templateVars' => [
@@ -938,7 +938,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $subject = $this->translator->trans('email.subject.reviewer.admin.orga.new.fragment');
                     $emailText = $this->twig
                         ->load(
-                            '@DemosPlanStatement/DemosPlanStatement/email_fragment_notify_reviewer_admin_new.html.twig'
+                            '@DemosPlanCore/DemosPlanStatement/email_fragment_notify_reviewer_admin_new.html.twig'
                         )
                         ->render(
                             [
@@ -1375,7 +1375,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $templateVars['titleTransKey'] = $title;
 
         $content = $this->twig->render(
-            '@DemosPlanStatement/DemosPlanStatement/fragment_list.tex.twig',
+            '@DemosPlanCore/DemosPlanStatement/fragment_list.tex.twig',
             [
                 'templateVars' => $templateVars,
                 'procedure'    => $procedure,
