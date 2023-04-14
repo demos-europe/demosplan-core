@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="_single_doc")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository")
  */
 class SingleDocument extends CoreEntity implements SingleDocumentInterface
 {

@@ -32,13 +32,13 @@ services:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+        class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -111,10 +111,10 @@ services:
         class: demosplan\DemosPlanStatementBundle\Logic\StatementHandler
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
-        class: demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
-        class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
     DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
@@ -669,48 +669,48 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter: ~
 
-    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
     ##########Handler
 
-    demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphHandler: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler: ~
 
 
-    demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
+    demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         calls:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\RpcElementsBulkEditor:
+    demosplan\DemosPlanCoreBundle\Logic\Document\RpcElementsBulkEditor:
         lazy: true
 
     ########## Transformers
 
-    demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
