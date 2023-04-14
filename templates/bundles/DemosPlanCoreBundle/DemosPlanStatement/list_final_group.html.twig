@@ -64,7 +64,7 @@
                   method="post">
 
                 {# filter fieldsets  #}
-                {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig' with {
+                {% include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig' with {
                     'filter_target'                         : 'final_group',
                     'show_filter_department'                : true,
                     'show_filter_statement'                 : true,
@@ -120,9 +120,9 @@
 
                         <input type="hidden" name="action" value="statementPublish">
 
-                        {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
-                        {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                        {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
 
                     </fieldset>
                 {% endif %}
@@ -156,9 +156,9 @@
                         -> if that works, eMail and Print can be enabled in Listfooter..
                     #}
 
-                    {#{% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}#}
+                    {#{% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}#}
 
-                    {#{% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}#}
+                    {#{% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}#}
 
                 </fieldset>
                 <dp-public-statement-list

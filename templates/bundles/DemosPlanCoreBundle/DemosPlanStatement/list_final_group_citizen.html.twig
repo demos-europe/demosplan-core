@@ -62,7 +62,7 @@
             <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_final_group',{'procedure':procedure})}}" method="post">
 
                 {#  filter fieldsets  #}
-                {%  include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig'
+                {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
                     with  { 'filter_target'                         : 'final_group',
                             'show_filter_sort_option_submitted'     : true } %}
 
@@ -72,9 +72,9 @@
 
                     <input type="hidden" name="action" value="statementPublish">
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
 
                 </fieldset>
 
@@ -104,9 +104,9 @@
                         -> if that works, eMail and Print can be enabled in Listfooter..
                     #}
 
-                    {#{% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}#}
+                    {#{% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}#}
 
-                    {#{% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}#}
+                    {#{% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}#}
 
                 </fieldset>
                 <dp-public-statement-list

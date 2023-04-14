@@ -37,7 +37,7 @@
             <input type="hidden" name="statement_reject" id="statement_reject" value="">
 
             {#  filter fieldsets  #}
-            {%  include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig'
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
                 with  { 'filter_target'                         : 'released_group',
                         'show_filter_department'                : true,
                         'show_filter_sort_option_department'    : true } %}
@@ -47,7 +47,7 @@
                 <input type="hidden" name="action" value="" id="js__action">
 
                 {% if templateVars.list.statementlist|length > 0 %}
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
                     {% if hasPermission('feature_statements_released_group_submit') and templateVars.hasPermissionsetWrite == true %}
 
@@ -63,7 +63,7 @@
 
                         <template>
                             {#  Hint and select for notifying country about statement being submitted #}
-                            {% include '@DemosPlanStatement/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                            {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
                                 showDropdown: hasPermission('feature_statement_notify_counties') and proceduresettings.settings.sendMailsToCounties == true,
                                 targetForm: 'releaseForm'
                             } %}
@@ -82,7 +82,7 @@
 
                     {% endif %}
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
                 {% endif %}
 
             </fieldset>

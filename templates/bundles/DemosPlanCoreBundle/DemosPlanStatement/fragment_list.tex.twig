@@ -3,6 +3,6 @@
     % Überschrift
     \section*{{ '{' }}{{ templateVars.titleTransKey|default("fragments")|trans|latex|wysiwyg }}{{ '}' }}
     {% for fragment in templateVars.fragments|default([]) %}
-        {% include '@DemosPlanStatement/DemosPlanStatement/fragment_list_entry.tex.twig' %}
+        {% include '@DemosPlanCore/DemosPlanStatement/fragment_list_entry.tex.twig' %}
     {% endfor %}
 {% endblock %}

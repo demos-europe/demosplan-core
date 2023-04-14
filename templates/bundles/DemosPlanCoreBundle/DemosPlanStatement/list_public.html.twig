@@ -30,7 +30,7 @@
             action="{{ path('DemosPlan_statement_list_public',{'procedure':procedure}) }}">
 
             {#  filter fieldsets  #}
-            {%  include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig'
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
             with  { 'filter_target' : 'public' } %}
 
             <dp-public-statement-list

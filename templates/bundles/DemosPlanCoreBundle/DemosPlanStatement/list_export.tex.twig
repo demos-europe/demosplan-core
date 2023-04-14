@@ -3,6 +3,6 @@
     % Überschrift
     \section*{{ '{' }}{{ templateVars.titleTransKey|default("statements.grouprelease")|trans|latex|wysiwyg }}{{ '}' }}
     {% for statement in templateVars.list.statementlist %}
-        {% include '@DemosPlanStatement/DemosPlanStatement/list_export_entry_paragraph.tex.twig' %}
+        {% include '@DemosPlanCore/DemosPlanStatement/list_export_entry_paragraph.tex.twig' %}
     {% endfor %}
 {% endblock %}

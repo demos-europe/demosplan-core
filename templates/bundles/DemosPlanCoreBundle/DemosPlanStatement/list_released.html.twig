@@ -31,7 +31,7 @@
         <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_released',{'procedure':procedure}) }}" method="post">
 
             {#  filter fieldsets  #}
-            {%  include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig'
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
                 with  { 'filter_target'                         : 'released' } %}
 
         </form>
@@ -41,9 +41,9 @@
             <fieldset class="{{ 'u-ml u-pb-0 cf'|prefixClass }}">
 
                 {% if templateVars.list.statementlist|length > 0 %}
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
                 {% endif %}
 
             </fieldset>

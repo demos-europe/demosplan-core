@@ -39,7 +39,7 @@
         <form class="{{ 'layout cf'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
 
             {#  filter fieldsets  #}
-            {%  include '@DemosPlanStatement/DemosPlanStatement/includes/form_filter.html.twig'
+            {%  include '@DemosPlanCore/DemosPlanStatement/includes/form_filter.html.twig'
                 with  { 'filter_target' : 'draft' } %}
 
         </form>
@@ -58,7 +58,7 @@
             <fieldset class="{{ 'u-ml u-pb-0_5 cf'|prefixClass }}">
 
                 {% if templateVars.list.statementlist|length > 0 %}
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_mark-all.html.twig' %}
 
                     {% if hasPermission('feature_statements_draft_release') %}
                         {% block statement_release %}
@@ -118,7 +118,7 @@
                                         only if short submission process is enabled because then, statements are directly
                                         submitted from this view. If the default submission process is enabled, the dropdown
                                         is shown in the `list_released_group` view instead. #}
-                                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                                    {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
                                         showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
                                             templateVars.hasPermissionsetWrite == true and
                                             proceduresettings.settings.sendMailsToCounties == true,
@@ -140,7 +140,7 @@
                         {% endblock %}
                     {% endif %}
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/form_tools_print_pdf.html.twig' %}
                 {% endif %}
 
             </fieldset>

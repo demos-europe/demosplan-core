@@ -209,7 +209,7 @@
                 {# Mitzeichnung #}
                 {% if hasPermission('field_statement_votes') %}
                     <div class="layout--flush u-mb">
-                        {% include '@DemosPlanStatement/DemosPlanStatement/includes/vote_statement_messages.html.twig'
+                        {% include '@DemosPlanCore/DemosPlanStatement/includes/vote_statement_messages.html.twig'
                            with { hideExplanations: (statement.headStatement is not null) }
                         %}
                     </div>

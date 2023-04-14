@@ -74,7 +74,7 @@
                         {{ templateVars.statement.text|default|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}
                     </div>
 
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_form.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_form.html.twig' %}
 
                     {# if there are fragments existing from this statement... #}
                     {% if templateVars.existingFragmentsList|default([])|length > 0 %}
@@ -117,7 +117,7 @@
                                         <div class="layout layout__item u-1-of-2 u-1-of-1-desk-down u-pb-0_5">
 
                                             {# tags #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'tags',
                                                 showIf: fragment.tags is not empty
                                             } %}
@@ -140,7 +140,7 @@
 
                                             {% if formDefinitions.mapAndCountyReference.enabled or formDefinitions.countyReference.enabled %}
                                                  {# counties #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'counties',
                                                 showIf: fragment.counties is not empty
                                             } %}
@@ -161,7 +161,7 @@
                                             {% endembed %}
 
                                             {# municipalities #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'municipalities',
                                                 showIf: fragment.municipalities is not empty and formDefinitions.mapAndCountyReference.enabled
                                             } %}
@@ -183,7 +183,7 @@
 
 
                                             {# potential areas #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'potential.areas',
                                                 showIf: fragment.priorityAreas is not empty and formDefinitions.mapAndCountyReference.enabled
                                             } %}
@@ -206,7 +206,7 @@
                                             {% endif %}
 
                                             {# document #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'document',
                                                 showIf: fragment.element is not null
                                             } %}
@@ -220,7 +220,7 @@
 
 
                                             {# document chapter #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'paragraph',
                                                 showIf: fragment.paragraph is not null
                                             } %}
@@ -233,7 +233,7 @@
                                             {% endembed %}
 
                                             {# organisation #}
-                                            {% embed '@DemosPlanStatement/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
+                                            {% embed '@DemosPlanCore/DemosPlanStatement/includes/fragment_statement_property.html.twig' with {
                                                 propertyName: 'organisation',
                                                 showIf: fragment.departmentId is not null
                                             } %}
