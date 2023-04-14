@@ -12,7 +12,7 @@ namespace Tests\Core\Document\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use Tests\Base\FunctionalTestCase;
 
 class SingleDocumentServiceTest extends FunctionalTestCase
