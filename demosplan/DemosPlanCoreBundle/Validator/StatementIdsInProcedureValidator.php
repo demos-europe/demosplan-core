@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\Validator;
+namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Constraint\StatementIdsInProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
