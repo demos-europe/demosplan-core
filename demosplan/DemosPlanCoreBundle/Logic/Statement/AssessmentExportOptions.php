@@ -102,7 +102,7 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
             $fs = new Filesystem();
 
             // no need to evaluate assessment_export_options.yml folders dynamically as we can define allowed folders
-            $projectPath = DemosPlanPath::getProjectPath('app/Resources/DemosPlanStatementBundle/config/assessment_export_options.yml');
+            $projectPath = DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config/statement/assessment_export_options.yml');
 
             if ($fs->exists($projectPath)) {
                 $optionsFiles[] = $projectPath;
