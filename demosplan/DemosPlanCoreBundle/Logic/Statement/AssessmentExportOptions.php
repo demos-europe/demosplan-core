@@ -27,7 +27,7 @@ use Tightenco\Collect\Support\Collection;
  *
  * The export configuration for the above mentioned entities is managed via a yaml dictionary
  * defining several options, as well as templates for different output formattings. This
- * dictionary file resides in `@DemosPlanStatementBundle\Resources\config\assessment_export_options.yml`
+ * dictionary file resides in `@DemosPlanCoreBundle\Resources\config\statement\assessment_export_options.yml`
  * and can be overriden in the project's statement bundle in a similar way to the existing
  * override mechanisms.
  */
