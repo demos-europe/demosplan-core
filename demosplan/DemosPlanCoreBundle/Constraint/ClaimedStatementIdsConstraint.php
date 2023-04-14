@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanStatementBundle\Constraint;
+namespace demosplan\DemosPlanCoreBundle\Constraint;
 
 use demosplan\DemosPlanStatementBundle\Validator\ClaimedStatementIdsValidator;
 use Symfony\Component\Validator\Constraint;

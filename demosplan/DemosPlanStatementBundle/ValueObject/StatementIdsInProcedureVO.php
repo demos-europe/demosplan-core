@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanStatementBundle\ValueObject;
 
 use Countable;
+use demosplan\DemosPlanCoreBundle\Constraint\StatementIdsInProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use demosplan\DemosPlanStatementBundle\Constraint\StatementIdsInProcedureConstraint;
 
 /**
  * Class StatementsInProcedureVO.

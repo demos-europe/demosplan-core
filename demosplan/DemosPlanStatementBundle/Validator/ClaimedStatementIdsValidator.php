@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Validator;
 
+use demosplan\DemosPlanCoreBundle\Constraint\ClaimedStatementIdsConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Constraint\ClaimedStatementIdsConstraint;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementIdsInProcedureVO;
 use Symfony\Component\Validator\Constraint;

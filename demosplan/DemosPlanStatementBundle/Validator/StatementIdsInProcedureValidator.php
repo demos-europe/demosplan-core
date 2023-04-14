@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanStatementBundle\Validator;
 
+use demosplan\DemosPlanCoreBundle\Constraint\StatementIdsInProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanStatementBundle\Constraint\StatementIdsInProcedureConstraint;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanStatementBundle\ValueObject\StatementIdsInProcedureVO;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
