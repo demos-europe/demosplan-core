@@ -2708,6 +2708,12 @@ feature_read_source_statement_via_api:
     label: ' used in : Statement list and segment list '
     expose: true
     loginRequired: true
-
-
+feature_auto_delete_original_statement:
+    description: |
+        On delete the last child of an original statement, the related originalstatement will be automatically
+        deleted too.
+    label: 'Automatically delete related original statement, in case of last child was deleted.'
+    expose: false
+    loginRequired: true
+    parent: feature_statement_delete
 
