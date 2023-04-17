@@ -144,7 +144,7 @@ class ReportEntryResourceType extends DplanResourceType
                 return false;
             }),
             $this->createAttribute($this->orgaName)->readable(true, function (ReportEntry $entry): string {
-                return $this->messageConverter->extractOrgaNameFromReportEntryMessage($entry);
+                return $this->userHandler->getSingleUser($entry->getUserId())?->getOrga()?->getName() ?? '';
             }),
         ];
     }
