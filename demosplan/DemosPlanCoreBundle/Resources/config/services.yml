@@ -10,12 +10,12 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
-    demosplan\DemosPlanAssessmentTableBundle\Transformers\StatementBulkEditTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         lazy: true
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanAssessmentTableBundle\Logic\HashedQueryService: ~
+    demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
@@ -32,13 +32,13 @@ services:
         class: 'demosplan\DemosPlanProcedureBundle\Logic\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService'
+        class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface:
-        class: 'demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter'
+        class: 'demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 
     DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface:
         class:
@@ -108,10 +108,10 @@ services:
         class: 'demosplan\DemosPlanStatementBundle\Logic\StatementHandler'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
-        class: demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
-        class: demosplan\DemosPlanDocumentBundle\Logic\ElementsService
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
 
     DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
@@ -666,48 +666,48 @@ services:
         tags:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementsService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter: ~
 
-    demosplan\DemosPlanDocumentBundle\Logic\SingleDocumentService:
+    demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
     ##########Handler
 
-    demosplan\DemosPlanDocumentBundle\Logic\DocumentHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\ParagraphHandler: ~
+    demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler: ~
 
 
-    demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter:
+    demosplan\DemosPlanCoreBundle\Tools\ServiceImporter:
         calls:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
-    demosplan\DemosPlanDocumentBundle\Logic\ElementHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
-    demosplan\DemosPlanDocumentBundle\Logic\RpcElementsBulkEditor:
+    demosplan\DemosPlanCoreBundle\Logic\Document\RpcElementsBulkEditor:
         lazy: true
 
     ########## Transformers
 
-    demosplan\DemosPlanDocumentBundle\Transformers\DocumentDashboardTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
@@ -721,49 +721,49 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Services\GetFeatureInfo\GetFeatureInfo: ~
+    demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo: ~
 
-    demosplan\DemosPlanMapBundle\Logic\MapService:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
             - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanStatementBundle\Logic\DraftStatementService' ] ]
             - [ 'setProcedureService', [ '@demosplan\DemosPlanProcedureBundle\Logic\ProcedureService' ] ]
 
-    demosplan\DemosPlanMapBundle\Logic\MapHandler:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanMapBundle\Utilities\MapScreenshotter:
+    demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
         arguments:
             $logger: '@monolog.logger.dplan'
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\GeoJsonToFeaturesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\FeaturesToMapLayersConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToCoordinatesCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToCoordinatesCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapImageToPolygonCropper:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapImageToPolygonCropper:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\MapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\MapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PolygonIntoMapLayerMerger:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PolygonIntoMapLayerMerger:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\PrintLayerToMapLayerConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\PrintLayerToMapLayerConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Logic\WmsToWmtsCoordinatesConverter:
+    demosplan\DemosPlanCoreBundle\Logic\Map\WmsToWmtsCoordinatesConverter:
         lazy: true
 
-    demosplan\DemosPlanMapBundle\Transformers\MapOptionsTransformer:
+    demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
@@ -916,9 +916,6 @@ services:
         lazy: true
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
-
-    demosplan\DemosPlanAssessmentTableBundle\Logic\FilterSetService:
-        lazy: true
 
     demosplan\DemosPlanStatementBundle\Logic\AssignService:
         lazy: true

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 /**
  *  Tabs - add behavior to tabbed elements.

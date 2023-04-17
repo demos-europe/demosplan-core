@@ -8,8 +8,7 @@
 </license>
 
 <script>
-import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles } from '@demos-europe/demosplan-ui'
-import { makeFormPost } from '@demos-europe/demosplan-utils'
+import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpElementAdminEdit',

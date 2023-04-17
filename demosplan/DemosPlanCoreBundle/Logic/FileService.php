@@ -15,7 +15,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -25,10 +24,10 @@ use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -300,7 +299,7 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
-     * Check whether some files should be (soft) deleted as they are
+     * Check whether some (already soft deleted) files should be fully deleted as they are
      * not used anywhere anymore.
      *
      * @return int Amount of deleted Files
@@ -313,7 +312,7 @@ class FileService extends CoreService implements FileServiceInterface
         /** @var File $file */
         foreach ($allSoftDeletedFiles as $file) {
             try {
-                $this->getLogger()->info('Try to remove soft deleted File ', [$file->getId()]);
+                $this->getLogger()->info('Try to fully remove soft deleted File ', [$file->getId()]);
                 $deleted = $this->deleteFile($file->getId());
                 if ($deleted) {
                     if (null === $file->getId()) {

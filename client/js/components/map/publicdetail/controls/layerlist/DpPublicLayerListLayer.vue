@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-utils'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpPublicLayerListLayer',
@@ -217,7 +217,7 @@ export default {
 
           // If feature layerGroupsAlternateVisibility is activated
           if (this.layerGroupsAlternateVisibility) {
-            this.$root.emit('layer:hideOtherCategories', { groupId: this.layer.attributes.visibilityGroupId, categoryId: this.layer.attributes.categoryId })
+            this.$root.$emit('layer:hideOtherCategories', { groupId: this.layer.attributes.visibilityGroupId, categoryId: this.layer.attributes.categoryId })
           }
         }
 

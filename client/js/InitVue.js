@@ -7,17 +7,15 @@
  * All rights reserved
  */
 
-import { DpAccordion, DpNotifyContainer, Tooltip } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpNotifyContainer, dpValidateMultiselectDirective, Tooltip } from '@demos-europe/demosplan-ui'
 import { initGlobalEventListener, ToggleSideMenu, touchFriendlyUserbox } from '@DpJs/lib/core/libs'
 import { bootstrap } from '@DpJs/bootstrap'
-import dpValidateMultiselectDirective from '@demos-europe/demosplan-utils/lib/validation/dpValidateMultiselectDirective'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
-  window.Bus = Bus
   Vue.prototype.Routing = window.Routing
   Vue.prototype.Translator = window.Translator
   Vue.prototype.hasPermission = window.hasPermission
@@ -52,6 +50,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
         const mountedEvent = new Event('vue-mounted')
         document.dispatchEvent(mountedEvent)
+        setTimeout(() => {
+          window.mounted = true
+        }, 5)
       }
     })
     Promise.resolve(vm)

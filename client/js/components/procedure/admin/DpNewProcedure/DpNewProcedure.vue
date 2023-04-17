@@ -150,7 +150,7 @@
         <dp-label
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :text="Translator.trans('period')" />
 
         <dp-date-range-picker
@@ -159,7 +159,7 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
-          :required="hasPermission('feature_auto_switch_to_procedure_end_phase')"
+          :required="hasPermission('field_required_procedure_end_date')"
           :calendars-after="2"
           enforce-plausible-dates />
 
@@ -202,8 +202,8 @@
 </template>
 
 <script>
-import { dpApi, dpValidateMixin } from '@demos-europe/demosplan-utils'
 import {
+  dpApi,
   DpButton,
   DpDateRangePicker,
   DpFormRow,
@@ -212,7 +212,8 @@ import {
   DpLabel,
   DpMultiselect,
   DpSelect,
-  DpTextArea
+  DpTextArea,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'

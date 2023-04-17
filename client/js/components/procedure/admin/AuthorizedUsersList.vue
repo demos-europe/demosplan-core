@@ -290,13 +290,15 @@
 <script>
 import {
   DpAccordion,
+  dpApi,
   DpButton,
   DpButtonRow,
   DpDataTableExtended,
   DpInput,
-  DpTextArea
+  dpRpc,
+  DpTextArea,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { dpApi, dpRpc, dpValidateMixin } from '@demos-europe/demosplan-utils'
 
 export default {
   name: 'AuthorizedUsersList',

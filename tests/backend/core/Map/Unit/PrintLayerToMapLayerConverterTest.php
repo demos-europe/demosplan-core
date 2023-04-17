@@ -12,18 +12,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Map\Unit;
 
+use demosplan\DemosPlanCoreBundle\Logic\Map\PrintLayerToMapLayerConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanMapBundle\Logic\PrintLayerToMapLayerConverter;
-use demosplan\DemosPlanMapBundle\ValueObject\CoordinatesViewport;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayer;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTile;
-use demosplan\DemosPlanMapBundle\ValueObject\PrintLayerTilePosition;
-
-use function imagecolorallocate;
-
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
+use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
 use Tightenco\Collect\Support\Collection;
+
+use function imagecolorallocate;
 
 class PrintLayerToMapLayerConverterTest extends UnitTestCase
 {

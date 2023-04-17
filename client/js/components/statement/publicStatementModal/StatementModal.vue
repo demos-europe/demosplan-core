@@ -630,8 +630,25 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, dpValidateMixin, hasOwnProp, isActiveFullScreen, makeFormPost, prefixClassMixin, toggleFullscreen } from '@demos-europe/demosplan-utils'
-import { CleanHtml, DpCheckbox, DpInput, DpLabel, DpLoading, DpModal, DpRadio, DpUploadFiles, MultistepNav } from '@demos-europe/demosplan-ui'
+import {
+  checkResponse,
+  CleanHtml,
+  dpApi,
+  DpCheckbox,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpModal,
+  DpRadio,
+  DpUploadFiles,
+  dpValidateMixin,
+  hasOwnProp,
+  isActiveFullScreen,
+  makeFormPost,
+  MultistepNav,
+  prefixClassMixin,
+  toggleFullscreen
+} from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'

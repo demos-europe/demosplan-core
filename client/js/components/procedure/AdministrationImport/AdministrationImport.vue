@@ -34,8 +34,7 @@
 </template>
 
 <script>
-import { checkResponse, dpRpc, hasAnyPermissions } from '@demos-europe/demosplan-utils'
-import { DpLoading, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpRpc, DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import StatementFormImport from './StatementFormImport/StatementFormImport'

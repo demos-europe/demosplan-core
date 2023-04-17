@@ -13,7 +13,7 @@ namespace Tests\Core\Document\Functional;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use Tests\Base\FunctionalTestCase;
 
 class ParagraphServiceTest extends FunctionalTestCase

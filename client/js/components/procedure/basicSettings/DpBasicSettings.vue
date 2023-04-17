@@ -8,8 +8,17 @@
 </license>
 
 <script>
-import { dpApi, sortAlphabetically } from '@demos-europe/demosplan-utils'
-import { DpButton, DpDateRangePicker, DpDatetimePicker, DpEditor, DpInlineNotification, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpDateRangePicker,
+  DpDatetimePicker,
+  DpEditor,
+  DpInlineNotification,
+  DpInput,
+  DpMultiselect,
+  sortAlphabetically
+} from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'

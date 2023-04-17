@@ -157,8 +157,16 @@
 </template>
 
 <script>
-import { dpApi, formatDate } from '@demos-europe/demosplan-utils'
-import { DpButton, DpDataTable, DpIcon, DpLoading, DpSearchField, DpSelect } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpDataTable,
+  DpIcon,
+  DpLoading,
+  DpSearchField,
+  DpSelect,
+  formatDate
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationProceduresList',

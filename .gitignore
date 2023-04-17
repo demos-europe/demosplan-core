@@ -16,6 +16,7 @@ phpstan.neon
 !.php_cs
 !.editorconfig
 !.env
+!.env.test
 .ssh/
 .lnav
 !.github

@@ -1,0 +1,88 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {# viewMode #}
+    {% set viewModeActivated = (templateVars.viewMode == 'view_mode_tag' or templateVars.viewMode == 'view_mode_elements') %}
+
+    {# User data for <dp-claim> #}
+    {% set user = currentUser %}
+    {% set username = user.firstName ~ ' ' ~ user.lastName %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/includes/assessment_table_pageheader.html.twig' with {
+        area: 'assessment_table',
+        heading: 'considerationtable'|trans,
+        highlighted: 'assessment_table'
+    } %}
+
+    {# available authorized users #}
+    {% set authUsers = [] %}
+    {% for authorizedUser in templateVars.authorizedUsersOfMyOrganization|default([]) %}
+        {% set authUsers = authUsers|merge([{id: authorizedUser.id, name: authorizedUser.name}]) %}
+    {% endfor %}
+
+    {# form sorting to match JSON-API-Standards #}
+    {# https://jsonapi.org/format/#fetching-sorting #}
+    {% set sort = templateVars.table.sortingSet.name|default() %}
+    {% if templateVars.table.sortingSet.sorting == "desc" %}
+        {% set sort = '-' ~ sort %}
+    {% endif %}
+    {# set a default value when sort is not set ('' or '-' when sortingSet.sorting is desc) #}
+    {% if sort|length < 2 %}
+        {% set sort = '-submitDate' %}
+    {% endif %}
+
+    {# Available form definitions #}
+    {% set formDefinitions = {} %}
+    {% for definition in templateVars.table.procedure.statementFormDefinition.fieldDefinitions %}
+        {% set formDefinitions = formDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
+    {% endfor %}
+
+    {% set filterSet = {
+        userWarning: templateVars.table.filterSet.userWarning|default
+    } %}
+
+    {% set activeFilters = [] %}
+    {% if templateVars.table.filterSet.activeFilters is defined %}
+        {% for key, activeFilter in templateVars.table.filterSet.activeFilters %}
+            {% set activeFilters = activeFilters|merge([templateVars.filterName[key]|default(key)]) %}
+        {% endfor %}
+    {% endif %}
+    {% set filterSet = filterSet|merge({ activeFilters: activeFilters }) %}
+
+    <dp-table
+        :accessible-procedure-ids="JSON.parse('{{ templateVars.accessibleProcedureIds|default([])|keys|json_encode|e('js', 'utf-8') }}')"
+        :applied-filters="{{ filters|default({})|json_encode }}"
+        :assessment-export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
+        :authorised-users="JSON.parse('{{ authUsers|json_encode|e('js', 'utf-8') }}')"
+        current-user-id="{{ user.ident }}"
+        current-user-name="{{ username }}"
+        :exact-search="Boolean({{ templateVars.exactSearch|default(false) }})"
+        :filter-set="JSON.parse('{{ filterSet|json_encode|e('js', 'utf-8') }}')"
+        :form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
+        id="dp-assessment-table"
+        init-filter-hash="{{ templateVars.filterHash }}"
+        :init-pagination="{
+            count: parseInt('{{ templateVars.pager.maxPerPage|default(25) }}'),
+            current_page: parseInt('{{ templateVars.pager.currentPage|default(1) }}'),
+            total_pages: parseInt('{{ templateVars.pager.NbPages|default(1) }}'),
+            limits: JSON.parse('{{ templateVars.pager.limits|default([])|json_encode }}'),
+            total: parseInt('{{ templateVars.totalResults|default(0) }}')
+        }"
+        init-sort="{{ sort }}"
+        procedure-id="{{ procedure }}"
+        :procedure-statement-priority-area="Boolean('{{ procedureStatementPriorityArea|default(false) }}')"
+        :public-participation-publication-enabled="Boolean('{{ templateVars.table.procedure.publicParticipationPublicationEnabled }}')"
+        :search-fields="{{ templateVars.table.searchFields|default([])|json_encode }}"
+        search-term="{{ templateVars.table.search|default }}"
+        :sorting-options="JSON.parse('{{ templateVars.sortingDirections|default()|json_encode|e('js', 'utf-8') }}')"
+        :statement-form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
+        view-mode="{{ templateVars.viewMode }}">
+    </dp-table>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-assessmentTableView.js']) }}
+{% endblock javascripts %}

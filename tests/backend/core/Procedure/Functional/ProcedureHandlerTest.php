@@ -15,7 +15,7 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
-use demosplan\DemosPlanMapBundle\Logic\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
 use Exception;
 use Tests\Base\FunctionalTestCase;

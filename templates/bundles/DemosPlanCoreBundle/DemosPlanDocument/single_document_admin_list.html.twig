@@ -1,0 +1,77 @@
+{% extends '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig' %}
+
+{% block elements_documentlist %}
+
+    <hr class="u-mv border--top width-100p">
+
+    <form class="cf" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
+
+        <input type="hidden" name="r_action" value="singledocumentdelete">
+        <input type="hidden" value="{{ element.ident }}" name="r_elementIdent">
+        <input type="hidden" value="{{ category }}" name="r_category">
+        <input type="hidden" name="r_sorting" value="">
+
+        <fieldset class="u-pb-0">
+
+            <legend class="u-mb-0_5">{{ "plandocuments.uploaded"|trans }}</legend>
+
+            <a
+                class="btn btn--primary float--right"
+                data-cy="uploadNewPlanDocument"
+                href="{{ path('DemosPlan_singledocument_administration_new', {'procedure':procedure, 'category':category, 'elementId':element.ident }) }}">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                {{ "plandocument.upload.new"|trans }}
+            </a>
+
+            {# list documents #}
+            {% if documents|length > 0 %}
+
+            <button
+                class="btn-icns u-mh-0"
+                name="deleteDocument"
+                @click.prevent="deleteElements"
+            >
+                <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+            </button>
+
+            <dp-data-table
+                class="u-mt-0_25"
+                :header-fields="headerFields"
+                :items="tableElements"
+                is-draggable
+                is-selectable
+                @changed-order="saveManualSort"
+                @items-selected="setSelection"
+                track-by="id">
+                <template #file="rowData">
+                    <span class="overflow-word-break" v-text="rowData.file" />
+                </template>
+                <template #actions="rowData">
+                    <a
+                        :href="Routing.generate('DemosPlan_singledocument_administration_edit', { documentID: rowData.id, procedure: rowData.procedure })"
+                        class="btn-icns u-mh-0_25"
+                        title="{{ 'edit.entity'|trans({ entity: 'file'|trans }) }}"
+                    >
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </a>
+                    <a
+                        v-if="rowData.hasDocument"
+                        :href="Routing.generate('core_file_procedure', { procedureId: rowData.procedure, hash: rowData.hash })"
+                        class="btn-icns u-mh-0_25"
+                        target="_blank"
+                        rel="noopener"
+                        title="{{ 'download'|trans }}">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                    </a>
+                </template>
+            </dp-data-table>
+
+            {% else %}
+                <p>{{ "files.empty"|trans }}</p>
+            {% endif %}
+
+        </fieldset>
+
+    </form>
+
+{% endblock %}

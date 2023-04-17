@@ -105,8 +105,7 @@
 </template>
 
 <script>
-import { debounce, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-utils'
-import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {

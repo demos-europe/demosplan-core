@@ -47,6 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
@@ -57,18 +58,17 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
-use demosplan\DemosPlanDocumentBundle\Repository\ElementsRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository;
-use demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanProcedureBundle\Repository\BoilerplateRepository;
@@ -498,7 +498,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $changeUserExternal = $procedure->getSettings()->getDesignatedPublicPhaseChangeUser();
             $changeUserInternalId = $this->getUserIdOrNull($changeUserInternal);
             $changeUserExternalId = $this->getUserIdOrNull($changeUserExternal);
-            $equalUser = null !== $changeUserExternalId
+            $equalNonNullUser = null !== $changeUserExternalId
                 && null !== $changeUserInternalId
                 && $changeUserInternalId === $changeUserExternalId;
 
@@ -508,10 +508,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedureAfterExternalChange = $this->cloneProcedure($procedure);
             $internalPhaseSwitched = $this->switchToDesignatedPhase($procedure);
             $procedureAfterExternalAndInternalChange = $this->cloneProcedure($procedure);
+            $fallbackReportUserName = $this->translator->trans('user.deleted');
 
             // create either a single report entry if the same user did both changes or two separate
             // changes for separate users
-            if ($equalUser) {
+            if ($equalNonNullUser) {
                 if ($internalPhaseSwitched || $externalPhaseSwitched) {
                     // at this point $changeUserExternal is equal to $changeUserInternal and never null
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
@@ -529,7 +530,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $originalProcedure,
                         $procedureAfterExternalChange,
-                        $changeUserExternal,
+                        $changeUserExternal ?? $fallbackReportUserName,
                         true
                     );
                 }
@@ -541,7 +542,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $entitiesToPersist[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $procedureAfterExternalChange,
                         $procedureAfterExternalAndInternalChange,
-                        $changeUserInternal,
+                        $changeUserInternal ?? $fallbackReportUserName,
                         true
                     );
                 }
@@ -2879,10 +2880,16 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     private function copyProcedureRelatedFilesFromBlueprint(string $blueprintId, Procedure $newProcedure): void
     {
+        /** @var Procedure $blueprint */
         $blueprint = $this->procedureRepository->findOneBy(['id' => $blueprintId]);
         $newFiles = [];
 
         foreach ($blueprint->getFiles() as $procedureFile) {
+            if ($procedureFile->getDeleted()) {
+                // skip deleted files; only relevant if the maintenance service did not (yet)
+                // automatically removed them fully
+                continue;
+            }
             $newFile = $this->fileService->createCopyOfFile($procedureFile->getFileString(), $newProcedure->getId());
             if (null !== $newFile) {
                 $newFiles[] = $newFile;
