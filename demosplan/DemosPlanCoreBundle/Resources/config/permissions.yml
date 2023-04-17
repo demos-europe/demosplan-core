@@ -2460,6 +2460,11 @@ field_procedure_single_document_title:
     label: 'Titel für hochgeladenes Dokument'
     loginRequired: true
     parent: field_procedure
+field_required_procedure_end_date:
+    descriptiom: this permission makes the end date required when creating procedure
+    label: 'require procedure end date'
+    expose: true
+    loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true
