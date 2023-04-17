@@ -32,8 +32,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('map.relation.set'),
-              classes: 'u-z-super',
-              container: this.$parent.$el
+              classes: 'u-z-super'
             }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
@@ -47,8 +46,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'u-z-super',
-              container: this.$parent.$el
+              classes: 'u-z-super'
             }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
@@ -62,8 +60,7 @@
             render-control
             v-tooltip="{
               content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'u-z-super',
-              container: this.$parent.$el
+              classes: 'u-z-super'
             }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />

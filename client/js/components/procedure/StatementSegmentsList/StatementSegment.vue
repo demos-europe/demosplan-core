@@ -9,13 +9,14 @@
 
 <template>
   <div
+    ref="statementSegment"
     class="border-radius segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
     :id="'segment_' + segment.id">
     <div class="flex flex-column flex-content-start flex-basis-20 u-pt-0_5 u-pl-0_5">
-      <v-popover :container="$el">
+      <v-popover :container="$refs.statementSegment">
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
@@ -201,7 +202,7 @@
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
           v-tooltip="{
-            container: this.$el,
+            container: this.$refs.statementSegment,
             content: Translator.trans('editor.fullscreen')
           }"
           @click="isFullscreen = !isFullscreen">
@@ -216,7 +217,7 @@
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           v-tooltip="{
-            container: this.$el,
+            container: this.$refs.statementSegment,
             content: Translator.trans('edit')
           }"
           @click="startEditing">
@@ -231,7 +232,7 @@
           type="button"
           :aria-label="Translator.trans('history')"
           v-tooltip="{
-            container: this.$el,
+            container: this.$refs.statementSegment,
             content: Translator.trans('history')
           }"
           @click.prevent="showSegmentVersionHistory"
@@ -246,7 +247,7 @@
           type="button"
           :aria-label="Translator.trans('comments')"
           v-tooltip="{
-            container: this.$el,
+            container: this.$refs.statementSegment,
             content: Translator.trans('comments')
           }"
           data-cy="segmentComments"
@@ -267,7 +268,7 @@
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
           v-tooltip="{
-            container: this.$el,
+            container: this.$refs.statementSegment,
             content: Translator.trans('public.participation.relation')
           }"
           data-cy="segmentMap"
