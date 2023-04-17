@@ -157,7 +157,7 @@
     "jsdom": "^21.1.1",
     "mini-css-extract-plugin": "^2.7.5",
     "node-notifier": "^10.0.1",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.22",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^7.1.0",
     "postcss-prefix-selector": "^1.16.0",
