@@ -157,7 +157,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
     /**
      * @param string $firewallName The provider (i.e. firewall) key
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $firewallName): Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         // verification pages need to be loaded before logging user in
         if (null !== $this->verificationRoute) {
