@@ -146,7 +146,7 @@ services:
     demosplan\DemosPlanStatementBundle\Repository\MunicipalityRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality'
 
-    demosplan\DemosPlanReportBundle\Repository\ReportRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ReportRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry'
 
     demosplan\DemosPlanUserBundle\Repository\AddressBookEntryRepository:
