@@ -797,7 +797,7 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * Adds a report via means the DemosPlanReportBundle.
+     * Adds a report.
      *
      * @throws ORMException
      * @throws OptimisticLockException

@@ -155,7 +155,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Add a report about a sent invitation by means of the DemosPlanReportBundle.
+     * Add a report about a sent invitation.
      */
     public function addReportInvite(array $recipientsWithEmail, string $procedureId, string $phase, string $mailSubject): void
     {
@@ -200,7 +200,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Create a Report by means of the DemosPlanReportBundle.
+     * Create a Report.
      *
      * @throws Exception
      */
