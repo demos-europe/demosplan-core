@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanReportBundle\Repository\ReportRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
