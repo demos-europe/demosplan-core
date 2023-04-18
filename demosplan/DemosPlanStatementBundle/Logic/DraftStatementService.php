@@ -36,6 +36,8 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchFilterArrayTransformer;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -45,8 +47,6 @@ use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanStatementBundle\Repository\DraftStatementVersionRepository;
 use demosplan\DemosPlanStatementBundle\Repository\StatementAttributeRepository;
@@ -111,7 +111,7 @@ class DraftStatementService extends CoreService
      */
     protected $fileService;
     /**
-     * @var \demosplan\DemosPlanReportBundle\Logic\ReportService
+     * @var \demosplan\DemosPlanCoreBundle\Logic\Report\ReportService
      */
     private $reportService;
     /**

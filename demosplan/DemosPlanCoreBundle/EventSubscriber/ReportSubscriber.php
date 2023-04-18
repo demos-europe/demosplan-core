@@ -12,8 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
-use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Exception;
 
 class ReportSubscriber extends BaseEventSubscriber

@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanStatementBundle\Exception\CopyException;
 use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
 use demosplan\DemosPlanStatementBundle\Logic\StatementService;
@@ -35,10 +35,8 @@ use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
-
-use function in_array;
-
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use function in_array;
 
 class StatementSynchronizer
 {

@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanReportBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;

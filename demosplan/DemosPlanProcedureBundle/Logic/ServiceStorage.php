@@ -28,11 +28,11 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanProcedureBundle\Exception\PreNewProcedureCreatedEventConcernException;
 use demosplan\DemosPlanProcedureBundle\Repository\NotificationReceiverRepository;
-use demosplan\DemosPlanReportBundle\Logic\ProcedureReportEntryFactory;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
 use demosplan\DemosPlanUserBundle\Logic\OrgaService;
@@ -42,7 +42,6 @@ use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use function is_string;
 
 /**

@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanStatementBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanStatementBundle\Repository\StatementVoteRepository;
 use Doctrine\ORM\EntityNotFoundException;
 

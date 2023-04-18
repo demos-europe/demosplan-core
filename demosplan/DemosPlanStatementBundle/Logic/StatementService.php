@@ -71,6 +71,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\SearchIndexTaskService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
@@ -93,8 +95,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanReportBundle\Logic\ReportService;
-use demosplan\DemosPlanReportBundle\Logic\StatementReportEntryFactory;
 use demosplan\DemosPlanStatementBundle\Controller\DemosPlanStatementAPIController;
 use demosplan\DemosPlanStatementBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanStatementBundle\Exception\ClusterStatementCopyNotImplementedException;
@@ -144,7 +144,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 use UnexpectedValueException;
-
 use function array_map;
 
 class StatementService extends CoreService implements StatementServiceInterface
