@@ -98,10 +98,10 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
 
-    demosplan\DemosPlanMapBundle\Repository\MapRepository:
+    demosplan\DemosPlanCoreBundle\Repository\MapRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer'
 
-    demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository:
+    demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
 
     demosplan\DemosPlanStatementBundle\Repository\GdprConsentRepository:
@@ -236,16 +236,16 @@ services:
     demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument'
 
-    demosplan\DemosPlanDocumentBundle\Repository\ParagraphVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
 
-    demosplan\DemosPlanDocumentBundle\Repository\SingleDocumentVersionRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
 
     demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository:
@@ -254,6 +254,8 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
 
-    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\GisLayerCategoryRepository'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
 
-    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanMapBundle\Repository\MapRepository'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'

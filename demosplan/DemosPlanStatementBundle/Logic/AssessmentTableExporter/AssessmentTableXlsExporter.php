@@ -13,13 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanStatementBundle\Logic\AssessmentTableExporter;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanAssessmentTableBundle\Logic\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
-use demosplan\DemosPlanDocumentBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanStatementBundle\Exception\HandlerException;
 use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
@@ -414,7 +414,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 $isUsingDotNotation = str_contains($attributeKey, '.');
                 $isSortable = false;
                 if (!$isUsingDotNotation) {
-                    if(!array_key_exists($attributeKey, $statement)) {
+                    if (!array_key_exists($attributeKey, $statement)) {
                         continue;
                     }
                     $isNotEmptyArray = is_array($statement[$attributeKey]) && 0 < count($statement[$attributeKey]);

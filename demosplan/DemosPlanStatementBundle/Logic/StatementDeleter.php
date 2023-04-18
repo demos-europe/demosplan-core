@@ -96,6 +96,7 @@ class StatementDeleter extends CoreService
      * @throws UserNotFoundException
      * @throws ORMException
      * @throws OptimisticLockException|Exception
+     * @throws \Exception
      */
     public function deleteStatementObject(
         Statement $statement,
@@ -107,7 +108,6 @@ class StatementDeleter extends CoreService
         try {
             $success = false;
             $statementId = $statement->getId();
-            $relatedOriginalStatementId = $statement->getOriginalId();
 
             // if the corresponding permission is disabled, the Statement can be deleted anyway
             $ignoreAssignment =

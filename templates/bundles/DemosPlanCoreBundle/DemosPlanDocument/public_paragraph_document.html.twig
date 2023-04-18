@@ -1,0 +1,290 @@
+{%  if app.user.loggedIn == true and hasPermission('area_combined_participation_area') %}
+    {% set extendTwig = '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% else %}
+    {% set extendTwig = '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% endif %}
+{% extends extendTwig %}
+{% import "@DemosPlanCore/macros.html.twig" as macros %}
+
+{# add a jump marker which directly points to the statement modal form opening button #}
+{% block a11y_jump_markers %}
+    {% if hasPermission('feature_new_statement') %}
+        {{ parent() }}
+        <li class="{{ 'list-style-none u-nojs-show--inline-block'|prefixClass }}">
+            <a href="#statementModalTitle">{{ 'jumpTo.statement'|trans }}</a>
+        </li>
+        <li class="{{ 'list-style-none u-nojs-hide--inline-block'|prefixClass }}">
+            <a href="#" data-jump-to-statement="{# This attribute is used as a hook to append an EventListener in PublicParagraphDocument.js #}">{{ 'jumpTo.statement'|trans }}</a>
+        </li>
+
+        {% if templateVars.list.documentlist|length > 0 %}
+            <li class="{{ 'list-style-none'|prefixClass }}">
+                <a href="#elementTitle">{{ 'jumpTo.elementContent'|trans }}</a>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endblock a11y_jump_markers %}
+
+{% block component_part %}
+    {#  pageheader - display procedure title + nav link #}
+    {% block page_header %}
+        {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with
+        {
+            link: path('DemosPlan_procedure_public_detail', {'procedure': procedure}) ~ '#_procedureDetailsDocumentlist',
+            link_caption: 'plandocuments.all'|trans,
+            width_css: {
+                col1: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-toolbar',
+                col2: app.user.loggedIn == true ? 'u-1-of-1' : 'width-map-canvas'
+            },
+            cssClasses: '',
+            content_heading: 'plandocuments'|trans ~ ': '  ~ getProcedureName(proceduresettings),
+            heading_style: heading_style|default
+        }
+        %}
+    {% endblock page_header %}
+
+    {# content #}
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ app.user.id|default }}">
+        <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
+
+            {% if templateVars.list.documentlistToc|default([])|length > 0 %}
+
+                <div class="{{ 'layout__item width-map-toolbar u-p-0_5 u-pr-0_5-lap-up position--relative'|prefixClass }}">
+
+                    {% block actionbox %}
+
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/actionbox.html.twig' with {
+                            css_classes: ' u-mb-0-palm u-mb-lap-up',
+                            context: 'documents',
+                            jump_marker: 'documents'
+                        } %}
+
+                    {% endblock actionbox %}
+
+                    <h3 id="tocHeading" class="show-lap-up">Inhaltsverzeichnis</h3>
+
+                    <nav
+                        class="{{ 'o-sticky show-lap-up u-pr-0_25 u-pb'|prefixClass }}"
+                        data-sticky="lap-up"
+                        data-sticky-context="scParagraph"
+                        aria-labelledby="tocHeading"
+                        role="navigation"
+                    >
+                        {# this toc is called recursive to render menu tree #}
+                        {% include '@DemosPlanCore/DemosPlanDocument/includes/toc.html.twig' with {'tree': templateVars.list.documentlistToc, 'level': 0} %}
+                    </nav>
+
+                </div><!--
+
+             --><section class="{{ 'layout__item width-map-canvas u-p-0_5'|prefixClass }}">
+
+                    {# title of document #}
+                    <h2 class="{{ 'layout__item font-size-h2 u-pv-0_25 u-pl-0 border--bottom cf'|prefixClass }}" id="elementTitle">
+
+                        <i class="{{ 'fa fa-file-text u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ templateVars.element.title }}
+
+                        <div class="{{ 'display--inline-block float--right'|prefixClass }}">
+                            {% apply spaceless %}
+                                {% if hasPermission('feature_documents_new_statement') and hasPermission('feature_statement_to_entire_document') %}
+                                    <button
+                                        @click.prevent="updateStatementAndOpenModal({
+                                                r_document_id: '',
+                                                r_document_title: '',
+                                                r_element_id: '{{ templateVars.elementId|default }}',
+                                                r_element_title: '{{ templateVars.element.title|replace({"\n":'',"\r":'',"\t":' '})|default|e('js') }}',
+                                                r_paragraph_id: '',
+                                                r_paragraph_title: ''
+                                            }, { draftStatementId: '{{ templateVars.draftStatementId|default }}' })"
+                                        type="button"
+                                        class="{{ 'btn btn--primary u-ml-0_5 u-1-of-1-palm'|prefixClass }}"
+                                        aria-label="{{ templateVars.element.title }} {{ "statement.form.add.relation"|trans }}"
+                                    >
+                                        <i class="{{ 'fa fa-comment u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                                        {{ "statement.form.add.relation"|trans }}
+                                    </button>
+                                {% endif %}
+
+                                {% if templateVars.element.file|default != '' %}
+                                    <a
+                                        class="{{ 'btn btn--secondary btn--outline u-ml-0_5'|prefixClass }}"
+                                        target="_blank"
+                                        rel="noopener"
+                                        href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': templateVars.element.file|getFile('hash') }) }}">
+                                        {{ 'download'|trans }}
+                                    </a>
+                                {% endif %}
+                            {% endapply %}
+                        </div>
+
+                        {% if not hasPermission('feature_documents_new_statement') and hasPermission('feature_statement_to_entire_document') %}
+                            {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_all'} %}
+                        {% endif %}
+                    </h2>
+
+                    {# top pager #}
+                    {% if templateVars.pager is defined %}
+                        {# To not have to change the signature of the pager macro, omitPrefix is passed inside templateVars #}
+                        {% set templateVars = templateVars|merge({omitPrefix: false}) %}
+
+                        <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_public_plandocument_paragraph', {'procedure': procedure, 'elementId': templateVars.elementId}) }}" method="get">
+                            {{ macros.pager(templateVars|default, true, 'Kapiteln' ) }}
+                        </form>
+                    {% endif %}
+
+                    {# loop paragraphs #}
+                    {% for document in templateVars.list.documentlist|default([]) %}
+                        <article class="{{ 'u-mb overflow-word-break'|prefixClass }}">
+
+                            <header class="elements__grid">
+                                {# Paragraph title #}
+                                <h3
+                                    class="elements__grid-grow u-mr-0_25"
+                                    id="{{ document.id }}">
+                                    {{ document.title|wysiwyg }}
+                                </h3>
+
+                                {# Check if user may write statement, display info for FA if not #}
+                                {% if hasPermission('feature_documents_new_statement') and (document.visible == 1) %}
+                                    <button
+                                        @click.prevent="updateStatementAndOpenModal({
+                                                r_document_id: '',
+                                                r_document_title: '',
+                                                r_element_id: '{{ document.elementId|default }}',
+                                                r_element_title: '{{ templateVars.element.title|replace({"\n":'',"\r":'',"\t":' '})|default|e('js') }}',
+                                                r_paragraph_id: '{{ document.ident|default }}',
+                                                r_paragraph_title: '{{ document.title|replace({"\n":'',"\r":'',"\t":' '})|default }}'
+                                            }, { draftStatementId: '{{ templateVars.draftStatementId|default }}' })"
+                                        class="{{ 'elements__button btn btn--primary btn--outline u-1-of-1-lap-down '|prefixClass }}"
+                                        aria-label="{{ document.title }}: {{ "statement.form.add.relation"|trans }}"type="button"
+                                        type="button"
+                                    >
+                                        <i class="{{ 'fa fa-comment u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
+                                        {{ "statement.form.add.relation"|trans }}
+                                    </button>
+                                {% endif %}
+                            </header>
+
+                            {% if document.visible == 1 and not hasPermission('feature_documents_new_statement') %}
+                                {% include '@DemosPlanCore/DemosPlanDocument/includes/permissions.html.twig' with {context: 'paragraph_single'} %}
+                            {% endif %}
+
+                            {# Display hint about locked paragraph.
+                               document.visible has 3 states:
+                                    0 -> blocked - Gesperrt - Do not show this paragraph at all
+                                    1 -> released - Freigegeben - The user may both read the paragraph and add statements.
+                                    2 -> locked - Von der Stellungnahme ausgeschlossen - user may read the paragraph but is not entitled to make statements #}
+                            {% if hasPermission('field_paragraph_lock_statement') and document.visible != 1 %}
+                                <p class="{{ 'flash flash-info'|prefixClass }}">
+                                    {{ "paragraph.locked.explanation" |trans }} {{ document.lockReason }}
+                                </p>
+                            {% endif %}
+
+                            {# Paragraph content #}
+                            <div class="{{ 'c-styled-html u-1-of-1 overflow-x-auto overflow-word-break'|prefixClass }}" data-table-wrapper="overflow-x-auto">
+                                {{ document.text|wysiwyg(['img', 'ins', 'del']) }}
+                            </div>
+
+                        </article>
+                    {% endfor %}
+
+                    {# bottom pager #}
+                    {% if templateVars.pager is defined %}
+                        <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_public_plandocument_paragraph', {'procedure':procedure, 'elementId': templateVars.elementId}) }}" method="get">
+                            {{ macros.pager(templateVars|default, true, 'Kapiteln', false ) }}
+                        </form>
+                    {% endif %}
+
+                </section>
+
+            {% else %}
+
+                <div class="{{ 'layout u-mh u-pt'|prefixClass }}">
+                    <p>Es sind noch keine Dokumente hochgeladen worden.</p>
+                </div>
+
+            {% endif %}
+
+            {% set counties = [{value: '', label: '---'}] %}
+            {% for county in templateVars.counties|default([]) %}
+                {%  set counties = counties|merge([{value: county.id, selected: county.id == templateVars.draftStatement.statementAttributes.county|default(), label: county.name }]) %}
+            {% endfor %}
+
+            {%  set statementFields = [] %}
+            {% for field in templateVars.procedure.statementFormDefinition.fieldDefinitions|default([]) %}
+                {% if field.enabled|default(false) %}
+                    {% set statementFields = statementFields|merge([{name: field.name|default, required: field.required|default(false)}]) %}
+                {% endif  %}
+            {%  endfor %}
+            {# grouped formFields for statement form #}
+            {%  set statementFields = [] %}
+            {%  set personalDataFields = [] %}
+            {%  set feedbackFields = [] %}
+            {% for field in templateVars.procedure.statementFormDefinition.fieldDefinitions|default([]) %}
+                {% if field.enabled|default(false) %}
+                    {% set formField = {name: field.name|default, required: field.required|default(false)} %}
+                    {% if field.name == 'countyReference' or field.name == 'mapAndCountyReference' %}
+                        {% set statementFields = statementFields|merge([formField]) %}
+                    {% elseif field.name == 'getEvaluationMailViaEmail' or field.name == 'getEvaluationMailViaSnailMailOrEmail' %}
+                        {% set feedbackFields = feedbackFields|merge([formField]) %}
+                    {% else %}
+                        {% set personalDataFields = personalDataFields|merge([formField]) %}
+                    {% endif %}
+                {% endif %}
+            {%  endfor %}
+
+            {% if hasPermission('feature_new_statement') %}
+                <statement-modal
+                    current-page="publicParagraphDocument"
+                    extra-personal-hint="{% block extra_personal_hint %}{% endblock %}"
+                    ext-id="{{ templateVars.number|default }}"
+                    :form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
+                    ref="statementModal"
+                    :logged-in="Boolean({{ currentUser.loggedIn }})"
+                    :is-map-enabled="Boolean({{ proceduresettings.isMapEnabled }})"
+                    :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
+                    :personal-data-form-fields="JSON.parse('{{ personalDataFields|json_encode|e('js', 'utf-8') }}')"
+                    :feedback-form-fields="JSON.parse('{{ feedbackFields|json_encode|e('js', 'utf-8') }}')"
+                    statement-form-hint-personal-data="{{ templateVars.procedure.procedureUiDefinition.statementFormHintPersonalData|default }}"
+                    statement-form-hint-recheck="{{ templateVars.procedure.procedureUiDefinition.statementFormHintRecheck|default }}"
+                    statement-form-hint-statement="{{ templateVars.procedure.procedureUiDefinition.statementFormHintStatement|default }}"
+                    procedure-id="{{ procedure }}"
+                    project-name="{{ projectName }}"
+                    :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
+                    :init-has-planning-documents="Boolean({{ templateVars.planningDocuments|default(true) }})"
+                    :planning-documents-has-negative-statement="Boolean({{ templateVars.planningDocumentsHasNegativeStatement|default(false) }})"
+                    :counties="JSON.parse('{{ counties|json_encode|e('js', 'utf-8') }}')"
+                    orga-id="{{ branding.orgaId|default }}"
+                    :form-options="JSON.parse('{{ templateVars.formOptions|default({})|json_encode|e('js', 'utf-8') }}')"
+                    :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')">
+                </statement-modal>
+            {% endif %}
+
+        </div>
+    </dp-public-detail-no-map>
+
+
+    {# Nojs statement form #}
+    {% if hasPermission('feature_new_statement') %}
+        <div class="c-statement u-nojs-show--block">
+            {% set formAction = path('DemosPlan_procedure_public_detail', {'procedure' : procedure}) %}
+            {% set hiddenAction = 'statementpublicnew' %}
+            {% set statementTarget = 'procedureDetail' %}
+            {% set publicDetailPath = formAction %}
+            {% if templateVars.draftStatementId|default() %}
+                {% set formAction = path('DemosPlan_statement_edit', {'procedure' : procedure, 'statementID': templateVars.draftStatementId|default()}) %}
+                {% set publicDetailPath = path('DemosPlan_procedure_public_detail', {'procedure': procedure, 'draftStatementId': 'placeholderStatementId'}) %}
+                {% set hiddenAction = 'statementedit' %}
+                {% set displayEditSubmit = true %}
+            {% endif %}
+            {% include '@DemosPlanProcedure/DemosPlanProcedure/public_detail_form.html.twig' %}
+        </div>
+    {% endif %}
+
+{% endblock component_part %}
+
+
+{#  bundles generated via webpack/gulp build are included here  #}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-publicParagraphDocument.js') }}
+{% endblock javascripts %}
