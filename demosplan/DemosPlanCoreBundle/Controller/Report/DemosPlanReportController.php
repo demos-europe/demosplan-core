@@ -48,7 +48,7 @@ class DemosPlanReportController extends BaseController
     public function viewReportAction(Request $request, $procedureId)
     {
         return $this->renderTemplate(
-            '@DemosPlanReport/DemosPlanReport/list.html.twig',
+            '@DemosPlanCore/DemosPlanReport/list.html.twig',
             [
                 'title'     => 'procedure.report',
                 'procedure' => $procedureId,
