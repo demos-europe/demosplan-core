@@ -51,7 +51,7 @@
 </documentation>
 
 <template>
-  <span>
+  <span ref="rootElement">
     <button
       type="button"
       @click="toggle"
@@ -272,7 +272,7 @@ export default {
      * This logic should be implemented within demosplan-ui tooltip directive,
      * once it has been refactored to use an upto date version of v-tooltip.
      */
-    if (this.getZIndex(this.$el) > 9999) {
+    if (this.getZIndex(this.$refs.rootElement) > 9999) {
       this.zIndexSuper = true
     }
   }
