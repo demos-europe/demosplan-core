@@ -37,6 +37,7 @@ class DemosPlanReportController extends BaseController
      *     name="dm_plan_report_table_view",
      *     path="/report/view/{procedureId}"
      * )
+     *
      * @DplanPermissions("area_admin_protocol")
      *
      * @param string $procedureId
@@ -65,6 +66,7 @@ class DemosPlanReportController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true},
      * )
+     *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
      * @param string $procedureId
