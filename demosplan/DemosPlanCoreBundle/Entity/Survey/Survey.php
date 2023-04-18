@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
  *
  * @ORM\Table(name="survey")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanSurveyBundle\Repository\SurveyRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyRepository")
  */
 class Survey extends CoreEntity implements UuidEntityInterface
 {

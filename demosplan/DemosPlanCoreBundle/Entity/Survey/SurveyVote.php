@@ -22,7 +22,7 @@ use UnexpectedValueException;
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/survey/ Wiki: Survey
  *
  * @ORM\Table(name="survey_vote")
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository")
  */
 class SurveyVote extends CoreEntity implements UuidEntityInterface
 {
