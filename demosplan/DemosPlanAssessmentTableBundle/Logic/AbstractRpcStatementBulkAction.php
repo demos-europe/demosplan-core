@@ -100,7 +100,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      * @var TransactionService
      */
     private $transactionService;
-    protected StatementDeleter $statementDeleter;
+    protected readonly StatementDeleter $statementDeleter;
 
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,

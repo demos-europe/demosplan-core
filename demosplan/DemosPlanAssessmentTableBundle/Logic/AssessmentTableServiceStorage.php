@@ -116,7 +116,7 @@ class AssessmentTableServiceStorage
      * @var CurrentUserService
      */
     private $currentUser;
-    private StatementDeleter $statementDeleter;
+    private readonly StatementDeleter $statementDeleter;
 
     public function __construct(
         CurrentProcedureService $currentProcedureService,
