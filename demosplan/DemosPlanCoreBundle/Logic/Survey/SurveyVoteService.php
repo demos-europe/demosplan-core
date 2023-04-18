@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use UnexpectedValueException;

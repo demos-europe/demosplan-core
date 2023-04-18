@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Repository;
-
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
+namespace demosplan\DemosPlanCoreBundle\Repository;
 
 class SurveyRepository extends CoreRepository
 {
