@@ -14,8 +14,8 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Validator\SurveyValidator;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use Exception;
 
 class SurveyCreateHandler
