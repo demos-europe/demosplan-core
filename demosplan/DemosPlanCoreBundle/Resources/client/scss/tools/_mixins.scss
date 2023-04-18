@@ -53,7 +53,7 @@
         }
 
         @if $color {
-            color: $dp-color-brand-highlight;
+            color: $dp-color-highlight;
         }
 
         // While outline + color may be enough of a focus preset for most block level

@@ -34,7 +34,7 @@
     }
 
     legend:not(.is-label) {
-        color: $dp-color-brand-main;
+        color: $dp-color-main;
         cursor: pointer;
 
         i.caret {
@@ -110,7 +110,7 @@
                 position: absolute;
                 top: 22px;
                 left: 22px;
-                color: $dp-color-brand-main;
+                color: $dp-color-main;
             }
 
             .o-wizard__main {
@@ -209,11 +209,11 @@
 
                     &.active,
                     &.active i {
-                        color: $dp-color-brand-main;
+                        color: $dp-color-main;
                     }
 
                     &.active i {
-                        background-color: $dp-color-brand-main;
+                        background-color: $dp-color-main;
                     }
 
                     &.finished i {

@@ -20,7 +20,7 @@
 //  @TODO trim down to a reasonable number of shades
 
 //  variables
-$dp-multiselect-color-highlight:                    $dp-color-brand-highlight !default;
+$dp-multiselect-color-highlight:                    $dp-color-highlight !default;
 $dp-multiselect-color-dark:                         $dp-color-text-default !default;
 $dp-multiselect-color-dark-disabled:                $dp-color-text-muted !default;
 
@@ -35,7 +35,7 @@ $dp-multiselect-color-option-selected:              #f3f3f3 !default;
 $dp-multiselect-color-option-selected-content:      #c0c0c0 !default;
 $dp-multiselect-color-disabled:                     #a6a6a6 !default;
 $dp-multiselect-color-disabled-bg:                  #ededed !default;
-$dp-multiselect-color-option-highlight:             $dp-color-brand-highlight !default;
+$dp-multiselect-color-option-highlight:             $dp-color-highlight !default;
 $dp-multiselect-color-option-disabled-highlight:    #dedede !default;
 
 $dp-multiselect-font-size:                          $base-font-size !default;
@@ -256,7 +256,7 @@ fieldset[disabled] .multiselect {
     background-color: $dp-color-neutral-light-3;
 
     line-height: $dp-multiselect-line-height;
-    color: $dp-color-brand-main;
+    color: $dp-color-main;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -287,7 +287,7 @@ fieldset[disabled] .multiselect {
 
 .multiselect__tag-icon:focus,
 .multiselect__tag-icon:hover {
-    background: $dp-color-brand-highlight;
+    background: $dp-color-highlight;
 }
 
 .multiselect__tag-icon:focus::after,

@@ -450,8 +450,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &.is-active {
-                background-color: $dp-color-brand-highlight;
-                border: $dp-color-brand-highlight;
+                background-color: $dp-color-highlight;
+                border: $dp-color-highlight;
             }
         }
 
@@ -471,7 +471,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             margin-top: 4px;
 
             &:hover {
-                color: $dp-color-brand-highlight;
+                color: $dp-color-highlight;
             }
 
             &--position-absolute {
@@ -502,7 +502,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             }
 
             &.is-active {
-                color: $dp-color-brand-highlight;
+                color: $dp-color-highlight;
             }
 
             &:active {
@@ -517,7 +517,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         &__tool-simple {
             &.is-active {
-                color: $dp-color-brand-highlight;
+                color: $dp-color-highlight;
             }
         }
 
@@ -576,7 +576,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 height: 100%;
                 width: 100%;
 
-                background-color: $dp-color-brand-main;
+                background-color: $dp-color-main;
                 cursor: pointer;
                 opacity: .4;
             }
@@ -776,8 +776,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__measure-output {
             padding: 3px 6px;
 
-            background-color: $dp-color-brand-alt;
-            color: $dp-color-brand-alt-contrast;
+            background-color: $dp-color-alt;
+            color: $dp-color-alt-contrast;
 
             white-space: nowrap;
         }

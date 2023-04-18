@@ -24,12 +24,12 @@
             color: $dp-color-text-default; // May be adapted to a11y-datepicker theming, or vice versa.
 
             &:hover {
-                border: $item-border-thickness solid $dp-color-brand-main;
+                border: $item-border-thickness solid $dp-color-main;
                 cursor: pointer;
             }
 
             &.is-selected {
-                background-color: $dp-color-brand-highlight;
+                background-color: $dp-color-highlight;
                 border-radius: $dp-token-rounded-small;
                 font-weight: $bold-font-weight;
                 font-family: $bold-font-family;

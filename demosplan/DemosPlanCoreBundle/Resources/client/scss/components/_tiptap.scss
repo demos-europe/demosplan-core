@@ -54,10 +54,10 @@
     }
 
     a {
-        color: $dp-color-brand-main !important;
+        color: $dp-color-main !important;
 
         &:hover {
-            color: $dp-color-brand-highlight !important;
+            color: $dp-color-highlight !important;
             cursor: pointer;
         }
     }

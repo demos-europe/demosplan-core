@@ -46,9 +46,9 @@
         }
     }
 
-    // Assuming links on $dp-color-brand-alt
+    // Assuming links on $dp-color-alt
     &--on-alt {
-        color: $dp-color-brand-alt-contrast;
+        color: $dp-color-alt-contrast;
         text-decoration: underline;
 
         &:hover {
@@ -72,7 +72,7 @@
             @include keyboard-focus;
 
             pointer-events: none;
-            color: $dp-color-brand-highlight;
+            color: $dp-color-highlight;
             text-decoration: #{$dp-links-textdecoration-hover};
         }
     }

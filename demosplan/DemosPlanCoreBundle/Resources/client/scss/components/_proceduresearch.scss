@@ -17,7 +17,7 @@
     .c-proceduresearch {
         &__heading {
             padding-left: 0; // this erases the padding-left of .layout__item but not the one on .o-page__padded
-            color: $dp-color-brand-highlight !important;
+            color: $dp-color-highlight !important;
 
             @include media-query('palm') {
                 @include inuit-font-size(22px, 1.3);
@@ -44,7 +44,7 @@
         &__reset-btn {
             background-color: transparent;
             border: none;
-            color: $dp-color-brand-main;
+            color: $dp-color-main;
             cursor: pointer;
         }
 
