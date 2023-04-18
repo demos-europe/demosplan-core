@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     @ORM\Index(columns={"_re_identifier_type"}),
  *     @ORM\Index(columns={"_re_identifier"}),
  * })
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanReportBundle\Repository\ReportRepository")
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
  */
 class ReportEntry extends CoreEntity implements UuidEntityInterface
 {
