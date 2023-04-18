@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanReportBundle\ValueObject;
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Report;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
