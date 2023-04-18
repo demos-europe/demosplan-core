@@ -230,10 +230,10 @@ services:
     demosplan\DemosPlanProcedureBundle\Repository\ProcedureUiDefinitionRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition'
 
-    demosplan\DemosPlanSurveyBundle\Repository\SurveyRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SurveyRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\Survey'
 
-    demosplan\DemosPlanSurveyBundle\Repository\SurveyVoteRepository:
+    demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
 
     demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:
