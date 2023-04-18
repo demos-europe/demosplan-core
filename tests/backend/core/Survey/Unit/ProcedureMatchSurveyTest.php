@@ -12,7 +12,7 @@ namespace Tests\Core\Survey\Unit;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSurveyData;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use Exception;
 use InvalidArgumentException;

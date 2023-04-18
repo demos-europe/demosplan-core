@@ -11,7 +11,7 @@
 namespace Tests\Core\Survey\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;

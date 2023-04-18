@@ -8,9 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Exception;
-
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+namespace demosplan\DemosPlanCoreBundle\Exception;
 
 class SurveyInputDataException extends DemosException
 {

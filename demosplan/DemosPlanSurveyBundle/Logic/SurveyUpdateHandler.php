@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanSurveyBundle\Logic;
 use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
+use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureHandler;
-use demosplan\DemosPlanSurveyBundle\Exception\SurveyInputDataException;
 use demosplan\DemosPlanSurveyBundle\Validator\SurveyValidator;
 use Exception;
 
