@@ -37,6 +37,7 @@ class SurveyVoteAPIController extends APIController
 {
     /**
      * @DplanPermissions("area_survey")
+     *
      * @Route(path="/api/1.0/survey/{surveyId}/relationships/votes",
      *        methods={"GET"},
      *        name="dplan_surveyvote_list",
@@ -66,6 +67,7 @@ class SurveyVoteAPIController extends APIController
      *        methods={"PATCH"},
      *        name="dplan_surveyvote_update",
      *        options={"expose": true})
+     *
      * @DplanPermissions("area_survey_management")
      *
      * @throws MessageBagException
@@ -101,6 +103,7 @@ class SurveyVoteAPIController extends APIController
      *     methods="POST",
      *     path="/api/1.0/surveyVote",
      *     options={"expose": true})
+     *
      * @DplanPermissions("feature_surveyvote_may_vote")
      *
      * @throws MessageBagException
