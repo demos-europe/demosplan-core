@@ -78,6 +78,7 @@
           class="u-mv"
           primary
           secondary
+          :secondary-text="Translator.trans('discard.changes')"
           @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
           @secondary-action="resetStatement" />
       </template>

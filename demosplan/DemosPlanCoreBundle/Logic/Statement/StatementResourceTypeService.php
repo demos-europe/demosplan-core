@@ -40,14 +40,18 @@ class StatementResourceTypeService extends ResourceTypeService
      */
     private $statementService;
 
+    private StatementDeleter $statementDeleter;
+
     public function __construct(
         ValidatorInterface $validator,
         CurrentUserInterface $currentUser,
         ResourceTypeService $resourceTypeService,
-        StatementService $statementService
+        StatementService $statementService,
+        StatementDeleter $statementDeleter
     ) {
         $this->currentUser = $currentUser;
         $this->statementService = $statementService;
+        $this->statementDeleter = $statementDeleter;
         $this->resourceTypeService = $resourceTypeService;
         parent::__construct($validator);
     }
@@ -117,6 +121,6 @@ class StatementResourceTypeService extends ResourceTypeService
 
     public function deleteStatement(Statement $statement): bool
     {
-        return $this->statementService->deleteStatementObject($statement);
+        return $this->statementDeleter->deleteStatementObject($statement);
     }
 }

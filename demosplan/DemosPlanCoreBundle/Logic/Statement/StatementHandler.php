@@ -281,6 +281,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     private $globalConfig;
 
+    private StatementDeleter $statementDeleter;
+
     public function __construct(
         ArrayHelper $arrayHelper,
         AssignService $assignService,
@@ -322,7 +324,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         TranslatorInterface $translator,
         UserService $userService,
         StatementCopier $statementCopier,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        StatementDeleter $statementDeleter
     ) {
         parent::__construct($messageBag);
 
@@ -366,6 +369,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $this->userService = $userService;
         $this->validator = $validator;
         $this->globalConfig = $globalConfig;
+        $this->statementDeleter = $statementDeleter;
     }
 
     /**
@@ -3874,7 +3878,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $headStatementId = $headStatement->getExternId();
 
                     // will also check for 'feature_statement_assignment' & 'feature_statement_cluster':
-                    $status = $this->statementService->deleteStatementObject($headStatement);
+                    $status = $this->statementDeleter->deleteStatementObject($headStatement);
 
                     if ($status) {
                         $this->getMessageBag()->add(
@@ -3952,7 +3956,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (0 === $notDetachedStatements->count()) {
             $this->getLogger()->info("All statements of Cluster {$headStatement->getId()} are successfully detached.");
             // will also check for assignment but not for clustered!
-            $successful = $statementService->deleteStatementObject($headStatement, true);
+            $successful = $this->statementDeleter->deleteStatementObject($headStatement, true);
         } else {
             $this->getLogger()->error("Some statements of Cluster {$headStatement->getId()} are not detached.");
             $this->getMessageBag()->add(
@@ -4612,7 +4616,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             return $newClusterStatement;
         } catch (Exception $e) {
             if (isset($newClusterStatement) && $newClusterStatement instanceof Statement) {
-                $this->statementService->deleteStatementObject($newClusterStatement);
+                $this->statementDeleter->deleteStatementObject($newClusterStatement);
             }
             throw $e;
         }

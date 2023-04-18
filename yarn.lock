@@ -1177,10 +1177,10 @@
   dependencies:
     postcss-value-parser "^4.2.0"
 
-"@csstools/postcss-gradients-interpolation-method@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-gradients-interpolation-method/-/postcss-gradients-interpolation-method-3.0.3.tgz#39771e0fc76246a07a5e5e262d133e0cf3920a49"
-  integrity sha512-0i6HQ8V3jcGEEhhGPAQdMemPjXTOct9qDYLIzjsgKHhrHVwhjwBVcUV70658vJJmrJJvVXgZx2qc4S6okKZJpg==
+"@csstools/postcss-gradients-interpolation-method@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@csstools/postcss-gradients-interpolation-method/-/postcss-gradients-interpolation-method-3.0.4.tgz#c03402087c41feee0115f714cc87696e6424ba92"
+  integrity sha512-GgKoY7OlvL65UPigEdlrvMAUCR5kOQCjtue2/36TPrBNoRS6KM2KOqmjIVsxEwYYwK+L28pdnM8r10m03hhZxA==
   dependencies:
     "@csstools/css-color-parser" "^1.1.2"
     "@csstools/css-parser-algorithms" "^2.1.1"
@@ -1274,14 +1274,7 @@
     "@csstools/css-tokenizer" "^2.1.1"
     "@csstools/postcss-progressive-custom-properties" "^2.0.0"
 
-"@csstools/postcss-progressive-custom-properties@^2.0.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@csstools/postcss-progressive-custom-properties/-/postcss-progressive-custom-properties-2.1.0.tgz#df35da0e85a6d5e1d8e4c9a0ba9032e8486e8b9d"
-  integrity sha512-tRX1rinsXajZlc4WiU7s9Y6O9EdSHScT997zDsvDUjQ1oZL2nvnL6Bt0s9KyQZZTdC3lrG2PIdBqdOIWXSEPlQ==
-  dependencies:
-    postcss-value-parser "^4.2.0"
-
-"@csstools/postcss-progressive-custom-properties@^2.1.0":
+"@csstools/postcss-progressive-custom-properties@^2.0.0", "@csstools/postcss-progressive-custom-properties@^2.1.0":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@csstools/postcss-progressive-custom-properties/-/postcss-progressive-custom-properties-2.1.1.tgz#82df9314451db63bf7f4975a4d32f148e85db490"
   integrity sha512-6p8eO5+j+9hn4h2Klr9dbmya0GIb9SRrnPaCxqR1muVlV1waAZq6YkmlApEwXrox9qxggSwGZD5TnLRIY9f7WA==
@@ -1838,13 +1831,13 @@
     "@sentry/utils" "7.47.0"
     tslib "^1.9.3"
 
-"@sentry/integrations@^7.46.0":
-  version "7.47.0"
-  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.47.0.tgz#b952cc910e92e9235f42151f7260471b55b10cdf"
-  integrity sha512-PUSeBYI3fCOswn+K+PLjtl2epr8/ceqebWqVcxHclczSY3EOZE+osznDFgZmeVgrHavsgfE4oFVqJeFvDJwCog==
+"@sentry/integrations@^7.48.0":
+  version "7.48.0"
+  resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.48.0.tgz#1f1c3fd0735b3c40944a42fb45e3e0ca40f77d6d"
+  integrity sha512-yzbJopVu1UHFXRDv236o5hSEUtqeP45T9uSVbAhKnH5meKWunK7MKvhFvQjhcfvlUVibYrewoVztQP2hrpxgfw==
   dependencies:
-    "@sentry/types" "7.47.0"
-    "@sentry/utils" "7.47.0"
+    "@sentry/types" "7.48.0"
+    "@sentry/utils" "7.48.0"
     localforage "^1.8.1"
     tslib "^1.9.3"
 
@@ -1869,12 +1862,25 @@
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.47.0.tgz#fd07dbec11a26ae861532a9abe75bd31663ca09b"
   integrity sha512-GxXocplN0j1+uczovHrfkykl9wvkamDtWxlPUQgyGlbLGZn+UH1Y79D4D58COaFWGEZdSNKr62gZAjfEYu9nQA==
 
+"@sentry/types@7.48.0":
+  version "7.48.0"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.48.0.tgz#57f3c9cf331a5621e82dda04eefcf8c19ee42bc9"
+  integrity sha512-kkAszZwQ5/v4n7Yyw/DPNRWx7h724mVNRGZIJa9ggUMvTgMe7UKCZZ5wfQmYiKVlGbwd9pxXAcP8Oq15EbByFQ==
+
 "@sentry/utils@7.47.0":
   version "7.47.0"
   resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-7.47.0.tgz#e62fdede15e45387b40c9fa135feba48f0960826"
   integrity sha512-A89SaOLp6XeZfByeYo2C8Ecye/YAtk/gENuyOUhQEdMulI6mZdjqtHAp7pTMVgkBc/YNARVuoa+kR/IdRrTPkQ==
   dependencies:
     "@sentry/types" "7.47.0"
+    tslib "^1.9.3"
+
+"@sentry/utils@7.48.0":
+  version "7.48.0"
+  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-7.48.0.tgz#2866975ea8899aba35b083dd0558cbbe29ee8de1"
+  integrity sha512-d977sghkFVMfld0LrEyyY2gYrfayLPdDEpUDT+hg5y79r7zZDCFyHtdB86699E5K89MwDZahW7Erk+a1nk4x5w==
+  dependencies:
+    "@sentry/types" "7.48.0"
     tslib "^1.9.3"
 
 "@sinclair/typebox@^0.24.1":
@@ -6443,10 +6449,10 @@ namespace-emitter@^2.0.1:
   resolved "https://registry.yarnpkg.com/namespace-emitter/-/namespace-emitter-2.0.1.tgz#978d51361c61313b4e6b8cf6f3853d08dfa2b17c"
   integrity sha512-N/sMKHniSDJBjfrkbS/tpkPj4RAbvW3mr8UAzvlMHyun93XEm83IAvhWtJVHo+RHn/oO8Job5YN4b+wRjSVp5g==
 
-nanoid@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
-  integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
+nanoid@^3.3.6:
+  version "3.3.6"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
+  integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
 nanoid@^4.0.0:
   version "4.0.2"
@@ -7239,16 +7245,16 @@ postcss-prefix-selector@^1.16.0:
   resolved "https://registry.yarnpkg.com/postcss-prefix-selector/-/postcss-prefix-selector-1.16.0.tgz#ad5b56f9a73a2c090ca7161049632c9d89bcb404"
   integrity sha512-rdVMIi7Q4B0XbXqNUEI+Z4E+pueiu/CS5E6vRCQommzdQ/sgsS4dK42U7GX8oJR+TJOtT+Qv3GkNo6iijUMp3Q==
 
-postcss-preset-env@^8.2.0:
-  version "8.3.1"
-  resolved "https://registry.yarnpkg.com/postcss-preset-env/-/postcss-preset-env-8.3.1.tgz#f7a5af0604df54da12eb0be9123c4c7fd5e01f81"
-  integrity sha512-k3Y8BXbVLBAufrla3CNmQJhMS1iRuT9LFlysYvzs1rU5E78+ShX2u0EUL6KpMi0pDJO3wZcuVYSR8cgukfoRtg==
+postcss-preset-env@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/postcss-preset-env/-/postcss-preset-env-8.3.2.tgz#9ec368e0f0df9c693d52b69d525d366fe4b1833a"
+  integrity sha512-VSAOsfxTXzO/gX5QljC8x8hN3ABbD9iqqLgqHqohBdNI5FhJptwpl96kpu+kYvvzK7BWwaHYou0IeYrp+NqmcQ==
   dependencies:
     "@csstools/postcss-cascade-layers" "^3.0.1"
     "@csstools/postcss-color-function" "^2.2.1"
     "@csstools/postcss-color-mix-function" "^1.0.1"
     "@csstools/postcss-font-format-keywords" "^2.0.2"
-    "@csstools/postcss-gradients-interpolation-method" "^3.0.3"
+    "@csstools/postcss-gradients-interpolation-method" "^3.0.4"
     "@csstools/postcss-hwb-function" "^2.2.1"
     "@csstools/postcss-ic-unit" "^2.0.2"
     "@csstools/postcss-is-pseudo-class" "^3.2.0"
@@ -7385,12 +7391,12 @@ postcss@^7.0.36:
     picocolors "^0.2.1"
     source-map "^0.6.1"
 
-postcss@^8.4.14, postcss@^8.4.17, postcss@^8.4.19, postcss@^8.4.21, postcss@^8.4.4:
-  version "8.4.21"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.21.tgz#c639b719a57efc3187b13a1d765675485f4134f4"
-  integrity sha512-tP7u/Sn/dVxK2NnruI4H9BG+x+Wxz6oeZ1cJ8P6G/PZY0IKk4k/63TDsQf2kQq3+qoJeLm2kIBUNlZe3zgb4Zg==
+postcss@^8.4.14, postcss@^8.4.17, postcss@^8.4.19, postcss@^8.4.22, postcss@^8.4.4:
+  version "8.4.22"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.22.tgz#c29e6776b60ab3af602d4b513d5bd2ff9aa85dc1"
+  integrity sha512-XseknLAfRHzVWjCEtdviapiBtfLdgyzExD50Rg2ePaucEesyh8Wv4VPdW0nbyDa1ydbrAxV19jvMT4+LFmcNUA==
   dependencies:
-    nanoid "^3.3.4"
+    nanoid "^3.3.6"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
