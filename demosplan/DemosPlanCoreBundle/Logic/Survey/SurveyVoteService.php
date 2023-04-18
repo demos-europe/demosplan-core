@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanSurveyBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Survey;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote;

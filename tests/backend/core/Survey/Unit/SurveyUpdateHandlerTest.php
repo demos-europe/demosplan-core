@@ -12,7 +12,7 @@ namespace Tests\Core\Survey\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Exception\SurveyInputDataException;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyUpdateHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler;
 use Exception;
 
 class SurveyUpdateHandlerTest extends SurveyTestUtils

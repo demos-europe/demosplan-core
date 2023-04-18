@@ -15,7 +15,7 @@ use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanSurveyBundle\Logic\SurveyVoteHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 
