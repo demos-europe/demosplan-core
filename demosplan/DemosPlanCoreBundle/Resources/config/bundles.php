@@ -35,7 +35,6 @@ return [
     demosplan\DemosPlanProcedureBundle\DemosPlanProcedureBundle::class                 => ['all' => true],
     demosplan\DemosPlanReportBundle\DemosPlanReportBundle::class                       => ['all' => true],
     demosplan\DemosPlanStatementBundle\DemosPlanStatementBundle::class                 => ['all' => true],
-    demosplan\DemosPlanSurveyBundle\DemosPlanSurveyBundle::class                       => ['all' => true],
     demosplan\DemosPlanUserBundle\DemosPlanUserBundle::class                           => ['all' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class                       => ['test' => true, 'dev' => true],
     Liip\FunctionalTestBundle\LiipFunctionalTestBundle::class                          => ['test' => true],
