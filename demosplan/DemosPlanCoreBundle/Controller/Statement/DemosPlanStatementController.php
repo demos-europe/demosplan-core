@@ -1054,6 +1054,7 @@ class DemosPlanStatementController extends BaseController
                     $eventDispatcherPost->post($event);
                 } catch (Exception $e) {
                     $this->logger->error('Could not validate request', [$e]);
+
                     return $this->renderJson([], 100, false);
                 }
                 $this->logger->info('Post RequestValidationWeakEvent');
@@ -1898,7 +1899,7 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     * Löschen eines Statements.
+     * Deleting a draftstatement.
      *
      * @param string $_route
      * @param string $procedure
