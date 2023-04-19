@@ -498,8 +498,9 @@ export default {
     },
 
     handleSizeChange (newSize) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
-      this.getItemsByPage(1)
+      this.getItemsByPage(page)
     },
 
     /**
