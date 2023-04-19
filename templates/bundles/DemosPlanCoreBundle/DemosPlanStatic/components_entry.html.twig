@@ -1,4 +1,6 @@
-<table class="c-table u-mv">
+<table
+    class="c-table u-mv"
+    aria-label="{{ 'misc.softwarecomponents'|trans({}, "page-title") }}">
     <thead>
         <tr>
             <th>Komponente</th>
@@ -9,7 +11,7 @@
     {% for component in components %}
         <tr>
             <td>
-                {% if component.website is defined and component.website|length > 0 %}
+                {% if component.website is defined and component.website|length > 0  and component.website != "Unknown" %}
                     <a
                         class="o-link--external"
                         target="_blank"
