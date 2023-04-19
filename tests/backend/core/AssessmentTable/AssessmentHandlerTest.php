@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
-use demosplan\DemosPlanStatementBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 

@@ -18,11 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use Faker\Provider\Uuid;
 
 /**
