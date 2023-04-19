@@ -270,7 +270,10 @@ class AssessmentExportOptions implements JsonSerializable, Jsonable
         return $this->options[$section];
     }
 
-    public function jsonSerialize(): Collection
+    /**
+     * @return mixed
+     */
+    public function jsonSerialize()
     {
         return $this->options;
     }
