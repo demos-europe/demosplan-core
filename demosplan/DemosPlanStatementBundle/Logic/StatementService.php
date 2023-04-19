@@ -86,6 +86,9 @@ use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
+use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
+use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use demosplan\DemosPlanDocumentBundle\Logic\ElementsService;
 use demosplan\DemosPlanDocumentBundle\Logic\ParagraphService;
@@ -858,6 +861,18 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $this->entityFetcher->getEntityCount(
             $this->statementResourceType,
             [$procedureCondition]
+        );
+    }
+
+    public function getMovedStatementData(Procedure $procedure): ?MovedStatementData
+    {
+        if (!$this->permissions->hasPermission('feature_statement_move_to_procedure')) {
+            return null;
+        }
+
+        return new MovedStatementData(
+            $this->getStatementsMovedToThisProcedureCount($procedure),
+            $this->getStatementsMovedFromThisProcedureCount($procedure)
         );
     }
 
@@ -3233,7 +3248,8 @@ class StatementService extends CoreService implements StatementServiceInterface
                         $boolMustNotFilter,
                         null,
                         $rawFields,
-                        $addAllAggregations);
+                        $addAllAggregations
+                    );
                 }
             }
 
@@ -4388,9 +4404,10 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * @param array $filters ['fieldName' =>[mustMatchValues]]
      */
-    public function getStatementsMovedToThisProcedureCount(Procedure $procedure, array $filters = []): array
+    public function getStatementsMovedToThisProcedureCount(Procedure $procedure, array $filters = []): StatementMovementCollection
     {
-        $to = ['total' => 0, 'procedures' => []];
+        $total = 0;
+        $procedures = [];
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
@@ -4422,27 +4439,28 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($agg['buckets'] as $bucket) {
                     /** @var Procedure $procedure */
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $to['procedures'][] = [
-                        'id'    => 'from-'.$procedure->getId(),
-                        'title' => $procedure->getName(),
-                        'value' => $bucket['doc_count'],
-                    ];
-                    $to['total'] += $bucket['doc_count'];
+                    $procedures[] = new StatementMovement(
+                        'from-'.$procedure->getId(),
+                        $procedure->getName(),
+                        $bucket['doc_count']
+                    );
+                    $total += $bucket['doc_count'];
                 }
             }
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedToProcedureCount failed. ', [$e]);
         }
 
-        return $to;
+        return new StatementMovementCollection($procedures, $total);
     }
 
     /**
      * @param array $filters ['fieldName' =>[mustMatchValues]]
      */
-    public function getStatementsMovedFromThisProcedureCount(Procedure $procedure, array $filters = []): array
+    public function getStatementsMovedFromThisProcedureCount(Procedure $procedure, array $filters = []): StatementMovementCollection
     {
-        $from = ['total' => 0, 'procedures' => []];
+        $total = 0;
+        $procedures = [];
         try {
             $this->profilerStart('ES');
             $boolQuery = new BoolQuery();
@@ -4473,19 +4491,19 @@ class StatementService extends CoreService implements StatementServiceInterface
             foreach ($aggs as $agg) {
                 foreach ($agg['buckets'] as $bucket) {
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $from['procedures'][] = [
-                        'id'    => 'to-'.$procedure->getId(),
-                        'title' => $procedure->getName(),
-                        'value' => $bucket['doc_count'],
-                    ];
-                    $from['total'] += $bucket['doc_count'];
+                    $procedures[] = new StatementMovement(
+                        'to-'.$procedure->getId(),
+                        $procedure->getName(),
+                        $bucket['doc_count']
+                    );
+                    $total += $bucket['doc_count'];
                 }
             }
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementsMovedFromProcedureCount failed. ', [$e]);
         }
 
-        return $from;
+        return new StatementMovementCollection($procedures, $total);
     }
 
     /**
