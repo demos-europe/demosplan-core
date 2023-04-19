@@ -514,7 +514,7 @@
             {% if hasPermission('field_statement_votes') and statement.publicAllowed %}
 
                 <div class="layout--flush u-mb">
-                    {% include '@DemosPlanStatement/DemosPlanStatement/includes/vote_statement_messages.html.twig' %}
+                    {% include '@DemosPlanCore/DemosPlanStatement/includes/vote_statement_messages.html.twig' %}
                 </div>
                 {% if hasPermission('feature_statements_vote') %}
                     {# Voters are only relevant if statement is published or somebody already voted for it #}

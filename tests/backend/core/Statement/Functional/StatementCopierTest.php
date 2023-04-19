@@ -17,9 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanStatementBundle\Logic\StatementCopier;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementCopierTest extends FunctionalTestCase
@@ -208,7 +208,7 @@ class StatementCopierTest extends FunctionalTestCase
     }
 
     /**
-     * @throws \demosplan\DemosPlanStatementBundle\Exception\CopyException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
      */
     public function testCopyStatementWithFragments(): void
     {

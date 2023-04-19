@@ -21,16 +21,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\SubmitterValueObject;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ServiceOutput;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -145,7 +145,7 @@ class DemosPlanAssessmentController extends BaseController
         ];
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/list_orga_statements.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statements',
@@ -276,7 +276,7 @@ class DemosPlanAssessmentController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             compact('title', 'templateVars')
         );
     }
@@ -301,7 +301,7 @@ class DemosPlanAssessmentController extends BaseController
         $templateVars['table']['procedure'] = $statement->getProcedure();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.view',
