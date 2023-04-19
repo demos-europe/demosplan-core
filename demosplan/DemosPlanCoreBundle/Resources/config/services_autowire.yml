@@ -20,10 +20,6 @@ services:
         resource: '../../../../demosplan/DemosPlanReportBundle/*'
         exclude: '../../../../demosplan/DemosPlanReportBundle/{Entity,Tests}'
 
-    demosplan\DemosPlanStatementBundle\:
-        resource: '../../../../demosplan/DemosPlanStatementBundle/*'
-        exclude: '../../../../demosplan/DemosPlanStatementBundle/{Entity,Tests}'
-
     demosplan\DemosPlanUserBundle\:
         resource: '../../../../demosplan/DemosPlanUserBundle/*'
         exclude: '../../../../demosplan/DemosPlanUserBundle/{Entity,Tests}'

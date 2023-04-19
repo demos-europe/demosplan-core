@@ -11,7 +11,7 @@
 namespace Tests\Core\Location;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use Tests\Base\FunctionalTestCase;
 
 class MunicipalityServiceTest extends FunctionalTestCase
