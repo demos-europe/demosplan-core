@@ -12,7 +12,7 @@ namespace Tests\Core\StatementFragment;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\Normalizer;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanStatementBundle\ValueObject\StatementFragmentUpdate;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;

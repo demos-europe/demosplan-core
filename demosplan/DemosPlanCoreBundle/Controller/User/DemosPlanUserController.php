@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Event\LanguageSwitchRequestEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
@@ -32,10 +33,9 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
-use demosplan\DemosPlanStatementBundle\Exception\EntityIdNotFoundException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
 use demosplan\DemosPlanUserBundle\Logic\AddressBookEntryService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserService;
 use demosplan\DemosPlanUserBundle\Logic\CustomerService;
@@ -81,6 +81,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_complete_data",
      *     path="/willkommen"
      * )
+     *
      * @DplanPermissions("area_demosplan")
      *
      * @return RedirectResponse|Response
@@ -282,6 +283,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_orga_toeblist_changes",
      *     path="/organisations/visibilitylog"
      * )
+     *
      * @DplanPermissions("area_report_invitable_institutionlistchanges")
      *
      * @return RedirectResponse|Response
@@ -306,6 +308,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_switch_language",
      *     path="/language"
      * )
+     *
      * @DplanPermissions("feature_plain_language")
      *
      * @return RedirectResponse
@@ -336,6 +339,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_portal",
      *     path="/portal/user"
      * )
+     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -380,6 +384,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_add",
      *     path="/user/add"
      * )
+     *
      * @DplanPermissions("area_manage_users")
      *
      * @throws MessageBagException
@@ -414,6 +419,7 @@ class DemosPlanUserController extends BaseController
      *     methods={"POST"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -487,6 +493,7 @@ class DemosPlanUserController extends BaseController
      *     methods={"GET"},
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("feature_citizen_registration")
      *
      * @return RedirectResponse|Response
@@ -517,6 +524,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_user_edit",
      *     path="/user/edit"
      * )
+     *
      * @DplanPermissions("area_portal_user")
      *
      * @return RedirectResponse|Response
@@ -572,6 +580,7 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/erstellen/{organisationId}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -644,6 +653,7 @@ class DemosPlanUserController extends BaseController
      *     path="/organisation/adressen/loeschen/{organisationId}",
      *     methods={"POST"}
      * )
+     *
      * @DplanPermissions("area_admin_orga_address_book")
      *
      * @param string $organisationId
@@ -691,6 +701,7 @@ class DemosPlanUserController extends BaseController
      *     path="/portal/user/statements",
      *     options={"expose": true}
      * )
+     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent"})
      *
      * @return RedirectResponse|Response
@@ -720,6 +731,7 @@ class DemosPlanUserController extends BaseController
      *     name="DemosPlan_revoke_statement",
      *     path="/portal/user/statement/{statementId}/revoke"
      * )
+     *
      *  @DplanPermissions({"area_portal_user","feature_statement_gdpr_consent_may_revoke"})
      *
      * @return RedirectResponse|Response

@@ -18,11 +18,11 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\DuplicatedTagTopicTitleException;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TagTopicAPIController extends APIController
@@ -32,6 +32,7 @@ class TagTopicAPIController extends APIController
      *        methods={"POST"},
      *        name="dplan_api_tag_topic_create",
      *        options={"expose": true})
+     *
      * @DplanPermissions("feature_json_api_tag_topic_create")
      */
     public function createAction(

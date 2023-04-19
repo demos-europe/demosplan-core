@@ -16,6 +16,10 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
+use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\CopyException;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
 use demosplan\DemosPlanCoreBundle\Form\StatementBulkEditType;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
@@ -24,6 +28,15 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
@@ -33,19 +46,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanProcedureBundle\Logic\CurrentProcedureService;
 use demosplan\DemosPlanProcedureBundle\Logic\ProcedureService;
-use demosplan\DemosPlanStatementBundle\Exception\ClusterStatementCopyNotImplementedException;
-use demosplan\DemosPlanStatementBundle\Exception\CopyException;
-use demosplan\DemosPlanStatementBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanStatementBundle\Exception\StatementNameTooLongException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentExportOptions;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\CountyService;
-use demosplan\DemosPlanStatementBundle\Logic\MunicipalityService;
-use demosplan\DemosPlanStatementBundle\Logic\PriorityAreaService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementFilterHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
-use demosplan\DemosPlanStatementBundle\Logic\TagService;
 use demosplan\DemosPlanUserBundle\Logic\CurrentUserInterface;
 use demosplan\DemosPlanUserBundle\Logic\UserService;
 use Doctrine\Common\Collections\Collection;
@@ -810,7 +810,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $template = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement.html.twig';
         if ($isCluster) {
-            $template = '@DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
+            $template = '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/cluster_detail.html.twig';
             $clusterStatements = $templateVars['table']['statement']['cluster'];
             $templateVars['table']['countOfClusterElements'] =
                 $clusterStatements instanceof Collection ? $clusterStatements->count() : 0;
@@ -1123,7 +1123,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['form'] = $statementBulkEditForm->createView();
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'statement.bulk.edit',
@@ -1158,7 +1158,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         return $this->renderTemplate(
-            '@DemosPlanStatement/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
+            '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
             [
                 'templateVars' => $templateVars,
                 'title'        => 'fragment.bulk.edit',
