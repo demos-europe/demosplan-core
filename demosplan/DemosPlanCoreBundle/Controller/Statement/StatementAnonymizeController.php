@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanStatementBundle\Logic\AssessmentHandler;
-use demosplan\DemosPlanStatementBundle\Logic\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +34,7 @@ class StatementAnonymizeController extends BaseController
      *     name="DemosPlan_statement_anonymize_view",
      *     options={"expose": true}
      * )
+     *
      * @DplanPermissions("area_statement_anonymize")
      */
     public function statementAnonymizeAction(

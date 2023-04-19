@@ -13,9 +13,9 @@ namespace Tests\Core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
-use demosplan\DemosPlanStatementBundle\Logic\DraftStatementService;
-use demosplan\DemosPlanStatementBundle\Logic\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
 
 class StatementGeoServiceTest extends FunctionalTestCase
